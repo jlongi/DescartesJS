@@ -7,23 +7,24 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
   /**
-   * Una accion de descartes
+   * Descartes action
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen una accion de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} parameter the values of the action
    */
   descartesJS.Action = function(parent, parameter) {
     /**
-     * La aplicacion de descartes a la que corresponde la accion
-     * type DescartesApp
+     * Descartes application
+     * type {DescartesApp}
      * @private
      */
     this.parent = parent;
+
     this.evaluator = this.parent.evaluator;
   }  
   
   /**
-   * Ejecuta la accion
+   * Execute the action
    */
   descartesJS.Action.prototype.execute = function() { }
   

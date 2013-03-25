@@ -7,15 +7,15 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
   /**
-   * Un auxiliar de descartes
+   * Descartes auxiliary
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen un auxiliar de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Auxiliary = function(parent, values) {
     /**
-     * La aplicacion de descartes a la que corresponde el auxiliar
-     * type DescartesApp
+     * Descartes application
+     * type {DescartesApp}
      * @private
      */
     this.parent = parent;
@@ -24,50 +24,29 @@ var descartesJS = (function(descartesJS) {
     var parser = parent.evaluator.parser;
 
     /**
-     * El identificador del auxiliar
-     * type String
+     * identifier of the auxiliary
+     * type {String}
      * @private
      */
     this.id = "";
-    
+
     /**
-     * La expresion del auxiliar
-     * type String
+     * the expression of the auxiliary
+     * type {String}
      * @private
      */
     this.expresion = "";
 
     /**
-     * La forma en la que se evalua el auxiliar
-     * type String
+     * type of evaluation of the auxiliary
+     * type {String}
      * @private
      */
     this.evaluate = "onlyOnce";
 
-    /**
-     * El numero de elementos de un vector
-     * type Number
-     * @private
-     */
-    this.size = parser.parse("3");
-
-    /**
-     * El numero de renglones de una matriz
-     * type Number
-     * @private
-     */
-    this.rows = parser.parse("3");
-
-    /**
-     * El numero de columnas de una matriz
-     * type Number
-     * @private
-     */
-    this.columns = parser.parse("3");
-
-    // se recorre values para reemplazar los valores iniciales del auxiliar
+    // traverse the values to replace the defaults values of the object
     for (var propName in values) {
-      // solo se verifican las propiedades propias del objeto values
+      // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
@@ -75,34 +54,38 @@ var descartesJS = (function(descartesJS) {
   }  
   
   /**
-   * Inicia el algoritmo
+   * Set the first run of an algotithm
    */
   descartesJS.Auxiliary.prototype.firstRun = function() { }
 
   /**
-   * Actualiza los valores del auxiliar
+   * Update the auxiliary
    */
   descartesJS.Auxiliary.prototype.update = function() { }
   
+  var tmp;
+  var tmpExpression;
+  var i;
+  var l;
+
   /**
-   * Divide la expresion utilizando el punto y coma como delimitador y solo considera solo las expresiones no vacias
-   * @param [DescartesJS.Parser] parser es el objeto de parseo de expresiones
-   * @param [String] expression es la expresion a dividir
-   * @return [Node] regresa una lista de expresiones parseadas
+   * Split the expression using the semicolon as separator, ignoring the empty expressions
+   * @param {Parser} parser a Descartes parser object
+   * @param {String} expression the expression to split
+   * @return {Array<Node>} return an array of nodes correspoding to the expression split
    */
   descartesJS.Auxiliary.prototype.splitInstructions = function(parser, expression) {
-    var tmp;
-    var tmpExpression = [];
+    tmpExpression = [];
 
-    // se dividen todas las expresiones de la expresion separadas por punto y coma y se parsean
+    // split the expression separated
     if (expression) {
       expression = expression.split(";");
     } else {
       expression = [""];
     }
     
-    // se agregan solo las instrucciones que ejecuten algo, es decir, aquellas cuyo parseo no devuelven null
-    for (var i=0, l=expression.length; i<l; i++) {
+    // add only the instructions tha execute something, i.e. instructions whit parsing different of null
+    for (i=0, l=expression.length; i<l; i++) {
       tmp = parser.parse(expression[i], true);
       if (tmp) {
         tmpExpression.push(tmp);
@@ -110,6 +93,110 @@ var descartesJS = (function(descartesJS) {
     }
     
     return tmpExpression;
+  }
+
+  /**
+   */
+  descartesJS.Auxiliary.prototype.getPrivateVariables = function(expression) {
+    tmpExpression = [];
+
+    for (i=0, l=expression.length; i<l; i++) {
+      if (expression[i].type === "asign") {
+        tmpExpression.push(expression[i].childs[0].value);
+      }
+    }
+    
+    return tmpExpression;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Auxiliary.prototype.buildAlgorithm = function() {
+    var self = this;
+    var evaluator = self.evaluator;
+    var parser = evaluator.parser;
+
+    // parse the init expression
+    self.init = self.splitInstructions(parser, self.init);
+    
+    // NEW CODE
+    // get the private vars in the function
+    // self.privateVars = self.getPrivateVariables(self.init);
+    self.privateVars = [];
+    // NEW CODE
+
+    // parse the do expression
+    self.doExpr = self.splitInstructions(parser, self.doExpr);
+    
+    // parse the while expression
+    if (self.whileExpr) {
+      self.whileExpr = parser.parse(self.whileExpr);
+    }
+
+    // NEW CODE
+    var localVars;
+    // NEW CODE
+    var paramsTemp;
+    var i;
+    var l;
+    var privateVarL = self.privateVars.length;
+    var paramsL = self.params.length;
+    var initL = self.init.length;
+    var doL = self.doExpr.length;
+
+    function algorithmExec() {
+      if (self.numberOfParams == arguments.length) {
+
+        // NEW CODE
+        // saves the private variables
+        localVars = [];
+        for (i=0; i<privateVarL; i++) {
+          localVars.push( evaluator.getVariable(self.privateVars[i]) );
+        }
+        // NEW CODE
+
+        // saves the variable values ​​that have the same names as function parameters
+        paramsTemp = [];
+        for (i=0; i<paramsL; i++) {
+          paramsTemp.push( evaluator.getVariable(self.params[i]) );
+
+          // associated input parameters of the function with parameter names
+          evaluator.setVariable(self.params[i], arguments[i]);
+        }
+
+        for (i=0; i<initL; i++) {
+          evaluator.evalExpression(self.init[i]);
+        }
+        
+        do {
+          for (i=0; i<doL; i++) {
+            evaluator.evalExpression(self.doExpr[i]);
+          }
+        }
+        while (evaluator.evalExpression(self.whileExpr) > 0);
+
+        // evaluates to the return value
+        result = evaluator.evalExpression(self.expresion);
+        descartesJS.rangeOK = evaluator.evalExpression(self.domain);
+
+        // restore the variable values that have the same names as function parameters
+        for (i=0; i<paramsL; i++) {
+          evaluator.setVariable(self.params[i], paramsTemp[i]);
+        }
+
+        // NEW CODE
+        // restore the local variable values
+        for (i=0; i<privateVarL; i++) {
+          evaluator.setVariable(self.privateVars[i], localVars[i]);
+        }
+        // NEW CODE
+
+        return result;
+      }
+    }
+
+    return algorithmExec;
   }
 
   return descartesJS;

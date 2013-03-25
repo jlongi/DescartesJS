@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un evento de descartes
+   * Descartes event
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el evento
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Event = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
     
     var evaluator = this.evaluator;
@@ -23,18 +23,17 @@ var descartesJS = (function(descartesJS) {
 
     this.action = this.parent.lessonParser.parseAction(this);
     
-    // si la forma en la que se ejecuta el evento es onlyOnce
+    // if the type of evaluation is onlyOnce
     if (this.execution == "onlyOnce") {
       this.eventExec = function() {
-        if ((evaluator.evalExpression(this.condition) > 0) && !this.lastEvaluation) {
-//           console.log("onlyOnce");
+        if ((evaluator.evalExpression(this.condition) > 0) && (!this.lastEvaluation)) {
           this.lastEvaluation = true;
           this.action.execute();
         }
       }
     }
     
-    // si la forma en la que se ejecuta el evento es alternate
+    // if the type of evaluation is alternate
     if (this.execution == "alternate") {
       this.eventExec = function() {
         var cond = (evaluator.evalExpression(this.condition) > 0);
@@ -51,15 +50,15 @@ var descartesJS = (function(descartesJS) {
         //////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////
-        // los otros descartes 
+        // other versions
         else {
-          // si la condicion esta en verdadero y la ultima vez no se ejecuto, entonce se ejectua el evento
-          if (cond && !this.lastEvaluation) {
+          // if the condition was true and the last time was not executed, then the event is executed
+          if ((cond) && (!this.lastEvaluation)) {
             this.action.execute();
             this.lastEvaluation = true;
           }
-          // si ya se ejecuto una vez y la condicion paso a falso, entonces se puede volver a ejecutar el evento
-          else if (!cond && this.lastEvaluation){
+          // if already run once and the condition is evaluated to false, then rerun the event
+          else if ((!cond) && (this.lastEvaluation)) {
             this.lastEvaluation = false;
           }
         }
@@ -67,8 +66,8 @@ var descartesJS = (function(descartesJS) {
         
       }
     }
-    
-    // si la forma en la que se ejecuta el evento es always
+
+    // if the type of evaluation is always
     if (this.execution == "always") {
       this.eventExec = function() {
         if (evaluator.evalExpression(this.condition) > 0) {
@@ -80,12 +79,12 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Event, descartesJS.Auxiliary);
 
   /**
-   * Actualiza el evento
+   * Update the event
    */
   descartesJS.Event.prototype.update = function() {
     this.eventExec();

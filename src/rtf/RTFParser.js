@@ -7,7 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
   /**
-   * 
+   * Descartes RTF parser
    * @constructor 
    */
   descartesJS.RTFParser = function(evaluator) {
@@ -15,21 +15,54 @@ var descartesJS = (function(descartesJS) {
     this.tokenizer = new descartesJS.RTFTokenizer();
   }
   
+  var tokens;
+  var indexToken;
+  var fontTable;
+  var openBlockIndex;
+  var tempI;
+  var colorTable;
+  var colorTableIndex;
+  var r;
+  var g;
+  var b;
+  var newNode;
+  var lastNode;
+  var lastDynamicNode;
+  var lastMatrixNode;
+  var lastPartsNode;
+  var descartesFormula;
+  var dinamycText;
+  var setDecimals;
+  var setRows;
+  var setColumns;
+  var setParts;
+  var currentBlock;
+  var styleStack;
+  var styleStackTop;
+  var stableWidth;
+  var blockNum;
+  var formulaBlock;
+  var formulaStack;
+  var hasFormula;
+  var descartesComponentNumCtrl;
+  var descartesComponentSpace;
+  var descartesHyperLink;
+
   /**
-   * 
-   * @constructor 
+   * Parse a string and get a rtf parse tree
+   * @param {String} input the input string to parse
+   * @param {RTFNode} return a parse tree corresponding to the rtf input
    */
   descartesJS.RTFParser.prototype.parse = function(input) {
     // console.log(input);
-    var tokens = this.tokenizer.tokenize(input);
+    tokens = this.tokenizer.tokenize(input);
     tokens = checkMathSymboslInFormula(tokens);
-    var indexToken = 0;
-    var fontTable = {};
-    var openBlockIndex;
-    var tempI = 2;
-    //console.log(tokens);
+    indexToken = 0;
+    fontTable = {};
+    tempI = 2;
+    // console.log(tokens);
     
-    // se construye el bloque de tipografias
+    // build the font block
     if ( (tokens[0].type == "openBlock") && (tokens[1].value == "fonttbl") ) {
       openBlockIndex = tokens[0].value;
       
@@ -41,11 +74,10 @@ var descartesJS = (function(descartesJS) {
       tempI++;
     }
 
-    var colorTable = {};
-    var colorTableIndex = 0;
-    var r, g, b;
+    colorTable = {};
+    colorTableIndex = 0;
     
-    // se contruye el bloque de colores
+    // build the color block
     if ( (tokens[tempI].type == "openBlock") && (tokens[tempI+1].value == "colortbl") ) {
       openBlockIndex = tokens[tempI++].value;
       
@@ -55,7 +87,11 @@ var descartesJS = (function(descartesJS) {
         r = parseInt(tokens[tempI++].value.substring(3)).toString(16);
         g = parseInt(tokens[tempI++].value.substring(5)).toString(16);
         b = parseInt(tokens[tempI++].value.substring(4)).toString(16);
-        
+
+        if (tokens[tempI].value === ";") {
+          tempI++;
+        }
+
         // #rrggbb
         colorTable[colorTableIndex++] = "#" + ((r.length < 2)? "0"+r : r) + ((g.length < 2)? "0"+g : g) + ((b.length < 2)? "0"+b : b);
       }
@@ -63,105 +99,95 @@ var descartesJS = (function(descartesJS) {
       tempI++;      
     }
 
-    // nodos iniciales del arbol de parseo
-    var newNode = new descartesJS.RTFNode(this.evaluator, "", "textBlock", "", false, "");
-    var lastNode = new descartesJS.RTFNode(this.evaluator, "", "textLineBlock", "", false, "");
+    // initial parse tree nodes
+    newNode = new descartesJS.RTFNode(this.evaluator, "", "textBlock", "", false, "");
+    lastNode = new descartesJS.RTFNode(this.evaluator, "", "textLineBlock", "", false, "");
     newNode.addChild(lastNode);
     
-    var lastDynamicNode;
-    var lastMatrixNode;
-    var lastPartsNode;
-    var descartesFormula = false;
-    var dinamycText = false;
-    var setDecimals = false;
-    var setRows = false;
-    var setColumns = false;
-    var setParts = false;
-    var currentBlock = [];
-//     var styleStack = [ new descartesJS.FontStyle(20, "Arial", "", "", false, false, "#000000") ];
-    var styleStack = [ new descartesJS.FontStyle(20, "Arial", "", "", false, false, null) ];
-    var styleStackTop = styleStack[0];
-    var stableWidth = true;
+    lastDynamicNode = null;
+    lastMatrixNode = null;
+    lastPartsNode = null;
+    descartesFormula = false;
+    dinamycText = false;
+    setDecimals = false;
+    setRows = false;
+    setColumns = false;
+    setParts = false;
+    currentBlock = [];
+    styleStack = [ new descartesJS.FontStyle(20, "Arial", "", "", false, false, null) ];
+    styleStackTop = styleStack[0];
+    stableWidth = true;
 
-    var blockNum = -1;
-    var formulaBlock = -1;
-    var formulaStack = [];
+    blockNum = -1;
+    formulaBlock = -1;
+    formulaStack = [];
     
-    // bandera para saber si el texto contiene una formula
-    var hasFormula = false;
+    // has formula flag 
+    hasFormula = false;
     
-    // componente de texto rtf de arquimedes
-    var descartesComponentNumCtrl = false;
-    var descartesComponentSpace = false;
-    var descartesHyperLink = false;
+    // arquimedes rft components
+    descartesComponentNumCtrl = false;
+    descartesComponentSpace = false;
+    descartesHyperLink = false;
     
-    // se contruyen los nodos de texto
+    // build the text nodes
     for (var i=tempI, l=tokens.length; i<l; i++) {
-      // se especifica la fuente
+      // font type
       if ((tokens[i].type == "controlWord") && (fontTable[tokens[i].value])) {
         styleStackTop.fontType = fontTable[tokens[i].value];
         continue;
       }
-      
-      // se especifica el tamano de la fuente
+      // font size
       else if ((tokens[i].type == "controlWord") && (tokens[i].value.match(/^fs(\d+)/))) {
         styleStackTop.fontSize = parseInt(((tokens[i].value.match(/^fs(\d+)/))[1])/2);
         continue;
       }
-      
-      // se especifica si es negrita
+      // init bold text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "b")) {
         styleStackTop.textBold = "bold";
         continue;
       }
-      // se especifica si ya no es negrita 
+      // end bold text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "b0")) {
         styleStackTop.textBold = "";
         continue;
       }
-      
-      // se especifica si es italica
+      // init italic text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "i")) {
         styleStackTop.textItalic = "italic";
         continue;
       }
-      // se especifica si ya no es italica
+      // end italic text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "i0")) {
         styleStackTop.textItalic = "";
         continue;
       }
-      
-      // se especifica si esta subrayado
+      // init underline text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "ul")) {
         styleStackTop.textUnderline = true;
         continue;
       }
-
-      // se especifica si ya no esta subrayado
+      // end underline text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "ulnone")) {
         styleStackTop.textUnderline = false;
         continue;
       }
-      
-      // se especifica si tiene una linea sobre el texto
+      // init overline text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "ol")) {
         styleStackTop.textOverline = true;
         continue;
       }
-
-      // se especifica si ya no tiene una linea sobre el texto
+      // end overline text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "olnone")) {
         styleStackTop.textOverline = false;
         continue;
       }
-      
-      // se especifica el color del texto
+      // color text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value.match(/^cf(\d+)/))) {
         styleStackTop.textColor = colorTable[parseInt(tokens[i].value.substring(2))];
         continue;
       }
-
-      // se especifica el inicio de un bloque de rtf generalemente para expresiones o formulas
+      // init a rtf block, expressions or formulas
       else if (tokens[i].type == "openBlock") {
         blockNum = tokens[i].value;
         
@@ -172,8 +198,7 @@ var descartesJS = (function(descartesJS) {
 
         continue;
       }
-      
-      // se especifica el cierre de un bloque de rtf generalemente para expresiones o formulas
+      // close a rtf block, espressions or formulas
       else if (tokens[i].type == "closeBlock") {
         if (tokens[i].value == formulaBlock) {
           formulaBlock = -1;
@@ -188,14 +213,13 @@ var descartesJS = (function(descartesJS) {
 
         continue;
       }
-
-      // se especifica un salto de linea
+      // a new line
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "par")) {
         lastNode.addChild( new descartesJS.RTFNode(this.evaluator, "", "newLine", styleStackTop.clone()) );
         
         newNode = new descartesJS.RTFNode(this.evaluator, "", "textLineBlock", styleStackTop.clone());
         
-        // se busca un textBlock para
+        // find a textBlock to add the new line
         if (lastNode.nodeType != "textBlock") {
           lastNode = lastNode.parent;
          
@@ -209,8 +233,7 @@ var descartesJS = (function(descartesJS) {
 
         continue;
       }
-
-      // se especifica una formula de descartes
+      // descartes formula
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "mjaformula")) {
         hasFormula = true;
         formulaBlock = blockNum;
@@ -223,8 +246,7 @@ var descartesJS = (function(descartesJS) {
         formulaStack[formulaStack.length-1] = newNode;
         continue;
       }
-
-      // se especifica una fraccion, una raiz, una suma, una integral, un limite
+      // fraction, sum, integral and limit
       else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "fraction") || 
                                                      (tokens[i].value == "radicand") || 
                                                      (tokens[i].value == "radical") ||
@@ -237,44 +259,42 @@ var descartesJS = (function(descartesJS) {
 
         newNode = new descartesJS.RTFNode(this.evaluator, "",  tokens[i].value, tmpStyle);
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
         
         continue;
       }
-
-      // se especifica el indice de una raiz, hasta donde va la suma o la integral, desde donde va la suma o la integral
+      // root index, limits of sum and integral
       else if ((tokens[i].type == "controlWord") && ( (tokens[i].value == "index")) || 
                                                       (tokens[i].value == "to") ||
                                                       (tokens[i].value == "from") ) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
         tmpStyle.fontSize = parseInt(tmpStyle.fontSize - tmpStyle.fontSize*.2);
 
-        // el tamano de la tipografia no debe ser menor que 8
+        // the size of the font can not be less than 8
         if (tmpStyle.fontSize < 8) {
           tmpStyle.fontSize = 8;
         }
 
         newNode = new descartesJS.RTFNode(this.evaluator, "", tokens[i].value, tmpStyle);
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
         
         continue;
       }
-      
-      // se especifica el numerador o el denominador de una fraccion
+      // numerator or denominator of a fraction
       else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "num") || (tokens[i].value == "den"))) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
         tmpStyle.fontSize = Math.round(tmpStyle.fontSize - tmpStyle.fontSize*.1);
 
-        // el tamano de la tipografia no debe ser menor que 8
+        // the size of the font can not be less than 8
         if (tmpStyle.fontSize < 8) {
           tmpStyle.fontSize = 8;
         }
@@ -286,21 +306,20 @@ var descartesJS = (function(descartesJS) {
           newNode = new descartesJS.RTFNode(this.evaluator, "", "denominator", tmpStyle);
         }
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
         
         continue;
       }
-      
-      // se especifica si el texto es un subindice o un superindice
+      // subindex or superindex
       else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "subix") || (tokens[i].value == "supix"))) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
         tmpStyle.fontSize = Math.floor(tmpStyle.fontSize - tmpStyle.fontSize/3);
         
-        // el tamano de la tipografia no debe ser menor que 8
+        // the size of the font can not be less than 8
         if (tmpStyle.fontSize < 8) {
           tmpStyle.fontSize = 8;
         }
@@ -314,25 +333,24 @@ var descartesJS = (function(descartesJS) {
         
         newNode.originalStyle = formulaStack[formulaStack.length-2].style.clone();
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
         
         continue;        
       }
-      
-      // se especifica un defparts, una matriz o un elemento
+      // defparts, a matrix or an element
       else if ((tokens[i].type == "controlWord") && ( (tokens[i].value == "defparts") || (tokens[i].value == "matrix") || (tokens[i].value == "element") )) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
 
         newNode = new descartesJS.RTFNode(this.evaluator, "", tokens[i].value, tmpStyle);
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
                
         if (tokens[i].value == "defparts") {
@@ -344,97 +362,81 @@ var descartesJS = (function(descartesJS) {
 
         continue;        
       }
-
-      // se especifica el numero de renglones de una matriz
+      // number of parts
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "parts")) {
         setParts = true;
         continue;
       }
-      
-      // se le pasa el numero de renglones
+      // set the number of parts
       else if ((tokens[i].type == "text") && (setParts)) {
         lastPartsNode.parts = (parseInt(tokens[i].value));
         setParts = false;
         continue;
       }
-
-      // se especifica el numero de renglones de una matriz
+      // number of rows
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "rows")) {
         setRows = true;
         continue;
       }
-      
-      // se le pasa el numero de renglones
+      // set the number of rows
       else if ((tokens[i].type == "text") && (setRows)) {
         lastMatrixNode.rows = (parseInt(tokens[i].value));
         setRows = false;
         continue;
       }
-      
-      // se especifica el numero de columnas de una matriz
+      // number of columns
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "columns")) {
         setColumns = true;
         continue;
       }
-      
-      // se le pasa el numero de renglones
+      // set the number of columns
       else if ((tokens[i].type == "text") && (setColumns)) {
         lastMatrixNode.columns = (parseInt(tokens[i].value));
         setColumns = false;
         continue;
       }
-                
-      // se especifica si es un texto dinamico
+      // dinamyc text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "expr")) {
         stableWidth = false;
         dinamycText = true;
         continue;
       }
-      
-      // se especifica si el texto lleva decimales
+      // number of decimals in the text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "decimals")) {
         setDecimals = true;
         continue;
       }
-      
-      // se le pasa el numero de decimales al texto
+      // set the number of decimals
       else if ((tokens[i].type == "text") && (setDecimals)) {
         lastDynamicNode.decimals = this.evaluator.parser.parse(parseInt(tokens[i].value)+"");
         setDecimals = false;
         continue;
       }
-      
-      // se especifica si el texto tiene una representacion fija de decimales
+      // init fixed representation
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "fixed1")) {
         lastDynamicNode.fixed = true;
         continue;
       }
-      // se especifica si el texto tiene una representacion fija de decimales
+      // end fixed representation
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "fixed0")) {
         lastDynamicNode.fixed = false;
         continue;
       }
-      
-      // un componente
+      // a component
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "component")) { }
-      
-      // componente del tipo control
+      // a control component
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "NumCtrl")) {
         descartesComponentNumCtrl = true;
       }
-      
-      // componente del tipo espacio
+      // a space component
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "Space")) {
         descartesComponentSpace = true;
       }
-
-      // hipervinculos
+      // hyperlink
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "hyperlink")) {
         descartesHyperLink = true;
       }
-
-      // contenido del hipervinculo
-      // falta por determinar como hacer los hipervinculos
+      // hyperlink content
       else if ((tokens[i].type == "text") && (descartesHyperLink)) {
         textContent = ((tokens[i].value).split("|"))[0];
         tmpStyle = styleStackTop.clone();
@@ -456,8 +458,7 @@ var descartesJS = (function(descartesJS) {
         descartesHyperLink = false;
         continue;
       }
-
-      // componente del tipo control
+      // a control component content
       else if ((tokens[i].type == "text") && (descartesComponentNumCtrl)) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].value, "componentNumCtrl", styleStackTop.clone());
 
@@ -466,8 +467,7 @@ var descartesJS = (function(descartesJS) {
         descartesComponentNumCtrl = false;
         continue;
       }
-
-      // componente del tipo espacio
+      // a space component content
       else if ((tokens[i].type == "text") && (descartesComponentSpace)) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].value, "componentSpace", styleStackTop.clone());
 
@@ -476,30 +476,27 @@ var descartesJS = (function(descartesJS) {
         descartesComponentSpace = false;
         continue;
       }
-
-      // se crea un nodo de texto dinamico
+      // dynamic text content
       else if ((tokens[i].type == "text") && (dinamycText)) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
 
-        // se le agrega "''+" para que se utilice lo que ya se tiene implementado para los decimales en el evaluador
-        textContent = this.evaluator.parser.parse("''+(" + tokens[i].value + ")");
+        textContent = this.evaluator.parser.parse(tokens[i].value);
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "dynamicText", tmpStyle);
 
-        // se agrega el nuevo nodo al elemento anterior al tope, ya que el tope contiene el nuevo elemento a agregar
+        // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
         
-        // se coloca el valor del nuevo elemento como el tope del stack
+        // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
         
-        // se guarda una referencia al ultimo nodo dinamico para cambiar el numero de decimales que tiene asi como si su representacion es fija o no
+        // save the reference to the last dynamic node, to asign the number of decimals and the fixed representation
         lastDynamicNode = newNode;
         
         dinamycText = false;
         continue;
       }
-      
-      // se crea un nodo de texto que no es parte de una formula
+      // no formula text
       else if ((tokens[i].type == "text") && (!dinamycText) && (!descartesFormula)) {
         textContent = tokens[i].value;
 
@@ -516,48 +513,47 @@ var descartesJS = (function(descartesJS) {
         lastNode.addChild(newNode);
         continue;
       }
-
-      // se crea un nodo de texto que es parte de una formula
+      // formula text
       else if ((tokens[i].type == "text") && (!dinamycText) && (descartesFormula)) {
         textContent = tokens[i].value;
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "text", formulaStack[formulaStack.length-1].style.clone());
         
-        // se agrega el nuevo nodo de texto al tope del stack de formulas
+        // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
         
         continue;
       }
-      
-      // se crea un nodo para simbolos matematicos dentro de textos de formulas
+      // mathematic symbols parentheses
       else if ( (tokens[i].type == "(") || (tokens[i].type == ")") ) {
         var tmpStyle = formulaStack[formulaStack.length-1].style.clone();
         tmpStyle.textItalic = "";
         
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].type, "mathSymbol", tmpStyle);
 
-        // se agrega el nuevo nodo de texto al tope del stack de formulas
+        // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
         
         continue;
       }
-      // se crea un nodo para simbolos matematicos dentro de textos de formulas
+      // mathematic symbols +, -, *,  =
       else if ( (tokens[i].type == "+") || (tokens[i].type == "-") || 
                 (tokens[i].type == "*") || (tokens[i].type == "=") ) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].type, "mathSymbol", formulaStack[formulaStack.length-1].style.clone());
 
-        // se agrega el nuevo nodo de texto al tope del stack de formulas
+        // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
         
         continue;
       }
       
-      // elementos desconocidos
+      // unknown elements
       else {
 //         console.log("Desconocido ", tokens[i]);
       }
     }
 
+    // get the root node
     if (lastNode != null) {
       var rootNode = lastNode.getRoot();
       rootNode.stableWidth = stableWidth;
@@ -570,9 +566,17 @@ var descartesJS = (function(descartesJS) {
     
     return rootNode;
   }
-  
+
   /**
-   * 
+   * Font style for rtf text
+   * @param {Number} fontsize the size of the font
+   * @param {String} fontType the font family name
+   * @param {String} textItalic the flag if the text is italic
+   * @param {String} textBold the flag if the text is bold
+   * @param {Boolean} textUnderline the flag if the text is undelined
+   * @param {Boolean} textOverline the flag if the text is overlined
+   * @param {String} textColor the color of the text
+   * @constuctor
    */
   descartesJS.FontStyle = function(fontSize, fontType, textItalic, textBold, textUnderline, textOverline, textColor) {
     this.fontSize = fontSize;
@@ -585,46 +589,41 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Convert the font style to a string representation
+   * @return {String} return the string representation of the style
    */
   descartesJS.FontStyle.prototype.toString = function() {
     return (this.textBold + " " + this.textItalic + " " + this.fontSize + "px " + this.fontType).trim();
   }
   
   /**
-   * 
+   * Get a CSS style
+   * {String} retur a CSS style for the font style
    */
   descartesJS.FontStyle.prototype.toCSS = function() {
-    var cssRule = "style='font-family: " + this.fontType + "; font-size: " + this.fontSize + "px; ";
+    var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
 
     if (this.textUnderline && !this.textOverline) {
       cssRule += "text-decoration: underline; ";
     }
-    
     if (!this.textUnderline && this.textOverline) {
       cssRule += "text-decoration: overline; ";
     }
-    
     if (this.textUnderline && this.textOverline) {
       cssRule += "text-decoration: underline overline; ";
     }
-    
     if (this.textBold && !this.textItalic) {
       cssRule += "font-style: normal; font-weight: bold; ";
     }
-    
     if (!this.textBold && this.textItalic) {
       cssRule += "font-style: italic; font-weight: normal; ";
     }
-
     if (this.textBold && this.textItalic) {
       cssRule += "font-style: italic; font-weight: bold; ";
     }
-    
     if (!this.textBold && !this.textItalic) {
       cssRule += "font-style: normal; font-weight: normal; ";
     }
-    
     if (this.textColor) {
       cssRule += "color: " + this.textColor + "; ";
     }
@@ -633,13 +632,14 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * 
+   * Clone a font style
+   * @return {FontStyle} return a clone font style
    */
   descartesJS.FontStyle.prototype.clone = function() {
     return new descartesJS.FontStyle(this.fontSize, this.fontType, this.textItalic, this.textBold, this.textUnderline, this.textOverline, this.textColor);
   }
 
-  checkMathSymboslInFormula = function(tokens) {
+  function checkMathSymboslInFormula(tokens) {
 //     console.log(tokens);
     var tokensResult = [];
     
@@ -649,12 +649,12 @@ var descartesJS = (function(descartesJS) {
     var currentOpenBlock = [];
     
     for (var i=0, l=tokens.length; i<l; i++) {
-      // si inicia un bloque se registra, para saber si se esta dentro de una formula o no
+      // register if open a block, to see if it is within a formula or not
       if (tokens[i].type == "openBlock") {
         currentOpenBlock.push(tokens[i].value);
       }
       
-      // si cierra un bloque se registra, para saber si se esta dentro de una formula o no
+      // register if close a block, to see if it is within a formula or not
       if (tokens[i].type == "closeBlock") {
         currentOpenBlock.pop();
         
@@ -663,25 +663,24 @@ var descartesJS = (function(descartesJS) {
         }
       }
       
-      // los parentesis dentro de una expresion no deben cambiarse
+      // the parentheses within an expression should not be changed
       if ((tokens[i].type == "controlWord") && ((tokens[i].value == "expr") || (tokens[i].value == "decimals"))) {
         ignoreText = true;
       }
       
-      // si se esta en una formula se registra, para verificar los textos dentro de ella
+      // register if is on a formula, to check the texts within it
       if ((tokens[i].type == "controlWord") && (tokens[i].value == "mjaformula")){
         inFormula = true
       }
       
-      // si el token es un texto y estamos dentro de una formula y el texto no es una expresion entonces hay que buscar parentesis
+      // if the token is a text and we are in a formula and the text is not an expression then must seek parentheses
       if ((tokens[i].type == "text") && (inFormula) && (!ignoreText)) {
         var lastIndex = 0;
         var value = tokens[i].value;
         var newValue = "";
         
-        // se recorre la cadena para buscar los parentesis y generar tokens adecuados
         for (var j=0, k=value.length; j<k; j++) {
-          // parentesis que cierra, parentesis que cierra, signo mas
+
           if ( (value.charAt(j) == "(") || (value.charAt(j) == ")") || 
                (value.charAt(j) == "+") || (value.charAt(j) == "-") || 
                (value.charAt(j) == "*") || (value.charAt(j) == "=") 
@@ -694,16 +693,15 @@ var descartesJS = (function(descartesJS) {
             lastIndex = j+1;
           }
 
-
         }
 
-        // si se termino el recorrido se agrega el resto de la cadena
+        // when end the for, add the rest of the string
         newValue = value.substring(lastIndex, j);
         if (newValue != "") {
           tokensResult.push( {type: "text", value: newValue} );
         }
       }
-      // los demas nodos
+      // other nodes
       else {
         tokensResult.push(tokens[i]);
         if ((tokens[i].type == "text") && (ignoreText)) {

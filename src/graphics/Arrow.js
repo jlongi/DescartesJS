@@ -7,46 +7,91 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
+  var mathRound = Math.round;
   
   /**
-   * Una flecha de descartes
+   * A Descartes arrow
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la flecha
-   */
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the arrow
+  */
   descartesJS.Arrow = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("5");
+
+    /**
+     * width of the point
+     * type {Node}
+     * @private
+     */
+    this.size = parent.evaluator.parser.parse("2");
+
+    /**
+     * the size of the spear (arrow)
+     * type {Node}
+     * @private
+     */
+    this.spear = parent.evaluator.parser.parse("8");
+
+    /**
+     * the color of the arrow
+     * type {String}
+     * @private
+     */
+    this.arrow = "#ee0022";
+    
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("5") : this.width;
-
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arrow, descartesJS.Graphic);
   
+  var evaluator;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var space;    
+  var midpX;
+  var midpY;
+  var desp;
+  var width1;
+  var width2;
+  var scale;
+  var vlength;
+  var coordX;
+  var coordY;
+  var coordX1;
+  var coordY1;
+  var spear;
+
   /**
-   * Actualiza la flecha
+   * Update the arrow
    */
   descartesJS.Arrow.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    var points = evaluator.evalExpression(this.expresion);
+    points = evaluator.evalExpression(this.expresion);
     this.endPoints = [];
 
     for(var i=0, l=points.length; i<l; i++){
       this.endPoints[i] = {x: points[i][0], y: points[i][1]};
     }
     
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
-      var cosTheta = Math.cos(radianAngle);
-      var senTheta = Math.sin(radianAngle);
-      var tmpRotX;
-      var tmpRotY;
+      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      cosTheta = Math.cos(radianAngle);
+      senTheta = Math.sin(radianAngle);
       
       for (var i=0, l=this.endPoints.length; i<l; i++) {
         tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
@@ -59,65 +104,60 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja la flecha
+   * Draw the arrow
    */
   descartesJS.Arrow.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.arrow, this.color);
   }
 
   /**
-   * Dibuja el rastro de la flecha
+   * Draw the trace of the arrow
    */
   descartesJS.Arrow.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.arrow, this.trace);
   }
 
   /**
-   * Funcion auxiliar para dibujar una flecha
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja la flecha
-   * @param {String} fill el color de relleno de la flecha
-   * @param {String} stroke el color del trazo de la flecha
+   * Auxiliary function for draw an arrow
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the arrow is drawn
+   * @param {String} fill the fill color of the arrow
+   * @param {String} stroke the stroke color of the arrow
    */
   descartesJS.Arrow.prototype.drawAux = function(ctx, fill, stroke){
-    var evaluator = this.evaluator;
-    var space = this.space;
-
-    var midpX, midpY;
-    var desp = 10 + evaluator.evalExpression(this.size);
-    var width1 = evaluator.evalExpression(this.width);
+    evaluator = this.evaluator;
+    space = this.space;
+    
+    desp = 10 + evaluator.evalExpression(this.size);
+    width1 = evaluator.evalExpression(this.width);
     if (width1 < 1) {
       width1 = 1;
     }
-    var width2 = Math.ceil(width1/2);
-    var scale = space.scale;
+
+    width2 = Math.ceil(width1/2);
+    scale = space.scale;
     
     this.vect = new descartesJS.Vector2D(this.endPoints[1].x-this.endPoints[0].x, this.endPoints[1].y-this.endPoints[0].y);
-    var vlength = this.vect.vectorLength();
+    vlength = this.vect.vectorLength();
     this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
-    
-//     ctx.save();
     
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
     ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
-    ctx.lineWidth = 1.0;
+    ctx.lineWidth = 2.0;
     
-    var lineDesp = (ctx.lineWidth%2 == 0) ? 0 : 0.5
-    
-    var coordX, coordY, coordX1, coordY1, spear;
     if (this.abs_coord) {
-      coordX =  this.endPoints[0].x;
-      coordY =  this.endPoints[0].y;
+      coordX =  mathRound(this.endPoints[0].x);
+      coordY =  mathRound(this.endPoints[0].y);
       
-      coordX1 = this.endPoints[1].x;
-      coordY1 = this.endPoints[1].y;
+      coordX1 = mathRound(this.endPoints[1].x);
+      coordY1 = mathRound(this.endPoints[1].y);
     } else {
-      coordX =  space.getAbsoluteX(this.endPoints[0].x);
-      coordY =  space.getAbsoluteY(this.endPoints[0].y);
+      coordX =  mathRound(space.getAbsoluteX(this.endPoints[0].x));
+      coordY =  mathRound(space.getAbsoluteY(this.endPoints[0].y));
     
-      coordX1 = space.getAbsoluteX(this.endPoints[1].x);
-      coordY1 = space.getAbsoluteY(this.endPoints[1].y);        
+      coordX1 = mathRound(space.getAbsoluteX(this.endPoints[1].x));
+      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));        
     }
     
     var spear = evaluator.evalExpression(this.spear);
@@ -145,35 +185,33 @@ var descartesJS = (function(descartesJS) {
     }
     
     ctx.beginPath();
-//     ctx.moveTo(-width2 +.5,                         MathFloor(-width2) +.5);
-//     ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(-width2) +.5);
-//     ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(-spear-width2) +.5);
-//     ctx.lineTo(MathFloor(vlength) +.5,             .5);
-//     ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(spear+width2) +.5);
-//     ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(width2) +.5);
-//     ctx.lineTo(-width2 +.5,                         MathFloor(width2) +.5);
-    ctx.moveTo(-width2 +.5,                         MathFloor(-width2) +.5);
-    ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(-width2) +.5);
-    ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(-spear-width2) +.5);
-    ctx.lineTo(MathFloor(vlength) +.5,              0);
-    ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(spear+width2) -.5);
-    ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(width2) -.5);
-    ctx.lineTo(-width2 +.5,                         MathFloor(width2) -.5);
+    // ctx.moveTo(-width2 +.5,                         MathFloor(-width2) +.5);
+    // ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(-width2) +.5);
+    // ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(-spear-width2) +.5);
+    // ctx.lineTo(MathFloor(vlength) +.5,              0);
+    // ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(spear+width2) -.5);
+    // ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(width2) -.5);
+    // ctx.lineTo(-width2 +.5,                         MathFloor(width2) -.5);
+    ctx.moveTo(-width2,                         MathFloor(-width2));
+    ctx.lineTo(MathFloor(vlength-spear-width1), MathFloor(-width2));
+    ctx.lineTo(MathFloor(vlength-2*spear),      MathFloor(-spear-width2));
+    ctx.lineTo(MathFloor(vlength),              0);
+    ctx.lineTo(MathFloor(vlength-2*spear),      MathFloor(spear+width2));
+    ctx.lineTo(MathFloor(vlength-spear-width1), MathFloor(width2));
+    ctx.lineTo(-width2,                         MathFloor(width2));
     
     ctx.closePath();
     ctx.stroke();
     ctx.fill();
     ctx.restore();
     
-    // se dibuja el texto
+    // draw the text of the arrow
     if (this.text != [""]) {
-      midpX = (coordX + coordX1)/2;
-      midpY = (coordY + coordY1)/2;
+      midpX = parseInt((coordX + coordX1)/2) -3;
+      midpY = parseInt((coordY + coordY1)/2) +3;
       
-      this.uber.drawText.call(this, ctx, this.text, midpX, midpY, stroke, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed);
+      this.uber.drawText.call(this, ctx, this.text, midpX, midpY, stroke, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
     }
-    
-//     ctx.restore();
   }
   
   return descartesJS;

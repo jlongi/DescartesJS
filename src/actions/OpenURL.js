@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una accion de abrir un URL de descartes
+   * Descartes open URL action
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el parametro de la accion
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} parameter the values of the action
    */
   descartesJS.OpenURL = function(parent, parameter) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
     
     this.parameter = parameter;
@@ -27,44 +27,39 @@ var descartesJS = (function(descartesJS) {
       this.parameter = this.parameter.substring(0, indexOfTarget-1);
     }
     
-    // el parametro es codigo de javascript
+    // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
-      this.javascript = true;
+      // this.javascript = true;
 
-      // reemplaza la codificacion de las comillas &squot; por '
+      // replace the &squot; with '
       this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
       
-      // se construye la accion, que evalua el codigo javascript
       this.actionExec = function() {
         eval(this.parameter);
       }
-    } 
-    
-    // el parametro es un archivo relativo a la pagina actual
-    else if (this.parameter.substring(0,7) != "http://") {
-      this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
-      
-      // se construye la accion, que abre una pagina relativa a la pagina actual
-      this.actionExec = function() {
-        window.open(this.parameter, this.target);
-      }
     }
-    // el parametro es un archivo con direccion absoluta
+    // if the paramater is a file name
     else {
-      // se construye la accion, que abre una pagina con direccion absoluta
+      // if the parameter is a file name relative to the current page
+      if (this.parameter.substring(0,7) != "http://") {
+        this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
+      }
+      
+      // build an action to open a new page relative to the actual page
       this.actionExec = function() {
         window.open(this.parameter, this.target);
       }
     }
+
   }  
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Action
+  // create an inheritance of Action
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.OpenURL, descartesJS.Action);
 
   /**
-   * Ejecuta la accion
+   * Execute the action
    */
   descartesJS.OpenURL.prototype.execute = function() {
     this.actionExec();

@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una constante de descartes
+   * Descartes variable
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la constante
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Variable = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
     
     var parser = this.evaluator.parser;
@@ -27,11 +27,12 @@ var descartesJS = (function(descartesJS) {
     
     if (this.editable) {
       this.registerTextField();
+      this.parent.editableRegionVisible = true;
     }    
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Variable, descartesJS.Auxiliary);
   
@@ -42,7 +43,8 @@ var descartesJS = (function(descartesJS) {
     var container = document.createElement("div");
 
     var label = document.createElement("label");
-    label.appendChild( document.createTextNode("_" + this.id + "=_") ); // se agregan guiones bajo al principio y final para determinarl el tama;o inicial de la etiqueta
+    // underscores are added at the beginning and end to determine the initial size of the label
+    label.appendChild( document.createTextNode("___" + this.id + "=___") );
     
     var textField = document.createElement("input");
     textField.value = this.expresionString;
@@ -52,10 +54,12 @@ var descartesJS = (function(descartesJS) {
     container.appendChild(textField);
 
     var self = this;
+    var parser = self.evaluator.parser;
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
-        self.expresion = self.evaluator.parser.parse(this.value);
-        self.evaluator.parser.setVariable(self.id, self.expresion)
+        self.expresion = parser.parse(this.value);
+        
+        parser.setVariable(self.id, self.expresion);
         self.parent.update();
       }
     }

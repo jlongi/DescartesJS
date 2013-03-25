@@ -7,24 +7,31 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un vector de descartes
+   * Descartes vector
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el vector
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
-  descartesJS.Vector = function(parent, values){
-    // se llama al constructor del padre
-    descartesJS.Auxiliary.call(this, parent, values);
-
-    var evaluator = this.evaluator;
+  descartesJS.Vector = function(parent, values) {
+    var evaluator = parent.evaluator;
     var parser = evaluator.parser;
+
+    /**
+     * number of elements of the vector
+     * type {Node}
+     * @private
+     */
+    this.size = parser.parse("3");
+
+    // call the parent constructor
+    descartesJS.Auxiliary.call(this, parent, values);
     
     this.expresion = this.expresion.split(";");
     
     var response;
-    // si tiene un archivo asociado entonces se lee
+    // if has an asociate file then read it
     if (this.file) {
-      // si el vector esta embedido en la pagina
+      // if the vector is embedded in the page
       var vectorElement = document.getElementById(this.file);
       if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
         response = vectorElement.text;
@@ -33,64 +40,65 @@ var descartesJS = (function(descartesJS) {
           response = response.substring(1);
         }
       }
-      // se lee el vector de un archivo
+      // read the vector data from a file
       else {
         response = descartesJS.openExternalFile(this.file);
       }
       
+      // if the reading info has content, split the content
       if (response != null) {
         response = response.split("\n");
       }
         
-      // si no tiene contenido el archivo o no se pudo leer
+      // if the file has no content or could not be read
       if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
         response = [];
         this.size = 0;
       }
-      // si tiene contenido el archivo y se pudo leer
+      // if the file has content and could be read
       else {
         this.expresion = [];
-//         this.size = parser.parse( (response.length).toString() );
         this.size = null;
       }
         
       var tmpImg;
-      var nonEmptyValuesIndex = 0; 
+      var nonEmptyValuesIndex = 0;
+      var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+
       for(var i=0, l=response.length; i<l; i++) {
         if (response[i].match(/./)) {
           this.expresion[nonEmptyValuesIndex] = this.id + "[" + nonEmptyValuesIndex + "]=" + response[i];
           nonEmptyValuesIndex++;
           
-          // si el archivo al cual hace referencia el vector contiene una imagen, hay que precargarla
-          tmpImg = response[i].match(/[\w-//]*(.png|.jpg|.gif|.svg|.PNG|.JPG|.GIF|.SVG)/g)
+          // if the value has a reference to a imagen, then preload it
+          tmpImg = response[i].match(regExpImage);
           if (tmpImg) {
             this.parent.getImage(tmpImg);
           }
         }
-//         this.expresion[i] = this.id + "[" + i + "]=" + response[i];
       }
       
-      if (this.size == null) {
+      if (this.size === null) {
         this.size = parser.parse( this.expresion.length + "" );
       }
       
     }
 
     var tmpExp;
-    // se parsean los elementos de la expresion
+    // parse the elements of the expression
     for(var i=0, l=this.expresion.length; i<l; i++) {
       tmpExp = parser.parse(this.expresion[i], true);
       
-      if (tmpExp && (tmpExp.type != "asign")) {
+      // if the expression is not an assignment
+      if ((tmpExp) && (tmpExp.type != "asign")) {
         tmpExp = parser.parse( this.id + "[" + i + "]=" + this.expresion[i], true );
       }
 
       this.expresion[i] = tmpExp;
     }
 
-    var length = evaluator.evalExpression(this.size);
     var vectInit = [];
-    for (var i=0, l=length; i<l; i++) {
+    for (var i=0, l=evaluator.evalExpression(this.size); i<l; i++) {
       vectInit.push(0);
     }
     evaluator.vectors[this.id] = vectInit;
@@ -99,18 +107,15 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Vector, descartesJS.Auxiliary);
 
   /**
-   * Actualiza el vector
+   * Update the vector
    */
   descartesJS.Vector.prototype.update = function() {
     var evaluator = this.evaluator;
-// //     var length = evaluator.evalExpression(this.size);
-// // 
-// //     evaluator.setVariable(this.id + ".long", length);
 
     evaluator.setVariable(this.id + ".long", evaluator.evalExpression(this.size));
 

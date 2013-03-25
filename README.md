@@ -7,7 +7,7 @@ Interprete para lecciones de Descartes (http://arquimedes.matem.unam.mx/), desar
 
 Descargar el archivo descartes-min.js, en el mismo directorio que la lección de Descartes que se desea interpretar.
 
-Agregar al archivo de la lección de Descartes las siguientes 2 lineas, dentro de las etiquetas \<head\> y \</head\>:
+Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre las etiquetas \<head\> y \</head\>:
 
   \<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /\>
   

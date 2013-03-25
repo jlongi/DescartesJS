@@ -7,19 +7,34 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una matriz de descartes
+   * Descartes matrix
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la matriz
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Matrix = function(parent, values){
-    // se llama al constructor del padre
+    var evaluator = parent.evaluator;
+    var parser = evaluator.parser;
+
+    /**
+     * number of rows of a matrix
+     * type {Node}
+     * @private
+     */
+    this.rows = parser.parse("3");
+
+    /**
+     * number of columns of a matrix
+     * type {Node}
+     * @private
+     */
+    this.columns = parser.parse("3");
+
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
 
-    var evaluator = this.evaluator;
-
-    // se parsea la expresion
-    this.expresion = this.splitInstructions(evaluator.parser, this.expresion);
+    // parse the expression
+    this.expresion = this.splitInstructions(parser, this.expresion);
 
     var rows = evaluator.evalExpression(this.rows);
     var cols = evaluator.evalExpression(this.columns);
@@ -41,12 +56,12 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Matrix, descartesJS.Auxiliary);
 
   /**
-   * Actualiza la matriz
+   * Update the matrix
    */
   descartesJS.Matrix.prototype.update = function() {
     var evaluator = this.evaluator;
@@ -60,9 +75,6 @@ var descartesJS = (function(descartesJS) {
     mat.rows = rows;
     mat.cols = cols;
 
-    // evaluator.setVariable(this.id + ".filas", evaluator.evalExpression(this.rows));
-    // evaluator.setVariable(this.id + ".columnas", evaluator.evalExpression(this.columns));
-        
     for(var i=0, l=this.expresion.length; i<l; i++) {
       evaluator.evalExpression(this.expresion[i]);
     }

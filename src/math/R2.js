@@ -8,8 +8,43 @@ var descartesJS = (function(descartesJS) {
 
   var MathMax = Math.max;
   var MathMin = Math.min;
+  var MathPI = Math.PI;
+  var MathCos = Math.cos;
+  var MathSin = Math.sin;
+  var MathAbs = Math.abs;
+  var aux;
+  var q;
+  var p;
+  var s;
+  var t;
+  var cost;
+  var sint;
 
+  var A11;
+  var A12;
+  var B1;
+  var A21;
+  var A22;
+  var B2;
+    
+  var mp;
+  var Mp;
+  var mq;
+  var Mq;
+  var Det;
+
+  /**
+   * Descartes R2
+   * @constructor 
+   * @param {Number} x the x position
+   * @param {Number} y the y position
+   */
   descartesJS.R2 = function(x, y) {
+    this.x = x || 0;
+    this.y = y || 0;
+  }
+
+  descartesJS.R2.prototype.set = function(x, y) {
     this.x = x || 0;
     this.y = y || 0;
   }
@@ -39,7 +74,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.R2.prototype.distance = function(p) {
-    var q = this.copy(); 
+    q = this.copy(); 
     q.sub(p); 
     
     return q.norm(); 
@@ -74,54 +109,50 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.R2.prototype.normalize = function() {
-    var abso = this.norm(); 
-    if (abso != 0.0) { 
-      this.div(abso); 
+    aux = this.norm(); 
+    if (aux != 0.0) { 
+      this.div(aux); 
     }
   }
 
   descartesJS.R2.prototype.rotR90 = function() {
-    var aux = this.x;
+    aux = this.x;
     this.x = this.y;
     this.y = -aux; 
   }
 
   descartesJS.R2.prototype.rotL90 = function() {
-    var aux = this.x;
+    aux = this.x;
     this.x = -this.y;
     this.y = aux;
   }
 
   descartesJS.R2.prototype.rot = function(t) {
-    var p = this.copy();
-    var cost = Math.cos(t);
-    var sint = Math.sin(t);
+    p = this.copy();
+    cost = MathCos(t);
+    sint = MathSin(t);
     this.x = p.x*cost - p.y*sint;
     this.y = p.x*sint + p.y*cost;
   }
 
   descartesJS.R2.prototype.rot = function(g) {
-    this.rot(g*Math.PI/180); 
+    this.rot(g*MathPI/180); 
   }
 
   descartesJS.R2.prototype.intersection = function(p1, p2, q1, q2) {
-    var A11 = (p2.x-p1.x);
-    var A12 = (q1.x-q2.x);
-    var B1 = q1.x-p1.x;
+    A11 = (p2.x-p1.x);
+    A12 = (q1.x-q2.x);
+    B1 = q1.x-p1.x;
     
-    var A21 = (p2.y-p1.y);
-    var A22 = (q1.y-q2.y);
-    var B2 = q1.y-p1.y;
-    
-    var mp;
-    var Mp;
-    var mq;
-    var Mq;
-    
-    var Det = A11*A22-A12*A21;
-    if (Math.abs(Det) > 0.000001) {
-      var s = ( B1*A22-B2*A12)/Det;
-      var t = (-B1*A21+B2*A11)/Det;
+    A21 = (p2.y-p1.y);
+    A22 = (q1.y-q2.y);
+    B2 = q1.y-p1.y;
+
+    Det = A11*A22-A12*A21;
+    if (MathAbs(Det) > 0.000001) {
+      s = ( B1*A22-B2*A12)/Det;
+      t = (-B1*A21+B2*A11)/Det;
+      
       if (0<=s && s<=1 && 0<=t && t<=1) {
         return new descartesJS.R2(p1.x+A11*s, p1.y+A21*s);
       } else {

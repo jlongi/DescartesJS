@@ -7,59 +7,36 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un algoritmo de descartes
+   * Descartes algorithm
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el algoritmo
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Algorithm = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
 
-    var tmp;
-    var evaluator = this.evaluator;
-    var parser = evaluator.parser;
+    var parser = this.evaluator.parser;
 
-    // se parsea la expresion init
-    this.init = this.splitInstructions(parser, this.init);
+    this.params = [];
+    this.numberOfParams = 0;
+    this.domain = parser.parse("1");
+    this.expresion = parser.parse("0");
 
-    // se parsea la expresion doExpr
-    this.doExpr = this.splitInstructions(parser, this.doExpr);
-    
-    // se parsea la expresion de while
-    if (this.whileExpr) {
-      this.whileExpr = parser.parse(this.whileExpr);
-    }
-    
-    // se crea la funcion a ejecutar en cada evaluacion del algoritmo
-    this.algorithmExec = function() {
-      for (var i=0, l=this.init.length; i<l; i++) {
-        evaluator.evalExpression(this.init[i]);
-      }
-      
-      do {
-        for (var i=0, l=this.doExpr.length; i<l; i++) {
-          evaluator.evalExpression(this.doExpr[i]);
-        }
-      }
-      while (evaluator.evalExpression(this.whileExpr) > 0);
-    }
-
-//     this.update();
+    this.algorithmExec = this.buildAlgorithm();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Algorithm, descartesJS.Auxiliary);
 
   /**
-   * Actualiza el algoritmo
+   * Update the algorithm
    */
   descartesJS.Algorithm.prototype.update = function() {
     this.algorithmExec();
     
-// //     if ((this.evaluate) && (this.evaluate == "onlyOnce")) {
     if (this.evaluate == "onlyOnce") {
       this.update = function() {};
     }

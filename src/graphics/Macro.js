@@ -3,17 +3,31 @@
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
 
-var descartesJS = (function(descartesJS) {
+var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un macro de descartes
+   * A Descartes macro
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el macro
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the macro
    */
   descartesJS.Macro = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the expression for determine the position of the graphic
+     * type {Node}
+     * @private
+     */
+    this.expresion = undefined;
+
+    /**
+     * the rotation of an image
+     * type {Node}
+     * @private
+     */
+    this.inirot = parent.evaluator.parser.parse("0");
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
     this.graphics = [];
@@ -21,67 +35,65 @@ var descartesJS = (function(descartesJS) {
     var lessonParser = parent.lessonParser;
     var tokenizer = new descartesJS.Tokenizer();
 
-    // se recorre values para reemplazar los valores iniciales del control
+    // traverse the values to replace the defaults values of the object
     for (var propName in values) {
-      // solo se verifican las propiedades propias del objeto values
+      // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
     }
     
-    // si la expresion se dejo en blanco
+    // if the expression is empty
     if (this.expresion == undefined) {
       return;
     }
     
-    // si el nombre del macro no fue especificado como una cadena, entonces se le agrega las comillas sencillas para convertilo en cadena
+    // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.match("'")) ) {
       this.expresion = "'" + this.expresion + "'";
     }
-
     this.expresion = this.evaluator.parser.parse(this.expresion);
-
-    // se obtiene el espacio al que pertenece el grafico
     
-    var filename = this.expresion.value; //this.evaluator.evalExpression(this.expresion)
+    var filename = this.expresion.value;
     var response;
-      
-    // si se lee el macro de un archivo externo se deben omitir solo 2 valores
+
+    // if the macro is readed from an external file omit 2 values of the string
     var sliceValue = 2; 
     
     if (filename) {
-      // si el macro esta embedido en la pagina
+      // the macro is embeded in the webpage
       var macroElement = document.getElementById(filename);
       if ((macroElement) && (macroElement.type == "descartes/macro")) {
         response = macroElement.text;
-        // si se lee del propio documento se deben omitir 3 valores
+        
+        // if is embeded then omit 3 values of the string
         sliceValue = 3;
       }
-      
-      // si el macro se lee de un archivo
+
+      // the macro is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
         
-        // se verifica que el contenido del archivo sea el de un macro de descartes
-        if (!response.match("tipo_de_macro")) {
+        // verify the content is a Descartes macro
+        if ( (response) && (!response.match("tipo_de_macro")) ) {
           response = null;
         }
       }
     }
 
     var idsMacro = "|";
-    // si se pudo leer el archivo del macro
+    // if it was posible to red the macro
     if (response) {
       response = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&") ).split("\n").slice(sliceValue);
 
       var respTemp;
       var tempIndexParenthesis;
-      
-      // se dividen las lineas en pseudotokens
+
+            
+      // lines are divided into pseudotokens
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i]) {
           response[i] = lessonParser.split(response[i]);
-          // console.log(response);
           
           if ( (response[i]) && (response[i][0]) && (response[i][0][0]) && (response[i][0][0] == "id") ) {
             respTemp = response[i][0][1];
@@ -102,51 +114,51 @@ var descartesJS = (function(descartesJS) {
       var tmpTokens;
       var tmpTokensRespText;
       
-      // se agrega el nombre del macro como prefijo, solo en algunas expresiones
+      // add the macro name as a prefix, only in some expressions
       for (var i=0, l=response.length; i<l; i++) {
         respText = response[i] || [];
        
         for (var j=0, k=respText.length; j<k; j++) {
           babelResp = babel[respText[j][0]];
 
-          // sirve para los parametros que traen un punto
+          // is useful for the parameters that have a dot
           dotIndex = respText[j][0].indexOf(".");
           if (dotIndex != -1) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
           }
-          
-          // si las expresiones son diferentes a las siguientes, entonces se sigue con el ciclo y no se sustituye nada
+
+          // if different expressions are different from this, then the cycle continues and is not replaced nothing
           if ( (babelResp != "id") && 
-            (babelResp != "text") && 
-            (babelResp != "expresion") && 
-            (babelResp != "interval") && 
-            (babelResp != "steps") && 
-            (babelResp != "drawif") && 
-            (babelResp != "size") && 
-            (babelResp != "width") && 
-            (babelResp != "center") && 
-            (babelResp != "radius") && 
-            (babelResp != "init") && 
-            (babelResp != "end") &&
-            (babelResp != "inirot") && 
-            (babelResp != "do") &&
-            (babelResp != "while") &&
-            (babelResp != "file") &&
-            (babelResp != "fill") &&
-            (babelResp != "color") ) {
-//                       console.log("nop - ", respText[j][0]);
+               (babelResp != "text") && 
+               (babelResp != "expresion") && 
+               (babelResp != "interval") && 
+               (babelResp != "steps") && 
+               (babelResp != "drawif") && 
+               (babelResp != "size") && 
+               (babelResp != "width") && 
+               (babelResp != "center") && 
+               (babelResp != "radius") && 
+               (babelResp != "init") && 
+               (babelResp != "end") &&
+               (babelResp != "inirot") && 
+               (babelResp != "do") &&
+               (babelResp != "while") &&
+               (babelResp != "file") &&
+               (babelResp != "fill") &&
+               (babelResp != "color") ) {
             continue;
           }
           
-          // es un texto
+          // is a text
           if (babelResp == "text") {
-            // si el texto es rtf hay que procesarlo de otra manera
+            // if the text is rtf must processing it diferent
             if (respText[j][1].match(/\{\\rtf1/)) {
               var textTemp = respText[j][1];
  
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
               var self = this;
-              // funcion para reemplazar las expresiones
+
+              // function to replace expresions
               var funReplace = function(str, m1) {
                 var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
                 
@@ -155,7 +167,7 @@ var descartesJS = (function(descartesJS) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
 
-                  // si el identificador tiene un punto, por ejemplo vector.long
+                  // if the identifier has a dot (example vector.long)
                   else if ((tokens[t].type == "identifier") && ((dotIndex = (tokens[t].value).indexOf(".")) != -1)) {
                     if (idsMacro.match("\\|" + tokens[t].value.substring(0, dotIndex) + "\\|")) {
                       tokens[t].value = self.name + "." + tokens[t].value;
@@ -174,7 +186,7 @@ var descartesJS = (function(descartesJS) {
               
               respText[j][1] = textTemp;
             }
-            // texto simple
+            // simple text
             else {
               tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacros;
 
@@ -202,7 +214,7 @@ var descartesJS = (function(descartesJS) {
                 tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
               }
               
-              // si el identificador tiene un punto, por ejemplo vector.long
+              // if the identifier has a dot (example vector.long)
               else if ((tmpTokens[t].type == "identifier") && ((dotIndex = (tmpTokens[t].value).indexOf(".")) != -1)) {
                 if (idsMacro.match("\\|" + tmpTokens[t].value.substring(0, dotIndex) + "\\|")) {
                   tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
@@ -217,16 +229,16 @@ var descartesJS = (function(descartesJS) {
 
       var tempResp;
       
-      // se aplanan las expresiones, para despues poder contruir los elementos
+      // flat the expresions to obtain a string
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i][0]) {
           tempResp = "";
           for (var j=0, k=response[i].length; j<k; j++) {
-            // si no es un objeto grafico
+            // if not a graphic object
             if (babel[response[i][j][0]] != "type") {
               response[i][j] = response[i][j][0] + "='" + response[i][j][1] + "' ";
             }
-            // si es un objeto grafico hay que agregarle el espacio al que pertenece
+            // if is a graphic object, add the corresponding space
             else {
               response[i][j] = "espacio='" + this.spaceID + "' " + response[i][j][0] + "='" + response[i][j][1] + "' ";
             }
@@ -234,11 +246,12 @@ var descartesJS = (function(descartesJS) {
           }
           
           response[i] = tempResp;
-          
-          // se construyen y se agregan los elementos
+
+          // build and add the graphic elements to the space
           if (tempResp.match(/^espacio/)) {
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
+          // build and add the axiliaries to the scene
           else {
             lessonParser.parseAuxiliar(response[i]);
           }
@@ -248,12 +261,12 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Macro, descartesJS.Graphic);
     
   /**
-   * Actualiza el macro
+   * Update the macro
    */
   descartesJS.Macro.prototype.update = function() {
     if (this.inipos) {
@@ -264,12 +277,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Funcion auxiliar para dibujar un macro
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el macro
+   * Auxiliary function for draw a macro
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the macro is drawn
    */
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
-//       ctx.save();
 
       if (this.inipos) {
         if (this.graphics[i].abs_coord) {
@@ -281,12 +293,10 @@ var descartesJS = (function(descartesJS) {
       
       this.graphics[i].draw();
 
-      // se resetean las trasnformaciones
+      // reset the transformations
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-//       ctx.restore();
     }      
   }
 
   return descartesJS;
-})(descartesJS || {});
+})(descartesJS || {}, babel);

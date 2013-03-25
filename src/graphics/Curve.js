@@ -6,104 +6,142 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var mathRound = Math.round;
+
   /**
-   * Una curva de descartes
+   * A Descartes curve
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la curva
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the curve
    */
   descartesJS.Curve = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * parameter for drawing a curve
+     * type {String}
+     * @private
+     */
+    this.parameter = "t";
+    
+    /**
+     * the interval of the curve
+     * type {Node}
+     * @private
+     */
+    this.parameter_interval = parent.evaluator.parser.parse("[0,1]");
+
+    /**
+     * the number of steps of the curve
+     * type {Node}
+     * @private
+     */
+    this.parameter_steps = parent.evaluator.parser.parse("8");
+
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("1");
+
+    /**
+     * the condition and the color of the fill
+     * type {String}
+     * @private
+     */
+    this.fill = "";
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("1") : this.width;
-
-    // ## parche para la version de descartes 2 ## //
+    // Descartes 2 visible
     this.visible = ((this.parent.version == 2) && (this.visible == undefined)) ? true : false;
-
     if (this.visible) {
       this.registerTextField();
     }
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Curve, descartesJS.Graphic);
   
+  var evaluator;
+  var para;
+  var space;
+  var tmpLineWidth;
+  var lineDesp;
+  var tempParam;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+
   /**
-   * Actualiza la curva
+   * Update the curve
    */
   descartesJS.Curve.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    var para = evaluator.evalExpression(this.parameter_interval);
+    para = evaluator.evalExpression(this.parameter_interval);
 
-    this.paraInf = para[0][0]; //el primer valor de la primera expresion
-    this.paraSup = para[0][1]; //el segundo valor de la primera expresion
+    this.paraInf = para[0][0]; // the first value of the first expression
+    this.paraSup = para[0][1]; // the second value of the first expression
 
     this.pSteps = evaluator.evalExpression(this.parameter_steps);
     this.paraSep = (this.pSteps > 0) ? Math.abs(this.paraSup - this.paraInf)/this.pSteps : 0;
   }
 
   /**
-   * dibuja la curva
+   * Draw the curve
    */
   descartesJS.Curve.prototype.draw = function(){
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.fill, this.color);
   }
 
   /**
-   * Dibuja el rastro de la curva
+   * Draw the trace of the curve
    */
   descartesJS.Curve.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar una curva
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja una curva
-   * @param {String} fill el color de relleno de una curva
-   * @param {String} stroke el color del trazo de una curva
+   * Auxiliary function for draw a curve
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the curve is drawn
+   * @param {String} fill the fill color of the curve
+   * @param {String} stroke the stroke color of the curve
    */
   descartesJS.Curve.prototype.drawAux = function(ctx, fill, stroke){
-    var evaluator = this.evaluator;
-    var space = this.space;
+    evaluator = this.evaluator;
+    space = this.space;
 
-    // el ancho de una linea no puede ser 0 ni negativa
-    var tmpLineWidth = this.evaluator.evalExpression(this.width);
-    if (tmpLineWidth <=0) {
-      tmpLineWidth = 0.000001;
-    }
-    ctx.lineWidth = tmpLineWidth;
+    // the width of a line can not be 0 or negative
+    tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
+    ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
     ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
     
-    var tempParam = evaluator.getVariable(this.parameter);
+    tempParam = evaluator.getVariable(this.parameter);
     
     ctx.beginPath();
     
     evaluator.setVariable(this.parameter, this.paraInf);
     
-    var expr = evaluator.evalExpression(this.expresion);
-    this.exprX = (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]);
-    this.exprY = (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]);
+    expr = evaluator.evalExpression(this.expresion);
+    this.exprX = (this.abs_coord) ? mathRound(expr[0][0]) : mathRound(space.getAbsoluteX(expr[0][0]));
+    this.exprY = (this.abs_coord) ? mathRound(expr[0][1]) : mathRound(space.getAbsoluteY(expr[0][1]));
 
-    //MACRO//
-    // se rotan los elementos en caso de ser un macro con rotacion
-    var radianAngle;
-    var cosTheta;
-    var senTheta;
-    var tmpRotX;
-    var tmpRotY;
-
+    // MACRO //
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(this.evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
       
@@ -112,27 +150,29 @@ var descartesJS = (function(descartesJS) {
       this.exprX = tmpRotX;
       this.exprY = tmpRotY;
     }
-    //MACRO//
+    // MACRO //
     
-    ctx.moveTo(this.exprX+.5, this.exprY+.5);
+    lineDesp = .5;
+
+    ctx.moveTo(this.exprX+lineDesp, this.exprY+lineDesp);
     for(var i=1; i<=this.pSteps; i++) {
       evaluator.setVariable( this.parameter, (this.paraInf+(i*this.paraSep)) );
       
       expr = evaluator.evalExpression(this.expresion);
-      this.exprX = (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]);
-      this.exprY = (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]);
+      this.exprX = (this.abs_coord) ? mathRound(expr[0][0]) : mathRound(space.getAbsoluteX(expr[0][0]));
+      this.exprY = (this.abs_coord) ? mathRound(expr[0][1]) : mathRound(space.getAbsoluteY(expr[0][1]));
 
-      //MACRO//
-      // se rotan los elementos en caso de ser un macro con rotacion
+      // MACRO //
+      // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
         tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
         tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
         this.exprX = tmpRotX;
         this.exprY = tmpRotY;
       }
-      //MACRO//
+      // MACRO //
       
-      ctx.lineTo(this.exprX+.5, this.exprY+.5);
+      ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
     }
         
     if (this.fill) {
@@ -140,13 +180,11 @@ var descartesJS = (function(descartesJS) {
     }
     ctx.stroke();
     
-    evaluator.setVariable(this.parameter, tempParam);
-        
-//     ctx.restore()
+    evaluator.setVariable(this.parameter, tempParam);        
   }
     
   /**
-   * 
+   * Register a text field in case the curve expression is editable
    */
   descartesJS.Curve.prototype.registerTextField = function() {
     var textField = document.createElement("input");
@@ -163,5 +201,6 @@ var descartesJS = (function(descartesJS) {
    
     this.parent.editableRegion.textFields.push(textField); 
   }
+
   return descartesJS;
 })(descartesJS || {});

@@ -9,21 +9,34 @@ var descartesJS = (function(descartesJS) {
   var mathRound = Math.round;
 
   /**
-   * Un poligono de descartes
+   * A Descartes polygon
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el poligono
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the polygon
    */
   descartesJS.Polygon = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("1");
+
+    /**
+     * the condition and the color of the fill
+     * type {String}
+     * @private
+     */
+    this.fill = "";
+    
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("1") : this.width;
     this.endPoints = [];
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Polygon, descartesJS.Graphic);
   
@@ -39,8 +52,9 @@ var descartesJS = (function(descartesJS) {
   var lineDesp;
   var coordX;
   var coordY;
+
   /**
-   * Actualiza el poligono
+   * Update polygon
    */
   descartesJS.Polygon.prototype.update = function() {
     evaluator = this.evaluator;
@@ -51,7 +65,7 @@ var descartesJS = (function(descartesJS) {
       this.endPoints[i] = { x: points[i][0], y: points[i][1] };
     }
     
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
@@ -67,31 +81,32 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Dibuja el poligono
+   * Draw the polygon
    */
   descartesJS.Polygon.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.fill, this.color);
   }
   
   /**
-   * Dibuja el rastro del poligono
+   * Draw the trace of the polygon
    */
   descartesJS.Polygon.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar un poligono
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el poligono
-   * @param {String} fill el color de relleno del poligono
+   * Auxiliary function for draw a polygon
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the polygon is drawn
+   * @param {String} fill the fill color of the polygon
+   * @param {String} stroke the stroke color of the polygon
    */
   descartesJS.Polygon.prototype.drawAux = function(ctx, fill, stroke) {
     evaluator = this.evaluator;
     space = this.space;
 
-    // el ancho de una linea no puede ser 0 ni negativa
+    // the width of a line can not be 0 or negative
     tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
     
@@ -100,7 +115,7 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     
-    lineDesp = .5;
+    lineDesp = (tmpLineWidth > 0) ? .5 : 0;
 
     coordX = (this.abs_coord) ? mathRound(this.endPoints[0].x) : mathRound(space.getAbsoluteX(this.endPoints[0].x));
     coordY = (this.abs_coord) ? mathRound(this.endPoints[0].y) : mathRound(space.getAbsoluteY(this.endPoints[0].y));
@@ -109,18 +124,18 @@ var descartesJS = (function(descartesJS) {
     ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
     
     for(var i=1, l=this.endPoints.length; i<l; i++) {
-      coordX = (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x);
-      coordY = (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y);
+      coordX = (this.abs_coord) ? mathRound(this.endPoints[i].x) : mathRound(space.getAbsoluteX(this.endPoints[i].x));
+      coordY = (this.abs_coord) ? mathRound(this.endPoints[i].y) : mathRound(space.getAbsoluteY(this.endPoints[i].y));
       
       ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
     }
     
-    // se rellena el poligono
+    // draw the fill
     if (this.fill) {
       ctx.fill();
     }
     
-    // se dibuja el borde
+    // draw the stroke
     ctx.stroke();
   }
   

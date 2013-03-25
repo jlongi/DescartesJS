@@ -10,12 +10,32 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var MathRandom = Math.random;
   var MathRound = Math.round;
+  var MathAbs = Math.abs;
   var stringfromCharCode = String.fromCharCode;
   
+  var a1 = 1.0;
+  var a2 = 1.4;
+  var a3 = 0.6;
+  var a4 = 2.2;
+
+  var ll;
+
+  var n;
+  var k;
+  var a;
+  var b;
+  var c;
+
+  var encripMeu;
+  var desencripMeu;
+  var nx;
+  var x;
+  var y;
+
   /**
-   * 
+   * Descartes krypto
    * @constructor 
-   * @param {string} key la llave de encriptacion
+   * @param {String} key the key of encryptation
    */
   descartesJS.Krypto = function(key){
     key = key || 0;
@@ -23,45 +43,38 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * @param Number n 
-   * @return String
+   * @param {Number} n
+   * @return {String}
    */
   descartesJS.Krypto.prototype.getKey = function(n) {
-    var a1 = 1.0;
-    var a2 = 1.4;
-    var a3 = 0.6;
-    var a4 = 2.2;
-   
-    var ll = new Array(256);
+    ll = [];
     for (var i=0; i<256; i++) {
-      ll[i] = stringfromCharCode(this.alfanum( MathFloor( Math.abs(7.5*(MathSin(a1*i-n) + MathSin(a2*i+n) + MathSin(a3*i-n) + MathSin(a4*i+n))) ) ));
+      ll[i] = stringfromCharCode(this.alfanum( MathFloor( MathAbs(7.5*(MathSin(a1*i-n) + MathSin(a2*i+n) + MathSin(a3*i-n) + MathSin(a4*i+n))) ) ));
     }
     
     return ll.join("");
   }
   
   /**
-   * @param String s es la cadena a codificar
-   * @return String
+   * @param {String} s the string to encode
+   * @return {String}
    */
   descartesJS.Krypto.prototype.encode = function(s) {
-    var n = MathFloor(31*MathRandom());
+    n = MathFloor(31*MathRandom());
     
     this.key = this.getKey(n);
 
-    var b = stringfromCharCode(this.alfanum(n));
+    b = stringfromCharCode(this.alfanum(n));
     
-    var encriptado = b + this.encripta(s)
-
-    return encriptado;
+    return b + this.encripta(s);
   }
   
   /**
-   * @param String s es la cadena a decodificar
-   * @return String
+   * @param {String} s the string to decode
+   * @return {String}
    */
   descartesJS.Krypto.prototype.decode = function(s) {
-    var n = this.numalfa( s.charCodeAt(0) );
+    n = this.numalfa( s.charCodeAt(0) );
 
     this.key = this.getKey(n);
 
@@ -69,16 +82,16 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * @param String 
-   * @return String
+   * @param {String} OrigMeu
+   * @return {String}
    */
   descartesJS.Krypto.prototype.encripta = function(OrigMeu) {
     return this.bytesToString( this.encriptaAux(this.stringToBytes(OrigMeu)));
   }
   
   /**
-   * @param [Bytes]
-   * @return String
+   * @param {Array<Bytes>} OrigMeu
+   * @return {String}
    */
   descartesJS.Krypto.prototype.encriptaAux = function(OrigMeu) {
     if (OrigMeu == null) {
@@ -89,9 +102,8 @@ var descartesJS = (function(descartesJS) {
       return null;
     }
     
-    var encripMeu = new Array(3*OrigMeu.length);
+    encripMeu = new Array(3*OrigMeu.length);
     
-    var x, y;
     for (var i=0, l=OrigMeu.length; i<l; i++) {
       x = MathFloor(OrigMeu[i]+128)*256 + MathRound(MathRandom()*255) + MathRound(MathRandom()*255)*256*256;
       y = MathFloor((x<<this.shift(i))/256);
@@ -105,16 +117,16 @@ var descartesJS = (function(descartesJS) {
   }
     
   /**
-   * @param String 
-   * @return String
+   * @param {String} OrigMeu
+   * @return {String}
    */
   descartesJS.Krypto.prototype.desencripta = function(OrigMeu) {
     return this.bytesToString( this.desencriptaAux(this.stringToBytes(OrigMeu)));
   }
   
   /**
-   * @param [Bytes]
-   * @return String
+   * @param {Array<Bytes>} OrigMeu
+   * @return {String}
    */
   descartesJS.Krypto.prototype.desencriptaAux = function(OrigMeu) {
     if (OrigMeu == null) {
@@ -124,10 +136,8 @@ var descartesJS = (function(descartesJS) {
       return null;
     }
 
-    var desencripMeu = new Array(OrigMeu.length/3);
-    
-    var x, y;
-    var nx;
+    desencripMeu = new Array(OrigMeu.length/3);
+
     for (var i=0, l=desencripMeu.length; i<l; i++) {
       y = this.numalfa(OrigMeu[3*i]) + this.numalfa(OrigMeu[3*i+1])*32 + this.numalfa(OrigMeu[3*i+2])*1024;
       x = MathFloor((y*256)>>this.shift(i));
@@ -144,8 +154,8 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * @param Number <Integer>
-   * return Number <Byte>
+   * @param Number {Array<Number>} k
+   * @return Number {Array<Number>}
    */
   descartesJS.Krypto.prototype.alfanum = function(k) {
     k = MathFloor(k);
@@ -157,8 +167,8 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * @param Number <Byte>
-   * return Number <Integer>
+   * @param Number {Array<Number>} b
+   * @return Number {Array<Number>}
    */
   descartesJS.Krypto.prototype.numalfa = function(b) {
     if (b<58) {
@@ -169,11 +179,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * @param String 
-   * return [Bytes]
+   * @param {String} 
+   * @return {Array<Number>}
    */
   descartesJS.Krypto.prototype.stringToBytes = function(OrigMeu) {
-    var b = new Array(OrigMeu.length);
+    b = new Array(OrigMeu.length);
     
     for (var i=0, l=OrigMeu.length; i<l; i++) {
       b[i] = OrigMeu.charCodeAt(i);
@@ -183,8 +193,8 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * @param [bytes]
-   * return String 
+   * @param {Array<Number>}
+   * @return {String} 
    */
   descartesJS.Krypto.prototype.bytesToString = function(b) {
     for (var i=0, l=b.length; i<l; i++) {
@@ -195,13 +205,13 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * @param Number
-   * return Number 
+   * @param {Number}
+   * @return {Number} 
    */
   descartesJS.Krypto.prototype.shift = function(i) {
-    var a = (this.key).charCodeAt(i%(this.key.length));
-    var b = this.numalfa(a);
-    var c = MathFloor((b/2)%8);
+    a = (this.key).charCodeAt(i%(this.key.length));
+    b = this.numalfa(a);
+    c = MathFloor((b/2)%8);
     if (c == 0) {
       c = 4;
     }
@@ -209,8 +219,8 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * @param String s es la cadena a decodificar
-   * return byte
+   * @param {String} n
+   * @return {Array<Number>}
    */
   descartesJS.Krypto.prototype.parseByte = function(n) {
     n = parseInt(n);

@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una constante de descartes
+   * Descartes constant
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la constante
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.Constant = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
     
     this.expresion = this.evaluator.parser.parse(this.expresion);
@@ -21,12 +21,12 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Constant, descartesJS.Auxiliary);
   
   /**
-   * Actualiza la constante
+   * Update constant
    */
   descartesJS.Constant.prototype.update = function() {
     this.evaluator.setVariable(this.id, this.evaluator.evalExpression(this.expresion));

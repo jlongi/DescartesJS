@@ -4,7 +4,12 @@ require "date"
 
 out = File.new("descartes.js", "w")
 prefix = "desarrollo/"
-files = [ "Utils.js",
+files = [ "Babel.js",
+
+          "utils/Utils.js",
+          "utils/FileUtils.js",
+          "utils/ExpressionPatternUtils.js",
+          "utils/EmbeddedImages.js",
           "CSSrules.js",
           "math/Krypto.js",
 
@@ -67,8 +72,8 @@ files = [ "Utils.js",
         
           "math/R2.js",
           "math/R2Newton.js",
+          "math/Vector2D.js",
 
-          "controls/GraphicControl.js",
           "controls/Control.js",
           "controls/Button.js",
           "controls/Spinner.js",
@@ -78,6 +83,7 @@ files = [ "Utils.js",
           "controls/Audio.js",
           "controls/Video.js",
           "controls/TextArea.js",
+          "controls/GraphicControl.js",
 
           "parser/LessonParser.js",
           "parser/Node.js",
@@ -95,8 +101,7 @@ files = [ "Utils.js",
           "space/SpaceAP.js",
           "space/SpaceHTML_IFrame.js",
           
-          "Babel.js",
-          "math/Vector2D.js",
+          "DescartesLoader.js",          
           "DescartesApp.js",
           "Main.js"]
 

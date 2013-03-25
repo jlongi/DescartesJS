@@ -7,54 +7,44 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una accion de animar de descartes
+   * Descartes play audio action
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el parametro de la accion
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} parameter the values of the action
    */
   descartesJS.PlayAudio = function(parent, parameter) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
     
-    this.filenameExpr = this.evaluator.parser.parse("'" + parameter.split(" ")[0].trim() + "'");
+    this.filenameExpr = (parameter) ? this.evaluator.parser.parse("'" + parameter.split(" ")[0].trim() + "'") : "";
     this.filename = this.evaluator.evalExpression(this.filenameExpr);
-    this.theAudio = this.parent.getAudio(this.filename)
+    this.theAudio = parent.getAudio(this.filename);
   }  
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Action
+  // create an inheritance of Action
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.PlayAudio, descartesJS.Action);
   
+  var theAudio;
   /**
-   * Ejecuta la accion
+   * Execute the action
    */
   descartesJS.PlayAudio.prototype.execute = function() {
-    this.filename = this.evaluator.evalExpression(this.filenameExpr);
-//     this.theAudio = this.parent.getAudio(this.filename)
-// 
-//     // si el audio esta pausado se reproduce
-//     if (this.theAudio.paused) {
-//       this.theAudio.play();
-//     } 
-//     // si el audio se esta reproduciendo se detiene
-//     else {
-//       this.theAudio.pause();
-//       this.theAudio.currentTime = 0.1;
-//     }
-    
-    theAudio = this.parent.getAudio(this.filename)
+    // this.filename = this.evaluator.evalExpression(this.filenameExpr);
+    // var theAudio = this.parent.getAudio(this.filename);
 
-    // si el audio esta pausado se reproduce
+    var theAudio = this.theAudio;
+
+    // if the audio is paused then play it
     if (theAudio.paused) {
       theAudio.play();
-    } 
-    // si el audio se esta reproduciendo se detiene
+    }
+    // if the audio is playing then stop it
     else {
       theAudio.pause();
-      theAudio.currentTime = 0.1;
+      theAudio.currentTime = 0.0;
     }
-    
   }
 
   return descartesJS;

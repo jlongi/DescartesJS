@@ -6,39 +6,51 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var tmpIncr;
+  var expr;
+  var oldFieldValue;
+  var oldValue;
+  var ctx;
+  var w;
+  var h;
+  var c1;
+  var c2;
+  var triaX;
+  var triaY;
+  var resultValue;
+  var incr;
   var decimals;
+  var indexDot;
+  var subS;
+  var hasTouchSupport;
 
   /**
-   * Un pulsador de descartes
+   * Descartes spinner control
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el pulsador
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the spinner control
    */
   descartesJS.Spinner = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    // el indice de tabulacion del campo de texto, que determina el orden en el que se salta cuando se presiona el tabulador
+    // tabular index
     this.tabindex = ++this.parent.tabindex;
 
-    // contenedor del espacio
-    var container = this.getContainer();
-    
-    // contenedor del control
+    // control container
     this.containerControl = document.createElement("div");
     this.canvas = document.createElement("canvas");
     this.divUp = document.createElement("div");
     this.divDown = document.createElement("div");
     this.field = document.createElement("input");
+
+    // the label
     this.label = document.createElement("label");
-
-    // el texto de la etiqueta
     this.txtLabel = document.createTextNode(this.name);
-
-    //se agrega el texto a la etiqueta
     this.label.appendChild(this.txtLabel);
 
-    // se agregan todos los elementos del pulsador a un contenedor
+    // add the elements to the container
     if (this.name.trim() != "") {
       this.containerControl.appendChild(this.label);
     }
@@ -47,14 +59,9 @@ var descartesJS = (function(descartesJS) {
     this.containerControl.appendChild(this.divUp);
     this.containerControl.appendChild(this.divDown);
 
-    // por ultimo se agrega el contenedor del pulsador al contenedor del espacio, en orden inverso al que aparecen listados
-    if (!container.childNodes[0]) {
-      container.appendChild(this.containerControl);
-    } else {
-      container.insertBefore(this.containerControl, container.childNodes[0]);
-    }
+    this.addControlContainer(this.containerControl);
 
-    // caso cuando el numero de decimales es negativo o cero
+    // if the decimals are negavite or zero
     this.originalIncr = this.incr;
     if (this.evaluator.evalExpression(this.decimals) <= 0) {
       var tmpIncr = this.evaluator.evalExpression(this.incr);
@@ -68,41 +75,41 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    // register the mouse and touch events
+    this.registerMouseAndTouchEvents();
+
+    // init the menu parameters
     this.init();
-
-    // se registran los eventos del mouse, cuando se de soporte a dispositivos moviles se deben de registrar los eventos correspondientes
-    this.registerMouseEvents();
-
-    this.draw();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Control
+  // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Spinner, descartesJS.Control);
 
   /**
-   * Inicia los valores del pulsador
+   * Init the spinner
    */
   descartesJS.Spinner.prototype.init = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    // se valida el valor inicial del pulsador
+    // validate the initial value
     this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
     
-    // se calcula la longitud de la cadena mostrada en el campo de texto del pulsador
+    // get the width of the initial value to determine the width of the text field
     var fieldValue = this.formatOutputValue(this.value);
 
-    // se calcula el tamanio de la fuente del campo de texto del pulsador
-//     this.fieldFontSize = (88.8*((this.h)/100));
-    this.fieldFontSize = (this.parent.version != 2) ? descartesJS.getFieldFontSize(this.h) : 10;
-    var extraSpace = (this.parent.version != 2) ? "" : "mmmmm";
-    
-    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"m", this.fieldFontSize+"px Arial");
+    // find the font size of the text field
+    this.fieldFontSize = (this.parent.version !== 2) ? descartesJS.getFieldFontSize(this.h) : 10;
 
-    // se calculan los anchos de cada elemento dentro del pulsador
-    var canvasWidth = 2 + this.h/2;
-    var labelWidth = this.w/2 - canvasWidth/2;
+    // extra space added to the name
+    var extraSpace = (this.parent.version !== 2) ? "" : "_____";
+    
+    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px Arial");
+
+    // widths are calculated for each element
+    var canvasWidth = 2 + parseInt(this.h/2);
+    var labelWidth = parseInt(this.w/2 - canvasWidth/2);
     var minTFWidth = fieldValueSize;
     var minLabelWidth = descartesJS.getTextWidth(this.name+extraSpace, this.fieldFontSize+"px Arial");
     
@@ -131,7 +138,6 @@ var descartesJS = (function(descartesJS) {
 
     this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-    this.containerControl.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
   
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
@@ -141,67 +147,53 @@ var descartesJS = (function(descartesJS) {
     this.divUp.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: 0px;");
     this.divDown.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: " + this.h/2 + "px;");
 
-    // se crea el campo de texto del pulsador
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
     this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesSpinnerField");
     this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth-2) + "px; height : " + (this.h-2) + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
-    // this.field.disabled = (evaluator.evalExpression(this.activeif) > 0) ? false : true;
-    this.field.disabled = (activeif) ? false : true;
-
-    // se crea la etiqueta correspondiente al pulsador
+  
     this.label.setAttribute("class", "DescartesSpinnerLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
-    // el texto de la etiqueta
-//     this.txtLabel = document.createTextNode(this.name);
     
-    // se registra el valor de la variable
+    // register the control value
     evaluator.setVariable(this.id, this.value);
     
-    // se crea el gradiente de fondo que tiene el pulsador
+    // create the background gradient
     this.createGradient(this.h/2, this.h);    
   }
 
-  var changeX;
-  var changeY;
-  var changeW;
-  var changeH;
-  var activeif = 0;
-  
   /**
-   * Actualiza el pulsador
+   * Update the spinner
    */
   descartesJS.Spinner.prototype.update = function() {    
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
     if (evaluator.evalExpression(this.decimals) <= 0) {
-      var tmpIncr = this.evaluator.evalExpression(this.incr);
+      tmpIncr = evaluator.evalExpression(this.incr);
 
       if (tmpIncr > 0) {
-        this.incr = this.evaluator.parser.parse(parseInt(tmpIncr).toString());
+        this.incr = evaluator.parser.parse(parseInt(tmpIncr).toString());
         this.originalIncr = this.incr;
       }
       else {
-        this.incr = this.evaluator.parser.parse("1");
+        this.incr = evaluator.parser.parse("1");
       }
     } 
     else {
       this.incr = this.originalIncr;
     }
 
-    changeX = false;
-    changeY = false;
-    changeW = false;
-    changeH = false;
+    // check if the control is active and visible
+    this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
+    this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
+
+    // enable or disable the control
+    this.field.disabled = !this.activeIfValue;
     
-    // se actualiza la propiedad de activacion
-    activeif = (evaluator.evalExpression(this.activeif) > 0);
-    this.field.disabled = (activeif) ? false : true;
-    
-    // se actualiza si el pulsador es visible o no
-    if (evaluator.evalExpression(this.drawif) > 0) {
+    // hide or show the spinner control
+    if (this.drawIfValue) {
       this.containerControl.style.display = "block"
       this.draw();
     } else {
@@ -209,82 +201,42 @@ var descartesJS = (function(descartesJS) {
       this.containerControl.style.display = "none";
     }
 
-    // se actualiza la poscion y el tamano del pulsador
-    var expr = evaluator.evalExpression(this.expresion);
-    changeX = (this.x != expr[0][0]);
-    changeY = (this.y != expr[0][1]);
-    this.x = expr[0][0];
-    this.y = expr[0][1];
-    if (expr[0].length == 4) {
-      changeW = (this.w != expr[0][2]);
-      changeH = (this.h != expr[0][3]);
-      this.w = expr[0][2];
-      this.h = expr[0][3];
-    }
+    // update the position and size
+    this.updatePositionAndSize();
 
-    // si cambio el ancho o el alto del pulsador se calcula de nuevo el gradiente
-    if (changeW || changeH) {
-      this.createGradient(this.canvas.width, this.canvas.height);
-    }
-
-    var oldFieldValue = this.field.value;
-    var oldValue = this.value;
+    oldFieldValue = this.field.value;
+    oldValue = this.value;
     
-    // se actualiza el valor del pulsador
+    // update the spinner value
     this.value = this.validateValue( evaluator.getVariable(this.id) );
     this.field.value = this.formatOutputValue(this.value);
 
     if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
-      // se actualiza el valor del pulsador
+      // update the spinner value
       this.value = this.validateValue( oldFieldValue );
       this.field.value = this.formatOutputValue(this.value);
     }
-    
-    // se actualiza el estilo del pulsador si cambia su tamano o su posicion
-    if (changeW || changeH || changeX || changeY) {
-      this.init();
-      this.draw();
-    }
-    
-    // se registra el valor de la variable
+        
+    // register the control value
     evaluator.setVariable(this.id, this.value);
   }
 
   /**
-   * Crea un gradiente lineal para el fondo de los botones del pulsador
-   * @param {Number} w es el ancho del canvas sobre el cual se quiere crear el gradiente lineal
-   * @param {Number} h es el alto del canvas sobre el cual se quiere crear el gradiente lineal
-   */
-  descartesJS.Spinner.prototype.createGradient = function(w, h) {
-    this.linearGradient = this.ctx.createLinearGradient(0, 0, 0, h);
-    var hh = h*h;
-    var di;
-    for (var i=0; i<h; i++) {
-      di = Math.floor(i-(40*h)/100);
-      this.linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
-    }
-  }
-
-  /**
-   * Dibuja el pulsador
+   * Draw the spinner
    */
   descartesJS.Spinner.prototype.draw = function() {
-    var ctx = this.ctx;
+    ctx = this.ctx;
 
-    var w = this.canvas.width;
-    var h = this.canvas.height
+    w = this.canvas.width;
+    h = this.canvas.height
     
-    ctx.save();
-
     ctx.fillStyle = "#f0f8ff";
     ctx.fillRect(0, 0, w, h);
     
     ctx.fillStyle = this.linearGradient;
     ctx.fillRect(0, 0, w, h);
-    
-    var c1, c2;
-    
-    // se dibuja las lineas superiores para dar la sensacion de profundidad
+
+    // draw the upper lines for depth efect
     if (this.up) {
       c1 = "gray";
       c2 = "#f0f8ff";
@@ -296,9 +248,8 @@ var descartesJS = (function(descartesJS) {
     descartesJS.drawLine(ctx, 0, 0, w, 0, c1);
     descartesJS.drawLine(ctx, 0, 0, 0, h/2, c1);
     descartesJS.drawLine(ctx, 0, h/2, w, h/2, c2);
-//    descartesJS.drawLine(ctx, w-1, 0, w-1, h/2, c2);
-    
-    // se dibuja las lineas inferiores para dar la sensacion de profundidad
+
+    // draw the lower lines for depth efect
     if (this.down) {
       c1 = "gray";
       c2 = "#f0f8ff";
@@ -310,22 +261,29 @@ var descartesJS = (function(descartesJS) {
     descartesJS.drawLine(ctx, 0, h/2+1, w, h/2+1, c1);
     descartesJS.drawLine(ctx, 0, h/2+1, 0, h, c1);
     descartesJS.drawLine(ctx, 0, h-1, w, h-1, c2);
-//    descartesJS.drawLine(ctx, w-1, h/2+1, w-1, h-1, c2);
     
-    var triaX = [w/2, w/5-1, w-w/5+1];
-    var triaY = [h/8+1, h/8+1+h/4, h/8+1+h/4];
+    triaX = [parseInt(w/2+1), parseInt(w/5+1), parseInt(w-w/5+1)];
+    triaY = [parseInt(h/8+1), parseInt(h/8+1+h/4), parseInt(h/8+1+h/4)];
     
-    // var activeif = (this.evaluator.evalExpression(this.activeif) > 0);
-    
-    // se dubuja el triangulo superior
-    fillPolygon(ctx, triaX, triaY, (activeif) ? "#2244cc" : "#8888aa");
-    
-    triaY = [h-h/8, h-h/8-h/4, h-h/8-h/4];
+    // draw the uper triangle
+    ctx.fillStyle = (this.activeIfValue) ? "#2244cc" : "#8888aa";
+    ctx.beginPath();
+    ctx.moveTo(triaX[0], triaY[0]);
+    ctx.lineTo(triaX[1], triaY[1]);
+    ctx.lineTo(triaX[2], triaY[2]);
+    ctx.fill();
 
-    // se dubuja el triangulo inferior
-    fillPolygon(ctx, triaX, triaY, (activeif) ? "#d00018" : "#aa8888");
+    triaY = [parseInt(h-h/8), parseInt(h-h/8-h/4), parseInt(h-h/8-h/4)];
 
-    // se dibuja otra capa sobre el control
+    // draw the lower triangle
+    ctx.fillStyle = (this.activeIfValue) ? "#d00018" : "#aa8888";
+    ctx.beginPath();
+    ctx.moveTo(triaX[0], triaY[0]);
+    ctx.lineTo(triaX[1], triaY[1]);
+    ctx.lineTo(triaX[2], triaY[2]);
+    ctx.fill();
+
+    // draw another layer for pressed effect
     ctx.fillStyle = "rgba(0,0,0,"+ 24/255 +")";
     if (this.up) { 
       ctx.fillRect(0, 0, w, h/2);
@@ -334,36 +292,36 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, h/2, w, h); 
     }
   }
-  
+
   /**
-   * Valida si el valor que se le pasa esta en el rango determinado por los limites (minimo y maximo)
-   * @param {String} value es el valor que se desea validar
-   * @return {Number} regresa el valor que recibe como argumento si este se encuentra en dentro de los limites
-   *                  si el valor es mayor que el limite maximo entonces se regresa el valor maximo
-   *                  si el valor es menor que el limite minimo entonces se regresa el valor minimo
+   * Validate if the value is the range [min, max]
+   * @param {String} value the value to validate
+   * @return {Number} return the value like a number, 
+   *                         is greater than the upper limit then return the upper limit
+   *                         is less than the lower limit then return the lower limit
    */
   descartesJS.Spinner.prototype.validateValue = function(value) {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
     
-    var resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
+    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
 
-    // si el valor es una cadena que no representa un numero, la funcion parseFloat regresa NaN, entonces se ocupa el valor minimo
-    if (!resultValue) {
+    // if the value is a string that do not represent a number, parseFloat return NaN
+    if (isNaN(resultValue)) {
       resultValue = 0; 
     }
 
-    // si es menor que el valor minimo
+    // if is less than the lower limit
     if (resultValue < evaluator.evalExpression(this.min)) {
       resultValue = evaluator.evalExpression(this.min);
     } 
     
-    // si es mayor que el valor maximo
+    // if si greater than the upper limit
     if (resultValue > evaluator.evalExpression(this.max)) {
       resultValue = evaluator.evalExpression(this.max);
     }
 
     if (this.discrete) {
-      var incr = evaluator.evalExpression(this.incr);
+      incr = evaluator.evalExpression(this.incr);
       resultValue = (incr==0) ? 0 : (incr * Math.round(resultValue / incr));
     }
 
@@ -377,44 +335,42 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * El valor que se le pasa es formateado, mostrando los valores exponenciales, 
-   * los decimales y el signo de puntuacion utilizado como separador de decimales
-   * @param {String} value es el valor que se quiere formatear
-   * @return {String} regresa el valor ya formateado
+   * Format the value with the number of decimals, the exponential representation and the decimal symbol
+   * @param {String} value tha value to format
+   * @return {String} return the value with the format applyed
    */
   descartesJS.Spinner.prototype.formatOutputValue = function(value) {
-    // se convierte en cadena
-    var resultValue = value+"";
+    resultValue = value+"";
 
-    var indexDot = resultValue.indexOf(".");
+    indexDot = resultValue.indexOf(".");
     if ( indexDot != -1 ) {
-      var subS = resultValue.substring(indexDot+1);
+      subS = resultValue.substring(indexDot+1);
         if (subS.length > decimals) {
         resultValue = parseFloat(resultValue).toFixed(decimals);
       }
     }
     
     if (this.fixed) {
-      // ## parche para la version 2 ## //
-      // si la version es diferente a la 2, entonces el fixed se queda como deberia
-      // o si la version es la 2 pero no se esta utilizando la notacion exponencial
-      if ( (this.parent.version != 2) || ((this.parent.version == 2) && (!this.exponentialif)) ) {
+      // ## patch for Descartes 2 ## 
+      // in a version diferente to 2, then fixed stays as it should
+      // if the version is 2 but do not use exponential notation
+      if ( (this.parent.version !== 2) || ((this.parent.version === 2) && (!this.exponentialif)) ) {
         resultValue = parseFloat(value).toFixed(decimals);
       }
     }
 
-    // si el valor es cero entonces no se muestra la "E" de la notacion exponencial
+    // if the value is zero then do not show the E in the exponential notation
     if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
-      // ## parche para la version 2 ## //
-      // en la version 2 no se muestran los decimales
-      if ((this.fixed) && (this.parent.version !=2)) {
+      // ## patch for Descartes 2 ## 
+      // in the version 2 do not show the decimals
+      if ((this.fixed) && (this.parent.version !== 2)) {
         resultValue = parseFloat(resultValue).toExponential(decimals);
       }
       else {
         resultValue = parseFloat(resultValue).toExponential();
       }
       resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
+      resultValue = resultValue.replace("+", "");
     }
 
     resultValue = resultValue.replace(".", this.parent.decimal_symbol);
@@ -422,104 +378,79 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Al valor del pulsador le suma el incremento, verifica que el valor este dentro del rango y lo asigna
+   * Increase the value of the spinner
    */
   descartesJS.Spinner.prototype.increase = function() {
     this.changeValue( parseFloat(this.value) + this.evaluator.evalExpression(this.incr) );
   }
   
   /**
-   * Al valor del pulsador le resta el incremento, verifica que el valor este dentro del rango y lo asigna
+   * Decrease the value of the spinner
    */
   descartesJS.Spinner.prototype.decrease = function() {
     this.changeValue( parseFloat(this.value) - this.evaluator.evalExpression(this.incr) );
   }
   
   /**
-   * Actualiza el valor del pulsador con el valor del campo de texto
+   * Change the spinner value
    */
   descartesJS.Spinner.prototype.changeValue = function(value) {
-    // if (this.evaluator.evalExpression(this.activeif) > 0) {
-    if (activeif) {
+    if (this.activeIfValue) {
       this.value = this.validateValue(value);
       this.field.value = this.formatOutputValue(this.value);
 
-      // se registra el valor de la variable
+      // register the control value
       this.evaluator.setVariable(this.id, this.value);
 
-      // se actualizan los controles
-      this.parent.updateControls();
-
-      // ejecutamos la accion
-      if (this.action == "init") {
-        this.click = false;
-      }
-      this.actionExec.execute();
-      
-      // se actualizan los controles
-      this.parent.updateControls();
-      
-      // si la accion es animar, entonces no se actualizan los elementos
-      if (this.action != "animate") {
-        // se actualizan los valores
-        this.parent.update();
-      }
+      this.updateAndExecAction();
     }
   }
 
   /**
-   * Registra los eventos del mouse del boton
+   * Register the mouse and touch events
    */
-  descartesJS.Spinner.prototype.registerMouseEvents = function() {
-    var hasTouchSupport = descartesJS.hasTouchSupport;
+  descartesJS.Spinner.prototype.registerMouseAndTouchEvents = function() {
+    hasTouchSupport = descartesJS.hasTouchSupport;
 
-    this.divUp.oncontextmenu = function () { return false; };
-    this.divDown.oncontextmenu = function () { return false; };    
-    
-    // copia de this para ser pasado a las funciones internas
     var self = this;
     var delay = (hasTouchSupport) ? 500 : 200;
     var timer;
 
-    // eventos de la etiqueta para que no tenga un comportamiento extrano
-    this.label.oncontextmenu = function() { return false; };
+    // prevent the context menu display
+    self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
+
+    // prevent the default events int the label    
     if (hasTouchSupport) {
-      this.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; })
+      this.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
     } 
     else {
-      this.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; })
+      this.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
     }
 
     /**
-     * Se repite durante un determinado tiempo una funcion, sirve para repedir incrementos o decrementos en el pulsador al dejar presionado alguno de los botones
-     * @param {Number} delayTime el tiempo que se debe esperar antes de ejectuar de nuevo la funcion
-     * @param {Number} fun la funcion a ejecutar
+     * Repeat a function during a period of time, when the user click and hold the click in the button
+     * @param {Number} delayTime the delay of time between the function repetition
+     * @param {Function} fun the function to execut
+     * @param {Boolean} firstime a flag to indicated if is the first time clicked
      * @private
-     */
+     */    
     function repeat(delayTime, fun, firstTime) {
+      clearInterval(timer);
+
       if (self.up || self.down) {
         fun.call(self);
-//         delayTime = (delayTime < 30) ? 30 : delayTime-30;
         delayTime = (firstTime) ? delayTime : 30;
         timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
-      } else {
-        clearInterval(timer);
       }
     }
     
     /**
      * 
-     * @param {Event} evt el evento lanzado cuando se modifica el valor del campo de texto del pulsador
+     * @param {Event} evt 
      * @private
      */
-    function onChange_TextField(evt) {
-      self.changeValue(self.field.value);
-      evt.preventDefault();
-    }
-//    this.field.addEventListener("change", onChange_TextField);
-
     function onKeyDown_TextField(evt) {
-      // responde al enter
+      // responds to enter
       if (evt.keyCode == 13) {
         self.changeValue(self.field.value);
       }
@@ -528,24 +459,23 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de presionar la flecha hacia arriba del pulsador
+     * @param {Event} evt
      * @private
      */
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      // ie
+      // IE
       if (evt.which == null) {
         self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
       } 
-      // los demas
+      // the others
       else {
         self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
       }
 
       if (self.whichButton == "LEFT") {
-        // if (self.evaluator.evalExpression(self.activeif) > 0) {
-        if (activeif) {
+        if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true);
           self.draw();
@@ -561,23 +491,22 @@ var descartesJS = (function(descartesJS) {
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de presionar la flecha hacia abajo del pulsador
+     * @param {Event} evt 
      * @private
      */
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
-      // ie
+      // IE
       if (evt.which == null) {
         self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
       } 
-      // los demas
+      // the others
       else {
         self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
       }
 
       if (self.whichButton == "LEFT") {
-        // if (self.evaluator.evalExpression(self.activeif) > 0) {
-        if (activeif) {
+        if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true);
           self.draw();
@@ -592,7 +521,7 @@ var descartesJS = (function(descartesJS) {
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de sacar el mouse de la flecha hacia arriba del pulsador
+     * @param {Event} evt 
      * @private
      */
     function onMouseOut_UpButton(evt) {
@@ -607,7 +536,7 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de sacar el mouse de la flecha hacia abajo del pulsador
+     * @param {Event} evt 
      * @private
      */
     function onMouseOut_DownButton(evt) {
@@ -622,7 +551,7 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de soltar la flecha hacia arriba del pulsador
+     * @param {Event} evt 
      * @private
      */
     function onMouseUp_UpButton(evt) {
@@ -641,7 +570,7 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de soltar la flecha hacia abajo del pulsador
+     * @param {Event} evt 
      * @private
      */
     function onMouseUp_DownButton(evt) {
@@ -656,26 +585,8 @@ var descartesJS = (function(descartesJS) {
     } else {
       this.divDown.addEventListener("mouseup", onMouseUp_DownButton, false);
       window.addEventListener("mouseup", onMouseUp_DownButton, false);
-    }
-    
+    } 
   }
-
-  /**
-   * Dibuja un poligono relleno
-   * @param {2DContext} ctx el contexto de canvas donde dibujar
-   * @param {[Number]} x las posiciones en x de los puntos del poligono
-   * @param {[Number]} y las posiciones en y de los puntos del poligono
-   * @param {String} color el color del pixel a dibujar
-   */
-  function fillPolygon(ctx, x, y, color) {
-    ctx.fillStyle = color || "black";
-    ctx.beginPath();
-    ctx.moveTo(x[0], y[0])
-    for (var i=1, l=x.length; i<l; i++) {
-      ctx.lineTo(x[i], y[i]);
-    }
-    ctx.fill();
-  }  
   
   return descartesJS;
 })(descartesJS || {});

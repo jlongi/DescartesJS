@@ -6,24 +6,40 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var mathRound = Math.round;
+
   /**
-   * Una imagen de descartes
+   * A Descartes image
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el imagen
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the image
    */
   descartesJS.Image = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the file name of the graphic
+     * type {String}
+     * @private
+     */
+    this.file = "";
+
+    /**
+     * the rotation of an image
+     * type {Node}
+     * @private
+     */
+    this.inirot = parent.evaluator.parser.parse("0");    
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
     
+    // ######################
+    // ######################
+    // revisar este error con las expresiones
+    // '(areas[figura]==resp)?'images/bien.png':'images/mal.png''
+    // ######################
+    // ######################
+
     this.img = new Image();
-    // this.img.ready = 0;
-    // this.img.onload = function() {
-    //   this.ready = 1;
-      
-    //   this.onload = function() {};
-    // }
-    // this.img.src = this.evaluator.evalExpression(this.file);
 
     this.scaleX = 1;
     this.scaleY = 1;
@@ -32,27 +48,40 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Image, descartesJS.Graphic);
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var imgFile;
+  var space;
+  var despX;
+  var despY;
+  var coordX;
+  var coordY;
+  var rotation;
+
   /**
-   * Actualiza los valores de la imagen
+   * Update the image
    */
   descartesJS.Image.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    var expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    expr = evaluator.evalExpression(this.expresion);
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
 
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
-      var cosTheta = Math.cos(radianAngle);
-      var senTheta = Math.sin(radianAngle);
-      var tmpRotX;
-      var tmpRotY;
+      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      cosTheta = Math.cos(radianAngle);
+      senTheta = Math.sin(radianAngle);
       
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
@@ -84,7 +113,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    var imgFile = evaluator.evalExpression(this.file);
+    imgFile = evaluator.evalExpression(this.file);
 
     if ((imgFile) || (imgFile == "")) {
       this.img = this.parent.getImage(imgFile);
@@ -92,36 +121,35 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Dibuja la imagen
+   * Draw the image
    */
   descartesJS.Image.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this);
   }
 
   /**
-   * Dibuja el rastro de la imagen
+   * Draw the trace of the image
    */
   descartesJS.Image.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this);
   }
   
   /**
-   * Funcion auxiliar para dibujar una imagen
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja una imagen
-   * @param {String} fill el color de relleno de una imagen
-   * @param {String} stroke el color del trazo de una imagen
+   * Auxiliary function for draw an image
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the image is drawn
    */
-  descartesJS.Image.prototype.drawAux = function(ctx, fill, stroke) {
-    var evaluator = this.evaluator;
+  descartesJS.Image.prototype.drawAux = function(ctx) {
+    evaluator = this.evaluator;
+    space = this.space;
 
     if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
-      var despX = (this.centered) ? 0 : this.img.width/2;
-      var despY = (this.centered) ? 0 : this.img.height/2;
-      var coordX = (this.abs_coord) ? this.exprX : this.space.getAbsoluteX(this.exprX);
-      var coordY = (this.abs_coord) ? this.exprY : this.space.getAbsoluteY(this.exprY);
-      var rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
+      despX = (this.centered) ? 0 : this.img.width/2;
+      despY = (this.centered) ? 0 : this.img.height/2;
+      coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
+      coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
+      rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
 
       ctx.translate(coordX+despX, coordY+despY);
       ctx.rotate(rotation);
@@ -132,14 +160,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
-      
-      // try {
-      //   ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
-      // }
-      // catch(e) {
-      // }
 
-      // se resetean las trasnformaciones
+      // reset the transformations
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.globalAlpha = 1;
     }

@@ -3,37 +3,66 @@
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
 
-var descartesJS = (function(descartesJS) {
+var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var temp;
+  var values_i_0;
+  var values_i_1;
+  var spaceObj;
+  var controlObj;
+  var graphicObj;
+  var auxiliarObj;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+
+  var theAction_action;
+  var theAction_parent;
+  var theAction_parameter;
+
+  var splitValues;
+  var pos;
+  var i;
+  var initToken;
+  var initPosToken;
+  var endPosToken;
+  var stringToken;
+  var valueToken;
+  var charAt;
+
+  var splitString;
+  var parentesisStack;
+  var lastSplitIndex;
+
+  var tmpColor;
+  var splitColor;
+  var hexColor;
+
   /**
-   * Un parser de elementos principales de una leccion de descartes
+   * Parser of principal elements of descartes
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
+   * @param {DescartesApp} parent the Descartes application
    */
   descartesJS.LessonParser = function(parent) {
     this.parent = parent;
 
-    // el parser de la leccion
-    this.parser = this.parent.evaluator.parser;
+    this.parser = parent.evaluator.parser;
+
+    this.RTFparser = new descartesJS.RTFParser(parent.evaluator);
   }
 
   /**
-   * Parsea la configuración de los botones
-   * @param {String} values es la cadena que contiene los valores de configuracion de los botones
-   * @return {Object} regresa un objeto de configuracion con los valores correspondientes
+   * Parse the button configuration
+   * @param {String} values is the string containing the values ​​that define the button configuration
+   * @return {Object} return a configuration object with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseButtonsConfig = function(values) {
+    // default values
     var buttonConfigObj = { rowsNorth: 0, rowsSouth: 0, widthEast: 125, widthWest: 125, height: 23 };
-
-    // variable temporal para fines de calculos intermedios
-    var temp;
     
-    // se eliminan las comillas sencillas de la cadena de valores que definen el espacio y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
     
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables del espacio
+    // traverse all values and asign to variables of the button configuration
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -66,27 +95,27 @@ var descartesJS = (function(descartesJS) {
 
         //
         case("about"):
-          buttonConfigObj["about"] = (babel[values_i_1] == "true");
+          buttonConfigObj["about"] = (babel[values_i_1] === "true");
           break;
 
         //
         case("config"):
-          buttonConfigObj["config"] = (babel[values_i_1] == "true");
+          buttonConfigObj["config"] = (babel[values_i_1] === "true");
           break;
 
         //
         case("init"):
-          buttonConfigObj["init"] = (babel[values_i_1] == "true");
+          buttonConfigObj["init"] = (babel[values_i_1] === "true");
           break;
 
         //
         case("clear"):
-          buttonConfigObj["clear"] = (babel[values_i_1] == "true");
+          buttonConfigObj["clear"] = (babel[values_i_1] === "true");
           break;
 
-        // cualquier variable que falte
+        // any variable missing
         default:
-          console.log("----- attributo de Espacio no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+          console.log("----- attributo de space no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
           break;
       }
     }
@@ -95,46 +124,42 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Parsea y crea un espacio
-   * @param {String} values es la cadena que contiene los valores que definen el espacio
-   * @return {Space} regresa un espacio con los valores correspondientes
+   * Parse and create a space
+   * @param {String} values is the string containing the values ​​that define the space
+   * @return {Space} return a space constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseSpace = function(values) {
-    // el objeto que contendra todos los valores encontrados en values
-    var spaceObj = {};
+    // object containing all the values ​​found in values
+    spaceObj = {};
     
-    // variable temporal para fines de calculos intermedios
-    var temp;
-    
-    // se eliminan las comillas sencillas de la cadena de valores que definen el espacio y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
-    
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables del espacio
+
+    // traverse all values and asign to variables to the space
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
       switch(babel[values_i_0]) {
-        // se encuentra el tipo del espacio 2D, 3D u otro
+        // the type of the space (2D, 3D or another)
         case("type"):
           spaceObj["type"] = values_i_1;
           break;
           
-        // se encuentra el identificador del espacio 
+        // identifier
         case("id"):
           spaceObj["id"] = values_i_1;
           break;
           
-        // se encuentra la expresion que determina la posicion x del espacio
+        // x position
         case("x"):
           temp = values_i_1;
           
-          // si esta especificado con un porcentaje se utiliza el ancho del contenedor padre para obtener el valor en pixeles
-          if (temp[temp.length-1] == "%") {
+          // if specified with a percentage use the parent container's width to get the value in pixels
+          if (temp[temp.length-1] === "%") {
             temp = (this.parent.container.width*parseFloat(temp)/100).toString();
-          } 
-          // si no esta especificado con un porcentaje se obtiene el valor numerico de la posicion en x
+          }
+          // if not specified with a percentage get the numerical value of the position in x
           else {
             temp = values_i_1;
           }
@@ -142,15 +167,15 @@ var descartesJS = (function(descartesJS) {
           spaceObj["xExpr"] = this.parser.parse(temp);
           break;
           
-        // se encuentra la expresion que determina la posicion y del espacio
+        // y position
         case("y"):
           temp = values_i_1;
           
-          // si esta especificado con un porcentaje se utiliza el alto del contenedor padre para obtener el valor en pixeles
-          if (temp[temp.length-1] == "%") {
+          // if specified with a percentage use the parent container's height to get the value in pixels
+          if (temp[temp.length-1] === "%") {
             temp = (this.parent.container.height*parseFloat(temp)/100).toString();
           } 
-          // si no esta especificado con un porcentaje se obtiene el valor numerico de la posicion en x
+          // if not specified with a percentage get the numerical value of the position in y
           else {
             temp = values_i_1;
           }
@@ -158,377 +183,345 @@ var descartesJS = (function(descartesJS) {
           spaceObj["yExpr"] = this.parser.parse(temp);
           break;
           
-        // se encuentra el ancho del espacio
+        // width
         case("width"):
           temp = values_i_1;
           
-          // si esta especificado con un porcentaje se utiliza el ancho del contenedor padre para obtener el valor en pixeles
-          if (temp[temp.length-1] == "%") {
+          // if specified with a percentage use the parent container's width to get the value in pixels
+          if (temp[temp.length-1] === "%") {
             temp = this.parent.container.width*parseFloat(temp)/100;
-          } 
-          // si no esta especificado con un porcentaje se obtiene el valor numerico del ancho
+          }
+          // if not specified with a percentage get the numerical value of the width
           else {
             temp = parseFloat(values_i_1);
             
-            // si al convertir el valor a un numero los valores son diferentes, entonces el ancho se vuelve el ancho del contenedor padre
+            // whether to convert the value to a number the values ​​are different, then the width becomes the width of the parent container
             if (temp != values_i_1) {
-              temp = this.parent.container.width; // valor por default
+              temp = this.parent.container.width; // default value
             }
           }
           
           spaceObj["w"] = temp;
           break;
           
-        // se encuentra el alto del espacio
+        // height
         case("height"):
           temp = values_i_1;
           
-          // si esta especificado con un porcentaje se utiliza el alto del contenedor padre para obtener el valor en pixeles
-          if (temp[temp.length-1] == "%") {
+          // if specified with a percentage use the parent container's height to get the value in pixels
+          if (temp[temp.length-1] === "%") {
             temp = this.parent.container.height*parseFloat(temp)/100;
           } 
-          // si no esta especificado con un porcentaje se obtiene el valor numerico del alto
+          // if not specified with a percentage get the numerical value of the height
           else {
             temp = parseFloat(values_i_1);
             
-            // si al convertir el valor a un numero los valores son diferentes, entonces el ancho se vuelve el alto del contenedor padre
+            // whether to convert the value to a number the values ​​are different, then the height becomes the height of the parent container
             if (temp != values_i_1) {
-              temp = this.parent.container.height; // valor por default
+              temp = this.parent.container.height; // default value
             }
           }
           
           spaceObj["h"] = temp;
           break;
           
-        // se encuentra la condicion de dibujo del espacio
+        // drawif condition
         case("drawif"):
           spaceObj["drawif"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra si el espacio esta fijo
+        // fixed condition
         case("fixed"):
-          spaceObj["fixed"] = (babel[values_i_1] == "true");
+          spaceObj["fixed"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra la escala del espacio
+        // scale
         case("scale"):
           temp = parseFloat(values_i_1);
           
-          // si al convertir el valor a un numero los valores son diferentes, entonces se utiliza el valor por default
-          if (temp != values_i_1) {
-            temp =  48; // valor por default
+          // whether to convert the value to a number the values ​​are different, then use the default value
+          // this case ocurrs when the scale has a no valid value
+          if (temp.toString() != values_i_1) {
+            temp =  48; // default value
           }          
           
           spaceObj["scale"] = temp;
           break;
           
-        // se encuentra la posicion x del origen del espacio
+        // x position of origin
         case("O.x"):
           spaceObj["OxExpr"] = values_i_1;
           break;
           
-        // se encuentra la posicion y del origen del espacio
+        // y position of origin
         case("O.y"):
           spaceObj["OyExpr"] = values_i_1;
           break;
           
-        // se encuentra la imagen de fondo del espacio
+        // background image
         case("image"):
           spaceObj["imageSrc"] = values_i_1;
           break;
-          
-        // se encuentra la forma en que esta colocada la imagen
+        
+        // how the background image is positioned
         case("bg_display"):
           spaceObj["bg_display"] = babel[values_i_1];
           break;
           
-        // se encuentra el color del fondo
+        // background color
         case("background"):
           spaceObj["background"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color de la red
+        // color of the net
         case("net"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["net"] = "";
-          } else {
-            spaceObj["net"] = this.convertColor(values_i_1);
-          }
+          spaceObj["net"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color de la red10
+        // color of the net 10
         case("net10"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["net10"] = "";
-          } else {
-            spaceObj["net10"] = this.convertColor(values_i_1);
-          }
+          spaceObj["net10"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color de los ejes
+        // color of the axis
         case("axes"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["axes"] = "";
-          } else {
-            spaceObj["axes"] = this.convertColor(values_i_1);
-          }
+          spaceObj["axes"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
           break;
-          
-        // se encuentra el color del texto que muestra las coordenadas del mouse
+
+        // color of the coordinate text of the mouse
         case("text"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["text"] = "";
-          } else {
-            spaceObj["text"] = this.convertColor(values_i_1);
-          }
+          spaceObj["text"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
           break;
           
-        // se encuentra si los numeros del espacio estan activados
+        // condition to show the numbers in the space
         case("numbers"):
-          spaceObj["numbers"] = (babel[values_i_1] == "true");
+          spaceObj["numbers"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el texto que lleva el eje X
+        // text of the X axis
         case("x-axis"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["x_axis"] = "";
-          }
-          else {
-            spaceObj["x_axis"] = values_i_1;
-          }
+          spaceObj["x_axis"] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
           
-        // se encuentra el texto que lleva el eje Y
+        // text of the Y axis
         case("y-axis"):
-          if (babel[values_i_1] == "false"){
-            spaceObj["y_axis"] = "";
-          }
-          else {
-            spaceObj["y_axis"] = values_i_1;
-          }
+          spaceObj["y_axis"] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
           
-        // se encuentra si el espacio es sensible a los movimientos del mouse
+        // sensitive to mouse movements condition
         case("sensitive_to_mouse_movements"):
-          spaceObj["sensitive_to_mouse_movements"] = (babel[values_i_1] == "true");
+          spaceObj["sensitive_to_mouse_movements"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el cID del espacio
+        // control identifier (for rtf positioning)
         case("cID"):
           spaceObj["cID"] = values_i_1;
           break;
           
-        // espacio 3D
+        // space 3D
         case("R3"):
-          spaceObj["R3"] = (babel[values_i_1] == "true");
+          spaceObj["R3"] = (babel[values_i_1] === "true");
           break;
           
-        // modo de despliege sort, painter, raytrace
+        // render mode sort, painter, raytrace
         case("render"):
           spaceObj["render"] = babel[values_i_1];
           break;
           
-        // opcion de cortado del algoritmo de desplegado
+        // split option for the render
         case("split"):
-          spaceObj["split"] = (babel[values_i_1] == "true");
+          spaceObj["split"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el nombre del archivo de un espacio de aplicacion de descartes
+        // file name of an external space
         case("file"):
           spaceObj["file"] = values_i_1;
           break;
           
-        // cualquier variable que falte
+        // any variable missing
         default:
-          console.log("----- attributo de Espacio no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+          console.log("----- attributo de space no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
           break;
       }   
     }
 
-    // espacio 2D
-    if ((spaceObj.type == "R2") || (this.parent.version == 2)) {
+    if ((spaceObj.type === "R2") || (this.parent.version < 4)) {
       return new descartesJS.Space2D(this.parent, spaceObj);
     }
     
-    // espacio 3D
-    else if (spaceObj.type == "R3") {
+    else if (spaceObj.type === "R3") {
       return new descartesJS.Space3D(this.parent, spaceObj);
-      // console.log("Los espacios 3D no funcionan.");
     }
 
-    // espacio de aplicacion de descartes
-    else if (spaceObj.type == "AP") {
+    else if (spaceObj.type === "AP") {
       return new descartesJS.SpaceAP(this.parent, spaceObj);
     }
     
-    // espacio de aplicacion de descartes
-    else if (spaceObj.type == "HTMLIFrame") {
+    else if (spaceObj.type === "HTMLIFrame") {
       return new descartesJS.SpaceHTML_IFrame(this.parent, spaceObj);
     }
   }
 
   /**
-   * Parsea y crea un control
-   * @param {String} values es la cadena que contiene los valores que definen el control
-   * @return {Control} regresa un control con los valores correspondientes
+   * Parse and create a control
+   * @param {String} values is the string containing the values ​​that define the control
+   * @return {Control} return a control constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseControl = function(values) {
-    // el objeto que contendra todos los valores encontrados en values
-    var controlObj = {};
+    // object containing all the values ​​found in values
+    controlObj = {};
     
-    // se eliminan las comillas sencillas de la cadena de valores que definen el control y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    var values_i_0, values_i_1;
-    
-    // se recorren todos los valores y se asignan a las variables del control
+    // traverse all values and asign to variables to the control
     for (var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
       switch( babel[values_i_0]) {
         
-        // se encuentra el id del control
+        // identifier
         case("id"):
           controlObj["id"] = values_i_1;
           break;
           
-        // se encuentra el tipo del control
+        // type
         case("type"):
           controlObj["type"] = babel[values_i_1.trim()];
           break;
           
-        // se encuentra la interfaz del control (que tipo es, si es pulsador o boton, etc)
+        // interface (spinner, button, etc)
         case("gui"):
           controlObj["gui"] = babel[values_i_1];
           break;
           
-        // se encuentra la region del control
+        // region
         case("region"):
           controlObj["region"] = babel[values_i_1];
           break;
           
-        // se encuentra el id del espacio del control
+        // id of the containing space
         case("space"):
           controlObj["spaceID"] = values_i_1;
           break;
           
-        // se encuentra el texto del control
+        // name
         case("name"):
           controlObj["name"] = values_i_1;
           break;
           
-        // se encuentra la expresión que define la posición y el tamaño del control
+        // expresion of the position and size
         case("expresion"):
           controlObj["expresion"] = this.parser.parse(values_i_1.replace(")(", ","));
           break;
           
-        // se encuentra si los valores del control se expresan en notacion fija
+        // condition to use fixed notation in the text
         case("fixed"):
-          controlObj["fixed"] = (babel[values_i_1] == "true");
+          controlObj["fixed"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el control es visible
+        // visible condition
         case("visible"):
-          controlObj["visible"] = (babel[values_i_1] == "true");
+          controlObj["visible"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el color del texto del control
+        // color text
         case("color"):
           controlObj["color"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color-int del texto del control
+        // color-int text
         case("colorInt"):
           controlObj["colorInt"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra si el texto del control esta en negrita
+        // bold text contidition
         case("bold"):
           if (babel[values_i_1] != "false") {
             controlObj["bold"] = "bold";
           }
           break;
           
-        // se encuentra si el texto del control esta en cursiva
+        // italic text condition 
         case("italics"):
           if (babel[values_i_1] != "false") {
             controlObj["italics"] = "italic";
           }
           break;
           
-        // se encuentra si el texto del control esta subrayada
+        // underline text condition
         case("underlined"):
           if (babel[values_i_1] != "false") {
             controlObj["underlined"] = true;
           }
           break;
           
-        // se encuentra el tamano del texto del control
+        // font size
         case("font_size"):
           controlObj["font_size"] = this.parser.parse(values_i_1); //parsear la posible expresion
           break;
           
-        // se encuentra la imagen de fondo del control
+        // image
         case("image"):
           controlObj["imageSrc"] = values_i_1;
           break;
           
-        // se encuentra el tipo de accion que realizara el control
+        // action
         case("action"):
           controlObj["action"] = babel[values_i_1];
           break;
           
-        // se encuentra el parametro que debe ejecutar el control cuando se ejecute la accion
+        // parameter of the action
         case("parameter"):
           controlObj["parameter"] = values_i_1;
           break;
           
-        // se encuentra la condicion de dibujo del control
+        // drawif condition
         case("drawif"):
           controlObj["drawif"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la condicion de activacion del control
+        // activeif condition
         case("activeif"):
           controlObj["activeif"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el tooltip del control
+        // tooltip
         case("tooltip"):
           controlObj["tooltip"] = values_i_1;
           break;
           
-        // se encuentra la tipografia del tooltip del control
+        // font tooltip
         case("tooltipFont"):
           controlObj["tooltipFont"] = values_i_1;
           break;
           
-        // se encuentra la explicacion del control
+        // explanation
         case("Explanation"):
           controlObj["Explanation"] = values_i_1;
           break;
           
-        // se encuentra la tipografia de la explicacion del control
+        // font explanation
         case("ExplanationFont"):
           controlObj["ExplanationFont"] = values_i_1;
           break;
           
-        // se encuentra la posicion relativa de los mensajes
+        // relative position of control mesagges
         case("msg_pos"):
           controlObj["msg_pos"] = babel[values_i_1];
           break;
           
-        // se encuentra el cID del control
+        // control identifier (for rtf positioning)
         case("cID"):
           controlObj["cID"] = values_i_1;
           break;
           
-        // se encuentra el valor del pulsador
+        // value
         case("value"):
           var tmpVal = values_i_1.replace(/&squot;/g, "'");
 
-          // si el control inicia y termina con || se sustituye por ''
+          // replace the pipes with single quotation marks in the text value
           if (tmpVal.match(/^\|/)) {
             tmpVal = "'" + tmpVal.substring(1);
             if (tmpVal.match(/\|$/)) {
@@ -536,71 +529,73 @@ var descartesJS = (function(descartesJS) {
             }
           }
           
+          // the value expression for future evaluation
           controlObj["valueExpr"] = this.parser.parse(tmpVal);
+          // the value string for reference
           controlObj["valueExprString"] = tmpVal;
           
           break;
           
-        // se encuentra el numero de decimales del pulsador
+        // number of decimals of the text in the graphic control
         case("decimals"):
           controlObj["decimals"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el valor minimo del pulsador
+        // minimum value
         case("min"):
           controlObj["min"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el valor maximo del pulsador
+        // maximum value
         case("max"):
           controlObj["max"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el incremento del pulsador
+        // increment
         case("incr"):
           if (values_i_1 != 0) {
             controlObj["incr"] = this.parser.parse(values_i_1);
           }
           break;
           
-        // se encuentra si el incremento es discreto en el pulsador
+        // condition for the discrete increment
         case("discrete"):
-          controlObj["discrete"] = (babel[values_i_1] == "true");
+          controlObj["discrete"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el campo de texto es solo de texto
+        // condition for a only text control
         case("onlyText"):
-          controlObj["onlyText"] = (babel[values_i_1] == "true");
+          controlObj["onlyText"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el campo de texto es evaluado
+        // condition to evaluate the control
         case("evaluate"):
-          controlObj["evaluate"] = (babel[values_i_1] == "true");
+          controlObj["evaluate"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el patron de respuesta del campo de texto
+        // answer pattern
         case("answer"):
           controlObj["answer"] = values_i_1;
           break;
           
-        // se encuentra la condicion para mostrar los valores con notacion exponecial
+        // condition to show the text content in exponential notation
         case("exponentialif"):
-          controlObj["exponentialif"] = parseFloat(values_i_1); //parsear la posible expresion
+          controlObj["exponentialif"] = parseFloat(values_i_1); // parse the posible expression
           break;
 
-        // se encuentra el tamano del control grafico
+        // control graphic size
         case("size"):
           controlObj["size"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la constriccion del control grafico
+        // control graphic constraint
         case("constraint"):
           controlObj["constraintExpr"] = values_i_1;
           break;
           
-        // se encuentra el texto del control grafico
+        // control graphic text
         case("text"):
-          // texto de un control de texto
+          // the raw string
           controlObj["rawText"] = values_i_1;
           
           var tmpText = this.parseText(values_i_1);
@@ -610,64 +605,64 @@ var descartesJS = (function(descartesJS) {
           controlObj["text"] = tmpText;
           break;
           
-        // se encuentra si el control grafico deja rastro
+        // control graphic trace
         case("trace"):
           controlObj["trace"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentran las opciones del menu
+        // control menu options
         case("options"):
           controlObj["options"] = values_i_1;
           break;
           
-        // se encuentra la fuente del control grafico
+        // control graphic text font
         case("font"):
           controlObj["font"] = values_i_1;
           break;
           
-        // se encuentra el nombre del archivo del video o del audio
+        // file name of a video or audio control
         case("file"):
           controlObj["file"] = values_i_1;
           break;
           
-        // se encuentra si el video o el audio se reproduce automaticamente //no funciona en el ipad
+        // condition to auto play a video or audio control
         case("autoplay"):
-          controlObj["autoplay"] = (babel[values_i_1] == "true");
+          controlObj["autoplay"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el video o el audio se reproduce en un ciclo
+        // condition to loop a video or audio control
         case("loop"):
-          controlObj["loop"] = (babel[values_i_1] == "true");
+          controlObj["loop"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el video o el audio presenta los controles
+        // condition to show the controls of a video or audio control
         case("controls"):
-          controlObj["controls"] = (babel[values_i_1] == "true");
+          controlObj["controls"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el video tiene una imagen que mostrar
+        // video control poster image
         case("poster"):
           controlObj["poster"] = babel[values_i_1];
           break;
           
-        // cualquier variable que falte
+        // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
           
-          // se encuentra la tipografia del parametro
-          if ((prefix == "parameter") && (sufix == "font")) {
+          // find the font of the paramether
+          if ((prefix === "parameter") && (sufix === "font")) {
             controlObj["parameterFont"] = values_i_1;
             break;
             
-          // se encuentra la tipografia de la explicacion
-          } else if ((prefix == "Explanation") && (sufix == "font")) {
+          // find the font of the explanation
+          } else if ((prefix === "Explanation") && (sufix === "font")) {
             controlObj["ExplanationFont"] = values_i_1;
             break;
             
-          // se encuentra la tipografia del tooltip
-          } else if ((prefix == "tooltip") && (sufix == "font")) {
+          // find the font of the tooltip
+          } else if ((prefix === "tooltip") && (sufix === "font")) {
             controlObj["tooltipFont"] = values_i_1;
             break;            
           }
@@ -677,110 +672,100 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // si el tipo de control es numerico 
-    if (controlObj.type == "numeric") {
+    if (controlObj.type === "numeric") {
 
-      // un pulsador
-      if ((controlObj.gui == undefined) || (controlObj.gui == "spinner")) {
+      if ((controlObj.gui === undefined) || (controlObj.gui === "spinner")) {
         return new descartesJS.Spinner(this.parent, controlObj);
       }
       
-      // un boton
-      else if (controlObj.gui == "button") {
+      else if (controlObj.gui === "button") {
         return new descartesJS.Button(this.parent, controlObj);
       }
 
-      // un campo de texto
-      else if (controlObj.gui == "textfield") {
+      else if (controlObj.gui === "textfield") {
         return new descartesJS.TextField(this.parent, controlObj);
       }
       
-      // un menu
-      else if (controlObj.gui == "menu") {
+      else if (controlObj.gui === "menu") {
         return new descartesJS.Menu(this.parent, controlObj);
       }
       
-      // un scrollbar
-      else if (controlObj.gui == "scrollbar") {
+      else if (controlObj.gui === "scrollbar") {
         return new descartesJS.Scrollbar(this.parent, controlObj);
       }
 
     }
     
-    // si el tipo de control es video
-    else if (controlObj.type == "video") {
+    else if (controlObj.type === "video") {
       return new descartesJS.Video(this.parent, controlObj);
     }
     
-    // si el tipo de control es audio
-    else if (controlObj.type == "audio") {
+    else if (controlObj.type === "audio") {
       return new descartesJS.Audio(this.parent, controlObj);
     }
     
-    // si el tipo de control es grafico
-    else if (controlObj.type == "graphic") {
+    else if (controlObj.type === "graphic") {
       return new descartesJS.GraphicControl(this.parent, controlObj);
     }
     
-    // si el tipo de control es de texto
-    else if (controlObj.type == "text") {
+    else if (controlObj.type === "text") {
       return new descartesJS.TextArea(this.parent, controlObj);
     }
-
   }
 
   /**
-   * Parsea y crea un grafico
-   * @param {String} values es la cadena que contiene los valores que definen el grafico
-   * @return {Graphic} regresa un grafico con los valores correspondientes
+   * Parse and create a graphic
+   * @param {String} values is the string containing the values ​​that define the graphic
+   * @param {Boolean} abs_coord is a boolean specifying the use of absolute coordinate in macro graphics
+   * @param {Boolena} background is a boolean specifying that draw in the background the macro graphics
+   * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
+   * @return {Graphic} return a graphic constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseGraphic = function(values, abs_coord, background, rotateExp) { 
-    // el objeto que contendra todos los valores encontrados en values
-    var graphicObj = { rotateExp:rotateExp };
-    graphicObj["parameter"] = "t";
+    // object containing all the values ​​found in values
+    graphicObj = { rotateExp: rotateExp, parameter: "t" };
 
-    // se eliminan las comillas sencillas de la cadena de valores que definen el grafico y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables del grafico
-    for(var i=0, l=values.length; i<l; i++){
+    // traverse all values and asign to variables del graphic
+    for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
-      switch(babel[values_i_0]){
+      switch(babel[values_i_0]) {
         
-        // se encuentra el id del espacio del grafico
+        // space identifier
         case("space"):
           graphicObj["spaceID"] = values_i_1;
           break;
           
-        // se encuentra el tipo de grafico
+        // type
         case("type"):
           graphicObj["type"] = babel[values_i_1];
           break;
           
-        // se encuentra si el grafico debe dibujarse en el fondo
+        // condition to draw the graphic in the background
         case("background"):
-          graphicObj["background"] = (babel[values_i_1] == "true");
+          graphicObj["background"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el color del grafico
+        // color
         case("color"):
           graphicObj["color"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra la condicion de dibujo del grafico
+        // drawif condition
         case("drawif"):
           graphicObj["drawif"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra si el grafico utiliza coordenadas absolutas
+        // type of coordinates
         case("abs_coord"):
-          graphicObj["abs_coord"] = (babel[values_i_1] == "true");
+          graphicObj["abs_coord"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra la expresión del grafico
+        // expression
         case("expresion"):
           if (graphicObj.type != "macro") {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
@@ -790,185 +775,179 @@ var descartesJS = (function(descartesJS) {
           }
           break;
           
-        // se encuentra el color del rastro que deja el grafico
+        // trace
         case("trace"):
           graphicObj["trace"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra que variable se utiliza como parametro para una familia
+        // family parameter
         case("family"):
           graphicObj["family"] = values_i_1;
           break;
           
-        // se encuentra que variable se utiliza como parametro para una familia
+        // parameter of a curve
         case("parameter"):
           graphicObj["parameter"] = values_i_1;
           break;
           
-        // se encuentra el color del relleno del grafico
+        // fill color
         case("fill"):
           graphicObj["fill"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color del relleno+ del grafico
+        // equation fill+ color
         case("fillP"):
           graphicObj["fillP"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra el color del relleno- del grafico
+        // equation fill- color
         case("fillM"):
           graphicObj["fillM"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra el ancho de la linea del grafico
+        // width
         case("width"):
           graphicObj["width"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra si el grafico es visible
+        // visible condition
         case("visible"):
-          graphicObj["visible"] = (babel[values_i_1] == "true");
+          graphicObj["visible"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra si el grafico es editable
+        // editable condition
         case("editable"):
-          graphicObj["editable"] = (babel[values_i_1] == "true");
+          graphicObj["editable"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra la info del grafico
+        // information
         case("info"):
           graphicObj["info"] = values_i_1;
           break;
           
-        // se encuentra el texto del grafico
+        // text
         case("text"):
-          // var tmpText = this.parseText(values_i_1);
-
-          // for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
-          //   tmpText[ii] = this.parser.parse(tmpText[ii], false);
-          // }
-          // graphicObj["text"] = tmpText;
           graphicObj["text"] = this.parseText(values_i_1);
           break;
           
-        // se encuentra la tipografia del texto
+        // text font
         case("font"):
           graphicObj["font"] = values_i_1;
           break;
           
-        // se encuentra si la representacion del texto del punto esta en notacion fija
+        // condition to use fixed notation in the text
         case("fixed"):
-          graphicObj["fixed"] = (babel[values_i_1] == "true");
+          graphicObj["fixed"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra la cantidad de decimales para representar el texto del punto
+        // number of decimals of the text in the graphic
         case("decimals"):
           graphicObj["decimals"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el ancho del punto
+        // size
         case("size"):
           graphicObj["size"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el tamano de la punta de la flecha
+        // arrow spear size
         case("spear"):
           graphicObj["spear"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el color interior de la flecha
+        // arrow color
         case("arrow"):
           graphicObj["arrow"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra la posicion del centro del arco
+        // arc center
         case("center"):
           graphicObj["center"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el radio del circulo
+        // arc radius
         case("radius"):
           graphicObj["radius"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el angulo incial del arco
+        // arc init angle
         case("init"):
           graphicObj["init"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el angulo final del arco
+        // arc end angle
         case("end"):
           graphicObj["end"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra si el arco utiliza vectores para su especificacion
+        // arc condition to use vectors
         case("vectors"):
-          graphicObj["vectors"] = (babel[values_i_1] == "true");
+          graphicObj["vectors"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el nombre de archivo de la imagen
+        // file name
         case("file"):
           var fileTmp = values_i_1.replace(/&squot;/g, "'");
-          if ((fileTmp.charAt(0) == "[") && (fileTmp.charAt(fileTmp.length-1) == "]")) {
+          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
             fileTmp = fileTmp.substring(1, fileTmp.length-1);
           }
-          // si es el nombre de una imagen, entonces se crea una cadena
-          if (fileTmp.match(/.jpg$|.png$|.gif$|.svg$/)) {
+          // explicit image file name
+          if (fileTmp.match(regExpImage)) {
             fileTmp = "'" + fileTmp + "'";
           }
           graphicObj["file"] = this.parser.parse(fileTmp);
           break;
           
-        // se encuentra la rotacion de una imagen y un macro
-        case("inirot"):
-          graphicObj["inirot"] = this.parser.parse(values_i_1);
-          break;
-          
-        // se encuentra la opacidad de una imagen
+        // image opacity
         case("opacity"):
           graphicObj["opacity"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la posicion inicial del macro
+        // image and macro rotation
+        case("inirot"):
+          graphicObj["inirot"] = this.parser.parse(values_i_1);
+          break;
+          
+        // macro initial position
         case("inipos"):
           graphicObj["inipos"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el nombre del macro
+        // macro name
         case("name"):
           graphicObj["name"] = values_i_1;
           break;
           
-        // se encuentra el nombre del macro
+        // range
         case("range"):
           graphicObj["range"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el color del borde del texto
+        // color border
         case("border"):
           if (babel[values_i_1] != "false") {
             graphicObj["border"] = this.convertColor(values_i_1);
           }
           break;
           
-        // se encuentra la alineacion del texto
+        // text alignment
         case("align"):
           graphicObj["align"] = babel[values_i_1];
           break;
           
-        // cualquier variable que falte
+        // any variable missing
         default:
           if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) == (graphicObj["family"] + ".")) {
+            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
               
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]){
+              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
                 
-                // se encuentra el intervalo que se utiliza como parametro para una familia
+                // find the interval variable of a family
                 case("interval"):
                   graphicObj["family_interval"] = this.parser.parse(values_i_1);
                   break;
                   
-                // se encuentra el numero de pasos que se utiliza para una familia
+                // find the number of steps in the family
                 case("steps"):
                   graphicObj["family_steps"] = this.parser.parse(values_i_1);
                   break;
@@ -978,16 +957,16 @@ var descartesJS = (function(descartesJS) {
           }
 
           if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) == (graphicObj["parameter"] + ".")) {
+            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
             
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]){
+              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
               
-                // se encuentra el intervalo que se utiliza como parametro para la curva
+                // find the interval variable of a curve
                 case("interval"):
                   graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
                   break;
                 
-                // se encuentra el numero de pasos que se utiliza para la curva
+                // find the number of steps in the curve
                 case("steps"):
                   graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
                   break;
@@ -996,135 +975,120 @@ var descartesJS = (function(descartesJS) {
             }
           }
 
-          console.log("----- attributo del grafico no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
           break;
       }
     }
     
     // MACRO //
-    // si el macro utiliza coordenadas absolutas
+    // when absolute coordinates are used
     if (abs_coord) {
       graphicObj.abs_coord = abs_coord;
     }
-    // si el macro se debe dibujar en el fondo
+    // if have to draw the macro in the background
     if (background) {
       graphicObj.background = background;
     }
     // MACRO //
 
-    // el grafico es una ecuacion
-    if (graphicObj.type == "equation"){
+    if (graphicObj.type === "equation") {
       return new descartesJS.Equation(this.parent, graphicObj);
     }
     
-    // el grafico es una curva
-    else if (graphicObj.type == "curve") {
+    else if (graphicObj.type === "curve") {
       return new descartesJS.Curve(this.parent, graphicObj);
     }
 
-    // el grafico es una secuencia
-    else if (graphicObj.type == "sequence") {
+    else if (graphicObj.type === "sequence") {
       return new descartesJS.Sequence(this.parent, graphicObj);
     }
 
-    // el grafico es un punto
-    else if (graphicObj.type == "point") {
+    else if (graphicObj.type === "point") {
       return new descartesJS.Point(this.parent, graphicObj);
     }
     
-    // el grafico es un segmento
-    else if (graphicObj.type == "segment") {
+    else if (graphicObj.type === "segment") {
       return new descartesJS.Segment(this.parent, graphicObj);
     }
     
-    // el grafico es una flecha
-    else if (graphicObj.type == "arrow") {
+    else if (graphicObj.type === "arrow") {
       return new descartesJS.Arrow(this.parent, graphicObj);
     }
     
-    // el grafico es un poligono
-    else if (graphicObj.type == "polygon") {
+    else if (graphicObj.type === "polygon") {
       return new descartesJS.Polygon(this.parent, graphicObj);
     }
     
-    // el grafico es arco
-    else if (graphicObj.type == "arc") {
+    else if (graphicObj.type === "arc") {
       return new descartesJS.Arc(this.parent, graphicObj);
     }
     
-    // el grafico es un texto
-    else if (graphicObj.type == "text") {
+    else if (graphicObj.type === "text") {
       return new descartesJS.Text(this.parent, graphicObj);
     }
     
-    // el grafico es una imagen
-    else if (graphicObj.type == "image") {
+    else if (graphicObj.type === "image") {
       return new descartesJS.Image(this.parent, graphicObj);
     }
 
-    // el grafico es un macro
-    else if (graphicObj.type == "macro") {
+    else if (graphicObj.type === "macro") {
       return new descartesJS.Macro(this.parent, graphicObj);
     }
 
-    // el grafico es un relleno
-    else if (graphicObj.type == "fill") {
+    else if (graphicObj.type === "fill") {
       return new descartesJS.Fill(this.parent, graphicObj);
     }
   }
+
   /**
-   * Parsea y crea un grafico
-   * @param {String} values es la cadena que contiene los valores que definen el grafico
-   * @return {Graphic} regresa un grafico con los valores correspondientes
+   * Parse and create a 3D graphic
+   * @param {String} values is the string containing the values ​​that define the 3D graphic
+   * @param {Boolean} abs_coord is a boolean specifying the use of absolute coordinate in macro graphics
+   * @param {Boolena} background is a boolean specifying that draw in the background the macro graphics
+   * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
+   * @return {3DGraphic} return a 3D graphic constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parse3DGraphic = function(values, abs_coord, background, rotateExp) { 
-    // el objeto que contendra todos los valores encontrados en values
-    var graphicObj = { rotateExp:rotateExp };
+    // object containing all the values ​​found in values
+    graphicObj = { rotateExp:rotateExp };
     graphicObj["parameter"] = "t";
     
-    // se eliminan las comillas sencillas de la cadena de valores que definen el grafico y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables del grafico
-    for(var i=0, l=values.length; i<l; i++){
+    // traverse all values and asign to variables del graphic
+    for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
-      switch(babel[values_i_0]){
+      switch(babel[values_i_0]) {
         
-        // se encuentra el id del espacio del grafico
+        // space identifier
         case("space"):
           graphicObj["spaceID"] = values_i_1;
           break;
           
-        // se encuentra el tipo de grafico
+        // type
         case("type"):
-//           console.log(values_i_1);
           graphicObj["type"] = babel[values_i_1];
           break;
           
-        // se encuentra si el grafico debe dibujarse en el fondo
+        // condition to draw the graphic in the background
         case("background"):
-          graphicObj["background"] = (babel[values_i_1] == "true");
+          graphicObj["background"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el color del grafico
+        // color
         case("color"):
           graphicObj["color"] = this.convertColor(values_i_1);
           break;
           
-        // se encuentra la condicion de dibujo del grafico
+        // drawif condition
         case("drawif"):
           graphicObj["drawif"] = this.parser.parse(values_i_1);
           break;
           
-//         // se encuentra si el grafico utiliza coordenadas absolutas
-//         case("abs_coord"):
-//           graphicObj["abs_coord"] = (babel[values_i_1] == "true");
-//           break;
-          
-        // se encuentra la expresión del grafico
+        // expression
         case("expresion"):
           if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
@@ -1134,57 +1098,27 @@ var descartesJS = (function(descartesJS) {
           }
           break;
                     
-        // se encuentra que variable se utiliza como parametro para una familia
+        // family parameter
         case("family"):
           graphicObj["family"] = values_i_1;
           break;
           
-        // se encuentra que variable se utiliza como parametro para una familia
+        // curve parameter
         case("parameter"):
           graphicObj["parameter"] = values_i_1;
           break;
           
-//         // se encuentra el color del relleno del grafico
-//         case("fill"):
-//           graphicObj["fill"] = this.convertColor(values_i_1);
-//           break;
-//           
-//         // se encuentra el color del relleno+ del grafico
-//         case("fillP"):
-//           graphicObj["fillP"] = this.convertColor(values_i_1);
-//           break;
-//           
-//         // se encuentra el color del relleno- del grafico
-//         case("fillM"):
-//           graphicObj["fillM"] = this.convertColor(values_i_1);
-//           break;
-          
-        // se encuentra el ancho del grafico
+        // width
         case("width"):
           graphicObj["width"] = this.parser.parse(values_i_1);
           break;
 
-        // se encuentra el largo del grafico
+        // lenght
         case("length"):
           graphicObj["length"] = this.parser.parse(values_i_1);
           break;
           
-//         // se encuentra si el grafico es visible
-//         case("visible"):
-//           graphicObj["visible"] = (babel[values_i_1] == "true");
-//           break;
-//           
-//         // se encuentra si el grafico es editable
-//         case("editable"):
-//           graphicObj["editable"] = (babel[values_i_1] == "true");
-//           break;
-//           
-//         // se encuentra la info del grafico
-//         case("info"):
-//           graphicObj["info"] = values_i_1;
-//           break;
-          
-        // se encuentra el texto del grafico
+        // text
         case("text"):
           var tmpText = this.parseText(values_i_1);
 
@@ -1194,164 +1128,101 @@ var descartesJS = (function(descartesJS) {
           graphicObj["text"] = tmpText;
           break;
           
-        // se encuentra la tipografia del texto
+        // font text
         case("font"):
           graphicObj["font"] = values_i_1;
           break;
           
-        // se encuentra si la representacion del texto del punto esta en notacion fija
+        // condition to use fixed notation in the text
         case("fixed"):
-          graphicObj["fixed"] = (babel[values_i_1] == "true");
+          graphicObj["fixed"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra la cantidad de decimales para representar el texto del punto
+        // number of decimals of the text in the graphic
         case("decimals"):
           graphicObj["decimals"] = this.parser.parse(values_i_1);
           break;
-          
-//         // se encuentra el ancho del punto
-//         case("size"):
-//           graphicObj["size"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el tamano de la punta de la flecha
-//         case("spear"):
-//           graphicObj["spear"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el color interior de la flecha
-//         case("arrow"):
-//           graphicObj["arrow"] = this.convertColor(values_i_1);
-//           break;
-//           
-//         // se encuentra la posicion del centro del arco
-//         case("center"):
-//           graphicObj["center"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el radio del circulo
-//         case("radius"):
-//           graphicObj["radius"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el angulo incial del arco
-//         case("init"):
-//           graphicObj["init"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el angulo final del arco
-//         case("end"):
-//           graphicObj["end"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra si el arco utiliza vectores para su especificacion
-//         case("vectors"):
-//           graphicObj["vectors"] = (babel[values_i_1] == "true");
-//           break;
-//           
-        // se encuentra el nombre de archivo de la imagen
+
+        // file name
         case("file"):
           var fileTmp = values_i_1.replace(/&squot;/g, "'");
 
-          if ((fileTmp.charAt(0) == "[") && (fileTmp.charAt(fileTmp.length-1) == "]")) {
+          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
             fileTmp = fileTmp.substring(1, fileTmp.length-1);
           }
 
-          // si es el nombre de una imagen, entonces se crea una cadena
           if (fileTmp.match(/./)) {
             fileTmp = "'" + fileTmp + "'";
           }
 
           graphicObj["file"] = this.parser.parse(fileTmp);
           break;
-          
-//         // se encuentra la opacidad de una imagen
-//         case("opacity"):
-//           graphicObj["opacity"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el nombre del macro
-//         case("range"):
-//           graphicObj["range"] = this.parser.parse(values_i_1);
-//           break;
-//           
-//         // se encuentra el color del borde del texto
-//         case("border"):
-//           if (babel[values_i_1] != "false") {
-//             graphicObj["border"] = this.convertColor(values_i_1);
-//           }
-//           break;
-//           
-//         // se encuentra la alineacion del texto
-//         case("align"):
-//           graphicObj["align"] = babel[values_i_1];
-//           break;
 
-        // se encuentra el modelo de iluminacion del grafico tridimensional
+        // ilumination model
         case("model"):
           graphicObj["model"] = babel[values_i_1];
           break;
           
-        // se encuentra si se deben dibujar las aristas
+        // condition to draw the edges
         case("edges"):
-          graphicObj["edges"] = (babel[values_i_1] == "true");
+          graphicObj["edges"] = (babel[values_i_1] === "true");
           break;
 
-        // se encuentra Nu
+        // Nu parameter
         case("Nu"):
           graphicObj["Nu"] = this.parser.parse(values_i_1);
           break;          
 
-        // se encuentra Nv
+        // Nv parameter
         case("Nv"):
           graphicObj["Nv"] = this.parser.parse(values_i_1);
           break;          
           
-        // se encuentra el nombre del grafico tridimensional
+        // name
         case("name"):
           graphicObj["name"] = values_i_1;
           break;          
           
-        // se encuentra el color trasero de un grafico tridimensional
+        // back face color
         case("backcolor"):
           graphicObj["backcolor"] = this.convertColor(values_i_1);
           break;
 
-        // se encuentra la rotacion inicial del grafico tridimensional
+        // initial rotation
         case("inirot"):
           graphicObj["inirot"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la rotacion final del grafico tridimensional
+        // end rotation
         case("endrot"):
           graphicObj["endrot"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la posicion inicial del grafico tridimensional
+        // initial position
         case("inipos"):
           graphicObj["inipos"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra la posicion final del grafico tridimensional
+        // end position
         case("endpos"):
           graphicObj["endpos"] = this.parser.parse(values_i_1);
           break;          
 
         //////////////////////////////////////////////////////////////////////////////////////
           
-        // cualquier variable que falte
+        // any variable missing
         default:
           if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) == (graphicObj["family"] + ".")) {
+            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
               
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]){
+              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
                 
-                // se encuentra el intervalo que se utiliza como parametro para una familia
+                // find the interval variable of a family
                 case("interval"):
                   graphicObj["family_interval"] = this.parser.parse(values_i_1);
                   break;
                   
-                // se encuentra el numero de pasos que se utiliza para una familia
+                // find the number of steps in the family
                 case("steps"):
                   graphicObj["family_steps"] = this.parser.parse(values_i_1);
                   break;
@@ -1361,16 +1232,16 @@ var descartesJS = (function(descartesJS) {
           }
 
           if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) == (graphicObj["parameter"] + ".")) {
+            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
             
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]){
+              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
               
-                // se encuentra el intervalo que se utiliza como parametro para la curva
+                // find the interval variable of a curve
                 case("interval"):
                   graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
                   break;
                 
-                // se encuentra el numero de pasos que se utiliza para la curva
+                // find the number of steps in the curve
                 case("steps"):
                   graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
                   break;
@@ -1379,58 +1250,48 @@ var descartesJS = (function(descartesJS) {
             }
           }
 
-          console.log("----- attributo del grafico no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
           break;
       }
     }
 
-    // el grafico es un punto
-    if (graphicObj.type == "point") {
+    if (graphicObj.type === "point") {
       return new descartesJS.Point3D(this.parent, graphicObj);
     }
 
-    // el grafico es un segmento
-    else if (graphicObj.type == "segment") {
+    else if (graphicObj.type === "segment") {
       return new descartesJS.Segment3D(this.parent, graphicObj);
     }
     
-    // el grafico es un poligono
-    else if (graphicObj.type == "polygon") {
+    else if (graphicObj.type === "polygon") {
       return new descartesJS.Polygon3D(this.parent, graphicObj);
     }
     
-    // el grafico es una curva
-    else if (graphicObj.type == "curve") {
+    else if (graphicObj.type === "curve") {
       return new descartesJS.Curve3D(this.parent, graphicObj);
     }
     
-    // el grafico es un triangulo
-    else if (graphicObj.type == "triangle") {
+    else if (graphicObj.type === "triangle") {
       return new descartesJS.Triangle3D(this.parent, graphicObj);
     }
     
-    // el grafico es una cara
-    else if (graphicObj.type == "face") {
+    else if (graphicObj.type === "face") {
       return new descartesJS.Face3D(this.parent, graphicObj);
     }
     
-    // el grafico es un poligono regular
-    else if (graphicObj.type == "polireg") {
+    else if (graphicObj.type === "polireg") {
       return new descartesJS.Polireg3D(this.parent, graphicObj);
     }
 
-    // el grafico es una superficie
-    else if (graphicObj.type == "surface") {
+    else if (graphicObj.type === "surface") {
       return new descartesJS.Surface3D(this.parent, graphicObj);
     }
 
-    // el grafico es un texto
-    else if (graphicObj.type == "text") {
+    else if (graphicObj.type === "text") {
       return new descartesJS.Text3D(this.parent, graphicObj);
     }
     
-    // el grafico es una malla
-    else if (graphicObj.type == "mesh") {
+    else if (graphicObj.type === "mesh") {
       return new descartesJS.Mesh3D(this.parent, graphicObj);
     }
 
@@ -1441,152 +1302,151 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Parsea y registra o crea un auxiliar
-   * @param {String} values es la cadena que contiene los valores que definen el auxiliar
+   * Parse and create an auxiliar
+   * @param {String} values is the string containing the values ​​that define the auxiliar
+   * @return {Auxiliary} return a auxiliar constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseAuxiliar = function(values) {
-    // el objeto que contendra todos los valores encontrados en values
-    var auxiliarObj = {};
+    // object containing all the values ​​found in values
+    auxiliarObj = {};
+
     
-    // variable temporal para fines de calculos intermedios
-    var temp;
-    
-    // se eliminan las comillas sencillas de la cadena de valores que definen al auxiliar y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
     
     for(var i=0, l=values.length; i<l; i++) {
       values[i][1] = (values[i][1]).replace(/&squot;/g, "'");
     }
     
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables del auxiliar
+    // traverse all values and asign to variables del auxiliar
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
       switch(babel[values_i_0]) {
-        // se encuentra el id del auxiliar
+        // identifier
         case("id"):
           auxiliarObj["id"] = values_i_1;
           break;
 
-        // se encuentra si una variable es editable
+        // editable condition
       	case("editable"):
-      	  auxiliarObj["editable"] = (babel[values_i_1] == "true");
+      	  auxiliarObj["editable"] = (babel[values_i_1] === "true");
       	  break;
 	  
-        // se encuentra si es una cosntante
+        // constant condition
         case("constant"):
-          auxiliarObj["constant"] = (babel[values_i_1] == "true");
+          auxiliarObj["constant"] = (babel[values_i_1] === "true");
           break;
         
-        // se encuentra si es un vector
+        // vector condition
         case("array"):
-          auxiliarObj["array"] = (babel[values_i_1] == "true");
+          auxiliarObj["array"] = (babel[values_i_1] === "true");
           break;
 
-        // se encuentra si es un vector
+        // number of elements in a vector
+        case("size"):
+          auxiliarObj["size"] = this.parser.parse(values_i_1);
+          break;
+
+        // file name of a vector
         case("file"):
           auxiliarObj["file"] = values_i_1;
           break;
 
-        // se encuentra si es una matriz
+        // matrix condition
         case("matrix"):
-          auxiliarObj["matrix"] = (babel[values_i_1] == "true");
+          auxiliarObj["matrix"] = (babel[values_i_1] === "true");
           break;
           
-        // se encuentra el numero de renglones de una matriz
+        // number of rows in a matrix
         case("rows"):
           auxiliarObj["rows"] = this.parser.parse(values_i_1);
           break;
           
-        // se encuentra el numero de renglones de una matriz
+        // number of columns in a matrix
         case("columns"):
           auxiliarObj["columns"] = this.parser.parse(values_i_1);
           break;
 
-        // se encuentra si tiene un algoritmo
+        // algorithm condition
         case("algorithm"):
-          auxiliarObj["algorithm"] = (babel[values_i_1] == "true");
+          auxiliarObj["algorithm"] = (babel[values_i_1] === "true");
           break;
         
-        // se encuentran las expresiones iniciales
+        // init expression
         case("init"):
           auxiliarObj["init"] = values_i_1;
           break;
           
-        // se encuentran las expresiones hacer
+        // do expression
         case("do"):
           auxiliarObj["doExpr"] = values_i_1;
           break;
           
-        // se encuentran las expresiones mientras
+        // while expression
         case("while"):
           auxiliarObj["whileExpr"] = values_i_1;
           break;
           
-        // se encuentra el dominio de la expresión que define el auxiliar
+        // function range
         case("range"):
           auxiliarObj["range"] = values_i_1;
           break;
 
-        // se encuentra la expresión que define el auxiliar
+        // expression
         case("expresion"):
           auxiliarObj["expresion"] = values_i_1;
           break;
           
-        // se encuentra el numero de elementos del vector
-        case("size"):
-          auxiliarObj["size"] = this.parser.parse(values_i_1);
-          break;
-          
-        // se encuentra la forma en la que se evalua un auxiliar
+        // type of evaluation
         case("evaluate"):
           auxiliarObj["evaluate"] = babel[values_i_1];
           break;
           
-        // se encuentra si es un evento
+        // event expression
         case("event"):
           auxiliarObj["event"] = babel[values_i_1];
           break;
 
-        // se encuentra la condicion del evento
+        // event condition
         case("condition"):
           auxiliarObj["condition"] = values_i_1;
           break;
           
-        // se encuentra el tipo de ejecucion del evento
+        // execution expression of an event
         case("execution"):
           auxiliarObj["execution"] = babel[values_i_1];
           break;
 
-        // se encuentra la posicion del mensaje del evento
+        // relative position of event mesagges
         case("msg_pos"):
           auxiliarObj["msg_pos"] = babel[values_i_1];
           break;
 
-        // se encuentra la accion a ejecutar del evento
+        // event action
         case("action"):
           auxiliarObj["action"] = babel[values_i_1];
           break;
           
-        // se encuentran los parametros de la accion a ejecutar del evento
+        // event parameter
         case("parameter"):
           auxiliarObj["parameter"] = values_i_1;
           break;
           
-        // se encuentra si el auxiliar es una secuencia
+        // sequence condition
         case("sequence"):
-          auxiliarObj["sequence"] = (babel[values_i_1] == "true");
+          auxiliarObj["sequence"] = (babel[values_i_1] === "true");
           break;
-          
+
+        // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
           
-          // se encuentra la tipografia del parametro
-          if ((prefix == "parameter") && (sufix == "font")) {
+          // find the font of the paramether
+          if ((prefix === "parameter") && (sufix === "font")) {
             auxiliarObj["parameterFont"] = values_i_1;
             break;
           }
@@ -1595,143 +1455,150 @@ var descartesJS = (function(descartesJS) {
           break;
       }
     }
-        
-    // una secuencia
+
+    // sequence
     if (auxiliarObj.sequence) {
       var auxS = new descartesJS.AuxSequence(this.parent, auxiliarObj);
       return;
     }
     
-    // una constante
+    // constant
     else if (auxiliarObj.constant) {
-      // si se evalua una sola vez
+      // only once evaluation
       var auxC = new descartesJS.Constant(this.parent, auxiliarObj);
       
-      // si se evalua siempre
-      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate == "always")) {
+      // always evaluation
+      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate === "always")) {
         this.parent.auxiliaries.push(auxC);
       }
       return;
-    } 
-      
-    // un algoritmo
+    }
+
+    // algorithm
     else if ((auxiliarObj.algorithm) && (auxiliarObj.evaluate)) {
-      // si se evalua una sola vez
+      // only once evaluation
       var auxA = new descartesJS.Algorithm(this.parent, auxiliarObj);
       
-      // si se evalua siempre
-//       if (auxiliarObj.evaluate == "always") {
+      // always evaluation
+//       if (auxiliarObj.evaluate === "always") {
         this.parent.auxiliaries.push(auxA);
 //       }
       return;
     }
     
-    // un vector 
+    // vector
     else if ((auxiliarObj.array) && (!auxiliarObj.matrix) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
-      // si se evalua una sola vez
+      // only once evaluation
       var auxV = new descartesJS.Vector(this.parent, auxiliarObj);
 
-      // si se evalua siempre
-      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate == "always")) {
+      // always evaluation
+      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate === "always")) {
         this.parent.auxiliaries.push(auxV);
       }
       return;
     }
 
-    // una matriz 
+    // matrix
     else if ((auxiliarObj.matrix) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
-      // si se evalua una sola vez
+      // only once evaluation
       var auxM = new descartesJS.Matrix(this.parent, auxiliarObj);
 
-      // si se evalua siempre
-      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate == "always")) {
+      // always evaluation
+      if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate === "always")) {
         this.parent.auxiliaries.push(auxM);
       }
       return;
     }
     
-    // un evento
+    // event
     else if ((auxiliarObj.event) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
-      var auxE = new descartesJS.Event(this.parent, auxiliarObj);
-      this.parent.events.push(auxE);
+      // var auxE = new descartesJS.Event(this.parent, auxiliarObj);
+      // this.parent.events.push(auxE);
+
+      this.parent.events.push( new descartesJS.Event(this.parent, auxiliarObj) );
+
       return;
     }
     
     else {
-      // una funcion
-      if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) == ")") {
-        var auxF = new descartesJS.Function(this.parent, auxiliarObj);
+      // function
+      if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
+        // var auxF = new descartesJS.Function(this.parent, auxiliarObj);
+        new descartesJS.Function(this.parent, auxiliarObj);
       } 
-      // una variable
+      // variable
       else {
-	var auxV = new descartesJS.Variable(this.parent, auxiliarObj);
+      	// var auxV = new descartesJS.Variable(this.parent, auxiliarObj);
+        new descartesJS.Variable(this.parent, auxiliarObj);
       }
       return;
     }
   }
   
   /**
-   * 
+   * Parse and create an action
+   * @param {String} theAction is the string containing the values ​​that define the action
+   * @return {Action} return a action constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseAction = function(theAction) {
-    var theAction_action = theAction.action;
-    var theAction_parent = theAction.parent;
-    var theAction_parameter = theAction.parameter;
+    theAction_action = theAction.action;
+    theAction_parent = theAction.parent;
+    theAction_parameter = theAction.parameter;
     
-    // si tiene alguna accion, creamos la accion correspondiente
+    // if has some action then create it
     if (theAction_action) {
       switch (theAction_action) {
-        // muestra un mensaje
+        // show a message
         case("message"):
           return (new descartesJS.Message(theAction_parent, theAction_parameter));
           break;
           
-        // realizar calculos
+        // performs calculations
         case("calculate"):
           return (new descartesJS.Calculate(theAction_parent, theAction_parameter));
           break;
           
-        // abre un url
+        // open an URL
         case("openURL"):
           return (new descartesJS.OpenURL(theAction_parent, theAction_parameter));
           break;
 
-        // abre una escena
+        // open a scene
         case("openScene"):
           return (new descartesJS.OpenScene(theAction_parent, theAction_parameter));
           break;
 
-        // muestra los creditos
+        // show credits
         case("about"):
           return (new descartesJS.About(theAction_parent, theAction_parameter));
           break;
 
-        // muestra la configuracion de la escena
+        // show the editor
         case("config"):
           return (new descartesJS.Config(theAction_parent, theAction_parameter));
           break;
 
-        // inicia la escena
+        // init the scene
         case("init"):
           return (new descartesJS.Init(theAction_parent, theAction_parameter));
           break;
           
-        // limpia los rastros de la escena
+        // clear the trace
         case("clear"):
           return (new descartesJS.Clear(theAction_parent, theAction_parameter));
           break;
           
-        // comienza la animacion
+        // start the animation
         case("animate"):
           return (new descartesJS.Animate(theAction_parent, theAction_parameter));
           break;
           
-        // reinicia la animacion
+        // init the animation
         case("initAnimation"):
           return (new descartesJS.InitAnimation(theAction_parent, theAction_parameter));
           break;
           
-        // reproduce audio
+        // play audio
         case("playAudio"):
           return (new descartesJS.PlayAudio(theAction_parent, theAction_parameter));
           break;
@@ -1740,83 +1607,83 @@ var descartesJS = (function(descartesJS) {
           console.log("----- Accion no soportada aun: <" + theAction_action + "> -----");
           break;
       }
-    } 
-    // regresamos un objeto cuya funcion de ejecucion no hace nada
+    }
+    // if has not some action then return a function that does nothing
     else {
-      return {execute : function(){}};
+      return {execute : function() {}};
     }
   }
 
   /**
-   * Parsea y registra una animacion
-   * @param {String} values es la cadena que contiene los valores que definen la animacion
+   * Parse and create an animation
+   * @param {String} values is the string containing the values ​​that define the animation
+   * @return {Animation} return a animation constructed with the correspondign values
    */
   descartesJS.LessonParser.prototype.parseAnimation = function(values) {
-    // el objeto que contendra todos los valores encontrados en values
+    // object containing all the values ​​found in values
     var animationObj = {};
     
-    // variable temporal para fines de calculos intermedios
-    var temp;
-    
-    // se eliminan las comillas sencillas de la cadena de valores que definen a la animacion y se dividen los valores, en el nombre del parametro y su valor
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables de la animacion
+    // traverse all values and asign to variables of the animation
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
       switch(babel[values_i_0]) {
         
-        // se encuentra el delay de la animacion
+        // time delay
         case("delay"):
           animationObj["delay"] = values_i_1;
           break;
           
-        // se encuentra si la animacion muestra los controles o no
+        // condition to show the controls
         case("controls"):
-          animationObj["controls"] = (babel[values_i_1] == "true");
+          animationObj["controls"] = (babel[values_i_1] === "true");
           break;
 
-        // se encuentra si la animacion se inicia automaticamente
+        // condition to star automatically
         case("auto"):
-          animationObj["auto"] = (babel[values_i_1] == "true");
+          animationObj["auto"] = (babel[values_i_1] === "true");
           break;
 
-        // se encuentran si la animacion se cicla
+        // condition to loop
         case("loop"):
-          animationObj["loop"] = (babel[values_i_1] == "true");
+          animationObj["loop"] = (babel[values_i_1] === "true");
           break;
          
-        // se encuentran las expresiones iniciales
+        // init expression
         case("init"):
           animationObj["init"] = values_i_1;
           break;
           
-        // se encuentran las expresiones hacer
+        // do expression
         case("do"):
           animationObj["doExpr"] = values_i_1;
           break;
           
-        // se encuentran las expresiones mientras
+        // while expression
         case("while"):
           animationObj["whileExpr"] = values_i_1;
           break;
-         
+
+        // identifier
         case("id"):
           animationObj["id"] = values_i_1;
           break;
          
+        // algorithm condition
         case("algorithm"):
-          animationObj["algorithm"] = (babel[values_i_1] == "true");
+          animationObj["algorithm"] = (babel[values_i_1] === "true");
           break;
-          
+
+        // type of evaluation          
         case("evaluate"):
-          animationObj["evaluate"] = (babel[values_i_1] == "true");
+          animationObj["evaluate"] = (babel[values_i_1] === "true");
           break;          
          
-        // cualquier variable que falte
+        // any variable missing
         default:
           console.log("----- attributo de la animacion no identificado: <" + values_i_0 + ">  <" + values_i_1 + "> -----");
           break;
@@ -1825,148 +1692,143 @@ var descartesJS = (function(descartesJS) {
     
     return (new descartesJS.Animation(this.parent, animationObj));
   }
-  
+
+  var subtitleFontSize;
+  var plecaObj;
+  var paddingSides = 15;
+  var image;
+  var imageHeight;
+  var divTitle;
+  var divSubTitle;
+  var tempDiv;
+  var tempDivHeight;
+  var tempFontSize;
+  var noLines;
+  var tempDecrement;
+
   /**
    * 
    */
   descartesJS.LessonParser.prototype.parsePleca = function(values, w) {
+    // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // el objeto que contendra todos los valores encontrados en values
-    var plecaObj = {};
-    plecaObj.title = "";
-    plecaObj.subtitle = "";
-    plecaObj.subtitlines = 0;
-    plecaObj.bgcolor = "#536891";
-    plecaObj.fgcolor = "white";
-    plecaObj.align = "left";
-    plecaObj.titleimage = "";
-    // plecaObj.titlefont = "SansSerif,PLAIN,22";
-    // plecaObj.subtitlefont = "SansSerif,PLAIN,20";
-    plecaObj.titlefont = "SansSerif,BOLD,20";
-    plecaObj.subtitlefont = "SansSerif,PLAIN,18";
-     
-    var values_i_0, values_i_1;
-    // se recorren todos los valores y se asignan a las variables de la pleca
+    // object containing all the values ​​found in values
+    plecaObj = { 
+                title:        "",
+                subtitle:     "",
+                subtitlines:  0,
+                bgcolor:      "#536891",
+                fgcolor:      "white",
+                align:        "left",
+                titleimage:   "",
+                titlefont:    "SansSerif,BOLD,20",
+                subtitlefont: "SansSerif,PLAIN,18"
+             };
+ 
+    // traverse all values and asign to variables of the pleca
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
       switch(values_i_0) {
-        // se encuentra el texto del titulo
+        // title text
         case("title"):
           plecaObj.title = values_i_1;
           break;
          
-        // se encuentra el texto del subtitulo
+        // subtitle text
         case("subtitle"):
           plecaObj.subtitle = values_i_1;
           break;
 
-        // se encuentra el numero de lineas texto del subtitulo
+        // number of lines of the subtitle
         case("subtitlines"):
           plecaObj.subtitlines = values_i_1;
           break;
 
-        // se encuentra el color de fondo de la pleca
+        // background color
         case("bgcolor"):
-          if (values_i_1 !== "") {
+          if (values_i_1 != "") {
             plecaObj.bgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
           }
           break;
 
-        // se encuentra el color del texto de la pleca
+        // text color
         case("fgcolor"):
-          if (values_i_1 !== "") {
+          if (values_i_1 != "") {
             plecaObj.fgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
           }
           break;
 
-        // se encuentra el tipo de alineacion del texto de la pleca
+        // alignment
         case("align"):
-          if (values_i_1 !== "") {
+          if (values_i_1 != "") {
             plecaObj.align = values_i_1;
           }
           break;
 
-        // se encuentra el nombre de archivo de la imagen de la pleca
+        // file image
         case("titleimage"):
           plecaObj.titleimage = values_i_1;
           break;
 
-        // se encuentra la tipografia del titulo
+        // title font
         case("titlefont"):
-          if (values_i_1 !== "") {
-            plecaObj.titlefont = descartesJS.convertFont(values_i_1);
-          } else {
-            plecaObj.titlefont = descartesJS.convertFont(plecaObj.titlefont);
-          }
+          plecaObj.titlefont = (values_i_1 != "") ? descartesJS.convertFont(values_i_1) : descartesJS.convertFont(plecaObj.titlefont);
           break;
 
-        // se encuentra la tipografia del titulo
+        // subtitle font
         case("subtitlefont"):
-          if (values_i_1 !== "") {
-            plecaObj.subtitlefont = descartesJS.convertFont(values_i_1);
-          } else {
-            plecaObj.subtitlefont = descartesJS.convertFont(plecaObj.subtitlefont);
-          }
+          plecaObj.subtitlefont = (values_i_1 != "") ? descartesJS.convertFont(values_i_1) : descartesJS.convertFont(plecaObj.subtitlefont);
           break;
 
-        // cualquier variable que falte
+        // any variable missing
         default:
           console.log("----- attributo de la pleca no identificado: <" + values_i_0 + ">  <" + values_i_1 + "> -----");
           break;
       }
     }
 
-    // el tamano de la tipografica del subtitulo
-    var subtitleFontSize = plecaObj.subtitlefont.substring(0, plecaObj.subtitlefont.indexOf("px"));
+    // the subtitle font size
+    subtitleFontSize = plecaObj.subtitlefont.substring(0, plecaObj.subtitlefont.indexOf("px"));
     subtitleFontSize = subtitleFontSize.substring(subtitleFontSize.lastIndexOf(" "));
 
-    // que tanto se despega del borde el contenido de la pleca
-    var paddingSides = 15;
-
-    // la imagen de la pleca y su altura si es que existe
-    var image;
-    var imageHeight;
+    // the image and its height if it exists
     if (plecaObj.titleimage != "") {
       image = this.parent.getImage(plecaObj.titleimage);
       imageHeight = image.height;
     }
     
-    // se crea el contenedor de la pleca
+    // create the container
     plecaObj.divPleca = document.createElement("div");
     plecaObj.divPleca.setAttribute("id", "descartesPleca");
 
-    // si existe una imagen, entonces la altura de la pleca se ajusta a la altura de la imagen
+    // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
       plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; height: "+ (imageHeight-16) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; overflow: hidden; z-index: 100;");
       
       image.setAttribute("style", "position: absolute; left: 0px; top: 0px; z-index: -1; width: 100%; height: 100%");
       plecaObj.divPleca.appendChild(image);
     } 
-    // si no hay una imagen la altura no se especifica para que el contenedor la calcule solo
+    // if there is not an image, the the height is not specified and the contaier guest the height
     else {
       plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
     }
     
-    // se crea el contenedor para el titulo y se agrega su contenido
-    var divTitle = document.createElement("div");
+    // creates the container for the title and the content is added
+    divTitle = document.createElement("div");
     divTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.titlefont + "; overflow: hidden; white-space: nowrap;");
     divTitle.innerHTML = plecaObj.title;
 
-    // se crea el contenedor pare el subtitulo
-    var divSubTitle = document.createElement("div");
+    // create the container for the subtitle
+    divSubTitle = document.createElement("div");
 
-    // si el numero de lineas del subtitulo es igual a 1 entonces el alto del subtitulo se ajusta a que solo sea una linea
-    if (parseInt(plecaObj.subtitlines) == 1) {
-      var tempDiv;
-      var tempDivHeight;
-      var tempFontSize;
-      var noLines;
-      var tempDecrement = 0;
+    // if the number of lines of the subtitle is equal to 1 then the height of the subtitle fits only one line
+    if (parseInt(plecaObj.subtitlines) === 1) {
+      tempDecrement = 0;
 
-      // se crea un contenedor temporal que sirve como sustituto al contenedor del subtitulo, y con el determinar el tamano de la letra del contenedor del subtitulo
+      // creates a temporary container that serves as a substitute container for the subtitle, to determine the font size of the subtitle container
       tempDiv = document.createElement("div");
       tempDiv.innerHTML = plecaObj.subtitle;
       document.body.appendChild(tempDiv);
@@ -1975,45 +1837,43 @@ var descartesJS = (function(descartesJS) {
       do {
         tempFontSize = tempFontSize - tempDecrement;
         
-        // se asigna el estilo al contenedor temporar para medir el numero de lineas en las que rompe el texto
+        // style is assigned to temporary container to measure the number of lines in the text
         tempDiv.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; width: " + (w-2*paddingSides) + "px; line-height: " + tempFontSize + "px;")
         
-        // se encuentra la altura del contenedor temporal
+        // find the height of the temporary container
         tempDivHeight = tempDiv.offsetHeight;
-        // se encuentra el numero de lineas dividiendo la altura entre la altura de una linea
+        // find the number of lines by dividing the height between the height of a line
         noLines = tempDivHeight / tempFontSize;
 
         tempDecrement = 1;
       } 
-      // si el numero de lineas es uno o si el tamano de la fuente se vuelve mas pequena que 8px entonces se termina la busqueda
+      // If the number of lines is one or the font size becomes smaller than 8px then the search ends
       while ((noLines > 1) && (tempFontSize > 8));
 
-      // se remueve el contenedor temporal del cuerpo
+      // temporary container is removed from the body
       document.body.removeChild(tempDiv);
       
-      // se asigna el estilo al subtitulo con el tamano de tipografia adecuado
+      // assign to the subtitle style the proper font size
       divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; line-height: 110%; overflow: hidden; white-space: nowrap;");
     } 
-    // si el numero de lineas es diferente de 1, entonces el numero de lineas se ignora
+    // if the number of lines is different from 1, then the number of lines is ignored
     else {
       divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; line-height: 110%;");
     }
-    // se asigan el contenido al subtitulo
+    // assign the content to the subtitle
     divSubTitle.innerHTML = plecaObj.subtitle;
 
     plecaObj.divPleca.appendChild(divTitle);
     plecaObj.divPleca.appendChild(divSubTitle);
     
-//     console.log(plecaObj.title, plecaObj.subtitle, plecaObj.subtitlines, plecaObj.bgcolor, plecaObj.fgcolor, plecaObj.align, plecaObj.titleimage, plecaObj.titlefont, plecaObj.subtitlefont);
-
     plecaObj.divPleca.imageHeight = imageHeight;
     return plecaObj.divPleca;
   }
   
   /**
-   * Elimina las comillas sencillas de la cadena de valores y se dividen en un arreglo con el nombre del parametro y su valor
-   * @param {String} values es la cadena que contiene los valores a dividir
-   * @return {[[String,String]]} regresa un arreglo de parejas nombre valor
+   * Removes single quotes in the value and divided into an array of parameters name and value pairs
+   * @param {String} values the string to divided
+   * @return {Array<Array<Strin>>} return the array of name and value pairs
    */
   descartesJS.LessonParser.prototype.split = function(values) {
     if (typeof(values) != "string") {
@@ -2022,31 +1882,31 @@ var descartesJS = (function(descartesJS) {
 
     values = values || "";
     values = values.replace(/\\'/g, "’");
-    var splitValues = [];
-    var pos = 0;
-    var i = 0;
-    var initToken = false;
-    var initPosToken = 0;
-    var endPosToken = 0;
-    var stringToken = false;
-    var valueToken = false;
-    var charAt;
+    
+    splitValues = [];
+    pos = 0;
+    i = 0;
+    initToken = false;
+    initPosToken = 0;
+    endPosToken = 0;
+    stringToken = false;
+    valueToken = false;
 
-    // se recorre la cadena a dividir
+    // traverse the string to split
     while (pos < values.length) {
-      // se ignoran los espacios en blanco si no se ha inciado la identificacion de un token
-      if ((values.charAt(pos) == " ") && (!initToken)) {
+      // ignoring the blank spaces if not started the identification of a token
+      if ((values.charAt(pos) === " ") && (!initToken)) {
         pos++;
       }
       
-      // se encuentra un caracter que es diferente de un espacio en blanco
+      // find a character which is different from a blank space
       if ((values.charAt(pos) != " ") && (!initToken)) {
         initToken = true;
         initPosToken = pos;
       }
       
-      // los valores estan especificados como una cadena
-      if ((values.charAt(pos) == "=") && (values.charAt(pos+1) == "'") && (!stringToken)) {
+      // values ​​are specified as a string
+      if ((values.charAt(pos) === "=") && (values.charAt(pos+1) === "'") && (!stringToken)) {
         stringToken = true;
         
         splitValues[i] = [values.substring(initPosToken, pos)]
@@ -2056,7 +1916,7 @@ var descartesJS = (function(descartesJS) {
         pos+=2;
       }
       
-      if ((stringToken) && (values.charAt(pos) == "'")) {
+      if ((stringToken) && (values.charAt(pos) === "'")) {
         stringToken = false;
         
         initToken = false;
@@ -2066,10 +1926,8 @@ var descartesJS = (function(descartesJS) {
         i++;
       }
 
-      // los valores estan especificados como una secuencia de palabras
-      if ((values.charAt(pos) == "=") && (values.charAt(pos+1) != "'") && (!stringToken)) {
-        // valueToken = true;
-
+      // values ​​are specified as a word sequence
+      if ((values.charAt(pos) === "=") && (values.charAt(pos+1) != "'") && (!stringToken)) {
         splitValues[i] = [values.substring(initPosToken, pos)]
 
         initPosToken = pos+1;
@@ -2079,7 +1937,7 @@ var descartesJS = (function(descartesJS) {
         // find the next space and equal sign
         var tmpIndexEqual = (values.substring(pos)).indexOf("=");
         var tmpIndexSpace;
-        if (tmpIndexEqual == -1) {
+        if (tmpIndexEqual === -1) {
           tmpIndexEqual = values.length;
           tmpIndexSpace = values.length;
         } 
@@ -2087,7 +1945,7 @@ var descartesJS = (function(descartesJS) {
           tmpIndexEqual += pos;
 
           tmpIndexSpace = values.substring(pos, tmpIndexEqual).lastIndexOf(" ");
-          if (tmpIndexSpace == -1) {
+          if (tmpIndexSpace === -1) {
             tmpIndexSpace = values.length;
           }
           else {
@@ -2102,21 +1960,6 @@ var descartesJS = (function(descartesJS) {
         pos = tmpIndexSpace;
       }
 
-      // if ((valueToken) && (values.charAt(pos) == " ")) {
-      //   valueToken = false;
-
-      //   initToken = false;
-
-      //   splitValues[i].push(values.substring(initPosToken, pos));
-        
-      //   i++;
-      // }
-
-      // // los valores estan especificados como una palabra y ya se terminaron los datos
-      // if ((valueToken) && (pos == values.length-1)) {
-      //   splitValues[i].push(values.substring(initPosToken, values.length));
-      // }
-      
       pos++;
     }      
 
@@ -2124,20 +1967,23 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Split a string using a coma delimiter
+   * @param {String} string the string to split
+   * @return {Array<String>} return an array of the spliting string using a coma delimiter
    */
   descartesJS.LessonParser.prototype.splitComa = function(string) {
-    var splitString = [];
-    var parentesisStack = [];
-    var lastSplitIndex = 0;
+    splitString = [];
+    parentesisStack = [];
+    lastSplitIndex = 0;
+
     for (var i=0, l=string.length; i<l; i++) {
-      if (string.charAt(i) == "(") {
+      if (string.charAt(i) === "(") {
         parentesisStack.push(i);
       }
-      else if (string.charAt(i) == ")") {
+      else if (string.charAt(i) === ")") {
         parentesisStack.pop();
       }
-      else if ((string.charAt(i) == ",") && (parentesisStack.length == 0)) {
+      else if ((string.charAt(i) === ",") && (parentesisStack.length === 0)) {
         splitString.push(string.substring(lastSplitIndex, i));
         lastSplitIndex = i+1;
       }
@@ -2149,42 +1995,43 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   *
+   * Given a Descartes color get an CSS color
+   * @param {String} color the Descartes color to convert
+   * @return {String} return a CSS color string
    */
   descartesJS.LessonParser.prototype.convertColor = function(color) {
-    // el color es un color escrito por su nombre
+    // the color is a color name
     if (babel[color]) {
-      if (babel[color] == "net") {
+      if (babel[color] === "net") {
         return "red";
       }
       return babel[color];
     }
     
-    // el color esta descrito por 6 digitos hexadecimales dos por cada componente, RGB #RRGGBB
-    if (color.length == 6) {
+    // the color is six hexadecimals digits #RRGGBB
+    if (color.length === 6) {
       return "#" + color;
     }
 
-    // el color esta descrito 8 digitos hexadecimales dos por cada componente, RGBA #RRGGBBAA
-    if (color.length == 8) {
+    // the color is eight hexadecimals digits #RRGGBBAA
+    if (color.length === 8) {
       return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
                     + parseInt("0x"+color.substring(4,6), 16) +","
                     + parseInt("0x"+color.substring(6,8), 16) +","
                     + (1-parseInt("0x"+color.substring(0,2), 16)/255)
                     + ")";
     }
-    
-    // el color esta descrito por una expresion (exprR, exprG, exprB, exprA)
-    if (color[0] == "(") {
-      var tmpColor = "(";
-      var splitColor = this.splitComa(color.substring(1,color.length-1));
-      var hexColor;
+
+    // the color is a Descartes expression (exprR, exprG, exprB, exprA)
+    if (color[0] === "(") {
+      tmpColor = "(";
+      splitColor = this.splitComa(color.substring(1,color.length-1));
 
       for (var i=0, l=splitColor.length; i<l; i++) {
         hexColor = parseInt(splitColor[i], 16);
         
         if (splitColor[i] != hexColor.toString(16)) {
-          if ((splitColor[i].charAt(0) == "[") && (splitColor[i].charAt(splitColor[i].length-1) == "]")) {
+          if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
             splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
           }
           tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
@@ -2196,23 +2043,24 @@ var descartesJS = (function(descartesJS) {
       return this.parser.parse(tmpColor);
     }
     
-    // cualquier otro valor
+    // otherwise
     return "#aa0000";
   }
 
   /**
-   *
+   * Parse a text an construct a simple text or rtf text
+   * @param {String} text the string text to parse
+   * @param {Object} return a rtf text or a simple text
    */
   descartesJS.LessonParser.prototype.parseText = function(text) {
-    // es un texto en RTF
+    // is a RTF text
     if (text.match(/^\{\\rtf1/)) {
-      var RTFparser = new descartesJS.RTFParser(this.parent.evaluator);
-      return RTFparser.parse(text.substring(10, text.length-1));
+      return this.RTFparser.parse(text.substring(10));
     }
     
-    // es un texto simple
-    return new descartesJS.SimpleText(text, this.parent);
+    // is a simple text
+    return new descartesJS.SimpleText(this.parent, text);
   }
 
   return descartesJS;
-})(descartesJS || {});
+})(descartesJS || {}, babel);

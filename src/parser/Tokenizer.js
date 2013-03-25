@@ -6,43 +6,72 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var inputInicial;
+  var tokens ;
+  var exit;
+  var pos;
+  var val;
+  var str;
+  var inc;
+  var count;
+  var lastTokenType;
+
+  var whiteSpaceRegExp = /^\s+/;
+  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B]+[a-zA-Z_0-9\u00C0-\u021B]*([.]*[0-9a-zA-Z_\u00C0-\u021B]+[0-9]*)*/;
+  var numberRegExp = /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/;
+  var compOperatorRegExp = /^==|^!=|^<=|^<|^>=|^>|^#/;
+  var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
+  var asignRegExp = /^=/;
+  var conditionalRegExp = /^[\?\:]/;
+  var operatorRegExp = /^[\+\-\*\/\%\^]/;
+  var squareBracketRegExp = /^\[|^\]/;
+  var parenthesesRegExp = /^\(|^\)/;
+  var separatorRegExp = /^,/;
+  var finalOfExpressionRegExp = /^;/;
+
   /**
-   * Un parser de elementos principales de una leccion de descartes
+   * Descartes tokenizer
    * @constructor 
    */
   descartesJS.Tokenizer = function() {  };
   
   descartesJS.Tokenizer.prototype.tokenize = function(input) {
-    var inputInicial = input;
+    inputInicial = input;
+
     if (input) {
-      // cambio de valores en utf de la forma \u##
+      // change the values in UTF of the form \u##
       input = input.replace(/\\u(\S+) /g, function(str, m1){ return String.fromCharCode(parseInt(m1, 16)); });
 
-      // caso para cuando los numeros aparecen como superindices codificados como &sup#;
+      // superindex numbers codified with &sup#;
       input = input.replace(/\&sup(.+);/g, "^$1 ");
-      // comillas
+
+      // single quotation marks
       input = input.replace(/&squot;/g, "'");
       
-      // pipes como cadenas
+      // replace the pipes used like string marks
       if (input.match(/\=\|\*/g)) {
         input = input.replace("|*", "'", "g").replace("*|", "'", "g");
       }
+      // replace the pipes used like string marks
+      if (input.match(/\=\|/g)) {
+        input = input.replace("|", "'", "g");
+      }
     }
     
-    var tokens = [];
-    var exit = false;
-    var pos = 0;
-    var val;
-    var str = input;
-    var inc;
-    var count = 0;
-
-    var lastTokenType = "";
+    tokens = [];
+    exit = false;
+    pos = 0;
+    str = input;
+    count = 0;
+    lastTokenType = "";
        
     /** 
-     * funcion axiliar para agregar un toke a la lista de tokes y recorrer la posicion en en la cadena a analizar
+     * Auxiliar function to add tokens and move the character position
+     * @param {String} type the type of the token
+     * @param {String} value the value of the token
+     * @param {Number} size the length of the value of the token
      */
-    var addToken = function(type, value, size) {
+    function addToken(type, value, size) {
       tokens.push({ type: type, value: value });
       str = str.slice(size);
       pos += size;
@@ -53,14 +82,14 @@ var descartesJS = (function(descartesJS) {
     while ((input) && (pos < input.length)) {
       exit = pos;
       
-      // cadena
+      // string
       if (str[0] == "'") {
         inc = 1;
         while (str[inc] != "'") {
           if (inc < str.length) {
             inc++;
           } else {
-            console.log(">Error, simbolo no conocido: ["+str+"], en la cadena <<" + inputInicial + ">>" );
+            console.log(">Error, unknown symbol: ["+str+"], in the string <<" + inputInicial + ">>" );
             return;
           }
         }
@@ -70,8 +99,8 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
       
-      // espacios en blanco
-      val = str.match( /^\s+/ );
+      // white spaces
+      val = str.match(whiteSpaceRegExp);
       if (val) {
         str = str.slice(val[0].length);
         pos += val[0].length;
@@ -79,34 +108,29 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
       
-      // identificador
-//       val = str.match( /^[a-zA-Z_ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]+[a-zA-Z_0-9ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]*([.]*[a-zA-Z_ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]+[0-9]*)*/ );
-//       val = str.match( /^[a-zA-Z_\u00C0-\u021B]+[a-zA-Z_0-9\u00C0-\u021B]*([.]*[a-zA-Z_\u00C0-\u021B]+[0-9]*)*/ );
-      val = str.match( /^[a-zA-Z_\u00C0-\u021B]+[a-zA-Z_0-9\u00C0-\u021B]*([.]*[0-9a-zA-Z_\u00C0-\u021B]+[0-9]*)*/ );
+      // identifier
+      val = str.match(identifierRegExp);
       if (val) {
-        // expresiones de la forma 2pi se convierten en 2*pi, para esto es necesario saber que el token anterior a un identificador es un numero
+        // expression of the form 2pi change to 2*pi, so we need to know that the type of the last token is a number
         if (lastTokenType === "number") {
+          // add a multiplication operator
           tokens.push({ type: "operator", value: "*" });
         }
+        // add the identifier token
         addToken("identifier", val[0], val[0].length);
         continue;
       }
     
-      // numero
-      val = str.match( /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/ );
+      // number
+      val = str.match(numberRegExp);
       if (val) {
         addToken("number", val[0], val[0].length);
-        
-//         // si el token es un numero seguido de un identificador hay que agregar una operacion de multiplicacion entre el numero y el identificador
-//         if ( str.match( /^[a-zA-Z_ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]+[a-zA-Z_0-9ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]*([.]*[a-zA-Z_ÁÉÍÓÚáéíóúÀÈÌÒÙàèìòùÄËÏÖÜäëïöüÂÊÎÔÛâêîôûŽ]+[0-9]*)*/ ) ) {
-//           addToken("operator", "*", 0);
-//         }
         
         continue;
       }
     
-      // comparacion
-      val = str.match( /^==|^!=|^<=|^<|^>=|^>|^#/ );
+      // comparison
+      val = str.match(compOperatorRegExp);
       if (val) {
         var tempVal = val[0];
 
@@ -114,9 +138,9 @@ var descartesJS = (function(descartesJS) {
           addToken("compOperator", tempVal, val[0].length);
         continue;
       }
-        
-      // booleanos
-      val = str.match( /^\!|^\~|^\&\&|^\&|^\|\||^\|/ );
+
+      // booleans
+      val = str.match(boolOperatorRegExp);
       if (val) {
         var tempVal = val[0];
         if (tempVal == "||") { tempVal = "|"; } 
@@ -127,50 +151,50 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      // un igual
-      val = str.match( /^=/ );
+      // equal (asign)
+      val = str.match(asignRegExp);
       if ((val) && !(str.match( /^==/))) {
         addToken("asign", val[0], val[0].length);
         continue;
       }
 
-      // condicional
-      val = str.match( /^[\?\:]/ );
+      // conditional
+      val = str.match(conditionalRegExp);
       if (val) {
         addToken("conditional", val[0], val[0].length);
         continue;
       }
     
-      // operador
-      val = str.match( /^[\+\-\*\/\%\^]/ );
+      // operator
+      val = str.match(operatorRegExp);
       if (val) {
         addToken("operator", val[0], val[0].length);
         continue;
       }
 
-      // corchetes
-      val = str.match( /^\[|^\]/ );
+      // square brackets
+      val = str.match(squareBracketRegExp);
       if (val) {
         addToken("square_bracket", val[0], val[0].length);
         continue;
       }
-    
-      // parentesis
-      val = str.match( /^\(|^\)/ );
+
+      // parentheses
+      val = str.match( parenthesesRegExp );
       if (val) {
         addToken("parentheses", val[0], val[0].length);
         continue;
       }
-    
-      // separador
-      val = str.match( /^,/ );
+
+      // separator
+      val = str.match(separatorRegExp);
       if (val) {
         addToken("separator", val[0], val[0].length);
         continue;
       }
 
-      // final de la expresion
-      val = str.match( /^;/ );
+      // final of expression
+      val = str.match(finalOfExpressionRegExp);
       if (val) {
         addToken("final_of_expresion", val[0], val[0].length);
         continue;
@@ -186,7 +210,9 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Auxiliary funtion for the macros that take a list of tokens and get a string representation
+   * @param {Array<Object>} tokens the tokesn to be flat
+   * @return {String} return a string representation of the tokens
    */
   descartesJS.Tokenizer.prototype.flatTokens = function(tokens) {
     tokens = tokens || [];

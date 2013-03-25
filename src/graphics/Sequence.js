@@ -9,33 +9,39 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   
   /**
-   * Una secuencia de descartes
+   * A Descartes sequence
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la secuencia
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the sequence
    */
   descartesJS.Sequence = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * width of the point
+     * type {Node}
+     * @private
+     */
+    this.size = parent.evaluator.parser.parse("2");
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-    
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Sequence, descartesJS.Graphic);
 
   /**
-   * Actualiza la secuencia
+   * Update the sequence
    */
   descartesJS.Sequence.prototype.update = function() { 
     var evaluator = this.evaluator;
 
     var expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
 
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
       var cosTheta = Math.cos(radianAngle);
@@ -55,25 +61,25 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja la secuencia
+   * Draw the sequence
    */
   descartesJS.Sequence.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.color, this.color);
   }
 
   /**
-   * Dibuja el rastro de la secuencia
+   * Draw the trace of the sequence
    */
   descartesJS.Sequence.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar una secuencia
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja la secuencia
-   * @param {String} fill el color de relleno de la secuencia
+   * Auxiliary function for draw a sequence
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the sequence is drawn
+   * @param {String} fill the fill color of the sequence
    */
   descartesJS.Sequence.prototype.drawAux = function(ctx, fill){
     var evaluator = this.evaluator;
@@ -84,9 +90,6 @@ var descartesJS = (function(descartesJS) {
     var size = Math.ceil(evaluator.evalExpression(this.size)-.4);
     var desp = size;
 
-//     ctx.save();
-
-    // se dibuja la secuencia
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
 
     ctx.beginPath();
@@ -115,18 +118,17 @@ var descartesJS = (function(descartesJS) {
       }
       
       ctx.moveTo(coordX, coordY);
-      ctx.arc(coordX, coordY, size, 0, PI2, true);
+      ctx.sequence(coordX, coordY, size, 0, PI2, true);
     }
     evaluator.setVariable("n", tmpValue);
     
     ctx.fill();
 
-    // se dibuja el texto
+    // draw the text of the sequence
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed);
+      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
     }
 
-//     ctx.restore();
   }
 
   return descartesJS;

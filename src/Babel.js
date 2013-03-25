@@ -41,7 +41,7 @@ var babel = (function(babel) {
   babel["ejes"] = babel["axes"] = babel["eixos"] = babel["ardatzak"] = babel["eixes"] = "axes";
   babel["texto"] = babel["text"] = babel["testua"] = babel["texte"] = "text";
   //////////////////////////////
-  // botones de configuracion
+  // configuration buttons
   //////////////////////////////
   babel["cr\u00E9ditos"] = babel["about"] = babel["cr\u00E8dits"] = babel["kreditoak"] = babel["cr\u00E9dits"] = babel["sobre"] = "about";
   babel["config"] = babel["konfig"] = babel["configura\u00E7\u00E3o"] = "config";
@@ -302,9 +302,9 @@ var babel = (function(babel) {
   babel["vectores"] = babel["bektoreak"] = babel["vecteurs"] = babel["vetores"] = babel["vectors"] = "vectors";
 //   babel["fuente tipo"] = babel["font type"] = babel["font tipus"] = babel["iturri mota"] = babel["source type"] = babel["fonte tipo"] = babel["tipo de fonte"] = babel["font tipus"] = "";
   babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = "font_size";
-  babel["SansSerif"] = "SansSerif";
-  babel["Serif"] = "Serif";
-  babel["Monoespaciada"] = babel["Monospaced"] = babel["Monoespazada"] = "Monospaced";
+//   babel["SansSerif"] = "SansSerif";
+//   babel["Serif"] = "Serif";
+//   babel["Monoespaciada"] = babel["Monospaced"] = babel["Monoespazada"] = "Monospaced";
 //   babel["\u00E1rbol"] = babel["tree"] = babel["arbre"] = babel["zuhitz"] = babel["arbre"] = babel["\u00E1rbore"] = babel["\u00E1rvore"] = babel["arbre"] = "";
 //   babel["sensible"] = babel["sensible"] = babel["sensible"] = babel["sentikor"] = babel["sensible"] = babel["sensible"] = babel["sens\u00EDvel"] = babel["sensible"] = "";
 //   babel["paso de l\u00EDnea"] = babel["step size"] = babel["pas de l\u00EDnia"] = babel["lerro igarotze"] = babel["pas de ligne"] = babel["paso de li\u00F1a"] = babel["passo de linha"] = babel["pas de l\u00EDnia"] = "";
@@ -334,7 +334,7 @@ var babel = (function(babel) {
 //   babel["No se encuentra"] = babel["Not Found"] = babel["No es troba"] = babel["Ez da aurkitzen"] = babel["Il ne se trouve pas"] = babel["Non se atopa"] = babel["N\u00E3o Encontrado"] = babel["No es troba"] = "";
   
   ////////////////////////
-  //  opciones nuevas   //
+  //  new options added
 //   babel["borde"] = babel["border"] = babel["contour"] = "border";
   babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = "border";
   babel["video"] = babel["vid\u00e9o"] = "video";

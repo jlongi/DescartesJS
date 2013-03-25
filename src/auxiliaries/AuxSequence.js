@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una secuencia de descartes
+   * Descartes sequence
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la secuencia
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
    */
   descartesJS.AuxSequence = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
     
     var evaluator = this.evaluator;
@@ -32,94 +32,23 @@ var descartesJS = (function(descartesJS) {
 
     this.numberOfParams = this.params.length;
 
-    // se parsea la expresion init
-    this.init = this.splitInstructions(parser, this.init);
-
-    // se parsea la expresion doExpr
-    this.doExpr = this.splitInstructions(parser, this.doExpr);
-    
-    // se parsea la expresion de while
-    if (this.whileExpr) {
-      this.whileExpr = parser.parse(this.whileExpr);
+    // if do not have an algorithm ignore the init, doExpr and whileExpr values
+    if (!this.algorithm) {
+      this.init = "";
+      this.doExpr = "";
+      this.whileExpr = "";
     }
 
+    // parse the expression
     this.expresion = parser.parse(this.expresion);
 
-    var self = this;
-    if (this.algorithm) {
-      this.functionExec = function() {
-        if (self.numberOfParams == arguments.length) {
-          
-          // se guardan los valores de las variables que tienen el mismo nombre que los parametros de la funcion
-          var paramsTemp = [];
-          for (var i=0, l=self.params.length; i<l; i++) {
-            paramsTemp[i] = evaluator.getVariable(self.params[i]);
-            
-            // se asocian los parametros de entrada de la funcion con los nombres de los parametros
-            evaluator.setVariable(self.params[i], arguments[i]);
-          }
-          
-          for (var i=0, l=self.init.length; i<l; i++) {
-            evaluator.evalExpression(self.init[i]);
-          }
-          
-          do {
-            for (var i=0, l=self.doExpr.length; i<l; i++) {
-              evaluator.evalExpression(self.doExpr[i]);
-            }
-          }
-          while (evaluator.evalExpression(self.whileExpr) > 0);
-                   
-          // se evalua el valor de regreso
-          var result = evaluator.evalExpression(self.expresion);
-          descartesJS.rangeOK = evaluator.evalExpression(self.domain);
-//         var result = (evaluator.evalExpression(self.domain)) ? evaluator.evalExpression(self.expresion) : "Función no definida";
-
-          // se restauran los valores de las variables que tienen el mismo nombre que los parametros de la funcion
-          for (var i=0, l=self.params.length; i<l; i++) {
-            evaluator.setVariable(self.params[i], paramsTemp[i]);
-          }
-        
-          return result;
-        }
-        
-        return 0;
-      }
-    } else {
-      this.functionExec = function() {
-        if (self.numberOfParams == arguments.length) {
-          
-          // se guardan los valores de las variables que tienen el mismo nombre que los parametros de la funcion
-          var paramsTemp = [];
-          for (var i=0, l=self.params.length; i<l; i++) {
-            paramsTemp[i] = evaluator.getVariable(self.params[i]);
-            
-            // se asocian los parametros de entrada de la funcion con los nombres de los parametros
-            evaluator.setVariable(self.params[i], arguments[i]);
-          }
-          
-          // se evalua el valor de regreso
-          var result = evaluator.evalExpression(self.expresion);
-          descartesJS.rangeOK = evaluator.evalExpression(self.domain);
-//         var result = (evaluator.evalExpression(self.domain)) ? evaluator.evalExpression(self.expresion) : "Función no definida";
-
-          // se restauran los valores de las variables que tienen el mismo nombre que los parametros de la funcion
-          for (var i=0, l=self.params.length; i<l; i++) {
-            evaluator.setVariable(self.params[i], paramsTemp[i]);
-          }
-        
-          return result;
-        }
-        
-        return 0;
-      }
-    }
-
-    evaluator.setFunction(this.name, this.functionExec);
+    // this.functionExec = this.buildAlgorithm();
+    // evaluator.setFunction(this.name, this.functionExec);
+    evaluator.setFunction(this.name, this.buildAlgorithm());
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Auxiliary
+  // create an inheritance of Auxiliary
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.AuxSequence, descartesJS.Auxiliary);
 

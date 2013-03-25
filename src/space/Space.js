@@ -7,144 +7,161 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  
+  var parent;
+  var evaluator;
+  var parser;
+  var thisID;
+  var newH;
+  var newW;
+  var parentH;
+  var parentW;
+  var temp;
+  var OxExpr;
+  var OyExpr;
+
+  var tmpContainer;
+  var tmpDisplay;
+  var containerClass;
+  var pos;
+
   /**
-   * Un espacio de descartes
+   * Descartes space
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la aplicacion de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the graphic
    */
   descartesJS.Space = function(parent, values) {
     /**
-     * La aplicacion de descartes a la que corresponde el espacio
-     * type DescartesApp
+     * Descartes application
+     * type {DescartesApp}
      * @private
      */
     this.parent = parent;
     
     /**
-     * Objeto para el parseo y evaluacion de expresiones
+     * object for parse and evaluate expressions
      * type {Evaluator}
      * @private
      */
     this.evaluator = this.parent.evaluator;
 
-    var evaluator = this.evaluator;
-    var parser = evaluator.parser;
+    evaluator = this.evaluator;
+    parser = evaluator.parser;
     
     /**
-     * Los valores iniciales del espacio
-     * type DescartesApp
+     * initial values
+     * type {String}
      * @private
      */
     this.values = values;
     
     /**
-     * El tipo del espacio
-     * type String
+     * type
+     * type {String}
      * @private
      */
     this.type = "R2";
 
     /**
-     * El identificador del espacio
-     * type String
+     * identifier
+     * type {String}
      * @private
      */
-//     this.id = (this.parent.version != 2) ? "" : "descartes2_space";
+//     this.id = (parent.version != 2) ? "" : "descartes2_space";
 
     /**
-     * La posicion en x del espacio
-     * type Number
+     * x position
+     * type {Node}
      * @private
      */
     this.xExpr = parser.parse("0");
 
     /**
-     * La posicion en y del espacio
-     * type Number
+     * y position
+     * type {Node}
      * @private
      */
     this.yExpr = parser.parse("0");
     
     /**
-     * El ancho del espacio
-     * type Number
+     * width
+     * type {Number}
      * @private
      */
     this.w = parseInt(parent.container.width);
 
     /**
-     * El alto del espacio
-     * type Number
+     * height
+     * type {Number}
      * @private
      */
     this.h = parseInt(parent.container.height);
     
     /**
-     * La condicion de dibujado del espacio
-     * type Boolean
+     * drawif condition
+     * type {Node}
      * @private
      */
     this.drawif = parser.parse("1");
 
     /**
-     * La condicion para determinar si el espacio esta fijo
-     * type Boolean
+     * fixed space condition
+     * type {Boolean}
      * @private
      */
-    this.fixed = (this.parent.version != 2) ? false : true;
+    this.fixed = (parent.version != 2) ? false : true;
 
     /**
-     * La escala del espacio
-     * type Number
+     * scale
+     * type {Number}
      * @private
      */
     this.scale = 48;
     
     /**
-     * El desplazamiento en x del origen del espacio
-     * type Number
+     * displacement x of the origin
+     * type {Number}
      * @private
      */
     this.Ox = 0;
 
     /**
-     * El desplazamiento en y del origen del espacio
-     * type Number
+     * displacement y of the origin
+     * type {Number}
      * @private
      */
     this.Oy = 0;
     
     /**
-     * La imagen de fondo del espacio
-     * type Image
+     * background image
+     * type {Image}
      * @private
      */
     this.image = new Image();
     this.image.onload = function() {
       this.ready = 1;
     }
+
     /**
-     * El nombre del archivo de la imagen de fondo del espacio
-     * type String
+     * background image file name
+     * type {String}
      * @private
      */
     this.imageSrc = "";
     
     /**
-     * Como se acomoda la imagen de fondo del espacio
-     * type String
+     * how the background image is positioned
+     * type {String}
      * @private
      */
     this.bg_display = "topleft";
     
     /**
-     * El color de fondo del espacio
-     * type String
+     * background color
+     * type {String}
      * @private
      */
-    if ( (this.parent.code == "descinst.com.mja.descartes.DescartesJS.class") || (this.parent.arquimedes) ) {
+    if ( (parent.code === "descinst.com.mja.descartes.DescartesJS.class") || (parent.arquimedes) ) {
       this.background = "#f0f8fa";
     }
     else {
@@ -152,111 +169,111 @@ var descartesJS = (function(descartesJS) {
     }
     
     /**
-     * La condicion y el color para dibujar la red del espacio
-     * type String
+     * net condition and color
+     * type {String}
      * @private
      */
-    this.net = (this.parent.version != 2) ? "#c0c0c0" : "";
+    this.net = (parent.version != 2) ? "#c0c0c0" : "";
 
     /**
-     * La condicion y color para dibujar la red10 del espacio
-     * type String
+     * net 10 condition and color
+     * type {String}
      * @private
      */
-    this.net10 = (this.parent.version != 2) ? "#808080" : "";
+    this.net10 = (parent.version != 2) ? "#808080" : "";
 
     /**
-     * La condicion y el color para dibujar los ejes del espacio
-     * type String
+     * axes condition and color
+     * type {String}
      * @private
      */
     // ## parche para descartes 2 ## //
-    this.axes = (this.parent.version != 2) ? "#808080" : "";
+    this.axes = (parent.version != 2) ? "#808080" : "";
 
     /**
-     * La condicion y el color del texto de las coordenadas del espacio
-     * type String
+     * coordinate text condition and color
+     * type {String}
      * @private
      */
     this.text = "#ffafaf";
 
     /**
-     * La condicion para dibujar los numeros del espacio
-     * type Boolean
+     * condition to draw the axis numbers
+     * type {Boolean}
      * @private
      */
     this.numbers = false;
 
     /**
-     * El texto del eje x del espacio
-     * type String
+     * x axis text
+     * type {String}
      * @private
      */
-    this.x_axis = (this.parent.version != 2) ? "" : " ";
+    this.x_axis = (parent.version != 2) ? "" : " ";
 
     /**
-     * El texto del eje y del espacio
-     * type String
+     * y axis text
+     * type {String}
      * @private
      */
-    this.y_axis = (this.parent.version != 2) ? "" : " ";
+    this.y_axis = (parent.version != 2) ? "" : " ";
 
     /**
-     * La condicion para que el espacio sea sensible a los movimientos del mouse
-     * type Boolean
+     * sensitive to mose movements condition
+     * type {Boolean}
      * @private
      */
     this.sensitive_to_mouse_movements = false;
     
     /**
-     * La cID del espacio
-     * type String
+     * component identifier (rtf text positioning)
+     * type {String}
      * @private
      */    
     this.cID = ""
 
     /**
-     * La posicion en x del mouse sobre el espacio
-     * type Number
+     * mouse x position
+     * type {Number}
      * @private
      */
     this.mouse_x = 0;
 
     /**
-     * La posicion en y del mouse sobre el espacio
-     * type Number
+     * mouse y position
+     * type {Number}
      * @private
      */
     this.mouse_y = 0;
     
     /**
-     * Los controles contenidos en el espacio
-     * type [Controls]
+     * the controls
+     * type {Array<Controls>}
      * @private
      */
     this.ctrs = [];
     
     /**
-     * Las graficas contenidas en el espacio
-     * type [Graphics]
+     * the graphics
+     * type {Array<Graphics>}
      * @private
      */
     this.graphics = [];
     
     /**
-     * Indice z de los elementos
-     * @type {number}
+     * z index of the elements
+     * @type {Number}
      * @private 
      */
     this.zIndex = parent.zIndex;
 
-    this.plecaHeight = this.parent.plecaHeight || 0;
-    this.displaceRegionNorth = this.parent.displaceRegionNorth || 0;
-    this.displaceRegionWest = this.parent.displaceRegionWest || 0;
-    
-    // se recorre values para reemplazar los valores iniciales del espacio
+    this.plecaHeight = parent.plecaHeight || 0;
+    this.displaceRegionNorth = parent.displaceRegionNorth || 0;
+    this.displaceRegionWest = parent.displaceRegionWest || 0;
+
+    // traverse the values to replace the defaults values of the object
     for (var propName in values) {
-      // solo se verifican las propiedades propias del objeto values
+      // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
@@ -266,36 +283,35 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Init the values of the space
    */
   descartesJS.Space.prototype.init = function() {
-    this.displaceRegionNorth = this.parent.displaceRegionNorth || 0;
-    this.displaceRegionWest = this.parent.displaceRegionWest || 0;
+    parent = this.parent;
+    evaluator = this.evaluator;
+    thisID = this.id;
 
-    var parent = this.parent;
-    var evaluator = this.evaluator;
-    var thisID = this.id;
-    var newH;
-    var newW;
-    var parentH = parseInt(this.parent.container.height);
-    var parentW = parseInt(this.parent.container.width);
+    this.displaceRegionNorth = parent.displaceRegionNorth || 0;
+    this.displaceRegionWest = parent.displaceRegionWest || 0;
+
+    parentH = parseInt(parent.container.height);
+    parentW = parseInt(parent.container.width);
     
-    // se obtienen los anchos preliminares para calcular la posible posicion en x y y
+    // get the initial values to calculate the x and y position
     evaluator.setVariable(thisID + "._w", this.w);
     evaluator.setVariable(thisID + "._h", this.h);
     
-    // se encuentra la posicion en x y y del espacio
+    // get the x and y position
     this.x = evaluator.evalExpression(this.xExpr) + this.displaceRegionWest;
     this.y = evaluator.evalExpression(this.yExpr) + this.plecaHeight + this.displaceRegionNorth;
 
-    // si ya fue creado el contenedor entonces se modifica su posicion en x y y, cuando hay regiones involucradas
+    // if the container exist then modify it's x and y position
     if (this.container) {
       this.container.style.left = this.x + "px";
       this.container.style.top = this.y + "px";
     }
     
-    // se ignora el cambio en el tamano de los espacios
-    if ((!this.parent.hackChafaParaQueFuncionenLasEscenasDeArquimedes) || (this.id == "_BASE_")) {
+    // ignore the change in the size if the id of the space is _BASE_
+    // if (thisID === "_BASE_") {
       if (this.y >=0) {
         newH = parentH - this.y;
         if (this.h > newH) {
@@ -323,44 +339,44 @@ var descartesJS = (function(descartesJS) {
           this.w = newW;
         }
       }
-    }
+    // }
 
-    // si el espacio tiene una imagen de fondo entonces se pide la imagen al arreglo de imagenes del padre
-    if ((this.imageSrc != "") || (!(this.imageSrc.toLowerCase().match(/vacio.gif$/)))) {
+    // if the space has a background image then get the image from the loader
+    if ((this.imageSrc != "") || !(this.imageSrc.trim().toLowerCase().match(/vacio.gif$/))) {
       this.image = parent.getImage(this.imageSrc);
     }
 
     // Ox
-    // si esta especificado con un porcentaje
+    // if specified with a percentage
     if (this.OxExpr) {
-      var OxExpr = this.OxExpr;
-      if (OxExpr[OxExpr.length-1] == "%") {
+      OxExpr = this.OxExpr;
+      if (OxExpr[OxExpr.length-1] === "%") {
         this.Ox = this.w*parseFloat(OxExpr)/100;
       } 
-      // si no esta especificado con un porcentaje
+      // if not specified with a percentage
       else {
-        var temp = parseFloat(OxExpr);
+        temp = parseFloat(OxExpr);
         
-        // si al convertir el valor a un numero los valores son diferentes
+        // whether to convert the value to a number the values ​​are different
         if (temp != OxExpr) {
           temp = 0;
         }
         this.Ox = temp;
       }
     }
-    
+
     // Oy
-    // si esta especificado con un porcentaje
+    // if specified with a percentage
     if (this.OyExpr) {
-      var OyExpr = this.OyExpr;
-      if (OyExpr[OyExpr.length-1] == "%") {
+      OyExpr = this.OyExpr;
+      if (OyExpr[OyExpr.length-1] === "%") {
         this.Oy = this.h*parseFloat(OyExpr)/100;
       } 
-      // si no esta especificado con un porcentaje
+      // if not specified with a percentage
       else {
-        var temp = parseFloat(OyExpr);
+        temp = parseFloat(OyExpr);
         
-        // si al convertir el valor a un numero los valores son diferentes
+        // whether to convert the value to a number the values ​​are different
         if (temp != OyExpr) {
           temp = 0;
         }
@@ -368,9 +384,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // se registran las variables del espacio
-    // ## parche para descartes 2 ## //
-    if (this.parent.version != 2) {
+    // register the space variables
+    // ## Descartes 2 patch ## //
+    if (parent.version !== 2) {
       evaluator.setVariable(thisID + "._w", this.w);
       evaluator.setVariable(thisID + "._h", this.h);
       evaluator.setVariable(thisID + ".escala", this.scale);
@@ -381,96 +397,105 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable(thisID + ".mouse_pressed", 0);
     }
     else {
-      var tmp = this.evaluator.getVariable("_w");
-      if (tmp == undefined) { tmp = this.w; };
-      evaluator.setVariable("_w", tmp);
+      temp = evaluator.getVariable("_w");
+      if (temp === undefined) { temp = this.w; };
+      evaluator.setVariable("_w", temp);
 
-      tmp = this.evaluator.getVariable("_h");
-      if (tmp == undefined) { tmp = this.h; };
-      evaluator.setVariable("_h", tmp);
+      temp = evaluator.getVariable("_h");
+      if (temp === undefined) { temp = this.h; };
+      evaluator.setVariable("_h", temp);
 
-      tmp = this.evaluator.getVariable("escala");
-      if (tmp == undefined) { tmp = this.w; };
-      evaluator.setVariable("escala", tmp);
+      temp = evaluator.getVariable("escala");
+      if (temp === undefined) { temp = this.scale; };
+      evaluator.setVariable("escala", temp);
 
-      tmp = this.evaluator.getVariable("Ox");
-      if (tmp == undefined) { tmp = this.Ox; };
-      evaluator.setVariable("Ox", tmp);
+      temp = evaluator.getVariable("Ox");
+      if (temp === undefined) { temp = this.Ox; };
+      evaluator.setVariable("Ox", temp);
 
-      tmp = this.evaluator.getVariable("Oy");
-      if (tmp == undefined) { tmp = this.Oy; };
-      evaluator.setVariable("Oy", tmp);
+      temp = evaluator.getVariable("Oy");
+      if (temp === undefined) { temp = this.Oy; };
+      evaluator.setVariable("Oy", temp);
       
       evaluator.setVariable("mouse_x", 0);
       evaluator.setVariable("mouse_y", 0);
       evaluator.setVariable("mouse_pressed", 0);
 
-      if ((this.x_axis == "") && (this.y_axis == "")) {
+      if ((this.x_axis === "") && (this.y_axis === "")) {
         this.axes = "";
       }
     }
+
+    this.w_2 = this.w/2;
+    this.h_2 = this.h/2;
   }
   
   /**
-   * Agrega un control a la lista de controles del espacio
-   * @param {Controls} ctr es el control que se quiere agregar
+   * Add a control to the list of controls of the space
+   * @param {Control} ctr is the control to add
    */
   descartesJS.Space.prototype.addCtr = function(ctr) {
     this.ctrs.push(ctr);
   }
   
   /**
-   * Agrega una grafica a la lista de graficas del espacio
-   * @param {Graphics} gra es la grafica que se quiere agregar
+   * Add a graphic to the list of graphics of the space
+   * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra) {
     this.graphics.push(gra);
   }
 
   /**
-   * Se obtiene la posicion relativa con respecto al eje X de un punto
-   * @param {Number} x es la posicion del punto
-   * @return {Number} la posicion relativa con respecto al eje X de un punto
+   * Calculate the position relative to the X axis
+   * @param {Number} x ths position
+   * @return {Number} return the position relative to the X axis
    */
   descartesJS.Space.prototype.getRelativeX = function(x) {
-    return (x - MathFloor(this.w/2+this.Ox))/this.scale;
+    return (x - this.w_2 - this.Ox)/this.scale;
   }
 
   /**
-   * Se obtiene la posicion relativa con respecto al eje Y de un punto
-   * @param {Number} y es la posicion del punto
-   * @return {Number} la posicion relativa con respecto al eje Y de un punto
+   * Calculate the position relative to the Y axis
+   * @param {Number} y ths position
+   * @return {Number} return the position relative to the Y axis
    */
   descartesJS.Space.prototype.getRelativeY = function(y) {
-    return (-y + MathFloor(this.h/2+this.Oy))/this.scale;
+    return (-y + this.h_2 + this.Oy)/this.scale;
   }
   
   /**
-   * Se obtiene la posicion absoluta con respecto al eje X de un punto
-   * @param {Number} x es la posicion del punto
-   * @return {Number} la posicion absoluta con respecto al eje X de un punto
+   * Calculate the position absolute respect to the canvas coordinate system
+   * @param {Number} x ths position
+   * @return {Number} return the position absolute to the X axis
    */
   descartesJS.Space.prototype.getAbsoluteX = function(x) {
-    return (x*this.scale + MathFloor(this.w/2+this.Ox));
+    return (x*this.scale + this.w_2 + this.Ox);
   }
 
   /**
-   * Se obtiene la posicion absoluta con respecto al eje Y de un punto
-   * @param {Number} y es la posicion del punto
-   * @return {Number} la posicion absoluta con respecto al eje Y de un punto
+   * Calculate the position absolute respect to the canvas coordinate system
+   * @param {Number} y ths position
+   * @return {Number} return the position absolute to the Y axis
    */
   descartesJS.Space.prototype.getAbsoluteY = function(y) {
-    return (-y*this.scale + MathFloor(this.h/2+this.Oy));
+    return (-y*this.scale + this.h_2 + this.Oy);
   }
 
   /**
-   * Se encuentra el offset de la posicion del espacio
+   * Find the offset postion of a space
    */
   descartesJS.Space.prototype.findOffset = function() {
-    var tmpContainer = this.container;
-    var containerClass;
+    tmpContainer = this.container;
+
     this.offsetLeft = 0;
     this.offsetTop = 0;
+
+    // store the display style
+    tmpDisplay = this.container.style.display;
+
+    // make visible the element to get the offset values
+    this.container.style.display = "block";
 
     while (tmpContainer) {
       containerClass = null;
@@ -479,24 +504,32 @@ var descartesJS = (function(descartesJS) {
         containerClass = tmpContainer.getAttribute("class");
       }
 
-      if ( (containerClass) && ((containerClass == "DescartesSpace2DContainer") || (containerClass == "DescartesAppContainer")) ) {
-        this.offsetLeft += tmpContainer.offsetLeft;
-        this.offsetTop  += tmpContainer.offsetTop;
+      if ( (containerClass) && ((containerClass === "DescartesSpace2DContainer") || 
+                                (containerClass === "DescartesSpace3DContainer") ||
+                                (containerClass === "DescartesAppContainer")) 
+         ) {
+        this.offsetLeft += tmpContainer.offsetLeft || 0;
+        this.offsetTop  += tmpContainer.offsetTop || 0;
       }
-      
+
       tmpContainer = tmpContainer.parentNode;
     }
+
+    // restore the display style
+    this.container.style.display = tmpDisplay;
   }
 
   /**
-   * Se obtiene la posicion del mouse en coordenadas absolutas respecto al espacio donde se encuentra
-   * @param {Event} evt evento que contiene la posicion del mouse
-   * @return {Posicion} la posicion del mouse en coordenadas absolutas respecto al espacio donde se encuentra
+   * Get the cursor position of the mouse in absolute coordinates respect to space where it is
+   * @param {Event} evt the event containing the mouse position
+   * @return {Object} return an object with the cursor position
    */
   descartesJS.Space.prototype.getCursorPosition = function(evt) {
-    var pos = descartesJS.getCursorPosition(evt);
+    pos = descartesJS.getCursorPosition(evt);
 
-    return { x: pos.x - this.offsetLeft, y: pos.y - this.offsetTop };
+    return { x: pos.x - this.offsetLeft, 
+             y: pos.y - this.offsetTop 
+           };
   }
   
   return descartesJS;

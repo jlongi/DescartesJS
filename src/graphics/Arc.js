@@ -6,42 +6,108 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
+  var mathRound = Math.round;
+
   /**
-   * Un arco de descartes
+   * A Descartes arc
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el arco
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the arc
    */
   descartesJS.Arc = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("1");
+
+    /**
+     * the condition and the color of the fill
+     * type {String}
+     * @private
+     */
+    this.fill = "";
+
+    /**
+     * center of an arc
+     * type {Node}
+     * @private
+     */
+    this.center = parent.evaluator.parser.parse("(0,0)");
+
+    /**
+     * radius of an arc
+     * type {Node}
+     * @private
+     */
+    this.radius = parent.evaluator.parser.parse("1");
+
+    /**
+     * initial angle or vector of an arc
+     * type {Node}
+     * @private
+     */
+    this.init = parent.evaluator.parser.parse("0");
+
+    /**
+     * final angle or vector of an arc
+     * type {Node}
+     * @private
+     */
+    this.end = parent.evaluator.parser.parse("90");
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-    
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("1") : this.width;    
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arc, descartesJS.Graphic);
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var iniAng;
+  var endAng;
+  var u1;
+  var u2;
+  var v1;
+  var v2;
+  var w1;
+  var w2;
+  var angulo1;
+  var angulo2;
+  var tmpAngulo1;
+  var tmpAngulo2;
+  var space;
+  var coordX;
+  var coordY;
+  var radius;
+  var tempAng;
+  var clockwise;
+  var tmpLineWidth;
+
   /**
-   * Actualiza el arco
+   * Update the arc
    */
   descartesJS.Arc.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    var expr = evaluator.evalExpression(this.center);
-    this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    expr = evaluator.evalExpression(this.center);
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
     
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
-      var cosTheta = Math.cos(radianAngle);
-      var senTheta = Math.sin(radianAngle);
-      var tmpRotX;
-      var tmpRotY;
+      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      cosTheta = Math.cos(radianAngle);
+      senTheta = Math.sin(radianAngle);
       
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
@@ -49,31 +115,29 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
 
-    var iniAng = evaluator.evalExpression(this.init);
-    var endAng = evaluator.evalExpression(this.end);
+    iniAng = evaluator.evalExpression(this.init);
+    endAng = evaluator.evalExpression(this.end);
 
-    // si la expresion del angulo inicial y el final son expresiones parentizadas, entonces los angulos estan especificados como vectores
+    // if the expression of the initial and final angle are parenthesized expressions, then the angles are specified as vectors
     if ( ((this.init.type == "(expr)") && (this.end.type == "(expr)")) || 
          ((this.init.type == "[expr]") && (this.end.type == "[expr]")) || 
          ((this.init.type == "(expr)") && (this.end.type == "[expr]")) || 
          ((this.init.type == "[expr]") && (this.end.type == "(expr)")) 
        ) {
       this.vectors = true;
-      var u1 = iniAng[0][0];
-      var u2 = iniAng[0][1];
-      var v1 = endAng[0][0];
-      var v2 = endAng[0][1];
+      u1 = iniAng[0][0];
+      u2 = iniAng[0][1];
+      v1 = endAng[0][0];
+      v2 = endAng[0][1];
     
-      var w1 = 1;
-      var w2 = 0;
-      var angulo1;
-      var angulo2;
+      w1 = 1;
+      w2 = 0;
       
-      // se encuentran los angulos
+      // find the angles
       angulo1 = Math.acos( (u1*w1+u2*w2)/Math.sqrt(u1*u1+u2*u2) );
       angulo2 = Math.acos( (v1*w1+v2*w2)/Math.sqrt(v1*v1+v2*v2) );
 
-      // cambio en base al cuadrante para el primer angulo
+      // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && !this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
@@ -87,7 +151,7 @@ var descartesJS = (function(descartesJS) {
         angulo1 = 2*Math.PI-angulo1;
       }
       
-      // cambio en base al cuadrante para el segundo angulo
+      // change considering the quadrant for the second angle
       if ((v1 > 0) && (v2 > 0) && !this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
@@ -101,26 +165,22 @@ var descartesJS = (function(descartesJS) {
         angulo2 = 2*Math.PI-angulo2;
       }
       
-//       this.anguloInterior = Math.acos( (u1*v1+u2*v2)/(Math.sqrt(u1*u1+u2*u2)*Math.sqrt(v1*v1+v2*v2)) );
-
-      // se escoge siempre los angulos en orden del menor al mayor
-      var tmpAngulo1 = Math.min(angulo1, angulo2);
-      var tmpAngulo2 = Math.max(angulo1, angulo2);
+      // always choose the angles in order from lowest to highest
+      tmpAngulo1 = Math.min(angulo1, angulo2);
+      tmpAngulo2 = Math.max(angulo1, angulo2);
       angulo1 = tmpAngulo1;
       angulo2 = tmpAngulo2;
 
-      // si el angulo interno es mayor que PI y el arco esta en coordenadas absolutas
+      // if the internal angle if greater than PI and the angle is in absolute coordinates
       if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
         angulo1 = tmpAngulo2;
         angulo2 = tmpAngulo1;
       }
-      // si el angulo interno es menor que PI y el arco esta en coordenadas relativas
+      // if the internal angle if less than PI and the angle is in relative coordinates
       if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
         angulo1 = tmpAngulo2;
         angulo2 = tmpAngulo1;
       }
-
-//       console.log(u1, u2, "-------", v1, v2, "-------", angulo1*180/Math.PI, angulo2*180/Math.PI, "-------", this.anguloInterior*180/Math.PI);
 
       this.iniAng = angulo1;
       this.endAng = angulo2;
@@ -134,40 +194,38 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja el arco
+   * Draw the arc
    */
   descartesJS.Arc.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.fill, this.color);
   }
 
   /**
-   * Dibuja el rastro del arco
+   * Draw the trace of the arc
    */
   descartesJS.Arc.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar un arco
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el arco
-   * @param {String} fill el color de relleno del arco
-   * @param {String} stroke el color del trazo del arco
+   * Auxiliary function for draw an arc
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the arc is drawn
+   * @param {String} fill the fill color of the arc
+   * @param {String} stroke the stroke color of the arc
    */
   descartesJS.Arc.prototype.drawAux = function(ctx, fill, stroke) {
-    var evaluator = this.evaluator;
-    var space = this.space;
-    
-    var desp = 1;
-    var coordX = (this.abs_coord) ? MathFloor(this.exprX)+.5 : MathFloor(space.getAbsoluteX(this.exprX))+.5;
-    var coordY = (this.abs_coord) ? MathFloor(this.exprY)+.5 : MathFloor(space.getAbsoluteY(this.exprY))+.5;
-    var radius = evaluator.evalExpression(this.radius);
+    evaluator = this.evaluator;
+    space = this.space;
+
+    coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
+    coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
+    radius = evaluator.evalExpression(this.radius);
     
     if (!this.vectors) {
-      // verificacion de los datos
       if (this.iniAng > this.endAng) {
-        var tempAng = this.iniAng;
+        tempAng = this.iniAng;
         this.iniAng = this.endAng;
         this.endAng = tempAng;
       }
@@ -177,7 +235,7 @@ var descartesJS = (function(descartesJS) {
       radius = 0;
     }
     
-    var clockwise = false;
+    clockwise = false;
 
     if (!this.abs_coord) {
       radius = radius*space.scale;
@@ -188,7 +246,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // si los arcos estan especificados con vectores
+    // if the arc is especified with vectors
     if (this.vectors) {
       if (this.abs_coord) {
         clockwise = false;
@@ -198,35 +256,25 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // el ancho de una linea no puede ser 0 ni negativa
-    var tmpLineWidth = evaluator.evalExpression(this.width);
-    if (tmpLineWidth <=0) {
-      tmpLineWidth = 0.000001;
-    }
-    ctx.lineWidth = tmpLineWidth;
+    // the width of a line can not be 0 or negative
+    tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
+    ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
     ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
 
-    // se crea otro arco para dibujar el area coloreada del arco
-    if (this.fill) {
-      ctx.beginPath();
-      ctx.moveTo(coordX, coordY);
-      ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
-      ctx.fill();        
-    }
-      
     ctx.beginPath();
     ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
+    if (this.fill) {
+      ctx.fill();
+    }
     ctx.stroke();
     
-    // se dibuja el texto
+    // draw the text of the arc
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed);
-    }
-      
-//     ctx.restore();    
+      this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
+    }      
   }
 
   return descartesJS;

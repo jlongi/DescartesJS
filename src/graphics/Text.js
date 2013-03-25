@@ -7,50 +7,72 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un texto de descartes
+   * A Descartes text
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el texto
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the text
    */
   descartesJS.Text = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("0");
+    
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
-    // alineacion
+    // alignment
     if (!this.align) {
       this.align = "start";
     }
     
-    // el texto no tiene especificado el ancho
-    if (this.width == -1) {
-      this.width = this.evaluator.parser.parse("0");
-    }
+    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);;
     
     this.abs_coord = true;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Text, descartesJS.Graphic);
   
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+
+  var width;
+  var textLine;
+  var w;
+  var newText;
+  var height;
+
+  var restText;
+  var resultText;
+  var tempText;
+  var charAt;
+  var lastIndex;
+
   /**
-   * Actualiza el texto
+   * Update the text
    */
   descartesJS.Text.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
 
-    var expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    expr = evaluator.evalExpression(this.expresion);
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
 
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
-      var cosTheta = Math.cos(radianAngle);
-      var senTheta = Math.sin(radianAngle);
-      var tmpRotX;
-      var tmpRotY;
+      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      cosTheta = Math.cos(radianAngle);
+      senTheta = Math.sin(radianAngle);
       
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
@@ -60,61 +82,57 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja el texto
+   * Draw the text
    */
   descartesJS.Text.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.color);
   }
 
   /**
-   * Dibuja el rastro del texto
+   * Draw the trace of the text
    */
   descartesJS.Text.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.color);
   }
   
   /**
-   * Funcion auxiliar para dibujar un texto
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el texto
-   * @param {String} fill el color de relleno del texto
+   * Auxiliary function for draw a text
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the text is drawn
+   * @param {String} fill the fill color of the text
+   * @param {String} stroke the stroke color of the text
    */
   descartesJS.Text.prototype.drawAux = function(ctx, fill) {
-    var newText;
     if (this.text.type === "rtfNode") {
       newText = this.text;
+      this.ascent = 0;
     }
     else {
       newText = this.splitText(this.text.toString(this.evaluator.evalExpression(this.decimals), this.fixed).split("\\n"))
     }
-    
-    // se dibuja el texto
+
+    // draw the text
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, newText, parseFloat(this.exprX)+5, parseFloat(this.exprY), fill, this.font, this.align, "hanging");
+      //this.uber.drawText.call(this, ctx, newText, parseFloat(this.exprX)+5, parseFloat(this.exprY), fill, this.font, this.align, "hanging");
+      this.uber.drawText.call(this, ctx, newText, parseInt(this.exprX)+5, parseInt(this.exprY)+this.ascent, fill, this.font, this.align, "alphabetic");
     }
   }
   
   /**
-   * 
+   * Split a text
+   * @param {SimpleText} text the simple text to split
+   * @return {Array<String>} return the divided text
    */
   descartesJS.Text.prototype.splitText = function(text) {
-    var width = this.evaluator.evalExpression(this.width);
-    var textLine;
-    var w;
-    var newText = [];
-    var height;
+    evaluator = this.evaluator;
+    width = evaluator.evalExpression(this.width);
+    newText = [];
     
     this.ctx.font = this.font;
-    this.fontSize = this.font.match(/(\d+)px/);
-    if (this.fontSize) {
-      this.fontSize = this.fontSize[1];
-    } else {
-      this.fontSize = "10";
-    } 
 
-    // si el ancho es mayor que 20 entonces si hay que partir el texto
-    // ademas el texto no debe ser en rtf text.type != "undefined"
+    // if the width is greater than 20 then split the text
+    // besides the text should not be a rtf text (text.type! = "undefined")
     if ( (width >=20) && (text.type != "undefined") ) {
       for (var i=0, l=text.length; i<l; i++) {
         textLine = text[i];
@@ -128,78 +146,63 @@ var descartesJS = (function(descartesJS) {
         }    
       }
       
-
       height = Math.floor(this.fontSize*1.2)*(newText.length);
-      this.evaluator.setVariable("_Text_H_", height);
+      evaluator.setVariable("_Text_H_", height);
       return newText;
     }
     
-    this.evaluator.setVariable("_Text_H_", 0);
-    this.evaluator.setVariable("_Text_W_", 1000);
+    evaluator.setVariable("_Text_H_", 0);
+    evaluator.setVariable("_Text_W_", 1000);
 
     return text;
   }
-    
+
   /**
-   * 
+   * Split a text form a width
+   * @param {String} text the text to split
+   * @param {Number} widthLimit the width to split the text
+   * @return {Array<String>} return the divided text
    */
   descartesJS.Text.prototype.splitWords = function(text, widthLimit) {
-    var restText = text;
-    var resultText = [];
-    
-    var tempText;
-    var tempTextWidth;
-    var tempIndex;
+    restText = text;
+    resultText = [];
+    tempText = "";
+    lastIndex = 0;
+    var tmpString;
 
-    var lastIndexOfWhite;
-    var inTheWord = false;
-        
-    do {
-      tempIndex = Math.floor(restText.length*(widthLimit/this.ctx.measureText(restText).width)) +1;
-
-      tempText = restText.slice(0, tempIndex);
+    for (var i=0, l=text.length; i<l; i++) {
+      charAt = restText.charAt(i);
       
-      // si el texto inicia con un espacio en blanco, entonces se ignora el espacio en blanco
-      if ((tempText != "") && (tempText[0] == " ")) {
-        restText = restText.slice(1);
-        tempText = restText.slice(0, tempIndex);
+      if (charAt === " ") {
+        lastIndexOfWhite = i;
+      }
+
+      tempText += charAt;
+
+      if (Math.round(this.ctx.measureText(tempText).width) > widthLimit) {
+        tmpString = text.substring(lastIndex, i+1);
+
+        if (charAt !== " ") {
+          if (tmpString.indexOf(" ") === -1) {
+            lastIndexOfWhite = i;
+            i--;
+          }
+          else {
+            i = lastIndexOfWhite;
+          }
+        }
+
+        resultText.push( text.substring(lastIndex, lastIndexOfWhite) );
+
+        tempText = "";
+        lastIndex = i+1;
       }
       
-      // se busca si se esta entre un palabra
-      inTheWord = ( (restText[tempIndex-1]) && (restText[tempIndex]) && (restText[tempIndex-1] != " ") && (restText[tempIndex] != " ") );
-      
-      // se busca el ultimo indice del espacio en blanco
-      lastIndexOfWhite = tempText.lastIndexOf(" ");
-
-      // el ancho del texto
-      tempTextWidth = (this.ctx.measureText(tempText)).width;
-      
-      if (tempTextWidth >= widthLimit) {
-        if (lastIndexOfWhite != -1) {
-          tempIndex = lastIndexOfWhite;
-          tempText = restText.slice(0, tempIndex);
-        }
-        else {
-          tempIndex = tempIndex-1;
-          tempText = restText.slice(0, tempIndex);
-        }
-      }
-      
-      else {
-        if ((inTheWord) && (lastIndexOfWhite != -1)) {
-          tempIndex = lastIndexOfWhite;
-          tempText = restText.slice(0, tempIndex);          
-        }
-      }
-      
-      resultText.push(tempText);
-      
-      restText = restText.slice(tempIndex);
     }
-    while (restText != "");
+    resultText.push( text.substring(lastIndex));
 
-    return resultText;
+    return resultText
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

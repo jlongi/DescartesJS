@@ -7,10 +7,10 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un vector en R2
+   * Descartes R2 vector
    * @constructor 
-   * @param {x} componente x del vector
-   * @param {y} componente y del vector
+   * @param {Number} x the x component of the vector
+   * @param {Number} y the y component of the vector
    */
   descartesJS.Vector2D = function(x, y) {
     this.x = x;
@@ -18,40 +18,40 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Vector correspondiente al eje X
+   * Axis X vector
    * @const
    * @type {Vector2D}
    */ 
   descartesJS.Vector2D.AXIS_X = new descartesJS.Vector2D(1, 0);;
 
   /**
-   * Vector correspondiente al eje Y
+   * Axis Y vector
    * @const
    * @type {Vector2D}
    */ 
   descartesJS.Vector2D.AXIS_Y = new descartesJS.Vector2D(0, 1);
 
   /**
-   * Se calcula la longitud del vector
-   * @return {Number} la longitud del vector
+   * Get the lenght of a 2D vector
+   * @return {Number} return the lenght of a 2D vector
    */
   descartesJS.Vector2D.prototype.vectorLength = function() {
     return Math.sqrt(this.x*this.x + this.y*this.y);
   }
   
   /**
-   * Se calcula el producto punto entre dos vectores
-   * @param {Vector2D} el segundo vector para calcular el producto punto
-   * @return {Number} el producto punto entre dos vectores
+   * Calculate the dot product of two vectors
+   * @param {Vector2D} v the second vector for the calculation of the dot product
+   * @return {Number} return the dot product
    */
   descartesJS.Vector2D.prototype.dotProduct = function(v) {
     return this.x*v.x + this.y*v.y;
   }
   
   /**
-   * Se calcula el angulo entre dos vectores
-   * @param {Vector2D} el segundo vector para calcular el angulo
-   * @return {Number} el angulo entre dos vectores
+   * Calculate the angle between two vectors
+   * @param {Vector2D} v the second vector for the calculation of the angle between two vectors
+   * @return {Number} return the angle between two vectors
    */
   descartesJS.Vector2D.prototype.angleBetweenVectors = function(v) {
     return Math.acos(this.dotProduct(v)/(this.vectorLength()*v.vectorLength()));

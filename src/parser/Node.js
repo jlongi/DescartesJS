@@ -5,9 +5,17 @@
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
-  
+
+  var mathFloor = Math.floor;
+  var lastChildIndex;
+  var newRoot;
+  var root;
+  var right;
+
   /**
-   * Un nodo que forma un arbol de parseo
+   * Nodes of a parse tree
+   * @param {String} type the type of the node
+   * @param {Object} value the value of the node
    * @constructor 
    */
   descartesJS.Node = function (type, value) {
@@ -19,7 +27,8 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Obtiene el nodo raiz del arbol
+   * Get the root of the parse tree
+   * @return {Node} return the root of the parse tree
    */
   descartesJS.Node.prototype.getRoot = function() {
     if (this.parent === null) {
@@ -29,8 +38,8 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Agrega un hijo al arbol
-   * @param {descartesJS.Node} child el hijo que se quiere agregar
+   * Add a child to the parse tree
+   * @param {Node} child the child that want to add
    */
   descartesJS.Node.prototype.addChild = function(child) {
     child.parent = this;
@@ -38,48 +47,24 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Reemplaza el ultimo nodo en el arbol por un nodo dado
-   * @param {descartesJS.Node} child el nodo por el cual se reemplaza el ultimo nodo del arbol
+   * Replace the last child in the parse tree with a new node
+   * @param {Node} child the new child to replace the last child in the parse tree
    */
   descartesJS.Node.prototype.replaceLastChild = function(child) {
-    var lastChildIndex = this.childs.length-1,
+    lastChildIndex = this.childs.length-1,
     lastChild = this.childs[lastChildIndex];
   
     lastChild.parent = null;
     this.childs[lastChildIndex] = child;
     child.parent = this;
+
     return child;
   }
 
   /**
-   *
-   */
-   descartesJS.Node.prototype.setAllEvaluateFunction = function() {
-    this.setEvaluateFunction();
-
-    for (var i=0, l=this.childs.length; i<l; i++) {
-      this.childs[i].setAllEvaluateFunction();
-    }
-   }
-
-  /**
-   * Muestra la representacion en cadena del arbol
-   */
-  descartesJS.Node.prototype.toString = function() {
-    var str = "tipo: " + this.type + ", valor: " + this.value + "\n";
-  
-    this.sep = "   " + ((this.parent) ? (this.parent.sep) : "");
-    for (var i=0, l=this.childs.length; i<l; i++) {
-      str += this.sep +this.childs[i].toString();
-    }
-  
-    return str;
-  }
-
-  /**
-   * Dice si el arbol contiene el nodo especificado
-   * @param {descartesJS.Node} value el valor a buscar en el arbol
-   * @return {Boolean} true si el valor esta en el arbol o false si no esta
+   * Decide if the parse tree contains a node with some value
+   * @param {Node} value the value to find in the parse tree
+   * @return {Boolean} return true if the value is in the parse tree or false if not
    */
   descartesJS.Node.prototype.contains = function(value) {
     if (this.value === value) {
@@ -96,17 +81,16 @@ var descartesJS = (function(descartesJS) {
   }
     
   /**
-   * Convirte un arbol con el operador principal igual (=) a una arbol con operador principal a menos (-)
-   * @return {descartesJS.Node} el nuevo arbol donde se reemplazo el operador = por el -
+   * Converts a parse tree with an equal operator as principal operator in a parse tree with a minus operator as a principal operator
+   * @return {Node} return a new parse tree with the convertion of the principal operator
    */
   descartesJS.Node.prototype.equalToMinus = function() {
-    var newRoot;
     if (this.type === "compOperator") {
       this.type = "operator";
       this.value = "-";
       
-      var root = new descartesJS.Node("compOperator", "==");
-      var right = new descartesJS.Node("number", "0");
+      root = new descartesJS.Node("compOperator", "==");
+      right = new descartesJS.Node("number", "0");
       
       root.addChild(this);
       root.addChild(right);
@@ -115,22 +99,35 @@ var descartesJS = (function(descartesJS) {
       newRoot.setAllEvaluateFunction();
       
       return newRoot;
-    } 
+    }
+
     return this;
   }
-  
+
   /**
+   * Register the evaluation functions to all the nodes in the tree
+   */
+   descartesJS.Node.prototype.setAllEvaluateFunction = function() {
+    this.setEvaluateFunction();
+
+    for (var i=0, l=this.childs.length; i<l; i++) {
+      this.childs[i].setAllEvaluateFunction();
+    }
+  }
+
+  /**
+   * Set the apropiate evaluate function for the node
    * 
    */
   descartesJS.Node.prototype.setEvaluateFunction = function() {
-    // numero
+    // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
         return parseFloat(this.value);
       }
     }
     
-    // cadena
+    // string
     else if (this.type === "string") {
       this.evaluate = function(evaluator) {
         return this.value;
@@ -145,32 +142,35 @@ var descartesJS = (function(descartesJS) {
         }
       }
       else {
+        var variableValue;
         this.evaluate = function(evaluator, getMatrix) {
-          var variableValue = evaluator.variables[this.value];
+          variableValue = evaluator.variables[this.value];
 
+          // the variable has an auxiliar variable value
           if (typeof(variableValue) === "object") {
             return variableValue.evaluate(evaluator);
           }
 
-          // si el nombre no se encuentra en las variables pero si en las matrices
+          // if the name of the variable is the name of a matrix, for matrix operations
           if ((variableValue == undefined) && (getMatrix)) {
             variableValue = evaluator.matrices[this.value];
-            // console.log(variableValue)
           }
 
-          return variableValue || 0; 
+          return (variableValue !== undefined) ? variableValue : 0; 
         }
       }
     }
     
     // vector
     else if ( (this.type === "identifier") && (this.childs[0].type === "square_bracket") && (this.childs[0].childs.length === 1)) {
+      var pos;
+      var value;
       this.evaluate = function(evaluator) {
-        var pos = this.childs[0].childs[0].evaluate(evaluator);
-        var value;
+        pos = this.childs[0].childs[0].evaluate(evaluator);
 
         try {
-          return evaluator.vectors[this.value][(pos<0) ? 0 : Math.floor(pos)] || 0;
+          value = evaluator.vectors[this.value][(pos<0) ? 0 : mathFloor(pos)];
+          return (value !== undefined) ? value : 0;
         }
         catch(e) { 
           return 0; 
@@ -178,14 +178,18 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // matriz
+    // matrix
     else if ( (this.type === "identifier") && (this.childs[0].type === "square_bracket") && (this.childs[0].childs.length > 1)) {
+      var pos1;
+      var pos2;
+      var value;
       this.evaluate = function(evaluator) {
-        var pos1 = this.childs[0].childs[0].evaluate(evaluator);
-        var pos2 = this.childs[0].childs[1].evaluate(evaluator);
+        pos1 = this.childs[0].childs[0].evaluate(evaluator);
+        pos2 = this.childs[0].childs[1].evaluate(evaluator);
 
         try {
-          return evaluator.matrices[this.value][(pos1<0) ? 0 : Math.floor(pos1)][(pos2<0) ? 0 : Math.floor(pos2)] || 0;
+          value = evaluator.matrices[this.value][(pos1<0) ? 0 : mathFloor(pos1)][(pos2<0) ? 0 : mathFloor(pos2)]; 
+          return (value !== undefined) ? value : 0;
         }
         catch(e) {
           return 0;
@@ -193,23 +197,24 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // funcion
+    // function
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
+      var argu;
       this.evaluate = function(evaluator) {
-        var argu = [];
+        argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
           argu.push( this.childs[0].childs[i].evaluate(evaluator) );
         }
       
         if (this.value === "_Eval_") {
-          return evaluator.parser.parse(argu[0])
+          return evaluator.evalExpression( evaluator.parser.parse(argu[0]) );
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);
       }
     }
     
-    // operador
+    // operator
     else if (this.type === "operator") {
       var op1;
       var op2;
@@ -220,13 +225,13 @@ var descartesJS = (function(descartesJS) {
           op1 = this.childs[0].evaluate(evaluator, true);
           op2 = this.childs[1].evaluate(evaluator, true);
 
-          // operacion numerica o de cadenas
+          // numeric or string operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
             return op1 + op2;
           }
-          // operacion de matrices
+          // matix operation
           else {
-            return sumaMatriz(op1, op2);
+            return sumMatrix(op1, op2);
           }
         }
       }
@@ -235,13 +240,13 @@ var descartesJS = (function(descartesJS) {
           op1 = this.childs[0].evaluate(evaluator, true);
           op2 = this.childs[1].evaluate(evaluator, true);
 
-          // operacion numerica
+          // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
             return op1 - op2;
           }
-          // operacion de matrices
+          // matrix operation
           else {
-            return restaMatriz(op1, op2);
+            return substactMatrix(op1, op2);
           }
         }
       }
@@ -250,13 +255,13 @@ var descartesJS = (function(descartesJS) {
           op1 = this.childs[0].evaluate(evaluator, true);
           op2 = this.childs[1].evaluate(evaluator, true);
 
-          // operacion numerica
+          // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
             return op1 * op2;
           }
-          // operacion de matrices
+          // matrix operation
           else {
-            return multiplicacionMatriz(op1, op2);
+            return multiplicationMatrix(op1, op2);
           }
         }
       }
@@ -265,11 +270,11 @@ var descartesJS = (function(descartesJS) {
           op1 = this.childs[0].evaluate(evaluator, true);
           op2 = this.childs[1].evaluate(evaluator, true);
 
-          // operacion numerica
+          // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
             return op1 / op2;
           }
-          // operacion de matrices
+          // matrix operation
           else {
             return divisionMatriz(op1, op2);
           }
@@ -279,7 +284,7 @@ var descartesJS = (function(descartesJS) {
         this.evaluate = function(evaluator) {
           op1 = this.childs[0].evaluate(evaluator);
           op2 = this.childs[1].evaluate(evaluator);
-          return op1 - Math.floor(op1/op2)*op2;
+          return op1 - mathFloor(op1/op2)*op2;
         }
       }
       else if (this.value === "^") {
@@ -289,7 +294,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // operador de comparacion
+    // comparison operator
     else if (this.type === "compOperator") {
       if (this.value === "<") {
         this.evaluate = function(evaluator) {
@@ -323,11 +328,13 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // operador booleano
+    // boolean operator
     else if (this.type === "boolOperator") {
+      var op1;
+
       if (this.value === "&") {
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           if (op1) {
             return (this.childs[1].evaluate(evaluator)) ? 1 : 0;
           }
@@ -339,7 +346,7 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "|") {
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           if (op1) {
             return 1;
           }
@@ -351,16 +358,18 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "!") { 
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           return !op1+0; 
         }
       }
     }
     
-    // condicional
+    // conditional
     else if (this.type === "conditional") {
+      var op1;
+
       this.evaluate = function(evaluator) {
-        var op1 = this.childs[0].evaluate(evaluator);
+        op1 = this.childs[0].evaluate(evaluator);
 
         if (op1 > 0) {
           return this.childs[1].evaluate(evaluator);
@@ -371,7 +380,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // signo
+    // sign
     else if (this.type === "sign") {
       if (this.value === "sign+") {
         this.evaluate = function(evaluator) {
@@ -385,25 +394,27 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // parentesis
+    // parentheses
     else if (this.type === "parentheses") {
       this.evaluate = function(evaluator, getMatrix) {
         return this.childs[0].evaluate(evaluator, getMatrix);
       }
     }
     
-    // el nodo a evaluar es una expresion (x,y) o [x,y]
+    // expression of the type (x,y) or [x,y]
     else if ( (this.type === "(expr)") || (this.type === "[expr]") ) {
+      var l;
+      var result;
+      var tmpRes;
       this.evaluate = function(evaluator) {
-        var l = this.childs.length;
-        var result = [];
+        l = this.childs.length;
+        result = [];
 
         if ( (l === 1) && (this.childs[0].childs.length === 1) && (this.type === "(expr)") ) {
           result = this.childs[0].childs[0].evaluate(evaluator);
         }
 
         else {
-          var tmpRes;
           for (var i=0; i<l; i++) {
             tmpRes = [];
             for (var j=0, n=this.childs[i].childs.length; j<n; j++) {
@@ -417,44 +428,57 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // asignacion
+    // asignation
     else if (this.type === "asign") {
+      var ide;
+      var expre;
+      var pos;
+      var tmpPos;
+      var tmpPos0;
+      var tmpPos1;
+      var asignation;
+
       this.evaluate = function(evaluator) {
-        var ide = this.childs[0];
-        var expre = this.childs[1];
+        ide = this.childs[0];
+        expre = this.childs[1];
 
         if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket")) {
-          var pos = ide.childs[0].childs;
+          pos = ide.childs[0].childs;
 
-          // un vector 
+          // vector 
           if (pos.length === 1) {
-            var tmpPos = pos[0].evaluate(evaluator);
-            tmpPos = (tmpPos < 0) ? 0 : Math.floor(tmpPos);
+            tmpPos = pos[0].evaluate(evaluator);
+            tmpPos = (tmpPos < 0) ? 0 : mathFloor(tmpPos);
 
             evaluator.vectors[ide.value][tmpPos] = expre.evaluate(evaluator);
 
             return;
           }
 
-          // una matriz
+          // matrix
           else if (pos.length === 2) {
-            var tmpPos0 = pos[0].evaluate(evaluator);
-            var tmpPos1 = pos[1].evaluate(evaluator);
-            tmpPos0 = (tmpPos0 < 0) ? 0 : Math.floor(tmpPos0);
-            tmpPos1 = (tmpPos1 < 0) ? 0 : Math.floor(tmpPos1);
+            tmpPos0 = pos[0].evaluate(evaluator);
+            tmpPos1 = pos[1].evaluate(evaluator);
+            tmpPos0 = (tmpPos0 < 0) ? 0 : mathFloor(tmpPos0);
+            tmpPos1 = (tmpPos1 < 0) ? 0 : mathFloor(tmpPos1);
+
+            // condition to handle wrong matrix access
+            if (!evaluator.matrices[ide.value][tmpPos0]) {
+              evaluator.matrices[ide.value][tmpPos0] = [];
+            }
             evaluator.matrices[ide.value][tmpPos0][tmpPos1] = expre.evaluate(evaluator);
 
             return;
           }
-        } 
+        }
         else {
-          var asignation = expre.evaluate(evaluator);
+          asignation = expre.evaluate(evaluator);
 
-          // la asignacion es una variable
+          // the asignation is a variable
           if (!asignation.type) {
             evaluator.variables[ide.value] = asignation;
           } 
-          // la asignacion es una matriz
+          // the asignation is a matrix
           else {
             evaluator.matrices[ide.value] = asignation;
           }
@@ -473,7 +497,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function createMatriz(rows, cols) {
+  function createMatrix(rows, cols) {
     result = [];
     result.type = "matrix";
     result.rows = rows;
@@ -494,10 +518,10 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function sumaMatriz(op1, op2) {
+  function sumMatrix(op1, op2) {
     rows = op1.rows;
     cols = op1.cols;
-    result = createMatriz(rows, cols);
+    result = createMatrix(rows, cols);
 
     for (j=0; j<rows; j++){
       for (i=0; i<cols; i++) {
@@ -511,10 +535,10 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function restaMatriz(op1, op2) {
+  function substactMatrix(op1, op2) {
     rows = op1.rows;
     cols = op1.cols;
-    result = createMatriz(rows, cols);
+    result = createMatrix(rows, cols);
 
     for (j=0; j<rows; j++){
       for (i=0; i<cols; i++) {
@@ -528,10 +552,10 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function multiplicacionMatriz(op1, op2) {
+  function multiplicationMatrix(op1, op2) {
     rows = op1.rows;
     cols = op1.cols;
-    result = createMatriz(rows, cols);
+    result = createMatrix(rows, cols);
     var sum;
 
     for (j=0; j<rows; j++){
@@ -551,7 +575,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function minor(I, J, T) {
-    var M = createMatriz(T.length-1, T.length-1);
+    var M = createMatrix(T.length-1, T.length-1);
 
     for (var i=0, l=M.length; i<l; i++) {
       for (var j=0; j<l; j++) {
@@ -597,7 +621,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function inverseMatriz(T) {
-    var S = createMatriz(T.length, T.length);
+    var S = createMatrix(T.length, T.length);
     var det = determinant(T);
 
     if (det === 0) {
@@ -631,11 +655,24 @@ var descartesJS = (function(descartesJS) {
     var inverse = inverseMatriz(op2);
 
     if (inverse === 0) {
-      return createMatriz(op1.rows, op1.cols);
+      return createMatrix(op1.rows, op1.cols);
     }
 
-    return multiplicacionMatriz(op1, inverse);
+    return multiplicationMatrix(op1, inverse);
   }
+
+  /**
+   */
+  descartesJS.Node.prototype.toString = function() {
+    var str = "tipo: " + this.type + ", valor: " + this.value + "\n";
+  
+    this.sep = "   " + ((this.parent) ? (this.parent.sep) : "");
+    for (var i=0, l=this.childs.length; i<l; i++) {
+      str += this.sep +this.childs[i].toString();
+    }
+  
+    return str;
+  }  
 
   return descartesJS;
 })(descartesJS || {});

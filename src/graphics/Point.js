@@ -10,18 +10,25 @@ var descartesJS = (function(descartesJS) {
   var mathRound = Math.round;
   
   /**
-   * Un punto de descartes
+   * A Descartes point
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el punto
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the point
    */
   descartesJS.Point = function(parent, values) {
-    // se llama al constructor del padre
+    /**
+     * width of the point
+     * type {Node}
+     * @private
+     */
+    this.size = parent.evaluator.parser.parse("2");
+
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Point, descartesJS.Graphic);
 
@@ -39,16 +46,16 @@ var descartesJS = (function(descartesJS) {
   var desp;
 
   /**
-   * Actualiza el punto
+   * Update the point
    */
   descartesJS.Point.prototype.update = function() { 
     evaluator = this.evaluator;
 
     expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
 
-    // se rotan los elementos en caso de ser un macro con rotacion
+    // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
@@ -62,34 +69,33 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja el punto
+   * Draw the point
    */
   descartesJS.Point.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.color, this.color);
   }
 
   /**
-   * Dibuja el rastro del punto
+   * Draw the trace of the point
    */
   descartesJS.Point.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar un punto
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el punto
-   * @param {String} fill el color de relleno del punto
+   * Auxiliary function for draw a point
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the point is drawn
+   * @param {String} fill the fill color of the point
    */
   descartesJS.Point.prototype.drawAux = function(ctx, fill){
     evaluator = this.evaluator;
     space = this.space;
 
     size = mathRound(evaluator.evalExpression(this.size));
-    desp = size;
+    desp = size+1;
 
-    // se dibuja el punto
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
 
     coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
@@ -99,9 +105,9 @@ var descartesJS = (function(descartesJS) {
     ctx.arc(coordX, coordY, size, 0, PI2, true);
     ctx.fill()
 
-    // se dibuja el texto
+    // draw the text of the text
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed);
+      this.uber.drawText.call(this, ctx, this.text, coordX+desp+1, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
     }
 
   }

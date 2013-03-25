@@ -6,129 +6,190 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var changeX;
+  var changeY;
+  var file;
+
   /**
-   * Un espacio de descartes
+   * Descartes IFrame space
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la aplicacion de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the graphic
    */
   descartesJS.SpaceHTML_IFrame = function(parent, values) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Space.call(this, parent, values);
 
     var evaluator = this.parent.evaluator;
-    
-    // si el nombre del archivo es una expresion
+
+    // PATCH
+    // if the web browser is firefox then a problem ocurrs with a none visible iframe
+    var isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
+    // PATCH
+
+    this.file = (this.file) ? this.file.trim() : "";
+
+    // if the file name is an expression
     if (this.file.match(/^\[/) && this.file.match(/\]$/)) {
       this.file = evaluator.parser.parse(this.file.substring(1, this.file.length-1));
     }
-    // si el nombre del archivo es una cadena
+    // if the file name is a string
     else if (this.file.match(/^\'/) && this.file.match(/\'$/)) {
       this.file = evaluator.parser.parse(this.file);
     }
+    // if is not an expression or a string, then is a string without single quotes
     else {
       this.file = evaluator.parser.parse("'" + this.file + "'");
     }
     
+    // register which are the old open file
     this.oldFile = evaluator.evalExpression(this.file);    
     
     this.MyIFrame = document.createElement("iframe");
     this.MyIFrame.setAttribute("src", this.oldFile);
     this.MyIFrame.setAttribute("id", this.id);
-    this.MyIFrame.setAttribute("marginheight", 0)
-    this.MyIFrame.setAttribute("marginwidth", 0)
+    this.MyIFrame.setAttribute("marginheight", 0);
+    this.MyIFrame.setAttribute("marginwidth", 0);
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
-//     this.MyIFrame.setAttribute("style", "position: absolute; overflow: hidden; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-//     this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    // this.MyIFrame.setAttribute("style", "overflow: hidden; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
     this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    this.MyIFrame.style.display = (this.evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
 
     this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
 
-    //////////////////////////////////////////////////////////////////////
-    // se registran las funciones de comunicacion
+    // register the comunication functions
     var self = this;
-    
-    // funcion para asignar un valor a una variable
+
     this.MyIFrame.onload = function(evt) {
       var iframe = this;
 
-      // mensaje para asignar un valor a una variable
+      // set a value to a variable
       var iframeSet = function(varName, value) {
         iframe.contentWindow.postMessage({ type: "set", name: varName, value: value }, "*");
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
-      // mensaje para realizar una actualizacion
+      // update the scene
       var iframeUpdate = function(varName, value) {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
-      // mensaje para obtener el valor de una variable
-      var iframeGet = function(varName, value) {
-        iframe.contentWindow.postMessage({ type: "get", name: varName, value: value }, "*");
-      }
-      self.evaluator.setFunction(self.id + ".get", iframeGet);
-      
-      // mensaje para ejecutar una funcion
+      // get the value of a variable
+      // var iframeGet = function(varName, value) {
+      //   iframe.contentWindow.postMessage({ type: "get", name: varName, value: value }, "*");
+      // }
+      // self.evaluator.setFunction(self.id + ".get", iframeGet);
+
+      // exec a funcion of the scene
       var iframeExec = function(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
       }
-      self.evaluator.setFunction(self.id + ".exec", iframeExec);      
+      self.evaluator.setFunction(self.id + ".exec", iframeExec);
+
+      // // PATCH
+      // // if the iframe is already interpreted 
+      // if (isFirefox) {
+      //   var receiveMessage = function(event) {
+      //     var data = event.data;
+            
+      //     if (data.type === "ready") {
+      //       window.removeEventListener("message", receiveMessage);
+      //       self.update = self.iframeUpdate;
+      //       self.update();
+      //     }
+      //   }
+      //   window.addEventListener("message", receiveMessage)
+      // }
+      // // PATCH
+
     }
-    
-    // se registra la variable para el scroll
+
+    // // PATCH
+    // if (!isFirefox) {
+      this.update = this.iframeUpdate;
+    // }
+    // else {
+    //   this.update = function() { };
+    // }
+    // // PATCH
+
+    // a scroll variable to determine if the scroll is show or not
     this.evaluator.setVariable(this.id + "._scroll", 0);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Space
+  // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.SpaceHTML_IFrame, descartesJS.Space);
   
   /**
-   * Actualiza los valores del espacio
+   * Init the space
    */
-  descartesJS.SpaceHTML_IFrame.prototype.update = function(firstTime) { 
-    if (firstTime) {
-      this.x = Math.Infinity;
-      this.y = Math.Infinity;
+  descartesJS.SpaceHTML_IFrame.prototype.init = function() {
+    self = this;
+    
+    // call the init of the parent
+    self.uber.init.call(self);
+
+    // update the size of the iframe if has some regions
+    if (self.MyIFrame) {
+      self.MyIFrame.style.width  = self.w + "px";
+      self.MyIFrame.style.height = self.h + "px";
+      self.MyIFrame.style.left   = self.x + "px";
+      self.MyIFrame.style.top    = self.y + "px";
     }
+
+  }
+
+  /**
+   * Update the space
+   */
+  descartesJS.SpaceHTML_IFrame.prototype.iframeUpdate = function(firstTime) {
+    evaluator = this.evaluator;
+
+    this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
+
+    if (this.drawif) {
+
+      this.MyIFrame.style.display = (this.drawIfValue)? "block" : "none";
+
+      if (firstTime) {
+        this.x = Math.Infinity;
+        this.y = Math.Infinity;
+      }      
+      changeX = (this.x !== (evaluator.evalExpression(this.xExpr) + this.displaceRegionWest));
+      changeY = (this.y !== (evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
+      this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
+      this.y = (changeY) ? evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
+
+      // if the position change
+      if ((changeX) || (changeY)) {
+        this.MyIFrame.style.left = this.x + "px";
+        this.MyIFrame.style.top = this.y + "px";
+      }
+
+      file = evaluator.evalExpression(this.file);
+      if (file !== this.oldFile) {
+        this.oldFile = file;
+        this.MyIFrame.setAttribute("src", file);
+      }
+     
+      this.scrollVar = evaluator.getVariable(this.id + "._scroll");
       
-    var evaluator = this.evaluator;
-    var changeX = (this.x != evaluator.evalExpression(this.xExpr) + this.displaceRegionWest);
-    var changeY = (this.y != evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth);
-    this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
-    this.y = (changeY) ? evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
-
-    var file = evaluator.evalExpression(this.file);
-    // if (file != this.oldFile) {
-      this.oldFile = file;
-      this.MyIFrame.setAttribute("src", file);
-    // }
-    
-    // si cambio alguna propiedad del espacio entonces cambiamos las propiedades del contenedor
-    if (changeX) {
-      this.MyIFrame.style.left = this.x + "px";
-    }
-    if (changeY) {
-      this.MyIFrame.style.top = this.y + "px";
-    }
-
-    this.MyIFrame.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
-   
-    this.scrollVar = evaluator.getVariable(this.id + "._scroll");
-    
-    if (this.scrollVar == 1) {
-      this.MyIFrame.setAttribute("scrolling", "yes");
-    }
-    else if (this.scrollVar == -1) {
-      this.MyIFrame.setAttribute("scrolling", "no");
-    }
-    else {
-      this.MyIFrame.setAttribute("scrolling", "auto");
+      if (this.scrollVar == 1) {
+        this.MyIFrame.setAttribute("scrolling", "yes");
+        this.MyIFrame.style.overflow = "";
+      }
+      else if (this.scrollVar == -1) {
+        this.MyIFrame.setAttribute("scrolling", "no");
+        this.MyIFrame.style.overflow = "hidden";
+      }
+      else {
+        this.MyIFrame.setAttribute("scrolling", "auto");
+        this.MyIFrame.style.overflow = "";
+      }
     }
 
   }

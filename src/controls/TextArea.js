@@ -7,21 +7,23 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
+  var evaluator;
+  var displaceY;
 
   /**
-   * Un campo de texto de descartes
+   * Descartes scrollbar control
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el campo de texto
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the scrollbar control
    */
   descartesJS.TextArea = function(parent, values){
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    // siempre van en la region interior
+    // always show in the interior region
     this.region = "interior";
 
-    // el indice de tabulacion del campo de texto, que determina el orden en el que se salta cuando se presiona el tabulador
+    // tabular index
     this.tabindex = ++this.parent.tabindex;
 
     // la respuesta existe
@@ -31,42 +33,36 @@ var descartesJS = (function(descartesJS) {
         var krypt = new descartesJS.Krypto();
         this.answer = krypt.decode(this.answer.substring(7));
       }
-    }
-    
-    // contenedor del espacio
-    var container = this.getContainer();
 
-    // contenedor del control
+      var parseAnswer = this.parent.lessonParser.parseText(this.answer);
+    }
+
+    // control container
     this.containerControl = document.createElement("div");
 
-    // area de texto
+    // the text area
     this.textArea = document.createElement("div");
-    // area de texto de la respuesta
     this.textAreaAnswer = document.createElement("div");
-    // boton para mostrar respuesta
+
+    // show answer button
     this.showButton = document.createElement("div");
+    
     // active cover
     this.activeCover = document.createElement("div");
     
+    // add the elements to the container
     this.containerControl.appendChild(this.textArea);
     this.containerControl.appendChild(this.textAreaAnswer);
     this.containerControl.appendChild(this.showButton);
     this.containerControl.appendChild(this.activeCover);
     
-    // por ultimo se agrega el contenedor del pulsador al contenedor del espacio, en orden inverso al que aparecen listados
-    if (!container.childNodes[0]) {
-      container.appendChild(this.containerControl);
-    } else {
-      container.insertBefore(this.containerControl, container.childNodes[0]);
-    }
+    this.addControlContainer(this.containerControl);
     
-    ////////////////////////////////////////////
-    // se inicia el texto
-    ////////////////////////////////////////////
     this.showAnswer = false;
-    // texto sin formato
-    if (this.text.type == undefined) {
-      this.text = this.rawText;
+
+    // plain text
+    if ( (this.text == undefined) || (this.text.type == undefined)) {
+      this.text = this.rawText || "";
     }
     else {
       if (this.text.hasFormula) {
@@ -77,36 +73,33 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // answer
-    var parseAnswer = this.parent.lessonParser.parseText(this.answer);
     // rtf answer
-    if (parseAnswer.type != undefined) {
+    if ((parseAnswer) && (parseAnswer.type != undefined)) {
       if (!this.text.hasFormula) {
         this.answer = parseAnswer.toHTML();
       }
     }
    
     this.evaluator.setVariable(this.id, this.text);
-    ////////////////////////////////////////////    
 
     this.drawButton();
     
+    // register the mouse and touch events
+    this.registerMouseAndTouchEvents();
+
     this.init();
-    
-    // se registran los eventos del mouse, cuando se de soporte a dispositivos moviles se deben de registrar los eventos correspondientes
-    this.registerMouseEvents();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Control
+  // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.TextArea, descartesJS.Control);
 
   /**
-   * Inicia los valores del pulsador
+   * Init the text area
    */
   descartesJS.TextArea.prototype.init = function() {
-    var displaceY = (this.answer) ? 28 : 8;
+    displaceY = (this.answer) ? 28 : 8;
     evaluator = this.evaluator;
     
     this.text = evaluator.getVariable(this.id);
@@ -116,31 +109,29 @@ var descartesJS = (function(descartesJS) {
     this.containerControl.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
     this.containerControl.setAttribute("spellcheck", "false");
 
-    // area de texto
+    // text area
     this.textArea.setAttribute("class", "DescartesTextAreaContainer");
     this.textArea.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
-    this.textArea.setAttribute("contenteditable", "true");
-    
+    this.textArea.setAttribute("contenteditable", "true");  
     this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + this.text + "</span>";
     
-    // area de respuesta
+    // text area answer
     this.textAreaAnswer.setAttribute("class", "DescartesTextAreaContainer");
     this.textAreaAnswer.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
     this.textAreaAnswer.style.display = (this.showAnswer) ? "block" : "none";
-
     this.textAreaAnswer.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;'>" + this.answer + "</span>";
     
-    // boton para mostrar respuesta
+    // show answer button
     this.showButton.setAttribute("style", "width: 20px; height: 16px; position: absolute; bottom: 4px; right: 4px; cursor: pointer;");
     this.showButton.style.backgroundImage = "url(" + this.imageUnPush + ")";
+    this.showButton.style.display = (this.answer) ? "block" : "none";
     this.showButton.innerHTML = "<span style='position: relative; top: 2px; text-align: center; font: 9px Arial'> S </span>";
-    
+
     this.activeCover.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    this.activeCover.style.display = (evaluator.evalExpression(this.activeif) > 0) ? "none" : "block";
   }
   
   /**
-   * 
+   * Draw the show/hide button
    */
   descartesJS.TextArea.prototype.drawButton = function() {
     var w = 20;
@@ -151,19 +142,14 @@ var descartesJS = (function(descartesJS) {
     canvas.setAttribute("height", h);
     var ctx = canvas.getContext("2d");
 
-    var linearGradient = ctx.createLinearGradient(0, 0, 0, h);
-    var hh = h*h;
-    var di;
-    
-    for (var i=0; i<h; i++) {
-      di = MathFloor(i-(35*h)/100);
-      linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
-    }
- 
+    this.canvas = canvas;
+    this.ctx = ctx;
+    this.createGradient(w, h);
+
     ctx.lineWidth = 1;
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, w, h); 
-    ctx.fillStyle = linearGradient;
+    ctx.fillStyle = this.linearGradient;
     ctx.fillRect(0, 0, w, h);
     descartesJS.drawLine(ctx, w-1, 0, w-1, h, "rgba(0,0,0,"+(0x80/255)+")");
     descartesJS.drawLine(ctx, 0, 0, 0, h, "rgba(0,0,0,"+(0x18/255)+")");
@@ -172,81 +158,59 @@ var descartesJS = (function(descartesJS) {
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, w, h); 
-    ctx.fillStyle = linearGradient;
+    ctx.fillStyle = this.linearGradient;
     ctx.fillRect(0, 0, w, h);
     descartesJS.drawLine(ctx, 0, 0, 0, h-2, "gray");
     descartesJS.drawLine(ctx, 0, 0, w-1, 0, "gray"); 
     ctx.fillStyle = "rgba(0, 0, 0,"+(0x18/255)+")";
     ctx.fillRect(0, 0, this.w, this.h);
-//     descartesJS.drawLine(ctx, 0, 0, 0, h, "rgba(0,0,0,"+(0x18/255)+")");
-//     descartesJS.drawLine(ctx, 1, 0, 1, h, "rgba(0,0,0,"+(0x08/255)+")");
 
     this.imagePush = canvas.toDataURL();
-   }
-  
+  }
+
   /**
-   * Actualiza el campo de texto
+   * Update the text area
    */
   descartesJS.TextArea.prototype.update = function() {
     evaluator = this.evaluator;
 
+    // check if the control is active and visible
+    this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
+    this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
+
     evaluator.setVariable(this.id, this.text);
 
-    var changeX = false;
-    var changeY = false;
-    var changeW = false;
-    var changeH = false;
-
-    // se actualiza la propiedad de activacion
-    this.activeCover.style.display = (evaluator.evalExpression(this.activeif) > 0) ? "none" : "block";
+    // enable or disable the control
+    this.activeCover.style.display = (this.activeIfValue) ? "none" : "block";
     
-    // se actualiza si el campo de texto es visible o no
-    this.containerControl.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+    // hide or show the text field control
+    this.containerControl.style.display = (this.drawIfValue) ? "block" : "none";
 
-    // se actualiza la poscion y el tamano del campo de texto
-    var expr = evaluator.evalExpression(this.expresion);
-    changeX = (this.x != expr[0][0]);
-    changeY = (this.y != expr[0][1]);
-    this.x = expr[0][0];
-    this.y = expr[0][1];
-    if (expr[0].length == 4) {
-      changeW = (this.w != expr[0][2]);
-      changeH = (this.h != expr[0][3]);
-      this.w = expr[0][2];
-      this.h = expr[0][3];
-    }
-
-    // se actualiza el estilo del campo de texto si cambia su tamano o su posicion
-    if (changeW || changeH || changeX || changeY) {
-      this.init();
-    }
+    // update the position and size
+    this.updatePositionAndSize();
   }
 
   /**
-   * Se registran los eventos del mouse del boton
+   * Register the mouse and touch events
    */
-  descartesJS.TextArea.prototype.registerMouseEvents = function() {
-    // copia de this para ser pasado a las funciones internas
+  descartesJS.TextArea.prototype.registerMouseAndTouchEvents = function() {
     var self = this;
 
     /**
-     * @param {Event} evt el evento lanzado cuando da click en el boton
+     * @param {Event} evt 
      * @private
      */
     function onMouseDown(evt) {
       evt.preventDefault();
       self.showAnswer = !self.showAnswer;
       self.textAreaAnswer.style.display = (self.showAnswer) ? "block" : "none";
-//       self.showButton.innerHTML = (self.showAnswer) ? "<span style='position: relative; top: 2px; text-align: center; font: 11px Arial'> T </span>" : "<span style='position: relative; top: 2px; text-align: center; font: 11px Arial'> S </span>";
-//       console.log(self.showButton.childNodes[0].childNodes[0].textContent)
       self.showButton.childNodes[0].childNodes[0].textContent = (self.showAnswer) ? "T" : "S";
       self.showButton.style.backgroundImage = "url(" + self.imagePush + ")";
-
     }
     this.showButton.addEventListener("mousedown", onMouseDown);    
 
     /**
-     * @param {Event} evt el evento lanzado cuando da click en el boton
+     * @param {Event} evt 
      * @private
      */
     function onMouseUp(evt) {
@@ -256,6 +220,21 @@ var descartesJS = (function(descartesJS) {
     this.showButton.addEventListener("mouseup",  onMouseUp);
     this.showButton.addEventListener("mouseout", onMouseUp);
   }
+
+  descartesJS.TextArea.prototype.getScreenshot = function() {
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("width", this.w);
+    canvas.setAttribute("height", this.h);
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+
+    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.strokeRect(0, 0, this.w, this.h);
+
+    return canvas;
+  }  
   
   return descartesJS;
 })(descartesJS || {});

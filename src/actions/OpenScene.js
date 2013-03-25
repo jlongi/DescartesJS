@@ -7,18 +7,17 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Una accion de abrir un URL de descartes
+   * Descartes openscene action
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el parametro de la accion
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} parameter the values of the action
    */
   descartesJS.OpenScene = function(parent, parameter) {
-     // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
     
     this.parameter = parameter;
     this.target = "_blank";
-    this.target = "popup";
     
     var indexOfTarget = this.parameter.indexOf("target");
     
@@ -27,59 +26,63 @@ var descartesJS = (function(descartesJS) {
       this.target = this.target.substring(this.target.indexOf("=")+1);
       this.parameter = this.parameter.substring(0, indexOfTarget-1);
     }
-    
-    // el parametro es codigo de javascript
-    if (this.parameter.substring(0,10) == "javascript") {
-      this.javascript = true;
 
-      // reemplaza la codificacion de las comillas &squot; por '
+    // ### PROMETEO ###
+    if ( (this.target !== "_blank") && (this.target !== "_parent") && (this.target !== "_self") && (this.target !== "_top") ) {
+      this.actionExec = function() {
+        window.parent.postMessage({ type: "changeTarget", name: this.target, value: this.parameter }, '*');
+      }
+      return;
+    }
+    // ### PROMETEO ###
+
+    // if the parameter is JavaScript code
+    if (this.parameter.substring(0,10) == "javascript") {
+      // this.javascript = true;
+
+      // replace the &squot; with '
       this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
       
-      // se construye la accion, que evalua el codigo javascript
       this.actionExec = function() {
         eval(this.parameter);
       }
     } 
-    
-    // el parametro es un archivo relativo a la pagina actual
-    else if (this.parameter.substring(0,7) != "http://") {
-      this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
-      
-      // se construye la accion, que abre una pagina relativa a la pagina actual
+    // if the paramater is a file name
+    else {
+      // if the parameter is a file name relative to the current page
+      if (this.parameter.substring(0,7) != "http://") {
+        this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
+      }
+ 
+      // build an action to open a new page relative to the actual page
       this.actionExec = function() {
         this.window = window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + "location=no,menubar=no,scrollbars=no,status=no,titlebar=no,toolbar=no");
 
         this.window.onload = function(evt) {
-          try {
-            var document = this.window.document;
-            var applet = document.getElementsByTagName("applet")
-            if (applet && (applet.length > 0)) {
-              this.window.innerWidth = applet[0].width;
-              this.window.height = applet[0].height;
-              document.style.margin = "0px";
-              document.style.padding = "0px";
-            }
-          } 
-          catch(e) {};
+          var document = this.document;
+          var applet = document.getElementsByTagName("applet")
+
+          if ((applet) && (applet.length > 0)) {
+            this.innerWidth = applet[0].width;
+            this.height = applet[0].height;
+            document.body.style.margin = "0px";
+            document.body.style.padding = "0px";
+            applet[0].parentNode.style.margin = "0px";
+            applet[0].parentNode.style.padding = "0px";
+          }
         }
       }
     }
-    // el parametro es un archivo con direccion absoluta
-    else {
-      // se construye la accion, que abre una pagina con direccion absoluta
-      this.actionExec = function() {
-        this.window = window.open(this.parameter, this.target);
-      }
-    }
+
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Action
+  // create an inheritance of Action
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.OpenScene, descartesJS.Action);
 
   /**
-   * Ejecuta la accion
+   * Execute the action
    */
   descartesJS.OpenScene.prototype.execute = function() {
     this.actionExec();

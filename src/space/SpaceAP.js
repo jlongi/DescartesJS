@@ -6,35 +6,39 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+
   /**
-   * Un espacio de descartes
+   * Descartes aplication space
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la aplicacion de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the graphic
    */
   descartesJS.SpaceAP = function(parent, values) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Space.call(this, parent, values);
 
-    // arreglo para contener las variables publicas del padre
+    // array for the parent public variables
     this.importarVars = null;
-    // arreglo para contener las variables publicas propias
+    // array for the own public variables
     this.exportarVars = null;
 
-    var evaluator = parent.evaluator;
+    evaluator = parent.evaluator;
     
-    // si el nombre del archivo es una expresion
+    // if the file name is an expression
     if (this.file.match(/^\[/) && this.file.match(/\]$/)) {
       this.file = evaluator.parser.parse(this.file.substring(1, this.file.length-1));
     }
-    // si el nombre del archivo es una cadena
+    // if the file name is a string
     else if (this.file.match(/^\'/) && this.file.match(/\'$/)) {
       this.file = evaluator.parser.parse(this.file);
     }
+    // if is not an expression or a string, then is a string without single quotes
     else {
       this.file = evaluator.parser.parse("'" + this.file + "'");
     }
-    
+
+    // register which are the old open file
     this.oldFile = evaluator.evalExpression(this.file);
     
     this.initFile();
@@ -55,7 +59,7 @@ var descartesJS = (function(descartesJS) {
 
     if (this.oldFile) {
 
-      // si el contenido del espacio esta embedido en la pagina
+      // if the content is embedded in the webpage
       var spaceElement = document.getElementById(this.oldFile);
       if ((spaceElement) && (spaceElement.type == "descartes/spaceApFile")) {
         response = spaceElement.text;
@@ -70,9 +74,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     
-    // si se pudo leer el archivo y el archivo tiene alguna etiqueta applet, entonces se crean los elementos
+    // if the file is readed and have an applet label, then init the creation
     if ( (response) && (response.toString().match(/<applet/gi)) ) {
-      // se encuentra el contenido del applet de descartes
+      // find the Descartes applet content
       var appletContent = "";
       var initApplet = false;
       for (var i=0, l=response.length; i<l; i++) {
@@ -100,7 +104,7 @@ var descartesJS = (function(descartesJS) {
       this.descApp.container.setAttribute("class", "DescartesAppContainer");
       this.descApp.container.setAttribute("style", "position: absolute; overflow: hidden; background-color: " + this.background + "; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
       
-      // se agrega el nuevo espacio
+      // add the new space
       if (oldContainer) {
         this.parent.container.replaceChild(this.descApp.container, oldContainer);
       }
@@ -108,7 +112,7 @@ var descartesJS = (function(descartesJS) {
         this.parent.container.insertBefore(this.descApp.container, this.parent.loader);
       }
       
-      // para cada nuevo espacio creado se encuentra el offset de su posicion
+      // for every space find his offset
       var tmpSpaces = this.descApp.spaces;
       for (var i=0, l=tmpSpaces.length; i<l; i++) {
         tmpSpaces[i].findOffset();
@@ -118,28 +122,23 @@ var descartesJS = (function(descartesJS) {
       
       var self = this;
       this.descApp.update = function() {
-        // se actualizan los auxiliares
         this.updateAuxiliaries();
-        // se actualizan los eventos
         this.updateEvents();
-        // se actualizan los controles
         this.updateControls();
-        // se actualizan los graficos del espacio
         this.updateSpaces();
         
         self.exportar();
       }      
     }
-    
-    // no se pudo cargar el archivo entonces se crea un contenedor vacio, que muestra el color del fondo y la imagen especificada, ademas la funcion de actualizacion no hace nada
+    // if cant read the file then create an empty container that has the background color and the background image
     else {
       var oldContainer = (this.descApp) ? this.descApp.container : null;
       
       this.descApp = {};
       this.descApp.container = document.createElement("div");
       this.descApp.container.setAttribute("class", "DescartesAppContainer");
-      
-      // el estilo del contenedor
+
+      // style container
       var styleString = "position: absolute; overflow: hidden; background-color: " + this.background + "; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";";
       
       if (this.image) {
@@ -159,7 +158,7 @@ var descartesJS = (function(descartesJS) {
       
       this.descApp.container.setAttribute("style", styleString);
       
-      // se agrega el nuevo espacio al contenedor principal
+      // add the container to the principal container
       if (oldContainer) {
         this.parent.container.replaceChild(this.descApp.container, oldContainer);
       }
@@ -168,85 +167,67 @@ var descartesJS = (function(descartesJS) {
       }
       
       this.descApp.container.style.display = (this.evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
-      
-//       this.update = function() {};
     }
   }
   
   /**
-   * Actualiza los valores del espacio
+   * Update the space
    */
   descartesJS.SpaceAP.prototype.update = function() {
     var tmpFile = this.evaluator.evalExpression(this.file);
     if (this.oldFile != tmpFile) {
       this.oldFile = tmpFile;
-
-//       this.init();
       this.initFile();
     }
-    else { 
-    var changeX = (this.x != this.evaluator.evalExpression(this.xExpr));
-    var changeY = (this.y != (this.evaluator.evalExpression(this.yExpr) + this.plecaHeight));
+    else {
+      var changeX = (this.x != this.evaluator.evalExpression(this.xExpr));
+      var changeY = (this.y != (this.evaluator.evalExpression(this.yExpr) + this.plecaHeight));
 
-    this.x = (changeX) ? this.evaluator.evalExpression(this.xExpr) : this.x;
-    this.y = (changeY) ? (this.evaluator.evalExpression(this.yExpr) + this.plecaHeight) : this.y;
+      this.x = (changeX) ? this.evaluator.evalExpression(this.xExpr) : this.x;
+      this.y = (changeY) ? (this.evaluator.evalExpression(this.yExpr) + this.plecaHeight) : this.y;
 
-    // si cambio alguna propiedad del espacio entonces cambiamos las propiedades del contenedor
-    if (changeX) {
-      this.descApp.container.style.left = this.x + "px";
-    }
-    if (changeY) {
-      this.descApp.container.style.top = this.y + "px";
-    }
-    if ((changeX) || (changeY)) {
-      var tmpSpaces = this.descApp.spaces;
-      for (var i=0, l=tmpSpaces.length; i<l; i++) {
-        tmpSpaces[i].findOffset();
+      // some property of the space change then change the container properties
+      if (changeX) {
+        this.descApp.container.style.left = this.x + "px";
       }
-    }
-
-    this.descApp.container.style.display = (this.evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
-    
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    // se encuentran las variables externas
-    if (this.firstUpdate) {
-      this.firstUpdate = false;
-      // el arreglo para guardar las variables no ha sido inicializado
-      if (this.importarVars == null) {
-        this.importarVars = [];
-        for (var propName in this.evaluator.variables) {
-          // solo se verifican las propiedades propias del objeto values
-          if (this.evaluator.variables.hasOwnProperty(propName) && propName.match(/^public./)) {
-            this.importarVars.push( { varName: propName, value: this.evaluator.getVariable(propName) } );
-          }
+      if (changeY) {
+        this.descApp.container.style.top = this.y + "px";
+      }
+      if ((changeX) || (changeY)) {
+        var tmpSpaces = this.descApp.spaces;
+        for (var i=0, l=tmpSpaces.length; i<l; i++) {
+          tmpSpaces[i].findOffset();
         }
-//         console.log(this.importarVars);
-      } 
+      }
+
+      this.descApp.container.style.display = (this.evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+      
+      //////////////////////////////////////////////////////////////////////////////////////////////////
+      // find the external variables
+      if (this.firstUpdate) {
+        this.firstUpdate = false;
+
+        // if the array to store the variables is not initialized
+        if (this.importarVars == null) {
+          this.importarVars = [];
+          for (var propName in this.evaluator.variables) {
+            // check only the own properties
+            if (this.evaluator.variables.hasOwnProperty(propName) && propName.match(/^public./)) {
+              this.importarVars.push( { varName: propName, value: this.evaluator.getVariable(propName) } );
+            }
+          }
+        } 
+      }
+
+      // import the variables if needed
+      this.importar();
     }
-    
-    // se importaran variables en caso de ser necesario
-    this.importar();
   }
-}
-// codigo para el importar y exportar que no deberia de existir
-// por que se deberia de implematar AP.get(var, variable), AP.set(var, value), AP.update()
-  
+
   /**
    * 
    */
   descartesJS.SpaceAP.prototype.importar = function() {
-//     // el arreglo para guardar las variables no ha sido inicializado
-//     if (this.importarVars == null) {
-//       this.importarVars = [];
-//       for (var propName in this.evaluator.variables) {
-//         // solo se verifican las propiedades propias del objeto values
-//         if (this.evaluator.variables.hasOwnProperty(propName) && propName.match(/^public./)) {
-//           this.importarVars.push( { varName: propName, value: this.evaluator.getVariable(propName) } );
-//         }
-//       }
-//       console.log(this.importarVars);
-//     }
-    
     var tmpEval;
     var updateThis = false;
     for (var i=0, l=this.importarVars.length; i<l; i++) {

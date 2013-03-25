@@ -10,39 +10,64 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   
   /**
-   * Una ecuacion de descartes
+   * A Descartes equation
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la ecuacion
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the equation
    */
   descartesJS.Equation = function(parent, values) {
-    // se llama al constructor del padre
-    descartesJS.Graphic.call(this, parent, values);
+    /**
+     * the stroke width of the graph
+     * type {Number}
+     * @private
+     */
+    this.width = parent.evaluator.parser.parse("1");
 
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("1") : this.width;
+    /**
+     * the condition and the color of the fill
+     * type {String}
+     * @private
+     */
+    this.fill = "";
+    
+    /**
+     * the condition and the color of the fill+
+     * type {String}
+     * @private
+     */
+    this.fillP = ""; 
+
+    /**
+     * the condition and the color of the fill-
+     * type {String}
+     * @private
+     */
+    this.fillM = "";
+
+    // call the parent constructor
+    descartesJS.Graphic.call(this, parent, values);
 
     this.generateStroke();
 
-    // se modifica la expresion y se construye un evaluador de newton
-    this.parseExpresion();
+    // parse the expression and build a newton evaluator
+    this.parseExpression();
 
-    // ## parche para la version de descartes 2 ## //
+    // Descartes 2 visible
     this.visible = ((this.parent.version == 2) && (this.visible == undefined)) ? true : false;
-    
     if (this.visible) {
       this.registerTextField();
     }
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Equation, descartesJS.Graphic);
 
   /**
-   * 
+   * Parse the expression and build a newton evaluator
    */
-  descartesJS.Equation.prototype.parseExpresion = function() {
+  descartesJS.Equation.prototype.parseExpression = function() {
     if (this.expresion.type == "compOperator") {
       var left = this.expresion.childs[0];
       var right = this.expresion.childs[1];
@@ -72,7 +97,7 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Generate an image corresponding to the stroke of the equation
    */
   descartesJS.Equation.prototype.generateStroke = function() {
     this.auxCanvas = document.createElement("canvas");
@@ -87,35 +112,32 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Actualiza la ecuacion
+   * Update the equation
    */
   descartesJS.Equation.prototype.update = function() { }
   
   /**
-   * Dibuja la ecuacion
+   * Draw the equation (special case of the draw defined in Graphic)
    */
   descartesJS.Equation.prototype.draw = function() {
-    // si la familia esta activada entonces se dibujan varias veces los elementos
+    // if the equation has a family
     if (this.family != "") {
       this.drawFamilyAux(this.ctx, this.fill, this.color);
     }
-    
-    // si la familia no esta activada
-    // si la condicion de dibujo del elemento es verdadera entonces se actualiza y dibuja el elemento
+    // if the equation has not a family
     else  {
-      // se dibuja el elemento
-      // se actualizan los valores antes de dibujar el elemento
+      // update the values of the equation
       this.update();
-      // se dibuja el elemento
+      // draw the equation
       this.drawAux(this.ctx, this.fill, this.color);
     }
   }
   
   /**
-   * Dibuja el rastro de la ecuacion
+   * Draw the trace of the equation
    */
   descartesJS.Equation.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
   
@@ -149,10 +171,10 @@ var descartesJS = (function(descartesJS) {
   var j;
   
   /**
-   * Funcion auxiliar para dibujar un arco
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el arco
-   * @param {String} fill el color de relleno del arco
-   * @param {String} stroke el color del trazo del arco
+   * Auxiliary function for draw an non explicit equation 
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
+   * @param {String} fill the fill color of the equation
+   * @param {String} stroke the stroke color of the equation
    */
   descartesJS.Equation.prototype.drawAux = function(ctx, fill, stroke) {
     ctx.lineWidth = 1;
@@ -298,7 +320,7 @@ var descartesJS = (function(descartesJS) {
 //                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
                 if (descartesJS.rangeOK) {
                   ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
-//                   descartesJS.drawPixel(ctx, Qx+desp, Qy+desp, width);
+                  // descartesJS.drawPixel(ctx, Qx+desp, Qy+desp, width);
                 }
               }
             } else {
@@ -312,39 +334,56 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
- }
+  }
+
+  var theZeroX;
+  var theZeroY;
+  var initX;
+  var initY;
+  var tmpX;
+  var tmpY;
+  var actualTmpAbsoluteX;
+  var actualTmpAbsoluteY;
+  var previousTmpAbsoluteX;
+  var previousTmpAbsoluteY;
+  var min;
+  var max;
+  var minmax;
+  var va;
+  var colorFillM;
+  var colorFillP;
+  var disc;
+  var saveX;
+  var Xr;
+  var auxv;
 
   /**
-   * 
+   * Auxiliary function for draw an equation of y
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
+   * @param {String} fill the fill color of the equation
+   * @param {String} stroke the stroke color of the equation
    */
   descartesJS.Equation.prototype.drawAuxFunY = function(ctx, fill, stroke) {
-    var evaluator = this.evaluator;
-    var space = this.space;
-    var w = space.w;
-    var dx = 1/space.scale;
-    var theZeroY = space.getAbsoluteY(0);
+    evaluator = this.evaluator;
+    space = this.space;
+    w = space.w;
+    dx = 1/space.scale;
+    theZeroY = space.getAbsoluteY(0);
 
-    var width = evaluator.evalExpression(this.width);
+    width = evaluator.evalExpression(this.width);
 
-    var color = descartesJS.getColor(evaluator, this.color);
-    var colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    var colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = descartesJS.getColor(evaluator, this.color);
+    colorFillM = descartesJS.getColor(evaluator, this.fillM);
+    colorFillP = descartesJS.getColor(evaluator, this.fillP);
     ctx.fillStyle = color;    
     
-    var initX = space.getRelativeX(0);
-    var tmpX;
-    var tmpY;
-    var actualTmpAbsoluteX;
-    var actualTmpAbsoluteY;    
+    initX = space.getRelativeX(0);
 
     evaluator.setVariable("x", initX);
-    var previousTmpAbsoluteX = space.getAbsoluteX(initX);
-    var previousTmpAbsoluteY = space.getAbsoluteY(evaluator.evalExpression(this.funExpr));
+    previousTmpAbsoluteX = space.getAbsoluteX(initX);
+    previousTmpAbsoluteY = space.getAbsoluteY(evaluator.evalExpression(this.funExpr));
     
-    var va = 0;    
-    var min;
-    var max;
-    var minmax;
+    va = 0;
     
     for (var i=1; i<w; i++) {
       tmpX = initX + i*dx;
@@ -390,36 +429,32 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * 
+   * Auxiliary function for draw an equation of x
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
+   * @param {String} fill the fill color of the equation
+   * @param {String} stroke the stroke color of the equation
    */
   descartesJS.Equation.prototype.drawAuxFunX = function(ctx, fill, stroke) {
-    var evaluator = this.evaluator;
-    var space = this.space;
-    var h = space.h;
-    var dy = 1/space.scale;
-    var theZeroX = space.getAbsoluteX(0);
+    evaluator = this.evaluator;
+    space = this.space;
+    h = space.h;
+    dy = 1/space.scale;
+    theZeroX = space.getAbsoluteX(0);
 
-    var width = evaluator.evalExpression(this.width);
+    width = evaluator.evalExpression(this.width);
 
-    var color = descartesJS.getColor(evaluator, this.color);
-    var colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    var colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = descartesJS.getColor(evaluator, this.color);
+    colorFillM = descartesJS.getColor(evaluator, this.fillM);
+    colorFillP = descartesJS.getColor(evaluator, this.fillP);
     ctx.fillStyle = color;    
     
-    var initY = space.getRelativeY(h);
-    var tmpY;
-    var tmpX;
-    var actualTmpAbsoluteX;
-    var actualTmpAbsoluteY;    
+    initY = space.getRelativeY(h);
 
     evaluator.setVariable("y", initY);
-    var previousTmpAbsoluteX = space.getAbsoluteX(evaluator.evalExpression(this.funExpr));
-    var previousTmpAbsoluteY = space.getAbsoluteY(initY);
+    previousTmpAbsoluteX = space.getAbsoluteX(evaluator.evalExpression(this.funExpr));
+    previousTmpAbsoluteY = space.getAbsoluteY(initY);
     
     var va = 0;    
-    var min;
-    var max;
-    var minmax;
     
     for (var i=1; i<h; i++) {
       tmpY = initY + i*dy;
@@ -475,18 +510,18 @@ var descartesJS = (function(descartesJS) {
 // //   maximo entre tmpY anterior y tmpY
 
   /**
-   * 
+   * Find if the equation has a singularity
    */
   descartesJS.Equation.prototype.hasSingularity = function(e, X, vari, a, va, b, vb, minmax) {
     if ( (Math.abs(b-a) < 1E-12) || ((Math.abs(b-a) < 1E-8) && (Math.abs(vb-va) > Math.abs(e))) ) {
       return true;
     }
-    var disc = false;
-    var saveX = X;
+    disc = false;
+    saveX = X;
     
-    var Xr = (a+b)/2;
+    Xr = (a+b)/2;
     this.evaluator.setVariable(vari, Xr);
-    var auxv = this.evaluator.evalExpression(this.funExpr);
+    auxv = this.evaluator.evalExpression(this.funExpr);
     
 //     try {
       if ((minmax.min <= auxv) && (auxv <= minmax.max)) {
@@ -506,22 +541,19 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Dibuja un pixel
-   * @param {2DContext} ctx el contexto de canvas donde dibujar
-   * @param {Number} x la posicion en x del pixel
-   * @param {Number} y la posicion en y del pixel
-   * @param {String} color el color del pixel a dibujar
-   * @param {Number} radius el tamano del pixel
+   * Draw a pixel using an arc
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
+   * @param {Number} x the x position of the text
+   * @param {Number} y the y position of the text
+   * @param {Number} radius the size of the pixel
    */
   descartesJS.drawPixel = function(ctx, x, y, radius) {
-//     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.arc(x, y, radius, 0, PI2, false);
-//     ctx.fill();
   }
 
   /**
-   * 
+   * Register a text field in case the equation expression is editable
    */
   descartesJS.Equation.prototype.registerTextField = function() {
     var textField = document.createElement("input");
@@ -532,7 +564,7 @@ var descartesJS = (function(descartesJS) {
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
         self.expresion = self.evaluator.parser.parse(this.value);
-        self.parseExpresion();
+        self.parseExpression();
         self.parent.update();
       }
     }

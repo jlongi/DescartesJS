@@ -7,13 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Un relleno de descartes
+   * A Descartes fill
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el relleno
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the fill
    */
   descartesJS.Fill = function(parent, values) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
     // this.pixelStack = [];
@@ -22,19 +22,19 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Fill, descartesJS.Graphic);
 
   /**
-   * Actualiza el relleno
+   * Update the fill
    */
   descartesJS.Fill.prototype.update = function() {
     // var evaluator = this.evaluator;
 
     // var expr = evaluator.evalExpression(this.expresion);
-    // this.exprX = expr[0][0]; //el primer valor de la primera expresion
-    // this.exprY = expr[0][1]; //el segundo valor de la primera expresion
+    // this.exprX = expr[0][0]; // the first value of the first expression
+    // this.exprY = expr[0][1]; // the second value of the first expression
 
     // this.exprX = parseInt( this.space.getAbsoluteX(this.exprX+.1) );
     // this.exprY = parseInt( this.space.getAbsoluteY(this.exprY+.1) );
@@ -53,25 +53,25 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Dibuja el relleno
+   * Draw the fill
    */
   descartesJS.Fill.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
+    // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.color, this.color);
   }
 
   /**
-   * Dibuja el rastro del relleno
+   * Draw the trace of the fill
    */
   descartesJS.Fill.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
-   * Funcion auxiliar para dibujar un relleno
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el relleno
-   * @param {String} fill el color de relleno del relleno
+   * Auxiliary function for draw a fill
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the fill is drawn
+   * @param {String} fill the fill color of the fill
    */
   descartesJS.Fill.prototype.drawAux = function(ctx, fill) {
     // var evaluator = this.evaluator;
@@ -87,6 +87,9 @@ var descartesJS = (function(descartesJS) {
     // }
   }
 
+  /**
+   *
+   */
   function getColorComponents(color) {
     // var tmp;
     // var resultColor = { r: 0, g: 0, b: 0, a: 0 };
