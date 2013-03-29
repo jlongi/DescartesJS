@@ -248,39 +248,7 @@ var descartesJS = (function(descartesJS) {
     }
         
     return tempInd;
-  }
-  
-  /**
-   * Format the value with the number of decimals, the exponential representation and the decimal symbol
-   * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
-   */
-  descartesJS.Menu.prototype.formatOutputValue = function(value) {
-    resultValue = value+"";
-
-    decimals = this.evaluator.evalExpression(this.decimals);
-
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      subS = resultValue.substring(indexDot+1);
-      if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      resultValue = parseFloat(value).toFixed(decimals);
-    }
-    
-    if (this.exponentialif) {
-      resultValue = resultValue.toExponential(decimals);
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
-    }
-
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
-    return resultValue;
-  }
+  }  
 
   /**
    * Change the menu value

@@ -21,8 +21,6 @@ var descartesJS = (function(descartesJS) {
   var resultValue;
   var incr;
   var decimals;
-  var indexDot;
-  var subS;
   var hasTouchSupport;
 
   /**
@@ -331,49 +329,6 @@ var descartesJS = (function(descartesJS) {
     }
     resultValue = parseFloat(parseFloat(resultValue).toFixed(decimals));
     
-    return resultValue;
-  }
-
-  /**
-   * Format the value with the number of decimals, the exponential representation and the decimal symbol
-   * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
-   */
-  descartesJS.Spinner.prototype.formatOutputValue = function(value) {
-    resultValue = value+"";
-
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      subS = resultValue.substring(indexDot+1);
-        if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      // ## patch for Descartes 2 ## 
-      // in a version diferente to 2, then fixed stays as it should
-      // if the version is 2 but do not use exponential notation
-      if ( (this.parent.version !== 2) || ((this.parent.version === 2) && (!this.exponentialif)) ) {
-        resultValue = parseFloat(value).toFixed(decimals);
-      }
-    }
-
-    // if the value is zero then do not show the E in the exponential notation
-    if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
-      // ## patch for Descartes 2 ## 
-      // in the version 2 do not show the decimals
-      if ((this.fixed) && (this.parent.version !== 2)) {
-        resultValue = parseFloat(resultValue).toExponential(decimals);
-      }
-      else {
-        resultValue = parseFloat(resultValue).toExponential();
-      }
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "");
-    }
-
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
     return resultValue;
   }
 

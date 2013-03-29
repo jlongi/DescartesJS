@@ -109,8 +109,8 @@ var babel = (function(babel) {
   babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
 //  babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = "";
   babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
-  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "do";
-  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "while";
+  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "doExpr";
+  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "whileExpr";
   babel["evaluar"] = babel["evaluate"] = babel["avalua"] = babel["ebaluatu"] = babel["\u00E9valuer"] = babel["avaliar"] = "evaluate";
   babel["variable"] = babel["aldagaia"] = babel["vari\u00E1vel"] = "variable";
   babel["funci\u00F3n"] = babel["function"] = babel["funci\u00F3"] = babel["funtzio"] = babel["fonction"] = babel["fun\u00E7\u00E3o"] = "function";
@@ -345,6 +345,7 @@ var babel = (function(babel) {
   babel["opacidad"] = babel["opacity"] = babel["opacit\u00E9"] = babel["opacitat"] = babel["opacidade"] = "opacity";
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
+  babel["local"] = "local";
   ////////////////////////
   
   return babel;

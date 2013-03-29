@@ -3,7 +3,7 @@
 require "date"
 
 out = File.new("descartes.js", "w")
-prefix = "desarrollo/"
+prefix = "src/"
 files = [ "Babel.js",
 
           "utils/Utils.js",

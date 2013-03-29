@@ -277,30 +277,8 @@ var descartesJS = (function(descartesJS) {
       return "";
     }
 
-    resultValue = value+"";
-    
-    decimals = this.evaluator.evalExpression(this.decimals);
-    
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      var subS = resultValue.substring(indexDot+1);
-      if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      resultValue = parseFloat(value).toFixed(decimals);
-    }
-    
-    if (this.exponentialif) {
-      resultValue = resultValue.toExponential(decimals);
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
-    }
-    
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
-    return resultValue;
+    // call the draw function of the father (uber instead of super as it is reserved word)
+    return this.uber.formatOutputValue.call(this, value);
   }
 
   /**

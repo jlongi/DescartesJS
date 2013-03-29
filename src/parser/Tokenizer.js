@@ -209,19 +209,28 @@ var descartesJS = (function(descartesJS) {
     return tokens;
   }
   
+  var result;
+  var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
+
   /**
    * Auxiliary funtion for the macros that take a list of tokens and get a string representation
-   * @param {Array<Object>} tokens the tokesn to be flat
+   * @param {Array<Object>} tokens the tokens to be flat
    * @return {String} return a string representation of the tokens
    */
-  descartesJS.Tokenizer.prototype.flatTokens = function(tokens) {
+  descartesJS.Tokenizer.prototype.flatTokens = function(tokens, prefix) {
     tokens = tokens || [];
-    var result = "";
+    prefix = prefix || "";
+
+    result = "";
     
     for (var i=0, l=tokens.length; i<l; i++) {
       if (tokens[i].type == "string") {
         result = result + "&squot;" + tokens[i].value + "&squot;";
-      } else {
+      } 
+      else if ((tokens[i].type == "identifier") && (!tokens[i].value.match(exclude))) {
+        result = result + prefix + tokens[i].value;
+      }
+      else {
         result = result + tokens[i].value;
       }
     }

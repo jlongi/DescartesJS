@@ -367,10 +367,10 @@ var descartesJS = (function(descartesJS) {
     var spaces = this.parent.spaces;
     var space_i;
     // if the control is in the interior region
-    if (this.region == "interior") {
+    if (this.region === "interior") {
       for(var i=0, l=spaces.length; i<l; i++) {
         space_i = spaces[i];
-        if (space_i.id == this.spaceID) {
+        if (space_i.id === this.spaceID) {
           space_i.addCtr(this);
           this.zIndex = space_i.zIndex;
           // this.space = space_i;
@@ -379,12 +379,12 @@ var descartesJS = (function(descartesJS) {
       }
     }
     // if the control is in the external region
-    else if (this.region == "external") {
+    else if (this.region === "external") {
       // this.space = this.parent.externalSpace;
       return this.parent.externalSpace.container;
     }
     // if the control is in the scenario
-    else if (this.region == "scenario") {
+    else if (this.region === "scenario") {
       // has a cID
       if (this.cID) {
         this.expresion = this.evaluator.parser.parse("(0,-1000," + this.w + "," + this.h + ")");
@@ -398,27 +398,27 @@ var descartesJS = (function(descartesJS) {
 
     }
     // if the cotrol is in the north region
-    else if (this.region == "north") {
+    else if (this.region === "north") {
       this.parent.northSpace.controls.push(this);
       return this.parent.northSpace.container;
     }
     // if the cotrol is in the south region
-    else if (this.region == "south") {
+    else if (this.region === "south") {
       this.parent.southSpace.controls.push(this);
       return this.parent.southSpace.container;
     }
     // if the cotrol is in the east region
-    else if (this.region == "east") {
+    else if (this.region === "east") {
       this.parent.eastSpace.controls.push(this);
       return this.parent.eastSpace.container;
     }
     // if the cotrol is in the west region
-    else if (this.region == "west") {
+    else if (this.region === "west") {
       this.parent.westSpace.controls.push(this);
       return this.parent.westSpace.container;
     }
     // if the cotrol is in a spacial region (credits, config, init or clear)
-    else if (this.region == "special") {
+    else if (this.region === "special") {
       this.parent.specialSpace.controls.push(this);
       return this.parent.specialSpace.container;
     }
@@ -479,6 +479,59 @@ var descartesJS = (function(descartesJS) {
       this.init();
       this.draw();
     }
+  }
+
+  var resultValue;
+  var decimals;
+  var indexDot;
+  var subS;
+  var parent;
+
+  /**
+   * Format the value with the number of decimals, the exponential representation and the decimal symbol
+   * @param {String} value tha value to format
+   * @return {String} return the value with the format applyed
+   */
+  descartesJS.Control.prototype.formatOutputValue = function(value) {
+    parent = this.parent;
+
+    resultValue = value+"";
+
+    decimals = this.evaluator.evalExpression(this.decimals);
+
+    indexDot = resultValue.indexOf(".");
+    if ( indexDot != -1 ) {
+      subS = resultValue.substring(indexDot+1);
+        if (subS.length > decimals) {
+        resultValue = parseFloat(resultValue).toFixed(decimals);
+      }
+    }
+    
+    if (this.fixed) {
+      // ## patch for Descartes 2 ## 
+      // in a version diferente to 2, then fixed stays as it should
+      // if the version is 2 but do not use exponential notation
+      if ( (parent.version !== 2) || ((parent.version === 2) && (!this.exponentialif)) ) {
+        resultValue = parseFloat(value).toFixed(decimals);
+      }
+    }
+
+    // if the value is zero then do not show the E in the exponential notation
+    if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
+      // ## patch for Descartes 2 ## 
+      // in the version 2 do not show the decimals
+      if ((this.fixed) && (parent.version !== 2)) {
+        resultValue = parseFloat(resultValue).toExponential(decimals);
+      }
+      else {
+        resultValue = parseFloat(resultValue).toExponential();
+      }
+      resultValue = resultValue.toUpperCase();
+      resultValue = resultValue.replace("+", "");
+    }
+
+    resultValue = resultValue.replace(".", parent.decimal_symbol);
+    return resultValue;
   }
 
   /**

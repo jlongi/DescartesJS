@@ -86,7 +86,7 @@ var descartesJS = (function(descartesJS) {
       answer = answer.substring(1);
     }
     if (answer.charAt(answer.length-1) === ")") {
-      answer = answer.substring(0, answer.length-2);
+      answer = answer.substring(0, answer.length-1);
     }
 
     answer = ((answer.replace(/&squot;/g, "'")).replace(/&amp;/g, "&")).split("|");
@@ -170,6 +170,6 @@ var descartesJS = (function(descartesJS) {
     
     return 0;
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

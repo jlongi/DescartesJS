@@ -168,12 +168,13 @@ var descartesJS = (function(descartesJS) {
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
       setTimeout(function() { window.scrollTo(0, 1); }, 1);
-
-      // document.body.appendChild(descartesJS.getScreenShot());
-
     } 
     // if has not support for canvas show the applets and do not interpret
     else {
+      // prompt a message to install chrome frame
+      // when the instalation is ready reload the webpage
+      // document.location.reload()
+
       showApplets();
     }
   }

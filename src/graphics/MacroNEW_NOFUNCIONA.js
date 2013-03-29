@@ -124,8 +124,30 @@ var descartesJS = (function(descartesJS, babel) {
           dotIndex = respText[j][0].indexOf(".");
           if (dotIndex != -1) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
+            respText[j][0] = this.name + "." + respText[j][0];
           }
 
+          // if the expressions are different from this, then the cycle continues and is not replaced nothing
+          // if ( (babelResp != "id") && 
+          //      (babelResp != "text") && 
+          //      (babelResp != "expresion") && 
+          //      (babelResp != "interval") && 
+          //      (babelResp != "steps") && 
+          //      (babelResp != "drawif") && 
+          //      (babelResp != "size") && 
+          //      (babelResp != "width") && 
+          //      (babelResp != "center") && 
+          //      (babelResp != "radius") && 
+          //      (babelResp != "init") && 
+          //      (babelResp != "end") &&
+          //      (babelResp != "inirot") && 
+          //      (babelResp != "doExpr") &&
+          //      (babelResp != "whileExpr") &&
+          //      (babelResp != "file") &&
+          //      (babelResp != "fill") &&
+          //      (babelResp != "color") ) {
+          //   continue;
+          // }
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ((babelResp != "id") && (babel[respText[j][1]] != undefined)) {
             continue;
@@ -191,48 +213,47 @@ var descartesJS = (function(descartesJS, babel) {
           else {
             tmpTokens = tokenizer.tokenize(respText[j][1]);
             
-            for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-              if ( (tmpTokens[t].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[t].value + "\\|")) ) {
-                tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
-              }
+            // for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+            //   if ( (tmpTokens[t].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[t].value + "\\|")) ) {
+            //     tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+            //   }
               
-              // if the identifier has a dot (example vector.long)
-              else if ((tmpTokens[t].type == "identifier") && ((dotIndex = (tmpTokens[t].value).indexOf(".")) != -1)) {
-                if (idsMacro.match("\\|" + tmpTokens[t].value.substring(0, dotIndex) + "\\|")) {
-                  tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
-                }
-              }
-            }
-            respText[j][1] = tokenizer.flatTokens(tmpTokens);
+            //   // if the identifier has a dot (example vector.long)
+            //   else if ((tmpTokens[t].type == "identifier") && ((dotIndex = (tmpTokens[t].value).indexOf(".")) != -1)) {
+            //     if (idsMacro.match("\\|" + tmpTokens[t].value.substring(0, dotIndex) + "\\|")) {
+            //       tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+            //     }
+            //   }
+            // }
+
+            respText[j][1] = tokenizer.flatTokens(tmpTokens, this.name + ".");
           }
         
         }
       }
 
       var tempResp;
-      var isGraphic;
-
+      
       // flat the expresions to obtain a string
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i][0]) {
           tempResp = "";
-          isGraphic = false;
-
           for (var j=0, k=response[i].length; j<k; j++) {
-
-            // if is a graphic object, add the corresponding space
-            if (babel[response[i][j][0]] === "type") {
-              tempResp = "espacio='" + this.spaceID + "' ";
-              isGraphic = true;
+            // if not a graphic object
+            if (babel[response[i][j][0]] != "type") {
+              response[i][j] = response[i][j][0] + "='" + response[i][j][1] + "' ";
             }
-
-            tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
+            // if is a graphic object, add the corresponding space
+            else {
+              response[i][j] = "espacio='" + this.spaceID + "' " + response[i][j][0] + "='" + response[i][j][1] + "' ";
+            }
+            tempResp = tempResp + response[i][j];
           }
-
+          
           response[i] = tempResp;
 
           // build and add the graphic elements to the space
-          if (isGraphic) {
+          if (tempResp.match(/^espacio/)) {
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene

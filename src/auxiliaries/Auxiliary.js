@@ -44,6 +44,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluate = "onlyOnce";
 
+    this.local = "";
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -77,7 +79,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Auxiliary.prototype.splitInstructions = function(parser, expression) {
     tmpExpression = [];
 
-    // split the expression separated
     if (expression) {
       expression = expression.split(";");
     } else {
@@ -97,15 +98,36 @@ var descartesJS = (function(descartesJS) {
 
   /**
    */
-  descartesJS.Auxiliary.prototype.getPrivateVariables = function(expression) {
+  descartesJS.Auxiliary.prototype.getPrivateVariables = function(parser, expression) {
     tmpExpression = [];
 
+    if (expression) {
+      expression = expression.split(/;|,/);
+    } else {
+      expression = [""];
+    }
+
+    // add only the instructions tha execute something, i.e. instructions whit parsing different of null
     for (i=0, l=expression.length; i<l; i++) {
-      if (expression[i].type === "asign") {
-        tmpExpression.push(expression[i].childs[0].value);
+      tmp = parser.parse(expression[i], true);
+      if (tmp) {
+        tmpExpression.push(tmp);
+      }
+    }    
+
+    // add the identifier nodes to local variables
+    for (i=0, l=tmpExpression.length; i<l; i++) {
+      if (tmpExpression[i].type === "asign") {
+        tmpExpression[i] = tmpExpression[i].childs[0].value;
+      }
+      else if (tmpExpression[i].type === "identifier") {
+        tmpExpression[i] = tmpExpression[i].value;
+      }
+      else {
+        tmpExpression[i] = "";
       }
     }
-    
+
     return tmpExpression;
   }
 
@@ -123,7 +145,8 @@ var descartesJS = (function(descartesJS) {
     // NEW CODE
     // get the private vars in the function
     // self.privateVars = self.getPrivateVariables(self.init);
-    self.privateVars = [];
+    // self.privateVars = [];
+    self.privateVars = self.getPrivateVariables(parser, self.local);
     // NEW CODE
 
     // parse the do expression

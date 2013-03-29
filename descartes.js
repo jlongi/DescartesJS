@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-03-25
+ * 2013-03-29
  */
 
 /**
@@ -117,8 +117,8 @@ var babel = (function(babel) {
   babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
 //  babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = "";
   babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
-  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "do";
-  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "while";
+  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "doExpr";
+  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "whileExpr";
   babel["evaluar"] = babel["evaluate"] = babel["avalua"] = babel["ebaluatu"] = babel["\u00E9valuer"] = babel["avaliar"] = "evaluate";
   babel["variable"] = babel["aldagaia"] = babel["vari\u00E1vel"] = "variable";
   babel["funci\u00F3n"] = babel["function"] = babel["funci\u00F3"] = babel["funtzio"] = babel["fonction"] = babel["fun\u00E7\u00E3o"] = "function";
@@ -353,6 +353,7 @@ var babel = (function(babel) {
   babel["opacidad"] = babel["opacity"] = babel["opacit\u00E9"] = babel["opacitat"] = babel["opacidade"] = "opacity";
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
+  babel["local"] = "local";
   ////////////////////////
   
   return babel;
@@ -901,7 +902,7 @@ var descartesJS = (function(descartesJS) {
       answer = answer.substring(1);
     }
     if (answer.charAt(answer.length-1) === ")") {
-      answer = answer.substring(0, answer.length-2);
+      answer = answer.substring(0, answer.length-1);
     }
 
     answer = ((answer.replace(/&squot;/g, "'")).replace(/&amp;/g, "&")).split("|");
@@ -985,7 +986,7 @@ var descartesJS = (function(descartesJS) {
     
     return 0;
   }
-  
+
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -1019,23 +1020,32 @@ var descartesJS = (function(descartesJS) {
    * Add meta tags needed for tablets
    */
   function addMetaTag() {
+    var head = document.head;
+
+    // try chrome frame // <meta http-equiv="X-UA-Compatible" content="chrome=1">
     var meta = document.createElement("meta");
+    meta.setAttribute("http-equiv", "X-UA-Compatible");
+    meta.setAttribute("content", "chrome=1");
+    // add the metadata to the head of the document
+    head.appendChild(meta);
+
+    meta = document.createElement("meta");    
     meta.setAttribute("name", "viewport");
     meta.setAttribute("content", "width=device-width, initial-scale=1.0, user-scalable=yes");
     // add the metadata to the head of the document
-    document.head.appendChild(meta);
+    head.appendChild(meta);
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-capable");
     meta.setAttribute("content", "yes");
     // add the metadata to the head of the document
-    document.head.appendChild(meta);
+    head.appendChild(meta);
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
     meta.setAttribute("content", "black-translucent");
     // add the metadata to the head of the document
-    document.head.appendChild(meta);
+    head.appendChild(meta);
 
     // var link = document.createElement("link");
     // link.setAttribute("rel", "apple-touch-icon-precomposed");
@@ -1047,7 +1057,7 @@ var descartesJS = (function(descartesJS) {
   /** 
    * Add CSS rules for the interpreted lesson
    */
-  descartesJS.addCSSrules = function() {
+  function addCSSrules() {
     // add metadata for tablets
     addMetaTag();
     
@@ -1088,6 +1098,7 @@ var descartesJS = (function(descartesJS) {
     cssNode.innerHTML = 
                         "body{ text-rendering:geometricPrecision; }\n" +
                         "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
+                        "div.DescartesCatcher{ background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -moz-box-shadow:0px 0px 0px #888; -webkit-box-shadow:0px 0px 100px #888; box-shadow:0px 0px 100px #888; background-image:linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-o-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-moz-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-webkit-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-ms-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
@@ -1105,7 +1116,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   // immediately add the style to the document
-  descartesJS.addCSSrules();
+  addCSSrules();
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -2026,6 +2037,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluate = "onlyOnce";
 
+    this.local = "";
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -2059,7 +2072,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Auxiliary.prototype.splitInstructions = function(parser, expression) {
     tmpExpression = [];
 
-    // split the expression separated
     if (expression) {
       expression = expression.split(";");
     } else {
@@ -2079,15 +2091,36 @@ var descartesJS = (function(descartesJS) {
 
   /**
    */
-  descartesJS.Auxiliary.prototype.getPrivateVariables = function(expression) {
+  descartesJS.Auxiliary.prototype.getPrivateVariables = function(parser, expression) {
     tmpExpression = [];
 
+    if (expression) {
+      expression = expression.split(/;|,/);
+    } else {
+      expression = [""];
+    }
+
+    // add only the instructions tha execute something, i.e. instructions whit parsing different of null
     for (i=0, l=expression.length; i<l; i++) {
-      if (expression[i].type === "asign") {
-        tmpExpression.push(expression[i].childs[0].value);
+      tmp = parser.parse(expression[i], true);
+      if (tmp) {
+        tmpExpression.push(tmp);
+      }
+    }    
+
+    // add the identifier nodes to local variables
+    for (i=0, l=tmpExpression.length; i<l; i++) {
+      if (tmpExpression[i].type === "asign") {
+        tmpExpression[i] = tmpExpression[i].childs[0].value;
+      }
+      else if (tmpExpression[i].type === "identifier") {
+        tmpExpression[i] = tmpExpression[i].value;
+      }
+      else {
+        tmpExpression[i] = "";
       }
     }
-    
+
     return tmpExpression;
   }
 
@@ -2105,7 +2138,8 @@ var descartesJS = (function(descartesJS) {
     // NEW CODE
     // get the private vars in the function
     // self.privateVars = self.getPrivateVariables(self.init);
-    self.privateVars = [];
+    // self.privateVars = [];
+    self.privateVars = self.getPrivateVariables(parser, self.local);
     // NEW CODE
 
     // parse the do expression
@@ -5703,7 +5737,7 @@ var descartesJS = (function(descartesJS, babel) {
     this.expresion = undefined;
 
     /**
-     * the rotation of an image
+     * the macro rotation
      * type {Node}
      * @private
      */
@@ -5712,11 +5746,6 @@ var descartesJS = (function(descartesJS, babel) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
-    this.graphics = [];
-    
-    var lessonParser = parent.lessonParser;
-    var tokenizer = new descartesJS.Tokenizer();
-
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -5724,6 +5753,11 @@ var descartesJS = (function(descartesJS, babel) {
         this[propName] = values[propName];
       }
     }
+
+    this.graphics = [];
+    
+    var lessonParser = parent.lessonParser;
+    var tokenizer = new descartesJS.Tokenizer();
     
     // if the expression is empty
     if (this.expresion == undefined) {
@@ -5731,12 +5765,12 @@ var descartesJS = (function(descartesJS, babel) {
     }
     
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
-    if ( !(this.expresion.match("'")) ) {
+    if ( !(this.expresion.charAt(0) === "'")) {
       this.expresion = "'" + this.expresion + "'";
     }
     this.expresion = this.evaluator.parser.parse(this.expresion);
-    
-    var filename = this.expresion.value;
+
+    var filename = this.evaluator.evalExpression(this.expresion)
     var response;
 
     // if the macro is readed from an external file omit 2 values of the string
@@ -5757,32 +5791,31 @@ var descartesJS = (function(descartesJS, babel) {
         response = descartesJS.openExternalFile(filename);
         
         // verify the content is a Descartes macro
-        if ( (response) && (!response.match("tipo_de_macro")) ) {
+        if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
           response = null;
         }
       }
     }
 
     var idsMacro = "|";
-    // if it was posible to red the macro
+    // if it was posible to read the macro
     if (response) {
       response = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&") ).split("\n").slice(sliceValue);
 
       var respTemp;
-      var tempIndexParenthesis;
+      var tempIndexParentheses;
 
-            
       // lines are divided into pseudotokens
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i]) {
           response[i] = lessonParser.split(response[i]);
           
-          if ( (response[i]) && (response[i][0]) && (response[i][0][0]) && (response[i][0][0] == "id") ) {
+          if ( (response[i]) && (response[i][0]) && (response[i][0][0]) && (response[i][0][0] === "id") ) {
             respTemp = response[i][0][1];
-            tempIndexParenthesis = respTemp.indexOf("(");
+            tempIndexParentheses = respTemp.indexOf("(");
             
-            if (tempIndexParenthesis != -1) {
-              respTemp = respTemp.substring(0,tempIndexParenthesis)
+            if (tempIndexParentheses != -1) {
+              respTemp = respTemp.substring(0,tempIndexParentheses)
             }
 
             idsMacro += respTemp + "|";
@@ -5809,25 +5842,8 @@ var descartesJS = (function(descartesJS, babel) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
           }
 
-          // if different expressions are different from this, then the cycle continues and is not replaced nothing
-          if ( (babelResp != "id") && 
-               (babelResp != "text") && 
-               (babelResp != "expresion") && 
-               (babelResp != "interval") && 
-               (babelResp != "steps") && 
-               (babelResp != "drawif") && 
-               (babelResp != "size") && 
-               (babelResp != "width") && 
-               (babelResp != "center") && 
-               (babelResp != "radius") && 
-               (babelResp != "init") && 
-               (babelResp != "end") &&
-               (babelResp != "inirot") && 
-               (babelResp != "do") &&
-               (babelResp != "while") &&
-               (babelResp != "file") &&
-               (babelResp != "fill") &&
-               (babelResp != "color") ) {
+          // if the expressions are different from this, then the cycle continues and is not replaced nothing          
+          if ((babelResp != "id") && (babel[respText[j][1]] != undefined)) {
             continue;
           }
           
@@ -5887,9 +5903,9 @@ var descartesJS = (function(descartesJS, babel) {
               respText[j][1] = tmpTokensRespText.join("");
             }
           }
-          
+          // the token is not a text
           else {
-            tmpTokens = tokenizer.tokenize(respText[j][1].replace(/\&squot;/g, "'"));
+            tmpTokens = tokenizer.tokenize(respText[j][1]);
             
             for (var t=0, lt=tmpTokens.length; t<lt; t++) {
               if ( (tmpTokens[t].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[t].value + "\\|")) ) {
@@ -5910,27 +5926,29 @@ var descartesJS = (function(descartesJS, babel) {
       }
 
       var tempResp;
-      
+      var isGraphic;
+
       // flat the expresions to obtain a string
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i][0]) {
           tempResp = "";
+          isGraphic = false;
+
           for (var j=0, k=response[i].length; j<k; j++) {
-            // if not a graphic object
-            if (babel[response[i][j][0]] != "type") {
-              response[i][j] = response[i][j][0] + "='" + response[i][j][1] + "' ";
-            }
+
             // if is a graphic object, add the corresponding space
-            else {
-              response[i][j] = "espacio='" + this.spaceID + "' " + response[i][j][0] + "='" + response[i][j][1] + "' ";
+            if (babel[response[i][j][0]] === "type") {
+              tempResp = "espacio='" + this.spaceID + "' ";
+              isGraphic = true;
             }
-            tempResp = tempResp + response[i][j];
+
+            tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
           }
-          
+
           response[i] = tempResp;
 
           // build and add the graphic elements to the space
-          if (tempResp.match(/^espacio/)) {
+          if (isGraphic) {
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene
@@ -9077,10 +9095,10 @@ var descartesJS = (function(descartesJS) {
     var spaces = this.parent.spaces;
     var space_i;
     // if the control is in the interior region
-    if (this.region == "interior") {
+    if (this.region === "interior") {
       for(var i=0, l=spaces.length; i<l; i++) {
         space_i = spaces[i];
-        if (space_i.id == this.spaceID) {
+        if (space_i.id === this.spaceID) {
           space_i.addCtr(this);
           this.zIndex = space_i.zIndex;
           // this.space = space_i;
@@ -9089,12 +9107,12 @@ var descartesJS = (function(descartesJS) {
       }
     }
     // if the control is in the external region
-    else if (this.region == "external") {
+    else if (this.region === "external") {
       // this.space = this.parent.externalSpace;
       return this.parent.externalSpace.container;
     }
     // if the control is in the scenario
-    else if (this.region == "scenario") {
+    else if (this.region === "scenario") {
       // has a cID
       if (this.cID) {
         this.expresion = this.evaluator.parser.parse("(0,-1000," + this.w + "," + this.h + ")");
@@ -9108,27 +9126,27 @@ var descartesJS = (function(descartesJS) {
 
     }
     // if the cotrol is in the north region
-    else if (this.region == "north") {
+    else if (this.region === "north") {
       this.parent.northSpace.controls.push(this);
       return this.parent.northSpace.container;
     }
     // if the cotrol is in the south region
-    else if (this.region == "south") {
+    else if (this.region === "south") {
       this.parent.southSpace.controls.push(this);
       return this.parent.southSpace.container;
     }
     // if the cotrol is in the east region
-    else if (this.region == "east") {
+    else if (this.region === "east") {
       this.parent.eastSpace.controls.push(this);
       return this.parent.eastSpace.container;
     }
     // if the cotrol is in the west region
-    else if (this.region == "west") {
+    else if (this.region === "west") {
       this.parent.westSpace.controls.push(this);
       return this.parent.westSpace.container;
     }
     // if the cotrol is in a spacial region (credits, config, init or clear)
-    else if (this.region == "special") {
+    else if (this.region === "special") {
       this.parent.specialSpace.controls.push(this);
       return this.parent.specialSpace.container;
     }
@@ -9189,6 +9207,59 @@ var descartesJS = (function(descartesJS) {
       this.init();
       this.draw();
     }
+  }
+
+  var resultValue;
+  var decimals;
+  var indexDot;
+  var subS;
+  var parent;
+
+  /**
+   * Format the value with the number of decimals, the exponential representation and the decimal symbol
+   * @param {String} value tha value to format
+   * @return {String} return the value with the format applyed
+   */
+  descartesJS.Control.prototype.formatOutputValue = function(value) {
+    parent = this.parent;
+
+    resultValue = value+"";
+
+    decimals = this.evaluator.evalExpression(this.decimals);
+
+    indexDot = resultValue.indexOf(".");
+    if ( indexDot != -1 ) {
+      subS = resultValue.substring(indexDot+1);
+        if (subS.length > decimals) {
+        resultValue = parseFloat(resultValue).toFixed(decimals);
+      }
+    }
+    
+    if (this.fixed) {
+      // ## patch for Descartes 2 ## 
+      // in a version diferente to 2, then fixed stays as it should
+      // if the version is 2 but do not use exponential notation
+      if ( (parent.version !== 2) || ((parent.version === 2) && (!this.exponentialif)) ) {
+        resultValue = parseFloat(value).toFixed(decimals);
+      }
+    }
+
+    // if the value is zero then do not show the E in the exponential notation
+    if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
+      // ## patch for Descartes 2 ## 
+      // in the version 2 do not show the decimals
+      if ((this.fixed) && (parent.version !== 2)) {
+        resultValue = parseFloat(resultValue).toExponential(decimals);
+      }
+      else {
+        resultValue = parseFloat(resultValue).toExponential();
+      }
+      resultValue = resultValue.toUpperCase();
+      resultValue = resultValue.replace("+", "");
+    }
+
+    resultValue = resultValue.replace(".", parent.decimal_symbol);
+    return resultValue;
   }
 
   /**
@@ -9783,8 +9854,6 @@ var descartesJS = (function(descartesJS) {
   var resultValue;
   var incr;
   var decimals;
-  var indexDot;
-  var subS;
   var hasTouchSupport;
 
   /**
@@ -10093,49 +10162,6 @@ var descartesJS = (function(descartesJS) {
     }
     resultValue = parseFloat(parseFloat(resultValue).toFixed(decimals));
     
-    return resultValue;
-  }
-
-  /**
-   * Format the value with the number of decimals, the exponential representation and the decimal symbol
-   * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
-   */
-  descartesJS.Spinner.prototype.formatOutputValue = function(value) {
-    resultValue = value+"";
-
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      subS = resultValue.substring(indexDot+1);
-        if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      // ## patch for Descartes 2 ## 
-      // in a version diferente to 2, then fixed stays as it should
-      // if the version is 2 but do not use exponential notation
-      if ( (this.parent.version !== 2) || ((this.parent.version === 2) && (!this.exponentialif)) ) {
-        resultValue = parseFloat(value).toFixed(decimals);
-      }
-    }
-
-    // if the value is zero then do not show the E in the exponential notation
-    if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
-      // ## patch for Descartes 2 ## 
-      // in the version 2 do not show the decimals
-      if ((this.fixed) && (this.parent.version !== 2)) {
-        resultValue = parseFloat(resultValue).toExponential(decimals);
-      }
-      else {
-        resultValue = parseFloat(resultValue).toExponential();
-      }
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "");
-    }
-
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
     return resultValue;
   }
 
@@ -10630,30 +10656,8 @@ var descartesJS = (function(descartesJS) {
       return "";
     }
 
-    resultValue = value+"";
-    
-    decimals = this.evaluator.evalExpression(this.decimals);
-    
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      var subS = resultValue.substring(indexDot+1);
-      if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      resultValue = parseFloat(value).toFixed(decimals);
-    }
-    
-    if (this.exponentialif) {
-      resultValue = resultValue.toExponential(decimals);
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
-    }
-    
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
-    return resultValue;
+    // call the draw function of the father (uber instead of super as it is reserved word)
+    return this.uber.formatOutputValue.call(this, value);
   }
 
   /**
@@ -11082,39 +11086,7 @@ var descartesJS = (function(descartesJS) {
     }
         
     return tempInd;
-  }
-  
-  /**
-   * Format the value with the number of decimals, the exponential representation and the decimal symbol
-   * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
-   */
-  descartesJS.Menu.prototype.formatOutputValue = function(value) {
-    resultValue = value+"";
-
-    decimals = this.evaluator.evalExpression(this.decimals);
-
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      subS = resultValue.substring(indexDot+1);
-      if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      resultValue = parseFloat(value).toFixed(decimals);
-    }
-    
-    if (this.exponentialif) {
-      resultValue = resultValue.toExponential(decimals);
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
-    }
-
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
-    return resultValue;
-  }
+  }  
 
   /**
    * Change the menu value
@@ -11435,18 +11407,18 @@ var descartesJS = (function(descartesJS) {
     self.containerControl.setAttribute("class", "DescartesScrollbarContainer");
     self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
     
-    // self.canvas.setAttribute("width", self.canvasWidth+"px");
-    // self.canvas.setAttribute("height", self.canvasHeight+"px");
-    // self.canvas.setAttribute("style", "position: absolute; left: " + self.canvasX + "px; top: " + self.canvasY + "px;");
     self.canvas.setAttribute("width", self.w+"px");
     self.canvas.setAttribute("height", self.h+"px");
     self.canvas.setAttribute("style", "position: absolute; left: 0px; top: 0px;");    
     self.ctx = self.canvas.getContext("2d");
+  
+    self.divUp.setAttribute("class", "DescartesCatcher");
+    self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
+    self.divDown.setAttribute("class", "DescartesCatcher");
+    self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
     
-    self.divUp.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
-    self.divDown.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
-    
-    self.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.scrollManipulatorW + "px; height : " + self.scrollManipulatorH + "px;");
+    self.scrollManipulator.setAttribute("class", "DescartesCatcher");
+    self.scrollManipulator.setAttribute("style", "width : " + self.scrollManipulatorW + "px; height : " + self.scrollManipulatorH + "px;");
     self.scrollManipulator.style.top = ((self.orientation === verticalScrollbar) ? self.scrollManipulatorLimInf : 0) + "px";
     self.scrollManipulator.style.left = ((self.orientation === verticalScrollbar) ? 0 : self.scrollManipulatorLimInf) + "px";
         
@@ -11654,37 +11626,6 @@ var descartesJS = (function(descartesJS) {
       resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.evalExpression(this.decimals)));
     }
 
-    return resultValue;
-  }
-
-  /**
-   * Format the value with the number of decimals, the exponential representation and the decimal symbol
-   * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
-   */
-  descartesJS.Scrollbar.prototype.formatOutputValue = function(value) {
-    resultValue = value+"";
-    decimals = this.evaluator.evalExpression(this.decimals);
-
-    indexDot = resultValue.indexOf(".");
-    if ( indexDot != -1 ) {
-      subS = resultValue.substring(indexDot+1);
-        if (subS.length > decimals) {
-        resultValue = parseFloat(resultValue).toFixed(decimals);
-      }
-    }
-    
-    if (this.fixed) {
-      resultValue = parseFloat(value).toFixed(decimals);
-    }
-    
-    if (this.exponentialif) {
-      resultValue = resultValue.toExponential(decimals);
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "")
-    }
-
-    resultValue = resultValue.replace(".", this.parent.decimal_symbol);
     return resultValue;
   }
 
@@ -13267,6 +13208,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var temp;
+  var babelValue;
   var values_i_0;
   var values_i_1;
   var spaceObj;
@@ -13290,12 +13232,29 @@ var descartesJS = (function(descartesJS, babel) {
   var charAt;
 
   var splitString;
-  var parentesisStack;
+  var parenthesesStack;
   var lastSplitIndex;
 
   var tmpColor;
   var splitColor;
   var hexColor;
+
+  var subtitleFontSize;
+  var plecaObj;
+  var paddingSides = 15;
+  var image;
+  var imageHeight;
+  var divTitle;
+  var divSubTitle;
+  var tempDiv;
+  var tempDivHeight;
+  var tempFontSize;
+  var noLines;
+  var tempDecrement;
+  var tmpIndexEqual;
+  var tmpIndexSpace;
+
+  var charAt;
 
   /**
    * Parser of principal elements of descartes
@@ -13318,7 +13277,7 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.LessonParser.prototype.parseButtonsConfig = function(values) {
     // default values
     var buttonConfigObj = { rowsNorth: 0, rowsSouth: 0, widthEast: 125, widthWest: 125, height: 23 };
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
     
@@ -13327,50 +13286,24 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
-      switch(babel[values_i_0]) {
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
         //
         case("rowsNorth"):
-          buttonConfigObj["rowsNorth"] = parseInt(values_i_1);
-          break;
-
-        //
         case("rowsSouth"):
-          buttonConfigObj["rowsSouth"] = parseInt(values_i_1);
-          break;
-
-        //
         case("widthEast"):
-          buttonConfigObj["widthEast"] = parseInt(values_i_1);
-          break;
-
-        //
         case("widthWest"):
-          buttonConfigObj["widthWest"] = parseInt(values_i_1);
-          break;
-
-        //
         case("height"):
-          buttonConfigObj["height"] = parseInt(values_i_1);
+          buttonConfigObj[babelValue] = parseInt(values_i_1);
           break;
 
         //
         case("about"):
-          buttonConfigObj["about"] = (babel[values_i_1] === "true");
-          break;
-
-        //
         case("config"):
-          buttonConfigObj["config"] = (babel[values_i_1] === "true");
-          break;
-
-        //
         case("init"):
-          buttonConfigObj["init"] = (babel[values_i_1] === "true");
-          break;
-
-        //
         case("clear"):
-          buttonConfigObj["clear"] = (babel[values_i_1] === "true");
+          buttonConfigObj[babelValue] = (babel[values_i_1] === "true");
           break;
 
         // any variable missing
@@ -13400,15 +13333,71 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
-      switch(babel[values_i_0]) {
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
         // the type of the space (2D, 3D or another)
         case("type"):
-          spaceObj["type"] = values_i_1;
-          break;
-          
         // identifier
         case("id"):
-          spaceObj["id"] = values_i_1;
+        // control identifier (for rtf positioning)
+        case("cID"):
+        // file name of an external space
+        case("file"):
+          spaceObj[babelValue] = values_i_1;
+          break;
+
+        // fixed condition
+        case("fixed"):
+        // condition to show the numbers in the space
+        case("numbers"):
+        // sensitive to mouse movements condition
+        case("sensitive_to_mouse_movements"):
+        // space 3D
+        case("R3"):
+        // split option for the render
+        case("split"):
+          spaceObj[babelValue] = (babel[values_i_1] === "true");
+          break;          
+
+        // how the background image is positioned
+        case("bg_display"):
+        // render mode sort, painter, raytrace
+        case("render"):
+          spaceObj[babelValue] = babel[values_i_1];
+          break;
+
+        // color of the net
+        case("net"):
+        // color of the net 10
+        case("net10"):
+        // color of the axis
+        case("axes"):
+        // color of the coordinate text of the mouse
+        case("text"):
+          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
+          break;
+
+        // text of the X axis
+        case("x-axis"):
+        // text of the Y axis
+        case("y-axis"):
+          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : values_i_1;
+          break;
+          
+        // x position of origin
+        case("O.x"):
+          spaceObj["OxExpr"] = values_i_1;
+          break;
+
+        // y position of origin
+        case("O.y"):
+          spaceObj["OyExpr"] = values_i_1;
+          break;
+
+        // background image
+        case("image"):
+          spaceObj["imageSrc"] = values_i_1;
           break;
           
         // x position
@@ -13490,11 +13479,6 @@ var descartesJS = (function(descartesJS, babel) {
           spaceObj["drawif"] = this.parser.parse(values_i_1);
           break;
           
-        // fixed condition
-        case("fixed"):
-          spaceObj["fixed"] = (babel[values_i_1] === "true");
-          break;
-          
         // scale
         case("scale"):
           temp = parseFloat(values_i_1);
@@ -13507,95 +13491,10 @@ var descartesJS = (function(descartesJS, babel) {
           
           spaceObj["scale"] = temp;
           break;
-          
-        // x position of origin
-        case("O.x"):
-          spaceObj["OxExpr"] = values_i_1;
-          break;
-          
-        // y position of origin
-        case("O.y"):
-          spaceObj["OyExpr"] = values_i_1;
-          break;
-          
-        // background image
-        case("image"):
-          spaceObj["imageSrc"] = values_i_1;
-          break;
-        
-        // how the background image is positioned
-        case("bg_display"):
-          spaceObj["bg_display"] = babel[values_i_1];
-          break;
-          
+                  
         // background color
         case("background"):
           spaceObj["background"] = this.convertColor(values_i_1);
-          break;
-          
-        // color of the net
-        case("net"):
-          spaceObj["net"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
-          break;
-          
-        // color of the net 10
-        case("net10"):
-          spaceObj["net10"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
-          break;
-          
-        // color of the axis
-        case("axes"):
-          spaceObj["axes"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
-          break;
-
-        // color of the coordinate text of the mouse
-        case("text"):
-          spaceObj["text"] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
-          break;
-          
-        // condition to show the numbers in the space
-        case("numbers"):
-          spaceObj["numbers"] = (babel[values_i_1] === "true");
-          break;
-          
-        // text of the X axis
-        case("x-axis"):
-          spaceObj["x_axis"] = (babel[values_i_1] === "false") ? "" : values_i_1;
-          break;
-          
-        // text of the Y axis
-        case("y-axis"):
-          spaceObj["y_axis"] = (babel[values_i_1] === "false") ? "" : values_i_1;
-          break;
-          
-        // sensitive to mouse movements condition
-        case("sensitive_to_mouse_movements"):
-          spaceObj["sensitive_to_mouse_movements"] = (babel[values_i_1] === "true");
-          break;
-          
-        // control identifier (for rtf positioning)
-        case("cID"):
-          spaceObj["cID"] = values_i_1;
-          break;
-          
-        // space 3D
-        case("R3"):
-          spaceObj["R3"] = (babel[values_i_1] === "true");
-          break;
-          
-        // render mode sort, painter, raytrace
-        case("render"):
-          spaceObj["render"] = babel[values_i_1];
-          break;
-          
-        // split option for the render
-        case("split"):
-          spaceObj["split"] = (babel[values_i_1] === "true");
-          break;
-          
-        // file name of an external space
-        case("file"):
-          spaceObj["file"] = values_i_1;
           break;
           
         // any variable missing
@@ -13605,20 +13504,28 @@ var descartesJS = (function(descartesJS, babel) {
       }   
     }
 
-    if ((spaceObj.type === "R2") || (this.parent.version < 4)) {
-      return new descartesJS.Space2D(this.parent, spaceObj);
-    }
-    
-    else if (spaceObj.type === "R3") {
-      return new descartesJS.Space3D(this.parent, spaceObj);
-    }
+    // construct the space
+    switch(spaceObj.type) {
+      case("R2"):
+        return new descartesJS.Space2D(this.parent, spaceObj);
+        break;
 
-    else if (spaceObj.type === "AP") {
-      return new descartesJS.SpaceAP(this.parent, spaceObj);
-    }
-    
-    else if (spaceObj.type === "HTMLIFrame") {
-      return new descartesJS.SpaceHTML_IFrame(this.parent, spaceObj);
+      case("R3"):
+        return new descartesJS.Space3D(this.parent, spaceObj);
+        break;
+
+      case("AP"):
+        return new descartesJS.SpaceAP(this.parent, spaceObj);
+        break;
+
+      case("HTMLIFrame"):
+        return new descartesJS.SpaceHTML_IFrame(this.parent, spaceObj);
+        break;
+
+      // Descartes 2
+      default:
+        return new descartesJS.Space2D(this.parent, spaceObj);
+        break;
     }
   }
 
@@ -13639,26 +13546,103 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
-      switch( babel[values_i_0]) {
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
         
         // identifier
         case("id"):
-          controlObj["id"] = values_i_1;
+        // name
+        case("name"):
+        // parameter of the action
+        case("parameter"):
+        // tooltip
+        case("tooltip"):
+        // font tooltip
+        case("tooltipFont"):
+        // explanation
+        case("Explanation"):
+        // font explanation
+        case("ExplanationFont"):
+        // control identifier (for rtf positioning)
+        case("cID"):
+        // control menu options
+        case("options"):
+        // control graphic text font
+        case("font"):
+        // file name of a video or audio control
+        case("file"):
+        // answer pattern
+        case("answer"):
+          controlObj[babelValue] = values_i_1;
           break;
-          
-        // type
-        case("type"):
-          controlObj["type"] = babel[values_i_1.trim()];
-          break;
-          
+
         // interface (spinner, button, etc)
         case("gui"):
-          controlObj["gui"] = babel[values_i_1];
-          break;
-          
         // region
         case("region"):
-          controlObj["region"] = babel[values_i_1];
+        // action
+        case("action"):
+        // relative position of control mesagges
+        case("msg_pos"):
+        // video control poster image
+        case("poster"):
+          controlObj[babelValue] = babel[values_i_1];
+          break;
+
+        // condition to use fixed notation in the text
+        case("fixed"):
+        // visible condition
+        case("visible"):
+        // condition for the discrete increment
+        case("discrete"):
+        // condition for a only text control
+        case("onlyText"):
+        // condition to evaluate the control
+        case("evaluate"):
+        // condition to auto play a video or audio control
+        case("autoplay"):
+        // condition to loop a video or audio control
+        case("loop"):
+        // condition to show the controls of a video or audio control
+        case("controls"):
+          controlObj[babelValue] = (babel[values_i_1] === "true");
+          break;
+
+        // color text
+        case("color"):
+        // color-int text
+        case("colorInt"):
+        // control graphic trace
+        case("trace"):
+          controlObj[babelValue] = this.convertColor(values_i_1);
+          break;
+
+        // font size
+        case("font_size"):
+        // drawif condition
+        case("drawif"):
+        // activeif condition
+        case("activeif"):
+        // number of decimals of the text in the graphic control
+        case("decimals"):
+        // minimum value
+        case("min"):
+        // maximum value
+        case("max"):
+        // control graphic size
+        case("size"):
+          controlObj[babelValue] = this.parser.parse(values_i_1);
+          break;
+          
+        // control graphic constraint
+        case("constraint"):
+          controlObj["constraintExpr"] = values_i_1;
+          break;
+
+        // image
+        case("image"):
+          controlObj["imageSrc"] = values_i_1;
           break;
           
         // id of the containing space
@@ -13666,36 +13650,16 @@ var descartesJS = (function(descartesJS, babel) {
           controlObj["spaceID"] = values_i_1;
           break;
           
-        // name
-        case("name"):
-          controlObj["name"] = values_i_1;
+        // type
+        case("type"):
+          controlObj["type"] = babel[values_i_1.trim()];
           break;
-          
+                    
         // expresion of the position and size
         case("expresion"):
           controlObj["expresion"] = this.parser.parse(values_i_1.replace(")(", ","));
           break;
-          
-        // condition to use fixed notation in the text
-        case("fixed"):
-          controlObj["fixed"] = (babel[values_i_1] === "true");
-          break;
-          
-        // visible condition
-        case("visible"):
-          controlObj["visible"] = (babel[values_i_1] === "true");
-          break;
-          
-        // color text
-        case("color"):
-          controlObj["color"] = this.convertColor(values_i_1);
-          break;
-          
-        // color-int text
-        case("colorInt"):
-          controlObj["colorInt"] = this.convertColor(values_i_1);
-          break;
-          
+
         // bold text contidition
         case("bold"):
           if (babel[values_i_1] != "false") {
@@ -13717,66 +13681,6 @@ var descartesJS = (function(descartesJS, babel) {
           }
           break;
           
-        // font size
-        case("font_size"):
-          controlObj["font_size"] = this.parser.parse(values_i_1); //parsear la posible expresion
-          break;
-          
-        // image
-        case("image"):
-          controlObj["imageSrc"] = values_i_1;
-          break;
-          
-        // action
-        case("action"):
-          controlObj["action"] = babel[values_i_1];
-          break;
-          
-        // parameter of the action
-        case("parameter"):
-          controlObj["parameter"] = values_i_1;
-          break;
-          
-        // drawif condition
-        case("drawif"):
-          controlObj["drawif"] = this.parser.parse(values_i_1);
-          break;
-          
-        // activeif condition
-        case("activeif"):
-          controlObj["activeif"] = this.parser.parse(values_i_1);
-          break;
-          
-        // tooltip
-        case("tooltip"):
-          controlObj["tooltip"] = values_i_1;
-          break;
-          
-        // font tooltip
-        case("tooltipFont"):
-          controlObj["tooltipFont"] = values_i_1;
-          break;
-          
-        // explanation
-        case("Explanation"):
-          controlObj["Explanation"] = values_i_1;
-          break;
-          
-        // font explanation
-        case("ExplanationFont"):
-          controlObj["ExplanationFont"] = values_i_1;
-          break;
-          
-        // relative position of control mesagges
-        case("msg_pos"):
-          controlObj["msg_pos"] = babel[values_i_1];
-          break;
-          
-        // control identifier (for rtf positioning)
-        case("cID"):
-          controlObj["cID"] = values_i_1;
-          break;
-          
         // value
         case("value"):
           var tmpVal = values_i_1.replace(/&squot;/g, "'");
@@ -13796,63 +13700,18 @@ var descartesJS = (function(descartesJS, babel) {
           
           break;
           
-        // number of decimals of the text in the graphic control
-        case("decimals"):
-          controlObj["decimals"] = this.parser.parse(values_i_1);
-          break;
-          
-        // minimum value
-        case("min"):
-          controlObj["min"] = this.parser.parse(values_i_1);
-          break;
-          
-        // maximum value
-        case("max"):
-          controlObj["max"] = this.parser.parse(values_i_1);
-          break;
-          
         // increment
         case("incr"):
           if (values_i_1 != 0) {
             controlObj["incr"] = this.parser.parse(values_i_1);
           }
           break;
-          
-        // condition for the discrete increment
-        case("discrete"):
-          controlObj["discrete"] = (babel[values_i_1] === "true");
-          break;
-          
-        // condition for a only text control
-        case("onlyText"):
-          controlObj["onlyText"] = (babel[values_i_1] === "true");
-          break;
-          
-        // condition to evaluate the control
-        case("evaluate"):
-          controlObj["evaluate"] = (babel[values_i_1] === "true");
-          break;
-          
-        // answer pattern
-        case("answer"):
-          controlObj["answer"] = values_i_1;
-          break;
-          
+
         // condition to show the text content in exponential notation
         case("exponentialif"):
           controlObj["exponentialif"] = parseFloat(values_i_1); // parse the posible expression
           break;
 
-        // control graphic size
-        case("size"):
-          controlObj["size"] = this.parser.parse(values_i_1);
-          break;
-          
-        // control graphic constraint
-        case("constraint"):
-          controlObj["constraintExpr"] = values_i_1;
-          break;
-          
         // control graphic text
         case("text"):
           // the raw string
@@ -13863,46 +13722,6 @@ var descartesJS = (function(descartesJS, babel) {
             tmpText[ii] = this.parser.parse(tmpText[ii], false);
           }
           controlObj["text"] = tmpText;
-          break;
-          
-        // control graphic trace
-        case("trace"):
-          controlObj["trace"] = this.convertColor(values_i_1);
-          break;
-          
-        // control menu options
-        case("options"):
-          controlObj["options"] = values_i_1;
-          break;
-          
-        // control graphic text font
-        case("font"):
-          controlObj["font"] = values_i_1;
-          break;
-          
-        // file name of a video or audio control
-        case("file"):
-          controlObj["file"] = values_i_1;
-          break;
-          
-        // condition to auto play a video or audio control
-        case("autoplay"):
-          controlObj["autoplay"] = (babel[values_i_1] === "true");
-          break;
-          
-        // condition to loop a video or audio control
-        case("loop"):
-          controlObj["loop"] = (babel[values_i_1] === "true");
-          break;
-          
-        // condition to show the controls of a video or audio control
-        case("controls"):
-          controlObj["controls"] = (babel[values_i_1] === "true");
-          break;
-          
-        // video control poster image
-        case("poster"):
-          controlObj["poster"] = babel[values_i_1];
           break;
           
         // any variable missing
@@ -13932,28 +13751,34 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
+
+
     if (controlObj.type === "numeric") {
-
-      if ((controlObj.gui === undefined) || (controlObj.gui === "spinner")) {
-        return new descartesJS.Spinner(this.parent, controlObj);
+      switch (controlObj.gui) {
+        case("spinner"):
+          return new descartesJS.Spinner(this.parent, controlObj);
+          break;
+          
+        case("button"):
+          return new descartesJS.Button(this.parent, controlObj);
+          break;
+          
+        case("textfield"):
+          return new descartesJS.TextField(this.parent, controlObj);
+          break;
+          
+        case("menu"):
+          return new descartesJS.Menu(this.parent, controlObj);
+          break;
+          
+        case("scrollbar"):
+          return new descartesJS.Scrollbar(this.parent, controlObj);
+          break;
+          
+        default:
+          return new descartesJS.Spinner(this.parent, controlObj);
+          break;
       }
-      
-      else if (controlObj.gui === "button") {
-        return new descartesJS.Button(this.parent, controlObj);
-      }
-
-      else if (controlObj.gui === "textfield") {
-        return new descartesJS.TextField(this.parent, controlObj);
-      }
-      
-      else if (controlObj.gui === "menu") {
-        return new descartesJS.Menu(this.parent, controlObj);
-      }
-      
-      else if (controlObj.gui === "scrollbar") {
-        return new descartesJS.Scrollbar(this.parent, controlObj);
-      }
-
     }
     
     else if (controlObj.type === "video") {
@@ -13993,38 +13818,94 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
-      switch(babel[values_i_0]) {
-        
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {        
+
+        // type
+        case("type"):
+        // text alignment
+        case("align"):
+          graphicObj[babelValue] = babel[values_i_1];
+          break;
+
+        // condition to draw the graphic in the background
+        case("background"):
+        // type of coordinates
+        case("abs_coord"):
+        // visible condition
+        case("visible"):
+        // editable condition
+        case("editable"):
+        // condition to use fixed notation in the text
+        case("fixed"):
+        // arc condition to use vectors
+        case("vectors"):
+          graphicObj[babelValue] = (babel[values_i_1] === "true");
+          break;
+
+        // color
+        case("color"):
+        // trace
+        case("trace"):
+        // fill color
+        case("fill"):
+        // equation fill+ color
+        case("fillP"):
+        // equation fill- color
+        case("fillM"):
+        // arrow color
+        case("arrow"):
+          graphicObj[babelValue] = this.convertColor(values_i_1);
+          break;
+
+        // family parameter
+        case("family"):
+        // parameter of a curve
+        case("parameter"):
+        // information
+        case("info"):
+        // text font
+        case("font"):
+        // macro name
+        case("name"):
+          graphicObj[babelValue] = values_i_1;
+          break;
+
+        // drawif condition
+        case("drawif"):
+        // width
+        case("width"):
+        // number of decimals of the text in the graphic
+        case("decimals"):
+        // size
+        case("size"):
+        // arrow spear size
+        case("spear"):
+        // arc center
+        case("center"):
+        // arc radius
+        case("radius"):
+        // arc init angle
+        case("init"):
+        // arc end angle
+        case("end"):
+        // image opacity
+        case("opacity"):
+        // image and macro rotation
+        case("inirot"):
+        // macro initial position
+        case("inipos"):
+        // range
+        case("range"):
+          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          break;
+
         // space identifier
         case("space"):
           graphicObj["spaceID"] = values_i_1;
           break;
-          
-        // type
-        case("type"):
-          graphicObj["type"] = babel[values_i_1];
-          break;
-          
-        // condition to draw the graphic in the background
-        case("background"):
-          graphicObj["background"] = (babel[values_i_1] === "true");
-          break;
-          
-        // color
-        case("color"):
-          graphicObj["color"] = this.convertColor(values_i_1);
-          break;
-          
-        // drawif condition
-        case("drawif"):
-          graphicObj["drawif"] = this.parser.parse(values_i_1);
-          break;
-          
-        // type of coordinates
-        case("abs_coord"):
-          graphicObj["abs_coord"] = (babel[values_i_1] === "true");
-          break;
-          
+
         // expression
         case("expresion"):
           if (graphicObj.type != "macro") {
@@ -14034,115 +13915,10 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = values_i_1;
           }
           break;
-          
-        // trace
-        case("trace"):
-          graphicObj["trace"] = this.convertColor(values_i_1);
-          break;
-          
-        // family parameter
-        case("family"):
-          graphicObj["family"] = values_i_1;
-          break;
-          
-        // parameter of a curve
-        case("parameter"):
-          graphicObj["parameter"] = values_i_1;
-          break;
-          
-        // fill color
-        case("fill"):
-          graphicObj["fill"] = this.convertColor(values_i_1);
-          break;
-          
-        // equation fill+ color
-        case("fillP"):
-          graphicObj["fillP"] = this.convertColor(values_i_1);
-          break;
-          
-        // equation fill- color
-        case("fillM"):
-          graphicObj["fillM"] = this.convertColor(values_i_1);
-          break;
-          
-        // width
-        case("width"):
-          graphicObj["width"] = this.parser.parse(values_i_1);
-          break;
-          
-        // visible condition
-        case("visible"):
-          graphicObj["visible"] = (babel[values_i_1] === "true");
-          break;
-          
-        // editable condition
-        case("editable"):
-          graphicObj["editable"] = (babel[values_i_1] === "true");
-          break;
-          
-        // information
-        case("info"):
-          graphicObj["info"] = values_i_1;
-          break;
-          
+                    
         // text
         case("text"):
           graphicObj["text"] = this.parseText(values_i_1);
-          break;
-          
-        // text font
-        case("font"):
-          graphicObj["font"] = values_i_1;
-          break;
-          
-        // condition to use fixed notation in the text
-        case("fixed"):
-          graphicObj["fixed"] = (babel[values_i_1] === "true");
-          break;
-          
-        // number of decimals of the text in the graphic
-        case("decimals"):
-          graphicObj["decimals"] = this.parser.parse(values_i_1);
-          break;
-          
-        // size
-        case("size"):
-          graphicObj["size"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arrow spear size
-        case("spear"):
-          graphicObj["spear"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arrow color
-        case("arrow"):
-          graphicObj["arrow"] = this.convertColor(values_i_1);
-          break;
-          
-        // arc center
-        case("center"):
-          graphicObj["center"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arc radius
-        case("radius"):
-          graphicObj["radius"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arc init angle
-        case("init"):
-          graphicObj["init"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arc end angle
-        case("end"):
-          graphicObj["end"] = this.parser.parse(values_i_1);
-          break;
-          
-        // arc condition to use vectors
-        case("vectors"):
-          graphicObj["vectors"] = (babel[values_i_1] === "true");
           break;
           
         // file name
@@ -14158,41 +13934,11 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj["file"] = this.parser.parse(fileTmp);
           break;
           
-        // image opacity
-        case("opacity"):
-          graphicObj["opacity"] = this.parser.parse(values_i_1);
-          break;
-          
-        // image and macro rotation
-        case("inirot"):
-          graphicObj["inirot"] = this.parser.parse(values_i_1);
-          break;
-          
-        // macro initial position
-        case("inipos"):
-          graphicObj["inipos"] = this.parser.parse(values_i_1);
-          break;
-          
-        // macro name
-        case("name"):
-          graphicObj["name"] = values_i_1;
-          break;
-          
-        // range
-        case("range"):
-          graphicObj["range"] = this.parser.parse(values_i_1);
-          break;
-          
         // color border
         case("border"):
           if (babel[values_i_1] != "false") {
             graphicObj["border"] = this.convertColor(values_i_1);
           }
-          break;
-          
-        // text alignment
-        case("align"):
-          graphicObj["align"] = babel[values_i_1];
           break;
           
         // any variable missing
@@ -14251,53 +13997,59 @@ var descartesJS = (function(descartesJS, babel) {
     }
     // MACRO //
 
-    if (graphicObj.type === "equation") {
-      return new descartesJS.Equation(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "curve") {
-      return new descartesJS.Curve(this.parent, graphicObj);
+    switch(graphicObj.type) {
+      case("text"):
+        return new descartesJS.Text(this.parent, graphicObj);
+        break;
+
+      case("image"):
+        return new descartesJS.Image(this.parent, graphicObj);
+        break;
+
+      case("point"):
+        return new descartesJS.Point(this.parent, graphicObj);
+        break;
+
+      case("polygon"):
+        return new descartesJS.Polygon(this.parent, graphicObj);
+        break;
+
+      case("arc"):
+        return new descartesJS.Arc(this.parent, graphicObj);
+        break;
+
+      case("segment"):
+        return new descartesJS.Segment(this.parent, graphicObj);
+        break;
+
+      case("arrow"):
+        return new descartesJS.Arrow(this.parent, graphicObj);
+        break;
+
+      case("macro"):
+        return new descartesJS.Macro(this.parent, graphicObj);
+        break;
+
+      case("curve"):
+        return new descartesJS.Curve(this.parent, graphicObj);
+        break;
+
+      case("equation"):
+        return new descartesJS.Equation(this.parent, graphicObj);
+        break;
+
+      case("sequence"):
+        return new descartesJS.Sequence(this.parent, graphicObj);
+        break;
+
+      case("fill"):
+        return new descartesJS.Fill(this.parent, graphicObj);
+        break;
+
+      default:
+        break;
     }
 
-    else if (graphicObj.type === "sequence") {
-      return new descartesJS.Sequence(this.parent, graphicObj);
-    }
-
-    else if (graphicObj.type === "point") {
-      return new descartesJS.Point(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "segment") {
-      return new descartesJS.Segment(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "arrow") {
-      return new descartesJS.Arrow(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "polygon") {
-      return new descartesJS.Polygon(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "arc") {
-      return new descartesJS.Arc(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "text") {
-      return new descartesJS.Text(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "image") {
-      return new descartesJS.Image(this.parent, graphicObj);
-    }
-
-    else if (graphicObj.type === "macro") {
-      return new descartesJS.Macro(this.parent, graphicObj);
-    }
-
-    else if (graphicObj.type === "fill") {
-      return new descartesJS.Fill(this.parent, graphicObj);
-    }
   }
 
   /**
@@ -14321,31 +14073,70 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
       
-      switch(babel[values_i_0]) {
-        
-        // space identifier
-        case("space"):
-          graphicObj["spaceID"] = values_i_1;
-          break;
-          
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
+
         // type
         case("type"):
-          graphicObj["type"] = babel[values_i_1];
+        // ilumination model
+        case("model"):
+          graphicObj[babelValue] = babel[values_i_1];
           break;
           
         // condition to draw the graphic in the background
         case("background"):
-          graphicObj["background"] = (babel[values_i_1] === "true");
+        // condition to use fixed notation in the text
+        case("fixed"):
+        // condition to draw the edges
+        case("edges"):
+          graphicObj[babelValue] = (babel[values_i_1] === "true");
           break;
-          
+
         // color
         case("color"):
-          graphicObj["color"] = this.convertColor(values_i_1);
+        // back face color
+        case("backcolor"):
+          graphicObj[babelValue] = this.convertColor(values_i_1);
           break;
-          
+
         // drawif condition
         case("drawif"):
-          graphicObj["drawif"] = this.parser.parse(values_i_1);
+        // width
+        case("width"):
+        // lenght
+        case("length"):
+        // number of decimals of the text in the graphic
+        case("decimals"):
+        // Nu parameter
+        case("Nu"):
+        // Nv parameter
+        case("Nv"):
+        // initial rotation
+        case("inirot"):
+        // end rotation
+        case("endrot"):
+        // initial position
+        case("inipos"):
+        // end position
+        case("endpos"):
+          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          break;          
+
+        // family parameter
+        case("family"):
+        // curve parameter
+        case("parameter"):
+        // font text
+        case("font"):
+        // name
+        case("name"):
+          graphicObj[babelValue] = values_i_1;
+          break;          
+          
+        // space identifier
+        case("space"):
+          graphicObj["spaceID"] = values_i_1;
           break;
           
         // expression
@@ -14358,26 +14149,6 @@ var descartesJS = (function(descartesJS, babel) {
           }
           break;
                     
-        // family parameter
-        case("family"):
-          graphicObj["family"] = values_i_1;
-          break;
-          
-        // curve parameter
-        case("parameter"):
-          graphicObj["parameter"] = values_i_1;
-          break;
-          
-        // width
-        case("width"):
-          graphicObj["width"] = this.parser.parse(values_i_1);
-          break;
-
-        // lenght
-        case("length"):
-          graphicObj["length"] = this.parser.parse(values_i_1);
-          break;
-          
         // text
         case("text"):
           var tmpText = this.parseText(values_i_1);
@@ -14388,21 +14159,6 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj["text"] = tmpText;
           break;
           
-        // font text
-        case("font"):
-          graphicObj["font"] = values_i_1;
-          break;
-          
-        // condition to use fixed notation in the text
-        case("fixed"):
-          graphicObj["fixed"] = (babel[values_i_1] === "true");
-          break;
-          
-        // number of decimals of the text in the graphic
-        case("decimals"):
-          graphicObj["decimals"] = this.parser.parse(values_i_1);
-          break;
-
         // file name
         case("file"):
           var fileTmp = values_i_1.replace(/&squot;/g, "'");
@@ -14416,59 +14172,7 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           graphicObj["file"] = this.parser.parse(fileTmp);
-          break;
-
-        // ilumination model
-        case("model"):
-          graphicObj["model"] = babel[values_i_1];
-          break;
-          
-        // condition to draw the edges
-        case("edges"):
-          graphicObj["edges"] = (babel[values_i_1] === "true");
-          break;
-
-        // Nu parameter
-        case("Nu"):
-          graphicObj["Nu"] = this.parser.parse(values_i_1);
           break;          
-
-        // Nv parameter
-        case("Nv"):
-          graphicObj["Nv"] = this.parser.parse(values_i_1);
-          break;          
-          
-        // name
-        case("name"):
-          graphicObj["name"] = values_i_1;
-          break;          
-          
-        // back face color
-        case("backcolor"):
-          graphicObj["backcolor"] = this.convertColor(values_i_1);
-          break;
-
-        // initial rotation
-        case("inirot"):
-          graphicObj["inirot"] = this.parser.parse(values_i_1);
-          break;
-          
-        // end rotation
-        case("endrot"):
-          graphicObj["endrot"] = this.parser.parse(values_i_1);
-          break;
-          
-        // initial position
-        case("inipos"):
-          graphicObj["inipos"] = this.parser.parse(values_i_1);
-          break;
-          
-        // end position
-        case("endpos"):
-          graphicObj["endpos"] = this.parser.parse(values_i_1);
-          break;          
-
-        //////////////////////////////////////////////////////////////////////////////////////
           
         // any variable missing
         default:
@@ -14515,50 +14219,51 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    if (graphicObj.type === "point") {
-      return new descartesJS.Point3D(this.parent, graphicObj);
-    }
+    switch(graphicObj.type) {
+      case("point"):
+        return new descartesJS.Point3D(this.parent, graphicObj);
+        break;
 
-    else if (graphicObj.type === "segment") {
-      return new descartesJS.Segment3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "polygon") {
-      return new descartesJS.Polygon3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "curve") {
-      return new descartesJS.Curve3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "triangle") {
-      return new descartesJS.Triangle3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "face") {
-      return new descartesJS.Face3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "polireg") {
-      return new descartesJS.Polireg3D(this.parent, graphicObj);
-    }
+      case("segment"):
+        return new descartesJS.Segment3D(this.parent, graphicObj);
+        break;
 
-    else if (graphicObj.type === "surface") {
-      return new descartesJS.Surface3D(this.parent, graphicObj);
-    }
+      case("polygon"):
+        return new descartesJS.Polygon3D(this.parent, graphicObj);
+        break;
 
-    else if (graphicObj.type === "text") {
-      return new descartesJS.Text3D(this.parent, graphicObj);
-    }
-    
-    else if (graphicObj.type === "mesh") {
-      return new descartesJS.Mesh3D(this.parent, graphicObj);
-    }
+      case("curve"):
+        return new descartesJS.Curve3D(this.parent, graphicObj);
+        break;
 
-    else {
-      console.log(graphicObj.type);
+      case("triangle"):
+        return new descartesJS.Triangle3D(this.parent, graphicObj);
+        break;
+
+      case("face"):
+        return new descartesJS.Face3D(this.parent, graphicObj);
+        break;
+
+      case("polireg"):
+        return new descartesJS.Polireg3D(this.parent, graphicObj);
+        break;
+
+      case("surface"):
+        return new descartesJS.Surface3D(this.parent, graphicObj);
+        break;
+
+      case("text"):
+        return new descartesJS.Text3D(this.parent, graphicObj);
+        break;
+
+      case("mesh"):
+        return new descartesJS.Mesh3D(this.parent, graphicObj);
+        break;
+
+      default:
+        console.log(graphicObj.type);
+        break;
     }
-    
   }
   
   /**
@@ -14570,7 +14275,6 @@ var descartesJS = (function(descartesJS, babel) {
     // object containing all the values ​​found in values
     auxiliarObj = {};
 
-    
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
     
@@ -14583,120 +14287,68 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
-      switch(babel[values_i_0]) {
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
+
         // identifier
         case("id"):
-          auxiliarObj["id"] = values_i_1;
+        // file name of a vector
+        case("file"):
+        // init expression
+        case("init"):
+        // do expression
+        case("doExpr"):
+        // while expression
+        case("whileExpr"):
+        // function range
+        case("range"):
+        // local variables
+        case("local"):
+        // expression
+        case("expresion"):
+        // event condition
+        case("condition"):
+        // event parameter
+        case("parameter"):
+          auxiliarObj[babelValue] = values_i_1;
           break;
 
         // editable condition
       	case("editable"):
-      	  auxiliarObj["editable"] = (babel[values_i_1] === "true");
-      	  break;
-	  
         // constant condition
         case("constant"):
-          auxiliarObj["constant"] = (babel[values_i_1] === "true");
-          break;
-        
         // vector condition
         case("array"):
-          auxiliarObj["array"] = (babel[values_i_1] === "true");
+        // matrix condition
+        case("matrix"):
+        // algorithm condition
+        case("algorithm"):
+        // sequence condition
+        case("sequence"):
+          auxiliarObj[babelValue] = (babel[values_i_1] === "true");
           break;
 
         // number of elements in a vector
         case("size"):
-          auxiliarObj["size"] = this.parser.parse(values_i_1);
-          break;
-
-        // file name of a vector
-        case("file"):
-          auxiliarObj["file"] = values_i_1;
-          break;
-
-        // matrix condition
-        case("matrix"):
-          auxiliarObj["matrix"] = (babel[values_i_1] === "true");
-          break;
-          
         // number of rows in a matrix
         case("rows"):
-          auxiliarObj["rows"] = this.parser.parse(values_i_1);
-          break;
-          
         // number of columns in a matrix
         case("columns"):
-          auxiliarObj["columns"] = this.parser.parse(values_i_1);
+          auxiliarObj[babelValue] = this.parser.parse(values_i_1);
           break;
 
-        // algorithm condition
-        case("algorithm"):
-          auxiliarObj["algorithm"] = (babel[values_i_1] === "true");
-          break;
-        
-        // init expression
-        case("init"):
-          auxiliarObj["init"] = values_i_1;
-          break;
-          
-        // do expression
-        case("do"):
-          auxiliarObj["doExpr"] = values_i_1;
-          break;
-          
-        // while expression
-        case("while"):
-          auxiliarObj["whileExpr"] = values_i_1;
-          break;
-          
-        // function range
-        case("range"):
-          auxiliarObj["range"] = values_i_1;
-          break;
-
-        // expression
-        case("expresion"):
-          auxiliarObj["expresion"] = values_i_1;
-          break;
-          
         // type of evaluation
         case("evaluate"):
-          auxiliarObj["evaluate"] = babel[values_i_1];
-          break;
-          
         // event expression
         case("event"):
-          auxiliarObj["event"] = babel[values_i_1];
-          break;
-
-        // event condition
-        case("condition"):
-          auxiliarObj["condition"] = values_i_1;
-          break;
-          
         // execution expression of an event
         case("execution"):
-          auxiliarObj["execution"] = babel[values_i_1];
-          break;
-
         // relative position of event mesagges
         case("msg_pos"):
-          auxiliarObj["msg_pos"] = babel[values_i_1];
-          break;
-
         // event action
         case("action"):
-          auxiliarObj["action"] = babel[values_i_1];
-          break;
-          
-        // event parameter
-        case("parameter"):
-          auxiliarObj["parameter"] = values_i_1;
-          break;
-          
-        // sequence condition
-        case("sequence"):
-          auxiliarObj["sequence"] = (babel[values_i_1] === "true");
+          auxiliarObj[babelValue] = babel[values_i_1];
           break;
 
         // any variable missing
@@ -14891,56 +14543,34 @@ var descartesJS = (function(descartesJS, babel) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
 
-      switch(babel[values_i_0]) {
-        
+      babelValue = babel[values_i_0];
+
+      switch(babelValue) {
+
+        // identifier
+        case("id"):
         // time delay
         case("delay"):
-          animationObj["delay"] = values_i_1;
+        // init expression
+        case("init"):
+        // do expression
+        case("doExpr"):
+        // while expression
+        case("whileExpr"):
+          animationObj[babelValue] = values_i_1;
           break;
           
         // condition to show the controls
         case("controls"):
-          animationObj["controls"] = (babel[values_i_1] === "true");
-          break;
-
         // condition to star automatically
         case("auto"):
-          animationObj["auto"] = (babel[values_i_1] === "true");
-          break;
-
         // condition to loop
         case("loop"):
-          animationObj["loop"] = (babel[values_i_1] === "true");
-          break;
-         
-        // init expression
-        case("init"):
-          animationObj["init"] = values_i_1;
-          break;
-          
-        // do expression
-        case("do"):
-          animationObj["doExpr"] = values_i_1;
-          break;
-          
-        // while expression
-        case("while"):
-          animationObj["whileExpr"] = values_i_1;
-          break;
-
-        // identifier
-        case("id"):
-          animationObj["id"] = values_i_1;
-          break;
-         
         // algorithm condition
         case("algorithm"):
-          animationObj["algorithm"] = (babel[values_i_1] === "true");
-          break;
-
         // type of evaluation          
         case("evaluate"):
-          animationObj["evaluate"] = (babel[values_i_1] === "true");
+          animationObj[babelValue] = (babel[values_i_1] === "true");
           break;          
          
         // any variable missing
@@ -14952,19 +14582,6 @@ var descartesJS = (function(descartesJS, babel) {
     
     return (new descartesJS.Animation(this.parent, animationObj));
   }
-
-  var subtitleFontSize;
-  var plecaObj;
-  var paddingSides = 15;
-  var image;
-  var imageHeight;
-  var divTitle;
-  var divSubTitle;
-  var tempDiv;
-  var tempDivHeight;
-  var tempFontSize;
-  var noLines;
-  var tempDecrement;
 
   /**
    * 
@@ -15160,7 +14777,7 @@ var descartesJS = (function(descartesJS, babel) {
       }
       
       // find a character which is different from a blank space
-      if ((values.charAt(pos) != " ") && (!initToken)) {
+      if ((values.charAt(pos) !== " ") && (!initToken)) {
         initToken = true;
         initPosToken = pos;
       }
@@ -15187,7 +14804,7 @@ var descartesJS = (function(descartesJS, babel) {
       }
 
       // values ​​are specified as a word sequence
-      if ((values.charAt(pos) === "=") && (values.charAt(pos+1) != "'") && (!stringToken)) {
+      if ((values.charAt(pos) === "=") && (values.charAt(pos+1) !== "'") && (!stringToken)) {
         splitValues[i] = [values.substring(initPosToken, pos)]
 
         initPosToken = pos+1;
@@ -15195,8 +14812,8 @@ var descartesJS = (function(descartesJS, babel) {
         pos++;
 
         // find the next space and equal sign
-        var tmpIndexEqual = (values.substring(pos)).indexOf("=");
-        var tmpIndexSpace;
+        tmpIndexEqual = (values.substring(pos)).indexOf("=");
+
         if (tmpIndexEqual === -1) {
           tmpIndexEqual = values.length;
           tmpIndexSpace = values.length;
@@ -15233,17 +14850,18 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.LessonParser.prototype.splitComa = function(string) {
     splitString = [];
-    parentesisStack = [];
+    parenthesesStack = [];
     lastSplitIndex = 0;
 
     for (var i=0, l=string.length; i<l; i++) {
-      if (string.charAt(i) === "(") {
-        parentesisStack.push(i);
+      charAt = string.charAt(i);
+      if (charAt === "(") {
+        parenthesesStack.push(i);
       }
-      else if (string.charAt(i) === ")") {
-        parentesisStack.pop();
+      else if (charAt === ")") {
+        parenthesesStack.pop();
       }
-      else if ((string.charAt(i) === ",") && (parentesisStack.length === 0)) {
+      else if ((charAt === ",") && (parenthesesStack.length === 0)) {
         splitString.push(string.substring(lastSplitIndex, i));
         lastSplitIndex = i+1;
       }
@@ -16211,19 +15829,28 @@ var descartesJS = (function(descartesJS) {
     return tokens;
   }
   
+  var result;
+  var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
+
   /**
    * Auxiliary funtion for the macros that take a list of tokens and get a string representation
-   * @param {Array<Object>} tokens the tokesn to be flat
+   * @param {Array<Object>} tokens the tokens to be flat
    * @return {String} return a string representation of the tokens
    */
-  descartesJS.Tokenizer.prototype.flatTokens = function(tokens) {
+  descartesJS.Tokenizer.prototype.flatTokens = function(tokens, prefix) {
     tokens = tokens || [];
-    var result = "";
+    prefix = prefix || "";
+
+    result = "";
     
     for (var i=0, l=tokens.length; i<l; i++) {
       if (tokens[i].type == "string") {
         result = result + "&squot;" + tokens[i].value + "&squot;";
-      } else {
+      } 
+      else if ((tokens[i].type == "identifier") && (!tokens[i].value.match(exclude))) {
+        result = result + prefix + tokens[i].value;
+      }
+      else {
         result = result + tokens[i].value;
       }
     }
@@ -23254,12 +22881,13 @@ var descartesJS = (function(descartesJS) {
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
       setTimeout(function() { window.scrollTo(0, 1); }, 1);
-
-      // document.body.appendChild(descartesJS.getScreenShot());
-
     } 
     // if has not support for canvas show the applets and do not interpret
     else {
+      // prompt a message to install chrome frame
+      // when the instalation is ready reload the webpage
+      // document.location.reload()
+
       showApplets();
     }
   }
