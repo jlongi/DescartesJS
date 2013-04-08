@@ -122,17 +122,11 @@ var descartesJS = (function(descartesJS) {
     // init the scroll configuration
     this.initScroll(fieldValue);
 
+    // change the value if really need a change
+    this.changeScrollPositionFromValue();
+    this.prePos = this.pos;
     // register the control value
     evaluator.setVariable(this.id, this.value);
-    
-    // store the initial value
-    var tmpValue = this.value;
-    // put null to change the value
-    this.value = null;
-    this.activeIfValue = true; // neccesary to change the value and put the initial value
-    this.changeValue(tmpValue);
-
-    this.prePos = this.pos;
   }
 
   /**
@@ -637,7 +631,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue(self.field.value);
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
     
     /**
      * 
@@ -647,16 +641,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_canvas(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.clickPos = self.getCursorPosition(evt);
           self.canvasClick = true;
@@ -681,9 +668,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.canvas.addEventListener("touchstart", onMouseDown_canvas, false);
+      this.canvas.addEventListener("touchstart", onMouseDown_canvas);
     } else {
-      this.canvas.addEventListener("mousedown", onMouseDown_canvas, false);
+      this.canvas.addEventListener("mousedown", onMouseDown_canvas);
     }
     
     /**
@@ -697,7 +684,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -711,9 +698,9 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_Canvas, false);
+      window.addEventListener("touchend", onMouseUp_Canvas);
     } else {
-      window.addEventListener("mouseup", onMouseUp_Canvas, false);
+      window.addEventListener("mouseup", onMouseUp_Canvas);
     }
 
     /**
@@ -728,9 +715,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.canvas.addEventListener("touchmove", onMouseMove_Canvas, false);
+      this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
     } else {
-      this.canvas.addEventListener("mousemove", onMouseMove_Canvas, false);
+      this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
     }
     
     /**
@@ -744,8 +731,8 @@ var descartesJS = (function(descartesJS) {
         
         self.initPos = self.getCursorPosition(evt);
 
-        window.addEventListener("mouseup", onMouseUp_scrollManipulator, false);
-        window.addEventListener("mousemove", onMouseMove_scrollManipulator, false);
+        window.addEventListener("mouseup", onMouseUp_scrollManipulator);
+        window.addEventListener("mousemove", onMouseMove_scrollManipulator);
         
         evt.preventDefault();
       }
@@ -762,17 +749,17 @@ var descartesJS = (function(descartesJS) {
         
         self.initPos = self.getCursorPosition(evt);
 
-        window.addEventListener("touchend", onTouchEnd_scrollManipulator, false);
-        window.addEventListener("touchmove", onToucheMove_scrollManipulator, false);
+        window.addEventListener("touchend", onTouchEnd_scrollManipulator);
+        window.addEventListener("touchmove", onToucheMove_scrollManipulator);
         
         evt.preventDefault();
       }    
     }
     
     if (hasTouchSupport) {
-      this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator, false);
+      this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator);
     } else {
-      this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator, false);
+      this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator);
     }
     
     /**
@@ -854,16 +841,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true, self.maximo);
@@ -871,9 +851,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
     } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
     }
     
     /**
@@ -884,16 +864,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true, self.minimo);
@@ -901,9 +874,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
     } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
     }
     
     /**
@@ -917,7 +890,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();      
     }
     if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton, false);
+      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
     }
 
     /**
@@ -931,7 +904,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -946,9 +919,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_UpButton, false);
+      window.addEventListener("touchend", onMouseUp_UpButton);
     } else {
-      window.addEventListener("mouseup", onMouseUp_UpButton, false);
+      window.addEventListener("mouseup", onMouseUp_UpButton);
     }
 
     /**
@@ -963,9 +936,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_DownButton, false);
+      window.addEventListener("touchend", onMouseUp_DownButton);
     } else {
-      window.addEventListener("mouseup", onMouseUp_DownButton, false);
+      window.addEventListener("mouseup", onMouseUp_DownButton);
     }
     
   }

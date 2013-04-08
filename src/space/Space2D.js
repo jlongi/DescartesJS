@@ -10,19 +10,23 @@ var descartesJS = (function(descartesJS) {
   var MathRound = Math.round;
   var PI2 = Math.PI*2;
 
+  var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
+  var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
+
   var self;
 
   var evaluator;
   var parent;
   var ctx;
 
-  var OxString;
-  var OyString;
-  var scaleString;
   var changeX;
   var changeY;
   var thisGraphics_i;
   var thisCtrs_i;
+
+  var rsc;
+  var dec;
+  var wh_temp;
 
   var w;
   var h;
@@ -34,6 +38,15 @@ var descartesJS = (function(descartesJS) {
   var x2;
   var y1;
   var y2;
+
+  var coordTxt_X;
+  var coordTxt_Y;
+  var coordTxt;
+  var coordTxtW;
+  var mouseX;
+  var mouseY;
+  var posX;
+  var posY;
 
   var hasTouchSupport;
   var disp;
@@ -49,7 +62,7 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Space.call(this, parent, values);
 
     self = this;
-
+    
     // create the canvas
     self.backgroundCanvas = document.createElement("canvas");
     self.backgroundCanvas.setAttribute("id", self.id + "_background");
@@ -113,10 +126,15 @@ var descartesJS = (function(descartesJS) {
     self.parent.images[self.id + ".back"].ready = 1;
     self.parent.images[self.id + ".back"].complete = true;
     self.evaluator.setVariable(self.id + ".back", self.id + ".back");
-
-    // self.drawIfValue = self.evaluator.evalExpression(self.drawif) > 0;
-    // self.drawBefore = self.drawIfValue;
     
+    // ## Descartes 2 patch ## //
+    self.OxString = (parent.version !== 2) ? self.id + ".Ox" : "Ox";
+    self.OyString = (parent.version !== 2) ? self.id + ".Oy" : "Oy";
+    self.scaleString = (parent.version !== 2) ? self.id + ".escala" : "escala";
+    // ## Descartes 2 patch ## //
+    self.wString = self.id + "._w";
+    self.hString = self.id + "._h";
+
     // register the mouse and touch events
     if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
@@ -160,72 +178,65 @@ var descartesJS = (function(descartesJS) {
     evaluator = self.evaluator;
     parent = self.parent;
 
-    // check the draw if condition
-    self.drawIfValue = self.evaluator.evalExpression(self.drawif) > 0;
-
-    // ## Descartes 2 patch ## //
-    OxString = (parent.version != 2) ? self.id + ".Ox" : "Ox";
-    OyString = (parent.version != 2) ? self.id + ".Oy" : "Oy";
-    scaleString = (parent.version != 2) ? self.id + ".escala" : "escala";
-    // ## Descartes 2 patch ## //
-
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.id + "._w", self.w);
-    evaluator.setVariable(self.id + "._h", self.h);
+    evaluator.setVariable(self.wString, self.w);
+    evaluator.setVariable(self.hString, self.h);
 
-    changeX = (self.x != evaluator.evalExpression(self.xExpr) + self.displaceRegionWest);
-    changeY = (self.y != evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth);
+    // check the draw if condition
+    self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
 
-    // check if the space has change
-    self.spaceChange = firstTime || 
-                       changeX || changeY ||
-                       (self.drawBefore != self.drawIfValue) ||
-                       (self.Ox != evaluator.getVariable(OxString)) ||
-                       (self.Oy != evaluator.getVariable(OyString)) ||
-                       (self.scale != evaluator.getVariable(scaleString));
-
-    self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
-    self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth : self.y;
-    self.Ox = evaluator.getVariable(OxString);
-    self.Oy = evaluator.getVariable(OyString);
-    self.scale = evaluator.getVariable(scaleString);
-    self.drawBefore = self.drawIfValue;
-
-    // check if the scale is not below the lower limit
-    if (self.scale < 0.000001) {
-      self.scale = 0.000001;
-      evaluator.setVariable(scaleString, 0);
-    }
-    // check if the scale is not above the upper limit
-    else if (self.scale > 1000000) {
-      self.scale = 1000000;
-      evaluator.setVariable(scaleString, 1000000);
-    }
-    
-    // if some property change then adjust the container style
-    if ((changeX) || (changeY)) {
-      self.container.style.left = self.x + "px";
-      self.container.style.top = self.y + "px";
-      self.findOffset();
-    }
-
-    // if draw is needed
+    // draw the space
     if (self.drawIfValue) {
-      self.container.style.display = "block";
-      
-      // draw the trace
-      for(var i=0, l=self.graphics.length; i<l; i++) {
-        thisGraphics_i = self.graphics[i];
 
-        // if the graph has a trace and the space has not change and the mouse is not pressed and the graphics are not in the background then draw the graphic
-        if ( (thisGraphics_i.trace != "") && (!self.spaceChange) && (!self.click) && (!thisGraphics_i.background) ) {
-          thisGraphics_i.drawTrace();
-        }
+      changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
+      changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
+
+      // check if the space has change
+      self.spaceChange = firstTime ||
+                         changeX ||
+                         changeY ||
+                         (self.drawBefore !== self.drawIfValue) ||
+                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleString));
+
+      self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
+      self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
+      self.Ox = evaluator.getVariable(self.OxString);
+      self.Oy = evaluator.getVariable(self.OyString);
+      self.scale = evaluator.getVariable(self.scaleString);
+      self.drawBefore = self.drawIfValue;
+
+      // check if the scale is not below the lower limit
+      if (self.scale < 0.000001) {
+        self.scale = 0.000001;
+        evaluator.setVariable(self.scaleString, 0);
+      }
+      // check if the scale is not above the upper limit
+      else if (self.scale > 1000000) {
+        self.scale = 1000000;
+        evaluator.setVariable(self.scaleString, 1000000);
+      }
+      
+      // if some property change then adjust the container style
+      if ((changeX) || (changeY)) {
+        self.container.style.left = self.x + "px";
+        self.container.style.top = self.y + "px";
+        self.findOffset();
       }
 
-      self.drawBackground();
+      self.container.style.display = "block";
+        
+      // draw the trace
+      self.drawTrace = (!self.spaceChange) && (!self.click);
+
+      if (self.spaceChange) {
+        self.drawBackground();
+      }
       self.draw();
-    } else {
+    } 
+    // hide the space
+    else {
       self.container.style.display = "none";
     }
     
@@ -235,125 +246,117 @@ var descartesJS = (function(descartesJS) {
    * Draw the space background 
    */
   descartesJS.Space2D.prototype.drawBackground = function() {
-    if (this.spaceChange) {
-      evaluator = this.evaluator;
-      ctx = this.backgroundCtx;
+    evaluator = this.evaluator;
+    ctx = this.backgroundCtx;
 
-      // draw the background color
-      ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
-      ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    // draw the background color
+    ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
+    ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
-      // draw the background image if any
-      if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
-        if (this.bg_display === "topleft") {
-          ctx.drawImage(this.image, 0, 0);
-        } 
-        else if (this.bg_display === "stretch") {
-          ctx.drawImage(this.image, 0, 0, this.w, this.h);
-        } 
-        else if (this.bg_display === "patch") {
-          ctx.fillStyle = ctx.createPattern(this.image, "repeat");
-          ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-        else if (this.bg_display === "center") {
-          ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
-        }
+    // draw the background image if any
+    if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
+      if (this.bg_display === "topleft") {
+        ctx.drawImage(this.image, 0, 0);
+      } 
+      else if (this.bg_display === "stretch") {
+        ctx.drawImage(this.image, 0, 0, this.w, this.h);
+      } 
+      else if (this.bg_display === "patch") {
+        ctx.fillStyle = ctx.createPattern(this.image, "repeat");
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      
-      // obtain the variables for the net
-      if ((this.net != "") || ( ((this.parent.version != 2) && (this.net10 != "")) || ((this.parent.version === 2) && (this.net != "") && (this.net10 != "")) ) || (this.axes != "") || ((this.numbers) && (this.axes != "")) ) {
-
-        var rsc = this.scale;
-        var dec = 0;
-        var wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
-        while (rsc>(wh_temp)) {
-          rsc/=10; dec++; 
-        }
-        while (rsc<(wh_temp)/10) { 
-          rsc*=10;
-        }
+      else if (this.bg_display === "center") {
+        ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
-
-      ctx.lineWidth = 1;
-
-      // draw the big net
-      if (this.net != "") {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
-        this.drawMarks(ctx, rsc/10, -1);
-      }
-      
-      // draw the finer net
-      if ( ((this.parent.version != 2) && (this.net10 != "")) || 
-           ((this.parent.version === 2) && (this.net != "") && (this.net10 != ""))
-         ) {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
-        this.drawMarks(ctx, rsc, -1);
-      }
-      
-      // draw the axes
-      if (this.axes != "") {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
-        
-        ctx.beginPath();
-        // x axis
-        if ((this.x_axis != "") || (this.parent.version != 2)) {
-          ctx.moveTo(0, MathFloor(this.h/2+this.Oy)+.5);
-          ctx.lineTo(this.w, MathFloor(this.h/2+this.Oy)+.5);
-        }
-
-        // y axis
-        if ((this.y_axis != "") || (this.parent.version != 2)) {
-          ctx.moveTo(MathFloor(this.w/2+this.Ox)+.5, 0);
-          ctx.lineTo(MathFloor(this.w/2+this.Ox)+.5, this.h);
-        }
-        
-        ctx.stroke();
-        
-        this.drawMarks(ctx, rsc, 4);
-        this.drawMarks(ctx, rsc/2, 2);
-        this.drawMarks(ctx, (rsc/2)/5, 1);
-      }
-      
-      // draw the axis names
-      if ((this.x_axis != "") || (this.y_axis != "")) {
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
-        ctx.font = descartesJS.convertFont("SansSerif,PLAIN,12");
-        ctx.textAlign = "right";
-        ctx.textBaseline = "top";
-        ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
-        ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
-      }
-      
-      // draw the axis numbers
-      if ((this.numbers) && (this.axes != "")) {
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
-        ctx.font = descartesJS.convertFont("SansSerif,PLAIN,12");
-        ctx.textAlign = "start";
-        ctx.textBaseline = "bottom";
-
-        if (rsc>(this.w+this.h)/2) {
-          this.drawNumbers(ctx, rsc/5, (rsc<=this.scale)?dec+1:dec);
-        } 
-        
-        else if (rsc>(this.w+this.h)/4) {
-          this.drawNumbers(ctx, rsc/2, (rsc<=this.scale)?dec+1:dec);
-        } 
-        
-        else {
-          this.drawNumbers(ctx, rsc, dec);
-        }
-      }
-            
-      // draw the background graphics
-      for(var i=0, l=this.graphics.length; i<l; i++) {
-        thisGraphics_i = this.graphics[i];
-        if (thisGraphics_i.background) {
-          thisGraphics_i.draw();
-        }
-      }
-      
     }
+    
+    rsc = this.scale;
+    dec = 0;
+    wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
+
+    while (rsc>(wh_temp)) {
+      rsc/=10; 
+      dec++; 
+    }
+    while (rsc<(wh_temp)/10) {
+      rsc*=10;
+    }
+
+    ctx.lineWidth = 1;
+
+    // draw the big net
+    if (this.net !== "") {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
+      this.drawMarks(ctx, rsc/10, -1);
+    }
+    
+    // draw the finnest net
+    if ( ((this.parent.version !== 2) && (this.net10 !== "")) || 
+         ((this.parent.version === 2) && (this.net !== "") && (this.net10 !== ""))
+       ) {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
+      this.drawMarks(ctx, rsc, -1);
+    }
+    
+    // draw the axes
+    if (this.axes !== "") {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
+      
+      ctx.beginPath();
+      // x axis
+      if ((this.x_axis !== "") || (this.parent.version !== 2)) {
+        ctx.moveTo(0, MathFloor(this.h/2+this.Oy)+.5);
+        ctx.lineTo(this.w, MathFloor(this.h/2+this.Oy)+.5);
+      }
+
+      // y axis
+      if ((this.y_axis !== "") || (this.parent.version !== 2)) {
+        ctx.moveTo(MathFloor(this.w/2+this.Ox)+.5, 0);
+        ctx.lineTo(MathFloor(this.w/2+this.Ox)+.5, this.h);
+      }
+      
+      ctx.stroke();
+      
+      this.drawMarks(ctx, rsc, 4);
+      this.drawMarks(ctx, rsc/2, 2);
+      this.drawMarks(ctx, rsc/10, 1);
+    }
+    
+    // draw the axis names
+    if ((this.x_axis !== "") || (this.y_axis !== "")) {
+      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.font = axisFont
+      ctx.textAlign = "right";
+      ctx.textBaseline = "top";
+      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
+      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
+    }
+    
+    // draw the axis numbers
+    if ((this.numbers) && (this.axes != "")) {
+      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.font = axisFont
+      ctx.textAlign = "start";
+      ctx.textBaseline = "bottom";
+
+      if (rsc > ((this.w+this.h)/2)) {
+        this.drawNumbers(ctx, rsc/5, (rsc<=this.scale)?dec+1:dec);
+      } 
+      
+      else if (rsc > ((this.w+this.h)/4)) {
+        this.drawNumbers(ctx, rsc/2, (rsc<=this.scale)?dec+1:dec);
+      } 
+      
+      else {
+        this.drawNumbers(ctx, rsc, dec);
+      }
+    }
+
+    // draw the background graphics
+    for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
+      this.backgroundGraphics[i].draw();
+    }    
   }
 
   /**
@@ -363,48 +366,47 @@ var descartesJS = (function(descartesJS) {
     ctx = this.ctx;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
+
     // draw the no background graphics
     for(var i=0, l=this.graphics.length; i<l; i++) {
       thisGraphics_i = this.graphics[i];
 
-      if (!thisGraphics_i.background) {
-        thisGraphics_i.draw();
+      if ((thisGraphics_i.trace !== "") && (this.drawTrace)) {
+        thisGraphics_i.drawTrace();
       }
+
+      thisGraphics_i.draw();
     }
 
     // draw the graphic controls
-    for (var i=0, l=this.ctrs.length; i<l; i++) {
-      thisCtrs_i = this.ctrs[i];
-      if (thisCtrs_i.type === "graphic") {
-        thisCtrs_i.draw();
-      }
+    for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].draw();
     }
-        
+
     // draw the text showing the mouse postion
-    if ((this.text != "") && (this.click) && (this.whichButton === "LEFT")) {
+    if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
       ctx.fillStyle = descartesJS.getColor(this.evaluator, this.text);
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
-      ctx.font = descartesJS.convertFont("Monospaced,PLAIN,12");
+      ctx.font = mouseTextFont;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
 
-      var coordTxt_X = (this.scale <= 1) ? ((this.mouse_x).toFixed(0)) : (this.mouse_x).toFixed((this.scale).toString().length);
-      var coordTxt_Y = (this.scale <= 1) ? ((this.mouse_y).toFixed(0)) : (this.mouse_y).toFixed((this.scale).toString().length);
-      var coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
-      var coordTxtW = ctx.measureText(coordTxt).width;
-      var mouseX = this.getAbsoluteX(this.mouse_x);
-      var mouseY = this.getAbsoluteY(this.mouse_y);
-      var posX = MathFloor(mouseX);
-      var posY = MathFloor(mouseY-10);
+      coordTxt_X = (this.scale <= 1) ? ((this.mouse_x).toFixed(0)) : (this.mouse_x).toFixed((this.scale).toString().length);
+      coordTxt_Y = (this.scale <= 1) ? ((this.mouse_y).toFixed(0)) : (this.mouse_y).toFixed((this.scale).toString().length);
+      coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
+      coordTxtW = MathFloor(ctx.measureText(coordTxt).width/2);
+      mouseX = this.getAbsoluteX(this.mouse_x);
+      mouseY = this.getAbsoluteY(this.mouse_y);
+      posX = MathFloor(mouseX);
+      posY = MathFloor(mouseY-10);
 
       // prevents the mouse position text get out of the space
-      if ((posX+coordTxtW/2) > this.w) {
-        posX = this.w-coordTxtW/2;
+      if ((posX+coordTxtW) > this.w) {
+        posX = this.w-coordTxtW;
       } 
-      else if ((posX-coordTxtW/2) < 0) {
-        posX = coordTxtW/2;
+      else if ((posX-coordTxtW) < 0) {
+        posX = coordTxtW;
       }
       if ((posY+1) > this.h) {
         posY = this.h;
@@ -498,9 +500,9 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("touchstart", onTouchStart, false);
+      this.canvas.addEventListener("touchstart", onTouchStart);
     }
 
     /**
@@ -516,8 +518,8 @@ var descartesJS = (function(descartesJS) {
 
       onSensitiveToMouseMovements(evt);
       
-      window.addEventListener("touchmove", onMouseMove, false);
-      window.addEventListener("touchend", onTouchEnd, false);
+      window.addEventListener("touchmove", onMouseMove);
+      window.addEventListener("touchend", onTouchEnd);
 
       // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
@@ -547,9 +549,9 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("mousedown", onMouseDown, false);
+      this.canvas.addEventListener("mousedown", onMouseDown);
     }
     
     /**
@@ -564,33 +566,26 @@ var descartesJS = (function(descartesJS) {
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
 
-      // IE
-      if (evt.which === null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button === 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which === 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton === "RIGHT") {
-        window.addEventListener("mouseup", onMouseUp, false);
+      if (self.whichButton === "R") {
+        window.addEventListener("mouseup", onMouseUp);
         
         // if fixed add a zoom manager
         if (!self.fixed) {
           self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
-          window.addEventListener("mousemove", onMouseMoveZoom, false);
+          window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
       
-      if (self.whichButton === "LEFT") {
+      if (self.whichButton === "L") {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
         
         onSensitiveToMouseMovements(evt);
 
-        window.addEventListener("mousemove", onMouseMove, false);
-        window.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
       }
       
       evt.preventDefault();
@@ -606,13 +601,14 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
       evt.preventDefault();
 
-      if (self.whichButton === "RIGHT") {
+      if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
       if (!self.sensitive_to_mouse_movements) {
         window.removeEventListener("mousemove", onMouseMove, false);
       }
+
       window.removeEventListener("mouseup", onMouseUp, false);
       
       self.parent.update();
@@ -638,17 +634,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseMoveZoom(evt) {
+      evt.preventDefault();
+
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
 
-      // ## Descartes 2 patch ## //
-      var scaleString = (self.parent.version !== 2) ? self.id + ".escala" : "escala";
-      // ## Descartes 2 patch ## //
+      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
 
-      self.evaluator.setVariable(scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
-      
-      self.parent.update();
-      
-      evt.preventDefault();
+      self.parent.update();      
     }
 
     /**
@@ -660,23 +652,16 @@ var descartesJS = (function(descartesJS) {
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
-        disp = { x:MathFloor(self.posAnte.x-self.posNext.x), 
-                     y:MathFloor(self.posAnte.y-self.posNext.y) };
-                    
-        // ## Descartes 2 patch ## //
-        OxString = (self.parent.version != 2) ? self.id + ".Ox" : "Ox";
-        OyString = (self.parent.version != 2) ? self.id + ".Oy" : "Oy";
-        // ## Descartes 2 patch ## //
+        disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
+                 y: MathFloor(self.posAnte.y-self.posNext.y) };
 
-        self.evaluator.setVariable(OxString, (self.Ox - disp.x));
-        self.evaluator.setVariable(OyString, (self.Oy - disp.y));
+        self.evaluator.setVariable(self.OxString, (self.Ox - disp.x));
+        self.evaluator.setVariable(self.OyString, (self.Oy - disp.y));
         self.posAnte.x -= disp.x;
         self.posAnte.y -= disp.y;
       }
 
-      if (self.click) {
-        onSensitiveToMouseMovements(evt);
-      }
+      onSensitiveToMouseMovements(evt);
 
       // // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {

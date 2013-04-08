@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-03-29
+ * 2013-04-08
  */
 
 /**
@@ -583,6 +583,19 @@ var descartesJS = (function(descartesJS) {
     }
   }
   
+  /**
+   * Get which mouse button is pressed
+   */
+  descartesJS.whichButton = function(evt) {
+    // all browsers
+    if (evt.which !== null) {
+      return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
+    } 
+
+    // IE
+    return (evt.button < 2) ? "L" : ((evt.button === 4) ? "M" : "R");
+  }
+
   /**
    * Get the cursor position in absolute coordinates
    * @param {Event} evt the event that has the cursor postion
@@ -2162,13 +2175,16 @@ var descartesJS = (function(descartesJS) {
     var doL = self.doExpr.length;
 
     function algorithmExec() {
-      if (self.numberOfParams == arguments.length) {
+      if (self.numberOfParams <= arguments.length) {
 
         // NEW CODE
         // saves the private variables
         localVars = [];
         for (i=0; i<privateVarL; i++) {
           localVars.push( evaluator.getVariable(self.privateVars[i]) );
+
+          // set the local variables to 0
+          evaluator.setVariable(self.privateVars[i], 0);
         }
         // NEW CODE
 
@@ -2788,6 +2804,12 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var expr;
+  var tempParam;
+  var theText;
+  var verticalDisplace;
+
   /**
    * Descartes graphics
    * @constructor 
@@ -2944,7 +2966,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.decimals = parser.parse("2");
 
-    
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -3000,12 +3021,6 @@ var descartesJS = (function(descartesJS) {
     // if do not find the identifier, return the first space
     return spaces[0];
   }
-  
-  var evaluator;
-  var expr;
-  var tempParam;
-  var theText;
-  var verticalDisplace;
 
   /**
    * Get the family values of the graphic
@@ -6229,11 +6244,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.Vector3D.prototype.dotProduct = function(v) {
-    return new descartesJS.Vector3D(this.x * v.x + this.y * v.y + this.z * v.z);
+    return this.x * v.x + this.y * v.y + this.z * v.z;
 
   }
   
-  //genera un vector unitario que apunta de un vector a hacia otro
+  //genera un vector unitario que apunta de un vector a otro
   descartesJS.Vector3D.prototype.direction = function(v) {
     var x = this.x - v.x;
     var y = this.y - v.y;
@@ -7423,56 +7438,22 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var v1;
+  var v2;
+
   /**
+   * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Scene = function(parent, pMatrix) {
-    this.parent = parent;
-    this.graphics = [];
-  }
-
-  /**
-   *
-   */
-  descartesJS.Scene.prototype.add = function(g) {
-    this.graphics.push(g);
-  }
-
-  /**
-   *
-   */
-  function compare(a, b) {
-    return b.depth - a.depth;
-  }
-
-  /**
-   *
-   */
-  descartesJS.Scene.prototype.draw = function() {
-    for(var i=0, l=this.graphics.length; i<l; i++) {
-      this.graphics[i].transformVertices(this.parent);
-    }
-
-    this.graphics = this.graphics.sort(compare);
-
-    for(var i=0, l=this.graphics.length; i<l; i++) {
-      this.graphics[i].draw();
-    }
-  } 
-
-  /**
-   *
-   */
-  descartesJS.Primitive3D = function (vertices, type, style, mvMatrix, ctx) {
+  descartesJS.Primitive3D = function (vertices, type, style, mvMatrix) {
     this.vertices = vertices;
     this.type = type;
     this.style = style;
     this.mvMatrix = mvMatrix;
-    this.ctx = ctx;
-    this.transformedVertices = [];
-    this.centroid = new descartesJS.Vector4D(0, 0, 0, 1);
 
-    // asign the correct drawing function
+    this.transformedVertices = [];
+
+    // asign the corresponding drawing function
     if (type === "vertex") {
       this.draw = drawVertex;
     }
@@ -7485,17 +7466,46 @@ var descartesJS = (function(descartesJS) {
     else if (type === "text") {
       this.draw = drawText;
     }
-    else if (type === "segment") {
-      this.draw = drawSegment;
+    else if (type === "edge") {
+      this.draw = drawEdge;
     }
   }
 
   /**
-   *
+   * Set the vertices of the primitive
+   * @param {Array<Vector4D>} vertices an array of the new vertex information
    */
-  descartesJS.Primitive3D.prototype.transformVertices = function (space) {
-    this.depth = 0;
+  descartesJS.Primitive3D.prototype.setVertices = function (vertices) {
+    this.vertices = vertices;
+  }
 
+  /**
+   * Set the model view matrix of the primitive
+   * @param {Matrix4x4} mvMatrix is the new model view matrix
+   */
+  descartesJS.Primitive3D.prototype.setMvMatrix = function (mvMatrix) {
+    this.mvMatrix = mvMatrix;
+  }
+
+  /**
+   * Set the style (how the primitive look) of the primitive 
+   * @param {Object} style is an object containing the style information of the primitive
+   */
+  descartesJS.Primitive3D.prototype.setStyle = function(style) {
+    this.style = style;
+  }
+
+  /**
+   * Compute a transformation to the vertices
+   * @param
+   */
+  descartesJS.Primitive3D.prototype.computeDepth = function(space) {
+    v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
+    v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
+    this.normal = v1.crossProduct(v2);
+    this.direction = this.normal.dotProduct(space.eye);
+
+    this.depth = 0;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4( this.vertices[i] ).toVector3D();
 
@@ -7504,31 +7514,37 @@ var descartesJS = (function(descartesJS) {
       this.transformedVertices[i].x = space.transformCoordinateX(this.transformedVertices[i].x);
       this.transformedVertices[i].y = space.transformCoordinateY(this.transformedVertices[i].y);
     }
-    this.depth = this.depth / l;
+
+    this.depth /= l;
   }
 
   /**
-   *
+   * Auxiliary function to set the style of the primitive into a render context
+   * @param {RenderingContext} ctx the render context to set the style
+   * @param {Object} style an object with the values of the style to setup in the context
    */
-  descartesJS.Primitive3D.prototype.setStyle = function() {
-    for( var i in this.style ) {
-      this.ctx[i] = this.style[i];
+  function setContextStyle(ctx, style) {
+    for( var i in style ) {
+      ctx[i] = style[i];
     }
   }
 
   /**
    *
    */
-  var drawVertex = function() {
+  function drawVertex() {
 
   }
 
   /**
    *
    */
-  var drawFace = function() {
-    var ctx = this.ctx;
-    this.setStyle();
+  function drawFace(ctx) {
+    setContextStyle(ctx, this.style);
+
+    if (this.direction > 0) {
+      ctx.fillStyle = this.style.backcolor;
+    }
 
     ctx.beginPath();
     ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
@@ -7537,32 +7553,51 @@ var descartesJS = (function(descartesJS) {
     }
     ctx.closePath();
 
-    // modelo de iluminacion de alambre
+    ctx.fill();
+
+    ctx.strokeStyle = this.style.fillStyle;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // wireframe render
     if (this.style.model == "wire") {
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = this.fillStyle;
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = this.style.fillStyle;
+
       ctx.stroke();
     }
     else {
       if (this.style.edges) {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.style.strokeStyle;
+        
         ctx.stroke();
       }
     }
+    // ctx.lineWidth = 1;
+    // ctx.stroke();
 
-    ctx.fill();
+    // // draw the centroid
+    // var tmpX = this.space.transformCoordinateX(this.centroid.x);
+    // var tmpY = this.space.transformCoordinateY(this.centroid.y);
+
+    // ctx.fillStyle = "red";
+    // ctx.beginPath();
+    // ctx.arc(tmpX, tmpY, 2, 0, 2*Math.PI)
+    // ctx.fill();
   }
 
   /**
    *
    */
-  var drawText = function() {
+  function drawText() {
 
   }
 
   /**
    *
    */
-  var drawSegment = function() {
+  function drawEdge() {
 
   }
 
@@ -7575,53 +7610,59 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var expr;
+  var tempParam;
+  var theText;
+  var verticalDisplace;
+
   /**
-   * Un grafico de descartes
+   * Descartes 3D graphics
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen un grafico de descartes
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the graphic
    */
   descartesJS.Graphic3D = function(parent, values) {
     /**
-     * La aplicacion de descartes a la que corresponde el grafico
-     * type DescartesApp
+     * Descartes application
+     * type {DescartesApp}
      * @private
      */
     this.parent = parent;
-
-    var parser = this.parent.evaluator.parser;
     
     /**
-     * Objeto para el parseo y evaluacion de expresiones
+     * object for parse and evaluate expressions
      * type {Evaluator}
      * @private
      */
     this.evaluator = parent.evaluator;
-    
+
+    var parser = this.parent.evaluator.parser;
+
     /**
-     * El identificador del espacio al que pertenece el elemento grafico
-     * type String
+     * identifier of the space that belongs to the graphic
+     * type {String}
      * @private
      */
     this.spaceID = "E0";
 
     /**
-     * El tipo de grafico
-     * type String
-     * @private
-     */
-    this.type = "";
-
-    /**
-     * La condicion para determinar si el grafico se dibuja en el fondo
-     * type String
+     * the condition for determining whether the graph is drawn in the background
+     * type {Boolean}
      * @private
      */
     this.background = false;
 
     /**
-     * El color principal del grafico
-     * type String
+     * type of the graphic
+     * type {String}
+     * @private
+     */
+    this.type = "";
+
+    /**
+     * the primary color of the graphic
+     * type {String}
      * @private
      */
     this.color = "#eeffaa";
@@ -7630,226 +7671,149 @@ var descartesJS = (function(descartesJS) {
     this.Nv = this.evaluator.parser.parse("7");
     
     /**
-     * La condicion de dibujado del grafico
-     * type Boolean
+     * the condition to draw the graphic
+     * type {Node}
      * @private
      */
     this.drawif = parser.parse("1");
     
     /**
-     * La condicion para determinar si el grafico se dibuja en coordenadas absolutas
-     * type Boolean
+     * the condition for determine whether the graphic is in absolute coordinates
+     * type {Boolean}
      * @private
      */
     this.abs_coord = false;
     
     /**
-     * Expresion que determina la posicion y el tamanio del grafico
-     * type String
+     * the expression for determine the position of the graphic
+     * type {Node}
      * @private
      */
 //     this.expresion = parser.parse("(0,0)");
 
     /**
-     * El color del rastro que deja el grafico
-     * type String
+     * the color for the trace of the graphic
+     * type {String}
      * @private
      */
-    this.trace = "";
+    // this.trace = "";
 
     /**
-     * La condicion y el parametro que se utilizan para dibujar el grafico como una familia
-     * type String
+     * the condition and parameter name for family of the graphic
+     * type {String}
      * @private
      */
     this.family = "";
 
     /**
-     * El intervalo utilizado para dibujar el grafico como una familia
-     * type String
+     * the interval of the family
+     * type {Node}
      * @private
      */
     this.family_interval = parser.parse("[0,1]");
 
     /**
-     * El numero de pasos que se utiliza para dibujar el grafico como una familia
-     * type Number
+     * the number of steps of the family
+     * type {Node}
      * @private
      */
     this.family_steps = parser.parse("8");
     
     /**
-     * El parametro que se utilizan para dibujar una curva
-     * type String
+     * the fill color
+     * type {String}
      * @private
      */
-    this.parameter = "t";
+    // this.fill = "";
 
     /**
-     * El intervalo utilizado para dibujar una curva
-     * type String
+     * the fill plus color
+     * type {String}
      * @private
      */
-    this.parameter_interval = parser.parse("[0,1]");
+    // this.fillP = ""; 
 
     /**
-     * El numero de pasos que se utiliza para dibujar una curva
-     * type Number
+     * the fill minus color
+     * type {String}
      * @private
      */
-    this.parameter_steps = parser.parse("8");
+    // this.fillM = "";
 
     /**
-     * La condicion y el color del relleno del grafico
-     * type String
+     * the stroke width of the graph
+     * type {Number}
      * @private
      */
-    this.fill = "";
-
-    /**
-     * La condicion y el color fill+
-     * type String
-     * @private
-     */
-    this.fillP = ""; 
-
-    /**
-     * La condicion y el color fill+
-     * type String
-     * @private
-     */
-    this.fillM = "";
-
-    /**
-     * El ancho del trazo del grafico
-     * type Number
-     * @private
-     */
-    this.width = -1;
+    // this.width = -1;
     this.length = -1;
 
     /**
-     * La condicion para determinar ???
-     * type Boolean
+     * the condition for determining whether the graph is editable
+     * type {Boolean}
      * @private
      */
-//     this.visible = false;
+    // this.editable = false;
 
     /**
-     * La condicion para determinar si una escuacion es editable
-     * type Boolean
+     * info
+     * type {String}
      * @private
      */
-    this.editable = false;
+    // this.info = "";
 
     /**
-     * La informacion de ???
-     * type Boolean
-     * @private
-     */
-    this.info = "";
-
-    /**
-     * La tipografia de info
-     * type Boolean
+     * info font
+     * type {String}
      * @private
      */
     this.font = "Monospaced,PLAIN,12";
     
     /**
-     * La condicion para determinar si el texto mostrado debe ser fijo o no
-     * type Boolean
+     * the condition for determining whether the text of the graph is fixed or not
+     * type {Boolean}
      * @private
      */
     this.fixed = true;
 
     /**
-     * El ancho del punto
-     * type Number
+     * point widht
+     * type {Node}
      * @private
      */
-    this.size = parser.parse("2");
+    // this.size = parser.parse("2");
 
     /**
-     * El texto de los graficos
-     * type String
+     * text of the graphic
+     * type {String}
      * @private
      */
     this.text = "";
 
     /**
-     * El numero de decimales que se muestran en el texto
-     * type Number
+     * the number of decimal of the text
+     * type {Node}
      * @private
      */
     this.decimals = parser.parse("2");
 
     /**
-     * El tamanio de la punta de un grafico (una flecha)
-     * type Number
+     * the init rotation of the graphic
+     * type {Node}
      * @private
      */
-    this.spear = parser.parse("8");
-
-    /**
-     * El color interior de un grafico (una flecha)
-     * type String
-     * @private
-     */
-    this.arrow = "#ee0022";
-
-    /**
-     * La posicion del centro de un grafico (un circulo)
-     * type String
-     * @private
-     */
-    this.center = parser.parse("(0,0)");
-
-    /**
-     * El radio de un grafico (un circulo)
-     * type Number
-     * @private
-     */
-    this.radius = parser.parse("1");
-
-    /**
-     * El angulo o vector inicial de un grafico (un circulo)
-     * type Number
-     * @private
-     */
-    this.init = parser.parse("0");
-
-    /**
-     * El angulo o vector final de un grafico (un circulo)
-     * type Number
-     * @private
-     */
-    this.end = parser.parse("90");
-
-    /**
-     * El nombre del archivo de un grafico (una imagen)
-     * type String
-     * @private
-     */
-    this.file = "";
-
-    /**
-     * La rotacion de un grafico (una imagen)
-     * type Number
-     * @private
-     */
-    this.inirot = parser.parse("0");
+    // this.inirot = parser.parse("0");
     
     /**
-     * La posicion de un macro
-     * type Number
+     * the init position of a graphic
+     * type {Node}
      * @private
      */
 //     this.inipos = parser.parse("[0,0]");
     
-    // se recorre values para reemplazar los valores iniciales del control
+    // traverse the values to replace the defaults values of the object
     for (var propName in values) {
-      // solo se verifican las propiedades propias del objeto values
+      // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
@@ -7859,7 +7823,7 @@ var descartesJS = (function(descartesJS) {
       this.expresion = parser.parse("(0,0)");
     }
 
-    // se obtiene el espacio al que pertenece el grafico
+    // get the space of the graphic
     this.space = this.getSpace();
 
     if (this.background) {
@@ -7869,40 +7833,48 @@ var descartesJS = (function(descartesJS) {
     }
     this.ctx = this.canvas.getContext("2d");
     
-    // si el objeto deja rastro, se obtiene el contexto de render del fondo
-    if (this.trace) {
-      this.traceCtx = this.space.backgroundCanvas.getContext("2d");
-    }
+    // // if the object has trace, then get the background canvas render context
+    // if (this.trace) {
+    //   this.traceCtx = this.space.backgroundCanvas.getContext("2d");
+    // }
     
     this.font = descartesJS.convertFont(this.font)
-  }  
+
+    // get the font size
+    this.fontSize = this.font.match(/(\d+)px/);
+    if (this.fontSize) {
+      this.fontSize = parseInt(this.fontSize[1]);
+    } else {
+      this.fontSize = 10;
+    }
+  }
   
   /**
-   * Obtiene el espacio al cual pertenece el grafico
-   * return {Space} el espacio al cual pertenece el grafico
+   * Get the space to which the graphic belongs
+   * return {Space} return the space to which the graphic belongs
    */
   descartesJS.Graphic3D.prototype.getSpace = function() {
     var spaces = this.parent.spaces;
     var space_i;
-    // se busca el espacio al que pertenece
+
+    // find in the spaces
     for (var i=0, l=spaces.length; i<l; i++) {
       space_i = spaces[i];
       if (space_i.id == this.spaceID) {
-//         spaces[i].addGraph(this);
         return space_i;
       }
     }
     
-    // si no encuentra un espacio con el identificador registrado entonces el grafico se agrega al primer espacio de la leccion
+    // if do not find the identifier, return the first space
     return spaces[0];
   }
   
   /**
-   * Obtiene los valores de la familia
+   * Get the family values of the graphic
    */
   descartesJS.Graphic3D.prototype.getFamilyValues = function() {
-    var evaluator = this.evaluator;
-    var expr = evaluator.evalExpression(this.family_interval);
+    evaluator = this.evaluator;
+    expr = evaluator.evalExpression(this.family_interval);
     this.familyInf = expr[0][0];
     this.familySup = expr[0][1];
     this.fSteps = Math.round(evaluator.evalExpression(this.family_steps));
@@ -7910,203 +7882,87 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Funcion auxiliar para dibujar la familia
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja
-   * @param {String} fill el color de relleno del grafico
-   * @param {String} stroke el color del trazo del grafico
+   *
    */
-  descartesJS.Graphic3D.prototype.drawFamilyAux = function(ctx, fill, stroke) {
-    var evaluator = this.evaluator;
+  descartesJS.Graphic3D.prototype.buildFamilyPrimitives = function() {
+    evaluator = this.evaluator;
 
-    // se actualizan los valores de la familia
+    // update the family values
     this.getFamilyValues();
 
-    // se guarda el ultimo valor que tenia la variable family
-    var tempParam = evaluator.getVariable(this.family);
+    // save the last value of the family parameter
+    tempParam = evaluator.getVariable(this.family);
 
     if (this.fSteps >= 0) {
-      // se dibujan todos los miembros de la familia
+      // build the primitives of the family
       for(var i=0, l=this.fSteps; i<=l; i++) {
-        // se modifica el valor de la variable family
+        // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
                 
-        // si la condicion de dibujo del elemento es verdadera entonces se actualiza y dibuja el elemento
+        // if the condition to draw if true then update and draw the graphic
         if ( evaluator.evalExpression(this.drawif) ) {
-          // se actualizan los valores antes de dibujar el elemento
-          this.update();
-          // se dibuja el elemento
-          this.drawAux(ctx, fill, stroke);
+          this.buildPrimitives();
         }
       }
     }
 
-    evaluator.setVariable("_Text_H_", 0);
     evaluator.setVariable(this.family, tempParam);
   }
 
-  /**
-   * Dibuja el grafico
-   * @param {String} fill el color de relleno del grafico
-   * @param {String} stroke el color del trazo del grafico
-   */
-  descartesJS.Graphic3D.prototype.draw = function(fill, stroke) {
-    // si la familia esta activada entonces se dibujan varias veces los elementos
-    if (this.family != "") {
-      this.drawFamilyAux(this.ctx, fill, stroke);
-    }
-    
-    // si la familia no esta activada
-    // si la condicion de dibujo del elemento es verdadera entonces se actualiza y dibuja el elemento
-    else  {
-      // se dibuja el elemento
-      if ( this.evaluator.evalExpression(this.drawif) ) {
-        // se actualizan los valores antes de dibujar el elemento
-        this.update();
-        // se dibuja el elemento
-        this.drawAux(this.ctx, fill, stroke);
-      }
-    }
-  }
-  
-  /**
-   * Se dibuja el rastro del grafico
-   * @param {String} fill el color de relleno del punto
-   * @param {String} stroke el color del trazo del punto
-   */
-  descartesJS.Graphic3D.prototype.drawTrace = function(fill, stroke) {
-    // si la familia esta activada entonces se dibujan varias veces los elementos
-    if (this.family != "") {
-      this.drawFamilyAux(this.traceCtx, fill, stroke);
-    }
-    
-    // si la familia no esta activada
-    else {      
-      // se dibuja el elemento
-      if ( this.evaluator.evalExpression(this.drawif) ) {
-        // se actualizan los valores antes de dibujar el elemento
-        this.update();
-        // se dibuja el elemento
-        this.drawAux(this.traceCtx, fill, stroke);
-      }
-    }
-  }
-
-  /**
-   * Se dibuja el texto del grafico
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja
-   * @param {String} text el texto a dibujar
-   * @param {Number} x la posicion en x del texto
-   * @param {Number} y la posicion en y del texto
-   * @param {String} fill el color de relleno del punto
-   * @param {String} font la tipografia del texto
-   * @param {String} align la alineacion del texto
-   * @param {String} baseline la base sobre la que se dibuja el texto
-   * @param {Number} decimals el numero de decimales del texto
-   * @param {Boolean} fixed el texto esta en notacion fija
-   */
-  descartesJS.Graphic3D.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed) {
-    if (text.type == "rtfNode") {
-      ctx.fillStyle = fill;
-      ctx.strokeStyle = fill;
-      ctx.textBaseline = "alphabetic";
-      text.draw(ctx, x, y, decimals, fixed, align);
+  // /**
+  //  * Draw the text of the graphic
+  //  * @param {CanvasRenderingContext2D} ctx the context render to draw
+  //  * @param {String} text the text to draw
+  //  * @param {Number} x the x position of the text
+  //  * @param {Number} y the y position of the text
+  //  * @param {String} fill the fill color of the graphic
+  //  * @param {String} font the font of the text
+  //  * @param {String} align the alignment of the text
+  //  * @param {String} baseline the baseline of the text
+  //  * @param {Number} decimals the number of decimals of the text
+  //  * @param {Boolean} fixed the number of significant digits of the number in the text
+  //  * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
+  //  */
+  // descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
+  //   // rtf text
+  //   if (text.type == "rtfNode") {
+  //     ctx.fillStyle = fill;
+  //     ctx.strokeStyle = fill;
+  //     ctx.textBaseline = "alphabetic";
+  //     text.draw(ctx, x, y, decimals, fixed, align, displaceY);
       
-      return;
-    }    
+  //     return;
+  //   }
 
-    x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
-    var evaluator = this.evaluator;
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.font = font;
-    ctx.textAlign = align;
-    ctx.textBaseline = baseline;
-    
-    this.fontSize = font.match(/(\d+)px/);
-    if (this.fontSize) {
-      this.fontSize = this.fontSize[1];
-    } else {
-      this.fontSize = "10";
-    } 
-    
-    if (this.border) {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
-      ctx.lineWidth = parseFloat(this.fontSize)/12;
-    }
-    
-    var theText;
-    var verticalDisplace = this.fontSize*1.2;
+  //   // simple text (none rtf text)
+  //   if (text.type === "simpleText") {
+  //     text = text.toString(decimals, fixed).split("\\n");
+  //   }
 
-    // condicion que se checa para el ancho del texto
-    // si el "tipo" de los elementos contenidos en el texto existe, significa que es algo parseado
-    if ( (text[0]) && (text[0].type) ) {
-      for (var i=0, l=text.length; i<l; i++) {
-        theText = evaluator.evalExpression(text[i], decimals, fixed);
+  //   x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
+    
+  //   evaluator = this.evaluator;
+  //   ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+  //   ctx.font = font;
+  //   ctx.textAlign = align;
+  //   ctx.textBaseline = baseline;
         
-        if (this.border) {
-          ctx.strokeText(theText, x, y+(verticalDisplace*i));
-        }
-        ctx.fillText(theText, x, y+(verticalDisplace*i));
-      }
-    }
-    // el tipo del texto es un arreglo de textos
-    else {
-      for (var i=0, l=text.length; i<l; i++) {
-        theText = text[i];
-        if (this.border) {
-          ctx.strokeText(theText, x, y+(verticalDisplace*i));
-        }
-        ctx.fillText(theText, x, y+(verticalDisplace*i));
-      }      
-    }
-  }
-
-  /**
-   * 
-   */
-  descartesJS.Graphic3D.prototype.findExpresionX = function(expresion) {
-    var subexpresion = expresion.split(/x=/)[1];
+  //   if (this.border) {
+  //     ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
+  //     ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
+  //   }
     
-    if (subexpresion) {
-      subexpresion = subexpresion.split(/y=/)[0];
-      subexpresion = subexpresion.split(/z=/)[0];
-      return subexpresion;
-    }
-    else {
-      return "";
-    }
-  }
+  //   verticalDisplace = this.fontSize*1.2 || 0;
 
-  /**
-   * 
-   */
-  descartesJS.Graphic3D.prototype.findExpresionY = function(expresion) {
-    var subexpresion = expresion.split(/y=/)[1];
-    
-    if (subexpresion) {
-      subexpresion = subexpresion.split(/x=/)[0];
-      subexpresion = subexpresion.split(/z=/)[0];
-      return subexpresion;
-    }
-    else {
-      return "";
-    }
-  }
+  //   for (var i=0, l=text.length; i<l; i++) {
+  //     theText = text[i];
 
-  /**
-   * 
-   */
-  descartesJS.Graphic3D.prototype.findExpresionZ = function(expresion) {
-    var subexpresion = expresion.split(/z=/)[1];
-    
-    if (subexpresion) {
-      subexpresion = subexpresion.split(/x=/)[0];
-      subexpresion = subexpresion.split(/y=/)[0];
-      return subexpresion;
-    }
-    else {
-      return "";
-    }
-  }  
+  //     if (this.border) {
+  //       ctx.strokeText(theText, x, y+(verticalDisplace*i));
+  //     }
+  //     ctx.fillText(theText, x, y+(verticalDisplace*i));
+  //   }
+  // }
   
   return descartesJS;
 })(descartesJS || {});/**
@@ -8117,32 +7973,6 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Una superficie de descartes
-   * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la superficie
-   */
-  descartesJS.Surface3D = function(parent, values) {
-    // se llama al constructor del padre
-    descartesJS.Graphic3D.call(this, parent, values);
-
-    var parser = this.evaluator.parser;
-    
-    this.width = (this.width == -1) ? parser.parse("1") : this.width;
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
-    this.exprX = parser.parse( this.findExpresionX(this.expresion) );
-    this.exprY = parser.parse( this.findExpresionY(this.expresion) );
-    this.exprZ = parser.parse( this.findExpresionZ(this.expresion) );
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Surface3D, descartesJS.Graphic3D);
-  
   var evaluator;
   var tempParamU;
   var tempParamV;
@@ -8152,41 +7982,115 @@ var descartesJS = (function(descartesJS) {
   var yEval;
   var zEval;
   var vertices;
-  var faces;
   var v;
   var fillStyle;
 
   /**
-   * Actualiza la superficie
+   * A Descartes 3D surface
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the point
+   */
+  descartesJS.Surface3D = function(parent, values) {
+    /**
+     * the parameter name for a curve
+     * type {String}
+     * @private
+     */
+    this.parameter = "t";
+
+    /**
+     * the interval of the curve parameter
+     * type {Node}
+     * @private
+     */
+    this.parameter_interval = parent.evaluator.parser.parse("[0,1]");
+
+    /**
+     * the number of steps of the curve parameter
+     * type {Node}
+     * @private
+     */
+    this.parameter_steps = parent.evaluator.parser.parse("8");
+
+    this.width = parent.evaluator.parser.parse("1");
+
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    var parser = this.evaluator.parser;
+    
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+
+    this.exprX = parser.parse( this.findExpresion(this.expresion, "x") );
+    this.exprY = parser.parse( this.findExpresion(this.expresion, "y") );
+    this.exprZ = parser.parse( this.findExpresion(this.expresion, "z") );
+
+    this.XcontainsY = this.exprX.contains("y");
+    this.XcontainsZ = this.exprX.contains("z");
+    this.YcontainsX = this.exprY.contains("x");
+    this.YcontainsZ = this.exprY.contains("z");
+    this.ZcontainsX = this.exprZ.contains("x");
+    this.ZcontainsY = this.exprZ.contains("y");
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Surface3D, descartesJS.Graphic3D);
+  
+  /**
+   * Update the surface
    */
   descartesJS.Surface3D.prototype.update = function() {
+    this.primitives = [];
+
+    // build the primitives of the family
+    if (this.family) {
+      this.buildFamilyPrimitives();
+    }
+    // build the primitives of a single object
+    else {
+      this.buildPrimitives();
+    }
+  }
+
+  /**
+   * Build the primitives corresponding to the surface
+   */
+  descartesJS.Surface3D.prototype.buildPrimitives = function() {
     evaluator = this.evaluator;
+
+    // store the u and v parameter values
     tempParamU = evaluator.getVariable("u");
-    tempParamV = evaluator.getVariable("v");  
+    tempParamV = evaluator.getVariable("v");
+
     evaluator.setVariable("u", 0);
     evaluator.setVariable("v", 0);
     Nu = evaluator.evalExpression(this.Nu);
     Nv = evaluator.evalExpression(this.Nv);
 
     fillStyle = descartesJS.getColor(evaluator, this.color);
-
+    backcolor = descartesJS.getColor(evaluator, this.backcolor);
+    // array to store the computed vertices 
     vertices = [];
-    faces = [];
 
     for (var ui=0; ui<=Nu; ui++) {
       evaluator.setVariable("u", ui/Nu);
 
       for (var vi=0; vi<=Nv; vi++) {
         evaluator.setVariable("v", vi/Nv);
+
         xEval = evaluator.evalExpression(this.exprX);
-        yEval = evaluator.evalExpression(this.exprY);
         evaluator.setVariable("x", xEval);
+        yEval = evaluator.evalExpression(this.exprY);
         evaluator.setVariable("y", yEval);
         zEval = evaluator.evalExpression(this.exprZ);
+        evaluator.setVariable("z", zEval);
         
         // vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(xEval, yEval, zEval, 1)) );
-
         vertices.push( new descartesJS.Vector4D(xEval, yEval, zEval, 1) );
+        // vertices.push( this.generateVertex())
       }
     }
 
@@ -8198,99 +8102,60 @@ var descartesJS = (function(descartesJS) {
         v.push(vertices[vi+2 + (ui+1)*Nv  + ui]);
         v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
 
-        this.space.scene.add(new descartesJS.Primitive3D( v,
+        this.primitives.push(new descartesJS.Primitive3D( v,
                                                           "face",
-                                                          { lineWidth: 2, fillStyle: fillStyle, strokeStyle: "#808080", lineCap: "round", lineJoin: "round", edges: this.edges},
-                                                          this.mvMatrix,
-                                                          this.ctx
+                                                          { backcolor: backcolor, fillStyle: fillStyle, strokeStyle: "#808080", lineCap: "round", lineJoin: "round", edges: this.edges},
+                                                          this.mvMatrix
                                                         ));
 
       }
     }
   }
 
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * Una malla de descartes
-   * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la malla
-   */
-  descartesJS.Mesh3D = function(parent, values) {
-    // se llama al constructor del padre
-    descartesJS.Graphic3D.call(this, parent, values);
-
-    var parser = this.evaluator.parser;
-    
-    this.width = (this.width == -1) ? parser.parse("1") : this.width;
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
-    var fileData = descartesJS.openExternalFile(this.evaluator.evalExpression(this.file)).split(/\r/);
-    this.vertices = [];
-    this.faces = [];
-    var toInt = function(x) {
-      return parseInt(x);
-    }
-
-    for (var i=0, l=fileData.length; i<l; i++) {
-      if (fileData[i].match(/^V\(/)) {
-        this.vertices.push( this.evaluator.parser.parse(fileData[i].substring(1), false, this.name) );
-      }
-
-      else if (fileData[i].match(/^F\(/)) {
-        this.faces.push( fileData[i].substring(2, fileData[i].length-1).split(",").map(toInt) );
-      }
-
-      else if (fileData[i].match(/^VAR\(/)) {
-        this.evaluator.evalExpression( this.evaluator.parser.parse(fileData[i].substring(4, fileData[i].length-1), true, this.name) );
-      }
-    }
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Mesh3D, descartesJS.Graphic3D);
-  
-  var evaluator;
-  var fillStyle;
-
-  /**
-   * Actualiza la malla
-   */
-  descartesJS.Mesh3D.prototype.update = function() {
+  descartesJS.Surface3D.prototype.generateVertex = function() {
     evaluator = this.evaluator;
 
-    fillStyle = descartesJS.getColor(evaluator, this.color);
-
-    var v;
-    var vTemp;
-
-    for (var i=0, l=this.faces.length; i<l; i++) {
-      v = [];
-
-      for (var j=0, k=this.faces[i].length; j<k; j++) {
-        vTemp = this.evaluator.evalExpression( this.vertices[this.faces[i][j]] )[0];
-        v.push(new descartesJS.Vector4D(vTemp[0], vTemp[1], vTemp[2], 1))
+    if (XcontainsY) {
+      if (YcontainsZ) {
+        zEval = evaluator.evalExpression(this.exprZ);
+        evaluator.setVariable("z", zEval);
+        yEval = evaluator.evalExpression(this.exprY);
+        evaluator.setVariable("y", yEval);
+        xEval = evaluator.evalExpression(this.exprX);
+        evaluator.setVariable("x", xEval);
       }
-
-      this.space.scene.add(new descartesJS.Primitive3D( v,
-                                                        "face",
-                                                        { lineWidth: 2, fillStyle: fillStyle, strokeStyle: "#808080", lineCap: "round", lineJoin: "round", edges: this.edges},
-                                                        this.mvMatrix,
-                                                        this.ctx
-                                                      ));    
+      else if (ZcontainsY) {
+        yEval = evaluator.evalExpression(this.exprY);
+        evaluator.setVariable("y", yEval);
+        zEval = evaluator.evalExpression(this.exprZ);
+        evaluator.setVariable("z", zEval);
+        xEval = evaluator.evalExpression(this.exprX);
+        evaluator.setVariable("x", xEval);
+      }
     }
+
+    return new descartesJS.Vector4D(xEval, yEval, zEval, 1);
   }
+
+  var arrayVars = ["x", "y", "z"];
+  var indexOfVar;
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.findExpresion = function(expresion, variable) {
+    indexOfVar = arrayVars.indexOf(variable);
+
+    subexpresion = expresion.split( arrayVars[indexOfVar] + "=" )[1];
+
+    if (subexpresion) {
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+1)%3] + "=" )[0];
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+2)%3] + "=" )[0];
+      return subexpresion;
+    }
+    else {
+      return "";
+    }
+  }  
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -8735,6 +8600,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
+  var MathRound = Math.round;
   var hh;
   var di;
   var changeX;
@@ -9062,14 +8928,14 @@ var descartesJS = (function(descartesJS) {
     this.name = ((this.name == "_._") || (this.name == "_nada_") || (this.name == "_void_")) ? "" : this.name;
 
     var expr = this.evaluator.evalExpression(this.expresion);
-    this.x = expr[0][0];
-    this.y = expr[0][1];
+    this.x = MathRound(expr[0][0]);
+    this.y = MathRound(expr[0][1]);
     if (expr[0].length == 4) {
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      this.w = MathRound(expr[0][2]);
+      this.h = MathRound(expr[0][3]);
     }
         
-    this.actionExec = this.parent.lessonParser.parseAction(this);
+    this.actionExec = parent.lessonParser.parseAction(this);
   }
   
   /**
@@ -9182,6 +9048,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  var temporalCompare;
+
   /**
    * Update the position and size of the control
    */
@@ -9189,17 +9057,22 @@ var descartesJS = (function(descartesJS) {
     changeX = changeY = changeW = changeH = false;
     expr = this.evaluator.evalExpression(this.expresion);
 
-    changeX = (this.x != expr[0][0]);
-    changeY = (this.y != expr[0][1]);
-    
-    this.x = expr[0][0];
-    this.y = expr[0][1];
+    temporalCompare = MathRound(expr[0][0]);
+    changeX = this.x !== temporalCompare;
+    this.x = temporalCompare;
+
+    temporalCompare = MathRound(expr[0][1]);
+    changeY = this.y !== temporalCompare;
+    this.y = temporalCompare;
     
     if (expr[0].length === 4) {
-      changeW = (this.w != expr[0][2]);
-      changeH = (this.h != expr[0][3]);
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      temporalCompare = MathRound(expr[0][2]);
+      changeW = this.w !== temporalCompare;
+      this.w = temporalCompare
+
+      temporalCompare = MathRound(expr[0][3]);
+      changeH = this.h !== temporalCompare;
+      this.h = temporalCompare;
     }
 
     // if has some change, then init the control and redraw it
@@ -9224,17 +9097,17 @@ var descartesJS = (function(descartesJS) {
     parent = this.parent;
 
     resultValue = value+"";
-
     decimals = this.evaluator.evalExpression(this.decimals);
 
     indexDot = resultValue.indexOf(".");
     if ( indexDot != -1 ) {
       subS = resultValue.substring(indexDot+1);
-        if (subS.length > decimals) {
+
+      if (subS.length > decimals) {
         resultValue = parseFloat(resultValue).toFixed(decimals);
       }
     }
-    
+
     if (this.fixed) {
       // ## patch for Descartes 2 ## 
       // in a version diferente to 2, then fixed stays as it should
@@ -9277,7 +9150,7 @@ var descartesJS = (function(descartesJS) {
     this.actionExec.execute();
 
     // update again the controls
-    this.parent.updateControls();
+    // this.parent.updateControls();
 
     // if the action is animate then do not update the scene
     if (this.action !== "animate") {
@@ -9734,11 +9607,11 @@ var descartesJS = (function(descartesJS) {
     this.over = false;
     
     if (hasTouchSupport) {
-      this.canvas.addEventListener("touchstart", onMouseDown, false);
+      this.canvas.addEventListener("touchstart", onMouseDown);
     } else {
-      this.canvas.addEventListener("mousedown", onMouseDown, false);
-      this.canvas.addEventListener("mouseover", onMouseOver, false);
-      this.canvas.addEventListener("mouseout", onMouseOut, false);
+      this.canvas.addEventListener("mousedown", onMouseDown);
+      this.canvas.addEventListener("mouseover", onMouseOver);
+      this.canvas.addEventListener("mouseout", onMouseOut);
     }
     
     /**
@@ -9749,16 +9622,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.click = true;
           
@@ -9772,9 +9638,9 @@ var descartesJS = (function(descartesJS) {
           }
           
           if (hasTouchSupport) {
-            window.addEventListener("touchend", onMouseUp, false);
+            window.addEventListener("touchend", onMouseUp);
           } else {
-            window.addEventListener("mouseup", onMouseUp, false);
+            window.addEventListener("mouseup", onMouseUp);
           }
         }
       }
@@ -9992,13 +9858,13 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.id, this.value);
     
     // create the background gradient
-    this.createGradient(this.h/2, this.h);    
+    this.createGradient(this.h/2, this.h);
   }
 
   /**
    * Update the spinner
    */
-  descartesJS.Spinner.prototype.update = function() {    
+  descartesJS.Spinner.prototype.update = function() {
     evaluator = this.evaluator;
 
     if (evaluator.evalExpression(this.decimals) <= 0) {
@@ -10243,7 +10109,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue(self.field.value);
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
 
     /**
      * 
@@ -10253,16 +10119,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true);
@@ -10272,9 +10131,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
     } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
     }
     
     /**
@@ -10284,16 +10143,10 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
 
-      if (self.whichButton == "LEFT") {
+      self.whichButton = descartesJS.whichButton(evt);
+
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true);
@@ -10302,9 +10155,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
     } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
     }
     
     /**
@@ -10319,7 +10172,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();      
     }
     if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton, false);
+      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
     }
 
     /**
@@ -10334,7 +10187,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -10349,11 +10202,11 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchend", onMouseUp_UpButton, false);
-      window.addEventListener("touchend", onMouseUp_UpButton, false);
+      this.divUp.addEventListener("touchend", onMouseUp_UpButton);
+      window.addEventListener("touchend", onMouseUp_UpButton);
     } else {
-      this.divUp.addEventListener("mouseup", onMouseUp_UpButton, false);
-      window.addEventListener("mouseup", onMouseUp_UpButton, false);
+      this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
+      window.addEventListener("mouseup", onMouseUp_UpButton);
     }
 
     /**
@@ -10368,11 +10221,11 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchend", onMouseUp_DownButton, false);
-      window.addEventListener("touchend", onMouseUp_DownButton, false);
+      this.divDown.addEventListener("touchend", onMouseUp_DownButton);
+      window.addEventListener("touchend", onMouseUp_DownButton);
     } else {
-      this.divDown.addEventListener("mouseup", onMouseUp_DownButton, false);
-      window.addEventListener("mouseup", onMouseUp_DownButton, false);
+      this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
+      window.addEventListener("mouseup", onMouseUp_DownButton);
     } 
   }
   
@@ -10817,7 +10670,7 @@ var descartesJS = (function(descartesJS) {
     function onBlur_textField(evt) {
       self.update();
     }
-    this.field.addEventListener("blur", onBlur_textField, false);
+    this.field.addEventListener("blur", onBlur_textField);
         
     /**
      * 
@@ -10832,7 +10685,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
   }
   
   return descartesJS;
@@ -11132,7 +10985,7 @@ var descartesJS = (function(descartesJS) {
       
       evt.preventDefault();
     }
-    this.select.addEventListener("change", onChangeSelect, false);
+    this.select.addEventListener("change", onChangeSelect);
     
     /**
      * 
@@ -11151,7 +11004,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue();
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
   }
 
   return descartesJS;
@@ -11279,17 +11132,11 @@ var descartesJS = (function(descartesJS) {
     // init the scroll configuration
     this.initScroll(fieldValue);
 
+    // change the value if really need a change
+    this.changeScrollPositionFromValue();
+    this.prePos = this.pos;
     // register the control value
     evaluator.setVariable(this.id, this.value);
-    
-    // store the initial value
-    var tmpValue = this.value;
-    // put null to change the value
-    this.value = null;
-    this.activeIfValue = true; // neccesary to change the value and put the initial value
-    this.changeValue(tmpValue);
-
-    this.prePos = this.pos;
   }
 
   /**
@@ -11794,7 +11641,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue(self.field.value);
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
     
     /**
      * 
@@ -11804,16 +11651,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_canvas(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.clickPos = self.getCursorPosition(evt);
           self.canvasClick = true;
@@ -11838,9 +11678,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.canvas.addEventListener("touchstart", onMouseDown_canvas, false);
+      this.canvas.addEventListener("touchstart", onMouseDown_canvas);
     } else {
-      this.canvas.addEventListener("mousedown", onMouseDown_canvas, false);
+      this.canvas.addEventListener("mousedown", onMouseDown_canvas);
     }
     
     /**
@@ -11854,7 +11694,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -11868,9 +11708,9 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_Canvas, false);
+      window.addEventListener("touchend", onMouseUp_Canvas);
     } else {
-      window.addEventListener("mouseup", onMouseUp_Canvas, false);
+      window.addEventListener("mouseup", onMouseUp_Canvas);
     }
 
     /**
@@ -11885,9 +11725,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.canvas.addEventListener("touchmove", onMouseMove_Canvas, false);
+      this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
     } else {
-      this.canvas.addEventListener("mousemove", onMouseMove_Canvas, false);
+      this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
     }
     
     /**
@@ -11901,8 +11741,8 @@ var descartesJS = (function(descartesJS) {
         
         self.initPos = self.getCursorPosition(evt);
 
-        window.addEventListener("mouseup", onMouseUp_scrollManipulator, false);
-        window.addEventListener("mousemove", onMouseMove_scrollManipulator, false);
+        window.addEventListener("mouseup", onMouseUp_scrollManipulator);
+        window.addEventListener("mousemove", onMouseMove_scrollManipulator);
         
         evt.preventDefault();
       }
@@ -11919,17 +11759,17 @@ var descartesJS = (function(descartesJS) {
         
         self.initPos = self.getCursorPosition(evt);
 
-        window.addEventListener("touchend", onTouchEnd_scrollManipulator, false);
-        window.addEventListener("touchmove", onToucheMove_scrollManipulator, false);
+        window.addEventListener("touchend", onTouchEnd_scrollManipulator);
+        window.addEventListener("touchmove", onToucheMove_scrollManipulator);
         
         evt.preventDefault();
       }    
     }
     
     if (hasTouchSupport) {
-      this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator, false);
+      this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator);
     } else {
-      this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator, false);
+      this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator);
     }
     
     /**
@@ -12011,16 +11851,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true, self.maximo);
@@ -12028,9 +11861,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
     } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
     }
     
     /**
@@ -12041,16 +11874,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true, self.minimo);
@@ -12058,9 +11884,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
     } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
     }
     
     /**
@@ -12074,7 +11900,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();      
     }
     if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton, false);
+      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
     }
 
     /**
@@ -12088,7 +11914,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -12103,9 +11929,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_UpButton, false);
+      window.addEventListener("touchend", onMouseUp_UpButton);
     } else {
-      window.addEventListener("mouseup", onMouseUp_UpButton, false);
+      window.addEventListener("mouseup", onMouseUp_UpButton);
     }
 
     /**
@@ -12120,9 +11946,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
     }
     if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_DownButton, false);
+      window.addEventListener("touchend", onMouseUp_DownButton);
     } else {
-      window.addEventListener("mouseup", onMouseUp_DownButton, false);
+      window.addEventListener("mouseup", onMouseUp_DownButton);
     }
     
   }
@@ -12987,11 +12813,11 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.oncontextmenu = function () { return false; };    
 
     if (descartesJS.hasTouchSupport) {
-      this.mouseCacher.addEventListener("touchstart", onTouchStart, false);
+      this.mouseCacher.addEventListener("touchstart", onTouchStart);
     } else {
-      this.mouseCacher.addEventListener("mousedown", onMouseDown, false);
-      this.mouseCacher.addEventListener("mouseover", onMouseOver, false);
-      this.mouseCacher.addEventListener("mouseout", onMouseOut, false);
+      this.mouseCacher.addEventListener("mousedown", onMouseDown);
+      this.mouseCacher.addEventListener("mouseover", onMouseOver);
+      this.mouseCacher.addEventListener("mouseout", onMouseOut);
     }
 
     /**
@@ -13002,16 +12828,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if ((self.activeIfValue) && (self.over)) {
           
           self.parent.deactivateGraphiControls();
@@ -13022,8 +12841,8 @@ var descartesJS = (function(descartesJS) {
           self.posAnte = self.getCursorPosition(evt);
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
           
-          window.addEventListener("mouseup", onMouseUp, false);
-          window.addEventListener("mousemove", onMouseMove, false);
+          window.addEventListener("mouseup", onMouseUp);
+          window.addEventListener("mousemove", onMouseMove);
         }
       }
     }
@@ -13045,8 +12864,8 @@ var descartesJS = (function(descartesJS) {
         self.posAnte = self.getCursorPosition(evt);
         self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
         
-        window.addEventListener("touchmove", onMouseMove, false);
-        window.addEventListener("touchend", onMouseUp, false);
+        window.addEventListener("touchmove", onMouseMove);
+        window.addEventListener("touchend", onMouseUp);
       }
     }
 
@@ -13141,7 +12960,7 @@ var descartesJS = (function(descartesJS) {
     // function onBlur(evt) {
     //   console.log("en blur");
     // }
-    // this.mouseCacher.addEventListener("blur", onBlur, false);        
+    // this.mouseCacher.addEventListener("blur", onBlur);        
   }
   
   /**
@@ -18100,7 +17919,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFTokenizer.prototype.tokenize = function(input) {
     if (input) {
       // input = input.replace(/\\'(\w{2})/g, function(str, m1){ return StringFromCharCode(parseInt(m1, 16)); });
-      input = input.replace(/\\rquote /g, "'").replace(/\\endash /g, "-").replace(/\n/g, " ").replace(/\r/g, "").replace(/\\uc(\d+) /g, "").replace(/\\uc(\d+)/g, "");
+      input = input.replace(/\&quote;/g, "''").replace(/\\rquote /g, "'").replace(/\\endash /g, "-").replace(/\n/g, " ").replace(/\r/g, "").replace(/\\uc(\d+) /g, "").replace(/\\uc(\d+)/g, "");
     } 
     else {
       return [];
@@ -19203,6 +19022,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.ctrs = [];
+
+    /**
+     * the graphic controls
+     * type {Array<Controls>}
+     * @private
+     */
+    this.graphicsCtr = [];
     
     /**
      * the graphics
@@ -19210,6 +19036,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.graphics = [];
+    
+    /**
+     * the background graphics
+     * type {Array<Graphics>}
+     * @private
+     */
+    this.backgroundGraphics = [];
     
     /**
      * z index of the elements
@@ -19386,7 +19219,12 @@ var descartesJS = (function(descartesJS) {
    * @param {Control} ctr is the control to add
    */
   descartesJS.Space.prototype.addCtr = function(ctr) {
-    this.ctrs.push(ctr);
+    if (ctr.type === "graphic") {
+      this.graphicsCtr.push(ctr);
+    } 
+    else {
+      this.ctrs.push(ctr);
+    }
   }
   
   /**
@@ -19394,7 +19232,12 @@ var descartesJS = (function(descartesJS) {
    * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra) {
-    this.graphics.push(gra);
+    if (gra.background) {
+      this.backgroundGraphics.push(gra);
+    }
+    else {
+      this.graphics.push(gra);
+    }
   }
 
   /**
@@ -19496,19 +19339,23 @@ var descartesJS = (function(descartesJS) {
   var MathRound = Math.round;
   var PI2 = Math.PI*2;
 
+  var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
+  var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
+
   var self;
 
   var evaluator;
   var parent;
   var ctx;
 
-  var OxString;
-  var OyString;
-  var scaleString;
   var changeX;
   var changeY;
   var thisGraphics_i;
   var thisCtrs_i;
+
+  var rsc;
+  var dec;
+  var wh_temp;
 
   var w;
   var h;
@@ -19520,6 +19367,15 @@ var descartesJS = (function(descartesJS) {
   var x2;
   var y1;
   var y2;
+
+  var coordTxt_X;
+  var coordTxt_Y;
+  var coordTxt;
+  var coordTxtW;
+  var mouseX;
+  var mouseY;
+  var posX;
+  var posY;
 
   var hasTouchSupport;
   var disp;
@@ -19535,7 +19391,7 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Space.call(this, parent, values);
 
     self = this;
-
+    
     // create the canvas
     self.backgroundCanvas = document.createElement("canvas");
     self.backgroundCanvas.setAttribute("id", self.id + "_background");
@@ -19599,10 +19455,15 @@ var descartesJS = (function(descartesJS) {
     self.parent.images[self.id + ".back"].ready = 1;
     self.parent.images[self.id + ".back"].complete = true;
     self.evaluator.setVariable(self.id + ".back", self.id + ".back");
-
-    // self.drawIfValue = self.evaluator.evalExpression(self.drawif) > 0;
-    // self.drawBefore = self.drawIfValue;
     
+    // ## Descartes 2 patch ## //
+    self.OxString = (parent.version !== 2) ? self.id + ".Ox" : "Ox";
+    self.OyString = (parent.version !== 2) ? self.id + ".Oy" : "Oy";
+    self.scaleString = (parent.version !== 2) ? self.id + ".escala" : "escala";
+    // ## Descartes 2 patch ## //
+    self.wString = self.id + "._w";
+    self.hString = self.id + "._h";
+
     // register the mouse and touch events
     if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
@@ -19646,72 +19507,65 @@ var descartesJS = (function(descartesJS) {
     evaluator = self.evaluator;
     parent = self.parent;
 
-    // check the draw if condition
-    self.drawIfValue = self.evaluator.evalExpression(self.drawif) > 0;
-
-    // ## Descartes 2 patch ## //
-    OxString = (parent.version != 2) ? self.id + ".Ox" : "Ox";
-    OyString = (parent.version != 2) ? self.id + ".Oy" : "Oy";
-    scaleString = (parent.version != 2) ? self.id + ".escala" : "escala";
-    // ## Descartes 2 patch ## //
-
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.id + "._w", self.w);
-    evaluator.setVariable(self.id + "._h", self.h);
+    evaluator.setVariable(self.wString, self.w);
+    evaluator.setVariable(self.hString, self.h);
 
-    changeX = (self.x != evaluator.evalExpression(self.xExpr) + self.displaceRegionWest);
-    changeY = (self.y != evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth);
+    // check the draw if condition
+    self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
 
-    // check if the space has change
-    self.spaceChange = firstTime || 
-                       changeX || changeY ||
-                       (self.drawBefore != self.drawIfValue) ||
-                       (self.Ox != evaluator.getVariable(OxString)) ||
-                       (self.Oy != evaluator.getVariable(OyString)) ||
-                       (self.scale != evaluator.getVariable(scaleString));
-
-    self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
-    self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth : self.y;
-    self.Ox = evaluator.getVariable(OxString);
-    self.Oy = evaluator.getVariable(OyString);
-    self.scale = evaluator.getVariable(scaleString);
-    self.drawBefore = self.drawIfValue;
-
-    // check if the scale is not below the lower limit
-    if (self.scale < 0.000001) {
-      self.scale = 0.000001;
-      evaluator.setVariable(scaleString, 0);
-    }
-    // check if the scale is not above the upper limit
-    else if (self.scale > 1000000) {
-      self.scale = 1000000;
-      evaluator.setVariable(scaleString, 1000000);
-    }
-    
-    // if some property change then adjust the container style
-    if ((changeX) || (changeY)) {
-      self.container.style.left = self.x + "px";
-      self.container.style.top = self.y + "px";
-      self.findOffset();
-    }
-
-    // if draw is needed
+    // draw the space
     if (self.drawIfValue) {
-      self.container.style.display = "block";
-      
-      // draw the trace
-      for(var i=0, l=self.graphics.length; i<l; i++) {
-        thisGraphics_i = self.graphics[i];
 
-        // if the graph has a trace and the space has not change and the mouse is not pressed and the graphics are not in the background then draw the graphic
-        if ( (thisGraphics_i.trace != "") && (!self.spaceChange) && (!self.click) && (!thisGraphics_i.background) ) {
-          thisGraphics_i.drawTrace();
-        }
+      changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
+      changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
+
+      // check if the space has change
+      self.spaceChange = firstTime ||
+                         changeX ||
+                         changeY ||
+                         (self.drawBefore !== self.drawIfValue) ||
+                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleString));
+
+      self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
+      self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
+      self.Ox = evaluator.getVariable(self.OxString);
+      self.Oy = evaluator.getVariable(self.OyString);
+      self.scale = evaluator.getVariable(self.scaleString);
+      self.drawBefore = self.drawIfValue;
+
+      // check if the scale is not below the lower limit
+      if (self.scale < 0.000001) {
+        self.scale = 0.000001;
+        evaluator.setVariable(self.scaleString, 0);
+      }
+      // check if the scale is not above the upper limit
+      else if (self.scale > 1000000) {
+        self.scale = 1000000;
+        evaluator.setVariable(self.scaleString, 1000000);
+      }
+      
+      // if some property change then adjust the container style
+      if ((changeX) || (changeY)) {
+        self.container.style.left = self.x + "px";
+        self.container.style.top = self.y + "px";
+        self.findOffset();
       }
 
-      self.drawBackground();
+      self.container.style.display = "block";
+        
+      // draw the trace
+      self.drawTrace = (!self.spaceChange) && (!self.click);
+
+      if (self.spaceChange) {
+        self.drawBackground();
+      }
       self.draw();
-    } else {
+    } 
+    // hide the space
+    else {
       self.container.style.display = "none";
     }
     
@@ -19721,125 +19575,117 @@ var descartesJS = (function(descartesJS) {
    * Draw the space background 
    */
   descartesJS.Space2D.prototype.drawBackground = function() {
-    if (this.spaceChange) {
-      evaluator = this.evaluator;
-      ctx = this.backgroundCtx;
+    evaluator = this.evaluator;
+    ctx = this.backgroundCtx;
 
-      // draw the background color
-      ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
-      ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    // draw the background color
+    ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
+    ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
-      // draw the background image if any
-      if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
-        if (this.bg_display === "topleft") {
-          ctx.drawImage(this.image, 0, 0);
-        } 
-        else if (this.bg_display === "stretch") {
-          ctx.drawImage(this.image, 0, 0, this.w, this.h);
-        } 
-        else if (this.bg_display === "patch") {
-          ctx.fillStyle = ctx.createPattern(this.image, "repeat");
-          ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        }
-        else if (this.bg_display === "center") {
-          ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
-        }
+    // draw the background image if any
+    if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
+      if (this.bg_display === "topleft") {
+        ctx.drawImage(this.image, 0, 0);
+      } 
+      else if (this.bg_display === "stretch") {
+        ctx.drawImage(this.image, 0, 0, this.w, this.h);
+      } 
+      else if (this.bg_display === "patch") {
+        ctx.fillStyle = ctx.createPattern(this.image, "repeat");
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      
-      // obtain the variables for the net
-      if ((this.net != "") || ( ((this.parent.version != 2) && (this.net10 != "")) || ((this.parent.version === 2) && (this.net != "") && (this.net10 != "")) ) || (this.axes != "") || ((this.numbers) && (this.axes != "")) ) {
-
-        var rsc = this.scale;
-        var dec = 0;
-        var wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
-        while (rsc>(wh_temp)) {
-          rsc/=10; dec++; 
-        }
-        while (rsc<(wh_temp)/10) { 
-          rsc*=10;
-        }
+      else if (this.bg_display === "center") {
+        ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
-
-      ctx.lineWidth = 1;
-
-      // draw the big net
-      if (this.net != "") {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
-        this.drawMarks(ctx, rsc/10, -1);
-      }
-      
-      // draw the finer net
-      if ( ((this.parent.version != 2) && (this.net10 != "")) || 
-           ((this.parent.version === 2) && (this.net != "") && (this.net10 != ""))
-         ) {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
-        this.drawMarks(ctx, rsc, -1);
-      }
-      
-      // draw the axes
-      if (this.axes != "") {
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
-        
-        ctx.beginPath();
-        // x axis
-        if ((this.x_axis != "") || (this.parent.version != 2)) {
-          ctx.moveTo(0, MathFloor(this.h/2+this.Oy)+.5);
-          ctx.lineTo(this.w, MathFloor(this.h/2+this.Oy)+.5);
-        }
-
-        // y axis
-        if ((this.y_axis != "") || (this.parent.version != 2)) {
-          ctx.moveTo(MathFloor(this.w/2+this.Ox)+.5, 0);
-          ctx.lineTo(MathFloor(this.w/2+this.Ox)+.5, this.h);
-        }
-        
-        ctx.stroke();
-        
-        this.drawMarks(ctx, rsc, 4);
-        this.drawMarks(ctx, rsc/2, 2);
-        this.drawMarks(ctx, (rsc/2)/5, 1);
-      }
-      
-      // draw the axis names
-      if ((this.x_axis != "") || (this.y_axis != "")) {
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
-        ctx.font = descartesJS.convertFont("SansSerif,PLAIN,12");
-        ctx.textAlign = "right";
-        ctx.textBaseline = "top";
-        ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
-        ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
-      }
-      
-      // draw the axis numbers
-      if ((this.numbers) && (this.axes != "")) {
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
-        ctx.font = descartesJS.convertFont("SansSerif,PLAIN,12");
-        ctx.textAlign = "start";
-        ctx.textBaseline = "bottom";
-
-        if (rsc>(this.w+this.h)/2) {
-          this.drawNumbers(ctx, rsc/5, (rsc<=this.scale)?dec+1:dec);
-        } 
-        
-        else if (rsc>(this.w+this.h)/4) {
-          this.drawNumbers(ctx, rsc/2, (rsc<=this.scale)?dec+1:dec);
-        } 
-        
-        else {
-          this.drawNumbers(ctx, rsc, dec);
-        }
-      }
-            
-      // draw the background graphics
-      for(var i=0, l=this.graphics.length; i<l; i++) {
-        thisGraphics_i = this.graphics[i];
-        if (thisGraphics_i.background) {
-          thisGraphics_i.draw();
-        }
-      }
-      
     }
+    
+    rsc = this.scale;
+    dec = 0;
+    wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
+
+    while (rsc>(wh_temp)) {
+      rsc/=10; 
+      dec++; 
+    }
+    while (rsc<(wh_temp)/10) {
+      rsc*=10;
+    }
+
+    ctx.lineWidth = 1;
+
+    // draw the big net
+    if (this.net !== "") {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
+      this.drawMarks(ctx, rsc/10, -1);
+    }
+    
+    // draw the finnest net
+    if ( ((this.parent.version !== 2) && (this.net10 !== "")) || 
+         ((this.parent.version === 2) && (this.net !== "") && (this.net10 !== ""))
+       ) {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
+      this.drawMarks(ctx, rsc, -1);
+    }
+    
+    // draw the axes
+    if (this.axes !== "") {
+      ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
+      
+      ctx.beginPath();
+      // x axis
+      if ((this.x_axis !== "") || (this.parent.version !== 2)) {
+        ctx.moveTo(0, MathFloor(this.h/2+this.Oy)+.5);
+        ctx.lineTo(this.w, MathFloor(this.h/2+this.Oy)+.5);
+      }
+
+      // y axis
+      if ((this.y_axis !== "") || (this.parent.version !== 2)) {
+        ctx.moveTo(MathFloor(this.w/2+this.Ox)+.5, 0);
+        ctx.lineTo(MathFloor(this.w/2+this.Ox)+.5, this.h);
+      }
+      
+      ctx.stroke();
+      
+      this.drawMarks(ctx, rsc, 4);
+      this.drawMarks(ctx, rsc/2, 2);
+      this.drawMarks(ctx, rsc/10, 1);
+    }
+    
+    // draw the axis names
+    if ((this.x_axis !== "") || (this.y_axis !== "")) {
+      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.font = axisFont
+      ctx.textAlign = "right";
+      ctx.textBaseline = "top";
+      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
+      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
+    }
+    
+    // draw the axis numbers
+    if ((this.numbers) && (this.axes != "")) {
+      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.font = axisFont
+      ctx.textAlign = "start";
+      ctx.textBaseline = "bottom";
+
+      if (rsc > ((this.w+this.h)/2)) {
+        this.drawNumbers(ctx, rsc/5, (rsc<=this.scale)?dec+1:dec);
+      } 
+      
+      else if (rsc > ((this.w+this.h)/4)) {
+        this.drawNumbers(ctx, rsc/2, (rsc<=this.scale)?dec+1:dec);
+      } 
+      
+      else {
+        this.drawNumbers(ctx, rsc, dec);
+      }
+    }
+
+    // draw the background graphics
+    for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
+      this.backgroundGraphics[i].draw();
+    }    
   }
 
   /**
@@ -19849,48 +19695,47 @@ var descartesJS = (function(descartesJS) {
     ctx = this.ctx;
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
+
     // draw the no background graphics
     for(var i=0, l=this.graphics.length; i<l; i++) {
       thisGraphics_i = this.graphics[i];
 
-      if (!thisGraphics_i.background) {
-        thisGraphics_i.draw();
+      if ((thisGraphics_i.trace !== "") && (this.drawTrace)) {
+        thisGraphics_i.drawTrace();
       }
+
+      thisGraphics_i.draw();
     }
 
     // draw the graphic controls
-    for (var i=0, l=this.ctrs.length; i<l; i++) {
-      thisCtrs_i = this.ctrs[i];
-      if (thisCtrs_i.type === "graphic") {
-        thisCtrs_i.draw();
-      }
+    for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].draw();
     }
-        
+
     // draw the text showing the mouse postion
-    if ((this.text != "") && (this.click) && (this.whichButton === "LEFT")) {
+    if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
       ctx.fillStyle = descartesJS.getColor(this.evaluator, this.text);
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
-      ctx.font = descartesJS.convertFont("Monospaced,PLAIN,12");
+      ctx.font = mouseTextFont;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
 
-      var coordTxt_X = (this.scale <= 1) ? ((this.mouse_x).toFixed(0)) : (this.mouse_x).toFixed((this.scale).toString().length);
-      var coordTxt_Y = (this.scale <= 1) ? ((this.mouse_y).toFixed(0)) : (this.mouse_y).toFixed((this.scale).toString().length);
-      var coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
-      var coordTxtW = ctx.measureText(coordTxt).width;
-      var mouseX = this.getAbsoluteX(this.mouse_x);
-      var mouseY = this.getAbsoluteY(this.mouse_y);
-      var posX = MathFloor(mouseX);
-      var posY = MathFloor(mouseY-10);
+      coordTxt_X = (this.scale <= 1) ? ((this.mouse_x).toFixed(0)) : (this.mouse_x).toFixed((this.scale).toString().length);
+      coordTxt_Y = (this.scale <= 1) ? ((this.mouse_y).toFixed(0)) : (this.mouse_y).toFixed((this.scale).toString().length);
+      coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
+      coordTxtW = MathFloor(ctx.measureText(coordTxt).width/2);
+      mouseX = this.getAbsoluteX(this.mouse_x);
+      mouseY = this.getAbsoluteY(this.mouse_y);
+      posX = MathFloor(mouseX);
+      posY = MathFloor(mouseY-10);
 
       // prevents the mouse position text get out of the space
-      if ((posX+coordTxtW/2) > this.w) {
-        posX = this.w-coordTxtW/2;
+      if ((posX+coordTxtW) > this.w) {
+        posX = this.w-coordTxtW;
       } 
-      else if ((posX-coordTxtW/2) < 0) {
-        posX = coordTxtW/2;
+      else if ((posX-coordTxtW) < 0) {
+        posX = coordTxtW;
       }
       if ((posY+1) > this.h) {
         posY = this.h;
@@ -19984,9 +19829,9 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("touchstart", onTouchStart, false);
+      this.canvas.addEventListener("touchstart", onTouchStart);
     }
 
     /**
@@ -20002,8 +19847,8 @@ var descartesJS = (function(descartesJS) {
 
       onSensitiveToMouseMovements(evt);
       
-      window.addEventListener("touchmove", onMouseMove, false);
-      window.addEventListener("touchend", onTouchEnd, false);
+      window.addEventListener("touchmove", onMouseMove);
+      window.addEventListener("touchend", onTouchEnd);
 
       // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
@@ -20033,9 +19878,9 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("mousedown", onMouseDown, false);
+      this.canvas.addEventListener("mousedown", onMouseDown);
     }
     
     /**
@@ -20050,33 +19895,26 @@ var descartesJS = (function(descartesJS) {
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
 
-      // IE
-      if (evt.which === null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button === 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which === 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton === "RIGHT") {
-        window.addEventListener("mouseup", onMouseUp, false);
+      if (self.whichButton === "R") {
+        window.addEventListener("mouseup", onMouseUp);
         
         // if fixed add a zoom manager
         if (!self.fixed) {
           self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
-          window.addEventListener("mousemove", onMouseMoveZoom, false);
+          window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
       
-      if (self.whichButton === "LEFT") {
+      if (self.whichButton === "L") {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
         
         onSensitiveToMouseMovements(evt);
 
-        window.addEventListener("mousemove", onMouseMove, false);
-        window.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
       }
       
       evt.preventDefault();
@@ -20092,13 +19930,14 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
       evt.preventDefault();
 
-      if (self.whichButton === "RIGHT") {
+      if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
       if (!self.sensitive_to_mouse_movements) {
         window.removeEventListener("mousemove", onMouseMove, false);
       }
+
       window.removeEventListener("mouseup", onMouseUp, false);
       
       self.parent.update();
@@ -20124,17 +19963,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseMoveZoom(evt) {
+      evt.preventDefault();
+
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
 
-      // ## Descartes 2 patch ## //
-      var scaleString = (self.parent.version !== 2) ? self.id + ".escala" : "escala";
-      // ## Descartes 2 patch ## //
+      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
 
-      self.evaluator.setVariable(scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
-      
-      self.parent.update();
-      
-      evt.preventDefault();
+      self.parent.update();      
     }
 
     /**
@@ -20146,23 +19981,16 @@ var descartesJS = (function(descartesJS) {
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
-        disp = { x:MathFloor(self.posAnte.x-self.posNext.x), 
-                     y:MathFloor(self.posAnte.y-self.posNext.y) };
-                    
-        // ## Descartes 2 patch ## //
-        OxString = (self.parent.version != 2) ? self.id + ".Ox" : "Ox";
-        OyString = (self.parent.version != 2) ? self.id + ".Oy" : "Oy";
-        // ## Descartes 2 patch ## //
+        disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
+                 y: MathFloor(self.posAnte.y-self.posNext.y) };
 
-        self.evaluator.setVariable(OxString, (self.Ox - disp.x));
-        self.evaluator.setVariable(OyString, (self.Oy - disp.y));
+        self.evaluator.setVariable(self.OxString, (self.Ox - disp.x));
+        self.evaluator.setVariable(self.OyString, (self.Oy - disp.y));
         self.posAnte.x -= disp.x;
         self.posAnte.y -= disp.y;
       }
 
-      if (self.click) {
-        onSensitiveToMouseMovements(evt);
-      }
+      onSensitiveToMouseMovements(evt);
 
       // // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
@@ -20184,8 +20012,12 @@ var descartesJS = (function(descartesJS) {
   var MathRound = Math.round;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
+  var MathPI_2  = Math.PI/2;
+
   var self;
   var thisGraphics_i;
+  var primitives;
+  var primitivesLength;
   var hasTouchSupport;
   
   /**
@@ -20266,11 +20098,11 @@ var descartesJS = (function(descartesJS) {
     cosBeta = MathCos(self.beta);
     sinBeta = MathSin(self.beta);
 
-    self.eye.set(self.distanceEyeCenter*cosAlpha*cosBeta, 
-                 self.distanceEyeCenter*sinAlpha*cosBeta, 
-                -self.distanceEyeCenter*sinBeta);
+    self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
+                  self.distanceEyeCenter*sinAlpha*cosBeta, 
+                 -self.distanceEyeCenter*sinBeta);
 
-    self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - Math.PI/2), MathSin(-self.alpha - Math.PI/2), 0).crossProduct(self.eye).normalize();
+    self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), MathSin(-self.alpha - MathPI_2), 0).crossProduct(self.eye).normalize();
 
     self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
 
@@ -20283,7 +20115,7 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Space
+  // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Space3D, descartesJS.Space);
 
@@ -20322,32 +20154,59 @@ var descartesJS = (function(descartesJS) {
     this.ctx.fillStyle = descartesJS.getColor(this.evaluator, this.background);
     this.ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
-    // the scene is not moving
     if (!this.click) {
-      this.scene = new descartesJS.Scene(this);
+      this.primitives = [];
 
-      //se dibujan las graficas que no son del fondo
+      // update the graphics
       for(var i=0, l=this.graphics.length; i<l; i++) {
         thisGraphics_i = this.graphics[i];
         thisGraphics_i.update();
+        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
       }
     }
+    
+    // draw the geometry
+    this.draw();
+  }
 
-    this.scene.draw();
+  /**
+   * Auxiliary function to sort the primitives
+   */
+  function depthSort(a, b) {
+    return b.depth - a.depth;
+  }
+
+
+  /**
+   * Draw the primitives of the graphics, the primitives are obtained from the update step
+   */
+  descartesJS.Space3D.prototype.draw = function() {
+    primitives = this.primitives;
+    primitivesLength = primitives.length;
+
+    for(var i=0; i<primitivesLength; i++) {
+      primitives[i].computeDepth(this);
+    }
+
+    primitives = primitives.sort(depthSort);
+
+    for(var i=0; i<primitivesLength; i++) {
+      primitives[i].draw(this.ctx);
+    }
   }
 
   /**
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateX = function(x) {
-    return MathFloor((x+1)*this.w_2 + this.Ox);
+    return parseInt((x+1)*this.w_2 + this.Ox)+.5;
   }
   
   /**
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateY = function(y) {
-    return MathFloor((1-y)*this.h_2 + this.Oy);
+    return parseInt((1-y)*this.h_2 + this.Oy)+.5;
   }
 
   /**
@@ -20355,47 +20214,43 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
     var self = this;
-    hasTouchSupport = descartesJS.hasTouchSupport;
     var oldMouse = {x: 0, y: 0};
 
+    hasTouchSupport = descartesJS.hasTouchSupport;
+
     this.canvas.oncontextmenu = function () { return false; };
-    ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de touch (iOS, android)
-    ///////////////////////////////////////////////////////////////////////////
+
     if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("touchstart", onTouchStart, false);
+      this.canvas.addEventListener("touchstart", onTouchStart);
     }
 
     /**
-     * @param {Event} evt el evento lanzado por la accion de iniciar un touch
+     * @param {Event} evt
      * @private
      */
     function onTouchStart(evt) {
       self.click = 1;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
-//       // se desactivan los controles graficos
-//       self.parent.deactivateGraphiControls();
+      // se desactivan los controles graficos
+      self.parent.deactivateGraphiControls();
 
       onSensitiveToMouseMovements(evt);
-      
-//      self.parent.update();
 
-      window.addEventListener("touchmove", onMouseMove, false);
-      window.addEventListener("touchend", onTouchEnd, false);
+      window.addEventListener("touchmove", onMouseMove);
+      window.addEventListener("touchend", onTouchEnd);
 
-      // intenta mantener el gesto de deslizar en las tablets      
-      if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
+      // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
         evt.preventDefault();
-      }
+      // }
     }
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de finalizar un touch
+     * @param {Event} evt 
      * @private
      */
     function onTouchEnd(evt) {
@@ -20405,44 +20260,30 @@ var descartesJS = (function(descartesJS) {
       window.removeEventListener("touchmove", onMouseMove, false);
       window.removeEventListener("touchend", onTouchEnd, false);
 
-      // self.parent.update();
-
       evt.preventDefault();
-
-      // self.parent.update();
     }
   
     ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de mouse
+    // 
     ///////////////////////////////////////////////////////////////////////////
     if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("mousedown", onMouseDown, false);
+      this.canvas.addEventListener("mousedown", onMouseDown);
     }
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de presionar un boton
+     * @param {Event} evt
      * @private
      */
     function onMouseDown(evt) {
       self.click = 1;
       
-//       // se desactivan los controles graficos
-//       self.parent.deactivateGraphiControls();
+      self.whichButton = descartesJS.whichButton(evt);
 
-      // ie
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // los demas
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
-      
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
         self.posAnte = self.getCursorPosition(evt);
@@ -20451,8 +20292,8 @@ var descartesJS = (function(descartesJS) {
 
         onSensitiveToMouseMovements(evt);
 
-        window.addEventListener("mousemove", onMouseMove, false);
-        window.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
       }
       
       evt.preventDefault();
@@ -20468,7 +20309,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
       evt.preventDefault();
 
-      if (self.whichButton == "RIGHT") {
+      if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
@@ -20512,11 +20353,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if (self.click) {
         onSensitiveToMouseMovements(evt);
-        // self.alpha = (self.alpha + (self.mouse_x - oldMouse.x)*.2);
-        // self.beta = (self.beta + (self.mouse_y - oldMouse.y)*.2);
+
         self.alpha = (self.alpha + (self.mouse_x - oldMouse.x));
         self.beta = (self.beta + (self.mouse_y - oldMouse.y));
-        // console.log(self.alpha, self.beta)
+
         cosAlpha = MathCos(-self.alpha);
         sinAlpha = MathSin(-self.alpha);
         cosBeta = MathCos(self.beta);
@@ -20524,25 +20364,29 @@ var descartesJS = (function(descartesJS) {
 
 // ca=cos(-alfa);sa=sen(-alfa);cb=cos(beta);sb=sen(beta);ux=ca*cb;uy=sa*cb;uz=sb;Xx=-sa;Xy=ca;Xz=0;Yx=-sb*ca;Yy=-sb*sa;Yz=cb;
 
-        // self.eye = new descartesJS.Vector3D(self.distanceEyeCenter*cosAlpha*cosBeta, self.distanceEyeCenter*sinAlpha*cosBeta, self.distanceEyeCenter*sinBeta);
-        self.eye.set(self.distanceEyeCenter*cosAlpha*cosBeta, 
-                     self.distanceEyeCenter*sinAlpha*cosBeta, 
-                    -self.distanceEyeCenter*sinBeta);
+        // change the eye position
+        self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
+                      self.distanceEyeCenter*sinAlpha*cosBeta, 
+                     -self.distanceEyeCenter*sinBeta);
 
-        self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - Math.PI/2), 
-                                      MathSin(-self.alpha - Math.PI/2), 
+        // change the up vector of the camera
+        self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), 
+                                      MathSin(-self.alpha - MathPI_2), 
                                       0
                                      ).crossProduct(self.eye).normalize();
 
+        // build the look at matrix to orient the camera
         self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
 
+        // build the perspective matrix
         self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
       
-        oldMouse = { x: self.mouse_x, y: self.mouse_y };
+        oldMouse = { x: self.mouse_x, 
+                     y: self.mouse_y 
+                   };
       }
     }
   }
-  
   
   return descartesJS;
 })(descartesJS || {});/**
@@ -21177,98 +21021,98 @@ var descartesJS = (function(descartesJS) {
    * @param {String} file the filename of the new audio
    */
   descartesJS.DescartesLoader.prototype.initAudio = function(file) {
-    var audios = this.audios;
-
-    var lastIndexOfDot = file.lastIndexOf(".");
-    lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
-    var filename = file.substring(0, lastIndexOfDot);
-
-    var mediaElement = new Audio();
-    mediaElement.setAttribute("preload", "auto");
-
-    var onCanPlayThrough = function() {
-      this.ready = 1;
-    }
-    
-    var onError = function() {
-      console.log("El archivo '" + file + "' no puede ser reproducido");
-      this.errorload = 1;
-    }
-
-    mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-    mediaElement.addEventListener('load', onCanPlayThrough);
-    mediaElement.addEventListener('error', onError);
-
-    var source;
-    // mp3
-    if (mediaElement.canPlayType("audio/mpeg")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".mp3");
-      source.setAttribute("type", "audio/mpeg");
-      mediaElement.appendChild(source);
-    }
-    // ogg, oga
-    if (mediaElement.canPlayType("audio/ogg")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".ogg");
-      source.setAttribute("type", "audio/ogg");
-      mediaElement.appendChild(source);
-
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".oga");
-      source.setAttribute("type", "audio/ogg");
-      mediaElement.appendChild(source);
-    }
-    // wav
-    if (mediaElement.canPlayType("audio/wav")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".wav");
-      source.setAttribute("type", "audio/wav");
-      mediaElement.appendChild(source);
-    }
-
-    mediaElement.load();
-    mediaElement.play();
-    mediaElement.pause();
-
-    audios[file] = mediaElement;
-
-
     // var audios = this.audios;
-    
-    // audios[file] = new Audio(file);
-    // audios[file].filename = file;
+
+    // var lastIndexOfDot = file.lastIndexOf(".");
+    // lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
+    // var filename = file.substring(0, lastIndexOfDot);
+
+    // var mediaElement = new Audio();
+    // mediaElement.setAttribute("preload", "auto");
 
     // var onCanPlayThrough = function() {
     //   this.ready = 1;
     // }
     
     // var onError = function() {
-    //   if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
-    //     audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
-    //     audios[file].filename = this.filename.replace("mp3", "ogg");
-    //     audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-    //     audios[file].addEventListener('load', onCanPlayThrough);
-    //     audios[file].addEventListener('error', onError);
-    //     audios[file].load();
-    //   } 
-    //   else {
-    //     console.log("El archivo '" + file + "' no puede ser reproducido");
-    //     this.errorload = 1;
-    //   }
+    //   console.log("El archivo '" + file + "' no puede ser reproducido");
+    //   this.errorload = 1;
     // }
-    // audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-    // audios[file].addEventListener('load', onCanPlayThrough);
-    // audios[file].addEventListener('error', onError);
 
-    // if (descartesJS.hasTouchSupport) {
-    //   audios[file].load();
-    //   audios[file].play();
-    //   // setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
-    //   audios[file].ready = 1;
-    // } else {
-    //   audios[file].load();
+    // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
+    // mediaElement.addEventListener('load', onCanPlayThrough);
+    // mediaElement.addEventListener('error', onError);
+
+    // var source;
+    // // mp3
+    // if (mediaElement.canPlayType("audio/mpeg")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".mp3");
+    //   source.setAttribute("type", "audio/mpeg");
+    //   mediaElement.appendChild(source);
     // }
+    // // ogg, oga
+    // if (mediaElement.canPlayType("audio/ogg")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".ogg");
+    //   source.setAttribute("type", "audio/ogg");
+    //   mediaElement.appendChild(source);
+
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".oga");
+    //   source.setAttribute("type", "audio/ogg");
+    //   mediaElement.appendChild(source);
+    // }
+    // // wav
+    // if (mediaElement.canPlayType("audio/wav")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".wav");
+    //   source.setAttribute("type", "audio/wav");
+    //   mediaElement.appendChild(source);
+    // }
+
+    // mediaElement.load();
+    // mediaElement.play();
+    // mediaElement.pause();
+
+    // audios[file] = mediaElement;
+
+
+    var audios = this.audios;
+    
+    audios[file] = new Audio(file);
+    audios[file].filename = file;
+
+    var onCanPlayThrough = function() {
+      this.ready = 1;
+    }
+    
+    var onError = function() {
+      if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
+        audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
+        audios[file].filename = this.filename.replace("mp3", "ogg");
+        audios[file].addEventListener('canplaythrough', onCanPlayThrough);
+        audios[file].addEventListener('load', onCanPlayThrough);
+        audios[file].addEventListener('error', onError);
+        audios[file].load();
+      } 
+      else {
+        console.log("El archivo '" + file + "' no puede ser reproducido");
+        this.errorload = 1;
+      }
+    }
+    audios[file].addEventListener('canplaythrough', onCanPlayThrough);
+    audios[file].addEventListener('load', onCanPlayThrough);
+    audios[file].addEventListener('error', onError);
+
+    if (descartesJS.hasTouchSupport) {
+      audios[file].load();
+      audios[file].play();
+      // setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
+      audios[file].ready = 1;
+    } else {
+      audios[file].load();
+    }
   }
 
   var barWidth;
@@ -21851,6 +21695,7 @@ var descartesJS = (function(descartesJS) {
         if (tmpGraph.visible) {
           this.editableRegionVisible = true;
         }
+
         tmpGraph.space.addGraph(tmpGraph);
       }
     }
@@ -21878,7 +21723,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmpAnimations.length; i<l; i++) {
       this.animation = lessonParser.parseAnimation(tmpAnimations[i]);
     }
-    
+
     // configure the regions
     this.configRegions();
 
@@ -21888,7 +21733,7 @@ var descartesJS = (function(descartesJS) {
       this.controls[i].init();
     }
     this.updateControls();
-    
+
     this.updateSpaces(true);
 
     // finish the interpretation
@@ -21905,7 +21750,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Finish the interpretation
    */
-  descartesJS.DescartesApp.prototype.finishInit = function() {  
+  descartesJS.DescartesApp.prototype.finishInit = function() {
     this.update();
 
     // hide the loader
@@ -21927,6 +21772,8 @@ var descartesJS = (function(descartesJS) {
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
       window.parent.postMessage({ type: "ready" }, '*');
+
+      descartesJS.onResize();
     }
   }
   
@@ -22374,82 +22221,82 @@ var descartesJS = (function(descartesJS) {
         lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
         var filename = file.substring(0, lastIndexOfDot);
 
-        var mediaElement = new Audio();
-        mediaElement.setAttribute("preload", "auto");
+        // var mediaElement = new Audio();
+        // mediaElement.setAttribute("preload", "auto");
 
-        var onCanPlayThrough = function() {
+        // var onCanPlayThrough = function() {
+        //   this.ready = 1;
+        // }
+        
+        // var onError = function() {
+        //   console.log("El archivo '" + file + "' no puede ser reproducido");
+        //   this.errorload = 1;
+        // }
+
+        // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
+        // mediaElement.addEventListener('load', onCanPlayThrough);
+        // mediaElement.addEventListener('error', onError);
+
+        // var source;
+        // // mp3
+        // if (mediaElement.canPlayType("audio/mpeg")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".mp3");
+        //   source.setAttribute("type", "audio/mpeg");
+        //   mediaElement.appendChild(source);
+        // }
+        // // ogg, oga
+        // if (mediaElement.canPlayType("audio/ogg")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".ogg");
+        //   source.setAttribute("type", "audio/ogg");
+        //   mediaElement.appendChild(source);
+
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".oga");
+        //   source.setAttribute("type", "audio/ogg");
+        //   mediaElement.appendChild(source);
+        // }
+        // // wav
+        // if (mediaElement.canPlayType("audio/wav")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".wav");
+        //   source.setAttribute("type", "audio/wav");
+        //   mediaElement.appendChild(source);
+        // }
+
+        // mediaElement.load();
+        // mediaElement.play();
+        // mediaElement.pause();
+
+        // audios[file] = mediaElement;
+        
+        audios[name] = new Audio(name);
+        
+        var onCanPlayThrough = function(evt) {
           this.ready = 1;
         }
+        audios[name].addEventListener('canplaythrough', onCanPlayThrough);
         
-        var onError = function() {
-          console.log("El archivo '" + file + "' no puede ser reproducido");
-          this.errorload = 1;
+        var onError = function(evt) {
+          if (!this.canPlayType("audio/" + name.substring(name.length-3)) && (name.substring(name.length-3) == "mp3")) {
+            audios[name] = new Audio(name.replace("mp3", "ogg"));
+            audios[name].addEventListener('canplaythrough', onCanPlayThrough);
+            audios[name].addEventListener('load', onCanPlayThrough);
+            audios[name].addEventListener('error', onError);
+            audios[name].load();
+          } else {
+            console.log("El archivo '" + name + "' no puede ser reproducido");
+            this.errorload = 1;
+          }
         }
-
-        mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-        mediaElement.addEventListener('load', onCanPlayThrough);
-        mediaElement.addEventListener('error', onError);
-
-        var source;
-        // mp3
-        if (mediaElement.canPlayType("audio/mpeg")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".mp3");
-          source.setAttribute("type", "audio/mpeg");
-          mediaElement.appendChild(source);
-        }
-        // ogg, oga
-        if (mediaElement.canPlayType("audio/ogg")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".ogg");
-          source.setAttribute("type", "audio/ogg");
-          mediaElement.appendChild(source);
-
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".oga");
-          source.setAttribute("type", "audio/ogg");
-          mediaElement.appendChild(source);
-        }
-        // wav
-        if (mediaElement.canPlayType("audio/wav")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".wav");
-          source.setAttribute("type", "audio/wav");
-          mediaElement.appendChild(source);
-        }
-
-        mediaElement.load();
-        mediaElement.play();
-        mediaElement.pause();
-
-        audios[file] = mediaElement;
-        
-  //       audios[name] = new Audio(name);
-        
-  //       var onCanPlayThrough = function(evt) {
-  //         this.ready = 1;
-  //       }
-  //       audios[name].addEventListener('canplaythrough', onCanPlayThrough);
-        
-  //       var onError = function(evt) {
-  //         if (!this.canPlayType("audio/" + name.substring(name.length-3)) && (name.substring(name.length-3) == "mp3")) {
-  //           audios[name] = new Audio(name.replace("mp3", "ogg"));
-  //           audios[name].addEventListener('canplaythrough', onCanPlayThrough);
-  //           audios[name].addEventListener('load', onCanPlayThrough);
-  //           audios[name].addEventListener('error', onError);
-  //           audios[name].load();
-  //         } else {
-  //           console.log("El archivo '" + name + "' no puede ser reproducido");
-  //           this.errorload = 1;
-  //         }
-  //       }
-  //       audios[name].addEventListener('error', onError);
+        audios[name].addEventListener('error', onError);
               
-  // //       audios[name].load();
-  //       audios[name].play();
-  //       setTimeout( function(){ audios[name].pause(); }, 15);
+  //       audios[name].load();
+        audios[name].play();
+        setTimeout( function(){ audios[name].pause(); }, 15);
         
-  //       return audios[name];
+        return audios[name];
       }
     }
     else {
@@ -22852,7 +22699,7 @@ var descartesJS = (function(descartesJS) {
    * Function to handle the resize of the browser
    * @param {Event} event the event of resize the browser
    */
-  function onResize(event) {
+  descartesJS.onResize = function(event) {
     var spaces;
     for (var i=0, l=descartesJS.apps.length; i<l; i++) {
       spaces = descartesJS.apps[i].spaces;
@@ -22877,7 +22724,7 @@ var descartesJS = (function(descartesJS) {
       removeDescartesAppContainers();
       makeDescartesApps();
       showNoDescartesJSApplets();
-      window.addEventListener("resize", onResize);
+      window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
       setTimeout(function() { window.scrollTo(0, 1); }, 1);

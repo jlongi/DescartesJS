@@ -438,7 +438,7 @@ var descartesJS = (function(descartesJS) {
     function onBlur_textField(evt) {
       self.update();
     }
-    this.field.addEventListener("blur", onBlur_textField, false);
+    this.field.addEventListener("blur", onBlur_textField);
         
     /**
      * 
@@ -453,7 +453,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
   }
   
   return descartesJS;

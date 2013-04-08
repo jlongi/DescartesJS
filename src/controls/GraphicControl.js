@@ -350,11 +350,11 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.oncontextmenu = function () { return false; };    
 
     if (descartesJS.hasTouchSupport) {
-      this.mouseCacher.addEventListener("touchstart", onTouchStart, false);
+      this.mouseCacher.addEventListener("touchstart", onTouchStart);
     } else {
-      this.mouseCacher.addEventListener("mousedown", onMouseDown, false);
-      this.mouseCacher.addEventListener("mouseover", onMouseOver, false);
-      this.mouseCacher.addEventListener("mouseout", onMouseOut, false);
+      this.mouseCacher.addEventListener("mousedown", onMouseDown);
+      this.mouseCacher.addEventListener("mouseover", onMouseOver);
+      this.mouseCacher.addEventListener("mouseout", onMouseOut);
     }
 
     /**
@@ -365,16 +365,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if ((self.activeIfValue) && (self.over)) {
           
           self.parent.deactivateGraphiControls();
@@ -385,8 +378,8 @@ var descartesJS = (function(descartesJS) {
           self.posAnte = self.getCursorPosition(evt);
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
           
-          window.addEventListener("mouseup", onMouseUp, false);
-          window.addEventListener("mousemove", onMouseMove, false);
+          window.addEventListener("mouseup", onMouseUp);
+          window.addEventListener("mousemove", onMouseMove);
         }
       }
     }
@@ -408,8 +401,8 @@ var descartesJS = (function(descartesJS) {
         self.posAnte = self.getCursorPosition(evt);
         self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
         
-        window.addEventListener("touchmove", onMouseMove, false);
-        window.addEventListener("touchend", onMouseUp, false);
+        window.addEventListener("touchmove", onMouseMove);
+        window.addEventListener("touchend", onMouseUp);
       }
     }
 
@@ -504,7 +497,7 @@ var descartesJS = (function(descartesJS) {
     // function onBlur(evt) {
     //   console.log("en blur");
     // }
-    // this.mouseCacher.addEventListener("blur", onBlur, false);        
+    // this.mouseCacher.addEventListener("blur", onBlur);        
   }
   
   /**

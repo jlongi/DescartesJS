@@ -55,13 +55,10 @@ files = [ "Babel.js",
           "graphics/Macro.js",
 
           "3D/RenderMath.js",
-
-          "3D/3DScene.js",
+          "3D/3DPrimitive.js",
           "3D/3DGraphic.js",
           "3D/3DSurface.js",
-          "3D/3DMesh.js",
-          
-#           "3D/3DPoint.js",
+#           "3D/3DPoint.js",          
 #           "3D/3DSegment.js",
 #           "3D/3DPolygon.js",
 #           "3D/3DCurve.js",

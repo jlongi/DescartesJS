@@ -467,6 +467,7 @@ var descartesJS = (function(descartesJS) {
         if (tmpGraph.visible) {
           this.editableRegionVisible = true;
         }
+
         tmpGraph.space.addGraph(tmpGraph);
       }
     }
@@ -494,7 +495,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmpAnimations.length; i<l; i++) {
       this.animation = lessonParser.parseAnimation(tmpAnimations[i]);
     }
-    
+
     // configure the regions
     this.configRegions();
 
@@ -504,7 +505,7 @@ var descartesJS = (function(descartesJS) {
       this.controls[i].init();
     }
     this.updateControls();
-    
+
     this.updateSpaces(true);
 
     // finish the interpretation
@@ -521,7 +522,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Finish the interpretation
    */
-  descartesJS.DescartesApp.prototype.finishInit = function() {  
+  descartesJS.DescartesApp.prototype.finishInit = function() {
     this.update();
 
     // hide the loader
@@ -543,6 +544,8 @@ var descartesJS = (function(descartesJS) {
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
       window.parent.postMessage({ type: "ready" }, '*');
+
+      descartesJS.onResize();
     }
   }
   
@@ -990,82 +993,82 @@ var descartesJS = (function(descartesJS) {
         lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
         var filename = file.substring(0, lastIndexOfDot);
 
-        var mediaElement = new Audio();
-        mediaElement.setAttribute("preload", "auto");
+        // var mediaElement = new Audio();
+        // mediaElement.setAttribute("preload", "auto");
 
-        var onCanPlayThrough = function() {
+        // var onCanPlayThrough = function() {
+        //   this.ready = 1;
+        // }
+        
+        // var onError = function() {
+        //   console.log("El archivo '" + file + "' no puede ser reproducido");
+        //   this.errorload = 1;
+        // }
+
+        // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
+        // mediaElement.addEventListener('load', onCanPlayThrough);
+        // mediaElement.addEventListener('error', onError);
+
+        // var source;
+        // // mp3
+        // if (mediaElement.canPlayType("audio/mpeg")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".mp3");
+        //   source.setAttribute("type", "audio/mpeg");
+        //   mediaElement.appendChild(source);
+        // }
+        // // ogg, oga
+        // if (mediaElement.canPlayType("audio/ogg")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".ogg");
+        //   source.setAttribute("type", "audio/ogg");
+        //   mediaElement.appendChild(source);
+
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".oga");
+        //   source.setAttribute("type", "audio/ogg");
+        //   mediaElement.appendChild(source);
+        // }
+        // // wav
+        // if (mediaElement.canPlayType("audio/wav")) {
+        //   source = document.createElement("source");
+        //   source.setAttribute("src", filename + ".wav");
+        //   source.setAttribute("type", "audio/wav");
+        //   mediaElement.appendChild(source);
+        // }
+
+        // mediaElement.load();
+        // mediaElement.play();
+        // mediaElement.pause();
+
+        // audios[file] = mediaElement;
+        
+        audios[name] = new Audio(name);
+        
+        var onCanPlayThrough = function(evt) {
           this.ready = 1;
         }
+        audios[name].addEventListener('canplaythrough', onCanPlayThrough);
         
-        var onError = function() {
-          console.log("El archivo '" + file + "' no puede ser reproducido");
-          this.errorload = 1;
+        var onError = function(evt) {
+          if (!this.canPlayType("audio/" + name.substring(name.length-3)) && (name.substring(name.length-3) == "mp3")) {
+            audios[name] = new Audio(name.replace("mp3", "ogg"));
+            audios[name].addEventListener('canplaythrough', onCanPlayThrough);
+            audios[name].addEventListener('load', onCanPlayThrough);
+            audios[name].addEventListener('error', onError);
+            audios[name].load();
+          } else {
+            console.log("El archivo '" + name + "' no puede ser reproducido");
+            this.errorload = 1;
+          }
         }
-
-        mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-        mediaElement.addEventListener('load', onCanPlayThrough);
-        mediaElement.addEventListener('error', onError);
-
-        var source;
-        // mp3
-        if (mediaElement.canPlayType("audio/mpeg")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".mp3");
-          source.setAttribute("type", "audio/mpeg");
-          mediaElement.appendChild(source);
-        }
-        // ogg, oga
-        if (mediaElement.canPlayType("audio/ogg")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".ogg");
-          source.setAttribute("type", "audio/ogg");
-          mediaElement.appendChild(source);
-
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".oga");
-          source.setAttribute("type", "audio/ogg");
-          mediaElement.appendChild(source);
-        }
-        // wav
-        if (mediaElement.canPlayType("audio/wav")) {
-          source = document.createElement("source");
-          source.setAttribute("src", filename + ".wav");
-          source.setAttribute("type", "audio/wav");
-          mediaElement.appendChild(source);
-        }
-
-        mediaElement.load();
-        mediaElement.play();
-        mediaElement.pause();
-
-        audios[file] = mediaElement;
-        
-  //       audios[name] = new Audio(name);
-        
-  //       var onCanPlayThrough = function(evt) {
-  //         this.ready = 1;
-  //       }
-  //       audios[name].addEventListener('canplaythrough', onCanPlayThrough);
-        
-  //       var onError = function(evt) {
-  //         if (!this.canPlayType("audio/" + name.substring(name.length-3)) && (name.substring(name.length-3) == "mp3")) {
-  //           audios[name] = new Audio(name.replace("mp3", "ogg"));
-  //           audios[name].addEventListener('canplaythrough', onCanPlayThrough);
-  //           audios[name].addEventListener('load', onCanPlayThrough);
-  //           audios[name].addEventListener('error', onError);
-  //           audios[name].load();
-  //         } else {
-  //           console.log("El archivo '" + name + "' no puede ser reproducido");
-  //           this.errorload = 1;
-  //         }
-  //       }
-  //       audios[name].addEventListener('error', onError);
+        audios[name].addEventListener('error', onError);
               
-  // //       audios[name].load();
-  //       audios[name].play();
-  //       setTimeout( function(){ audios[name].pause(); }, 15);
+  //       audios[name].load();
+        audios[name].play();
+        setTimeout( function(){ audios[name].pause(); }, 15);
         
-  //       return audios[name];
+        return audios[name];
       }
     }
     else {

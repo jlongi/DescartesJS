@@ -10,8 +10,12 @@ var descartesJS = (function(descartesJS) {
   var MathRound = Math.round;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
+  var MathPI_2  = Math.PI/2;
+
   var self;
   var thisGraphics_i;
+  var primitives;
+  var primitivesLength;
   var hasTouchSupport;
   
   /**
@@ -92,11 +96,11 @@ var descartesJS = (function(descartesJS) {
     cosBeta = MathCos(self.beta);
     sinBeta = MathSin(self.beta);
 
-    self.eye.set(self.distanceEyeCenter*cosAlpha*cosBeta, 
-                 self.distanceEyeCenter*sinAlpha*cosBeta, 
-                -self.distanceEyeCenter*sinBeta);
+    self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
+                  self.distanceEyeCenter*sinAlpha*cosBeta, 
+                 -self.distanceEyeCenter*sinBeta);
 
-    self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - Math.PI/2), MathSin(-self.alpha - Math.PI/2), 0).crossProduct(self.eye).normalize();
+    self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), MathSin(-self.alpha - MathPI_2), 0).crossProduct(self.eye).normalize();
 
     self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
 
@@ -109,7 +113,7 @@ var descartesJS = (function(descartesJS) {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Space
+  // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Space3D, descartesJS.Space);
 
@@ -148,32 +152,59 @@ var descartesJS = (function(descartesJS) {
     this.ctx.fillStyle = descartesJS.getColor(this.evaluator, this.background);
     this.ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
-    // the scene is not moving
     if (!this.click) {
-      this.scene = new descartesJS.Scene(this);
+      this.primitives = [];
 
-      //se dibujan las graficas que no son del fondo
+      // update the graphics
       for(var i=0, l=this.graphics.length; i<l; i++) {
         thisGraphics_i = this.graphics[i];
         thisGraphics_i.update();
+        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
       }
     }
+    
+    // draw the geometry
+    this.draw();
+  }
 
-    this.scene.draw();
+  /**
+   * Auxiliary function to sort the primitives
+   */
+  function depthSort(a, b) {
+    return b.depth - a.depth;
+  }
+
+
+  /**
+   * Draw the primitives of the graphics, the primitives are obtained from the update step
+   */
+  descartesJS.Space3D.prototype.draw = function() {
+    primitives = this.primitives;
+    primitivesLength = primitives.length;
+
+    for(var i=0; i<primitivesLength; i++) {
+      primitives[i].computeDepth(this);
+    }
+
+    primitives = primitives.sort(depthSort);
+
+    for(var i=0; i<primitivesLength; i++) {
+      primitives[i].draw(this.ctx);
+    }
   }
 
   /**
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateX = function(x) {
-    return MathFloor((x+1)*this.w_2 + this.Ox);
+    return parseInt((x+1)*this.w_2 + this.Ox)+.5;
   }
   
   /**
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateY = function(y) {
-    return MathFloor((1-y)*this.h_2 + this.Oy);
+    return parseInt((1-y)*this.h_2 + this.Oy)+.5;
   }
 
   /**
@@ -181,47 +212,43 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
     var self = this;
-    hasTouchSupport = descartesJS.hasTouchSupport;
     var oldMouse = {x: 0, y: 0};
 
+    hasTouchSupport = descartesJS.hasTouchSupport;
+
     this.canvas.oncontextmenu = function () { return false; };
-    ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de touch (iOS, android)
-    ///////////////////////////////////////////////////////////////////////////
+
     if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("touchstart", onTouchStart, false);
+      this.canvas.addEventListener("touchstart", onTouchStart);
     }
 
     /**
-     * @param {Event} evt el evento lanzado por la accion de iniciar un touch
+     * @param {Event} evt
      * @private
      */
     function onTouchStart(evt) {
       self.click = 1;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
-//       // se desactivan los controles graficos
-//       self.parent.deactivateGraphiControls();
+      // se desactivan los controles graficos
+      self.parent.deactivateGraphiControls();
 
       onSensitiveToMouseMovements(evt);
-      
-//      self.parent.update();
 
-      window.addEventListener("touchmove", onMouseMove, false);
-      window.addEventListener("touchend", onTouchEnd, false);
+      window.addEventListener("touchmove", onMouseMove);
+      window.addEventListener("touchend", onTouchEnd);
 
-      // intenta mantener el gesto de deslizar en las tablets      
-      if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
+      // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
         evt.preventDefault();
-      }
+      // }
     }
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de finalizar un touch
+     * @param {Event} evt 
      * @private
      */
     function onTouchEnd(evt) {
@@ -231,44 +258,30 @@ var descartesJS = (function(descartesJS) {
       window.removeEventListener("touchmove", onMouseMove, false);
       window.removeEventListener("touchend", onTouchEnd, false);
 
-      // self.parent.update();
-
       evt.preventDefault();
-
-      // self.parent.update();
     }
   
     ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de mouse
+    // 
     ///////////////////////////////////////////////////////////////////////////
     if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements, false);
+        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("mousedown", onMouseDown, false);
+      this.canvas.addEventListener("mousedown", onMouseDown);
     }
     
     /**
      * 
-     * @param {Event} evt el evento lanzado por la accion de presionar un boton
+     * @param {Event} evt
      * @private
      */
     function onMouseDown(evt) {
       self.click = 1;
       
-//       // se desactivan los controles graficos
-//       self.parent.deactivateGraphiControls();
+      self.whichButton = descartesJS.whichButton(evt);
 
-      // ie
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // los demas
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
-      
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
         self.posAnte = self.getCursorPosition(evt);
@@ -277,8 +290,8 @@ var descartesJS = (function(descartesJS) {
 
         onSensitiveToMouseMovements(evt);
 
-        window.addEventListener("mousemove", onMouseMove, false);
-        window.addEventListener("mouseup", onMouseUp, false);
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
       }
       
       evt.preventDefault();
@@ -294,7 +307,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
       evt.preventDefault();
 
-      if (self.whichButton == "RIGHT") {
+      if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
@@ -338,11 +351,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if (self.click) {
         onSensitiveToMouseMovements(evt);
-        // self.alpha = (self.alpha + (self.mouse_x - oldMouse.x)*.2);
-        // self.beta = (self.beta + (self.mouse_y - oldMouse.y)*.2);
+
         self.alpha = (self.alpha + (self.mouse_x - oldMouse.x));
         self.beta = (self.beta + (self.mouse_y - oldMouse.y));
-        // console.log(self.alpha, self.beta)
+
         cosAlpha = MathCos(-self.alpha);
         sinAlpha = MathSin(-self.alpha);
         cosBeta = MathCos(self.beta);
@@ -350,25 +362,29 @@ var descartesJS = (function(descartesJS) {
 
 // ca=cos(-alfa);sa=sen(-alfa);cb=cos(beta);sb=sen(beta);ux=ca*cb;uy=sa*cb;uz=sb;Xx=-sa;Xy=ca;Xz=0;Yx=-sb*ca;Yy=-sb*sa;Yz=cb;
 
-        // self.eye = new descartesJS.Vector3D(self.distanceEyeCenter*cosAlpha*cosBeta, self.distanceEyeCenter*sinAlpha*cosBeta, self.distanceEyeCenter*sinBeta);
-        self.eye.set(self.distanceEyeCenter*cosAlpha*cosBeta, 
-                     self.distanceEyeCenter*sinAlpha*cosBeta, 
-                    -self.distanceEyeCenter*sinBeta);
+        // change the eye position
+        self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
+                      self.distanceEyeCenter*sinAlpha*cosBeta, 
+                     -self.distanceEyeCenter*sinBeta);
 
-        self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - Math.PI/2), 
-                                      MathSin(-self.alpha - Math.PI/2), 
+        // change the up vector of the camera
+        self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), 
+                                      MathSin(-self.alpha - MathPI_2), 
                                       0
                                      ).crossProduct(self.eye).normalize();
 
+        // build the look at matrix to orient the camera
         self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
 
+        // build the perspective matrix
         self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
       
-        oldMouse = { x: self.mouse_x, y: self.mouse_y };
+        oldMouse = { x: self.mouse_x, 
+                     y: self.mouse_y 
+                   };
       }
     }
   }
-  
   
   return descartesJS;
 })(descartesJS || {});

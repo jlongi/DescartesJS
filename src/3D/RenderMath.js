@@ -228,11 +228,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.Vector3D.prototype.dotProduct = function(v) {
-    return new descartesJS.Vector3D(this.x * v.x + this.y * v.y + this.z * v.z);
+    return this.x * v.x + this.y * v.y + this.z * v.z;
 
   }
   
-  //genera un vector unitario que apunta de un vector a hacia otro
+  //genera un vector unitario que apunta de un vector a otro
   descartesJS.Vector3D.prototype.direction = function(v) {
     var x = this.x - v.x;
     var y = this.y - v.y;

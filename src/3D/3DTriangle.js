@@ -52,10 +52,10 @@ var descartesJS = (function(descartesJS) {
                                                                     this.endPoints[i].y,
                                                                     this.endPoints[i].z,
                                                                     1.0));
-      if (i==0) {
+      if (i == 0) {
         v1 = new descartesJS.Vector3D( v[i].x, v[i].y, v[i].z );
       }
-      if (i==1) {
+      if (i == 1) {
         v2 = new descartesJS.Vector3D( v[i].x, v[i].y, v[i].z );
       }
 
@@ -104,16 +104,16 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = "round";
    
     var p1 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[0].x, this.endPoints[0].y, this.endPoints[0].z, 1.0));
-    var coordX = (p1.w != 0) ? this.space.transformCoordinateX(p1.x/p1.w) : -1000000; //this.space.transformCoordinateX(p1.x);
-    var coordY = (p1.w != 0) ? this.space.transformCoordinateY(p1.y/p1.w) : -1000000; //this.space.transformCoordinateY(p1.y);
+    var coordX = (p1.w !== 0) ? this.space.transformCoordinateX(p1.x/p1.w) : -1000000; //this.space.transformCoordinateX(p1.x);
+    var coordY = (p1.w !== 0) ? this.space.transformCoordinateY(p1.y/p1.w) : -1000000; //this.space.transformCoordinateY(p1.y);
     
     var p2 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[1].x, this.endPoints[1].y, this.endPoints[1].z, 1.0));
-    var coordX1 = (p2.w != 0) ? this.space.transformCoordinateX(p2.x/p2.w) : -1000000; //this.space.transformCoordinateX(p2.x);
-    var coordY1 = (p2.w != 0) ? this.space.transformCoordinateY(p2.y/p2.w) : -1000000; //this.space.transformCoordinateY(p2.y);
+    var coordX1 = (p2.w !== 0) ? this.space.transformCoordinateX(p2.x/p2.w) : -1000000; //this.space.transformCoordinateX(p2.x);
+    var coordY1 = (p2.w !== 0) ? this.space.transformCoordinateY(p2.y/p2.w) : -1000000; //this.space.transformCoordinateY(p2.y);
         
     var p3 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[2].x, this.endPoints[2].y, this.endPoints[2].z, 1.0));
-    var coordX2 = (p3.w != 0) ? this.space.transformCoordinateX(p3.x/p3.w) : -1000000; //this.space.transformCoordinateX(p3.x);
-    var coordY2 = (p3.w != 0) ? this.space.transformCoordinateY(p3.y/p3.w) : -1000000; //this.space.transformCoordinateY(p3.y);
+    var coordX2 = (p3.w !== 0) ? this.space.transformCoordinateX(p3.x/p3.w) : -1000000; //this.space.transformCoordinateX(p3.x);
+    var coordY2 = (p3.w !== 0) ? this.space.transformCoordinateY(p3.y/p3.w) : -1000000; //this.space.transformCoordinateY(p3.y);
 
     ctx.beginPath();
     ctx.moveTo(coordX, coordY);
@@ -122,7 +122,7 @@ var descartesJS = (function(descartesJS) {
     ctx.closePath();
     
     // modelo de iluminacion de alambre
-    if (this.model == "wire") {
+    if (this.model === "wire") {
       ctx.lineWidth = 1;
       ctx.strokeStyle = ctx.fillStyle;
       ctx.stroke();

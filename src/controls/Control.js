@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
+  var MathRound = Math.round;
   var hh;
   var di;
   var changeX;
@@ -334,14 +335,14 @@ var descartesJS = (function(descartesJS) {
     this.name = ((this.name == "_._") || (this.name == "_nada_") || (this.name == "_void_")) ? "" : this.name;
 
     var expr = this.evaluator.evalExpression(this.expresion);
-    this.x = expr[0][0];
-    this.y = expr[0][1];
+    this.x = MathRound(expr[0][0]);
+    this.y = MathRound(expr[0][1]);
     if (expr[0].length == 4) {
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      this.w = MathRound(expr[0][2]);
+      this.h = MathRound(expr[0][3]);
     }
         
-    this.actionExec = this.parent.lessonParser.parseAction(this);
+    this.actionExec = parent.lessonParser.parseAction(this);
   }
   
   /**
@@ -454,6 +455,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  var temporalCompare;
+
   /**
    * Update the position and size of the control
    */
@@ -461,17 +464,22 @@ var descartesJS = (function(descartesJS) {
     changeX = changeY = changeW = changeH = false;
     expr = this.evaluator.evalExpression(this.expresion);
 
-    changeX = (this.x != expr[0][0]);
-    changeY = (this.y != expr[0][1]);
-    
-    this.x = expr[0][0];
-    this.y = expr[0][1];
+    temporalCompare = MathRound(expr[0][0]);
+    changeX = this.x !== temporalCompare;
+    this.x = temporalCompare;
+
+    temporalCompare = MathRound(expr[0][1]);
+    changeY = this.y !== temporalCompare;
+    this.y = temporalCompare;
     
     if (expr[0].length === 4) {
-      changeW = (this.w != expr[0][2]);
-      changeH = (this.h != expr[0][3]);
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      temporalCompare = MathRound(expr[0][2]);
+      changeW = this.w !== temporalCompare;
+      this.w = temporalCompare
+
+      temporalCompare = MathRound(expr[0][3]);
+      changeH = this.h !== temporalCompare;
+      this.h = temporalCompare;
     }
 
     // if has some change, then init the control and redraw it
@@ -496,17 +504,17 @@ var descartesJS = (function(descartesJS) {
     parent = this.parent;
 
     resultValue = value+"";
-
     decimals = this.evaluator.evalExpression(this.decimals);
 
     indexDot = resultValue.indexOf(".");
     if ( indexDot != -1 ) {
       subS = resultValue.substring(indexDot+1);
-        if (subS.length > decimals) {
+
+      if (subS.length > decimals) {
         resultValue = parseFloat(resultValue).toFixed(decimals);
       }
     }
-    
+
     if (this.fixed) {
       // ## patch for Descartes 2 ## 
       // in a version diferente to 2, then fixed stays as it should
@@ -549,7 +557,7 @@ var descartesJS = (function(descartesJS) {
     this.actionExec.execute();
 
     // update again the controls
-    this.parent.updateControls();
+    // this.parent.updateControls();
 
     // if the action is animate then do not update the scene
     if (this.action !== "animate") {

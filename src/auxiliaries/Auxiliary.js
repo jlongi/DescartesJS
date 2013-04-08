@@ -169,13 +169,16 @@ var descartesJS = (function(descartesJS) {
     var doL = self.doExpr.length;
 
     function algorithmExec() {
-      if (self.numberOfParams == arguments.length) {
+      if (self.numberOfParams <= arguments.length) {
 
         // NEW CODE
         // saves the private variables
         localVars = [];
         for (i=0; i<privateVarL; i++) {
           localVars.push( evaluator.getVariable(self.privateVars[i]) );
+
+          // set the local variables to 0
+          evaluator.setVariable(self.privateVars[i], 0);
         }
         // NEW CODE
 

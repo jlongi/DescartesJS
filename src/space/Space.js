@@ -252,6 +252,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.ctrs = [];
+
+    /**
+     * the graphic controls
+     * type {Array<Controls>}
+     * @private
+     */
+    this.graphicsCtr = [];
     
     /**
      * the graphics
@@ -259,6 +266,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.graphics = [];
+    
+    /**
+     * the background graphics
+     * type {Array<Graphics>}
+     * @private
+     */
+    this.backgroundGraphics = [];
     
     /**
      * z index of the elements
@@ -435,7 +449,12 @@ var descartesJS = (function(descartesJS) {
    * @param {Control} ctr is the control to add
    */
   descartesJS.Space.prototype.addCtr = function(ctr) {
-    this.ctrs.push(ctr);
+    if (ctr.type === "graphic") {
+      this.graphicsCtr.push(ctr);
+    } 
+    else {
+      this.ctrs.push(ctr);
+    }
   }
   
   /**
@@ -443,7 +462,12 @@ var descartesJS = (function(descartesJS) {
    * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra) {
-    this.graphics.push(gra);
+    if (gra.background) {
+      this.backgroundGraphics.push(gra);
+    }
+    else {
+      this.graphics.push(gra);
+    }
   }
 
   /**

@@ -179,98 +179,98 @@ var descartesJS = (function(descartesJS) {
    * @param {String} file the filename of the new audio
    */
   descartesJS.DescartesLoader.prototype.initAudio = function(file) {
-    var audios = this.audios;
-
-    var lastIndexOfDot = file.lastIndexOf(".");
-    lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
-    var filename = file.substring(0, lastIndexOfDot);
-
-    var mediaElement = new Audio();
-    mediaElement.setAttribute("preload", "auto");
-
-    var onCanPlayThrough = function() {
-      this.ready = 1;
-    }
-    
-    var onError = function() {
-      console.log("El archivo '" + file + "' no puede ser reproducido");
-      this.errorload = 1;
-    }
-
-    mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-    mediaElement.addEventListener('load', onCanPlayThrough);
-    mediaElement.addEventListener('error', onError);
-
-    var source;
-    // mp3
-    if (mediaElement.canPlayType("audio/mpeg")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".mp3");
-      source.setAttribute("type", "audio/mpeg");
-      mediaElement.appendChild(source);
-    }
-    // ogg, oga
-    if (mediaElement.canPlayType("audio/ogg")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".ogg");
-      source.setAttribute("type", "audio/ogg");
-      mediaElement.appendChild(source);
-
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".oga");
-      source.setAttribute("type", "audio/ogg");
-      mediaElement.appendChild(source);
-    }
-    // wav
-    if (mediaElement.canPlayType("audio/wav")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".wav");
-      source.setAttribute("type", "audio/wav");
-      mediaElement.appendChild(source);
-    }
-
-    mediaElement.load();
-    mediaElement.play();
-    mediaElement.pause();
-
-    audios[file] = mediaElement;
-
-
     // var audios = this.audios;
-    
-    // audios[file] = new Audio(file);
-    // audios[file].filename = file;
+
+    // var lastIndexOfDot = file.lastIndexOf(".");
+    // lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
+    // var filename = file.substring(0, lastIndexOfDot);
+
+    // var mediaElement = new Audio();
+    // mediaElement.setAttribute("preload", "auto");
 
     // var onCanPlayThrough = function() {
     //   this.ready = 1;
     // }
     
     // var onError = function() {
-    //   if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
-    //     audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
-    //     audios[file].filename = this.filename.replace("mp3", "ogg");
-    //     audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-    //     audios[file].addEventListener('load', onCanPlayThrough);
-    //     audios[file].addEventListener('error', onError);
-    //     audios[file].load();
-    //   } 
-    //   else {
-    //     console.log("El archivo '" + file + "' no puede ser reproducido");
-    //     this.errorload = 1;
-    //   }
+    //   console.log("El archivo '" + file + "' no puede ser reproducido");
+    //   this.errorload = 1;
     // }
-    // audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-    // audios[file].addEventListener('load', onCanPlayThrough);
-    // audios[file].addEventListener('error', onError);
 
-    // if (descartesJS.hasTouchSupport) {
-    //   audios[file].load();
-    //   audios[file].play();
-    //   // setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
-    //   audios[file].ready = 1;
-    // } else {
-    //   audios[file].load();
+    // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
+    // mediaElement.addEventListener('load', onCanPlayThrough);
+    // mediaElement.addEventListener('error', onError);
+
+    // var source;
+    // // mp3
+    // if (mediaElement.canPlayType("audio/mpeg")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".mp3");
+    //   source.setAttribute("type", "audio/mpeg");
+    //   mediaElement.appendChild(source);
     // }
+    // // ogg, oga
+    // if (mediaElement.canPlayType("audio/ogg")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".ogg");
+    //   source.setAttribute("type", "audio/ogg");
+    //   mediaElement.appendChild(source);
+
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".oga");
+    //   source.setAttribute("type", "audio/ogg");
+    //   mediaElement.appendChild(source);
+    // }
+    // // wav
+    // if (mediaElement.canPlayType("audio/wav")) {
+    //   source = document.createElement("source");
+    //   source.setAttribute("src", filename + ".wav");
+    //   source.setAttribute("type", "audio/wav");
+    //   mediaElement.appendChild(source);
+    // }
+
+    // mediaElement.load();
+    // mediaElement.play();
+    // mediaElement.pause();
+
+    // audios[file] = mediaElement;
+
+
+    var audios = this.audios;
+    
+    audios[file] = new Audio(file);
+    audios[file].filename = file;
+
+    var onCanPlayThrough = function() {
+      this.ready = 1;
+    }
+    
+    var onError = function() {
+      if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
+        audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
+        audios[file].filename = this.filename.replace("mp3", "ogg");
+        audios[file].addEventListener('canplaythrough', onCanPlayThrough);
+        audios[file].addEventListener('load', onCanPlayThrough);
+        audios[file].addEventListener('error', onError);
+        audios[file].load();
+      } 
+      else {
+        console.log("El archivo '" + file + "' no puede ser reproducido");
+        this.errorload = 1;
+      }
+    }
+    audios[file].addEventListener('canplaythrough', onCanPlayThrough);
+    audios[file].addEventListener('load', onCanPlayThrough);
+    audios[file].addEventListener('error', onError);
+
+    if (descartesJS.hasTouchSupport) {
+      audios[file].load();
+      audios[file].play();
+      // setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
+      audios[file].ready = 1;
+    } else {
+      audios[file].load();
+    }
   }
 
   var barWidth;

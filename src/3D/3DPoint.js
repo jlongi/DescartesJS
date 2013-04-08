@@ -9,13 +9,13 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   
   /**
-   * Un punto de descartes
+   * A Descartes point
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el punto
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the point
    */
   descartesJS.Point3D = function(parent, values) {
-    // se llama al constructor del padre
+    // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
 
     this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();

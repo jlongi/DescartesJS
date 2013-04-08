@@ -225,6 +225,19 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
+   * Get which mouse button is pressed
+   */
+  descartesJS.whichButton = function(evt) {
+    // all browsers
+    if (evt.which !== null) {
+      return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
+    } 
+
+    // IE
+    return (evt.button < 2) ? "L" : ((evt.button === 4) ? "M" : "R");
+  }
+
+  /**
    * Get the cursor position in absolute coordinates
    * @param {Event} evt the event that has the cursor postion
    * @return {Object} return the position of the mouse in absolute coordinates

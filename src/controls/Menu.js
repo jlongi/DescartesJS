@@ -294,7 +294,7 @@ var descartesJS = (function(descartesJS) {
       
       evt.preventDefault();
     }
-    this.select.addEventListener("change", onChangeSelect, false);
+    this.select.addEventListener("change", onChangeSelect);
     
     /**
      * 
@@ -313,7 +313,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue();
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
   }
 
   return descartesJS;

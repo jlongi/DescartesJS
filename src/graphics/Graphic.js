@@ -6,6 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var expr;
+  var tempParam;
+  var theText;
+  var verticalDisplace;
+
   /**
    * Descartes graphics
    * @constructor 
@@ -162,7 +168,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.decimals = parser.parse("2");
 
-    
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -218,12 +223,6 @@ var descartesJS = (function(descartesJS) {
     // if do not find the identifier, return the first space
     return spaces[0];
   }
-  
-  var evaluator;
-  var expr;
-  var tempParam;
-  var theText;
-  var verticalDisplace;
 
   /**
    * Get the family values of the graphic

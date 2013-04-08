@@ -139,7 +139,7 @@ var descartesJS = (function(descartesJS) {
    * Function to handle the resize of the browser
    * @param {Event} event the event of resize the browser
    */
-  function onResize(event) {
+  descartesJS.onResize = function(event) {
     var spaces;
     for (var i=0, l=descartesJS.apps.length; i<l; i++) {
       spaces = descartesJS.apps[i].spaces;
@@ -164,7 +164,7 @@ var descartesJS = (function(descartesJS) {
       removeDescartesAppContainers();
       makeDescartesApps();
       showNoDescartesJSApplets();
-      window.addEventListener("resize", onResize);
+      window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
       setTimeout(function() { window.scrollTo(0, 1); }, 1);

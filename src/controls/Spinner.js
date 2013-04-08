@@ -159,13 +159,13 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.id, this.value);
     
     // create the background gradient
-    this.createGradient(this.h/2, this.h);    
+    this.createGradient(this.h/2, this.h);
   }
 
   /**
    * Update the spinner
    */
-  descartesJS.Spinner.prototype.update = function() {    
+  descartesJS.Spinner.prototype.update = function() {
     evaluator = this.evaluator;
 
     if (evaluator.evalExpression(this.decimals) <= 0) {
@@ -410,7 +410,7 @@ var descartesJS = (function(descartesJS) {
         self.changeValue(self.field.value);
       }
     }
-    this.field.addEventListener("keydown", onKeyDown_TextField, false);
+    this.field.addEventListener("keydown", onKeyDown_TextField);
 
     /**
      * 
@@ -420,16 +420,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
+      self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "LEFT") {
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true);
@@ -439,9 +432,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
     } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton, false);
+      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
     }
     
     /**
@@ -451,16 +444,10 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
-      // IE
-      if (evt.which == null) {
-        self.whichButton = (evt.button < 2) ? "LEFT" : ((evt.button == 4) ? "MIDDLE" : "RIGHT");
-      } 
-      // the others
-      else {
-        self.whichButton = (evt.which < 2) ? "LEFT" : ((evt.which == 2) ? "MIDDLE" : "RIGHT");
-      }
 
-      if (self.whichButton == "LEFT") {
+      self.whichButton = descartesJS.whichButton(evt);
+
+      if (self.whichButton == "L") {
         if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true);
@@ -469,9 +456,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
     } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton, false);
+      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
     }
     
     /**
@@ -486,7 +473,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();      
     }
     if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton, false);
+      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
     }
 
     /**
@@ -501,7 +488,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton, false);
+      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
     }
 
     /**
@@ -516,11 +503,11 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      this.divUp.addEventListener("touchend", onMouseUp_UpButton, false);
-      window.addEventListener("touchend", onMouseUp_UpButton, false);
+      this.divUp.addEventListener("touchend", onMouseUp_UpButton);
+      window.addEventListener("touchend", onMouseUp_UpButton);
     } else {
-      this.divUp.addEventListener("mouseup", onMouseUp_UpButton, false);
-      window.addEventListener("mouseup", onMouseUp_UpButton, false);
+      this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
+      window.addEventListener("mouseup", onMouseUp_UpButton);
     }
 
     /**
@@ -535,11 +522,11 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
     }
     if (hasTouchSupport) {
-      this.divDown.addEventListener("touchend", onMouseUp_DownButton, false);
-      window.addEventListener("touchend", onMouseUp_DownButton, false);
+      this.divDown.addEventListener("touchend", onMouseUp_DownButton);
+      window.addEventListener("touchend", onMouseUp_DownButton);
     } else {
-      this.divDown.addEventListener("mouseup", onMouseUp_DownButton, false);
-      window.addEventListener("mouseup", onMouseUp_DownButton, false);
+      this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
+      window.addEventListener("mouseup", onMouseUp_DownButton);
     } 
   }
   
