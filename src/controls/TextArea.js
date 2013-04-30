@@ -128,6 +128,8 @@ var descartesJS = (function(descartesJS) {
     this.showButton.innerHTML = "<span style='position: relative; top: 2px; text-align: center; font: 9px Arial'> S </span>";
 
     this.activeCover.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+
+    this.update();
   }
   
   /**

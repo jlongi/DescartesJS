@@ -9,6 +9,27 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var mathRound = Math.round;
   
+  var evaluator;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var space;    
+  var midpX;
+  var midpY;
+  var desp;
+  var width1;
+  var width2;
+  var scale;
+  var vlength;
+  var coordX;
+  var coordY;
+  var coordX1;
+  var coordY1;
+  var spear;
+
   /**
    * A Descartes arrow
    * @constructor 
@@ -42,7 +63,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.arrow = "#ee0022";
+    this.arrow = new descartesJS.Color("ee0022");
     
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -53,27 +74,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arrow, descartesJS.Graphic);
   
-  var evaluator;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var space;    
-  var midpX;
-  var midpY;
-  var desp;
-  var width1;
-  var width2;
-  var scale;
-  var vlength;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
-  var spear;
-
   /**
    * Update the arrow
    */
@@ -141,9 +141,9 @@ var descartesJS = (function(descartesJS) {
     this.vect = new descartesJS.Vector2D(this.endPoints[1].x-this.endPoints[0].x, this.endPoints[1].y-this.endPoints[0].y);
     vlength = this.vect.vectorLength();
     this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
-    
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+
+    ctx.fillStyle = fill.getColor();
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineWidth = 2.0;
     
     if (this.abs_coord) {

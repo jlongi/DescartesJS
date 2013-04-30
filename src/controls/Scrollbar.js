@@ -275,6 +275,8 @@ var descartesJS = (function(descartesJS) {
     
     // create the label text
     self.txtLabel = document.createTextNode(self.name);
+
+    this.update();
   }
     
   /**

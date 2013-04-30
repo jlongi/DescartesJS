@@ -95,15 +95,15 @@ var descartesJS = (function(descartesJS) {
     
     // the font size
     fontCanvas += fontTokens[2] + "px ";
-    
+
     fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
 
     // serif font
-    if ((fontName == "serif") || (fontName == "times new roman") || (fontName == "timesroman")) {
+    if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
       fontCanvas += "'Times New Roman', Times, 'Droid Serif', serif";
     }
     // sans serif font
-    else if ((fontName == "sansserif") || (fontName == "arial") || (fontName == "helvetica")) {
+    else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
       fontCanvas += "Arial, Helvetica, 'Droid Sans', Sans-serif";
     }
     // monospace font
@@ -178,8 +178,11 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
     }
 
-    // chrome no soporta mas de 20 decimales en la funcion toFixed
-    if (system.match("chrome")) {
+    // some browsers like chrome do not suport more than 20 decimal in the toFixed function
+    try {
+      (0).toFixed(100);
+    } 
+    catch(e) {
       setNewToFixed();
     }
   }
@@ -211,8 +214,9 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         diff = strNum.length - indexOfDot - 1;
+
         if ( diff >= decimals) {
-          return strNum.substring(0, indexOfDot+1 +decimals)
+          return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
           for (var i=0, l=decimals-diff; i<l; i++) {
@@ -276,6 +280,50 @@ var descartesJS = (function(descartesJS) {
   descartesJS.getTextWidth = function(text, font) {
     descartesJS.ctx.font = font;
     return descartesJS.ctx.measureText(text).width;
+  }
+
+  // auxiliary values to calculate the metrics
+  var text = document.createElement("span");
+  text.appendChild( document.createTextNode("Áp") );
+  var block = document.createElement("div");
+  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
+  var div = document.createElement("div");
+  div.setAttribute("style", "margin: 0; padding: 0;");
+  div.appendChild(text);
+  div.appendChild(block);
+  var metricCache = {};
+
+  /**
+   * Get the metrics of a font
+   * @param {String} font the Descartes font to obtain the metric
+   * @return {Object} return an object containing the metric of the font (ascent, descent, h)
+   */
+  descartesJS.getFontMetrics = function(font) {
+    if (metricCache[font]) {
+      return metricCache[font];
+    }
+
+    text.setAttribute("style", "font: " + font + "; margin: 0px; padding: 0px;");
+
+    document.body.appendChild(div);
+    
+    var result = {};
+    
+    block.style.verticalAlign = "baseline";
+    result.ascent = block.offsetTop - text.offsetTop;
+    
+    block.style.verticalAlign = "bottom";
+    result.h = block.offsetTop - text.offsetTop;
+    
+    result.descent = result.h - result.ascent;
+    
+    result.baseline = result.ascent;
+    
+    document.body.removeChild(div);
+
+    metricCache[font] = result;
+    
+    return result;
   }
 
   /**

@@ -6,6 +6,27 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+
+  var width;
+  var textLine;
+  var w;
+  var newText;
+  var height;
+
+  var restText;
+  var resultText;
+  var tempText;
+  var charAt;
+  var lastIndex;
+  var decimals;
+
   /**
    * A Descartes text
    * @constructor 
@@ -37,26 +58,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Text, descartesJS.Graphic);
-  
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-
-  var width;
-  var textLine;
-  var w;
-  var newText;
-  var height;
-
-  var restText;
-  var resultText;
-  var tempText;
-  var charAt;
-  var lastIndex;
 
   /**
    * Update the text
@@ -104,18 +105,20 @@ var descartesJS = (function(descartesJS) {
    * @param {String} stroke the stroke color of the text
    */
   descartesJS.Text.prototype.drawAux = function(ctx, fill) {
+    decimals = this.evaluator.evalExpression(this.decimals);
+
     if (this.text.type === "rtfNode") {
       newText = this.text;
       this.ascent = 0;
     }
     else {
-      newText = this.splitText(this.text.toString(this.evaluator.evalExpression(this.decimals), this.fixed).split("\\n"))
+      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"))
     }
 
     // draw the text
     if (this.text != [""]) {
       //this.uber.drawText.call(this, ctx, newText, parseFloat(this.exprX)+5, parseFloat(this.exprY), fill, this.font, this.align, "hanging");
-      this.uber.drawText.call(this, ctx, newText, parseInt(this.exprX)+5, parseInt(this.exprY)+this.ascent, fill, this.font, this.align, "alphabetic");
+      this.uber.drawText.call(this, ctx, newText, parseInt(this.exprX)+5, parseInt(this.exprY)+this.ascent, fill, this.font, this.align, "alphabetic", decimals, this.fixed);
     }
   }
   

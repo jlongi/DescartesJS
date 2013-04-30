@@ -70,18 +70,23 @@ var descartesJS = (function(descartesJS) {
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
+      // // get the value of a variable
+      // var iframeGet = function(varName) {
+      //   if (this.parent.cacheVars[varName]) {
+      //     return this.parent.cacheVars[varName];
+      //   }
+
+      //   iframe.contentWindow.postMessage({ type: "get", name: varName }, "*");
+      //   return 0;
+      // }
+      // self.evaluator.setFunction(self.id + ".get", iframeGet);
+
       // update the scene
-      var iframeUpdate = function(varName, value) {
+      var iframeUpdate = function() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
-      // get the value of a variable
-      // var iframeGet = function(varName, value) {
-      //   iframe.contentWindow.postMessage({ type: "get", name: varName, value: value }, "*");
-      // }
-      // self.evaluator.setFunction(self.id + ".get", iframeGet);
-
       // exec a funcion of the scene
       var iframeExec = function(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");

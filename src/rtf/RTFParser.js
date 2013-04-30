@@ -6,15 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
-  /**
-   * Descartes RTF parser
-   * @constructor 
-   */
-  descartesJS.RTFParser = function(evaluator) {
-    this.evaluator = evaluator;
-    this.tokenizer = new descartesJS.RTFTokenizer();
-  }
-  
   var tokens;
   var indexToken;
   var fontTable;
@@ -47,6 +38,15 @@ var descartesJS = (function(descartesJS) {
   var descartesComponentNumCtrl;
   var descartesComponentSpace;
   var descartesHyperLink;
+  
+  /**
+   * Descartes RTF parser
+   * @constructor 
+   */
+  descartesJS.RTFParser = function(evaluator) {
+    this.evaluator = evaluator;
+    this.tokenizer = new descartesJS.RTFTokenizer();
+  }
 
   /**
    * Parse a string and get a rtf parse tree
@@ -440,10 +440,8 @@ var descartesJS = (function(descartesJS) {
       else if ((tokens[i].type == "text") && (descartesHyperLink)) {
         textContent = ((tokens[i].value).split("|"))[0];
         tmpStyle = styleStackTop.clone();
-        tmpStyle.textUnderline = true;
-        tmpStyle.textColor = "blue";
 
-        newNode = new descartesJS.RTFNode(this.evaluator, textContent, "text", tmpStyle);
+        newNode = new descartesJS.RTFNode(this.evaluator, textContent, "hyperlink", tmpStyle);
         
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
@@ -452,7 +450,7 @@ var descartesJS = (function(descartesJS) {
             lastNode = lastNode.parent;
           }
         }
-        
+
         lastNode.addChild(newNode);
 
         descartesHyperLink = false;

@@ -9,6 +9,25 @@ var descartesJS = (function(descartesJS) {
   var mathRound = Math.round;
   var PI2 = Math.PI*2;
 
+  var evaluator;
+  var space;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var tmpLineWidth;
+  var desp;
+  var midpX;
+  var midpY;
+  var size;
+  var lineDesp;
+  var coordX;
+  var coordY;
+  var coordX1;
+  var coordY1;
+
   /**
    * A Descartes segment
    * @constructor 
@@ -38,25 +57,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Segment, descartesJS.Graphic);
-
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var tmpLineWidth;
-  var desp;
-  var midpX;
-  var midpY;
-  var size;
-  var lineDesp;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
 
   /**
    * Update the segment
@@ -121,8 +121,8 @@ var descartesJS = (function(descartesJS) {
       size = 0;
     }
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.fillStyle = fill.getColor();
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
     
     desp = 10+ctx.lineWidth;

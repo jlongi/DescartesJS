@@ -4,7 +4,8 @@
  */
 
 var babel = (function(babel) {
-  
+  if (babel.loadLib) { return babel; }
+ 
 //  babel["espa\u00F1ol"] = babel["english"] = babel["catal\u00E0"] = babel["euskera"] = babel["fran\u00E7ais"] = babel["galego"] = babel["portugu\u00EAs"] = babel["valenci\u00E0"] = "";
   babel["falso"] = babel["false"] = babel["fals"] = babel["gezurra"] = babel["faux"] = babel["fals"] = "false";
   babel["verdadero"] = babel["true"] = babel["veritable"] = babel["egia"] = babel["vrai"] = babel["verdadeiro"] = babel["veritable"] = "true";
@@ -121,8 +122,8 @@ var babel = (function(babel) {
   babel["dominio"] = babel["range"] = babel["domini"] = babel["izate-eremua"] = babel["domain"] = babel["dom\u00EDnio"] = "range";
   babel["pausa"] = babel["delay"] = babel["eten"] = "delay";
 //  babel["detener"] = babel["stop"] = babel["atura"] = babel["geldiarazi"] = babel["arr\u00EAter"] = babel["deter"] = babel["parar"] = babel["atura"] = "";
-  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x-axis";
-  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y-axis";
+  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x_axis";
+  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y_axis";
   babel["n\u00FAmeros"] = babel["numbers"] = babel["nombres"] = babel["zenbakiak"] = "numbers";
   babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = "exponentialif";
   babel["familia"] = babel["family"] = babel["fam\u00EDlia"] = babel["famille"] = "family";
@@ -159,17 +160,17 @@ var babel = (function(babel) {
   babel["tri\u00E1ngulo"] = babel["triangle"] = babel["hirukia"] = babel["tri\u00E2ngulo"] = "triangle";
   babel["cara"] = babel["face"] = babel["aurpegi"] = "face";
   babel["polireg"] = babel["regpoly"] = babel["pol\u00EDgonoRegular"] = "polireg";
-//  babel["Cubo"] = babel["Cube"] = babel["Cub"] = babel["Kubo"] = babel["Cube"] = babel["Cubo"] = babel["Cubo"] = babel["Cub"] = "";
-//  babel["Paralelep\u00EDpedo"] = babel["Box"] = babel["Paral·lelep\u00EDpede"] = babel["Paralelepipedo"] = babel["Parall\u00E9l\u00E9pip\u00E8de"] = babel["Paralelep\u00EDpedo"] = babel["Paralelep\u00EDpedo"] = babel["Paral·lelep\u00EDpede"] = "";
-//   babel["Cono"] = babel["Cone"] = babel["Con"] = babel["Kono"] = babel["C\u00F4ne"] = babel["Cono"] = babel["Cone"] = babel["Con"] = "";
-//   babel["Cilindro"] = babel["Cylinder"] = babel["Cilindre"] = babel["Zilindro"] = babel["Cylindre"] = babel["Cilindro"] = babel["Cilindro"] = babel["Cilindre"] = "";
-//   babel["Esfera"] = babel["Sphere"] = babel["Esfera"] = babel["Esfera"] = babel["Sph\u00E8re"] = babel["Esfera"] = babel["Esfera"] = babel["Esfera"] = "";
   babel["superficie"] = babel["surface"] = babel["superf\u00EDcie"] = babel["azalera"] = "surface";
-//   babel["Tetraedro"] = babel["Tetrahedron"] = babel["Tetraedre"] = babel["Tetraedro"] = babel["T\u00E9tra\u00E8dre"] = babel["Tetraedro"] = babel["Tetraedro"] = babel["Tetraedre"] = "";
-//   babel["Octaedro"] = babel["Octahedron="] = babel["Octaedre"] = babel["Oktaedro"] = babel["Octa\u00E8dre"] = babel["Octaedro"] = babel["Octaedro"] = babel["Octaedre"] = "";
-//   babel["Dodecaedro"] = babel["Dodecahedron"] = babel["Dodecaedre"] = babel["Dodekaedro"] = babel["Dod\u00E9ca\u00E8dre"] = babel["Dodecaedro"] = babel["Dodecaedro"] = babel["Dodecaedre"] = "";
-//   babel["Icosaedro"] = babel["Icosahedron"] = babel["Icosaedre"] = babel["Ikosaedro"] = babel["Icosa\u00E8dre"] = babel["Icosaedro"] = babel["Icosaedro"] = babel["Icosaedre"] = "";
-//   babel["Elipsoide"] = babel["Ellipsoid"] = babel["El·lipsoide"] = babel["Elipsoide"] = babel["Ellipso\u00EFde"] = babel["Elipsoide"] = babel["Elips\u00F3ide"] = babel["El·lipsoide"] = "";
+  babel["cubo"] = babel["cube"] = babel["cub"] = babel["kubo"] = "cube";
+  babel["paralelep\u00edpedo"] = babel["box"] = babel["paral·lelep\u00edpede"] = babel["paralelepipedo"] = babel["parall\u00e9l\u00e9pip\u00e8de"] = "box";
+  babel["cono"] = babel["cone"] = babel["con"] = babel["kono"] = babel["c\u00f4ne"] = "cone";
+  babel["cilindro"] = babel["cylinder"] = babel["cilindre"] = babel["zilindro"] = babel["cylindre"] = "cylinder";
+  babel["esfera"] = babel["sphere"] = babel["sph\u00e8re"] = "sphere";
+  babel["tetraedro"] = babel["tetrahedron"] = babel["tetraedre"] = babel["t\u00e9tra\u00e8dre"] = "tetrahedron";
+  babel["octaedro"] = babel["octahedron="] = babel["octaedre"] = babel["oktaedro"] = babel["octa\u00e8dre"] = "octahedron";
+  babel["dodecaedro"] = babel["dodecahedron"] = babel["dodecaedre"] = babel["dodekaedro"] = babel["dod\u00e9ca\u00e8dre"] = "dodecahedron";
+  babel["icosaedro"] = babel["icosahedron"] = babel["icosaedre"] = babel["ikosaedro"] = babel["icosa\u00e8dre"] = "icosahedron";
+  babel["elipsoide"] = babel["ellipsoid"] = babel["el·lipsoide"] = babel["ellipso\u00efde"] = babel["elips\u00f3ide"] = "ellipsoid";
   babel["macro"] = babel["makro"] = "macro";
   babel["id"] = "id";
   babel["modelo"] = babel["model"] = babel["eredu"] = babel["mod\u00E8le"] = "model";
@@ -275,7 +276,7 @@ var babel = (function(babel) {
 //   babel["arr_izq"] = babel["top_left"] = babel["dalt_esq"] = babel["goi_ezk"] = babel["au-dessus_gauche"] = babel["arr_esq"] = babel["acima_esquerda"] = babel["dalt_esq"] = "";
 //   babel["arriba"] = babel["top_center"] = babel["dalt"] = babel["goian"] = babel["au-dessus"] = babel["arriba"] = babel["acima_centro"] = babel["dalt"] = "";
 //   babel["arr_der"] = babel["top_right"] = babel["dalt_dreta"] = babel["goi_eskuin"] = babel["au-dessus_droite"] = babel["arr_der"] = babel["acima_direita"] = babel["dalt_dreta"] = "";
-  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "left";
+  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "x";
   babel["derecha"] = babel["right"] = babel["dreta"] = babel["eskuinan"] = babel["droite"] = babel["dereita"] = babel["direita"] = babel["dreta"] = "right";
 //   babel["ab_izq"] = babel["bottom_left"] = babel["avall_esq"] = babel["Behe_ezk"] = babel["en bas_gauche"] = babel["ab_esq"] = babel["abaixo_esquerda"] = babel["avall_esq"] = "";
 //   babel["abajo"] = babel["bottom"] = babel["avall"] = babel["behean"] = babel["en bas"] = babel["abaixo"] = babel["abaixo"] = babel["avall"] = "";
@@ -345,8 +346,10 @@ var babel = (function(babel) {
   babel["opacidad"] = babel["opacity"] = babel["opacit\u00E9"] = babel["opacitat"] = babel["opacidade"] = "opacity";
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
-  babel["local"] = "local";
+  babel["local"] = babel["Local"] = "local";
   ////////////////////////
   
+  babel.loadLib = true;
+
   return babel;
 })(babel || {});

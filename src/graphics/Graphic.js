@@ -75,22 +75,22 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    if (this.parent.version != 2) {
+    this.color = new descartesJS.Color("blue");
+    if (this.parent.version !== 2) {
     // if (this.parent.code == "descinst.com.mja.descartes.DescartesJS.class") {
-      this.color = "#20303a";
+      this.color = new descartesJS.Color("20303a");
     // } else {
     //   this.color = "#000000";
     // }
       // ##ARQUIMEDES## //
       if (this.parent.arquimedes) {
-        this.color = "black";
+        this.color = new descartesJS.Color("black");
       }
       // ##ARQUIMEDES## //
-    } 
-    // Descartes 2
-    else {
-      this.color = "blue";
     }
+    // if (this.parent.code === "descinst.Descartes.class") {
+    //   this.color = "blue";
+    // }
 
     /**
      * the color for the trace of the graphic
@@ -331,9 +331,9 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
     // rtf text
-    if (text.type == "rtfNode") {
-      ctx.fillStyle = fill;
-      ctx.strokeStyle = fill;
+    if (text.type === "rtfNode") {
+      ctx.fillStyle = fill.getColor();
+      ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
       text.draw(ctx, x, y, decimals, fixed, align, displaceY);
       
@@ -348,13 +348,13 @@ var descartesJS = (function(descartesJS) {
     x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
     
     evaluator = this.evaluator;
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
     ctx.font = font;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
         
     if (this.border) {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
+      ctx.strokeStyle = this.border.getColor();
       ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
     }
     
@@ -364,6 +364,7 @@ var descartesJS = (function(descartesJS) {
       theText = text[i];
 
       if (this.border) {
+        ctx.lineJoin = "round";
         ctx.strokeText(theText, x, y+(verticalDisplace*i));
       }
       ctx.fillText(theText, x, y+(verticalDisplace*i));

@@ -25,6 +25,8 @@ var descartesJS = (function(descartesJS) {
   var tmpAnswer;
   var regExpPattern;
   var answerValue;
+  var evalMin;
+  var evalMax;
 
   var hasTouchSupport;
 
@@ -53,22 +55,20 @@ var descartesJS = (function(descartesJS) {
 
     // if the answer exist
     if (this.answer) {
-      // the anser is encrypted
+      // the answer is encrypted
       if (this.answer.match("krypto_")) {
         var krypt = new descartesJS.Krypto();
         this.answer = krypt.decode(this.answer.substring(7));
       }
       this.answerPattern = this.answer;
-      
+
+      this.answer = descartesJS.buildRegularExpresionsPatterns(this.answer, this.evaluator);
+
       if (this.onlyText) {
-        this.answer = descartesJS.buildRegularExpresionsPatterns(this.answer);
-        
         // find the first answer pattern
         var sepIndex = this.answerPattern.indexOf("|");
         this.firstAnswer = (sepIndex == -1) ? this.answerPattern : this.answerPattern.substring(0, sepIndex);
       } else {
-        this.buildRangeExpresions();
-        
         // find the minimum value of the first interval of a numeric answer pattern
         this.firstAnswer = this.parser.parse( this.answerPattern.substring(1, this.answerPattern.indexOf(",")) );
       }
@@ -89,10 +89,9 @@ var descartesJS = (function(descartesJS) {
       this.formatOutputValue = function(value) { 
         return value.toString(); 
       }
-      this.evaluateAnswer = this.evaluateTextualAnswer;
     }
     
-    // if the name is olny white spaces
+    // if the name is only white spaces
     if (this.name.trim() == "") {
       this.name = "";
     }
@@ -178,10 +177,18 @@ var descartesJS = (function(descartesJS) {
     this.label.setAttribute("class", "DescartesTextFieldLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
+    // if the text field evaluates, get the ok value
+    if (this.evaluate) {
+      this.ok = this.evaluateAnswer();
+    }
+    
     // register the control value
-    evaluator.setVariable(this.id, this.value);
+    this.evaluator.setVariable(this.id, this.value);
+    this.evaluator.setVariable(this.id+".ok", this.ok);
 
     this.oldValue = this.value;
+
+    this.update();
   }
 
   /**
@@ -200,7 +207,6 @@ var descartesJS = (function(descartesJS) {
     // hide or show the text field control
     if (this.drawIfValue) {
       this.containerControl.style.display = "block";
-      this.draw();
     } else {
       this.containerControl.style.display = "none";
     }    
@@ -222,11 +228,11 @@ var descartesJS = (function(descartesJS) {
     }
     
     // register the control value
-    evaluator.setVariable(this.id, this.value);    
+    evaluator.setVariable(this.id, this.value);
   }
 
   /**
-   * Validate if the value is the range [min, max]
+   * Validate if the value is in the range [min, max]
    * @param {String} value the value to validate
    * @return {Number} return the value like a number, 
    *                         is greater than the upper limit then return the upper limit
@@ -247,16 +253,15 @@ var descartesJS = (function(descartesJS) {
       resultValue = 0; 
     }
     
-    // if is less than the lower limit
-    if (resultValue < evaluator.evalExpression(this.min)) {
-      resultValue = evaluator.evalExpression(this.min);
-    } 
-    
-    // if si greater than the upper limit
-    if (resultValue > evaluator.evalExpression(this.max)) {
-      resultValue = evaluator.evalExpression(this.max);
+    evalMin = evaluator.evalExpression(this.min);
+    if (evalMin == "") {
+      evalMin = -Math.Infinity;
     }
-    
+    evalMax = evaluator.evalExpression(this.max);
+    if (evalMax == "") {
+      evalMax = Math.Infinity;
+    }
+
     if (this.discrete) {
       var incr = evaluator.evalExpression(this.incr);
       resultValue = (incr==0) ? 0 : (incr * Math.round(resultValue / incr));
@@ -303,92 +308,12 @@ var descartesJS = (function(descartesJS) {
       this.updateAndExecAction();
     }    
   }
-
+  
   /**
-   * 
+   * @return
    */
   descartesJS.TextField.prototype.evaluateAnswer = function() {
-    evaluator = this.evaluator;
-    value = parseFloat(this.value);
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      answer_i_0 = this.answer[i][0];
-      answer_i_1 = this.answer[i][1];
-      
-      limInf = evaluator.evalExpression(answer_i_0.expression);
-      limSup = evaluator.evalExpression(answer_i_1.expression);
-      
-      cond1 = (answer_i_0.type == "(");
-      cond2 = (answer_i_0.type == "[");
-      cond3 = (answer_i_1.type == ")");
-      cond4 = (answer_i_1.type == "]");
-      
-      tmpValue = this.value;
-      
-      if ( (cond1 && cond3 && (tmpValue > limInf) && (tmpValue < limSup)) ||
-           (cond1 && cond4 && (tmpValue > limInf) && (tmpValue <= limSup)) ||
-           (cond2 && cond3 && (tmpValue >= limInf) && (tmpValue < limSup)) ||
-           (cond2 && cond4 && (tmpValue >= limInf) && (tmpValue <= limSup)) ) {
-        return 1;
-      }
-    }
-    
-    return 0;
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.TextField.prototype.buildRangeExpresions = function() {
-    this.answer = this.answer.split("|");
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      this.answer[i] = this.answer[i].trim();
-      this.answer[i] = this.answer[i].split(",");
-      
-      tmpAnswer = this.answer[i][0].trim();
-      this.answer[i][0] = { type: tmpAnswer[0], 
-      expression: this.evaluator.parser.parse(tmpAnswer.substring(1)) } ;
-      
-      tmpAnswer = this.answer[i][1].trim();
-      this.answer[i][1] = { type: tmpAnswer[tmpAnswer.length-1], 
-      expression: this.evaluator.parser.parse(tmpAnswer.substring(0,tmpAnswer.length-1)) } ;
-    }
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.TextField.prototype.evaluateTextualAnswer = function() {
-    value = this.value;
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      tmpAnswer = this.answer[i];
-      answerValue = true;
-      
-      for (var j=0, k=tmpAnswer.length; j<k; j++) {
-        regExpPattern = tmpAnswer[j];
-        
-        if (regExpPattern.ignoreAcents) {
-          value = descartesJS.replaceAcents(value);
-          regExpPattern.regExp = descartesJS.replaceAcents(regExpPattern.regExp);
-        }
-        
-        if (regExpPattern.ignoreCaps) {
-          value = value.toLowerCase();
-          regExpPattern.regExp = (regExpPattern.regExp).toLowerCase();
-        }
-        
-        answerValue = answerValue && !!(value.match(regExpPattern.regExp));
-      }
-      
-      if (answerValue) {
-        return 1;
-      }
-      
-    }
-    
-    return 0;
+    return descartesJS.esCorrecto(this.answer, this.value, this.evaluator, this.answer);
   }
   
   /**

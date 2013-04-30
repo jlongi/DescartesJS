@@ -15,6 +15,21 @@ var descartesJS = (function(descartesJS) {
   var changeW;
   var changeH;
   var expr;
+
+  var temporalCompare;
+  var resultValue;
+  var decimals;
+  var indexDot;
+  var subS;
+  var parent;
+
+  var canvas;
+  var ctx;
+  var self;
+  var _left;
+  var _top;
+  var _width;
+  var _height;
   
   /**
    * Descartes control
@@ -140,14 +155,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.color = (this.parent.version < 4) ? "#000000" :"#222222";
+    this.color = (this.parent.version < 4) ? new descartesJS.Color("000000") : new descartesJS.Color("222222");
 
     /**
      * control color
      * type {String}
      * @private
      */
-    this.colorInt = (values.type !== "graphic") ? "#f0f8ff" : "#ff0000";
+    this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("ff0000");
 
     /**
      * bold text condition
@@ -455,8 +470,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var temporalCompare;
-
   /**
    * Update the position and size of the control
    */
@@ -465,20 +478,20 @@ var descartesJS = (function(descartesJS) {
     expr = this.evaluator.evalExpression(this.expresion);
 
     temporalCompare = MathRound(expr[0][0]);
-    changeX = this.x !== temporalCompare;
+    changeX = MathRound(this.x) !== temporalCompare;
     this.x = temporalCompare;
 
     temporalCompare = MathRound(expr[0][1]);
-    changeY = this.y !== temporalCompare;
+    changeY = MathRound(this.y) !== temporalCompare;
     this.y = temporalCompare;
     
     if (expr[0].length === 4) {
       temporalCompare = MathRound(expr[0][2]);
-      changeW = this.w !== temporalCompare;
+      changeW = MathRound(this.w) !== temporalCompare;
       this.w = temporalCompare
 
       temporalCompare = MathRound(expr[0][3]);
-      changeH = this.h !== temporalCompare;
+      changeH = MathRound(this.h) !== temporalCompare;
       this.h = temporalCompare;
     }
 
@@ -488,12 +501,6 @@ var descartesJS = (function(descartesJS) {
       this.draw();
     }
   }
-
-  var resultValue;
-  var decimals;
-  var indexDot;
-  var subS;
-  var parent;
 
   /**
    * Format the value with the number of decimals, the exponential representation and the decimal symbol
@@ -582,13 +589,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var canvas;
-  var ctx;
-  var self;
-  var _left;
-  var _top;
-  var _width;
-  var _height;
   /**
    *
    */

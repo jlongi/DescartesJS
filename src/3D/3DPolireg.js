@@ -6,139 +6,68 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var Nu;
+  var vertices;
+  var w;
+  var l;
+  var theta;
+
   /**
-   * Un poligono de descartes
+   * A Descartes 3D regular polygon
    * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen el poligono
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
    */
   descartesJS.Polireg3D = function(parent, values) {
-    // se llama al constructor del padre
-    descartesJS.Graphic3D.call(this, parent, values);
+    this.width = parent.evaluator.parser.parse("2");
+    this.length = parent.evaluator.parser.parse("2");
 
-    this.width = (this.width == -1) ? this.evaluator.parser.parse("2") : this.width;
-    this.length = (this.length == -1) ? this.evaluator.parser.parse("2") : this.length;
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
 
     this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
-  // se crea la herencia de Graphic
+  // create an inheritance of Graphic3D
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Polireg3D, descartesJS.Graphic3D);
   
   /**
-   * Actualiza el poligono
+   * Build the primitives corresponding to the regular polygon
    */
-  descartesJS.Polireg3D.prototype.update = function() {
-    var evaluator = this.evaluator;
+  descartesJS.Polireg3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
 
-    this.endPoints = [];
+    this.updateMVMatrix();
 
-    this.numPoints = evaluator.evalExpression(this.Nu);
-    var angle = (2*Math.PI)/this.numPoints;
+    Nu = evaluator.evalExpression(this.Nu);
 
-    for(var i=0, l=this.numPoints; i<l; i++){
-      this.endPoints[i] = {x: 0.5*Math.cos(i*angle), y: 0.5*Math.sin(i*angle), z: 0};
+    vertices = [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(0, 0, 0, 1) )];
+    w = evaluator.evalExpression(this.width)/2;
+    l = evaluator.evalExpression(this.length)/2;
+    theta = (2*Math.PI) / Nu;
+
+    for (var i=0; i<Nu; i++) {
+      vertices.push ( this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0, 1) ) );
     }
 
-    this.mvMatrix = this.mvMatrix.setIdentity();
-    this.mvMatrix = this.mvMatrix.scale(new descartesJS.Vector3D(evaluator.evalExpression(this.width), evaluator.evalExpression(this.length)));
-    this.mvMatrix = this.space.perspectiveMatrix.multiply(this.mvMatrix);
-    
-//     // se rotan los elementos en caso de ser un macro con rotacion
-//     if (this.rotateExp) {
-//       var radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
-//       var cosTheta = Math.cos(radianAngle);
-//       var senTheta = Math.sin(radianAngle);
-//       var tmpRotX;
-//       var tmpRotY;
-//       
-//       for (var i=0, l=this.endPoints.length; i<l; i++) {
-//         tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
-//         tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
-//         this.endPoints[i].x = tmpRotX;
-//         this.endPoints[i].y = tmpRotY;
-//       }      
-//     }
-  }
-  
-  /**
-   * Dibuja el poligono
-   */
-  descartesJS.Polireg3D.prototype.draw = function() {
-    // se llama la funcion draw del padre (uber en lugar de super ya que es palabra reservada)
-    this.uber.draw.call(this, this.color, this.color);
-  }
-  
-  /**
-   * Dibuja el rastro del poligono
-   */
-  descartesJS.Polireg3D.prototype.drawTrace = function() {
-    // se llama la funcion drawTrace del padre (uber en lugar de super ya que es palabra reservada)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
-  }
-  
-  /**
-   * Funcion auxiliar para dibujar un poligono
-   * @param {CanvasRenderingContext2D} ctx el contexto de render sobre el cual se dibuja el poligono
-   * @param {String} fill el color de relleno del poligono
-   */
-  descartesJS.Polireg3D.prototype.drawAux = function(ctx, fill, stroke) {
-    if (this.numPoints != 0) {
-    var evaluator = this.evaluator;
-
-    ctx.lineWidth = 1;
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = "#808080";
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    var originX = this.space.transformCoordinateX(0);
-    var originY = this.space.transformCoordinateY(0);
-    
-    var p1 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[0].x, this.endPoints[0].y, this.endPoints[0].z, 1.0));
-    var coordX = (p1.w != 0) ? this.space.transformCoordinateX(p1.x/p1.w) : -1000000; //this.space.transformCoordinateX(p1.x);
-    var coordY = (p1.w != 0) ? this.space.transformCoordinateY(p1.y/p1.w) : -1000000; //this.space.transformCoordinateY(p1.y);    
-    var p2;
-    var coordX1;
-    var coordX1;
-    
-    ctx.beginPath();
-    
-    for(var i=1, l=this.endPoints.length; i<l; i++) {
-      p2 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[i].x, this.endPoints[i].y, this.endPoints[i].z, 1.0));
-      coordX1 = (p2.w != 0) ? this.space.transformCoordinateX(p2.x/p2.w) : -1000000; //this.space.transformCoordinateX(p1.x);
-      coordY1 = (p2.w != 0) ? this.space.transformCoordinateY(p2.y/p2.w) : -1000000; //this.space.transformCoordinateY(p1.y);    
-
-      ctx.moveTo(originX, originY);
-      ctx.lineTo(coordX, coordY);
-      ctx.lineTo(coordX1, coordY1);
-      
-      coordX = coordX1;
-      coordY = coordY1;
+    for (var i=0; i<Nu; i++) {
+      this.primitives.push(new descartesJS.Primitive3D( [ vertices[0],
+                                                          vertices[i+1],
+                                                          (i+2 <= Nu) ? vertices[i+2] : vertices[1] ],
+                                                        "face",
+                                                        { backcolor: this.color.getColor(), 
+                                                          fillStyle: this.backcolor.getColor(), 
+                                                          strokeStyle: "#808080", 
+                                                          lineCap: "round",
+                                                          lineJoin: "round",
+                                                          edges: this.edges, 
+                                                          model: this.model
+                                                        }
+                                                      ));
     }
-    p2 = this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(this.endPoints[0].x, this.endPoints[0].y, this.endPoints[0].z, 1.0));
-    coordX1 = (p2.w != 0) ? this.space.transformCoordinateX(p2.x/p2.w) : -1000000; //this.space.transformCoordinateX(p1.x);
-    coordY1 = (p2.w != 0) ? this.space.transformCoordinateY(p2.y/p2.w) : -1000000; //this.space.transformCoordinateY(p1.y);    
 
-    ctx.moveTo(originX, originY);
-    ctx.lineTo(coordX, coordY);
-    ctx.lineTo(coordX1, coordY1);
-              
-    // modelo de iluminacion de alambre
-    if (this.model == "wire") {
-      ctx.strokeStyle = ctx.fillStyle;
-      ctx.stroke();
-    }
-    else {
-      ctx.fill();
-
-      if (this.edges) {
-        ctx.stroke();
-      }
-    }
-    }   
   }
   
   return descartesJS;

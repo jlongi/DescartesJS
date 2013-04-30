@@ -192,6 +192,8 @@ var descartesJS = (function(descartesJS) {
 
     // register the control value
     evaluator.setVariable(this.id, parseFloat(fieldValue));
+
+    this.update();
   }
 
   /**

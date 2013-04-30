@@ -96,7 +96,7 @@ var descartesJS = (function(descartesJS) {
     size = mathRound(evaluator.evalExpression(this.size));
     desp = size+1;
 
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
 
     coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
     coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));

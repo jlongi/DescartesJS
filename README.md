@@ -16,9 +16,6 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
     
 ## Project Map
 
-### Cosas por hacer
-* Espacios tridimensionales.
-
 ### Caracteristicas desarrolladas
 * Pleca en el escenario
     - el título
@@ -28,6 +25,7 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
     - la alineación del texto
     - la tipografía del título y del subtítulo
     - el ajuste del numero de líneas en el subtítulo
+
 
 * Espacios 2D:
     - el identificador
@@ -45,6 +43,18 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
     - la posición del mouse, con mouse_x y mouse_y
     - se agrego el atributo NombreDelEspacio.image y NombreDelEspacio.back, para obtener una imagen correspondiente al contenido de un espacio y del fondo respectivamente
 
+
+* Espacios 3D:
+    - el identificador
+    - la posición en X y Y
+    - el ancho y el alto, con valores en pixeles y en porcentajes
+    - la condición de dibujar-si
+    - la opción del espacio fijo
+    - la escala
+    - la posición del origen Ox y Oy
+    - las rotaciones del observador rot.y rot.z
+
+
 * Espacios AP:
     - el identificador
     - la posición en X y Y, con valores en píxeles y en porcentajes
@@ -52,6 +62,7 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
     - la condición de dibujar-si
     - el color del fondo
     - la imagen que se muestra cuando la lección externa no se pudo cargar y la posición donde se coloca
+
 
 * Espacios HTMLIframe:
     - el identificador
@@ -62,11 +73,13 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
     - el nombre del archivo
     - estos espacios además pueden tener comunicación con la lección contenedora
 
+
 * Espacios 3D:
     - el identificador
     - la posición en X y Y
     - el ancho y el alto, con valores en pixeles y en porcentajes
     - la condición de dibujar-si
+
 
 * Controles:
     - Control numérico:
@@ -162,6 +175,7 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
         - la imagen
         - la condición de dibujar-si y activo-si (soporta expresiones)
 
+
 * Auxiliares:
     - Variable
     - Constante
@@ -186,6 +200,7 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
         - la condición (soporta expresiones)
         - acciones calcular, abrir URL, inicio, limpiar y animar
         - la ejecución, una-sola-vez, alternar y siempre
+
 
 * Gráficos:
     - Ecuación
@@ -293,6 +308,18 @@ Agregar al archivo de la lección de Descartes las siguientes 2 lineas, entre la
         - la posición inicial (soporta expresiones)
         - la rotación (soporta expresiones)
         - el nombre (no soporta expresiones)
+
+* Gráficos 3D:
+    - Punto
+    - Segmento
+    - Polilínea
+    - Polígono regular
+    - Curva
+    - Superficie
+    - Cara
+    - Triángulo
+    - Texto
+
 
 * Animación:
     - la pausa (soporta expresiones)

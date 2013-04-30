@@ -8,16 +8,22 @@ var descartesJS = (function(descartesJS) {
 
   var v1;
   var v2;
+  var evaluator;
+  var verticalDisplace;
+  var theText;
 
   /**
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (vertices, type, style, mvMatrix) {
+  descartesJS.Primitive3D = function (vertices, type, style, evaluator, text) {
     this.vertices = vertices;
     this.type = type;
     this.style = style;
-    this.mvMatrix = mvMatrix;
+    this.evaluator = evaluator;
+    this.text = text || "";
+
+    this.light = descartesJS.Vector3D(1,1,1);
 
     this.transformedVertices = [];
 
@@ -25,18 +31,24 @@ var descartesJS = (function(descartesJS) {
     if (type === "vertex") {
       this.draw = drawVertex;
     }
-    else if (type === "triangle") {
-      this.draw = drawTriangle;
-    }
     else if (type === "face") {
       this.draw = drawFace;
     }
     else if (type === "text") {
-      this.draw = drawText;
+      this.draw = drawPrimitiveText;
     }
     else if (type === "edge") {
       this.draw = drawEdge;
     }
+
+    // overwrite the computeDepth function if the primitive is a text
+    if (style.isText) {
+      this.computeDepth = function(space) {
+        this.transformedVertices = this.vertices;
+        this.depth = (space.perspectiveMatrix.multiplyVector4( this.vertices[0] ).toVector3D()).z;
+      }
+    }
+
   }
 
   /**
@@ -45,14 +57,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Primitive3D.prototype.setVertices = function (vertices) {
     this.vertices = vertices;
-  }
-
-  /**
-   * Set the model view matrix of the primitive
-   * @param {Matrix4x4} mvMatrix is the new model view matrix
-   */
-  descartesJS.Primitive3D.prototype.setMvMatrix = function (mvMatrix) {
-    this.mvMatrix = mvMatrix;
   }
 
   /**
@@ -68,16 +72,23 @@ var descartesJS = (function(descartesJS) {
    * @param
    */
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
-    v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
-    v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
-    this.normal = v1.crossProduct(v2);
-    this.direction = this.normal.dotProduct(space.eye);
+    // triangles and faces
+    if (this.vertices.length >2) {
+      v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
+      v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
+      this.normal = v1.crossProduct(v2);
+      this.direction = this.normal.dotProduct(space.eye);
+    }
 
     this.depth = 0;
+    this.zMin =  10000;
+    this.zMax = -10000;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4( this.vertices[i] ).toVector3D();
 
       this.depth += this.transformedVertices[i].z;
+      this.zMin = Math.min(this.zMin, this.transformedVertices[i].z);
+      this.zMax = Math.max(this.zMax, this.transformedVertices[i].z);
 
       this.transformedVertices[i].x = space.transformCoordinateX(this.transformedVertices[i].x);
       this.transformedVertices[i].y = space.transformCoordinateY(this.transformedVertices[i].y);
@@ -100,8 +111,13 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function drawVertex() {
+  function drawVertex(ctx) {
+    setContextStyle(ctx, this.style);
 
+    ctx.beginPath();
+    ctx.arc(this.transformedVertices[0].x, this.transformedVertices[0].y, this.style.size, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.stroke();
   }
 
   /**
@@ -110,10 +126,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx) {
     setContextStyle(ctx, this.style);
 
-    if (this.direction > 0) {
-      ctx.fillStyle = this.style.backcolor;
-    }
-
+    // set the path to draw
     ctx.beginPath();
     ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
     for (var i=1, l=this.transformedVertices.length; i<l; i++) {
@@ -121,52 +134,124 @@ var descartesJS = (function(descartesJS) {
     }
     ctx.closePath();
 
-    ctx.fill();
+    // color render
+    if (this.style.model === "color") {
+      // necesary to cover completely the primitive
+      if (this.direction >= 0) {
+        ctx.fillStyle = this.style.backcolor;
+        ctx.strokeStyle = this.style.backcolor;
+      }
+      else {
+        ctx.strokeStyle = this.style.fillStyle;
+      }
 
-    ctx.strokeStyle = this.style.fillStyle;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+      ctx.fill();
 
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // light and metal render (incomplete)
+    else if ( (this.style.model === "light") || (this.style.model === "metal") ){
+      // necesary to cover completely the primitive
+      if (this.direction > 0) {
+        ctx.fillStyle = this.style.backcolor;
+        ctx.strokeStyle = this.style.backcolor;
+      }
+      else {
+        ctx.strokeStyle = this.style.fillStyle;
+      }
+
+      ctx.fill();
+
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
     // wireframe render
-    if (this.style.model == "wire") {
-      ctx.lineWidth = 2;
+    else if (this.style.model === "wire") {
+      ctx.lineWidth = 1.25;
       ctx.strokeStyle = this.style.fillStyle;
 
       ctx.stroke();
     }
-    else {
-      if (this.style.edges) {
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = this.style.strokeStyle;
-        
-        ctx.stroke();
-      }
+
+    // draw the edges
+    if ((this.style.edges) && (this.style.model !== "wire")) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = this.style.strokeStyle;
+      
+      ctx.stroke();
     }
-    // ctx.lineWidth = 1;
-    // ctx.stroke();
-
-    // // draw the centroid
-    // var tmpX = this.space.transformCoordinateX(this.centroid.x);
-    // var tmpY = this.space.transformCoordinateY(this.centroid.y);
-
-    // ctx.fillStyle = "red";
-    // ctx.beginPath();
-    // ctx.arc(tmpX, tmpY, 2, 0, 2*Math.PI)
-    // ctx.fill();
   }
 
   /**
    *
    */
-  function drawText() {
-
+  function drawPrimitiveText(ctx) {
+    this.drawText(ctx, this.text, this.transformedVertices[0].x, this.transformedVertices[0].y +this.style.displace, this.style.fillStyle, this.style.font, "left", "alphabetic", this.style.decimals, this.style.fixed, true);
   }
 
   /**
    *
    */
-  function drawEdge() {
+  function drawEdge(ctx) {
+    setContextStyle(ctx, this.style);
 
+    // set the path to draw
+    ctx.beginPath();
+    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
+    ctx.lineTo(this.transformedVertices[1].x, this.transformedVertices[1].y);
+
+    ctx.stroke();
+  }
+
+  /**
+   * Draw the text of the graphic
+   * @param {CanvasRenderingContext2D} ctx the context render to draw
+   * @param {String} text the text to draw
+   * @param {Number} x the x position of the text
+   * @param {Number} y the y position of the text
+   * @param {String} fill the fill color of the graphic
+   * @param {String} font the font of the text
+   * @param {String} align the alignment of the text
+   * @param {String} baseline the baseline of the text
+   * @param {Number} decimals the number of decimals of the text
+   * @param {Boolean} fixed the number of significant digits of the number in the text
+   * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
+   */
+  descartesJS.Primitive3D.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
+    // rtf text
+    if (text.type == "rtfNode") {
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = fill;
+      ctx.textBaseline = "alphabetic";
+      text.draw(ctx, x, y, decimals, fixed, align, displaceY);
+      
+      return;
+    }
+
+    // simple text (none rtf text)
+    if (text.type === "simpleText") {
+      text = text.toString(decimals, fixed).split("\\n");
+    }
+
+    x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
+    
+    evaluator = this.evaluator;
+    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.font = font;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+
+    verticalDisplace = this.fontSize*1.2 || 0;
+
+    for (var i=0, l=text.length; i<l; i++) {
+      theText = text[i];
+
+      if (this.border) {
+        ctx.strokeText(theText, x, y+(verticalDisplace*i));
+      }
+      ctx.fillText(theText, x, y+(verticalDisplace*i));
+    }
   }
 
   return descartesJS;

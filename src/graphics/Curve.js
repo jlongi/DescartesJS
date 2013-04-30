@@ -125,8 +125,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
     
     tempParam = evaluator.getVariable(this.parameter);
     
@@ -176,6 +175,7 @@ var descartesJS = (function(descartesJS) {
     }
         
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     ctx.stroke();

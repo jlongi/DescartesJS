@@ -70,6 +70,8 @@ var descartesJS = (function(descartesJS) {
     // this.audio.setAttribute("height", this.h);
     this.audio.style.left = this.x + "px";
     this.audio.style.top  = this.y + "px";
+
+    this.update();
   }
 
   /**

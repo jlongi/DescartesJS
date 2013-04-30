@@ -8,6 +8,19 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var space;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var tmpLineWidth;
+  var lineDesp;
+  var coordX;
+  var coordY;
+
   /**
    * A Descartes polygon
    * @constructor 
@@ -40,19 +53,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Polygon, descartesJS.Graphic);
   
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var tmpLineWidth;
-  var lineDesp;
-  var coordX;
-  var coordY;
-
   /**
    * Update polygon
    */
@@ -110,8 +110,7 @@ var descartesJS = (function(descartesJS) {
     tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     
@@ -132,6 +131,7 @@ var descartesJS = (function(descartesJS) {
     
     // draw the fill
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     

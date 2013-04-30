@@ -162,10 +162,10 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     if ( (parent.code === "descinst.com.mja.descartes.DescartesJS.class") || (parent.arquimedes) ) {
-      this.background = "#f0f8fa";
+      this.background = new descartesJS.Color("f0f8fa");
     }
     else {
-      this.background = "#ffffff";
+      this.background = new descartesJS.Color("ffffff");
     }
     
     /**
@@ -173,14 +173,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.net = (parent.version != 2) ? "#c0c0c0" : "";
+    this.net = (parent.version != 2) ? new descartesJS.Color("c0c0c0") : "";
 
     /**
      * net 10 condition and color
      * type {String}
      * @private
      */
-    this.net10 = (parent.version != 2) ? "#808080" : "";
+    this.net10 = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * axes condition and color
@@ -188,14 +188,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     // ## parche para descartes 2 ## //
-    this.axes = (parent.version != 2) ? "#808080" : "";
+    this.axes = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * coordinate text condition and color
      * type {String}
      * @private
      */
-    this.text = "#ffafaf";
+    this.text = new descartesJS.Color("ffafaf");
 
     /**
      * condition to draw the axis numbers

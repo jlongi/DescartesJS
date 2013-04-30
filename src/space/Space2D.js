@@ -102,7 +102,7 @@ var descartesJS = (function(descartesJS) {
 
     // ### ARQUIMEDES ###
     // if is the default arquimedes add a border to the container
-    if ((self.parent.arquimedes) && (descartesJS.getColor(self.evaluator, self.background) === "#f0f8fa")) {
+    if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
       self.container.style.border = "1px solid #b8c4c8";
     }
     // ### ARQUIMEDES ###
@@ -210,7 +210,7 @@ var descartesJS = (function(descartesJS) {
       // check if the scale is not below the lower limit
       if (self.scale < 0.000001) {
         self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0);
+        evaluator.setVariable(self.scaleString, 0.000001);
       }
       // check if the scale is not above the upper limit
       else if (self.scale > 1000000) {
@@ -251,7 +251,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the background color
     ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
+    ctx.fillStyle = this.background.getColor();
     ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
     // draw the background image if any
@@ -287,7 +287,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the big net
     if (this.net !== "") {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
+      ctx.strokeStyle = this.net.getColor();
       this.drawMarks(ctx, rsc/10, -1);
     }
     
@@ -295,13 +295,13 @@ var descartesJS = (function(descartesJS) {
     if ( ((this.parent.version !== 2) && (this.net10 !== "")) || 
          ((this.parent.version === 2) && (this.net !== "") && (this.net10 !== ""))
        ) {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
+      ctx.strokeStyle = this.net10.getColor();
       this.drawMarks(ctx, rsc, -1);
     }
     
     // draw the axes
     if (this.axes !== "") {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.strokeStyle = this.axes.getColor();
       
       ctx.beginPath();
       // x axis
@@ -325,17 +325,17 @@ var descartesJS = (function(descartesJS) {
     
     // draw the axis names
     if ((this.x_axis !== "") || (this.y_axis !== "")) {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.fillStyle = this.axes.getColor();
       ctx.font = axisFont
       ctx.textAlign = "right";
-      ctx.textBaseline = "top";
-      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
-      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy)+12);
+      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 12); 
     }
     
     // draw the axis numbers
     if ((this.numbers) && (this.axes != "")) {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.fillStyle = this.axes.getColor();
       ctx.font = axisFont
       ctx.textAlign = "start";
       ctx.textBaseline = "bottom";
@@ -385,7 +385,8 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text showing the mouse postion
     if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
-      ctx.fillStyle = descartesJS.getColor(this.evaluator, this.text);
+      console.log("aqui")
+      ctx.fillStyle = this.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
       ctx.font = mouseTextFont;

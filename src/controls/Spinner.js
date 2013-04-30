@@ -21,6 +21,8 @@ var descartesJS = (function(descartesJS) {
   var resultValue;
   var incr;
   var decimals;
+  var evalMin;
+  var evalMax;
   var hasTouchSupport;
 
   /**
@@ -92,7 +94,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     // validate the initial value
-    this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
+    this.value = this.validateValue(evaluator.evalExpression(this.valueExpr));
     
     // get the width of the initial value to determine the width of the text field
     var fieldValue = this.formatOutputValue(this.value);
@@ -147,19 +149,21 @@ var descartesJS = (function(descartesJS) {
 
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
-    this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesSpinnerField");
     this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth-2) + "px; height : " + (this.h-2) + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
-  
+    this.field.value = fieldValue;
+
     this.label.setAttribute("class", "DescartesSpinnerLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
     // register the control value
     evaluator.setVariable(this.id, this.value);
-    
+
     // create the background gradient
     this.createGradient(this.h/2, this.h);
+
+    this.update();
   }
 
   /**
@@ -300,22 +304,39 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Spinner.prototype.validateValue = function(value) {
     evaluator = this.evaluator;
+
+    // remove the exponential notation of the number and convert it to a fixed notation
+    if (!isNaN(parseFloat(value))) {
+      value = parseFloat(value).toFixed(20);
+    } 
+    else {
+      value = value.toString();
+    }    
     
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
+    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
 
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
       resultValue = 0; 
     }
 
+    evalMin = evaluator.evalExpression(this.min);
+    if (evalMin == "") {
+      evalMin = -Math.Infinity;
+    }
+    evalMax = evaluator.evalExpression(this.max);
+    if (evalMax == "") {
+      evalMax = Math.Infinity;
+    }
+ 
     // if is less than the lower limit
-    if (resultValue < evaluator.evalExpression(this.min)) {
-      resultValue = evaluator.evalExpression(this.min);
+    if (resultValue < evalMin) {
+      resultValue = evalMin;
     } 
     
     // if si greater than the upper limit
-    if (resultValue > evaluator.evalExpression(this.max)) {
-      resultValue = evaluator.evalExpression(this.max);
+    if (resultValue > evalMax) {
+      resultValue = evalMax;
     }
 
     if (this.discrete) {
@@ -327,6 +348,7 @@ var descartesJS = (function(descartesJS) {
     if (decimals <= 0) {
       decimals = 0;
     }
+
     resultValue = parseFloat(parseFloat(resultValue).toFixed(decimals));
     
     return resultValue;

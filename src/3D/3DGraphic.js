@@ -12,6 +12,15 @@ var descartesJS = (function(descartesJS) {
   var theText;
   var verticalDisplace;
 
+  var tmpExpr;
+  var vectorX;
+  var vectorY;
+  var vectorZ;
+  var translate;
+
+  var indexOfVar;
+  var arrayVars = ["x", "y", "z"];
+
   /**
    * Descartes 3D graphics
    * @constructor 
@@ -61,8 +70,9 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.color = "#eeffaa";
-    this.backcolor = "#6090a0";
+    this.color = new descartesJS.Color("eeffaa");
+    this.backcolor = new descartesJS.Color("6090a0");
+
     this.Nu = this.evaluator.parser.parse("7");
     this.Nv = this.evaluator.parser.parse("7");
     
@@ -115,35 +125,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.family_steps = parser.parse("8");
     
-    /**
-     * the fill color
-     * type {String}
-     * @private
-     */
-    // this.fill = "";
-
-    /**
-     * the fill plus color
-     * type {String}
-     * @private
-     */
-    // this.fillP = ""; 
-
-    /**
-     * the fill minus color
-     * type {String}
-     * @private
-     */
-    // this.fillM = "";
-
-    /**
-     * the stroke width of the graph
-     * type {Number}
-     * @private
-     */
-    // this.width = -1;
-    this.length = -1;
-
     /**
      * the condition for determining whether the graph is editable
      * type {Boolean}
@@ -198,14 +179,35 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    // this.inirot = parser.parse("0");
+    this.inirot = parser.parse("(0,0,0)");
     
     /**
      * the init position of a graphic
      * type {Node}
      * @private
      */
-//     this.inipos = parser.parse("[0,0]");
+    this.inipos = parser.parse("(0,0,0)");
+
+    /**
+     * the init rotation of the graphic
+     * type {Node}
+     * @private
+     */
+    this.endrot = parser.parse("(0,0,0)");
+    
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.endpos = parser.parse("(0,0,0)");
+
+    /**
+     * 
+     * type {String}
+     * @private
+     */
+    this.model = "color";
     
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
@@ -214,7 +216,7 @@ var descartesJS = (function(descartesJS) {
         this[propName] = values[propName];
       }
     }
-    
+
     if ((this.expresion == undefined) && (this.type != "macro")) {
       this.expresion = parser.parse("(0,0)");
     }
@@ -243,6 +245,12 @@ var descartesJS = (function(descartesJS) {
     } else {
       this.fontSize = 10;
     }
+
+    // auxiliary vectors
+    vectorX = new descartesJS.Vector3D(1, 0, 0); 
+    vectorY = new descartesJS.Vector3D(0, 1, 0); 
+    vectorZ = new descartesJS.Vector3D(0, 0, 1);
+    translate = new descartesJS.Vector3D(0, 0, 0);
   }
   
   /**
@@ -305,60 +313,71 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.family, tempParam);
   }
 
-  // /**
-  //  * Draw the text of the graphic
-  //  * @param {CanvasRenderingContext2D} ctx the context render to draw
-  //  * @param {String} text the text to draw
-  //  * @param {Number} x the x position of the text
-  //  * @param {Number} y the y position of the text
-  //  * @param {String} fill the fill color of the graphic
-  //  * @param {String} font the font of the text
-  //  * @param {String} align the alignment of the text
-  //  * @param {String} baseline the baseline of the text
-  //  * @param {Number} decimals the number of decimals of the text
-  //  * @param {Boolean} fixed the number of significant digits of the number in the text
-  //  * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
-  //  */
-  // descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
-  //   // rtf text
-  //   if (text.type == "rtfNode") {
-  //     ctx.fillStyle = fill;
-  //     ctx.strokeStyle = fill;
-  //     ctx.textBaseline = "alphabetic";
-  //     text.draw(ctx, x, y, decimals, fixed, align, displaceY);
-      
-  //     return;
-  //   }
+  /**
+   * Update the 3D graphic
+   */
+  descartesJS.Graphic3D.prototype.update = function() {
+    this.primitives = [];
 
-  //   // simple text (none rtf text)
-  //   if (text.type === "simpleText") {
-  //     text = text.toString(decimals, fixed).split("\\n");
-  //   }
+    if (this.evaluator.evalExpression(this.drawif)) {
+      // build the primitives of the family
+      if (this.family) {
+        this.buildFamilyPrimitives();
+      }
+      // build the primitives of a single object
+      else {
+        this.buildPrimitives();
+      }
+    }
+  }  
 
-  //   x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
-    
-  //   evaluator = this.evaluator;
-  //   ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-  //   ctx.font = font;
-  //   ctx.textAlign = align;
-  //   ctx.textBaseline = baseline;
-        
-  //   if (this.border) {
-  //     ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
-  //     ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
-  //   }
-    
-  //   verticalDisplace = this.fontSize*1.2 || 0;
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
+    // take a look because a differente behavior
+    this.mvMatrix = this.mvMatrix.setIdentity();
 
-  //   for (var i=0, l=text.length; i<l; i++) {
-  //     theText = text[i];
+    if (!ignoreRotation) {
+      tmpExpr = this.evaluator.evalExpression(this.inirot);    
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    }
 
-  //     if (this.border) {
-  //       ctx.strokeText(theText, x, y+(verticalDisplace*i));
-  //     }
-  //     ctx.fillText(theText, x, y+(verticalDisplace*i));
-  //   }
-  // }
+    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    this.mvMatrix = this.mvMatrix.translate(translate);
+
+    if (!ignoreRotation) {
+      tmpExpr = this.evaluator.evalExpression(this.endrot);    
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    this.mvMatrix = this.mvMatrix.translate(translate);
+  }
+
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.findExpresion = function(expresion, variable) {
+    indexOfVar = arrayVars.indexOf(variable);
+
+    subexpresion = expresion.split( arrayVars[indexOfVar] + "=" )[1];
+
+    if (subexpresion) {
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+1)%3] + "=" )[0];
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+2)%3] + "=" )[0];
+      return subexpresion;
+    }
+    else {
+      return "";
+    }
+  }  
   
   return descartesJS;
 })(descartesJS || {});

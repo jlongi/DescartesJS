@@ -168,6 +168,8 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
     evaluator.setVariable(this.id+".activo", 0);
+
+    this.update();
   }
   
   /**
@@ -222,24 +224,24 @@ var descartesJS = (function(descartesJS) {
         ctx.beginPath();
         ctx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
     
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.colorInt);
+        ctx.fillStyle = this.colorInt.getColor();
         ctx.fill();
       
         ctx.lineWidth = 1;
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.color);
+        ctx.strokeStyle = this.color.getColor();
         ctx.stroke();
       
         if (this.active) {
           ctx.beginPath();
           ctx.arc(x, y, parseInt(this.width/2)-2, 0, PI2, false);
-          ctx.strokeStyle = "black";
+          ctx.strokeStyle = this.colorInt.borderColor();
           ctx.stroke();
         }
 
         // if has trace
         if (this.trace) {
           backCtx.lineWidth = 1;
-          backCtx.strokeStyle = descartesJS.getColor(evaluator, this.trace);
+          backCtx.strokeStyle = this.trace.getColor();
           backCtx.beginPath();
           backCtx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
           backCtx.stroke();
@@ -262,7 +264,7 @@ var descartesJS = (function(descartesJS) {
           backCtx.restore();
         
           backCtx.lineWidth = 1;
-          backCtx.strokeStyle = descartesJS.getColor(evaluator, this.trace);
+          backCtx.strokeStyle = this.trace.getColor();
           backCtx.stroke();
         }
       }
@@ -290,7 +292,7 @@ var descartesJS = (function(descartesJS) {
     ctx = this.ctx;
     evaluator = this.evaluator;
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.color);
+    ctx.fillStyle = this.color.getColor();
     ctx.font = this.font;
     ctx.textBaseline = "alphabetic";
 
@@ -377,6 +379,11 @@ var descartesJS = (function(descartesJS) {
           
           self.posAnte = self.getCursorPosition(evt);
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
+
+          self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+          self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
+          self.parent.update();
           
           window.addEventListener("mouseup", onMouseUp);
           window.addEventListener("mousemove", onMouseMove);
@@ -400,6 +407,11 @@ var descartesJS = (function(descartesJS) {
 
         self.posAnte = self.getCursorPosition(evt);
         self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
+
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
+        self.parent.update();
         
         window.addEventListener("touchmove", onMouseMove);
         window.addEventListener("touchend", onMouseUp);
@@ -426,6 +438,9 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("mousemove", onMouseMove, false);
         }
         
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
         self.parent.update();
         
         self.mouseCacher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
@@ -467,6 +482,8 @@ var descartesJS = (function(descartesJS) {
       // else {
         self.evaluator.setVariable(self.id+".x", self.space.getRelativeX(self.posX));
         self.evaluator.setVariable(self.id+".y", self.space.getRelativeY(self.posY));
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
       // }
 
       // update the controls

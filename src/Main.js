@@ -4,6 +4,8 @@
  */
 
 var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
   /**
    * Array to store the javascript replacements of the java applets
    * type [DescartesApp]
@@ -78,7 +80,8 @@ var descartesJS = (function(descartesJS) {
       if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
            (applet_i.getAttribute("code").match("Descartes.class")) || 
            (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
-           (applet_i.getAttribute("code").match("descinst.Arquimedes.class"))
+           (applet_i.getAttribute("code").match("Arquimedes")) ||
+           (applet_i.getAttribute("code").match("Discurso"))
          ) {
         tmpArrayApplets.push(applet_i);
       }
@@ -172,7 +175,7 @@ var descartesJS = (function(descartesJS) {
     // if has not support for canvas show the applets and do not interpret
     else {
       // prompt a message to install chrome frame
-      // when the instalation is ready reload the webpage
+      // when the installation is ready reload the webpage
       // document.location.reload()
 
       showApplets();
@@ -195,6 +198,11 @@ var descartesJS = (function(descartesJS) {
       if (data.type === "set") {
         descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
       }
+
+      // // get the value of a variable
+      // if (data.type === "get") {
+      //   descartesJS.apps[0].registerCacheVar(data.name);
+      // }
       
       // update the scene
       else if (data.type === "update") {
@@ -217,8 +225,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the library is loaded multiple times
-  if (descartesJS.loadLib === undefined) {
+  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
+  if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
     // register the onload event

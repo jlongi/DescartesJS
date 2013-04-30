@@ -60,6 +60,7 @@ var descartesJS = (function(descartesJS) {
         if (currentChar === "\\") {
           insideControlWord = true;
 
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
             lastTokenType = "text";
@@ -71,9 +72,9 @@ var descartesJS = (function(descartesJS) {
         else if (currentChar === "{") {
           blockNumber++;
 
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
-            lastTokenType = "text";
           }
 
           tokenValue = "";
@@ -83,9 +84,9 @@ var descartesJS = (function(descartesJS) {
         }
         // close block
         else if (currentChar === "}") {
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue })
-            lastTokenType = "text";
           }
 
           tokenValue = "";
@@ -110,6 +111,12 @@ var descartesJS = (function(descartesJS) {
           insideControlWord = false;
           tokenValue += currentChar;
 
+          // if the controlWord has a space 
+          if (nextChar === " ") {
+            pos++
+            nextChar = input.charAt(pos+1);
+          }
+
           // controlWord of the form \'##
           tmpMatch = tokenValue.match(/^\'([0-9a-f]{2})/);
           if (tmpMatch) {
@@ -119,10 +126,8 @@ var descartesJS = (function(descartesJS) {
             }
 
             tmpText += StringFromCharCode(parseInt(tmpMatch[1], 16)) + tokenValue.substring(3);
-            tokens.push({ type: "text", value: tmpText });
-            lastTokenType = "text";
 
-            tokenValue = "";
+            tokenValue = tmpText;
           }
           else {
             // controlWord of the form \u###
@@ -134,10 +139,8 @@ var descartesJS = (function(descartesJS) {
               }
 
               tmpText += StringFromCharCode(tmpMatch[0].substring(1));
-              tokens.push({ type: "text", value: tmpText });
-              lastTokenType = "controlWord";
 
-              tokenValue = "";
+              tokenValue = tmpText;
             }
             // generic controlWord
             else {
@@ -158,7 +161,6 @@ var descartesJS = (function(descartesJS) {
 
     // if the last text token is not added
     if (tokenValue !== "") {
-      console.log(tokenValue)
       tokens.push({ type: "text", value: tokenValue })
     }
 

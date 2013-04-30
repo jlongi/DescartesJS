@@ -8,6 +8,57 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var PI2 = Math.PI*2;
+
+  var evaluator;
+  var parser;
+  var space;
+  var color;
+  var width;
+  var desp;
+  var savex;
+  var savey;
+  var netsz;
+  var w;
+  var h;
+  var dx;
+  var dy;
+  var q0;
+  var qb;
+  var t;
+  var Q;
+  var q;
+  var q_ij;
+  var Qx;
+  var Qy;
+  var t0;
+  var zeroVisited;
+  var side;
+  var changeSide;
+  var Px;
+  var Py;
+  var i;
+  var j;
+
+  var theZeroX;
+  var theZeroY;
+  var initX;
+  var initY;
+  var tmpX;
+  var tmpY;
+  var actualTmpAbsoluteX;
+  var actualTmpAbsoluteY;
+  var previousTmpAbsoluteX;
+  var previousTmpAbsoluteY;
+  var min;
+  var max;
+  var minmax;
+  var va;
+  var colorFillM;
+  var colorFillP;
+  var disc;
+  var saveX;
+  var Xr;
+  var auxv;
   
   /**
    * A Descartes equation
@@ -28,35 +79,42 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.fill = "";
+    // this.fill = "";
     
     /**
      * the condition and the color of the fill+
      * type {String}
      * @private
      */
-    this.fillP = ""; 
+    this.fillP = new descartesJS.Color("00ff80");
 
     /**
      * the condition and the color of the fill-
      * type {String}
      * @private
      */
-    this.fillM = "";
+    this.fillM = new descartesJS.Color("ffc800");
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
+    // generate a stroke pattern
     this.generateStroke();
 
     // parse the expression and build a newton evaluator
     this.parseExpression();
 
     // Descartes 2 visible
-    this.visible = ((this.parent.version == 2) && (this.visible == undefined)) ? true : false;
+    this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;
     if (this.visible) {
       this.registerTextField();
     }
+
+    q0 = new descartesJS.R2();
+    qb = new descartesJS.R2();
+    t = new descartesJS.R2();
+    q_ij = new descartesJS.R2();
+    Q = new descartesJS.R2();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +164,9 @@ var descartesJS = (function(descartesJS) {
     this.auxCanvas.setAttribute("width", width);
     this.auxCanvas.setAttribute("height", width);
     this.auxCtx = this.auxCanvas.getContext("2d");
+
+    this.auxCtx.fillStyle = this.color.getColor();
+
     this.auxCtx.beginPath();
     this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
     this.auxCtx.fill();
@@ -140,36 +201,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
-  
-  var evaluator;
-  var parser;
-  var space;
-  var color;
-  var width;
-  var desp;
-  var savex;
-  var savey;
-  var netsz;
-  var w;
-  var h;
-  var dx;
-  var dy;
-  var q0;
-  var qb;
-  var t;
-  var Q;
-  var q;
-  var Qx;
-  var Qy;
-  var t0;
-  var zeroVisited;
-  var side;
-  var changeSide;
-  var Px;
-  var Py;
-  var i;
-  var j;
-  
+    
   /**
    * Auxiliary function for draw an non explicit equation 
    * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
@@ -181,9 +213,6 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     parser = evaluator.parser;
     space = this.space;
-
-    color = descartesJS.getColor(evaluator, this.color);
-    ctx.fillStyle = stroke;
     
     width = evaluator.evalExpression(this.width);
     desp = (width%2) ? .5 : 0;
@@ -207,22 +236,24 @@ var descartesJS = (function(descartesJS) {
 
     b = [];
 
-    q0 = new descartesJS.R2();
-    qb = new descartesJS.R2();
-    t = new descartesJS.R2();
+    q0.set(0, 0);
+    qb.set(0, 0);
+    t.set(0, 0);
 
     for (j=MathFloor(dy/2); j<h; j+=dy) {
       for (i=MathFloor(dx/2); i<w; i+=dx) {
         if (this.abs_coord) {
-          q = this.newt.findZero(new descartesJS.R2(i, j));
+          q_ij.set(i, j);
+          q = this.newt.findZero(q_ij);
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
-          Q = new descartesJS.R2(q.x, q.y);
+          Q.set(q.x, q.y);
         } else {
-          q = this.newt.findZero(new descartesJS.R2(space.getRelativeX(i), space.getRelativeY(j)));
+          q_ij.set(space.getRelativeX(i), space.getRelativeY(j));
+          q = this.newt.findZero(q_ij);
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
-          Q = new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+          Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
         }
         
         Qx = MathFloor(Q.ix());
@@ -264,8 +295,13 @@ var descartesJS = (function(descartesJS) {
             qb.x = q.x;
             qb.y = q.y;
             
-            Q = (this.abs_coord) ? (new descartesJS.R2(q.x, q.y)) : (new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y)));
-            
+            if (this.abs_coord) {
+              Q.set(q.x, q.y);
+            }
+            else {
+              Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+            }
+
             Qx = Q.ix();
             Qy = Q.iy();
             changeSide = false;
@@ -296,9 +332,9 @@ var descartesJS = (function(descartesJS) {
           qb.y = q.y;
           
           if (this.abs_coord) {
-            Q = new descartesJS.R2(q.x, q.y);
+            Q.set(q.x, q.y);
           } else {
-            Q = new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+            Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
           }
           
           Px = MathFloor(Q.ix());
@@ -312,15 +348,12 @@ var descartesJS = (function(descartesJS) {
               zeroVisited = 0;
               
               if (b[Qx + Qy*space.w]) {
-//               if (b[Qx][Qy]) { /* Zero already detected */
                 break;
-              } else {
+              } 
+              else {
                 b[Qx + Qy*space.w] = true;
-//                 b[Qx][Qy]=true;
-//                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                if (descartesJS.rangeOK) {
+                if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
                   ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
-                  // descartesJS.drawPixel(ctx, Qx+desp, Qy+desp, width);
                 }
               }
             } else {
@@ -335,27 +368,6 @@ var descartesJS = (function(descartesJS) {
       }
     }
   }
-
-  var theZeroX;
-  var theZeroY;
-  var initX;
-  var initY;
-  var tmpX;
-  var tmpY;
-  var actualTmpAbsoluteX;
-  var actualTmpAbsoluteY;
-  var previousTmpAbsoluteX;
-  var previousTmpAbsoluteY;
-  var min;
-  var max;
-  var minmax;
-  var va;
-  var colorFillM;
-  var colorFillP;
-  var disc;
-  var saveX;
-  var Xr;
-  var auxv;
 
   /**
    * Auxiliary function for draw an equation of y
@@ -372,9 +384,9 @@ var descartesJS = (function(descartesJS) {
 
     width = evaluator.evalExpression(this.width);
 
-    color = descartesJS.getColor(evaluator, this.color);
-    colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = this.color.getColor();
+    colorFillM = this.fillM.getColor();
+    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initX = space.getRelativeX(0);
@@ -443,9 +455,9 @@ var descartesJS = (function(descartesJS) {
 
     width = evaluator.evalExpression(this.width);
 
-    color = descartesJS.getColor(evaluator, this.color);
-    colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = this.color.getColor();
+    colorFillM = this.fillM.getColor();
+    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initY = space.getRelativeY(h);

@@ -90,7 +90,7 @@ var descartesJS = (function(descartesJS) {
     var size = Math.ceil(evaluator.evalExpression(this.size)-.4);
     var desp = size;
 
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
 
     ctx.beginPath();
 

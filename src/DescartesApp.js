@@ -123,15 +123,17 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class") || !!this.code.match("descinst.Arquimedes.class");
+    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class", "i") || 
+                      !!this.code.match("Arquimedes", "i") ||
+                      !!this.code.match("Discurso", "i");
 
     // licences for arquimedes
-    this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                     "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                     "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                     "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-                     "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-                     "}";
+    // this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
+    //                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
+    //                  "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+    //                  "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
+    //                  "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
+    //                  "}";
     this.licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                     "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
                     "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
@@ -256,6 +258,10 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.events = [];
+
+    // variables used for the htmliframe get function
+    this.cacheVars = {};
+    this.getVarsNames = {};
    
     /**
      * the z index for order the graphics
@@ -527,7 +533,7 @@ var descartesJS = (function(descartesJS) {
 
     // hide the loader
     this.loader.style.display = "none";
-    this.parentContainer.style.overflow = "hidden";
+    // this.parentContainer.style.overflow = "hidden";
     
     // // if the applet is disabled then put a div blocking the interacion
     // if (this.enable) {
@@ -547,6 +553,9 @@ var descartesJS = (function(descartesJS) {
 
       descartesJS.onResize();
     }
+
+    // evaluator used in a range evaluation
+    descartesJS.externalEvaluator = new descartesJS.Evaluator();
   }
   
   /**
@@ -643,8 +652,8 @@ var descartesJS = (function(descartesJS) {
                                                      name: text, 
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
-                                                    }
-                                             );
+                                                    });
+        btnAbout.update();
       }
       // create the configuration button
       if (buttonsConfig.config) {
@@ -655,14 +664,15 @@ var descartesJS = (function(descartesJS) {
                                                       font_size: parser.parse(fontSizeDefaultButtons),
                                                       action: "config",
                                                       expresion: parser.parse("(" + (northRegionWidht + aboutWidth)  + ", 0, " + configWidth + ", " + northRegionHeight + ")")
-                                                     }
-                                              );
+                                                     });
+        btnConfig.update();
       }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // south region
     if ((buttonsConfig.rowsSouth > 0) || (southSpaceControls.length > 0) || (buttonsConfig.init) || (buttonsConfig.clear)) {
+
       // if the number of rows is zero but contains controls then the height is the specified height
       if (buttonsConfig.rowsSouth <= 0) {
         southRegionHeight = buttonsConfig.height;
@@ -672,13 +682,13 @@ var descartesJS = (function(descartesJS) {
       else {
         southRegionHeight = buttonsConfig.height * buttonsConfig.rowsSouth;
       }
-      
+
       southRegionWidht = principalContainer.width;
       var displaceButton = 0;
       // show the init button
       if (buttonsConfig.init) {
         displaceButton = initWidth;
-        southRegionWidht -= displaceButton;        
+        southRegionWidht -= displaceButton;
       }
       // show the clear button
       if (buttonsConfig.clear) {
@@ -710,13 +720,13 @@ var descartesJS = (function(descartesJS) {
           text = "init";
         }
 
-        var btnAbout = new descartesJS.Button(this, {region: "south", 
-                                                     name: text, 
-                                                     font_size: parser.parse(fontSizeDefaultButtons),
-                                                     action: "init",
-                                                     expresion: parser.parse("(0, 0, " + initWidth + ", " + southRegionHeight + ")")
-                                                    }
-                                             );
+        var btnInit = new descartesJS.Button(this, {region: "south", 
+                                                    name: text, 
+                                                    font_size: parser.parse(fontSizeDefaultButtons), 
+                                                    action: "init", 
+                                                    expresion: parser.parse("(0, 0, " + initWidth + ", " + southRegionHeight + ")") 
+                                                  });
+        btnInit.update();
       }
       // create the clear button
       if (buttonsConfig.clear) {
@@ -728,13 +738,13 @@ var descartesJS = (function(descartesJS) {
           text = "clear";
         }
         
-        var btnConfig = new descartesJS.Button(this, {region: "south", 
-                                                      name: text, 
-                                                      font_size: parser.parse(fontSizeDefaultButtons),
-                                                      action: "clear",
-                                                      expresion: parser.parse("(" + (southRegionWidht + initWidth)  + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
-                                                     }
-                                              );
+        var btnClear = new descartesJS.Button(this, {region: "south", 
+                                                     name: text, 
+                                                     font_size: parser.parse(fontSizeDefaultButtons),
+                                                     action: "clear",
+                                                     expresion: parser.parse("(" + (southRegionWidht + initWidth) + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
+                                                     });
+        btnClear.update();
       }      
     }
 
@@ -845,6 +855,9 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
+
+    // send the cache vars to the htmliframes
+    // this.sendCacheVars();
   }
   
   /**
@@ -1328,6 +1341,20 @@ var descartesJS = (function(descartesJS) {
     
     this.update();
   }
-    
+
+  // descartesJS.DescartesApp.prototype.registerCacheVar = function(name) {
+  //   this.getVarsNames[name] = 0;
+  // }
+
+  // descartesJS.DescartesApp.prototype.sendCacheVars = function() {
+  //   // traverse the values
+  //   for (var propName in this.getVarsNames) {
+  //     // verify the own properties of the object
+  //     if (this.getVarsName.hasOwnProperty(propName)) {
+  //       iframe.contentWindow.postMessage({ type: "get", name: varName }, "*");
+  //     }
+  //   }
+  // }
+
   return descartesJS;
 })(descartesJS || {});

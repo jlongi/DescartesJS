@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-04-08
+ * 2013-04-30
  */
 
 /**
@@ -12,7 +12,8 @@
  */
 
 var babel = (function(babel) {
-  
+  if (babel.loadLib) { return babel; }
+ 
 //  babel["espa\u00F1ol"] = babel["english"] = babel["catal\u00E0"] = babel["euskera"] = babel["fran\u00E7ais"] = babel["galego"] = babel["portugu\u00EAs"] = babel["valenci\u00E0"] = "";
   babel["falso"] = babel["false"] = babel["fals"] = babel["gezurra"] = babel["faux"] = babel["fals"] = "false";
   babel["verdadero"] = babel["true"] = babel["veritable"] = babel["egia"] = babel["vrai"] = babel["verdadeiro"] = babel["veritable"] = "true";
@@ -129,8 +130,8 @@ var babel = (function(babel) {
   babel["dominio"] = babel["range"] = babel["domini"] = babel["izate-eremua"] = babel["domain"] = babel["dom\u00EDnio"] = "range";
   babel["pausa"] = babel["delay"] = babel["eten"] = "delay";
 //  babel["detener"] = babel["stop"] = babel["atura"] = babel["geldiarazi"] = babel["arr\u00EAter"] = babel["deter"] = babel["parar"] = babel["atura"] = "";
-  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x-axis";
-  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y-axis";
+  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x_axis";
+  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y_axis";
   babel["n\u00FAmeros"] = babel["numbers"] = babel["nombres"] = babel["zenbakiak"] = "numbers";
   babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = "exponentialif";
   babel["familia"] = babel["family"] = babel["fam\u00EDlia"] = babel["famille"] = "family";
@@ -167,17 +168,17 @@ var babel = (function(babel) {
   babel["tri\u00E1ngulo"] = babel["triangle"] = babel["hirukia"] = babel["tri\u00E2ngulo"] = "triangle";
   babel["cara"] = babel["face"] = babel["aurpegi"] = "face";
   babel["polireg"] = babel["regpoly"] = babel["pol\u00EDgonoRegular"] = "polireg";
-//  babel["Cubo"] = babel["Cube"] = babel["Cub"] = babel["Kubo"] = babel["Cube"] = babel["Cubo"] = babel["Cubo"] = babel["Cub"] = "";
-//  babel["Paralelep\u00EDpedo"] = babel["Box"] = babel["Paral·lelep\u00EDpede"] = babel["Paralelepipedo"] = babel["Parall\u00E9l\u00E9pip\u00E8de"] = babel["Paralelep\u00EDpedo"] = babel["Paralelep\u00EDpedo"] = babel["Paral·lelep\u00EDpede"] = "";
-//   babel["Cono"] = babel["Cone"] = babel["Con"] = babel["Kono"] = babel["C\u00F4ne"] = babel["Cono"] = babel["Cone"] = babel["Con"] = "";
-//   babel["Cilindro"] = babel["Cylinder"] = babel["Cilindre"] = babel["Zilindro"] = babel["Cylindre"] = babel["Cilindro"] = babel["Cilindro"] = babel["Cilindre"] = "";
-//   babel["Esfera"] = babel["Sphere"] = babel["Esfera"] = babel["Esfera"] = babel["Sph\u00E8re"] = babel["Esfera"] = babel["Esfera"] = babel["Esfera"] = "";
   babel["superficie"] = babel["surface"] = babel["superf\u00EDcie"] = babel["azalera"] = "surface";
-//   babel["Tetraedro"] = babel["Tetrahedron"] = babel["Tetraedre"] = babel["Tetraedro"] = babel["T\u00E9tra\u00E8dre"] = babel["Tetraedro"] = babel["Tetraedro"] = babel["Tetraedre"] = "";
-//   babel["Octaedro"] = babel["Octahedron="] = babel["Octaedre"] = babel["Oktaedro"] = babel["Octa\u00E8dre"] = babel["Octaedro"] = babel["Octaedro"] = babel["Octaedre"] = "";
-//   babel["Dodecaedro"] = babel["Dodecahedron"] = babel["Dodecaedre"] = babel["Dodekaedro"] = babel["Dod\u00E9ca\u00E8dre"] = babel["Dodecaedro"] = babel["Dodecaedro"] = babel["Dodecaedre"] = "";
-//   babel["Icosaedro"] = babel["Icosahedron"] = babel["Icosaedre"] = babel["Ikosaedro"] = babel["Icosa\u00E8dre"] = babel["Icosaedro"] = babel["Icosaedro"] = babel["Icosaedre"] = "";
-//   babel["Elipsoide"] = babel["Ellipsoid"] = babel["El·lipsoide"] = babel["Elipsoide"] = babel["Ellipso\u00EFde"] = babel["Elipsoide"] = babel["Elips\u00F3ide"] = babel["El·lipsoide"] = "";
+  babel["cubo"] = babel["cube"] = babel["cub"] = babel["kubo"] = "cube";
+  babel["paralelep\u00edpedo"] = babel["box"] = babel["paral·lelep\u00edpede"] = babel["paralelepipedo"] = babel["parall\u00e9l\u00e9pip\u00e8de"] = "box";
+  babel["cono"] = babel["cone"] = babel["con"] = babel["kono"] = babel["c\u00f4ne"] = "cone";
+  babel["cilindro"] = babel["cylinder"] = babel["cilindre"] = babel["zilindro"] = babel["cylindre"] = "cylinder";
+  babel["esfera"] = babel["sphere"] = babel["sph\u00e8re"] = "sphere";
+  babel["tetraedro"] = babel["tetrahedron"] = babel["tetraedre"] = babel["t\u00e9tra\u00e8dre"] = "tetrahedron";
+  babel["octaedro"] = babel["octahedron="] = babel["octaedre"] = babel["oktaedro"] = babel["octa\u00e8dre"] = "octahedron";
+  babel["dodecaedro"] = babel["dodecahedron"] = babel["dodecaedre"] = babel["dodekaedro"] = babel["dod\u00e9ca\u00e8dre"] = "dodecahedron";
+  babel["icosaedro"] = babel["icosahedron"] = babel["icosaedre"] = babel["ikosaedro"] = babel["icosa\u00e8dre"] = "icosahedron";
+  babel["elipsoide"] = babel["ellipsoid"] = babel["el·lipsoide"] = babel["ellipso\u00efde"] = babel["elips\u00f3ide"] = "ellipsoid";
   babel["macro"] = babel["makro"] = "macro";
   babel["id"] = "id";
   babel["modelo"] = babel["model"] = babel["eredu"] = babel["mod\u00E8le"] = "model";
@@ -283,7 +284,7 @@ var babel = (function(babel) {
 //   babel["arr_izq"] = babel["top_left"] = babel["dalt_esq"] = babel["goi_ezk"] = babel["au-dessus_gauche"] = babel["arr_esq"] = babel["acima_esquerda"] = babel["dalt_esq"] = "";
 //   babel["arriba"] = babel["top_center"] = babel["dalt"] = babel["goian"] = babel["au-dessus"] = babel["arriba"] = babel["acima_centro"] = babel["dalt"] = "";
 //   babel["arr_der"] = babel["top_right"] = babel["dalt_dreta"] = babel["goi_eskuin"] = babel["au-dessus_droite"] = babel["arr_der"] = babel["acima_direita"] = babel["dalt_dreta"] = "";
-  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "left";
+  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "x";
   babel["derecha"] = babel["right"] = babel["dreta"] = babel["eskuinan"] = babel["droite"] = babel["dereita"] = babel["direita"] = babel["dreta"] = "right";
 //   babel["ab_izq"] = babel["bottom_left"] = babel["avall_esq"] = babel["Behe_ezk"] = babel["en bas_gauche"] = babel["ab_esq"] = babel["abaixo_esquerda"] = babel["avall_esq"] = "";
 //   babel["abajo"] = babel["bottom"] = babel["avall"] = babel["behean"] = babel["en bas"] = babel["abaixo"] = babel["abaixo"] = babel["avall"] = "";
@@ -353,9 +354,11 @@ var babel = (function(babel) {
   babel["opacidad"] = babel["opacity"] = babel["opacit\u00E9"] = babel["opacitat"] = babel["opacidade"] = "opacity";
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
-  babel["local"] = "local";
+  babel["local"] = babel["Local"] = "local";
   ////////////////////////
   
+  babel.loadLib = true;
+
   return babel;
 })(babel || {});/**
  * @author Joel Espinosa Longi
@@ -454,15 +457,15 @@ var descartesJS = (function(descartesJS) {
     
     // the font size
     fontCanvas += fontTokens[2] + "px ";
-    
+
     fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
 
     // serif font
-    if ((fontName == "serif") || (fontName == "times new roman") || (fontName == "timesroman")) {
+    if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
       fontCanvas += "'Times New Roman', Times, 'Droid Serif', serif";
     }
     // sans serif font
-    else if ((fontName == "sansserif") || (fontName == "arial") || (fontName == "helvetica")) {
+    else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
       fontCanvas += "Arial, Helvetica, 'Droid Sans', Sans-serif";
     }
     // monospace font
@@ -537,8 +540,11 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
     }
 
-    // chrome no soporta mas de 20 decimales en la funcion toFixed
-    if (system.match("chrome")) {
+    // some browsers like chrome do not suport more than 20 decimal in the toFixed function
+    try {
+      (0).toFixed(100);
+    } 
+    catch(e) {
       setNewToFixed();
     }
   }
@@ -570,8 +576,9 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         diff = strNum.length - indexOfDot - 1;
+
         if ( diff >= decimals) {
-          return strNum.substring(0, indexOfDot+1 +decimals)
+          return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
           for (var i=0, l=decimals-diff; i<l; i++) {
@@ -635,6 +642,50 @@ var descartesJS = (function(descartesJS) {
   descartesJS.getTextWidth = function(text, font) {
     descartesJS.ctx.font = font;
     return descartesJS.ctx.measureText(text).width;
+  }
+
+  // auxiliary values to calculate the metrics
+  var text = document.createElement("span");
+  text.appendChild( document.createTextNode("Áp") );
+  var block = document.createElement("div");
+  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
+  var div = document.createElement("div");
+  div.setAttribute("style", "margin: 0; padding: 0;");
+  div.appendChild(text);
+  div.appendChild(block);
+  var metricCache = {};
+
+  /**
+   * Get the metrics of a font
+   * @param {String} font the Descartes font to obtain the metric
+   * @return {Object} return an object containing the metric of the font (ascent, descent, h)
+   */
+  descartesJS.getFontMetrics = function(font) {
+    if (metricCache[font]) {
+      return metricCache[font];
+    }
+
+    text.setAttribute("style", "font: " + font + "; margin: 0px; padding: 0px;");
+
+    document.body.appendChild(div);
+    
+    var result = {};
+    
+    block.style.verticalAlign = "baseline";
+    result.ascent = block.offsetTop - text.offsetTop;
+    
+    block.style.verticalAlign = "bottom";
+    result.h = block.offsetTop - text.offsetTop;
+    
+    result.descent = result.h - result.ascent;
+    
+    result.baseline = result.ascent;
+    
+    document.body.removeChild(div);
+
+    metricCache[font] = result;
+    
+    return result;
   }
 
   /**
@@ -836,23 +887,29 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var tmpAnswer;
-
   var tempAnswers;
   var answerArray;
-
   var regExpPattern;
-  var tempAnswer;
   var answerValue;
 
+  var answer_0;
+  var answer_1;
+  var limInf;
+  var limSup;
+  var cond1;
+  var cond2;
+  var cond3;
+  var cond4;
+
   /**
-   * Build a simple regular expression pattern from a Descartes answer pattern (auxiliary function)
+   * Build a text regular expression pattern from a Descartes answer pattern (auxiliary function)
    * @param {String} answer the Descartes answer pattern to convert
    * @return {Object} return an object representing a simple regular expression pattern
    */
-  function buildSimpleRegularExpressionPattern(answer) {
+  function buildTextRegularExpressionPattern(answer) {
     tmpAnswer = answer.trim();
-    answer = {ignoreAcents: false, ignoreCaps: false, regExp: null}
-    
+    answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
+
     // ignore uppercase
     if ((tmpAnswer[0] == tmpAnswer[tmpAnswer.length-1]) && (tmpAnswer[0] == "'")) {
       answer.ignoreCaps = true;
@@ -877,15 +934,19 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if ((tmpAnswer[0] == "*") && (tmpAnswer[tmpAnswer.length-1] != "*")) {
+    if ((tmpAnswer.charAt(0) === "*") && (tmpAnswer.charAt(tmpAnswer.length-1) !== "*")) {
       tmpAnswer = (tmpAnswer.substring(1)) + "$";
     }
 
-    if ((tmpAnswer[0] != "*") && (tmpAnswer[tmpAnswer.length-1] == "*")) {
+    else if ((tmpAnswer.charAt(0) !== "*") && (tmpAnswer.charAt(tmpAnswer.length-1) === "*")) {
       tmpAnswer = "^" + (tmpAnswer.substring(0, tmpAnswer.length-1));
     }
-        
-    if ((tmpAnswer[0] == "*") && (tmpAnswer[tmpAnswer.length-1] == "*")) {
+
+    else if ((tmpAnswer.charAt(0) !== "*") && (tmpAnswer.charAt(tmpAnswer.length-1) !== "*")) {
+      tmpAnswer = "^" + tmpAnswer + "$";
+    }
+
+    else if ((tmpAnswer.charAt(0) === "*") && (tmpAnswer.charAt(tmpAnswer.length-1) === "*")) {
       tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
     }
         
@@ -894,6 +955,53 @@ var descartesJS = (function(descartesJS) {
     answer.regExp = tmpAnswer;
     
     return answer;
+  }
+
+  /**
+   * Build a text regular expression pattern from a Descartes answer pattern (auxiliary function)
+   * @param {String} answer the Descartes answer pattern to convert
+   * @return {Object} return an object representing a simple regular expression pattern
+   */
+  function buildNumericRegularExpressionPattern(answer, evaluator) {
+    tmpAnswer = answer.trim();
+    answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
+
+    answer.expr = tmpAnswer.split(",");
+
+    answer.expr[0] = answer.expr[0].trim();
+    answer.expr[0] = { type: answer.expr[0].charAt(0),
+                       expr: evaluator.parser.parse(answer.expr[0].substring(1))
+                     };
+
+    answer.expr[1] = answer.expr[1].trim();
+    answer.expr[1] = { type: answer.expr[1].charAt(answer.expr[1].length-1),
+                       expr: evaluator.parser.parse(answer.expr[1].substring(0, answer.expr[1].length-1))
+                     };
+
+    return answer;
+  }
+
+  function inRange(regExp, value, evaluator) {
+    value = parseFloat(value);
+
+    answer_0 = regExp.expr[0];
+    answer_1 = regExp.expr[1];
+    
+    limInf = evaluator.evalExpression(answer_0.expr);
+    limSup = evaluator.evalExpression(answer_1.expr);
+    
+    cond1 = (answer_0.type == "(");
+    cond2 = (answer_0.type == "[");
+    cond3 = (answer_1.type == ")");
+    cond4 = (answer_1.type == "]");
+    
+    if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
+        ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
+       ) {
+      return 1;
+    }
+    
+    return 0;
   }
 
   /**
@@ -910,12 +1018,10 @@ var descartesJS = (function(descartesJS) {
    * @param {String} answer the Descartes answer pattern to convert
    * @return {Object} return an object representing a regular expression pattern
    */
-  descartesJS.buildRegularExpresionsPatterns = function(answer) {
-    if (answer.charAt(0) === "(" ) {
-      answer = answer.substring(1);
-    }
-    if (answer.charAt(answer.length-1) === ")") {
-      answer = answer.substring(0, answer.length-1);
+  descartesJS.buildRegularExpresionsPatterns = function(answer, evaluator) {
+    // remove parentheses in a text expression
+    if ((answer.charAt(0) === "(" ) && (answer.charAt(answer.length-1) === ")") && (answer.indexOf(",") === -1)) {
+      answer = answer.substring(1, answer.length-1);
     }
 
     answer = ((answer.replace(/&squot;/g, "'")).replace(/&amp;/g, "&")).split("|");
@@ -923,9 +1029,22 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=answer.length; i<l; i++) {
       tempAnswers = answer[i].split("&");
       answerArray = [];
-      
+
       for (var j=0, k=tempAnswers.length; j<k; j++) {
-        answerArray.push( buildSimpleRegularExpressionPattern(tempAnswers[j]) );
+        tmpAnswer = tempAnswers[j];
+
+        // numeric pattern
+        if ( (tmpAnswer.indexOf(",") !== -1) && 
+             ( ((tmpAnswer.charAt(0) === "(" ) || (tmpAnswer.charAt(0) === "[")) && 
+               ((tmpAnswer.charAt(tmpAnswer.length-1) === ")") || (tmpAnswer.charAt(tmpAnswer.length-1) === "]")) 
+             )
+           ) {
+          answerArray.push( buildNumericRegularExpressionPattern(tmpAnswer, evaluator) );          
+        }
+        // text pattern
+        else {
+          answerArray.push( buildTextRegularExpressionPattern(tmpAnswer) );
+        }
       }
       
       answer[i] = answerArray;
@@ -940,20 +1059,26 @@ var descartesJS = (function(descartesJS) {
    * @param {String} resp the answer to check
    * @return {Number} return 1 if the answer meets the Descartes answer pattern and 0 if not
    */
-  descartesJS.escorrecto = function(respPattern, resp) {
-    regExpPattern = descartesJS.buildRegularExpresionsPatterns(respPattern);
+  descartesJS.escorrecto = function(respPattern, resp, evaluator, regExpPattern) {
+    evaluator = evaluator || descartesJS.externalEvaluator;
+    regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
 
     // remove the accents
-    resp = (removeAccents(resp)).toLowerCase();
+    resp = removeAccents(resp);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswer = regExpPattern[i];
+      tempAnswers = regExpPattern[i];
       answerValue = true;
 
-      for (var j=0, k=tempAnswer.length; j<k; j++) {
-        tempAnswer[j].regExp = (removeAccents(tempAnswer[j].regExp)).toLowerCase();
-        
-        answerValue = answerValue && !!(resp.match(tempAnswer[j].regExp));
+      for (var j=0, k=tempAnswers.length; j<k; j++) {
+        // a text pattern
+        if (tempAnswers[j].regExp) {
+          answerValue = answerValue && !!(resp.match( removeAccents(tempAnswers[j].regExp), "i" ));
+        }
+        // a numeric pattern
+        else {
+          answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
+        }
       }
       
       if (answerValue) {
@@ -970,26 +1095,35 @@ var descartesJS = (function(descartesJS) {
    * @param {String} resp the answer to check
    * @return {Number} return 1 if the answer meets the Descartes answer pattern and 0 if not
    */
-  descartesJS.esCorrecto = function(respPattern, resp) {
-    regExpPattern = descartesJS.buildRegularExpresionsPatterns(respPattern);
+  descartesJS.esCorrecto = function(respPattern, resp, evaluator, regExpPattern) {
+    evaluator = evaluator || descartesJS.externalEvaluator;
+    regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswer = regExpPattern[i];
+      tempAnswers = regExpPattern[i];
       answerValue = true;
       
-      for (var j=0, k=tempAnswer.length; j<k; j++) {
+      for (var j=0, k=tempAnswers.length; j<k; j++) {
+        tmpAnswer = tempAnswers[j].regExp;
         
-        if (tempAnswer[j].ignoreAcents) {
-          resp = removeAccents(resp);
-          tempAnswer[j].regExp = removeAccents(tempAnswer[j].regExp);
+        // a text pattern
+        if (tmpAnswer) {
+          if (tempAnswers[j].ignoreAcents) {
+            resp = removeAccents(resp);
+            tmpAnswer = removeAccents(tmpAnswer);
+          }
+          
+          if (tempAnswers[j].ignoreCaps) {
+            resp = resp.toLowerCase();
+            tmpAnswer = removeAccents(tmpAnswer).toLowerCase();
+          }
+
+          answerValue = answerValue && !!(resp.match(tmpAnswer));
         }
-        
-        if (tempAnswer[j].ignoreCaps) {
-          resp = resp.toLowerCase();
-          tempAnswer[j].regExp = (tempAnswer[j].regExp).toLowerCase();  
+        // a numeric pattern
+        else {
+          answerValue = answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
         }
- 
-        answerValue = answerValue && !!(resp.match(tempAnswer[j].regExp));
       }
       
       if (answerValue) {
@@ -1009,15 +1143,276 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  // var w;
+  // var h;
+  // var canvas;
+  // var ctx;
+  // var black;
+  // var white;
+  // var gray;
+
   /**
    * Get the embedded image of the license used in Arquimedes
    * @return {Image} return the image of the license used in Arquimedes
    */
   descartesJS.getCreativeCommonsLicenseImage = function() {
     var img = new Image();
+
+    // w = 88;
+    // h = 31;
+    // black = "#000";
+    // white = "#fff";
+    // gray = "#bebebe";
+
+    // canvas = document.createElement("canvas");
+    // canvas.setAttribute("width", w);
+    // canvas.setAttribute("height", h);
+    // ctx = canvas.getContext("2d");
+
+    // ctx.lineWidth = 1;
+    // ctx.fillStyle = gray;
+    // ctx.fillRect(0, 0, w, h);
+
+    // ctx.strokeStyle = black;
+    // ctx.strokeRect(.5, .5, w-1, h-1);
+
+    // ctx.fillStyle = black;
+    // ctx.fillRect(0, 21, w, h)
+
+    // ctx.fillStyle = gray;
+    // ctx.beginPath();
+    // ctx.arc(14, 14.5, 13.5, 0, Math.PI);
+    // ctx.fill();
+
+    // ctx.lineWidth = 2;
+    // ctx.fillStyle = white;
+
+    // // cc
+    // ctx.beginPath();
+    // ctx.arc(14, 14.5, 10.5, 0, 2*Math.PI);
+    // ctx.fill();
+    // ctx.stroke();
+    // ctx.font = "bold 12px Arial";
+    // ctx.fillStyle = black;
+    // ctx.fillText("cc", 7.5, 18);
+    // ctx.fillStyle = white;
+
+    // // by
+    // ctx.beginPath();
+    // ctx.arc(40, 11, 7.5, 0, 2*Math.PI);
+    // ctx.fill();
+    // ctx.stroke();
+    // ctx.fillStyle = black;
+    // ctx.fillRect(39, 6, 2, 2);
+    // ctx.fillRect(38.5, 9, 3.5, 3.5);
+    // ctx.fillRect(39, 9, 2, 7);
+    // ctx.fillStyle = white;
+
+    // // nc
+    // ctx.beginPath();
+    // ctx.arc(58, 11, 7.5, 0, 2*Math.PI);
+    // ctx.fill();
+    // ctx.stroke();
+    // // inside nc
+    // ctx.font = "bold 11px Arial";
+    // ctx.fillStyle = black;
+    // ctx.fillText("$", 55.5, 15);
+    // ctx.fillStyle = white;
+    // ctx.beginPath();
+    // ctx.moveTo(51, 9);
+    // ctx.lineTo(64, 13);
+    // ctx.stroke();
+
+    // // sa
+    // ctx.beginPath();
+    // ctx.arc(76, 11, 7.5, 0, 2*Math.PI);
+    // ctx.fill();
+    // ctx.stroke();
+    // // inside sa
+    // ctx.beginPath();
+    // ctx.arc(76, 11, 3.5, 4*Math.PI/5, Math.PI, true);
+    // ctx.stroke();
+
+    // // text
+    // ctx.font = "8px Arial";
+    // ctx.fillText("BY", 35, 29);
+    // ctx.fillText("NC", 53, 29);
+    // ctx.fillText("SA", 71, 29);
+
+    // img.src = canvas.toDataURL();
+
     img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAYAAABjyArgAAAABHNCSVQICAgIfAhkiAAACpVJREFUaIHtWm1sU9cZfu61iUYnPP/bJgdhhDbFkVYcCrR0tLHXrVNL01wvgUJDh820tivrkpQQtpEvA4HGhDoe/dCmNfbaVa1WKszX2oUO3xC0OHESm9Hi/FhloyQq1aY5OGgq8ce7H9f3xI7txKFsdKyPdHSPz8dzz33Oe77eY46IVBzHXcUXuOkgIo4DQABwuucUeJ4Hz/NQKBTgeQUUPA9ekXryPDiOB89x4DgO4DiZBQQCJQlJSiKZlEIikZCeyQQSiSSSyQTLS1KSlSciuTEsfjtgY+UmAAAHgGRxFQqFFHjFTFyhkPJ4RUpkDhzHp+ubEiclbFISM5FIhfR4IlPkZDLJhE0X+nbBxspNUALIFFehhDLjKYWTx0/B4/FgcHAQU9GpDKIlqiVYu3YtjN8xouLRR5BIKsDzcalDEjw4cJD6cgaUJGkkANIY4iRxR3x+uN9xIxgMZpTX6XQQqgSsWlNW0Md9Xng4APSns+9BqVQyUZVKpRQUSvSK52B73oaJiYmCGqTRaND4i0aUl9+PeCKBRCKOeDwVEnHE4wlm4emW/PHExzjS9SJGg6MAAIPBAL1eDwAIBAIQRREAUKIrwY7aHfja17+a8/1XPv4ELzle+lzwbKzcJAn8fu8ZKBXKGWGVi7BIqURrcxvcx9ysglqthiAI0Gq1KC8vBwD09vYiHA7D7XZjcnKSlRVMAhoad2LxHYsRj8cRi8cRj8cQj8czpwxK4mrkKn769LOIRqMQBAF2ux1arTajseFwGPX19XC73VCpVGi3tWd91LXoNdTuqPvc8MjzMJ3tO0t9/eeo39dPQwEfXfggQIJJIEiDl9RqNbW1tVEkEqG54HQ6Sa1Ws3oluhI6399HQ4Eh8g71U1//OfL0naUzYg+99+d36XTPKTrx7nHS6XQEgMxmcwafzDP7HTL328f/kBFKdCU5eRx2Oz3+2ObPxDM2Nkbe/n7y9vfT2NhYQTwAiAcARWoOVioUUCoyLVev18Pv96O1tRVqtTprGKTDbDYjFAqxoTQaHEWn7XDGXM6zHYm0G/F5fQgGgxAEAY27ds3JL79DEASMBkcx4vOz9BGfH6PBUawqK8O996xj6b/q6sLzNhtOnj6N3Q27MD4+XhBPent+/9prMKy/DzWbt6Bm8xYY1t+HMz09c/Kkg/q8feQd8tLIhWFyHHEwy9Hr9fNabS5EIhHS6/WMx/Gig0b+OkIDw1467+0jz3nJit99/4+kK5WsNxQKFcwfCoUIAOl0OmYt8igo+cY3acUyLZV/ez09/eMnCQC1tbXRwQMHCQAdffvtgnjk9nj7+yW+u9fRj7ZZqHFnA61YpqUVy7TksNvz8uSwYMmKbc/bAEjzrdPpnNdqc0GtVsPj8bC6toO21F46ZcFcak/N8wheCsJgMGTNcRaLhVm5xWLJyNNqtTAYDBkrezAo8VRUVGDjpk0YHx/HmZ4erFimxb+mrmHrE1tx6cMPUVVdXRCPVqtFNBpF0H8RAFAp/AC/dXWjo/MQ9rQ0AwBc3c68PDJ4AKlhK23F5N1CXV0dG+o3ArVaDbvdDgCYmJjAyROn2IFFEplj27Rc73G5XDnjMnLV0ev1sB3uxEFbB954601UVVfjo8th2A53YunSpXB1OxG8dKkgHhntL0gG95vfvcrSvvfggwCAaDSKT65cycsDpASWrcnj8QCQxKmtrWWFRFGEyWSC0WiE0WiE1WrNm9fV1cXyzGYzs2LPWU+a9XLg+BmB/xO4+5570NF5CGNjY2jc2YCyb92Jd44eRcXDG1CzeQubQ+eCSqWCw+HAHaoleOWVV3KW+fTT63NySAcNjgPPcRgcHAQACILAhBFFEUajMaOSKIoQRRG1tbUwmUxZeRcuXIDT6WRcLpcLg4OD0gkwJawkriRwIBDIapjZbGaWazabs/Jz1ZmdFo1GcaanBx2dh2C+ZEHFwxsAAANeLwa8XhQXF4NbpJyTZ5FSicaGBtyxeDFLG/B6WXyZdlne9gDMgqUPlk9oK1euZAXq6+sBSPNMKBSCx+OBVqvFtm3bmCXr9XqEQiEcO3YsY48MgMWnolPSe8ClPYHS0lKIoohwOJzRMLmDZscBaQ8qiiJ0Oh1L0+l0WTw/efIptO/dh1V3rkTN5i346HIYVdXV6Og8hJqtWwviGR8fR1tLKx5/bDPa9+5D+959aGlqAgDs2r07b3syBAaHjOGaPp/IPWM2m9lkHgqFYDabWZ58+BAEgeXJSF+8JKPNPDZvfExadOSOLARyWaFKYGlyPJ2no/MQLNu348o//o6/hUJw2O3Y09KMqupqWPfvQ9ma1fPyWLZvh2X7dgCAs7sbzu5uXP/0OjZUPIItNY/nbY+M7PHxX8a69eugK9XB7XbDYrFkWetsyKenEl1Jhh9g1ZoylOhKMniKi4uxp6UZX1q8GCPDw/hZXd0N8expacb3H3oIly+HAUijTldaOiePDMmCKdOLlT6fyNbscrkwOTmJQCCA5cuXw2q1sjz5mJyeJyN9yEpnM3l7PIPmtmaoVCq4XC6YTCZWh9K8bOFwGCaTCV1dXVCpVNhRuyPrY3b/sjEnz85dDXjjrTc/E8/qNatRVV2Nqupq6EpLC+IBUs4e38ggioqKsP7e+zAVnYLZbGaW5Ha7sxYyQJoyKisr8+bJ9evr69HV1YUlqiU4/5c+TE9PYzo2jVg8hlgsLjmDEnFE/jmJA9YDbC+p1+uh1+uhVqshiiLr9PmcNNei19BxwMacNLeShzl7BoYHUFRUBGuLFe5jbqjVakQiEVZQFEU4HA7mzDEYDGhtbWUd4HA4WNn0PABYvnw5wuEwHvjuAzhs78T16WnEZgks+42TiSR8Az4cO3rr3Yw3g4cJ7B3qx6JFRTh/7jxqn5X2v3a7HXVpc9aNwOVysVPY/gP78fCGhzAdm8Z0LIZ4LIZYfJbAORzw/8vYWLlJmoPlKx2DsRwajQYAYLVas7ZOC8Hk5CRbXTUaTcoRn7rFSCaRTM3FlLpyul3BA0CSkkgkpHu0fe17AUgCmUymDB9voZicnITRaGR1G3/emHKwJ2ZETrsyYovsrMX2dgEBoKbWJvKNDFLgop+e+OETGR41v9+/IE9XuidNMAkUuOgn38gg7W3fy9L/j8LMj7rnamnI76PADTjcI5EItbW1ZTjc16xdQxc+CNBQwEdNrU23+kNvSWDX9jKaW5tQaRKgVCpx2HYYr7/2Ostb6JWRdV8b4vE4BgYG8cxTz2A+pE8P8smSiDJOmbN/5+PJV0d+R6GOpnxtWhDH7NDc2iRZ8kU/dbteJY1GU3CPaTQachxxUOCin4YCPnr51y8XXJeI5oynp83HM1/9QrhylVkoR5YFy6h7rhY1W2vYVY/o6cWJ4yfmvLZ/VHgUBkM5u9A8fvwE9lv3F9DHEnJZS3reQqyO47i8z4VgtrXOXoTn48srMACsuqsMza0tKF6qSbuNSHc3ImPfKv/xZGJ8HC902nGu99yCP+azTA35eABkCbxQsXN1UiEccwos4/7y+7GhYgPuWn0XvqJSpf46Jb9ZetHVaBTDQ8M4ffL0goVN/wjWsJtgwbl+L2T+nG9NuGkCf4EbB09EX77VjbhdQUTcvwFtwhQyXNo3TwAAAABJRU5ErkJggg==";
 
     return img;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var MathFloor = Math.floor;
+  var evaluator;
+  var tmpColor;
+  var splitColor;
+  var hexColor;
+  var splitString;
+  var parenthesesStack;
+  var lastSplitIndex;
+  var charAt;
+  var r;
+  var g;
+  var b;
+  var a;
+
+  /**
+   *
+   */
+  descartesJS.Color = function(color, evaluator) {
+    this.r = 0;
+    this.g = 0;
+    this.b = 0;
+    this.a = 0;
+
+    // construct a simple color
+    if (!color) {
+      this.colorStr = "rgba("+ this.r +","+ this.g +","+ this.b +","+ this.a + ")";
+
+      this.getColor = this.getColorString;
+      return;
+    }
+
+    this.evaluator = evaluator;
+
+    // the color is a color name
+    if (babel[color]) {
+      if (babel[color] === "net") {
+        color = "rojo";
+      }
+
+      color = babel[color];
+
+      this.r = parseInt("0x"+color.substring(1,3), 16);
+      this.g = parseInt("0x"+color.substring(3,5), 16);
+      this.b = parseInt("0x"+color.substring(5,7), 16);
+      this.colorStr = color;
+
+      this.getColor = this.getColorString;
+    }
+
+    // the color is six hexadecimals digits #RRGGBB
+    if (color.length === 6) {
+      this.r = parseInt("0x"+color.substring(0,2), 16);
+      this.g = parseInt("0x"+color.substring(2,4), 16);
+      this.b = parseInt("0x"+color.substring(4,6), 16);
+      this.colorStr = "#" + color;
+
+      this.getColor = this.getColorString;
+    }
+
+    // the color is eight hexadecimals digits #RRGGBBAA
+    if (color.length === 8) {
+      this.r = parseInt("0x"+color.substring(2,4), 16);
+      this.g = parseInt("0x"+color.substring(4,6), 16);
+      this.b = parseInt("0x"+color.substring(6,8), 16);
+      this.a = (1-parseInt("0x"+color.substring(0,2), 16)/255);
+      this.colorStr = "rgba("+ this.r +","+ this.g +","+ this.b +","+ this.a + ")";
+
+      this.getColor = this.getColorString;
+    }
+
+    // the color is a Descartes expression (exprR, exprG, exprB, exprA)
+    if (color[0] === "(") {
+      tmpColor = [];
+      splitColor = this.splitComa(color.substring(1,color.length-1));
+
+      for (var i=0, l=splitColor.length; i<l; i++) {
+        hexColor = parseInt(splitColor[i], 16);
+
+        if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
+          if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
+            splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
+          }
+
+          tmpColor.push(this.evaluator.parser.parse( splitColor[i] ));
+        }
+        else {
+          tmpColor.push(this.evaluator.parser.parse( (hexColor/255).toString() ));
+        }
+      }
+
+      this.rExpr = tmpColor[0];
+      this.gExpr = tmpColor[1];
+      this.bExpr = tmpColor[2];
+      this.aExpr = tmpColor[3];
+
+      this.getColor = this.getColorExpression;
+    }
+    
+  }
+
+  /**
+   * Split a string using a coma delimiter
+   * @param {String} string the string to split
+   * @return {Array<String>} return an array of the spliting string using a coma delimiter
+   */
+  descartesJS.Color.prototype.splitComa = function(string) {
+    splitString = [];
+    parenthesesStack = [];
+    lastSplitIndex = 0;
+
+    for (var i=0, l=string.length; i<l; i++) {
+      charAt = string.charAt(i);
+      if (charAt === "(") {
+        parenthesesStack.push(i);
+      }
+      else if (charAt === ")") {
+        parenthesesStack.pop();
+      }
+      else if ((charAt === ",") && (parenthesesStack.length === 0)) {
+        splitString.push(string.substring(lastSplitIndex, i));
+        lastSplitIndex = i+1;
+      }
+    }
+    
+    splitString.push(string.substring(lastSplitIndex));
+    
+    return splitString;
+  }
+
+
+  /**
+   *
+   */
+  descartesJS.Color.prototype.getColorString = function() {
+    return this.colorStr;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Color.prototype.getColorExpression = function() {
+    evaluator = this.evaluator;
+    this.r = MathFloor(evaluator.evalExpression(this.rExpr) * 255);
+    this.g = MathFloor(evaluator.evalExpression(this.gExpr) * 255);
+    this.b = MathFloor(evaluator.evalExpression(this.bExpr) * 255);
+    this.a = (1 - evaluator.evalExpression(this.aExpr));
+
+    return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
+  }
+
+  /**
+   *
+   */
+  descartesJS.Color.prototype.borderColor = function() {
+    if (this.r + this.g + this.b < 380) {
+      return "white";
+    }
+    return "black";
   }
 
   return descartesJS;
@@ -2873,22 +3268,22 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    if (this.parent.version != 2) {
+    this.color = new descartesJS.Color("blue");
+    if (this.parent.version !== 2) {
     // if (this.parent.code == "descinst.com.mja.descartes.DescartesJS.class") {
-      this.color = "#20303a";
+      this.color = new descartesJS.Color("20303a");
     // } else {
     //   this.color = "#000000";
     // }
       // ##ARQUIMEDES## //
       if (this.parent.arquimedes) {
-        this.color = "black";
+        this.color = new descartesJS.Color("black");
       }
       // ##ARQUIMEDES## //
-    } 
-    // Descartes 2
-    else {
-      this.color = "blue";
     }
+    // if (this.parent.code === "descinst.Descartes.class") {
+    //   this.color = "blue";
+    // }
 
     /**
      * the color for the trace of the graphic
@@ -3129,9 +3524,9 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
     // rtf text
-    if (text.type == "rtfNode") {
-      ctx.fillStyle = fill;
-      ctx.strokeStyle = fill;
+    if (text.type === "rtfNode") {
+      ctx.fillStyle = fill.getColor();
+      ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
       text.draw(ctx, x, y, decimals, fixed, align, displaceY);
       
@@ -3146,13 +3541,13 @@ var descartesJS = (function(descartesJS) {
     x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
     
     evaluator = this.evaluator;
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
     ctx.font = font;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
         
     if (this.border) {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
+      ctx.strokeStyle = this.border.getColor();
       ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
     }
     
@@ -3162,6 +3557,7 @@ var descartesJS = (function(descartesJS) {
       theText = text[i];
 
       if (this.border) {
+        ctx.lineJoin = "round";
         ctx.strokeText(theText, x, y+(verticalDisplace*i));
       }
       ctx.fillText(theText, x, y+(verticalDisplace*i));
@@ -3298,6 +3694,57 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var PI2 = Math.PI*2;
+
+  var evaluator;
+  var parser;
+  var space;
+  var color;
+  var width;
+  var desp;
+  var savex;
+  var savey;
+  var netsz;
+  var w;
+  var h;
+  var dx;
+  var dy;
+  var q0;
+  var qb;
+  var t;
+  var Q;
+  var q;
+  var q_ij;
+  var Qx;
+  var Qy;
+  var t0;
+  var zeroVisited;
+  var side;
+  var changeSide;
+  var Px;
+  var Py;
+  var i;
+  var j;
+
+  var theZeroX;
+  var theZeroY;
+  var initX;
+  var initY;
+  var tmpX;
+  var tmpY;
+  var actualTmpAbsoluteX;
+  var actualTmpAbsoluteY;
+  var previousTmpAbsoluteX;
+  var previousTmpAbsoluteY;
+  var min;
+  var max;
+  var minmax;
+  var va;
+  var colorFillM;
+  var colorFillP;
+  var disc;
+  var saveX;
+  var Xr;
+  var auxv;
   
   /**
    * A Descartes equation
@@ -3318,35 +3765,42 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.fill = "";
+    // this.fill = "";
     
     /**
      * the condition and the color of the fill+
      * type {String}
      * @private
      */
-    this.fillP = ""; 
+    this.fillP = new descartesJS.Color("00ff80");
 
     /**
      * the condition and the color of the fill-
      * type {String}
      * @private
      */
-    this.fillM = "";
+    this.fillM = new descartesJS.Color("ffc800");
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
+    // generate a stroke pattern
     this.generateStroke();
 
     // parse the expression and build a newton evaluator
     this.parseExpression();
 
     // Descartes 2 visible
-    this.visible = ((this.parent.version == 2) && (this.visible == undefined)) ? true : false;
+    this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;
     if (this.visible) {
       this.registerTextField();
     }
+
+    q0 = new descartesJS.R2();
+    qb = new descartesJS.R2();
+    t = new descartesJS.R2();
+    q_ij = new descartesJS.R2();
+    Q = new descartesJS.R2();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -3396,6 +3850,9 @@ var descartesJS = (function(descartesJS) {
     this.auxCanvas.setAttribute("width", width);
     this.auxCanvas.setAttribute("height", width);
     this.auxCtx = this.auxCanvas.getContext("2d");
+
+    this.auxCtx.fillStyle = this.color.getColor();
+
     this.auxCtx.beginPath();
     this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
     this.auxCtx.fill();
@@ -3430,36 +3887,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
-  
-  var evaluator;
-  var parser;
-  var space;
-  var color;
-  var width;
-  var desp;
-  var savex;
-  var savey;
-  var netsz;
-  var w;
-  var h;
-  var dx;
-  var dy;
-  var q0;
-  var qb;
-  var t;
-  var Q;
-  var q;
-  var Qx;
-  var Qy;
-  var t0;
-  var zeroVisited;
-  var side;
-  var changeSide;
-  var Px;
-  var Py;
-  var i;
-  var j;
-  
+    
   /**
    * Auxiliary function for draw an non explicit equation 
    * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
@@ -3471,9 +3899,6 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     parser = evaluator.parser;
     space = this.space;
-
-    color = descartesJS.getColor(evaluator, this.color);
-    ctx.fillStyle = stroke;
     
     width = evaluator.evalExpression(this.width);
     desp = (width%2) ? .5 : 0;
@@ -3497,22 +3922,24 @@ var descartesJS = (function(descartesJS) {
 
     b = [];
 
-    q0 = new descartesJS.R2();
-    qb = new descartesJS.R2();
-    t = new descartesJS.R2();
+    q0.set(0, 0);
+    qb.set(0, 0);
+    t.set(0, 0);
 
     for (j=MathFloor(dy/2); j<h; j+=dy) {
       for (i=MathFloor(dx/2); i<w; i+=dx) {
         if (this.abs_coord) {
-          q = this.newt.findZero(new descartesJS.R2(i, j));
+          q_ij.set(i, j);
+          q = this.newt.findZero(q_ij);
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
-          Q = new descartesJS.R2(q.x, q.y);
+          Q.set(q.x, q.y);
         } else {
-          q = this.newt.findZero(new descartesJS.R2(space.getRelativeX(i), space.getRelativeY(j)));
+          q_ij.set(space.getRelativeX(i), space.getRelativeY(j));
+          q = this.newt.findZero(q_ij);
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
-          Q = new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+          Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
         }
         
         Qx = MathFloor(Q.ix());
@@ -3554,8 +3981,13 @@ var descartesJS = (function(descartesJS) {
             qb.x = q.x;
             qb.y = q.y;
             
-            Q = (this.abs_coord) ? (new descartesJS.R2(q.x, q.y)) : (new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y)));
-            
+            if (this.abs_coord) {
+              Q.set(q.x, q.y);
+            }
+            else {
+              Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+            }
+
             Qx = Q.ix();
             Qy = Q.iy();
             changeSide = false;
@@ -3586,9 +4018,9 @@ var descartesJS = (function(descartesJS) {
           qb.y = q.y;
           
           if (this.abs_coord) {
-            Q = new descartesJS.R2(q.x, q.y);
+            Q.set(q.x, q.y);
           } else {
-            Q = new descartesJS.R2(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
+            Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
           }
           
           Px = MathFloor(Q.ix());
@@ -3602,15 +4034,12 @@ var descartesJS = (function(descartesJS) {
               zeroVisited = 0;
               
               if (b[Qx + Qy*space.w]) {
-//               if (b[Qx][Qy]) { /* Zero already detected */
                 break;
-              } else {
+              } 
+              else {
                 b[Qx + Qy*space.w] = true;
-//                 b[Qx][Qy]=true;
-//                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                if (descartesJS.rangeOK) {
+                if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
                   ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
-                  // descartesJS.drawPixel(ctx, Qx+desp, Qy+desp, width);
                 }
               }
             } else {
@@ -3625,27 +4054,6 @@ var descartesJS = (function(descartesJS) {
       }
     }
   }
-
-  var theZeroX;
-  var theZeroY;
-  var initX;
-  var initY;
-  var tmpX;
-  var tmpY;
-  var actualTmpAbsoluteX;
-  var actualTmpAbsoluteY;
-  var previousTmpAbsoluteX;
-  var previousTmpAbsoluteY;
-  var min;
-  var max;
-  var minmax;
-  var va;
-  var colorFillM;
-  var colorFillP;
-  var disc;
-  var saveX;
-  var Xr;
-  var auxv;
 
   /**
    * Auxiliary function for draw an equation of y
@@ -3662,9 +4070,9 @@ var descartesJS = (function(descartesJS) {
 
     width = evaluator.evalExpression(this.width);
 
-    color = descartesJS.getColor(evaluator, this.color);
-    colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = this.color.getColor();
+    colorFillM = this.fillM.getColor();
+    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initX = space.getRelativeX(0);
@@ -3733,9 +4141,9 @@ var descartesJS = (function(descartesJS) {
 
     width = evaluator.evalExpression(this.width);
 
-    color = descartesJS.getColor(evaluator, this.color);
-    colorFillM = descartesJS.getColor(evaluator, this.fillM);
-    colorFillP = descartesJS.getColor(evaluator, this.fillP);
+    color = this.color.getColor();
+    colorFillM = this.fillM.getColor();
+    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initY = space.getRelativeY(h);
@@ -3990,8 +4398,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
     
     tempParam = evaluator.getVariable(this.parameter);
     
@@ -4041,6 +4448,7 @@ var descartesJS = (function(descartesJS) {
     }
         
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     ctx.stroke();
@@ -4160,7 +4568,7 @@ var descartesJS = (function(descartesJS) {
     var size = Math.ceil(evaluator.evalExpression(this.size)-.4);
     var desp = size;
 
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
 
     ctx.beginPath();
 
@@ -4300,7 +4708,7 @@ var descartesJS = (function(descartesJS) {
     size = mathRound(evaluator.evalExpression(this.size));
     desp = size+1;
 
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.fillStyle = fill.getColor();
 
     coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
     coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
@@ -4327,6 +4735,25 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
   var PI2 = Math.PI*2;
+
+  var evaluator;
+  var space;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var tmpLineWidth;
+  var desp;
+  var midpX;
+  var midpY;
+  var size;
+  var lineDesp;
+  var coordX;
+  var coordY;
+  var coordX1;
+  var coordY1;
 
   /**
    * A Descartes segment
@@ -4357,25 +4784,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Segment, descartesJS.Graphic);
-
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var tmpLineWidth;
-  var desp;
-  var midpX;
-  var midpY;
-  var size;
-  var lineDesp;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
 
   /**
    * Update the segment
@@ -4440,8 +4848,8 @@ var descartesJS = (function(descartesJS) {
       size = 0;
     }
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.fillStyle = fill.getColor();
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
     
     desp = 10+ctx.lineWidth;
@@ -4492,6 +4900,27 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var mathRound = Math.round;
   
+  var evaluator;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var space;    
+  var midpX;
+  var midpY;
+  var desp;
+  var width1;
+  var width2;
+  var scale;
+  var vlength;
+  var coordX;
+  var coordY;
+  var coordX1;
+  var coordY1;
+  var spear;
+
   /**
    * A Descartes arrow
    * @constructor 
@@ -4525,7 +4954,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.arrow = "#ee0022";
+    this.arrow = new descartesJS.Color("ee0022");
     
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -4536,27 +4965,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arrow, descartesJS.Graphic);
   
-  var evaluator;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var space;    
-  var midpX;
-  var midpY;
-  var desp;
-  var width1;
-  var width2;
-  var scale;
-  var vlength;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
-  var spear;
-
   /**
    * Update the arrow
    */
@@ -4624,9 +5032,9 @@ var descartesJS = (function(descartesJS) {
     this.vect = new descartesJS.Vector2D(this.endPoints[1].x-this.endPoints[0].x, this.endPoints[1].y-this.endPoints[0].y);
     vlength = this.vect.vectorLength();
     this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
-    
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+
+    ctx.fillStyle = fill.getColor();
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineWidth = 2.0;
     
     if (this.abs_coord) {
@@ -4708,6 +5116,19 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var space;
+  var points;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var tmpLineWidth;
+  var lineDesp;
+  var coordX;
+  var coordY;
+
   /**
    * A Descartes polygon
    * @constructor 
@@ -4740,19 +5161,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Polygon, descartesJS.Graphic);
   
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var tmpLineWidth;
-  var lineDesp;
-  var coordX;
-  var coordY;
-
   /**
    * Update polygon
    */
@@ -4810,8 +5218,7 @@ var descartesJS = (function(descartesJS) {
     tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     
@@ -4832,6 +5239,7 @@ var descartesJS = (function(descartesJS) {
     
     // draw the fill
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     
@@ -5103,12 +5511,12 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
 
     ctx.beginPath();
     ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     ctx.stroke();
@@ -5128,6 +5536,14 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var expr;
+  var x;
+  var y;
+  var pixelStack;
+  var currentPixel;
+  var startColor;
+  var index;
+
   /**
    * A Descartes fill
    * @constructor 
@@ -5137,10 +5553,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Fill = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
-    // this.pixelStack = [];
-    // this.startColor;
-    // console.log(this.expresion, this.ctx, "|", this.space.w, this.space.h)
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -5152,26 +5564,10 @@ var descartesJS = (function(descartesJS) {
    * Update the fill
    */
   descartesJS.Fill.prototype.update = function() {
-    // var evaluator = this.evaluator;
+    expr = this.evaluator.evalExpression(this.expresion);
 
-    // var expr = evaluator.evalExpression(this.expresion);
-    // this.exprX = expr[0][0]; // the first value of the first expression
-    // this.exprY = expr[0][1]; // the second value of the first expression
-
-    // this.exprX = parseInt( this.space.getAbsoluteX(this.exprX+.1) );
-    // this.exprY = parseInt( this.space.getAbsoluteY(this.exprY+.1) );
-
-    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
-
-    // var pixelPos = (this.exprY*this.space.w + this.exprX) * 4;
-    // this.startColor = { r: this.imageData.data[pixelPos],
-    //                     g: this.imageData.data[pixelPos+1],
-    //                     b: this.imageData.data[pixelPos+2],
-    //                     a: this.imageData.data[pixelPos+3]
-    //                   }
-
-    // this.pixelStack.push( [this.exprX, this.exprY] );
-    // // console.log(this.startColor, pixelPos, this.exprX, this.exprY, this.imageData)
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
   }
 
   /**
@@ -5187,7 +5583,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Fill.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
+    // this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
@@ -5196,43 +5592,79 @@ var descartesJS = (function(descartesJS) {
    * @param {String} fill the fill color of the fill
    */
   descartesJS.Fill.prototype.drawAux = function(ctx, fill) {
-    // var evaluator = this.evaluator;
-    // var fillColor = getColorComponents(descartesJS.getColor(evaluator, fill));
-    // var newPos;
-    // var x;
-    // var y;
+    // update the color components of the fill color
+    fill.getColor();
 
-    // while (this.pixelStack.length) {
-    //   newPos = this.pixelStack.pop();
-    //   x = newPos[0];
-    //   y = newPos[1];
-    // }
+    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h).data;
+    imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
+
+    if (this.abs_coord) {
+      x = parseInt(this.exprX);
+      y = parseInt(this.exprY);
+    }
+    else {
+      x = parseInt( this.space.getAbsoluteX(this.exprX) );
+      y = parseInt( this.space.getAbsoluteY(this.exprY) );
+    }
+
+    pixelStack = [{x: x, y: y}];
+
+    startColor = getPixel(imageData, x, y);
+
+    // floodFill(x, y, this.startColor, fill, this.imageData);
+    while(pixelStack.length > 0) {
+      currentPixel = pixelStack.pop();
+      x = currentPixel.x;
+      y = currentPixel.y;
+
+      if (equalColor(startColor, getPixel(imageData, x, y))) {
+        // asign the color
+        setPixel(imageData, x, y, fill);
+
+        // add the next pixel to the stack
+        if (x > 0) {
+          pixelStack.push({x: x-1, y: y});
+        }
+        if (x <imageData.width-1) {
+          pixelStack.push({x: x+1, y: y});
+        }
+        pixelStack.push({x: x, y: y-1});
+        pixelStack.push({x: x, y: y+1});
+      }
+    }
+
+    this.ctx.putImageData(imageData, 0, 0);
   }
 
   /**
    *
    */
-  function getColorComponents(color) {
-    // var tmp;
-    // var resultColor = { r: 0, g: 0, b: 0, a: 0 };
+  function getPixel(imageData, x, y) {
+    index = (x + y*imageData.width) *4;
 
-    // if (color.match(/^rgba/)) {
-    //   tmp = color.substring(5, color.length-1).split(",");
-    //   resultColor.r = tmp[0];
-    //   resultColor.g = tmp[1];
-    //   resultColor.b = tmp[2];
-    //   resultColor.a = tmp[3];
+    return { r: imageData.data[index],
+             g: imageData.data[index+1],
+             b: imageData.data[index+2],
+             a: imageData.data[index+3]
+           }
+  }
 
-    //   return resultColor;
-    // }
-    // else if (color.match(/^#/)) {
-    //   tmp = color.substring(1);
-    //   resultColor.r = parseInt(tmp.substring(0,2), 16);
-    //   resultColor.g = parseInt(tmp.substring(2,4), 16);
-    //   resultColor.b = parseInt(tmp.substring(4,6), 16);
+  /**
+   *
+   */
+  function setPixel(imageData, x, y, color) {
+    index = (x + y * imageData.width) * 4;
+    imageData.data[index+0] = color.r;
+    imageData.data[index+1] = color.g;
+    imageData.data[index+2] = color.b;
+    imageData.data[index+3] = 255 - color.a;
+  }
 
-    //   return resultColor;
-    // }
+  /**
+   *
+   */
+  function equalColor(c1, c2) {
+    return (c1.r === c2.r) && (c1.g === c2.g) && (c1.b === c2.b) && (c1.a === c2.a);
   }
 
   return descartesJS;
@@ -5243,6 +5675,27 @@ var descartesJS = (function(descartesJS) {
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
+
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+
+  var width;
+  var textLine;
+  var w;
+  var newText;
+  var height;
+
+  var restText;
+  var resultText;
+  var tempText;
+  var charAt;
+  var lastIndex;
+  var decimals;
 
   /**
    * A Descartes text
@@ -5275,26 +5728,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Text, descartesJS.Graphic);
-  
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-
-  var width;
-  var textLine;
-  var w;
-  var newText;
-  var height;
-
-  var restText;
-  var resultText;
-  var tempText;
-  var charAt;
-  var lastIndex;
 
   /**
    * Update the text
@@ -5342,18 +5775,20 @@ var descartesJS = (function(descartesJS) {
    * @param {String} stroke the stroke color of the text
    */
   descartesJS.Text.prototype.drawAux = function(ctx, fill) {
+    decimals = this.evaluator.evalExpression(this.decimals);
+
     if (this.text.type === "rtfNode") {
       newText = this.text;
       this.ascent = 0;
     }
     else {
-      newText = this.splitText(this.text.toString(this.evaluator.evalExpression(this.decimals), this.fixed).split("\\n"))
+      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"))
     }
 
     // draw the text
     if (this.text != [""]) {
       //this.uber.drawText.call(this, ctx, newText, parseFloat(this.exprX)+5, parseFloat(this.exprY), fill, this.font, this.align, "hanging");
-      this.uber.drawText.call(this, ctx, newText, parseInt(this.exprX)+5, parseInt(this.exprY)+this.ascent, fill, this.font, this.align, "alphabetic");
+      this.uber.drawText.call(this, ctx, newText, parseInt(this.exprX)+5, parseInt(this.exprY)+this.ascent, fill, this.font, this.align, "alphabetic", decimals, this.fixed);
     }
   }
   
@@ -5621,6 +6056,14 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var expr;
+  var x;
+  var y;
+  var pixelStack;
+  var currentPixel;
+  var startColor;
+  var index;
+
   /**
    * A Descartes fill
    * @constructor 
@@ -5630,10 +6073,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Fill = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
-    // this.pixelStack = [];
-    // this.startColor;
-    // console.log(this.expresion, this.ctx, "|", this.space.w, this.space.h)
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -5645,26 +6084,10 @@ var descartesJS = (function(descartesJS) {
    * Update the fill
    */
   descartesJS.Fill.prototype.update = function() {
-    // var evaluator = this.evaluator;
+    expr = this.evaluator.evalExpression(this.expresion);
 
-    // var expr = evaluator.evalExpression(this.expresion);
-    // this.exprX = expr[0][0]; // the first value of the first expression
-    // this.exprY = expr[0][1]; // the second value of the first expression
-
-    // this.exprX = parseInt( this.space.getAbsoluteX(this.exprX+.1) );
-    // this.exprY = parseInt( this.space.getAbsoluteY(this.exprY+.1) );
-
-    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
-
-    // var pixelPos = (this.exprY*this.space.w + this.exprX) * 4;
-    // this.startColor = { r: this.imageData.data[pixelPos],
-    //                     g: this.imageData.data[pixelPos+1],
-    //                     b: this.imageData.data[pixelPos+2],
-    //                     a: this.imageData.data[pixelPos+3]
-    //                   }
-
-    // this.pixelStack.push( [this.exprX, this.exprY] );
-    // // console.log(this.startColor, pixelPos, this.exprX, this.exprY, this.imageData)
+    this.exprX = expr[0][0]; // the first value of the first expression
+    this.exprY = expr[0][1]; // the second value of the first expression
   }
 
   /**
@@ -5680,7 +6103,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Fill.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
+    // this.uber.drawTrace.call(this, this.trace, this.trace);
   }
   
   /**
@@ -5689,43 +6112,79 @@ var descartesJS = (function(descartesJS) {
    * @param {String} fill the fill color of the fill
    */
   descartesJS.Fill.prototype.drawAux = function(ctx, fill) {
-    // var evaluator = this.evaluator;
-    // var fillColor = getColorComponents(descartesJS.getColor(evaluator, fill));
-    // var newPos;
-    // var x;
-    // var y;
+    // update the color components of the fill color
+    fill.getColor();
 
-    // while (this.pixelStack.length) {
-    //   newPos = this.pixelStack.pop();
-    //   x = newPos[0];
-    //   y = newPos[1];
-    // }
+    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h).data;
+    imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
+
+    if (this.abs_coord) {
+      x = parseInt(this.exprX);
+      y = parseInt(this.exprY);
+    }
+    else {
+      x = parseInt( this.space.getAbsoluteX(this.exprX) );
+      y = parseInt( this.space.getAbsoluteY(this.exprY) );
+    }
+
+    pixelStack = [{x: x, y: y}];
+
+    startColor = getPixel(imageData, x, y);
+
+    // floodFill(x, y, this.startColor, fill, this.imageData);
+    while(pixelStack.length > 0) {
+      currentPixel = pixelStack.pop();
+      x = currentPixel.x;
+      y = currentPixel.y;
+
+      if (equalColor(startColor, getPixel(imageData, x, y))) {
+        // asign the color
+        setPixel(imageData, x, y, fill);
+
+        // add the next pixel to the stack
+        if (x > 0) {
+          pixelStack.push({x: x-1, y: y});
+        }
+        if (x <imageData.width-1) {
+          pixelStack.push({x: x+1, y: y});
+        }
+        pixelStack.push({x: x, y: y-1});
+        pixelStack.push({x: x, y: y+1});
+      }
+    }
+
+    this.ctx.putImageData(imageData, 0, 0);
   }
 
   /**
    *
    */
-  function getColorComponents(color) {
-    // var tmp;
-    // var resultColor = { r: 0, g: 0, b: 0, a: 0 };
+  function getPixel(imageData, x, y) {
+    index = (x + y*imageData.width) *4;
 
-    // if (color.match(/^rgba/)) {
-    //   tmp = color.substring(5, color.length-1).split(",");
-    //   resultColor.r = tmp[0];
-    //   resultColor.g = tmp[1];
-    //   resultColor.b = tmp[2];
-    //   resultColor.a = tmp[3];
+    return { r: imageData.data[index],
+             g: imageData.data[index+1],
+             b: imageData.data[index+2],
+             a: imageData.data[index+3]
+           }
+  }
 
-    //   return resultColor;
-    // }
-    // else if (color.match(/^#/)) {
-    //   tmp = color.substring(1);
-    //   resultColor.r = parseInt(tmp.substring(0,2), 16);
-    //   resultColor.g = parseInt(tmp.substring(2,4), 16);
-    //   resultColor.b = parseInt(tmp.substring(4,6), 16);
+  /**
+   *
+   */
+  function setPixel(imageData, x, y, color) {
+    index = (x + y * imageData.width) * 4;
+    imageData.data[index+0] = color.r;
+    imageData.data[index+1] = color.g;
+    imageData.data[index+2] = color.b;
+    imageData.data[index+3] = 255 - color.a;
+  }
 
-    //   return resultColor;
-    // }
+  /**
+   *
+   */
+  function equalColor(c1, c2) {
+    return (c1.r === c2.r) && (c1.g === c2.g) && (c1.b === c2.b) && (c1.a === c2.a);
   }
 
   return descartesJS;
@@ -7440,16 +7899,22 @@ var descartesJS = (function(descartesJS) {
 
   var v1;
   var v2;
+  var evaluator;
+  var verticalDisplace;
+  var theText;
 
   /**
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (vertices, type, style, mvMatrix) {
+  descartesJS.Primitive3D = function (vertices, type, style, evaluator, text) {
     this.vertices = vertices;
     this.type = type;
     this.style = style;
-    this.mvMatrix = mvMatrix;
+    this.evaluator = evaluator;
+    this.text = text || "";
+
+    this.light = descartesJS.Vector3D(1,1,1);
 
     this.transformedVertices = [];
 
@@ -7457,18 +7922,24 @@ var descartesJS = (function(descartesJS) {
     if (type === "vertex") {
       this.draw = drawVertex;
     }
-    else if (type === "triangle") {
-      this.draw = drawTriangle;
-    }
     else if (type === "face") {
       this.draw = drawFace;
     }
     else if (type === "text") {
-      this.draw = drawText;
+      this.draw = drawPrimitiveText;
     }
     else if (type === "edge") {
       this.draw = drawEdge;
     }
+
+    // overwrite the computeDepth function if the primitive is a text
+    if (style.isText) {
+      this.computeDepth = function(space) {
+        this.transformedVertices = this.vertices;
+        this.depth = (space.perspectiveMatrix.multiplyVector4( this.vertices[0] ).toVector3D()).z;
+      }
+    }
+
   }
 
   /**
@@ -7477,14 +7948,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Primitive3D.prototype.setVertices = function (vertices) {
     this.vertices = vertices;
-  }
-
-  /**
-   * Set the model view matrix of the primitive
-   * @param {Matrix4x4} mvMatrix is the new model view matrix
-   */
-  descartesJS.Primitive3D.prototype.setMvMatrix = function (mvMatrix) {
-    this.mvMatrix = mvMatrix;
   }
 
   /**
@@ -7500,16 +7963,23 @@ var descartesJS = (function(descartesJS) {
    * @param
    */
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
-    v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
-    v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
-    this.normal = v1.crossProduct(v2);
-    this.direction = this.normal.dotProduct(space.eye);
+    // triangles and faces
+    if (this.vertices.length >2) {
+      v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
+      v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
+      this.normal = v1.crossProduct(v2);
+      this.direction = this.normal.dotProduct(space.eye);
+    }
 
     this.depth = 0;
+    this.zMin =  10000;
+    this.zMax = -10000;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4( this.vertices[i] ).toVector3D();
 
       this.depth += this.transformedVertices[i].z;
+      this.zMin = Math.min(this.zMin, this.transformedVertices[i].z);
+      this.zMax = Math.max(this.zMax, this.transformedVertices[i].z);
 
       this.transformedVertices[i].x = space.transformCoordinateX(this.transformedVertices[i].x);
       this.transformedVertices[i].y = space.transformCoordinateY(this.transformedVertices[i].y);
@@ -7532,8 +8002,13 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function drawVertex() {
+  function drawVertex(ctx) {
+    setContextStyle(ctx, this.style);
 
+    ctx.beginPath();
+    ctx.arc(this.transformedVertices[0].x, this.transformedVertices[0].y, this.style.size, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.stroke();
   }
 
   /**
@@ -7542,10 +8017,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx) {
     setContextStyle(ctx, this.style);
 
-    if (this.direction > 0) {
-      ctx.fillStyle = this.style.backcolor;
-    }
-
+    // set the path to draw
     ctx.beginPath();
     ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
     for (var i=1, l=this.transformedVertices.length; i<l; i++) {
@@ -7553,52 +8025,124 @@ var descartesJS = (function(descartesJS) {
     }
     ctx.closePath();
 
-    ctx.fill();
+    // color render
+    if (this.style.model === "color") {
+      // necesary to cover completely the primitive
+      if (this.direction >= 0) {
+        ctx.fillStyle = this.style.backcolor;
+        ctx.strokeStyle = this.style.backcolor;
+      }
+      else {
+        ctx.strokeStyle = this.style.fillStyle;
+      }
 
-    ctx.strokeStyle = this.style.fillStyle;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+      ctx.fill();
 
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // light and metal render (incomplete)
+    else if ( (this.style.model === "light") || (this.style.model === "metal") ){
+      // necesary to cover completely the primitive
+      if (this.direction > 0) {
+        ctx.fillStyle = this.style.backcolor;
+        ctx.strokeStyle = this.style.backcolor;
+      }
+      else {
+        ctx.strokeStyle = this.style.fillStyle;
+      }
+
+      ctx.fill();
+
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
     // wireframe render
-    if (this.style.model == "wire") {
-      ctx.lineWidth = 2;
+    else if (this.style.model === "wire") {
+      ctx.lineWidth = 1.25;
       ctx.strokeStyle = this.style.fillStyle;
 
       ctx.stroke();
     }
-    else {
-      if (this.style.edges) {
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = this.style.strokeStyle;
-        
-        ctx.stroke();
-      }
+
+    // draw the edges
+    if ((this.style.edges) && (this.style.model !== "wire")) {
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = this.style.strokeStyle;
+      
+      ctx.stroke();
     }
-    // ctx.lineWidth = 1;
-    // ctx.stroke();
-
-    // // draw the centroid
-    // var tmpX = this.space.transformCoordinateX(this.centroid.x);
-    // var tmpY = this.space.transformCoordinateY(this.centroid.y);
-
-    // ctx.fillStyle = "red";
-    // ctx.beginPath();
-    // ctx.arc(tmpX, tmpY, 2, 0, 2*Math.PI)
-    // ctx.fill();
   }
 
   /**
    *
    */
-  function drawText() {
-
+  function drawPrimitiveText(ctx) {
+    this.drawText(ctx, this.text, this.transformedVertices[0].x, this.transformedVertices[0].y +this.style.displace, this.style.fillStyle, this.style.font, "left", "alphabetic", this.style.decimals, this.style.fixed, true);
   }
 
   /**
    *
    */
-  function drawEdge() {
+  function drawEdge(ctx) {
+    setContextStyle(ctx, this.style);
 
+    // set the path to draw
+    ctx.beginPath();
+    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
+    ctx.lineTo(this.transformedVertices[1].x, this.transformedVertices[1].y);
+
+    ctx.stroke();
+  }
+
+  /**
+   * Draw the text of the graphic
+   * @param {CanvasRenderingContext2D} ctx the context render to draw
+   * @param {String} text the text to draw
+   * @param {Number} x the x position of the text
+   * @param {Number} y the y position of the text
+   * @param {String} fill the fill color of the graphic
+   * @param {String} font the font of the text
+   * @param {String} align the alignment of the text
+   * @param {String} baseline the baseline of the text
+   * @param {Number} decimals the number of decimals of the text
+   * @param {Boolean} fixed the number of significant digits of the number in the text
+   * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
+   */
+  descartesJS.Primitive3D.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
+    // rtf text
+    if (text.type == "rtfNode") {
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = fill;
+      ctx.textBaseline = "alphabetic";
+      text.draw(ctx, x, y, decimals, fixed, align, displaceY);
+      
+      return;
+    }
+
+    // simple text (none rtf text)
+    if (text.type === "simpleText") {
+      text = text.toString(decimals, fixed).split("\\n");
+    }
+
+    x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
+    
+    evaluator = this.evaluator;
+    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
+    ctx.font = font;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
+
+    verticalDisplace = this.fontSize*1.2 || 0;
+
+    for (var i=0, l=text.length; i<l; i++) {
+      theText = text[i];
+
+      if (this.border) {
+        ctx.strokeText(theText, x, y+(verticalDisplace*i));
+      }
+      ctx.fillText(theText, x, y+(verticalDisplace*i));
+    }
   }
 
   return descartesJS;
@@ -7615,6 +8159,15 @@ var descartesJS = (function(descartesJS) {
   var tempParam;
   var theText;
   var verticalDisplace;
+
+  var tmpExpr;
+  var vectorX;
+  var vectorY;
+  var vectorZ;
+  var translate;
+
+  var indexOfVar;
+  var arrayVars = ["x", "y", "z"];
 
   /**
    * Descartes 3D graphics
@@ -7665,8 +8218,9 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.color = "#eeffaa";
-    this.backcolor = "#6090a0";
+    this.color = new descartesJS.Color("eeffaa");
+    this.backcolor = new descartesJS.Color("6090a0");
+
     this.Nu = this.evaluator.parser.parse("7");
     this.Nv = this.evaluator.parser.parse("7");
     
@@ -7719,35 +8273,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.family_steps = parser.parse("8");
     
-    /**
-     * the fill color
-     * type {String}
-     * @private
-     */
-    // this.fill = "";
-
-    /**
-     * the fill plus color
-     * type {String}
-     * @private
-     */
-    // this.fillP = ""; 
-
-    /**
-     * the fill minus color
-     * type {String}
-     * @private
-     */
-    // this.fillM = "";
-
-    /**
-     * the stroke width of the graph
-     * type {Number}
-     * @private
-     */
-    // this.width = -1;
-    this.length = -1;
-
     /**
      * the condition for determining whether the graph is editable
      * type {Boolean}
@@ -7802,14 +8327,35 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    // this.inirot = parser.parse("0");
+    this.inirot = parser.parse("(0,0,0)");
     
     /**
      * the init position of a graphic
      * type {Node}
      * @private
      */
-//     this.inipos = parser.parse("[0,0]");
+    this.inipos = parser.parse("(0,0,0)");
+
+    /**
+     * the init rotation of the graphic
+     * type {Node}
+     * @private
+     */
+    this.endrot = parser.parse("(0,0,0)");
+    
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.endpos = parser.parse("(0,0,0)");
+
+    /**
+     * 
+     * type {String}
+     * @private
+     */
+    this.model = "color";
     
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
@@ -7818,7 +8364,7 @@ var descartesJS = (function(descartesJS) {
         this[propName] = values[propName];
       }
     }
-    
+
     if ((this.expresion == undefined) && (this.type != "macro")) {
       this.expresion = parser.parse("(0,0)");
     }
@@ -7847,6 +8393,12 @@ var descartesJS = (function(descartesJS) {
     } else {
       this.fontSize = 10;
     }
+
+    // auxiliary vectors
+    vectorX = new descartesJS.Vector3D(1, 0, 0); 
+    vectorY = new descartesJS.Vector3D(0, 1, 0); 
+    vectorZ = new descartesJS.Vector3D(0, 0, 1);
+    translate = new descartesJS.Vector3D(0, 0, 0);
   }
   
   /**
@@ -7909,60 +8461,210 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.family, tempParam);
   }
 
-  // /**
-  //  * Draw the text of the graphic
-  //  * @param {CanvasRenderingContext2D} ctx the context render to draw
-  //  * @param {String} text the text to draw
-  //  * @param {Number} x the x position of the text
-  //  * @param {Number} y the y position of the text
-  //  * @param {String} fill the fill color of the graphic
-  //  * @param {String} font the font of the text
-  //  * @param {String} align the alignment of the text
-  //  * @param {String} baseline the baseline of the text
-  //  * @param {Number} decimals the number of decimals of the text
-  //  * @param {Boolean} fixed the number of significant digits of the number in the text
-  //  * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
-  //  */
-  // descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
-  //   // rtf text
-  //   if (text.type == "rtfNode") {
-  //     ctx.fillStyle = fill;
-  //     ctx.strokeStyle = fill;
-  //     ctx.textBaseline = "alphabetic";
-  //     text.draw(ctx, x, y, decimals, fixed, align, displaceY);
-      
-  //     return;
-  //   }
+  /**
+   * Update the 3D graphic
+   */
+  descartesJS.Graphic3D.prototype.update = function() {
+    this.primitives = [];
 
-  //   // simple text (none rtf text)
-  //   if (text.type === "simpleText") {
-  //     text = text.toString(decimals, fixed).split("\\n");
-  //   }
+    if (this.evaluator.evalExpression(this.drawif)) {
+      // build the primitives of the family
+      if (this.family) {
+        this.buildFamilyPrimitives();
+      }
+      // build the primitives of a single object
+      else {
+        this.buildPrimitives();
+      }
+    }
+  }  
 
-  //   x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
-    
-  //   evaluator = this.evaluator;
-  //   ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-  //   ctx.font = font;
-  //   ctx.textAlign = align;
-  //   ctx.textBaseline = baseline;
-        
-  //   if (this.border) {
-  //     ctx.strokeStyle = descartesJS.getColor(evaluator, this.border);
-  //     ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
-  //   }
-    
-  //   verticalDisplace = this.fontSize*1.2 || 0;
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
+    // take a look because a differente behavior
+    this.mvMatrix = this.mvMatrix.setIdentity();
 
-  //   for (var i=0, l=text.length; i<l; i++) {
-  //     theText = text[i];
+    if (!ignoreRotation) {
+      tmpExpr = this.evaluator.evalExpression(this.inirot);    
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    }
 
-  //     if (this.border) {
-  //       ctx.strokeText(theText, x, y+(verticalDisplace*i));
-  //     }
-  //     ctx.fillText(theText, x, y+(verticalDisplace*i));
-  //   }
-  // }
+    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    this.mvMatrix = this.mvMatrix.translate(translate);
+
+    if (!ignoreRotation) {
+      tmpExpr = this.evaluator.evalExpression(this.endrot);    
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    this.mvMatrix = this.mvMatrix.translate(translate);
+  }
+
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.findExpresion = function(expresion, variable) {
+    indexOfVar = arrayVars.indexOf(variable);
+
+    subexpresion = expresion.split( arrayVars[indexOfVar] + "=" )[1];
+
+    if (subexpresion) {
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+1)%3] + "=" )[0];
+      subexpresion = subexpresion.split( arrayVars[(indexOfVar+2)%3] + "=" )[0];
+      return subexpresion;
+    }
+    else {
+      return "";
+    }
+  }  
+  
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var PI2 = Math.PI*2;
+  var evaluator;
+  var expr;
+  
+  /**
+   * A Descartes 3D point
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the point
+   */
+  descartesJS.Point3D = function(parent, values) {
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Point3D, descartesJS.Graphic3D);
+
+  /**
+   * Build the primitives corresponding to the point
+   */
+  descartesJS.Point3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    // do not apply the rotations in the model view matrix transformation
+    this.updateMVMatrix(true);
+
+    expr = evaluator.evalExpression(this.expresion);
+    this.exprX = expr[0][0];
+    this.exprY = expr[0][1];
+    this.exprZ = expr[0][2];
+
+    this.primitives.push(new descartesJS.Primitive3D( [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
+                                                      "vertex",
+                                                      { fillStyle: this.backcolor.getColor(), 
+                                                        strokeStyle: this.color.getColor(), 
+                                                        lineCap: "round", 
+                                                        lineJoin: "round",
+                                                        lineWidth: 1,
+                                                        size: evaluator.evalExpression(this.width)
+                                                      }
+                                                    ));
+
+    this.primitives.push(new descartesJS.Primitive3D( [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
+                                                      "text",
+                                                      { fillStyle: this.color.getColor(),
+                                                        font: this.font,
+                                                        decimals: this.evaluator.evalExpression(this.decimals),
+                                                        fixed: this.fixed,
+                                                        displace: this.fontSize
+                                                      },
+                                                      this.evaluator,
+                                                      this.text
+                                                    ));
+
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var PI2 = Math.PI*2;
+
+  var v1_x;
+  var v1_y;
+  var v1_z;
+  var v2_x;
+  var v2_y;
+  var v2_z;
+
+  /**
+   * A Descartes 3D segment
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the point
+   */
+  descartesJS.Segment3D = function(parent, values) {
+
+    this.width = parent.evaluator.parser.parse("1");
+
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Segment3D, descartesJS.Graphic3D);
+
+  /**
+   * Build the primitives corresponding to the segment
+   */
+  descartesJS.Segment3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    // do not apply the rotations in the model view matrix transformation
+    this.updateMVMatrix();
+
+    expr = evaluator.evalExpression(this.expresion);
+    v1_x = expr[0][0];
+    v1_y = expr[0][1];
+    v1_z = expr[0][2];
+
+    v2_x = expr[1][0];
+    v2_y = expr[1][1];
+    v2_z = expr[1][2];
+
+    this.primitives.push(new descartesJS.Primitive3D( [ this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                                        this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )],
+                                                      "edge",
+                                                      { strokeStyle: this.color.getColor(), 
+                                                        lineCap: "round", 
+                                                        lineJoin: "round",
+                                                        lineWidth: this.evaluator.evalExpression(this.width)
+                                                      }
+                                                    ));
+
+  }
   
   return descartesJS;
 })(descartesJS || {});/**
@@ -7983,13 +8685,12 @@ var descartesJS = (function(descartesJS) {
   var zEval;
   var vertices;
   var v;
-  var fillStyle;
 
   /**
    * A Descartes 3D surface
    * @constructor 
    * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the point
+   * @param {String} values the values of the surface
    */
   descartesJS.Surface3D = function(parent, values) {
     /**
@@ -8012,8 +8713,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.parameter_steps = parent.evaluator.parser.parse("8");
-
-    this.width = parent.evaluator.parser.parse("1");
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
@@ -8040,26 +8739,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.extend(descartesJS.Surface3D, descartesJS.Graphic3D);
   
   /**
-   * Update the surface
-   */
-  descartesJS.Surface3D.prototype.update = function() {
-    this.primitives = [];
-
-    // build the primitives of the family
-    if (this.family) {
-      this.buildFamilyPrimitives();
-    }
-    // build the primitives of a single object
-    else {
-      this.buildPrimitives();
-    }
-  }
-
-  /**
    * Build the primitives corresponding to the surface
    */
   descartesJS.Surface3D.prototype.buildPrimitives = function() {
     evaluator = this.evaluator;
+
+    this.updateMVMatrix();
 
     // store the u and v parameter values
     tempParamU = evaluator.getVariable("u");
@@ -8070,8 +8755,6 @@ var descartesJS = (function(descartesJS) {
     Nu = evaluator.evalExpression(this.Nu);
     Nv = evaluator.evalExpression(this.Nv);
 
-    fillStyle = descartesJS.getColor(evaluator, this.color);
-    backcolor = descartesJS.getColor(evaluator, this.backcolor);
     // array to store the computed vertices 
     vertices = [];
 
@@ -8088,9 +8771,7 @@ var descartesJS = (function(descartesJS) {
         zEval = evaluator.evalExpression(this.exprZ);
         evaluator.setVariable("z", zEval);
         
-        // vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(xEval, yEval, zEval, 1)) );
-        vertices.push( new descartesJS.Vector4D(xEval, yEval, zEval, 1) );
-        // vertices.push( this.generateVertex())
+        vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(xEval, yEval, zEval, 1)) );
       }
     }
 
@@ -8104,58 +8785,650 @@ var descartesJS = (function(descartesJS) {
 
         this.primitives.push(new descartesJS.Primitive3D( v,
                                                           "face",
-                                                          { backcolor: backcolor, fillStyle: fillStyle, strokeStyle: "#808080", lineCap: "round", lineJoin: "round", edges: this.edges},
-                                                          this.mvMatrix
+                                                          { backcolor: this.backcolor.getColor(), 
+                                                            fillStyle: this.color.getColor(), 
+                                                            strokeStyle: "#808080", 
+                                                            lineCap: "round", 
+                                                            lineJoin: "round", 
+                                                            edges: this.edges, 
+                                                            model: this.model
+                                                          }
                                                         ));
 
       }
     }
+
+    evaluator.setVariable("u", tempParamU);
+    evaluator.setVariable("v", tempParamV);    
+  }  
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var v1_x;
+  var v1_y;
+  var v1_z;
+  var v2_x;
+  var v2_y;
+  var v2_z;  
+
+  /**
+   * A Descartes 3D polyline
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the polygon
+   */
+  descartesJS.Polygon3D = function(parent, values) {
+
+    this.width = parent.evaluator.parser.parse("1");
+
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
-  descartesJS.Surface3D.prototype.generateVertex = function() {
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Polygon3D, descartesJS.Graphic3D);
+  
+  /**
+   * Build the primitives corresponding to the polygon
+   */
+  descartesJS.Polygon3D.prototype.buildPrimitives = function() {
     evaluator = this.evaluator;
 
-    if (XcontainsY) {
-      if (YcontainsZ) {
-        zEval = evaluator.evalExpression(this.exprZ);
-        evaluator.setVariable("z", zEval);
-        yEval = evaluator.evalExpression(this.exprY);
-        evaluator.setVariable("y", yEval);
-        xEval = evaluator.evalExpression(this.exprX);
-        evaluator.setVariable("x", xEval);
-      }
-      else if (ZcontainsY) {
-        yEval = evaluator.evalExpression(this.exprY);
-        evaluator.setVariable("y", yEval);
-        zEval = evaluator.evalExpression(this.exprZ);
-        evaluator.setVariable("z", zEval);
-        xEval = evaluator.evalExpression(this.exprX);
-        evaluator.setVariable("x", xEval);
-      }
+    // do not apply the rotations in the model view matrix transformation
+    this.updateMVMatrix();
+
+    expr = evaluator.evalExpression(this.expresion);
+
+    for (var i=0, l=expr.length-1; i<l; i++) {
+      v1_x = expr[i][0];
+      v1_y = expr[i][1];
+      v1_z = expr[i][2];
+
+      v2_x = expr[i+1][0];
+      v2_y = expr[i+1][1];
+      v2_z = expr[i+1][2];
+
+      this.primitives.push(new descartesJS.Primitive3D( [ this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                                          this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )],
+                                                        "edge",
+                                                        { strokeStyle: this.color.getColor(), 
+                                                          lineCap: "round", 
+                                                          lineJoin: "round",
+                                                          lineWidth: this.evaluator.evalExpression(this.width)
+                                                        }
+                                                      ));
+
+    }
+  }
+  
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var vertices;
+  var v;
+  var Nu;
+
+  /**
+   * A Descartes 3D curve
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the curve
+   */
+  descartesJS.Curve3D = function(parent, values) {
+    this.width = parent.evaluator.parser.parse("1");
+
+    // se llama al constructor del padre
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    var parser = this.evaluator.parser;
+    
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+
+    this.exprX = parser.parse( this.findExpresion(this.expresion, "x") );
+    this.exprY = parser.parse( this.findExpresion(this.expresion, "y") );
+    this.exprZ = parser.parse( this.findExpresion(this.expresion, "z") );
+
+    this.XcontainsY = this.exprX.contains("y");
+    this.XcontainsZ = this.exprX.contains("z");
+    this.YcontainsX = this.exprY.contains("x");
+    this.YcontainsZ = this.exprY.contains("z");
+    this.ZcontainsX = this.exprZ.contains("x");
+    this.ZcontainsY = this.exprZ.contains("y");
+
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Curve3D, descartesJS.Graphic3D);
+  
+  
+  /**
+   * Build the primitives corresponding to the curve
+   */
+  descartesJS.Curve3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    this.updateMVMatrix();
+
+    // store the u and v parameter values
+    tempParamU = evaluator.getVariable("u");
+
+    evaluator.setVariable("u", 0);
+    Nu = evaluator.evalExpression(this.Nu);
+
+    vertices = [];
+
+    for (var ui=0; ui<=Nu; ui++) {
+      evaluator.setVariable("u", ui/Nu);
+
+      xEval = evaluator.evalExpression(this.exprX);
+      evaluator.setVariable("x", xEval);
+      yEval = evaluator.evalExpression(this.exprY);
+      evaluator.setVariable("y", yEval);
+      zEval = evaluator.evalExpression(this.exprZ);
+      evaluator.setVariable("z", zEval);
+
+      vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(xEval, yEval, zEval, 1)) );
     }
 
-    return new descartesJS.Vector4D(xEval, yEval, zEval, 1);
+    for (var i=0, l=vertices.length-1; i<l; i++) {
+      this.primitives.push(new descartesJS.Primitive3D( [ vertices[i],
+                                                          vertices[i+1] ],
+                                                        "edge",
+                                                        { strokeStyle: this.color.getColor(), 
+                                                          lineCap: "round", 
+                                                          lineJoin: "round",
+                                                          lineWidth: this.evaluator.evalExpression(this.width)
+                                                        }
+                                                      ));
+    }
+
+    evaluator.setVariable("u", tempParamU);
   }
 
-  var arrayVars = ["x", "y", "z"];
-  var indexOfVar;
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var v1_x;
+  var v1_y;
+  var v1_z;
+  var v2_x;
+  var v2_y;
+  var v2_z;
+  var v3_x;
+  var v3_y;
+  var v3_z;
+
   /**
-   *
+   * A Descartes 3D triangle
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
    */
-  descartesJS.Graphic3D.prototype.findExpresion = function(expresion, variable) {
-    indexOfVar = arrayVars.indexOf(variable);
+  descartesJS.Triangle3D = function(parent, values) {
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
 
-    subexpresion = expresion.split( arrayVars[indexOfVar] + "=" )[1];
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Triangle3D, descartesJS.Graphic3D);
 
-    if (subexpresion) {
-      subexpresion = subexpresion.split( arrayVars[(indexOfVar+1)%3] + "=" )[0];
-      subexpresion = subexpresion.split( arrayVars[(indexOfVar+2)%3] + "=" )[0];
-      return subexpresion;
+  /**
+   * Build the primitives corresponding to the triangle
+   */
+  descartesJS.Triangle3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    this.updateMVMatrix();
+
+    expr = evaluator.evalExpression(this.expresion);
+    v1_x = expr[0][0];
+    v1_y = expr[0][1];
+    v1_z = expr[0][2];
+
+    v2_x = expr[1][0];
+    v2_y = expr[1][1];
+    v2_z = expr[1][2];
+
+    v3_x = expr[2][0];
+    v3_y = expr[2][1];
+    v3_z = expr[2][2];
+
+    this.primitives.push(new descartesJS.Primitive3D( [ this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                                        this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) ),
+                                                        this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) )],
+                                                      "face",
+                                                      { backcolor: this.color.getColor(),
+                                                        fillStyle: this.backcolor.getColor(), 
+                                                        strokeStyle: "#808080", 
+                                                        lineCap: "round",
+                                                        lineJoin: "round",
+                                                        edges: this.edges, 
+                                                        model: this.model
+                                                      }
+                                                    ));
+
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var v1_x;
+  var v1_y;
+  var v1_z;
+  var v2_x;
+  var v2_y;
+  var v2_z;
+  var vertices;
+
+  /**
+   * A Descartes 3D face
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
+   */
+  descartesJS.Face3D = function(parent, values) {
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Face3D, descartesJS.Graphic3D);
+  
+  /**
+   * Build the primitives corresponding to the face
+   */
+  descartesJS.Face3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    this.updateMVMatrix();
+
+    expr = evaluator.evalExpression(this.expresion);
+
+    vertices = [];
+
+    for (var i=0, l=expr.length; i<l; i++) {
+      vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
     }
-    else {
-      return "";
+
+    this.primitives.push(new descartesJS.Primitive3D( vertices,
+                                                      "face",
+                                                      { backcolor: this.color.getColor(), 
+                                                        fillStyle: this.backcolor.getColor(), 
+                                                        strokeStyle: "#808080", 
+                                                        lineCap: "round",
+                                                        lineJoin: "round",
+                                                        edges: this.edges, 
+                                                        model: this.model
+                                                      }
+                                                    ));
+
+  }
+  
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var Nu;
+  var vertices;
+  var w;
+  var l;
+  var theta;
+
+  /**
+   * A Descartes 3D regular polygon
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
+   */
+  descartesJS.Polireg3D = function(parent, values) {
+    this.width = parent.evaluator.parser.parse("2");
+    this.length = parent.evaluator.parser.parse("2");
+
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Polireg3D, descartesJS.Graphic3D);
+  
+  /**
+   * Build the primitives corresponding to the regular polygon
+   */
+  descartesJS.Polireg3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    this.updateMVMatrix();
+
+    Nu = evaluator.evalExpression(this.Nu);
+
+    vertices = [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(0, 0, 0, 1) )];
+    w = evaluator.evalExpression(this.width)/2;
+    l = evaluator.evalExpression(this.length)/2;
+    theta = (2*Math.PI) / Nu;
+
+    for (var i=0; i<Nu; i++) {
+      vertices.push ( this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0, 1) ) );
     }
-  }  
+
+    for (var i=0; i<Nu; i++) {
+      this.primitives.push(new descartesJS.Primitive3D( [ vertices[0],
+                                                          vertices[i+1],
+                                                          (i+2 <= Nu) ? vertices[i+2] : vertices[1] ],
+                                                        "face",
+                                                        { backcolor: this.color.getColor(), 
+                                                          fillStyle: this.backcolor.getColor(), 
+                                                          strokeStyle: "#808080", 
+                                                          lineCap: "round",
+                                                          lineJoin: "round",
+                                                          edges: this.edges, 
+                                                          model: this.model
+                                                        }
+                                                      ));
+    }
+
+  }
+  
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * A Descartes 3D text
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
+   */
+  descartesJS.Text3D = function(parent, values) {
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);    
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Text3D, descartesJS.Graphic3D);
+  
+  /**
+   * Build the primitives corresponding to the point
+   */
+  descartesJS.Text3D.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    expr = evaluator.evalExpression(this.expresion);
+    this.exprX = expr[0][0];
+    this.exprY = expr[0][1];
+    this.exprZ = 0;
+
+    this.primitives.push(new descartesJS.Primitive3D( [new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1)],
+                                                      "text",
+                                                      { fillStyle: this.color.getColor(),
+                                                        font: this.font,
+                                                        decimals: this.evaluator.evalExpression(this.decimals),
+                                                        fixed: this.fixed,
+                                                        displace: 0,
+                                                        isText: true
+                                                      },
+                                                      this.evaluator,
+                                                      this.text
+                                                    ));
+
+  }
+  
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var evaluator;
+  var width;
+  var height;
+  var length;
+  var backcolor;
+  var fillStyle;
+  var v;
+
+  /**
+   * A Descartes 3D face
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the triangle
+   */
+  descartesJS.OtherGeometry = function(parent, values) {
+    this.width = parent.evaluator.parser.parse("2");
+    this.height = parent.evaluator.parser.parse("2");
+    this.length = parent.evaluator.parser.parse("2");
+
+    // call the parent constructor
+    descartesJS.Graphic3D.call(this, parent, values);
+
+    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
+
+    // console.log("XXXXX", this.type)
+
+    switch (this.type) {
+      case("cube"):
+        this.buildGeometry = buildCube;
+        break;
+
+      case("box"):
+        this.buildGeometry = buildBox;
+        break;
+
+      case("tetrahedron"):
+        this.buildGeometry = buildTetrahedron;
+        break;
+
+      case("octahedron"):
+        this.buildGeometry = buildOctahedron;
+        break;
+
+
+
+      case("mesh"):
+        this.fileData = descartesJS.openExternalFile(this.evaluator.evalExpression(this.file)).split(/\r/);
+        this.buildGeometry = buildMesh;
+        break;
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic3D
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.OtherGeometry, descartesJS.Graphic3D);
+  
+  /**
+   * Build the primitives corresponding to the face
+   */
+  descartesJS.OtherGeometry.prototype.buildPrimitives = function() {
+    evaluator = this.evaluator;
+
+    this.updateMVMatrix();
+
+    this.buildGeometry();
+
+    backcolor = this.color.getColor();
+    fillStyle = this.backcolor.getColor();
+
+    for (var i=0, l=this.faces.length; i<l; i++) {
+      v = [];
+      for (var j=0, k=this.faces[i].length; j<k; j++) {
+        v.push( this.mvMatrix.multiplyVector4(this.vertices[this.faces[i][j]]) );
+      }
+
+      this.primitives.push(new descartesJS.Primitive3D( v,
+                                                        "face",
+                                                        { backcolor: backcolor, 
+                                                          fillStyle: fillStyle, 
+                                                          strokeStyle: "#808080", 
+                                                          lineCap: "round",
+                                                          lineJoin: "round",
+                                                          edges: this.edges, 
+                                                          model: this.model
+                                                        }
+                                                      ));
+    }
+
+  }
+
+  /**
+   * Define the vertex and faces of the cube
+   */
+  function buildCube() {
+    width = this.evaluator.evalExpression(this.width)/4;
+
+    this.vertices = [ new descartesJS.Vector4D( width,  width,  width, 1), //0
+                      new descartesJS.Vector4D( width, -width,  width, 1), //1
+                      new descartesJS.Vector4D( width,  width, -width, 1), //2
+                      new descartesJS.Vector4D( width, -width, -width, 1), //3
+                      new descartesJS.Vector4D(-width,  width,  width, 1), //4
+                      new descartesJS.Vector4D(-width, -width,  width, 1), //5
+                      new descartesJS.Vector4D(-width,  width, -width, 1), //6
+                      new descartesJS.Vector4D(-width, -width, -width, 1)  //7
+               ];
+
+    this.faces = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]];
+  }
+
+  /**
+   * Define the vertex and faces of the box
+   */
+  function buildBox() {
+    width =  this.evaluator.evalExpression(this.width)/2;
+    height = this.evaluator.evalExpression(this.height)/2;
+    length = this.evaluator.evalExpression(this.length)/2;
+
+    this.vertices = [ new descartesJS.Vector4D( width,  length,  height, 1), //0
+                      new descartesJS.Vector4D( width, -length,  height, 1), //1
+                      new descartesJS.Vector4D( width,  length, -height, 1), //2
+                      new descartesJS.Vector4D( width, -length, -height, 1), //3
+                      new descartesJS.Vector4D(-width,  length,  height, 1), //4
+                      new descartesJS.Vector4D(-width, -length,  height, 1), //5
+                      new descartesJS.Vector4D(-width,  length, -height, 1), //6
+                      new descartesJS.Vector4D(-width, -length, -height, 1)  //7
+               ];
+
+    this.faces = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]];
+  }
+
+  /**
+   * Define the vertex and faces of the tetrahedron
+   */
+  function buildTetrahedron() {
+    width = evaluator.evalExpression(this.width)/2;
+
+    this.vertices = [ new descartesJS.Vector4D(          0,           0,       width, 1), //0
+                      new descartesJS.Vector4D(-0.49*width, -0.86*width, -0.32*width, 1), //1
+                      new descartesJS.Vector4D(-0.49*width,  0.86*width, -0.32*width, 1), //2
+                      new descartesJS.Vector4D(    1*width,           0, -0.32*width, 1)  //3
+               ];
+
+    this.faces = [[1, 2, 3], [0, 2, 1], [0, 3, 2], [0, 1, 3]];
+  }
+
+  /**
+   * Define the vertex and faces of the octahedron
+   */
+  function buildOctahedron() {
+    width = evaluator.evalExpression(this.width)/2;
+
+    this.vertices = [ new descartesJS.Vector4D( 0,          0,  width, 1), //0
+                      new descartesJS.Vector4D( width,      0,      0, 1), //1
+                      new descartesJS.Vector4D(-width,      0,      0, 1), //2
+                      new descartesJS.Vector4D( 0,      width,      0, 1), //3
+                      new descartesJS.Vector4D( 0,     -width,      0, 1), //4
+                      new descartesJS.Vector4D( 0,          0, -width, 1)  //5
+               ];
+
+    this.faces = [[0, 1, 3], [0, 3, 2], [0, 4, 1], [0, 2, 4], [5, 3, 1], [5, 2, 3], [5, 1, 4], [5, 4, 2]];
+  }
+  
+  var currentLine;
+  var tempValue;
+  var tempFace;
+  /**
+   * Define the vertex and faces of the octahedron
+   */
+  function buildMesh() {
+    this.vertices = [];
+    this.faces = [];
+
+    function toInt(x) { return parseInt(x); };
+    function toFloat(x) { return parseFloat(x); };
+
+    for (var i=0, l=this.fileData.length; i<l; i++) {
+      currentLine = this.fileData[i];
+      
+      if (currentLine.match(/^V\(/)) {
+        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(toFloat);
+        this.vertices.push( new descartesJS.Vector4D(tempValue[0] || 0, tempValue[1] || 0, tempValue[2] || 0, 1) );
+      }
+
+      else if (currentLine.match(/^F\(/)) {
+        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(toInt);
+        this.faces.push(tempValue);
+      }
+    }
+
+    // console.log(this.faces)
+
+  }
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -8214,11 +9487,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.R2.prototype.ix = function() {
-    return Math.round(MathMax(MathMin(this.x,32000), -32000));
+    return Math.round(MathMax(MathMin(this.x, 32000), -32000));
   }
 
   descartesJS.R2.prototype.iy = function() {
-    return Math.round(MathMax(MathMin(this.y,32000), -32000));
+    return Math.round(MathMax(MathMin(this.y, 32000), -32000));
   }
 
   descartesJS.R2.prototype.equals = function(p) {
@@ -8391,6 +9664,16 @@ var descartesJS = (function(descartesJS) {
   var delta = 0.000000000001;
   var epsilon = 0.000001;
 
+  var evaluator;
+  var FV;
+  var xa;
+  var ya;
+  var q;
+  var newQ;
+  var savex;
+  var savey;
+
+
   /**
    * Descartes R2Newton
    * @constructor 
@@ -8420,6 +9703,8 @@ var descartesJS = (function(descartesJS) {
       // evaluates onlye the left size, because the right size is 0
       this.constraint = this.constraint.childs[0];
     }
+
+    newQ = new descartesJS.R2(0, 0);    
   }
   
   /**
@@ -8430,22 +9715,11 @@ var descartesJS = (function(descartesJS) {
     return this.normal.copy();
   }
   
-  var evaluator;
-  var FV;
-  var xa;
-  var ya;
-  var q;
-  var newQ;
-  var savex;
-  var savey;
-
   /**
    * 
    */
   descartesJS.R2Newton.prototype.gradient = function(q0) {
     evaluator = this.evaluator;
-    
-    newQ = new descartesJS.R2(0, 0);
     
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
@@ -8479,8 +9753,6 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  // return R2
-  // q0 es de tipo R2
   descartesJS.R2Newton.prototype.findZero = function(q0) {
     evaluator = this.evaluator;
     
@@ -8494,10 +9766,10 @@ var descartesJS = (function(descartesJS) {
     
     this.f0 = evaluator.evalExpression(this.constraint);
     
-    if ((this.sign == "menor") && (this.f0 <= 0)) {
+    if ((this.sign === "menor") && (this.f0 <= 0)) {
       return q;
     } 
-    else if ((this.sign=="mayor") && (this.f0 >= 0)) {
+    else if ((this.sign === "mayor") && (this.f0 >= 0)) {
       return q;
     }
     
@@ -8518,7 +9790,7 @@ var descartesJS = (function(descartesJS) {
       q.y = ya+this.normal.y;
       
       if (this.normal.norm() < epsilon) {
-        if ((this.normal.x == 0) && (this.normal.y == 0)) {
+        if ((this.normal.x === 0) && (this.normal.y === 0)) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
@@ -8608,6 +9880,21 @@ var descartesJS = (function(descartesJS) {
   var changeW;
   var changeH;
   var expr;
+
+  var temporalCompare;
+  var resultValue;
+  var decimals;
+  var indexDot;
+  var subS;
+  var parent;
+
+  var canvas;
+  var ctx;
+  var self;
+  var _left;
+  var _top;
+  var _width;
+  var _height;
   
   /**
    * Descartes control
@@ -8733,14 +10020,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.color = (this.parent.version < 4) ? "#000000" :"#222222";
+    this.color = (this.parent.version < 4) ? new descartesJS.Color("000000") : new descartesJS.Color("222222");
 
     /**
      * control color
      * type {String}
      * @private
      */
-    this.colorInt = (values.type !== "graphic") ? "#f0f8ff" : "#ff0000";
+    this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("ff0000");
 
     /**
      * bold text condition
@@ -9048,8 +10335,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var temporalCompare;
-
   /**
    * Update the position and size of the control
    */
@@ -9058,20 +10343,20 @@ var descartesJS = (function(descartesJS) {
     expr = this.evaluator.evalExpression(this.expresion);
 
     temporalCompare = MathRound(expr[0][0]);
-    changeX = this.x !== temporalCompare;
+    changeX = MathRound(this.x) !== temporalCompare;
     this.x = temporalCompare;
 
     temporalCompare = MathRound(expr[0][1]);
-    changeY = this.y !== temporalCompare;
+    changeY = MathRound(this.y) !== temporalCompare;
     this.y = temporalCompare;
     
     if (expr[0].length === 4) {
       temporalCompare = MathRound(expr[0][2]);
-      changeW = this.w !== temporalCompare;
+      changeW = MathRound(this.w) !== temporalCompare;
       this.w = temporalCompare
 
       temporalCompare = MathRound(expr[0][3]);
-      changeH = this.h !== temporalCompare;
+      changeH = MathRound(this.h) !== temporalCompare;
       this.h = temporalCompare;
     }
 
@@ -9081,12 +10366,6 @@ var descartesJS = (function(descartesJS) {
       this.draw();
     }
   }
-
-  var resultValue;
-  var decimals;
-  var indexDot;
-  var subS;
-  var parent;
 
   /**
    * Format the value with the number of decimals, the exponential representation and the decimal symbol
@@ -9175,13 +10454,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var canvas;
-  var ctx;
-  var self;
-  var _left;
-  var _top;
-  var _width;
-  var _height;
   /**
    *
    */
@@ -9355,8 +10627,8 @@ var descartesJS = (function(descartesJS) {
     var tmpParam;
     if (this.imageSrc.match("_COLORES_")) {
       tmpParam       = this.imageSrc.split("_");
-      this.colorInt  = "#" + tmpParam[2];
-      this.color     = "#" + tmpParam[3];
+      this.colorInt  = new descartesJS.Color(tmpParam[2]);
+      this.color     = new descartesJS.Color(tmpParam[3]);
       this.font_size = this.parser.parse(tmpParam[5]);
       this.imageSrc  = "";
     }
@@ -9440,7 +10712,7 @@ var descartesJS = (function(descartesJS) {
     
     canvas.setAttribute("width", this.w+"px");
     canvas.setAttribute("height", this.h+"px");
-    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block;");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -9448,6 +10720,8 @@ var descartesJS = (function(descartesJS) {
 
     // create the background gradient
     this.createGradient(this.w, this.h);
+
+    this.update();
   }
   
   /**
@@ -9504,7 +10778,7 @@ var descartesJS = (function(descartesJS) {
     }
     // the image is not ready or do not have a image
     else {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.colorInt);
+      ctx.fillStyle = this.colorInt.getColor();
       ctx.fillRect(0, 0, this.w, this.h);
 
       if (!this.click) {
@@ -9532,15 +10806,16 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, 0, this.w, this.h);
     }
       
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.color);
+    ctx.fillStyle = this.color.getColor();
     ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
     // text border
     if (this.colorInt != this.color) {
+      ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.colorInt);
+      ctx.strokeStyle = this.colorInt.getColor();
       ctx.strokeText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
     }
 
@@ -9550,7 +10825,7 @@ var descartesJS = (function(descartesJS) {
     // draw the under line
     if (this.underlined) {
       txtW = ctx.measureText(name).width;
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.color);
+      ctx.strokeStyle = this.color.getColor();
       ctx.lineWidth = MathFloor(font_size/10) || 2;
       ctx.lineCap = "round";
 
@@ -9720,6 +10995,8 @@ var descartesJS = (function(descartesJS) {
   var resultValue;
   var incr;
   var decimals;
+  var evalMin;
+  var evalMax;
   var hasTouchSupport;
 
   /**
@@ -9791,7 +11068,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     // validate the initial value
-    this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
+    this.value = this.validateValue(evaluator.evalExpression(this.valueExpr));
     
     // get the width of the initial value to determine the width of the text field
     var fieldValue = this.formatOutputValue(this.value);
@@ -9846,19 +11123,21 @@ var descartesJS = (function(descartesJS) {
 
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
-    this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesSpinnerField");
     this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth-2) + "px; height : " + (this.h-2) + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
-  
+    this.field.value = fieldValue;
+
     this.label.setAttribute("class", "DescartesSpinnerLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
     // register the control value
     evaluator.setVariable(this.id, this.value);
-    
+
     // create the background gradient
     this.createGradient(this.h/2, this.h);
+
+    this.update();
   }
 
   /**
@@ -9999,22 +11278,39 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Spinner.prototype.validateValue = function(value) {
     evaluator = this.evaluator;
+
+    // remove the exponential notation of the number and convert it to a fixed notation
+    if (!isNaN(parseFloat(value))) {
+      value = parseFloat(value).toFixed(20);
+    } 
+    else {
+      value = value.toString();
+    }    
     
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
+    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
 
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
       resultValue = 0; 
     }
 
+    evalMin = evaluator.evalExpression(this.min);
+    if (evalMin == "") {
+      evalMin = -Math.Infinity;
+    }
+    evalMax = evaluator.evalExpression(this.max);
+    if (evalMax == "") {
+      evalMax = Math.Infinity;
+    }
+ 
     // if is less than the lower limit
-    if (resultValue < evaluator.evalExpression(this.min)) {
-      resultValue = evaluator.evalExpression(this.min);
+    if (resultValue < evalMin) {
+      resultValue = evalMin;
     } 
     
     // if si greater than the upper limit
-    if (resultValue > evaluator.evalExpression(this.max)) {
-      resultValue = evaluator.evalExpression(this.max);
+    if (resultValue > evalMax) {
+      resultValue = evalMax;
     }
 
     if (this.discrete) {
@@ -10026,6 +11322,7 @@ var descartesJS = (function(descartesJS) {
     if (decimals <= 0) {
       decimals = 0;
     }
+
     resultValue = parseFloat(parseFloat(resultValue).toFixed(decimals));
     
     return resultValue;
@@ -10257,6 +11554,8 @@ var descartesJS = (function(descartesJS) {
   var tmpAnswer;
   var regExpPattern;
   var answerValue;
+  var evalMin;
+  var evalMax;
 
   var hasTouchSupport;
 
@@ -10285,22 +11584,20 @@ var descartesJS = (function(descartesJS) {
 
     // if the answer exist
     if (this.answer) {
-      // the anser is encrypted
+      // the answer is encrypted
       if (this.answer.match("krypto_")) {
         var krypt = new descartesJS.Krypto();
         this.answer = krypt.decode(this.answer.substring(7));
       }
       this.answerPattern = this.answer;
-      
+
+      this.answer = descartesJS.buildRegularExpresionsPatterns(this.answer, this.evaluator);
+
       if (this.onlyText) {
-        this.answer = descartesJS.buildRegularExpresionsPatterns(this.answer);
-        
         // find the first answer pattern
         var sepIndex = this.answerPattern.indexOf("|");
         this.firstAnswer = (sepIndex == -1) ? this.answerPattern : this.answerPattern.substring(0, sepIndex);
       } else {
-        this.buildRangeExpresions();
-        
         // find the minimum value of the first interval of a numeric answer pattern
         this.firstAnswer = this.parser.parse( this.answerPattern.substring(1, this.answerPattern.indexOf(",")) );
       }
@@ -10321,10 +11618,9 @@ var descartesJS = (function(descartesJS) {
       this.formatOutputValue = function(value) { 
         return value.toString(); 
       }
-      this.evaluateAnswer = this.evaluateTextualAnswer;
     }
     
-    // if the name is olny white spaces
+    // if the name is only white spaces
     if (this.name.trim() == "") {
       this.name = "";
     }
@@ -10410,10 +11706,18 @@ var descartesJS = (function(descartesJS) {
     this.label.setAttribute("class", "DescartesTextFieldLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
+    // if the text field evaluates, get the ok value
+    if (this.evaluate) {
+      this.ok = this.evaluateAnswer();
+    }
+    
     // register the control value
-    evaluator.setVariable(this.id, this.value);
+    this.evaluator.setVariable(this.id, this.value);
+    this.evaluator.setVariable(this.id+".ok", this.ok);
 
     this.oldValue = this.value;
+
+    this.update();
   }
 
   /**
@@ -10432,7 +11736,6 @@ var descartesJS = (function(descartesJS) {
     // hide or show the text field control
     if (this.drawIfValue) {
       this.containerControl.style.display = "block";
-      this.draw();
     } else {
       this.containerControl.style.display = "none";
     }    
@@ -10454,11 +11757,11 @@ var descartesJS = (function(descartesJS) {
     }
     
     // register the control value
-    evaluator.setVariable(this.id, this.value);    
+    evaluator.setVariable(this.id, this.value);
   }
 
   /**
-   * Validate if the value is the range [min, max]
+   * Validate if the value is in the range [min, max]
    * @param {String} value the value to validate
    * @return {Number} return the value like a number, 
    *                         is greater than the upper limit then return the upper limit
@@ -10479,16 +11782,15 @@ var descartesJS = (function(descartesJS) {
       resultValue = 0; 
     }
     
-    // if is less than the lower limit
-    if (resultValue < evaluator.evalExpression(this.min)) {
-      resultValue = evaluator.evalExpression(this.min);
-    } 
-    
-    // if si greater than the upper limit
-    if (resultValue > evaluator.evalExpression(this.max)) {
-      resultValue = evaluator.evalExpression(this.max);
+    evalMin = evaluator.evalExpression(this.min);
+    if (evalMin == "") {
+      evalMin = -Math.Infinity;
     }
-    
+    evalMax = evaluator.evalExpression(this.max);
+    if (evalMax == "") {
+      evalMax = Math.Infinity;
+    }
+
     if (this.discrete) {
       var incr = evaluator.evalExpression(this.incr);
       resultValue = (incr==0) ? 0 : (incr * Math.round(resultValue / incr));
@@ -10535,92 +11837,12 @@ var descartesJS = (function(descartesJS) {
       this.updateAndExecAction();
     }    
   }
-
+  
   /**
-   * 
+   * @return
    */
   descartesJS.TextField.prototype.evaluateAnswer = function() {
-    evaluator = this.evaluator;
-    value = parseFloat(this.value);
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      answer_i_0 = this.answer[i][0];
-      answer_i_1 = this.answer[i][1];
-      
-      limInf = evaluator.evalExpression(answer_i_0.expression);
-      limSup = evaluator.evalExpression(answer_i_1.expression);
-      
-      cond1 = (answer_i_0.type == "(");
-      cond2 = (answer_i_0.type == "[");
-      cond3 = (answer_i_1.type == ")");
-      cond4 = (answer_i_1.type == "]");
-      
-      tmpValue = this.value;
-      
-      if ( (cond1 && cond3 && (tmpValue > limInf) && (tmpValue < limSup)) ||
-           (cond1 && cond4 && (tmpValue > limInf) && (tmpValue <= limSup)) ||
-           (cond2 && cond3 && (tmpValue >= limInf) && (tmpValue < limSup)) ||
-           (cond2 && cond4 && (tmpValue >= limInf) && (tmpValue <= limSup)) ) {
-        return 1;
-      }
-    }
-    
-    return 0;
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.TextField.prototype.buildRangeExpresions = function() {
-    this.answer = this.answer.split("|");
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      this.answer[i] = this.answer[i].trim();
-      this.answer[i] = this.answer[i].split(",");
-      
-      tmpAnswer = this.answer[i][0].trim();
-      this.answer[i][0] = { type: tmpAnswer[0], 
-      expression: this.evaluator.parser.parse(tmpAnswer.substring(1)) } ;
-      
-      tmpAnswer = this.answer[i][1].trim();
-      this.answer[i][1] = { type: tmpAnswer[tmpAnswer.length-1], 
-      expression: this.evaluator.parser.parse(tmpAnswer.substring(0,tmpAnswer.length-1)) } ;
-    }
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.TextField.prototype.evaluateTextualAnswer = function() {
-    value = this.value;
-    
-    for (var i=0, l=this.answer.length; i<l; i++) {
-      tmpAnswer = this.answer[i];
-      answerValue = true;
-      
-      for (var j=0, k=tmpAnswer.length; j<k; j++) {
-        regExpPattern = tmpAnswer[j];
-        
-        if (regExpPattern.ignoreAcents) {
-          value = descartesJS.replaceAcents(value);
-          regExpPattern.regExp = descartesJS.replaceAcents(regExpPattern.regExp);
-        }
-        
-        if (regExpPattern.ignoreCaps) {
-          value = value.toLowerCase();
-          regExpPattern.regExp = (regExpPattern.regExp).toLowerCase();
-        }
-        
-        answerValue = answerValue && !!(value.match(regExpPattern.regExp));
-      }
-      
-      if (answerValue) {
-        return 1;
-      }
-      
-    }
-    
-    return 0;
+    return descartesJS.esCorrecto(this.answer, this.value, this.evaluator, this.answer);
   }
   
   /**
@@ -10883,6 +12105,8 @@ var descartesJS = (function(descartesJS) {
 
     // register the control value
     evaluator.setVariable(this.id, parseFloat(fieldValue));
+
+    this.update();
   }
 
   /**
@@ -11285,6 +12509,8 @@ var descartesJS = (function(descartesJS) {
     
     // create the label text
     self.txtLabel = document.createTextNode(self.name);
+
+    this.update();
   }
     
   /**
@@ -12065,6 +13291,8 @@ var descartesJS = (function(descartesJS) {
     // this.audio.setAttribute("height", this.h);
     this.audio.style.left = this.x + "px";
     this.audio.style.top  = this.y + "px";
+
+    this.update();
   }
 
   /**
@@ -12201,6 +13429,8 @@ var descartesJS = (function(descartesJS) {
     // this.video.setAttribute("height", this.h);
     this.video.style.left = this.x + "px";
     this.video.style.top  = this.y + "px";
+
+    this.update();
   }
 
   /**
@@ -12352,6 +13582,8 @@ var descartesJS = (function(descartesJS) {
     this.showButton.innerHTML = "<span style='position: relative; top: 2px; text-align: center; font: 9px Arial'> S </span>";
 
     this.activeCover.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+
+    this.update();
   }
   
   /**
@@ -12631,6 +13863,8 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
     evaluator.setVariable(this.id+".activo", 0);
+
+    this.update();
   }
   
   /**
@@ -12685,24 +13919,24 @@ var descartesJS = (function(descartesJS) {
         ctx.beginPath();
         ctx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
     
-        ctx.fillStyle = descartesJS.getColor(evaluator, this.colorInt);
+        ctx.fillStyle = this.colorInt.getColor();
         ctx.fill();
       
         ctx.lineWidth = 1;
-        ctx.strokeStyle = descartesJS.getColor(evaluator, this.color);
+        ctx.strokeStyle = this.color.getColor();
         ctx.stroke();
       
         if (this.active) {
           ctx.beginPath();
           ctx.arc(x, y, parseInt(this.width/2)-2, 0, PI2, false);
-          ctx.strokeStyle = "black";
+          ctx.strokeStyle = this.colorInt.borderColor();
           ctx.stroke();
         }
 
         // if has trace
         if (this.trace) {
           backCtx.lineWidth = 1;
-          backCtx.strokeStyle = descartesJS.getColor(evaluator, this.trace);
+          backCtx.strokeStyle = this.trace.getColor();
           backCtx.beginPath();
           backCtx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
           backCtx.stroke();
@@ -12725,7 +13959,7 @@ var descartesJS = (function(descartesJS) {
           backCtx.restore();
         
           backCtx.lineWidth = 1;
-          backCtx.strokeStyle = descartesJS.getColor(evaluator, this.trace);
+          backCtx.strokeStyle = this.trace.getColor();
           backCtx.stroke();
         }
       }
@@ -12753,7 +13987,7 @@ var descartesJS = (function(descartesJS) {
     ctx = this.ctx;
     evaluator = this.evaluator;
     
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.color);
+    ctx.fillStyle = this.color.getColor();
     ctx.font = this.font;
     ctx.textBaseline = "alphabetic";
 
@@ -12840,6 +14074,11 @@ var descartesJS = (function(descartesJS) {
           
           self.posAnte = self.getCursorPosition(evt);
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
+
+          self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+          self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
+          self.parent.update();
           
           window.addEventListener("mouseup", onMouseUp);
           window.addEventListener("mousemove", onMouseMove);
@@ -12863,6 +14102,11 @@ var descartesJS = (function(descartesJS) {
 
         self.posAnte = self.getCursorPosition(evt);
         self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
+
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
+        self.parent.update();
         
         window.addEventListener("touchmove", onMouseMove);
         window.addEventListener("touchend", onMouseUp);
@@ -12889,6 +14133,9 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("mousemove", onMouseMove, false);
         }
         
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+
         self.parent.update();
         
         self.mouseCacher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
@@ -12930,6 +14177,8 @@ var descartesJS = (function(descartesJS) {
       // else {
         self.evaluator.setVariable(self.id+".x", self.space.getRelativeX(self.posX));
         self.evaluator.setVariable(self.id+".y", self.space.getRelativeY(self.posY));
+        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
+        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
       // }
 
       // update the controls
@@ -13194,13 +14443,13 @@ var descartesJS = (function(descartesJS, babel) {
         case("axes"):
         // color of the coordinate text of the mouse
         case("text"):
-          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
+          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // text of the X axis
-        case("x-axis"):
+        case("x_axis"):
         // text of the Y axis
-        case("y-axis"):
+        case("y_axis"):
           spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
           
@@ -13313,7 +14562,7 @@ var descartesJS = (function(descartesJS, babel) {
                   
         // background color
         case("background"):
-          spaceObj["background"] = this.convertColor(values_i_1);
+          spaceObj["background"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
           
         // any variable missing
@@ -13434,7 +14683,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("colorInt"):
         // control graphic trace
         case("trace"):
-          controlObj[babelValue] = this.convertColor(values_i_1);
+          controlObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // font size
@@ -13675,7 +14924,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("fillM"):
         // arrow color
         case("arrow"):
-          graphicObj[babelValue] = this.convertColor(values_i_1);
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // family parameter
@@ -13756,7 +15005,7 @@ var descartesJS = (function(descartesJS, babel) {
         // color border
         case("border"):
           if (babel[values_i_1] != "false") {
-            graphicObj["border"] = this.convertColor(values_i_1);
+            graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           }
           break;
           
@@ -13895,6 +15144,28 @@ var descartesJS = (function(descartesJS, babel) {
       babelValue = babel[values_i_0];
 
       switch(babelValue) {
+        // type
+        case("type"):
+        // ilumination model
+        case("model"):
+          graphicObj[babelValue] = babel[values_i_1];
+          break;
+          
+        // condition to draw the graphic in the background
+        case("background"):
+        // condition to use fixed notation in the text
+        case("fixed"):
+        // condition to draw the edges
+        case("edges"):
+          graphicObj[babelValue] = (babel[values_i_1] === "true");
+          break;
+
+        // color
+        case("color"):
+        // back face color
+        case("backcolor"):
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+          break;
 
         // type
         case("type"):
@@ -13916,7 +15187,85 @@ var descartesJS = (function(descartesJS, babel) {
         case("color"):
         // back face color
         case("backcolor"):
-          graphicObj[babelValue] = this.convertColor(values_i_1);
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+          break;
+
+        // drawif condition
+        case("drawif"):
+        // width
+        case("width"):
+        // lenght
+        case("length"):
+        // height
+        case("height"):
+        // number of decimals of the text in the graphic
+        case("decimals"):
+        // Nu parameter
+        case("Nu"):
+        // Nv parameter
+        case("Nv"):
+        // initial rotation
+        case("inirot"):
+        // end rotation
+        case("endrot"):
+        // initial position
+        case("inipos"):
+        // end position
+        case("endpos"):
+          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          break;          
+
+        // family parameter
+        case("family"):
+        // curve parameter
+        case("parameter"):
+        // font text
+        case("font"):
+        // name
+        case("name"):
+          graphicObj[babelValue] = values_i_1;
+          break;          
+          
+        // space identifier
+        case("space"):
+          graphicObj["spaceID"] = values_i_1;
+          break;
+          
+        // expression
+        case("expresion"):
+          if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
+            graphicObj["expresion"] = this.parser.parse(values_i_1);
+            graphicObj["expresionString"] = values_i_1;
+          } else {
+            graphicObj["expresion"] = values_i_1;
+          }
+          break;
+                    
+        // text
+        case("text"):
+          var tmpText = this.parseText(values_i_1);
+
+          for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
+            tmpText[ii] = this.parser.parse(tmpText[ii], false);
+          }
+          graphicObj["text"] = tmpText;
+          break;
+          
+        // file name
+        case("file"):
+          var fileTmp = values_i_1.replace(/&squot;/g, "'");
+
+          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
+            fileTmp = fileTmp.substring(1, fileTmp.length-1);
+          }
+
+          if (fileTmp.match(/./)) {
+            fileTmp = "'" + fileTmp + "'";
+          }
+
+          graphicObj["file"] = this.parser.parse(fileTmp);
+          break;          
+
           break;
 
         // drawif condition
@@ -13991,50 +15340,29 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           graphicObj["file"] = this.parser.parse(fileTmp);
-          break;          
-          
-        // any variable missing
-        default:
-          if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
-              
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
-                
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break;
-            }
-          }
-
-          if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
-            
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
-              
-                // find the interval variable of a curve
-                case("interval"):
-                  graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
-                  break;
-                
-                // find the number of steps in the curve
-                case("steps"):
-                  graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break
-            }
-          }
-
-          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
           break;
+
+        //
+        default:
+          if (graphicObj["family"] !== undefined) {
+            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
+
+              // family interval
+              if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "family_interval") {
+                graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                break;
+              }
+              // family steps
+              else {
+                graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                break;
+              }
+            }
+          }
+
+          console.log("----- attributo del graphic3D no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+          break;
+
       }
     }
 
@@ -14076,7 +15404,11 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       case("mesh"):
-        return new descartesJS.Mesh3D(this.parent, graphicObj);
+      case("cube"):
+      case("box"):
+      case("tetrahedron"):
+      case("octahedron"):
+        return new descartesJS.OtherGeometry(this.parent, graphicObj);
         break;
 
       default:
@@ -14446,14 +15778,14 @@ var descartesJS = (function(descartesJS, babel) {
         // background color
         case("bgcolor"):
           if (values_i_1 != "") {
-            plecaObj.bgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
+            plecaObj.bgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
           }
           break;
 
         // text color
         case("fgcolor"):
           if (values_i_1 != "") {
-            plecaObj.fgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
+            plecaObj.fgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
           }
           break;
 
@@ -14662,87 +15994,87 @@ var descartesJS = (function(descartesJS, babel) {
     return splitValues;
   }
   
-  /**
-   * Split a string using a coma delimiter
-   * @param {String} string the string to split
-   * @return {Array<String>} return an array of the spliting string using a coma delimiter
-   */
-  descartesJS.LessonParser.prototype.splitComa = function(string) {
-    splitString = [];
-    parenthesesStack = [];
-    lastSplitIndex = 0;
+  // /**
+  //  * Split a string using a coma delimiter
+  //  * @param {String} string the string to split
+  //  * @return {Array<String>} return an array of the spliting string using a coma delimiter
+  //  */
+  // descartesJS.LessonParser.prototype.splitComa = function(string) {
+  //   splitString = [];
+  //   parenthesesStack = [];
+  //   lastSplitIndex = 0;
 
-    for (var i=0, l=string.length; i<l; i++) {
-      charAt = string.charAt(i);
-      if (charAt === "(") {
-        parenthesesStack.push(i);
-      }
-      else if (charAt === ")") {
-        parenthesesStack.pop();
-      }
-      else if ((charAt === ",") && (parenthesesStack.length === 0)) {
-        splitString.push(string.substring(lastSplitIndex, i));
-        lastSplitIndex = i+1;
-      }
-    }
+  //   for (var i=0, l=string.length; i<l; i++) {
+  //     charAt = string.charAt(i);
+  //     if (charAt === "(") {
+  //       parenthesesStack.push(i);
+  //     }
+  //     else if (charAt === ")") {
+  //       parenthesesStack.pop();
+  //     }
+  //     else if ((charAt === ",") && (parenthesesStack.length === 0)) {
+  //       splitString.push(string.substring(lastSplitIndex, i));
+  //       lastSplitIndex = i+1;
+  //     }
+  //   }
     
-    splitString.push(string.substring(lastSplitIndex));
+  //   splitString.push(string.substring(lastSplitIndex));
     
-    return splitString;
-  }
+  //   return splitString;
+  // }
   
-  /**
-   * Given a Descartes color get an CSS color
-   * @param {String} color the Descartes color to convert
-   * @return {String} return a CSS color string
-   */
-  descartesJS.LessonParser.prototype.convertColor = function(color) {
-    // the color is a color name
-    if (babel[color]) {
-      if (babel[color] === "net") {
-        return "red";
-      }
-      return babel[color];
-    }
+  // /**
+  //  * Given a Descartes color get an CSS color
+  //  * @param {String} color the Descartes color to convert
+  //  * @return {String} return a CSS color string
+  //  */
+  // descartesJS.LessonParser.prototype.convertColor = function(color) {
+  //   // the color is a color name
+  //   if (babel[color]) {
+  //     if (babel[color] === "net") {
+  //       return "red";
+  //     }
+  //     return babel[color];
+  //   }
     
-    // the color is six hexadecimals digits #RRGGBB
-    if (color.length === 6) {
-      return "#" + color;
-    }
+  //   // the color is six hexadecimals digits #RRGGBB
+  //   if (color.length === 6) {
+  //     return "#" + color;
+  //   }
 
-    // the color is eight hexadecimals digits #RRGGBBAA
-    if (color.length === 8) {
-      return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
-                    + parseInt("0x"+color.substring(4,6), 16) +","
-                    + parseInt("0x"+color.substring(6,8), 16) +","
-                    + (1-parseInt("0x"+color.substring(0,2), 16)/255)
-                    + ")";
-    }
+  //   // the color is eight hexadecimals digits #RRGGBBAA
+  //   if (color.length === 8) {
+  //     return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
+  //                   + parseInt("0x"+color.substring(4,6), 16) +","
+  //                   + parseInt("0x"+color.substring(6,8), 16) +","
+  //                   + (1-parseInt("0x"+color.substring(0,2), 16)/255)
+  //                   + ")";
+  //   }
 
-    // the color is a Descartes expression (exprR, exprG, exprB, exprA)
-    if (color[0] === "(") {
-      tmpColor = "(";
-      splitColor = this.splitComa(color.substring(1,color.length-1));
+  //   // the color is a Descartes expression (exprR, exprG, exprB, exprA)
+  //   if (color[0] === "(") {
+  //     tmpColor = "(";
+  //     splitColor = this.splitComa(color.substring(1,color.length-1));
 
-      for (var i=0, l=splitColor.length; i<l; i++) {
-        hexColor = parseInt(splitColor[i], 16);
-        
-        if (splitColor[i] != hexColor.toString(16)) {
-          if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
-            splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
-          }
-          tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
-        } else {
-          tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
-        }
-      }
+  //     for (var i=0, l=splitColor.length; i<l; i++) {
+  //       hexColor = parseInt(splitColor[i], 16);
 
-      return this.parser.parse(tmpColor);
-    }
+  //       if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
+  //         if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
+  //           splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
+  //         }
+  //         tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
+  //       } else {
+  //         tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
+  //       }
+  //     }
+
+  //     return this.parser.parse(tmpColor);
+  //   }
     
-    // otherwise
-    return "#aa0000";
-  }
+  //   // otherwise
+  //   return "#aa0000";
+  // }
 
   /**
    * Parse a text an construct a simple text or rtf text
@@ -16387,28 +17719,32 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////
 
     // function for the dialog
-    this.functions["esCorrecto"] = function(x, y) { return descartesJS.esCorrecto(x, y); };
-    this.functions["escorrecto"] = function(x, y) { return descartesJS.escorrecto(x, y); };
+    this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
+    this.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
     // if the lesson is inside a iframe then register the comunication functions with the parent
-    // if (window.parent.location.href !== window.location.href) {
     if (window.parent !== window) {
 
       // function to set a variable value to the parent
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
       }
+
+      // // function to get a variable value from the parent
+      // this.functions["parent.get"] = function(varName) {
+      //   if (this.parent.cacheVars[varName]) {
+      //     return this.parent.cacheVars[varName];
+      //   }
+
+      //   window.parent.postMessage({ type: "get", name: varName }, '*');
+      //   return 0;
+      // }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
         window.parent.postMessage({ type: "update" }, '*');
       }
-            
-      // function to get a variable value from the parent
-      this.functions["parent.get"] = function(varName, value) {
-        window.parent.postMessage({ type: "get", name: varName, value: value }, '*');
-      }
-      
+
       // function to execute a function in the parent
       this.functions["parent.exec"] = function(functionName, functionParameters) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
@@ -16537,9 +17873,40 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var MathFloor = Math.floor;
+  var MathMax = Math.max;
   var externalDecimals = 2;
   var externalFixed = false;
-  
+  var metrics;
+
+  var decimals;
+  var fixed;
+  var textTemp;
+  var tmpAscent;
+  var tmpStyle;
+  var tmpRadican;
+  var tmpMetric;
+  var prevAscent;
+  var prevDescent;
+  var prevHeigth;
+  var num;
+  var den;
+  var index;
+  var radicand;
+  var from;
+  var to;
+  var what;
+  var symbolStyle;
+  var symbolWidth;
+  var childH;
+  var childW;
+  var maxAscenderHeight;
+  var maxDescenderHeight;
+  var maxHeigth;
+  var maxWidth;
+
+  var children_i;
+      
   /**
    * A node of rtf text
    * @constructor 
@@ -16552,7 +17919,7 @@ var descartesJS = (function(descartesJS) {
     this.value = value;
     this.nodeType = nodeType;
     this.style = style;
-    this.styleString = style.toString()
+    this.styleStr = style.toString()
     this.color = style.textColor;
     this.underline = style.textUnderline;
     this.overline = style.textOverline;
@@ -16560,108 +17927,116 @@ var descartesJS = (function(descartesJS) {
     this.parent = null;
     this.children = [];
     
-    // the principal text block
-    if (this.nodeType == "textBlock") {
-      this.draw = this.drawTextBlock;
-    }
-    
-    // a text line
-    else if (this.nodeType == "textLineBlock") {
-      this.draw = this.drawTextLineBlock;
-    }
+    switch(this.nodeType) {
+      // the principal text block
+      case ("textBlock"):
+        this.draw = this.drawTextBlock;
+        break;
 
-    // a formula
-    else if (this.nodeType == "formula") {
-      this.draw = this.drawFormula;
-    }
-    
-    // a super index
-    else if (this.nodeType == "superIndex") {
-      this.draw = this.drawSuperIndex;
-    }
+      // a text line
+      case ("textLineBlock"):
+        this.draw = this.drawTextLineBlock;
+        break;
 
-    // a sub index
-    else if (this.nodeType == "subIndex") {
-      this.draw = this.drawSubIndex;
-    }
+      // a formula
+      case ("formula"):
+        this.draw = this.drawFormula;
+        break;
+      
+      // a super index
+      case ("superIndex"):
+        this.draw = this.drawSuperIndex;
+        break;
 
-    // a dynamic text
-    else if (this.nodeType == "dynamicText") {
-      this.draw = this.drawDynamicText;
-      this.decimal_symbol = this.evaluator.parent.decimal_symbol;
-    }
+      // a sub index
+      case ("subIndex"):
+        this.draw = this.drawSubIndex;
+        break;
 
-    // a fraction
-    else if (this.nodeType == "fraction") {
-      this.draw = this.drawFraction;
-    }
-    
-    // a numerator or denominator
-    else if ( (this.nodeType == "numerator") || (this.nodeType == "denominator") ) {
-      this.draw = this.drawNumDen;
-    }
-    
-    // a radical
-    else if (this.nodeType == "radical") {
-      this.draw = this.drawRadical;
-    }
-        
-    // a limit
-    else if (this.nodeType == "limit") {
-      this.draw = this.drawLimit;
-    }
-    
-    // an integral
-    else if (this.nodeType == "integral") {
-      this.draw = this.drawIntegral;
-    }
-    
-    // a sum
-    else if (this.nodeType == "sum") {
-      this.draw = this.drawSum;
-    }
-    
-    // a matrix
-    else if (this.nodeType == "matrix") {
-      this.draw = this.drawMatrix;
-    }
-    
-    // a defparts element
-    else if (this.nodeType == "defparts") {
-      this.draw = this.drawDefparts;
-    }
-    
-    // a text or new line
-    else if ((this.nodeType == "text") || (this.nodeType == "newLine")) {
-      this.draw = this.drawText;
-    }
-    
-    // a math symbol
-    else if (this.nodeType == "mathSymbol") {
-      this.draw = this.drawMathSymbol;
-    }
-    
-    // an index of a root or contents of a root or from value of a root
-    // an index of a sum or contents of a sum or from value of a sum
-    // an element 
-    else if ( (this.nodeType == "index") || 
-              (this.nodeType == "radicand") ||
-              (this.nodeType == "from") ||
-              (this.nodeType == "to") ||
-              (this.nodeType == "what") ||
-              (this.nodeType == "element")
-            ) {
-      this.draw = this.drawGenericBlock;
-    }
-    
-    // a component of a control
-    else if (this.nodeType == "componentNumCtrl") {
-      this.draw = this.drawComponentNumCtrl;
-    }
+      // a dynamic text
+      case ("dynamicText"):
+        this.draw = this.drawDynamicText;
+        this.decimal_symbol = this.evaluator.parent.decimal_symbol;
+        break;
 
-    // a component of a space
-    else if (this.nodeType == "componentSpace") {
-      this.draw = this.drawComponentSpace;
+      // a fraction
+      case ("fraction"):
+        this.draw = this.drawFraction;
+        break;
+      
+      // a numerator or denominator
+      case ("numerator"):
+      case ("denominator"):
+        this.draw = this.drawNumDen;
+        break;
+      
+      // a radical
+      case ("radical"):
+        this.draw = this.drawRadical;
+        break;
+          
+      // a limit
+      case ("limit"):
+        this.draw = this.drawLimit;
+        break;
+      
+      // an integral
+      case ("integral"):
+        this.draw = this.drawIntegral;
+        break;
+      
+      // a sum
+      case ("sum"):
+        this.draw = this.drawSum;
+        break;
+      
+      // a matrix
+      case ("matrix"):
+        this.draw = this.drawMatrix;
+        break;
+      
+      // a defparts element
+      case ("defparts"):
+        this.draw = this.drawDefparts;
+        break;
+      
+      // a text or new line
+      case ("text"):
+      case ("newLine"):
+        this.draw = this.drawText;
+        break;
+      
+      // a text or new line
+      case ("hyperlink"):
+        this.draw = this.drawHyperlink;
+        break;
+
+      // a math symbol
+      case ("mathSymbol"):
+        this.draw = this.drawMathSymbol;
+        break;
+      
+      // an index of a root or contents of a root or from value of a root
+      // an index of a sum or contents of a sum or from value of a sum
+      // an element 
+      case ("index"):
+      case ("radicand"):
+      case ("from"):
+      case ("to"):
+      case ("what"):
+      case ("element"):
+        this.draw = this.drawGenericBlock;
+        break;
+      
+      // a component of a control
+      case ("componentNumCtrl"):
+        this.draw = this.drawComponentNumCtrl;
+        break;
+
+      // a component of a space
+      case ("componentSpace"):
+        this.draw = this.drawComponentSpace;
+        break;
     }
   }
 
@@ -16686,558 +18061,552 @@ var descartesJS = (function(descartesJS) {
   }
   
   // metric values, needed to calculate the super and sub indices
-  var previousMetric = { ascent: 0, descent: 0, height: 0 };
+  var previousMetric = { ascent: 0, descent: 0, h: 0 };
   /**
    * Set the previous metric
    * @param {Number} ascent the ascent value
    * @param {Number} descent the descent value
-   * @param {Number} height the height value
+   * @param {Number} h the h value
    */
-  function updatePreviousMetric(ascent, descent, height) {
+  function updatePreviousMetric(ascent, descent, h) {
     previousMetric.ascent = ascent;
     previousMetric.descent = descent;
-    previousMetric.height = height; 
+    previousMetric.h = h; 
   }
   
   /**
    * Get the text metrics of the rtf text
    */
   descartesJS.RTFNode.prototype.getTextMetrics = function() {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    if (this.nodeType == "textBlock") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+    // width of a space
+    this.spaceW = descartesJS.getTextWidth(" ", this.styleStr);
 
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getTextMetrics();
-      }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "textLineBlock") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-
-      this.getBlockMetric();
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "newLine") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-
-      var metrics = descartesJS.getFontMetrics(this.styleString);
-
-      this.baseline = metrics.baseline;
-
-      this.descent = metrics.descent;
-      this.ascent = metrics.ascent;
-      
-      this.width = metrics.width;
-      this.height = metrics.height;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if ( (this.nodeType == "text") || (this.nodeType == "dynamicText")) {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-
-      var metrics = descartesJS.getFontMetrics(this.styleString);
-
-      this.baseline = metrics.baseline;
-
-      this.descent = metrics.descent;
-      this.ascent = metrics.ascent;
-      
-      var textTemp = this.value;
-      var decimals;
-      var fixed;
-
-      // if the text is a dynamic text
-      if (typeof(this.value) != "string") {
-        decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
-        fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
-        textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
-
-        // is a number
-        if (parseFloat(textTemp) == textTemp) {
-          textTemp = parseFloat(textTemp).toFixed(decimals);
-          textTemp = (fixed) ? textTemp : parseFloat(textTemp);
-          textTemp = textTemp.toString().replace(".", this.decimal_symbol);
+    switch(this.nodeType) {
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("textBlock"):
+        for (var i=0, l=this.children.length; i<l; i++) {
+          this.children[i].getTextMetrics();
         }
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("textLineBlock"):
+      case ("formula"):
+        this.getBlockMetric();
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("newLine"):
+        metrics = descartesJS.getFontMetrics(this.styleStr);
+
+        this.baseline = metrics.baseline;
+        this.descent = metrics.descent;
+        this.ascent = metrics.ascent;
+        this.w = metrics.w;
+        this.h = metrics.h;
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("text"):
+      case ("dynamicText"):
+        metrics = descartesJS.getFontMetrics(this.styleStr);
+
+        this.baseline = metrics.baseline;
+        this.descent = metrics.descent;
+        this.ascent = metrics.ascent;
         
-        textTemp += " ";
-      }
-            
-      this.width = descartesJS.getTextWidth(textTemp, this.styleString);
-      this.height = metrics.height;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "formula") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      this.getBlockMetric();
-    }
+        textTemp = this.value;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "superIndex") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
+        // if the text is a dynamic text
+        if (typeof(this.value) != "string") {
+          decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
+          fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
+          textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
 
-      var metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.getBlockMetric();
-
-      if (this.height < 0) {
-        this.ascent = metric.ascent;
-        this.descent = metric.descent;
-        this.height = this.ascent + this.descent;
-        this.width = this.spaceWidth*1.5;
-      }
-      
-      var tmpAscent = prevHeight/2 - prevDescent + this.height;
-      this.superIndexPos = tmpAscent - this.ascent;
-      
-      this.ascent = tmpAscent;
-      this.descent = prevDescent;
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "subIndex") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.getBlockMetric();
-
-      if (this.height < 0) {
-        this.ascent = metric.ascent;
-        this.descent = metric.descent;
-        this.height = this.ascent + this.descent;
-        this.width = this.spaceWidth*1.5;
-      }
-
-      this.subIndexPos = prevDescent +1;
-      
-      this.ascent = prevAscent;
-      this.descent = this.subIndexPos + this.descent;
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "fraction") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var num = this.children[0];
-      var den = this.children[1];
-
-      var metric = descartesJS.getFontMetrics(num.styleString);
-
-      num.getBlockMetric();
-      den.getBlockMetric();
-      
-      if (num.height < 0) {
-        num.height = metric.height;
-        num.width = this.spaceWidth;
-      }
-      if (den.height < 0) {
-        den.height = metric.height;
-        den.width = this.spaceWidth;
-      }
-      
-      this.height = num.height + den.height -1;
-
-      this.ascent = num.height + prevHeight/2-prevDescent;
-      this.descent = this.height - this.ascent;
-      this.baseline = this.ascent;
-
-      this.width = Math.max(num.width, den.width) +this.spaceWidth +8;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "radical") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var index;
-      var radicand;
-      var tmpStyle = this.children[0].style.clone();
-      var tmpRadican;
-
-      // correction in the roots when has only one child (problem in some lessons of Arquimedes)
-      if (this.children.length === 1) {
-        // radican
-        this.children[1] = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
-        this.children[1].addChild(this.children[0]);
-        // index
-        this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
-      }
-      // if has mora tan one child
-      else {
-        // if the first two children not are an index and radicand, then is a problem in Arquimedes
-        // and is necesary to add all the children un the radicand value
-        if ( (this.children[0].nodeType !== "index") || (this.children[1].nodeType !== "radicand") ) {
-          // radican
-          tmpRadican = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
-          for (var i=0, l=this.children.length; i<l; i++) {
-            tmpRadican.addChild(this.children[i]);
+          // is a number
+          if (parseFloat(textTemp) == textTemp) {
+            textTemp = parseFloat(textTemp).toFixed(decimals);
+            textTemp = (fixed) ? textTemp : parseFloat(textTemp);
+            textTemp = textTemp.toString().replace(".", this.decimal_symbol);
           }
-          this.children = [];
+          
+          textTemp += " ";
+        }
+              
+        this.w = descartesJS.getTextWidth(textTemp, this.styleStr);
+        this.h = metrics.h;
 
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("hyperlink"):
+        metrics = descartesJS.getFontMetrics(this.styleStr);
+
+        this.baseline = metrics.baseline;
+        this.descent = metrics.descent;
+        this.ascent = metrics.ascent;
+        
+        this.w = descartesJS.getTextWidth(this.value, this.styleStr);
+        this.h = metrics.h;
+
+        this.clickCacher = document.createElement("div");
+        this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px;")
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("superIndex"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+
+        metric = descartesJS.getFontMetrics(this.styleStr);
+
+        this.getBlockMetric();
+
+        if (this.h < 0) {
+          this.ascent = metric.ascent;
+          this.descent = metric.descent;
+          this.h = this.ascent + this.descent;
+          this.w = this.spaceW*1.5;
+        }
+        
+        tmpAscent = prevHeigth/2 - prevDescent + this.h;
+        this.superIndexPos = tmpAscent - this.ascent;
+        
+        this.ascent = tmpAscent;
+        this.descent = prevDescent;
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("subIndex"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        metric = descartesJS.getFontMetrics(this.styleStr);
+
+        this.getBlockMetric();
+
+        if (this.h < 0) {
+          this.ascent = metric.ascent;
+          this.descent = metric.descent;
+          this.h = this.ascent + this.descent;
+          this.w = this.spaceW*1.5;
+        }
+
+        this.subIndexPos = prevDescent +1;
+        
+        this.ascent = prevAscent;
+        this.descent = this.subIndexPos + this.descent;
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        break;
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("fraction"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        num = this.children[0];
+        den = this.children[1];
+
+        metric = descartesJS.getFontMetrics(num.styleStr);
+
+        num.getBlockMetric();
+        den.getBlockMetric();
+        
+        if (num.h < 0) {
+          num.h = metric.h;
+          num.w = this.spaceW;
+        }
+        if (den.h < 0) {
+          den.h = metric.h;
+          den.w = this.spaceW;
+        }
+        
+        this.h = num.h + den.h -1;
+
+        this.ascent = num.h + prevHeigth/2-prevDescent;
+        this.descent = this.h - this.ascent;
+        this.baseline = this.ascent;
+
+        this.w = MathMax(num.w, den.w) +this.spaceW +8;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("radical"):
+        tmpStyle = this.children[0].style.clone();
+
+        // correction in the roots when has only one child (problem in some lessons of Arquimedes)
+        if (this.children.length === 1) {
+          // radican
+          this.children[1] = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
+          this.children[1].addChild(this.children[0]);
+          // index
           this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
-          this.children[1] = tmpRadican;
         }
-      }
+        // if has mora tan one child
+        else {
+          // if the first two children not are an index and radicand, then is a problem in Arquimedes
+          // and is necesary to add all the children un the radicand value
+          if ( (this.children[0].nodeType !== "index") || (this.children[1].nodeType !== "radicand") ) {
+            // radican
+            tmpRadican = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
+            for (var i=0, l=this.children.length; i<l; i++) {
+              tmpRadican.addChild(this.children[i]);
+            }
+            this.children = [];
 
-      index    = this.children[0];
-      radicand = this.children[1];
+            this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
+            this.children[1] = tmpRadican;
+          }
+        }
 
-      index.getBlockMetric();
-      radicand.getBlockMetric();
+        index    = this.children[0];
+        radicand = this.children[1];
 
-      if (radicand.height/2 < index.height) {
-        this.ascent = radicand.height/2 + index.height+2 - radicand.descent;
-      } 
-      else {
-        this.ascent = radicand.ascent +4;
-      }
+        index.getBlockMetric();
+        radicand.getBlockMetric();
+
+        if (radicand.h/2 < index.h) {
+          this.ascent = radicand.h/2 + index.h+2 - radicand.descent;
+        } 
+        else {
+          this.ascent = radicand.ascent +4;
+        }
+        
+        this.descent = radicand.descent;
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        this.w = index.w + radicand.w +4*this.spaceW;
+
+        break;
       
-      this.descent = radicand.descent;
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("sum"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        from = this.children[0];
+        to   = this.children[1];
+        what = this.children[2]
+        
+        from.getBlockMetric();
+        to.getBlockMetric();
+        what.getBlockMetric();
 
-      this.width = index.width + radicand.width +4*this.spaceWidth;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "sum") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var from = this.children[0];
-      var to   = this.children[1];
-      var what = this.children[2]
-      
-      from.getBlockMetric();
-      to.getBlockMetric();
-      what.getBlockMetric();
+        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (from.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
+          from.ascent = tmpMetric.ascent;
+          from.descent = tmpMetric.descent;
+          from.h = tmpMetric.h;
+        }
+        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (to.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
+          to.ascent = tmpMetric.ascent;
+          to.descent = tmpMetric.descent;
+          to.h = tmpMetric.h;
+        }
+        
+        metric = descartesJS.getFontMetrics(this.styleStr);
 
-      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (from.ascent == -1) {
-        var tmpMetric = descartesJS.getFontMetrics(from.styleString);
-        from.ascent = tmpMetric.ascent;
-        from.descent = tmpMetric.descent;
-        from.height = tmpMetric.height;
-      }
-      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (to.ascent == -1) {
-        var tmpMetric = descartesJS.getFontMetrics(to.styleString);
-        to.ascent = tmpMetric.ascent;
-        to.descent = tmpMetric.descent;
-        to.height = tmpMetric.height;
-      }
-      
-      var metric = descartesJS.getFontMetrics(this.styleString);
+        // the ascent
+        if (metric.h+to.h > what.ascent) {
+          this.ascent = metric.h-metric.descent +to.h;
+        } else {
+          this.ascent = what.ascent;
+        }
+        
+        // the descent
+        if (from.h > what.descent) {
+          this.descent = from.h + metric.descent;
+        } else {
+          this.descent = what.descent;
+        }
 
-      // the ascent
-      if (metric.height+to.height > what.ascent) {
-        this.ascent = metric.height-metric.descent +to.height;
-      } else {
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        symbolStyle = this.style.clone();
+        symbolStyle.fontType = "Times New Roman";
+        symbolStyle.Bold = "bold";
+        symbolStyle = symbolStyle.toString();
+
+        symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
+        
+        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceW) +this.spaceW;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("integral"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        from = this.children[0];
+        to   = this.children[1];
+        what = this.children[2]
+        
+        from.getBlockMetric();
+        to.getBlockMetric();
+        what.getBlockMetric();
+        
+        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (from.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
+          from.ascent = tmpMetric.ascent;
+          from.descent = tmpMetric.descent;
+          from.h = tmpMetric.h;
+        }
+        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (to.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
+          to.ascent = tmpMetric.ascent;
+          to.descent = tmpMetric.descent;
+          to.h = tmpMetric.h;
+        }
+
+        metric = descartesJS.getFontMetrics(this.styleStr);
+
+        // the ascent
+        if (metric.h+to.h > what.ascent) {
+          this.ascent = metric.h-metric.descent +to.h;
+        } else {
+          this.ascent = what.ascent;
+        }
+        
+        // the descent
+        if (from.h > what.descent) {
+          this.descent = from.h + metric.descent;
+        } else {
+          this.descent = what.descent;
+        }
+
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        symbolStyle = this.style.clone();
+        symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
+        symbolStyle.fontType = "Times New Roman";
+        symbolStyle.Bold = "bold";
+        symbolStyle = symbolStyle.toString();
+
+        symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
+          
+        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceW) +2*this.spaceW;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("limit"):
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        from = this.children[0];
+        to   = this.children[1];
+        what = this.children[2]
+
+        metric = descartesJS.getFontMetrics(this.styleStr);
+
+        from.getBlockMetric();
+        to.getBlockMetric();
+        what.getBlockMetric();
+        
+        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (from.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
+          from.ascent = tmpMetric.ascent;
+          from.descent = tmpMetric.descent;
+          from.h = tmpMetric.h;
+        }
+        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (to.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
+          to.ascent = tmpMetric.ascent;
+          to.descent = tmpMetric.descent;
+          to.h = tmpMetric.h;
+        }
+        // if "what" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+        if (what.ascent == -1) {
+          tmpMetric = descartesJS.getFontMetrics(what.styleStr);
+          what.ascent = tmpMetric.ascent;
+          what.descent = tmpMetric.descent;
+          what.h = tmpMetric.h;
+        }
+              
         this.ascent = what.ascent;
-      }
+        this.descent = MathMax(metric.h, what.descent);
+        this.baseline = this.ascent;
+        this.h = this.ascent + this.descent;
+
+        if (from.w == 0) {
+          from.w = this.spaceW;
+        }
+        if (to.w == 0) {
+          to.w = this.spaceW;
+        }
+        if (what.w == 0) {
+          what.w = this.spaceW;
+        }
+
+        this.w = to.w + from.w + what.w + this.spaceW + descartesJS.getTextWidth(" " + String.fromCharCode(parseInt(8594)), this.styleStr);
+
+        break;
       
-      // the descent
-      if (from.height > what.descent) {
-        this.descent = from.height + metric.descent;
-      } else {
-        this.descent = what.descent;
-      }
-
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
-
-      var symbolStyle = this.style.clone();
-      symbolStyle.fontType = "Times New Roman";
-      symbolStyle.Bold = "bold";
-      symbolStyle = symbolStyle.toString();
-
-      var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
-      
-      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +this.spaceWidth;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "integral") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var from = this.children[0];
-      var to   = this.children[1];
-      var what = this.children[2]
-      
-      from.getBlockMetric();
-      to.getBlockMetric();
-      what.getBlockMetric();
-      
-      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (from.ascent == -1) {
-        var tmpMetric = descartesJS.getFontMetrics(from.styleString);
-        from.ascent = tmpMetric.ascent;
-        from.descent = tmpMetric.descent;
-        from.height = tmpMetric.height;
-      }
-      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (to.ascent == -1) {
-        var tmpMetric = descartesJS.getFontMetrics(to.styleString);
-        to.ascent = tmpMetric.ascent;
-        to.descent = tmpMetric.descent;
-        to.height = tmpMetric.height;
-      }
-
-      var metric = descartesJS.getFontMetrics(this.styleString);
-
-      // the ascent
-      if (metric.height+to.height > what.ascent) {
-        this.ascent = metric.height-metric.descent +to.height;
-      } else {
-        this.ascent = what.ascent;
-      }
-      
-      // the descent
-      if (from.height > what.descent) {
-        this.descent = from.height + metric.descent;
-      } else {
-        this.descent = what.descent;
-      }
-
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
-
-      var symbolStyle = this.style.clone();
-      symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
-      symbolStyle.fontType = "Times New Roman";
-      symbolStyle.Bold = "bold";
-      symbolStyle = symbolStyle.toString();
-
-      var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("matrix"):
+        metric = descartesJS.getFontMetrics(this.styleStr);
         
-      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +2*this.spaceWidth;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "limit") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var from = this.children[0];
-      var to   = this.children[1];
-      var what = this.children[2]
-      var tmpMetric;
-      var metric = descartesJS.getFontMetrics(this.styleString);
-
-      from.getBlockMetric();
-      to.getBlockMetric();
-      what.getBlockMetric();
-      
-      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (from.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(from.styleString);
-        from.ascent = tmpMetric.ascent;
-        from.descent = tmpMetric.descent;
-        from.height = tmpMetric.height;
-      }
-      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (to.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(to.styleString);
-        to.ascent = tmpMetric.ascent;
-        to.descent = tmpMetric.descent;
-        to.height = tmpMetric.height;
-      }
-      // if "what" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (what.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(what.styleString);
-        what.ascent = tmpMetric.ascent;
-        what.descent = tmpMetric.descent;
-        what.height = tmpMetric.height;
-      }
-            
-      this.ascent = what.ascent;
-      this.descent = Math.max(metric.height, what.descent);
-      this.baseline = this.ascent;
-      this.height = this.ascent + this.descent;
-
-      var limitWidth = descartesJS.getTextWidth(" " + String.fromCharCode(parseInt(8594)), this.styleString);
-
-      if (from.width == 0) {
-        from.width = this.spaceWidth;
-      }
-      if (to.width == 0) {
-        to.width = this.spaceWidth;
-      }
-      if (what.width == 0) {
-        what.width = this.spaceWidth;
-      }
-
-      this.width = to.width + from.width + what.width + limitWidth + this.spaceWidth;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "matrix") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      
-      var metric = descartesJS.getFontMetrics(this.styleString);
-      
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var maxAscenderHeight = metric.ascent;
-      var maxDescenderHeight = metric.descent;
-      var maxHeigth = metric.height;
-      var maxWidth = this.spaceWidth;
-
-      var childHeight;
-      var childWidth;
-      
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getBlockMetric();
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
         
-        childHeight = this.children[i].height;
-        childWidth = this.children[i].width;
+        maxAscenderHeight = metric.ascent;
+        maxDescenderHeight = metric.descent;
+        maxHeigth = metric.h;
+        maxWidth = this.spaceW;
         
-        if (maxHeigth < childHeight) {
-          maxHeigth = childHeight;
-          maxAscenderHeight = this.children[i].ascent;
-          maxDescenderHeight = this.children[i].descent;
+        for (var i=0, l=this.children.length; i<l; i++) {
+          this.children[i].getBlockMetric();
+          
+          childH = this.children[i].h;
+          childW = this.children[i].w;
+          
+          if (maxHeigth < childH) {
+            maxHeigth = childH;
+            maxAscenderHeight = this.children[i].ascent;
+            maxDescenderHeight = this.children[i].descent;
+          }
+          
+          if (maxWidth < childW) {
+            maxWidth = childW;
+          }
         }
         
-        if (maxWidth < childWidth) {
-          maxWidth = childWidth;
-        }
-      }
-      
-      this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childHeight = maxHeigth;
-      this.childAscent = maxAscenderHeight;
-      this.childDescent = maxDescenderHeight;
-      
-      this.height = this.rows * maxHeigth;
-      this.ascent = this.height/2 + prevDescent;
-      this.descent = this.height - this.ascent;
-      this.width = this.columns * this.childWidth +this.spaceWidth;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "defparts") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      
-      var metric = descartesJS.getFontMetrics(this.styleString);
-      
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevHeight = previousMetric.height;
-      
-      var maxAscenderHeight = metric.ascent;
-      var maxDescenderHeight = metric.descent;
-      var maxHeigth = metric.height;
-      var maxWidth = this.spaceWidth;
-
-      var childHeight;
-      var childWidth;
-
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getBlockMetric();
+        this.childW = maxWidth + 2*this.spaceW;
+        this.childH = maxHeigth;
+        this.childAscent = maxAscenderHeight;
+        this.childDescent = maxDescenderHeight;
         
-        childHeight = this.children[i].height;
-        childWidth = this.children[i].width;
+        this.h = this.rows * maxHeigth;
+        this.ascent = this.h/2 + prevDescent;
+        this.descent = this.h - this.ascent;
+        this.w = this.columns * this.childW +this.spaceW;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("defparts"):
+        metric = descartesJS.getFontMetrics(this.styleStr);
         
-        if (maxHeigth < childHeight) {
-          maxHeigth = childHeight;
-          maxAscenderHeight = this.children[i].ascent;
-          maxDescenderHeight = this.children[i].descent;
+        prevAscent = previousMetric.ascent;
+        prevDescent = previousMetric.descent;
+        prevHeigth = previousMetric.h;
+        
+        maxAscenderHeight = metric.ascent;
+        maxDescenderHeight = metric.descent;
+        maxHeigth = metric.h;
+        maxWidth = this.spaceW;
+
+        for (var i=0, l=this.children.length; i<l; i++) {
+          this.children[i].getBlockMetric();
+          
+          childH = this.children[i].h;
+          childW = this.children[i].w;
+          
+          if (maxHeigth < childH) {
+            maxHeigth = childH;
+            maxAscenderHeight = this.children[i].ascent;
+            maxDescenderHeight = this.children[i].descent;
+          }
+          
+          if (maxWidth < childW) {
+            maxWidth = childW;
+          }
         }
         
-        if (maxWidth < childWidth) {
-          maxWidth = childWidth;
-        }
-      }
-      
-      this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childHeight = maxHeigth;
-      this.childAscent = maxAscenderHeight;
-      this.childDescent = maxDescenderHeight;
-      
-      this.height = this.parts * maxHeigth;
-      this.ascent = this.height/2 + prevDescent;
-      this.descent = this.height - this.ascent;
-      this.width = maxWidth +this.spaceWidth/2;
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "mathSymbol") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var metrics = descartesJS.getFontMetrics(this.styleString);
-
-      this.baseline = metrics.baseline;
-      this.descent = metrics.descent;
-      this.ascent = metrics.ascent;
-                  
-      this.width = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
-      this.height = metrics.height;
-    }
-    
-    else if (this.nodeType == "componentNumCtrl") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
-      
-      this.baseline = 0;
-      this.descent = 0;
-      this.ascent = 0;
-      
-      this.height = 0;
-      this.width = this.componentNumCtrl.w;
-    }
-    
-    else if (this.nodeType == "componentSpace") {
-      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      this.componentSpace = this.evaluator.parent.getSpaceByCId(this.value);
-      
-      this.baseline = 0;
-      this.descent = 0;
-      this.ascent = 0;
-      
-      this.height = 0;
-      this.width = this.componentSpace.w;
-    }
+        this.childW = maxWidth + 2*this.spaceW;
+        this.childH = maxHeigth;
+        this.childAscent = maxAscenderHeight;
+        this.childDescent = maxDescenderHeight;
         
-    else {
-      console.log("Element i=unknown", this.nodeType);
-    }
-    
+        this.h = this.parts * maxHeigth;
+        this.ascent = this.h/2 + prevDescent;
+        this.descent = this.h - this.ascent;
+        this.w = maxWidth +this.spaceW/2;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("mathSymbol"):
+        metrics = descartesJS.getFontMetrics(this.styleStr);
+
+        this.baseline = metrics.baseline;
+        this.descent = metrics.descent;
+        this.ascent = metrics.ascent;
+                    
+        this.w = descartesJS.getTextWidth(this.value, this.styleStr) + descartesJS.getTextWidth(" ", this.styleStr);
+        this.h = metrics.h;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("componentNumCtrl"):
+        this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
+        
+        this.baseline = 0;
+        this.descent = 0;
+        this.ascent = 0;
+        
+        this.h = 0;
+        this.w = this.componentNumCtrl.w;
+
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      case ("componentSpace"):
+        this.componentSpace = this.evaluator.parent.getSpaceByCId(this.value);
+        
+        this.baseline = 0;
+        this.descent = 0;
+        this.ascent = 0;
+        
+        this.h = 0;
+        this.w = this.componentSpace.w;
+        break;
+      
+      ////////////////////////////////////////////////////////////////////////////////////////////////////
+      default:
+        console.log("Element i=unknown", this.nodeType);
+        break;
+    }    
   }
   
   /**
    * Get the metric of a block
    */
   descartesJS.RTFNode.prototype.getBlockMetric = function() {
-    this.width = 0;
-    var maxDescenderHeight = -1;
-    var maxAscenderHeight = -1;
-    var childHeight;
-    var children_i;
+    this.w = 0;
+    maxDescenderHeight = -1;
+    maxAscenderHeight = -1;
     
-    // loops throught all the children of a text line to determine which is the width and the height
+    // loops throught all the children of a text line to determine which is the w and the h
     for (var i=0, l=this.children.length; i<l; i++) {
       children_i = this.children[i];
       children_i.getTextMetrics();
@@ -17245,10 +18614,10 @@ var descartesJS = (function(descartesJS) {
       childAscent = children_i.ascent;
       childDescent = children_i.descent;
 
-      this.width += children_i.width;
+      this.w += children_i.w;
      
       // update the previous metric
-      updatePreviousMetric(childAscent, childDescent, children_i.height);
+      updatePreviousMetric(childAscent, childDescent, children_i.h);
       
       if (maxAscenderHeight < childAscent) {
         maxAscenderHeight = childAscent;
@@ -17263,7 +18632,7 @@ var descartesJS = (function(descartesJS) {
     this.ascent = maxAscenderHeight;
     this.descent = maxDescenderHeight;
     this.baseline = this.ascent;
-    this.height = this.ascent + this.descent;
+    this.h = this.ascent + this.descent;
   }
   
   /**
@@ -17278,32 +18647,32 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
-    if(!this.stableWidth) {
+    if(!this.stablew) {
       this.getTextMetrics();
       externalDecimals = decimals;
       externalFixed = fixed;
     }
-
+    // the displace if the text is from a graphic diferent to text
     displaceY = (displaceY) ? -this.children[0].ascent : 0;
     
     var desp = 0;
-    var antChildY = 0;
+    var previousChildPos = 0;
 
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildY += this.children[i-1].height;
+        previousChildPos += this.children[i-1].h;
       }
       
-      // if the text align is center
-      if (align == "center") {
-        desp = -this.children[i].width/2;
-      }
-      // if the text align is right
-      else if (align == "right") {
-        desp =-this.children[i].width;
-      }
+      // // if the text align is center
+      // if (align == "center") {
+      //   desp = -this.children[i].w/2;
+      // }
+      // // if the text align is right
+      // else if (align == "right") {
+      //   desp =-this.children[i].w;
+      // }
       
-      this.children[i].draw(ctx, x +desp, y +displaceY +antChildY);
+      this.children[i].draw(ctx, x +desp, y +displaceY +previousChildPos);
     }
   }
 
@@ -17315,13 +18684,14 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextLineBlock = function(ctx, x, y) {
     var antChildX = 0;
+
     for (var i=0, l=this.children.length; i<l; i++) {
 
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
 
         if ((this.children[i-1].nodeType == "formula")) {
-          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleString);
+          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleStr);
         }
       }
 
@@ -17340,9 +18710,10 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
-      this.children[i].draw(ctx, x + this.spaceWidth + antChildX, y);
+      
+      this.children[i].draw(ctx, x + this.spaceW + antChildX, y);
     }    
   }
       
@@ -17353,10 +18724,10 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawText = function(ctx, x, y) {
-    if (this.color != null) {
+    if (this.color !== null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleString;
+    ctx.font = this.styleStr;
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
 
@@ -17366,13 +18737,13 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 1 : .5;
 
-      ctx.lineWidth = isBold ? 2 : 1;
+      ctx.linew = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(x-1+this.width, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -17380,13 +18751,13 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 2 : 1.5;
 
-      ctx.lineWidth = isBold ? 2 : 1;
+      ctx.linew = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(x-1+this.width, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(x-1+this.w, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
   }
@@ -17398,12 +18769,12 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawDynamicText = function(ctx, x, y) {
-    var spaceWidth = Math.floor(this.spaceWidth*.5);
+    var spaceW = MathFloor(this.spaceW*.5);
 
-    var decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
-    var fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
+    decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
+    fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
 
-    var textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
+    textTemp = this.evaluator.evalExpression(this.value); //, decimals, fixed);
     
     // the text is a number
     if (parseFloat(textTemp) == textTemp) {
@@ -17414,24 +18785,24 @@ var descartesJS = (function(descartesJS) {
     if (this.color != null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleString;
+    ctx.font = this.styleStr;
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
 
-    this.width = descartesJS.getTextWidth(textTemp, this.styleString);
-    ctx.fillText(textTemp, spaceWidth + x, y);
+    this.w = descartesJS.getTextWidth(textTemp, this.styleStr);
+    ctx.fillText(textTemp, spaceW + x, y);
 
     if (this.underline) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 1 : .5;
 
-      ctx.lineWidth = isBold ? 2 : 1;
+      ctx.linew = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
-      ctx.moveTo(spaceWidth + x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y+this.descent/2) +sep);
+      ctx.moveTo(spaceW + x-1, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(spaceW + x-1+this.w, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -17439,17 +18810,51 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 2 : 1.5;
 
-      ctx.lineWidth = isBold ? 2 : 1;
+      ctx.linew = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
-      ctx.moveTo(spaceWidth + x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y-this.ascent) +sep);
+      ctx.moveTo(spaceW + x-1, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(spaceW + x-1+this.w, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
     
-    this.width += 2*spaceWidth;
+    this.w += 2*spaceW;
+  }
+
+  /**
+   * Draw a hyperlink
+   * @param {2DContext} ctx the context to draw the text
+   * @param {Number} x the x position of the text
+   * @param {Number} y the y position of the text
+   */
+  descartesJS.RTFNode.prototype.drawHyperlink = function(ctx, x, y) {
+    ctx.save();
+
+    if (this.click) {
+      ctx.fillStyle = "red";
+      ctx.strokeStyle = "red";      
+    }
+    else {
+      ctx.fillStyle = "blue";
+      ctx.strokeStyle = "blue";
+    }
+
+    ctx.font = this.styleStr;
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
+
+    ctx.fillText(this.value, x-1, y);
+    
+    var isBold = this.style.textBold == "bold";
+    var sep = isBold ? 1 : .5;
+    ctx.linew = isBold ? 2 : 1;
+    ctx.beginPath();
+    ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
+    ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
+    ctx.stroke();
+    ctx.restore();
   }
 
   /**
@@ -17459,22 +18864,22 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawRadical = function(ctx, x, y) {
-    var spaceWidth = Math.floor(this.spaceWidth);
+    var spaceW = MathFloor(this.spaceW);
     
-    this.children[0].draw(ctx, x, Math.floor(y +this.children[1].descent -this.children[1].height/2 -this.children[0].descent));
-    this.children[1].draw(ctx, x+1.5*spaceWidth+(this.children[0].width), y);
+    this.children[0].draw(ctx, x, MathFloor(y +this.children[1].descent -this.children[1].h/2 -this.children[0].descent));
+    this.children[1].draw(ctx, x+1.5*spaceW+(this.children[0].w), y);
     
-    ctx.lineWidth = 1;
+    ctx.linew = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
 
-    ctx.moveTo(x, Math.floor(y +this.children[1].descent -this.children[1].height/2));
-    ctx.lineTo(x+this.children[0].width, Math.floor(y +this.children[1].descent -this.children[1].height/2));
-    ctx.lineTo(x+this.children[0].width +.5*spaceWidth, y+this.children[1].descent);
-    ctx.lineTo(x+this.children[0].width +1*spaceWidth, y-this.children[1].ascent);
-    ctx.lineTo(x+this.children[0].width +2*spaceWidth+this.children[1].width, y-this.children[1].ascent);
+    ctx.moveTo(x, MathFloor(y +this.children[1].descent -this.children[1].h/2));
+    ctx.lineTo(x+this.children[0].w, MathFloor(y +this.children[1].descent -this.children[1].h/2));
+    ctx.lineTo(x+this.children[0].w +.5*spaceW, y+this.children[1].descent);
+    ctx.lineTo(x+this.children[0].w +1*spaceW, y-this.children[1].ascent);
+    ctx.lineTo(x+this.children[0].w +2*spaceW+this.children[1].w, y-this.children[1].ascent);
 
     ctx.stroke();
   }
@@ -17486,18 +18891,18 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawFraction = function(ctx, x, y) {
-    this.children[0].draw(ctx, x+(this.width-this.children[0].width)/2, y -this.ascent);
-    this.children[1].draw(ctx, x+(this.width-this.children[1].width)/2, y -this.ascent + this.children[0].height -1);
+    this.children[0].draw(ctx, x+(this.w-this.children[0].w)/2, y -this.ascent);
+    this.children[1].draw(ctx, x+(this.w-this.children[1].w)/2, y -this.ascent + this.children[0].h -1);
 
-    var spaceWidth = Math.floor(this.spaceWidth*.5);
+    var spaceW = MathFloor(this.spaceW*.5);
     
-    ctx.lineWidth = 1;
+    ctx.linew = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(x+spaceWidth, parseInt(y -this.ascent + this.children[0].height)+.5);
-    ctx.lineTo(x-spaceWidth+this.width-1, parseInt(y -this.ascent + this.children[0].height)+.5);
+    ctx.moveTo(x+spaceW, parseInt(y -this.ascent + this.children[0].h)+.5);
+    ctx.lineTo(x-spaceW+this.w-1, parseInt(y -this.ascent + this.children[0].h)+.5);
     ctx.stroke();
   }
 
@@ -17511,7 +18916,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y+this.baseline);
     }  
@@ -17527,7 +18932,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y +this.subIndexPos);
     }
@@ -17543,7 +18948,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y -this.superIndexPos);
     }  
@@ -17556,29 +18961,29 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawLimit = function(ctx, x, y) {
-    var metric = descartesJS.getFontMetrics(this.styleString);
+    var metric = descartesJS.getFontMetrics(this.styleStr);
 
     var symbolString = " " + String.fromCharCode(parseInt(8594));
-    var symbolWidth = descartesJS.getTextWidth(symbolString, this.styleString);
+    symbolWidth = descartesJS.getTextWidth(symbolString, this.styleStr);
     
     // from
     this.children[0].draw(ctx, x, y +metric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +this.children[0].width +symbolWidth, y +metric.descent +this.children[1].ascent);
+    this.children[1].draw(ctx, x +this.children[0].w +symbolWidth, y +metric.descent +this.children[1].ascent);
     
     //what
-    this.children[2].draw(ctx, x +symbolWidth +this.children[0].width +this.children[1].width, y);
+    this.children[2].draw(ctx, x +symbolWidth +this.children[0].w +this.children[1].w, y);
 
     if (this.color != null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleString
+    ctx.font = this.styleStr
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText("lím", x +this.children[0].width, y);
+    ctx.fillText("lím", x +this.children[0].w, y);
     
-    ctx.fillText(symbolString, x+this.children[0].width, y +metric.descent +this.children[0].ascent);
+    ctx.fillText(symbolString, x+this.children[0].w, y +metric.descent +this.children[0].ascent);
   }
   
   /**
@@ -17588,22 +18993,22 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawIntegral = function(ctx, x, y) {
-    var symbolStyle = this.style.clone();
+    symbolStyle = this.style.clone();
     symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
     symbolStyle.fontType = "Times New Roman";
     symbolStyle.Bold = "bold";
     symbolStyle = symbolStyle.toString();    
     
-    var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
+    symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
     var symbolMetric = descartesJS.getFontMetrics(symbolStyle);
 
-    var maxWidth = Math.max(this.children[0].width, this.children[1].width, Math.floor(1.5*symbolWidth));
+    maxWidth = MathMax(this.children[0].w, this.children[1].w, MathFloor(1.5*symbolWidth));
     
     // from
     this.children[0].draw(ctx, x +symbolWidth, y +symbolMetric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +symbolWidth +this.spaceWidth/2, y -this.ascent +this.children[1].ascent);
+    this.children[1].draw(ctx, x +symbolWidth +this.spaceW/2, y -this.ascent +this.children[1].ascent);
     
     // what
     this.children[2].draw(ctx, x +maxWidth +symbolWidth, y);
@@ -17626,21 +19031,21 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawSum = function(ctx, x, y) {
-    var symbolStyle = this.style.clone();
+    symbolStyle = this.style.clone();
     symbolStyle.fontType = "Times New Roman";
     symbolStyle.Bold = "bold";
     symbolStyle = symbolStyle.toString();    
 
-    var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
-    var symbolMetric = descartesJS.getFontMetrics(this.styleString);
+    symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
+    var symbolMetric = descartesJS.getFontMetrics(this.styleStr);
 
-    var maxWidth = Math.max(this.children[0].width, this.children[1].width, symbolWidth);
+    maxWidth = MathMax(this.children[0].w, this.children[1].w, symbolWidth);
     
     // from
-    this.children[0].draw(ctx, x +(maxWidth-this.children[0].width)/2, y +symbolMetric.descent +this.children[0].ascent);
+    this.children[0].draw(ctx, x +(maxWidth-this.children[0].w)/2, y +symbolMetric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +(maxWidth-this.children[1].width)/2, y -symbolMetric.ascent -this.children[1].descent);
+    this.children[1].draw(ctx, x +(maxWidth-this.children[1].w)/2, y -symbolMetric.ascent -this.children[1].descent);
     
     // what
     this.children[2].draw(ctx, x +maxWidth, y);
@@ -17653,7 +19058,7 @@ var descartesJS = (function(descartesJS) {
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
     
-    ctx.fillText(String.fromCharCode(parseInt(8721)), x +Math.floor( (maxWidth-symbolWidth)/2 ), y-5);      
+    ctx.fillText(String.fromCharCode(parseInt(8721)), x +MathFloor( (maxWidth-symbolWidth)/2 ), y-5);      
   }
 
   /**
@@ -17668,25 +19073,25 @@ var descartesJS = (function(descartesJS) {
     
     for (var i=0, l=this.children.length; i<l; i++) {
       columnIndex = i%this.columns;
-      rowIndex = Math.floor(i/this.columns);
+      rowIndex = MathFloor(i/this.columns);
             
-      this.children[i].draw(ctx, 2*this.spaceWidth + x + columnIndex*this.childWidth, y-this.ascent+this.childAscent + rowIndex*this.childHeight);
+      this.children[i].draw(ctx, 2*this.spaceW + x + columnIndex*this.childW, y-this.ascent+this.childAscent + rowIndex*this.childH);
     }
     
-    ctx.lineWidth = 1;
+    ctx.linew = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(Math.floor(x +this.spaceWidth) +.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/2) +.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/2) +.5, y +this.descent +.5);
-    ctx.lineTo(Math.floor(x +this.spaceWidth) +.5, y +this.descent +.5);
+    ctx.moveTo(MathFloor(x +this.spaceW) +.5, y -this.ascent +.5);
+    ctx.lineTo(MathFloor(x +this.spaceW/2) +.5, y -this.ascent +.5);
+    ctx.lineTo(MathFloor(x +this.spaceW/2) +.5, y +this.descent +.5);
+    ctx.lineTo(MathFloor(x +this.spaceW) +.5, y +this.descent +.5);
     
-    ctx.moveTo(Math.floor(x +this.width -this.spaceWidth) -.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y +this.descent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth) -.5, y +this.descent +.5);    
+    ctx.moveTo(MathFloor(x +this.w -this.spaceW) -.5, y -this.ascent +.5);
+    ctx.lineTo(MathFloor(x +this.w -this.spaceW/2) -.5, y -this.ascent +.5);
+    ctx.lineTo(MathFloor(x +this.w -this.spaceW/2) -.5, y +this.descent +.5);
+    ctx.lineTo(MathFloor(x +this.w -this.spaceW) -.5, y +this.descent +.5);    
     
     ctx.stroke();  
   }
@@ -17699,23 +19104,23 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + this.spaceWidth/4, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
+      this.children[i].draw(ctx, x + this.spaceW/4, y-this.ascent+this.childAscent + (i%this.parts)*this.childH);
     }
 
-    ctx.lineWidth = 1;
+    ctx.linew = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(Math.floor(x +this.spaceWidth/3) +.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y -this.ascent +.5 +(this.spaceWidth/3-this.spaceWidth/6));
+    ctx.moveTo(MathFloor(x +this.spaceW/3) +.5, y -this.ascent +.5);
+    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y -this.ascent +.5 +(this.spaceW/3-this.spaceW/6));
     
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.height/2 -(this.spaceWidth/3-this.spaceWidth/6));
-    ctx.lineTo(x +.5, y +this.descent -this.height/2);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.height/2 +(this.spaceWidth/3-this.spaceWidth/6));
+    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent -this.h/2 -(this.spaceW/3-this.spaceW/6));
+    ctx.lineTo(x +.5, y +this.descent -this.h/2);
+    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent -this.h/2 +(this.spaceW/3-this.spaceW/6));
     
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent +.5 -(this.spaceWidth/3-this.spaceWidth/6));
-    ctx.lineTo(Math.floor(x +this.spaceWidth/3) +.5, y +this.descent +.5);
+    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent +.5 -(this.spaceW/3-this.spaceW/6));
+    ctx.lineTo(MathFloor(x +this.spaceW/3) +.5, y +this.descent +.5);
     
     ctx.stroke(); 
   }
@@ -17727,7 +19132,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawMathSymbol = function(ctx, x, y) {
-    ctx.lineWidth = 1;
+    ctx.linew = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
       ctx.fillStyle = this.color;
@@ -17735,31 +19140,31 @@ var descartesJS = (function(descartesJS) {
     ctx.beginPath()
 
     if (this.value == "(") {
-      ctx.font = this.styleString;
+      ctx.font = this.styleStr;
       ctx.textAlign = "start";
       ctx.textBaseline = "alphabetic";
       ctx.fillText("(", x, y);
-      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.height/10);
-      // ctx.quadraticCurveTo(x +this.spaceWidth/5, y +this.parent.descent -this.parent.height/2,
-      //                      x +this.spaceWidth, y +this.parent.descent -this.height/10);
+      // ctx.moveTo(x +this.spaceW +.1, y -this.parent.ascent +this.h/10);
+      // ctx.quadraticCurveTo(x +this.spaceW/5, y +this.parent.descent -this.parent.h/2,
+      //                      x +this.spaceW, y +this.parent.descent -this.h/10);
       // ctx.stroke();
     }
     else if (this.value == ")") {
-      ctx.font = this.styleString;
+      ctx.font = this.styleStr;
       ctx.textAlign = "start";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(")", x+this.spaceWidth, y);
-      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.height/10);
-      // ctx.quadraticCurveTo(x +this.spaceWidth +4*this.spaceWidth/5, y +this.parent.descent -this.parent.height/2,
-      //                      x +this.spaceWidth, y +this.parent.descent -this.height/10);
+      ctx.fillText(")", x+this.spaceW, y);
+      // ctx.moveTo(x +this.spaceW +.1, y -this.parent.ascent +this.h/10);
+      // ctx.quadraticCurveTo(x +this.spaceW +4*this.spaceW/5, y +this.parent.descent -this.parent.h/2,
+      //                      x +this.spaceW, y +this.parent.descent -this.h/10);
       // ctx.stroke();
     }
     else {
-      ctx.font = this.styleString;
+      ctx.font = this.styleStr;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
       
-      ctx.fillText(this.value, x +this.width/2, y);      
+      ctx.fillText(this.value, x +this.w/2, y);      
     }
   }
   
@@ -17773,7 +19178,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y);
     }  
@@ -17835,51 +19240,6 @@ var descartesJS = (function(descartesJS) {
     }
     
     return htmlString;
-  }
-
-
-  // auxiliary values to calculate the metrics
-  var text = document.createElement("span");
-  text.appendChild( document.createTextNode("Áp") );
-  var block = document.createElement("div");
-  block.setAttribute("style", "display: inline-block; width: 1px; height: 0px;");
-  var div = document.createElement("div");
-  div.setAttribute("style", "margin: 0; padding: 0;");
-  div.appendChild(text);
-  div.appendChild(block);
-  var metricCache = {};
-
-  /**
-   * Get the metrics of a font
-   * @param {String} font the Descartes font to obtain the metric
-   * @return {Object} return an object containing the metric of the font (ascent, descent, height)
-   */
-  descartesJS.getFontMetrics = function(font) {
-    if (metricCache[font]) {
-      return metricCache[font];
-    }
-
-    text.setAttribute("style", "font: " + font + "; margin: 0; padding: 0;");
-
-    document.body.appendChild(div);
-    
-    var result = {};
-    
-    block.style.verticalAlign = "baseline";
-    result.ascent = block.offsetTop - text.offsetTop;
-    
-    block.style.verticalAlign = "bottom";
-    result.height = block.offsetTop - text.offsetTop;
-    
-    result.descent = result.height - result.ascent;
-    
-    result.baseline = result.ascent;
-    
-    document.body.removeChild(div);
-
-    metricCache[font] = result;
-    
-    return result;
   }
   
   return descartesJS;
@@ -17945,6 +19305,7 @@ var descartesJS = (function(descartesJS) {
         if (currentChar === "\\") {
           insideControlWord = true;
 
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
             lastTokenType = "text";
@@ -17956,9 +19317,9 @@ var descartesJS = (function(descartesJS) {
         else if (currentChar === "{") {
           blockNumber++;
 
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
-            lastTokenType = "text";
           }
 
           tokenValue = "";
@@ -17968,9 +19329,9 @@ var descartesJS = (function(descartesJS) {
         }
         // close block
         else if (currentChar === "}") {
+          // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue })
-            lastTokenType = "text";
           }
 
           tokenValue = "";
@@ -17995,6 +19356,12 @@ var descartesJS = (function(descartesJS) {
           insideControlWord = false;
           tokenValue += currentChar;
 
+          // if the controlWord has a space 
+          if (nextChar === " ") {
+            pos++
+            nextChar = input.charAt(pos+1);
+          }
+
           // controlWord of the form \'##
           tmpMatch = tokenValue.match(/^\'([0-9a-f]{2})/);
           if (tmpMatch) {
@@ -18004,10 +19371,8 @@ var descartesJS = (function(descartesJS) {
             }
 
             tmpText += StringFromCharCode(parseInt(tmpMatch[1], 16)) + tokenValue.substring(3);
-            tokens.push({ type: "text", value: tmpText });
-            lastTokenType = "text";
 
-            tokenValue = "";
+            tokenValue = tmpText;
           }
           else {
             // controlWord of the form \u###
@@ -18019,10 +19384,8 @@ var descartesJS = (function(descartesJS) {
               }
 
               tmpText += StringFromCharCode(tmpMatch[0].substring(1));
-              tokens.push({ type: "text", value: tmpText });
-              lastTokenType = "controlWord";
 
-              tokenValue = "";
+              tokenValue = tmpText;
             }
             // generic controlWord
             else {
@@ -18043,7 +19406,6 @@ var descartesJS = (function(descartesJS) {
 
     // if the last text token is not added
     if (tokenValue !== "") {
-      console.log(tokenValue)
       tokens.push({ type: "text", value: tokenValue })
     }
 
@@ -18058,15 +19420,6 @@ var descartesJS = (function(descartesJS) {
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
-  
-  /**
-   * Descartes RTF parser
-   * @constructor 
-   */
-  descartesJS.RTFParser = function(evaluator) {
-    this.evaluator = evaluator;
-    this.tokenizer = new descartesJS.RTFTokenizer();
-  }
   
   var tokens;
   var indexToken;
@@ -18100,6 +19453,15 @@ var descartesJS = (function(descartesJS) {
   var descartesComponentNumCtrl;
   var descartesComponentSpace;
   var descartesHyperLink;
+  
+  /**
+   * Descartes RTF parser
+   * @constructor 
+   */
+  descartesJS.RTFParser = function(evaluator) {
+    this.evaluator = evaluator;
+    this.tokenizer = new descartesJS.RTFTokenizer();
+  }
 
   /**
    * Parse a string and get a rtf parse tree
@@ -18493,10 +19855,8 @@ var descartesJS = (function(descartesJS) {
       else if ((tokens[i].type == "text") && (descartesHyperLink)) {
         textContent = ((tokens[i].value).split("|"))[0];
         tmpStyle = styleStackTop.clone();
-        tmpStyle.textUnderline = true;
-        tmpStyle.textColor = "blue";
 
-        newNode = new descartesJS.RTFNode(this.evaluator, textContent, "text", tmpStyle);
+        newNode = new descartesJS.RTFNode(this.evaluator, textContent, "hyperlink", tmpStyle);
         
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
@@ -18505,7 +19865,7 @@ var descartesJS = (function(descartesJS) {
             lastNode = lastNode.parent;
           }
         }
-        
+
         lastNode.addChild(newNode);
 
         descartesHyperLink = false;
@@ -18932,10 +20292,10 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     if ( (parent.code === "descinst.com.mja.descartes.DescartesJS.class") || (parent.arquimedes) ) {
-      this.background = "#f0f8fa";
+      this.background = new descartesJS.Color("f0f8fa");
     }
     else {
-      this.background = "#ffffff";
+      this.background = new descartesJS.Color("ffffff");
     }
     
     /**
@@ -18943,14 +20303,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.net = (parent.version != 2) ? "#c0c0c0" : "";
+    this.net = (parent.version != 2) ? new descartesJS.Color("c0c0c0") : "";
 
     /**
      * net 10 condition and color
      * type {String}
      * @private
      */
-    this.net10 = (parent.version != 2) ? "#808080" : "";
+    this.net10 = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * axes condition and color
@@ -18958,14 +20318,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     // ## parche para descartes 2 ## //
-    this.axes = (parent.version != 2) ? "#808080" : "";
+    this.axes = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * coordinate text condition and color
      * type {String}
      * @private
      */
-    this.text = "#ffafaf";
+    this.text = new descartesJS.Color("ffafaf");
 
     /**
      * condition to draw the axis numbers
@@ -19431,7 +20791,7 @@ var descartesJS = (function(descartesJS) {
 
     // ### ARQUIMEDES ###
     // if is the default arquimedes add a border to the container
-    if ((self.parent.arquimedes) && (descartesJS.getColor(self.evaluator, self.background) === "#f0f8fa")) {
+    if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
       self.container.style.border = "1px solid #b8c4c8";
     }
     // ### ARQUIMEDES ###
@@ -19539,7 +20899,7 @@ var descartesJS = (function(descartesJS) {
       // check if the scale is not below the lower limit
       if (self.scale < 0.000001) {
         self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0);
+        evaluator.setVariable(self.scaleString, 0.000001);
       }
       // check if the scale is not above the upper limit
       else if (self.scale > 1000000) {
@@ -19580,7 +20940,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the background color
     ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.background);
+    ctx.fillStyle = this.background.getColor();
     ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
     // draw the background image if any
@@ -19616,7 +20976,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the big net
     if (this.net !== "") {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net);
+      ctx.strokeStyle = this.net.getColor();
       this.drawMarks(ctx, rsc/10, -1);
     }
     
@@ -19624,13 +20984,13 @@ var descartesJS = (function(descartesJS) {
     if ( ((this.parent.version !== 2) && (this.net10 !== "")) || 
          ((this.parent.version === 2) && (this.net !== "") && (this.net10 !== ""))
        ) {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.net10);
+      ctx.strokeStyle = this.net10.getColor();
       this.drawMarks(ctx, rsc, -1);
     }
     
     // draw the axes
     if (this.axes !== "") {
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.strokeStyle = this.axes.getColor();
       
       ctx.beginPath();
       // x axis
@@ -19654,17 +21014,17 @@ var descartesJS = (function(descartesJS) {
     
     // draw the axis names
     if ((this.x_axis !== "") || (this.y_axis !== "")) {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.fillStyle = this.axes.getColor();
       ctx.font = axisFont
       ctx.textAlign = "right";
-      ctx.textBaseline = "top";
-      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy));
-      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 0); 
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy)+12);
+      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 12); 
     }
     
     // draw the axis numbers
     if ((this.numbers) && (this.axes != "")) {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.axes);
+      ctx.fillStyle = this.axes.getColor();
       ctx.font = axisFont
       ctx.textAlign = "start";
       ctx.textBaseline = "bottom";
@@ -19714,7 +21074,8 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text showing the mouse postion
     if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
-      ctx.fillStyle = descartesJS.getColor(this.evaluator, this.text);
+      console.log("aqui")
+      ctx.fillStyle = this.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
       ctx.font = mouseTextFont;
@@ -20014,11 +21375,19 @@ var descartesJS = (function(descartesJS) {
   var MathSin   = Math.sin;
   var MathPI_2  = Math.PI/2;
 
+  var evaluator;
+  var parent;
   var self;
   var thisGraphics_i;
   var primitives;
   var primitivesLength;
   var hasTouchSupport;
+  var changeX;
+  var changeY;
+  var cosAlpha;
+  var sinAlpha;
+  var cosBeta;
+  var sinBeta;
   
   /**
    * Descartes 3D space
@@ -20077,17 +21446,22 @@ var descartesJS = (function(descartesJS) {
     
     parent.container.insertBefore(self.container, parent.loader);
     
-    // self.eye = new descartesJS.Vector3D(self.scale/5, 2, 5);
-    self.eye = new descartesJS.Vector3D(0,0,0);
+    // initial value of the observer
+    self.observer = 2000;
+    self.evaluator.setVariable(self.id + ".observador", 2000);
+
+    self.eye = new descartesJS.Vector3D(0, 0, 0);
     self.center = new descartesJS.Vector3D(0, 0, 0);
     self.yUpEye = new descartesJS.Vector3D(0, 0, 1);
-    // self.distanceEyeCenter = Math.sqrt(Math.pow(self.eye.x-self.center.x, 2) + Math.pow(self.eye.y-self.center.y, 2) + Math.pow(self.eye.z-self.center.z, 2));
-    self.distanceEyeCenter = 10;
-    self.alpha = Math.PI/4;
-    self.beta = -Math.PI/5;
+
+    self.distanceEyeCenter = self.observer/(4*self.scale);
+
+    self.alpha = 0;//Math.PI/4;
+    self.beta = 0;//-Math.PI/10;//-Math.PI/5;
     
-    // self.lookAtMatrix = (new descartesJS.Matrix4x4()).lookAt(self.eye, self.center, self.yUpEye);
-    // self.perspectiveMatrix = perspective.multiply(self.lookAtMatrix);
+    // set the value to the rotation variables
+    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
+    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
 
     self.lookAtMatrix = new descartesJS.Matrix4x4();
     self.perspectiveMatrix = new descartesJS.Matrix4x4();
@@ -20108,10 +21482,17 @@ var descartesJS = (function(descartesJS) {
 
     self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
 
-    // register the mouse and touch events
-    self.registerMouseAndTouchEvents();
+    self.OxString = self.id + ".Ox";
+    self.OyString = self.id + ".Oy";
+    self.scaleString = self.id + ".escala";
+    self.wString = self.id + "._w";
+    self.hString = self.id + "._h";
+    self.observerString = self.id + ".observador";
 
     self.update();
+
+    // register the mouse and touch events
+    self.registerMouseAndTouchEvents();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -20143,6 +21524,8 @@ var descartesJS = (function(descartesJS) {
 
     self.w_2 = self.w/2;
     self.h_2 = self.h/2;
+
+    self.oldMouse = {x: 0, y: 0};
   }
 
   /**
@@ -20150,23 +21533,67 @@ var descartesJS = (function(descartesJS) {
    * @param {Boolean} firstTime condition if is the first time in draw the space
    */
   descartesJS.Space3D.prototype.update = function(firstTime) {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = descartesJS.getColor(this.evaluator, this.background);
-    this.ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    self = this;
+    evaluator = self.evaluator;
+    parent = self.parent;
 
-    if (!this.click) {
-      this.primitives = [];
+    // prevents the change of the width and height from an external change
+    evaluator.setVariable(self.wString, self.w);
+    evaluator.setVariable(self.hString, self.h);
 
-      // update the graphics
-      for(var i=0, l=this.graphics.length; i<l; i++) {
-        thisGraphics_i = this.graphics[i];
-        thisGraphics_i.update();
-        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
+    // check the draw if condition
+    self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
+
+    if (self.drawIfValue) {
+      changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
+      changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
+
+      // check if the space has change
+      self.spaceChange = firstTime ||
+                         changeX ||
+                         changeY ||
+                         (self.drawBefore !== self.drawIfValue) ||
+                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleString));
+
+      self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
+      self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
+      self.Ox = evaluator.getVariable(self.OxString);
+      self.Oy = evaluator.getVariable(self.OyString);
+      self.scale = evaluator.getVariable(self.scaleString);
+      self.drawBefore = self.drawIfValue;
+
+      self.observer = evaluator.getVariable(self.observerString);
+
+      // check if the scale is not below the lower limit
+      if (self.scale < 0.000001) {
+        self.scale = 0.000001;
+        evaluator.setVariable(self.scaleString, 0.000001);
       }
+      // check if the scale is not above the upper limit
+      else if (self.scale > 1000000) {
+        self.scale = 1000000;
+        evaluator.setVariable(self.scaleString, 1000000);
+      }
+
+      // if some property change then adjust the container style
+      if ((changeX) || (changeY)) {
+        self.container.style.left = self.x + "px";
+        self.container.style.top = self.y + "px";
+        self.findOffset();
+      }
+
+      self.container.style.display = "block";
+
+      // draw the geometry
+      self.draw();
     }
-    
-    // draw the geometry
-    this.draw();
+    // hide the space
+    else {
+      self.container.style.display = "none";
+    }
+
   }
 
   /**
@@ -20181,6 +21608,32 @@ var descartesJS = (function(descartesJS) {
    * Draw the primitives of the graphics, the primitives are obtained from the update step
    */
   descartesJS.Space3D.prototype.draw = function() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = this.background.getColor();
+    this.ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+
+    this.setCamera();
+
+    // if not interact with the space
+    // if (!this.click) {
+      this.primitives = [];
+
+      // update the graphics
+      for(var i=0, l=this.graphics.length; i<l; i++) {
+        thisGraphics_i = this.graphics[i];
+        thisGraphics_i.update();
+        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
+      }
+
+      // update the background background graphics
+      for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
+        thisGraphics_i = this.backgroundGraphics[i];
+        thisGraphics_i.update();
+        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
+      }
+
+    // }
+
     primitives = this.primitives;
     primitivesLength = primitives.length;
 
@@ -20193,6 +21646,12 @@ var descartesJS = (function(descartesJS) {
     for(var i=0; i<primitivesLength; i++) {
       primitives[i].draw(this.ctx);
     }
+
+    // draw the graphic controls
+    for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].draw();
+    }
+
   }
 
   /**
@@ -20210,20 +21669,65 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   *
+   */
+  descartesJS.Space3D.prototype.setCamera = function() {
+    self = this;
+
+    self.distanceEyeCenter = self.observer/(4*self.scale);
+
+    self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.id + ".rot.z"));
+    self.beta  = descartesJS.degToRad(-self.evaluator.getVariable(self.id + ".rot.y"));
+
+    self.alpha = MathRound( descartesJS.radToDeg(self.alpha + (self.mouse_x - self.oldMouse.x)) );
+    self.beta  = MathRound( descartesJS.radToDeg(self.beta  + (self.mouse_y - self.oldMouse.y)) );
+
+    // set the value to the rotation variables
+    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
+    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
+
+    self.alpha = descartesJS.degToRad(self.alpha);
+    self.beta = descartesJS.degToRad(self.beta);
+
+    cosAlpha = MathCos(-self.alpha);
+    sinAlpha = MathSin(-self.alpha);
+    cosBeta = MathCos(self.beta);
+    sinBeta = MathSin(self.beta);
+
+// ca=cos(-alfa);sa=sen(-alfa);cb=cos(beta);sb=sen(beta);ux=ca*cb;uy=sa*cb;uz=sb;Xx=-sa;Xy=ca;Xz=0;Yx=-sb*ca;Yy=-sb*sa;Yz=cb;
+
+    // change the eye position
+    self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
+                  self.distanceEyeCenter*sinAlpha*cosBeta, 
+                 -self.distanceEyeCenter*sinBeta);
+
+    // change the up vector of the camera
+    self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), 
+                                  MathSin(-self.alpha - MathPI_2), 
+                                  0
+                                 ).crossProduct(self.eye).normalize();
+
+    // build the look at matrix to orient the camera
+    self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
+
+    // build the perspective matrix
+    self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
+  }
+
+  /**
    * Register the mouse and touch events
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
-    var self = this;
-    var oldMouse = {x: 0, y: 0};
+    self = this;
 
     hasTouchSupport = descartesJS.hasTouchSupport;
 
     this.canvas.oncontextmenu = function () { return false; };
 
     if (hasTouchSupport) {
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
-      }
+      // if (this.sensitive_to_mouse_movements) {
+      //   this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
+      // }
       this.canvas.addEventListener("touchstart", onTouchStart);
     }
 
@@ -20267,9 +21771,9 @@ var descartesJS = (function(descartesJS) {
     // 
     ///////////////////////////////////////////////////////////////////////////
     if (!hasTouchSupport) {
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
-      }
+      // if (this.sensitive_to_mouse_movements) {
+      //   this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
+      // }
       this.canvas.addEventListener("mousedown", onMouseDown);
     }
     
@@ -20280,15 +21784,29 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       self.click = 1;
+
+      // se desactivan los controles graficos
+      self.parent.deactivateGraphiControls();
       
       self.whichButton = descartesJS.whichButton(evt);
 
-      if (self.whichButton == "L") {
+      if (self.whichButton === "R") {
+        window.addEventListener("mouseup", onMouseUp);
+        
+        // if fixed add a zoom manager
+        if (!self.fixed) {
+          self.clickPosForZoom = (self.getCursorPosition(evt)).y;
+          self.tempScale = self.scale;
+          window.addEventListener("mousemove", onMouseMoveZoom);
+        }
+      }
+
+      else if (self.whichButton == "L") {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
         self.posAnte = self.getCursorPosition(evt);
-        oldMouse.x = self.getRelativeX(self.posAnte.x);
-        oldMouse.y = self.getRelativeY(self.posAnte.y);
+        self.oldMouse.x = self.getRelativeX(self.posAnte.x);
+        self.oldMouse.y = self.getRelativeY(self.posAnte.y);
 
         onSensitiveToMouseMovements(evt);
 
@@ -20313,6 +21831,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
+      window.removeEventListener("mousemove", onMouseMove, false);
       window.removeEventListener("mouseup", onMouseUp, false);
     }
 
@@ -20338,12 +21857,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseMoveZoom(evt) {
-    }
+      evt.preventDefault();
 
-    var cosAlpha;
-    var sinAlpha;
-    var cosBeta;
-    var sinBeta;
+      self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
+
+      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+
+      self.parent.update();
+    }
     
     /**
      * 
@@ -20354,34 +21875,9 @@ var descartesJS = (function(descartesJS) {
       if (self.click) {
         onSensitiveToMouseMovements(evt);
 
-        self.alpha = (self.alpha + (self.mouse_x - oldMouse.x));
-        self.beta = (self.beta + (self.mouse_y - oldMouse.y));
-
-        cosAlpha = MathCos(-self.alpha);
-        sinAlpha = MathSin(-self.alpha);
-        cosBeta = MathCos(self.beta);
-        sinBeta = MathSin(self.beta);
-
-// ca=cos(-alfa);sa=sen(-alfa);cb=cos(beta);sb=sen(beta);ux=ca*cb;uy=sa*cb;uz=sb;Xx=-sa;Xy=ca;Xz=0;Yx=-sb*ca;Yy=-sb*sa;Yz=cb;
-
-        // change the eye position
-        self.eye.set( self.distanceEyeCenter*cosAlpha*cosBeta, 
-                      self.distanceEyeCenter*sinAlpha*cosBeta, 
-                     -self.distanceEyeCenter*sinBeta);
-
-        // change the up vector of the camera
-        self.yUpEye = self.yUpEye.set(MathCos(-self.alpha - MathPI_2), 
-                                      MathSin(-self.alpha - MathPI_2), 
-                                      0
-                                     ).crossProduct(self.eye).normalize();
-
-        // build the look at matrix to orient the camera
-        self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
-
-        // build the perspective matrix
-        self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
+        self.setCamera();
       
-        oldMouse = { x: self.mouse_x, 
+        self.oldMouse = { x: self.mouse_x, 
                      y: self.mouse_y 
                    };
       }
@@ -20715,18 +22211,23 @@ var descartesJS = (function(descartesJS) {
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
+      // // get the value of a variable
+      // var iframeGet = function(varName) {
+      //   if (this.parent.cacheVars[varName]) {
+      //     return this.parent.cacheVars[varName];
+      //   }
+
+      //   iframe.contentWindow.postMessage({ type: "get", name: varName }, "*");
+      //   return 0;
+      // }
+      // self.evaluator.setFunction(self.id + ".get", iframeGet);
+
       // update the scene
-      var iframeUpdate = function(varName, value) {
+      var iframeUpdate = function() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
-      // get the value of a variable
-      // var iframeGet = function(varName, value) {
-      //   iframe.contentWindow.postMessage({ type: "get", name: varName, value: value }, "*");
-      // }
-      // self.evaluator.setFunction(self.id + ".get", iframeGet);
-
       // exec a funcion of the scene
       var iframeExec = function(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
@@ -21351,15 +22852,17 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class") || !!this.code.match("descinst.Arquimedes.class");
+    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class", "i") || 
+                      !!this.code.match("Arquimedes", "i") ||
+                      !!this.code.match("Discurso", "i");
 
     // licences for arquimedes
-    this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                     "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                     "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                     "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-                     "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-                     "}";
+    // this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
+    //                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
+    //                  "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+    //                  "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
+    //                  "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
+    //                  "}";
     this.licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                     "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
                     "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
@@ -21484,6 +22987,10 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.events = [];
+
+    // variables used for the htmliframe get function
+    this.cacheVars = {};
+    this.getVarsNames = {};
    
     /**
      * the z index for order the graphics
@@ -21755,7 +23262,7 @@ var descartesJS = (function(descartesJS) {
 
     // hide the loader
     this.loader.style.display = "none";
-    this.parentContainer.style.overflow = "hidden";
+    // this.parentContainer.style.overflow = "hidden";
     
     // // if the applet is disabled then put a div blocking the interacion
     // if (this.enable) {
@@ -21775,6 +23282,9 @@ var descartesJS = (function(descartesJS) {
 
       descartesJS.onResize();
     }
+
+    // evaluator used in a range evaluation
+    descartesJS.externalEvaluator = new descartesJS.Evaluator();
   }
   
   /**
@@ -21871,8 +23381,8 @@ var descartesJS = (function(descartesJS) {
                                                      name: text, 
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
-                                                    }
-                                             );
+                                                    });
+        btnAbout.update();
       }
       // create the configuration button
       if (buttonsConfig.config) {
@@ -21883,14 +23393,15 @@ var descartesJS = (function(descartesJS) {
                                                       font_size: parser.parse(fontSizeDefaultButtons),
                                                       action: "config",
                                                       expresion: parser.parse("(" + (northRegionWidht + aboutWidth)  + ", 0, " + configWidth + ", " + northRegionHeight + ")")
-                                                     }
-                                              );
+                                                     });
+        btnConfig.update();
       }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // south region
     if ((buttonsConfig.rowsSouth > 0) || (southSpaceControls.length > 0) || (buttonsConfig.init) || (buttonsConfig.clear)) {
+
       // if the number of rows is zero but contains controls then the height is the specified height
       if (buttonsConfig.rowsSouth <= 0) {
         southRegionHeight = buttonsConfig.height;
@@ -21900,13 +23411,13 @@ var descartesJS = (function(descartesJS) {
       else {
         southRegionHeight = buttonsConfig.height * buttonsConfig.rowsSouth;
       }
-      
+
       southRegionWidht = principalContainer.width;
       var displaceButton = 0;
       // show the init button
       if (buttonsConfig.init) {
         displaceButton = initWidth;
-        southRegionWidht -= displaceButton;        
+        southRegionWidht -= displaceButton;
       }
       // show the clear button
       if (buttonsConfig.clear) {
@@ -21938,13 +23449,13 @@ var descartesJS = (function(descartesJS) {
           text = "init";
         }
 
-        var btnAbout = new descartesJS.Button(this, {region: "south", 
-                                                     name: text, 
-                                                     font_size: parser.parse(fontSizeDefaultButtons),
-                                                     action: "init",
-                                                     expresion: parser.parse("(0, 0, " + initWidth + ", " + southRegionHeight + ")")
-                                                    }
-                                             );
+        var btnInit = new descartesJS.Button(this, {region: "south", 
+                                                    name: text, 
+                                                    font_size: parser.parse(fontSizeDefaultButtons), 
+                                                    action: "init", 
+                                                    expresion: parser.parse("(0, 0, " + initWidth + ", " + southRegionHeight + ")") 
+                                                  });
+        btnInit.update();
       }
       // create the clear button
       if (buttonsConfig.clear) {
@@ -21956,13 +23467,13 @@ var descartesJS = (function(descartesJS) {
           text = "clear";
         }
         
-        var btnConfig = new descartesJS.Button(this, {region: "south", 
-                                                      name: text, 
-                                                      font_size: parser.parse(fontSizeDefaultButtons),
-                                                      action: "clear",
-                                                      expresion: parser.parse("(" + (southRegionWidht + initWidth)  + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
-                                                     }
-                                              );
+        var btnClear = new descartesJS.Button(this, {region: "south", 
+                                                     name: text, 
+                                                     font_size: parser.parse(fontSizeDefaultButtons),
+                                                     action: "clear",
+                                                     expresion: parser.parse("(" + (southRegionWidht + initWidth) + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
+                                                     });
+        btnClear.update();
       }      
     }
 
@@ -22073,6 +23584,9 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
+
+    // send the cache vars to the htmliframes
+    // this.sendCacheVars();
   }
   
   /**
@@ -22556,7 +24070,21 @@ var descartesJS = (function(descartesJS) {
     
     this.update();
   }
-    
+
+  // descartesJS.DescartesApp.prototype.registerCacheVar = function(name) {
+  //   this.getVarsNames[name] = 0;
+  // }
+
+  // descartesJS.DescartesApp.prototype.sendCacheVars = function() {
+  //   // traverse the values
+  //   for (var propName in this.getVarsNames) {
+  //     // verify the own properties of the object
+  //     if (this.getVarsName.hasOwnProperty(propName)) {
+  //       iframe.contentWindow.postMessage({ type: "get", name: varName }, "*");
+  //     }
+  //   }
+  // }
+
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -22564,6 +24092,8 @@ var descartesJS = (function(descartesJS) {
  */
 
 var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
   /**
    * Array to store the javascript replacements of the java applets
    * type [DescartesApp]
@@ -22638,7 +24168,8 @@ var descartesJS = (function(descartesJS) {
       if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
            (applet_i.getAttribute("code").match("Descartes.class")) || 
            (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
-           (applet_i.getAttribute("code").match("descinst.Arquimedes.class"))
+           (applet_i.getAttribute("code").match("Arquimedes")) ||
+           (applet_i.getAttribute("code").match("Discurso"))
          ) {
         tmpArrayApplets.push(applet_i);
       }
@@ -22732,7 +24263,7 @@ var descartesJS = (function(descartesJS) {
     // if has not support for canvas show the applets and do not interpret
     else {
       // prompt a message to install chrome frame
-      // when the instalation is ready reload the webpage
+      // when the installation is ready reload the webpage
       // document.location.reload()
 
       showApplets();
@@ -22755,6 +24286,11 @@ var descartesJS = (function(descartesJS) {
       if (data.type === "set") {
         descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
       }
+
+      // // get the value of a variable
+      // if (data.type === "get") {
+      //   descartesJS.apps[0].registerCacheVar(data.name);
+      // }
       
       // update the scene
       else if (data.type === "update") {
@@ -22777,8 +24313,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the library is loaded multiple times
-  if (descartesJS.loadLib === undefined) {
+  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
+  if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
     // register the onload event

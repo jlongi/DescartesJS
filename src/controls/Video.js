@@ -113,6 +113,8 @@ var descartesJS = (function(descartesJS) {
     // this.video.setAttribute("height", this.h);
     this.video.style.left = this.x + "px";
     this.video.style.top  = this.y + "px";
+
+    this.update();
   }
 
   /**

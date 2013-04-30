@@ -79,8 +79,8 @@ var descartesJS = (function(descartesJS) {
     var tmpParam;
     if (this.imageSrc.match("_COLORES_")) {
       tmpParam       = this.imageSrc.split("_");
-      this.colorInt  = "#" + tmpParam[2];
-      this.color     = "#" + tmpParam[3];
+      this.colorInt  = new descartesJS.Color(tmpParam[2]);
+      this.color     = new descartesJS.Color(tmpParam[3]);
       this.font_size = this.parser.parse(tmpParam[5]);
       this.imageSrc  = "";
     }
@@ -164,7 +164,7 @@ var descartesJS = (function(descartesJS) {
     
     canvas.setAttribute("width", this.w+"px");
     canvas.setAttribute("height", this.h+"px");
-    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block;");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -172,6 +172,8 @@ var descartesJS = (function(descartesJS) {
 
     // create the background gradient
     this.createGradient(this.w, this.h);
+
+    this.update();
   }
   
   /**
@@ -228,7 +230,7 @@ var descartesJS = (function(descartesJS) {
     }
     // the image is not ready or do not have a image
     else {
-      ctx.fillStyle = descartesJS.getColor(evaluator, this.colorInt);
+      ctx.fillStyle = this.colorInt.getColor();
       ctx.fillRect(0, 0, this.w, this.h);
 
       if (!this.click) {
@@ -256,15 +258,16 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, 0, this.w, this.h);
     }
       
-    ctx.fillStyle = descartesJS.getColor(evaluator, this.color);
+    ctx.fillStyle = this.color.getColor();
     ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     
     // text border
     if (this.colorInt != this.color) {
+      ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.colorInt);
+      ctx.strokeStyle = this.colorInt.getColor();
       ctx.strokeText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
     }
 
@@ -274,7 +277,7 @@ var descartesJS = (function(descartesJS) {
     // draw the under line
     if (this.underlined) {
       txtW = ctx.measureText(name).width;
-      ctx.strokeStyle = descartesJS.getColor(evaluator, this.color);
+      ctx.strokeStyle = this.color.getColor();
       ctx.lineWidth = MathFloor(font_size/10) || 2;
       ctx.lineCap = "round";
 

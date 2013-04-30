@@ -174,13 +174,13 @@ var descartesJS = (function(descartesJS, babel) {
         case("axes"):
         // color of the coordinate text of the mouse
         case("text"):
-          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : this.convertColor(values_i_1);
+          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // text of the X axis
-        case("x-axis"):
+        case("x_axis"):
         // text of the Y axis
-        case("y-axis"):
+        case("y_axis"):
           spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
           
@@ -293,7 +293,7 @@ var descartesJS = (function(descartesJS, babel) {
                   
         // background color
         case("background"):
-          spaceObj["background"] = this.convertColor(values_i_1);
+          spaceObj["background"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
           
         // any variable missing
@@ -414,7 +414,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("colorInt"):
         // control graphic trace
         case("trace"):
-          controlObj[babelValue] = this.convertColor(values_i_1);
+          controlObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // font size
@@ -655,7 +655,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("fillM"):
         // arrow color
         case("arrow"):
-          graphicObj[babelValue] = this.convertColor(values_i_1);
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
 
         // family parameter
@@ -736,7 +736,7 @@ var descartesJS = (function(descartesJS, babel) {
         // color border
         case("border"):
           if (babel[values_i_1] != "false") {
-            graphicObj["border"] = this.convertColor(values_i_1);
+            graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           }
           break;
           
@@ -875,6 +875,28 @@ var descartesJS = (function(descartesJS, babel) {
       babelValue = babel[values_i_0];
 
       switch(babelValue) {
+        // type
+        case("type"):
+        // ilumination model
+        case("model"):
+          graphicObj[babelValue] = babel[values_i_1];
+          break;
+          
+        // condition to draw the graphic in the background
+        case("background"):
+        // condition to use fixed notation in the text
+        case("fixed"):
+        // condition to draw the edges
+        case("edges"):
+          graphicObj[babelValue] = (babel[values_i_1] === "true");
+          break;
+
+        // color
+        case("color"):
+        // back face color
+        case("backcolor"):
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+          break;
 
         // type
         case("type"):
@@ -896,7 +918,85 @@ var descartesJS = (function(descartesJS, babel) {
         case("color"):
         // back face color
         case("backcolor"):
-          graphicObj[babelValue] = this.convertColor(values_i_1);
+          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+          break;
+
+        // drawif condition
+        case("drawif"):
+        // width
+        case("width"):
+        // lenght
+        case("length"):
+        // height
+        case("height"):
+        // number of decimals of the text in the graphic
+        case("decimals"):
+        // Nu parameter
+        case("Nu"):
+        // Nv parameter
+        case("Nv"):
+        // initial rotation
+        case("inirot"):
+        // end rotation
+        case("endrot"):
+        // initial position
+        case("inipos"):
+        // end position
+        case("endpos"):
+          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          break;          
+
+        // family parameter
+        case("family"):
+        // curve parameter
+        case("parameter"):
+        // font text
+        case("font"):
+        // name
+        case("name"):
+          graphicObj[babelValue] = values_i_1;
+          break;          
+          
+        // space identifier
+        case("space"):
+          graphicObj["spaceID"] = values_i_1;
+          break;
+          
+        // expression
+        case("expresion"):
+          if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
+            graphicObj["expresion"] = this.parser.parse(values_i_1);
+            graphicObj["expresionString"] = values_i_1;
+          } else {
+            graphicObj["expresion"] = values_i_1;
+          }
+          break;
+                    
+        // text
+        case("text"):
+          var tmpText = this.parseText(values_i_1);
+
+          for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
+            tmpText[ii] = this.parser.parse(tmpText[ii], false);
+          }
+          graphicObj["text"] = tmpText;
+          break;
+          
+        // file name
+        case("file"):
+          var fileTmp = values_i_1.replace(/&squot;/g, "'");
+
+          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
+            fileTmp = fileTmp.substring(1, fileTmp.length-1);
+          }
+
+          if (fileTmp.match(/./)) {
+            fileTmp = "'" + fileTmp + "'";
+          }
+
+          graphicObj["file"] = this.parser.parse(fileTmp);
+          break;          
+
           break;
 
         // drawif condition
@@ -971,50 +1071,29 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           graphicObj["file"] = this.parser.parse(fileTmp);
-          break;          
-          
-        // any variable missing
-        default:
-          if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
-              
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
-                
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break;
-            }
-          }
-
-          if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
-            
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
-              
-                // find the interval variable of a curve
-                case("interval"):
-                  graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
-                  break;
-                
-                // find the number of steps in the curve
-                case("steps"):
-                  graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break
-            }
-          }
-
-          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
           break;
+
+        //
+        default:
+          if (graphicObj["family"] !== undefined) {
+            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
+
+              // family interval
+              if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "family_interval") {
+                graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                break;
+              }
+              // family steps
+              else {
+                graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                break;
+              }
+            }
+          }
+
+          console.log("----- attributo del graphic3D no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+          break;
+
       }
     }
 
@@ -1056,7 +1135,11 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       case("mesh"):
-        return new descartesJS.Mesh3D(this.parent, graphicObj);
+      case("cube"):
+      case("box"):
+      case("tetrahedron"):
+      case("octahedron"):
+        return new descartesJS.OtherGeometry(this.parent, graphicObj);
         break;
 
       default:
@@ -1426,14 +1509,14 @@ var descartesJS = (function(descartesJS, babel) {
         // background color
         case("bgcolor"):
           if (values_i_1 != "") {
-            plecaObj.bgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
+            plecaObj.bgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
           }
           break;
 
         // text color
         case("fgcolor"):
           if (values_i_1 != "") {
-            plecaObj.fgcolor = "#" + descartesJS.getColor(this.evaluator, values_i_1);
+            plecaObj.fgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
           }
           break;
 
@@ -1642,87 +1725,87 @@ var descartesJS = (function(descartesJS, babel) {
     return splitValues;
   }
   
-  /**
-   * Split a string using a coma delimiter
-   * @param {String} string the string to split
-   * @return {Array<String>} return an array of the spliting string using a coma delimiter
-   */
-  descartesJS.LessonParser.prototype.splitComa = function(string) {
-    splitString = [];
-    parenthesesStack = [];
-    lastSplitIndex = 0;
+  // /**
+  //  * Split a string using a coma delimiter
+  //  * @param {String} string the string to split
+  //  * @return {Array<String>} return an array of the spliting string using a coma delimiter
+  //  */
+  // descartesJS.LessonParser.prototype.splitComa = function(string) {
+  //   splitString = [];
+  //   parenthesesStack = [];
+  //   lastSplitIndex = 0;
 
-    for (var i=0, l=string.length; i<l; i++) {
-      charAt = string.charAt(i);
-      if (charAt === "(") {
-        parenthesesStack.push(i);
-      }
-      else if (charAt === ")") {
-        parenthesesStack.pop();
-      }
-      else if ((charAt === ",") && (parenthesesStack.length === 0)) {
-        splitString.push(string.substring(lastSplitIndex, i));
-        lastSplitIndex = i+1;
-      }
-    }
+  //   for (var i=0, l=string.length; i<l; i++) {
+  //     charAt = string.charAt(i);
+  //     if (charAt === "(") {
+  //       parenthesesStack.push(i);
+  //     }
+  //     else if (charAt === ")") {
+  //       parenthesesStack.pop();
+  //     }
+  //     else if ((charAt === ",") && (parenthesesStack.length === 0)) {
+  //       splitString.push(string.substring(lastSplitIndex, i));
+  //       lastSplitIndex = i+1;
+  //     }
+  //   }
     
-    splitString.push(string.substring(lastSplitIndex));
+  //   splitString.push(string.substring(lastSplitIndex));
     
-    return splitString;
-  }
+  //   return splitString;
+  // }
   
-  /**
-   * Given a Descartes color get an CSS color
-   * @param {String} color the Descartes color to convert
-   * @return {String} return a CSS color string
-   */
-  descartesJS.LessonParser.prototype.convertColor = function(color) {
-    // the color is a color name
-    if (babel[color]) {
-      if (babel[color] === "net") {
-        return "red";
-      }
-      return babel[color];
-    }
+  // /**
+  //  * Given a Descartes color get an CSS color
+  //  * @param {String} color the Descartes color to convert
+  //  * @return {String} return a CSS color string
+  //  */
+  // descartesJS.LessonParser.prototype.convertColor = function(color) {
+  //   // the color is a color name
+  //   if (babel[color]) {
+  //     if (babel[color] === "net") {
+  //       return "red";
+  //     }
+  //     return babel[color];
+  //   }
     
-    // the color is six hexadecimals digits #RRGGBB
-    if (color.length === 6) {
-      return "#" + color;
-    }
+  //   // the color is six hexadecimals digits #RRGGBB
+  //   if (color.length === 6) {
+  //     return "#" + color;
+  //   }
 
-    // the color is eight hexadecimals digits #RRGGBBAA
-    if (color.length === 8) {
-      return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
-                    + parseInt("0x"+color.substring(4,6), 16) +","
-                    + parseInt("0x"+color.substring(6,8), 16) +","
-                    + (1-parseInt("0x"+color.substring(0,2), 16)/255)
-                    + ")";
-    }
+  //   // the color is eight hexadecimals digits #RRGGBBAA
+  //   if (color.length === 8) {
+  //     return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
+  //                   + parseInt("0x"+color.substring(4,6), 16) +","
+  //                   + parseInt("0x"+color.substring(6,8), 16) +","
+  //                   + (1-parseInt("0x"+color.substring(0,2), 16)/255)
+  //                   + ")";
+  //   }
 
-    // the color is a Descartes expression (exprR, exprG, exprB, exprA)
-    if (color[0] === "(") {
-      tmpColor = "(";
-      splitColor = this.splitComa(color.substring(1,color.length-1));
+  //   // the color is a Descartes expression (exprR, exprG, exprB, exprA)
+  //   if (color[0] === "(") {
+  //     tmpColor = "(";
+  //     splitColor = this.splitComa(color.substring(1,color.length-1));
 
-      for (var i=0, l=splitColor.length; i<l; i++) {
-        hexColor = parseInt(splitColor[i], 16);
-        
-        if (splitColor[i] != hexColor.toString(16)) {
-          if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
-            splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
-          }
-          tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
-        } else {
-          tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
-        }
-      }
+  //     for (var i=0, l=splitColor.length; i<l; i++) {
+  //       hexColor = parseInt(splitColor[i], 16);
 
-      return this.parser.parse(tmpColor);
-    }
+  //       if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
+  //         if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
+  //           splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
+  //         }
+  //         tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
+  //       } else {
+  //         tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
+  //       }
+  //     }
+
+  //     return this.parser.parse(tmpColor);
+  //   }
     
-    // otherwise
-    return "#aa0000";
-  }
+  //   // otherwise
+  //   return "#aa0000";
+  // }
 
   /**
    * Parse a text an construct a simple text or rtf text

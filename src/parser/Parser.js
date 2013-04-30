@@ -707,28 +707,32 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////
 
     // function for the dialog
-    this.functions["esCorrecto"] = function(x, y) { return descartesJS.esCorrecto(x, y); };
-    this.functions["escorrecto"] = function(x, y) { return descartesJS.escorrecto(x, y); };
+    this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
+    this.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
     // if the lesson is inside a iframe then register the comunication functions with the parent
-    // if (window.parent.location.href !== window.location.href) {
     if (window.parent !== window) {
 
       // function to set a variable value to the parent
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
       }
+
+      // // function to get a variable value from the parent
+      // this.functions["parent.get"] = function(varName) {
+      //   if (this.parent.cacheVars[varName]) {
+      //     return this.parent.cacheVars[varName];
+      //   }
+
+      //   window.parent.postMessage({ type: "get", name: varName }, '*');
+      //   return 0;
+      // }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
         window.parent.postMessage({ type: "update" }, '*');
       }
-            
-      // function to get a variable value from the parent
-      this.functions["parent.get"] = function(varName, value) {
-        window.parent.postMessage({ type: "get", name: varName, value: value }, '*');
-      }
-      
+
       // function to execute a function in the parent
       this.functions["parent.exec"] = function(functionName, functionParameters) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');

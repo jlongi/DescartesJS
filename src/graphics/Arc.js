@@ -261,12 +261,12 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.strokeStyle = descartesJS.getColor(evaluator, stroke);
+    ctx.strokeStyle = stroke.getColor();
 
     ctx.beginPath();
     ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
     if (this.fill) {
+      ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
     ctx.stroke();
