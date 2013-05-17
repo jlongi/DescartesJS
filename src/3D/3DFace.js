@@ -45,7 +45,7 @@ var descartesJS = (function(descartesJS) {
     vertices = [];
 
     for (var i=0, l=expr.length; i<l; i++) {
-      vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
+      vertices.push( this.transformVertex(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
     }
 
     this.primitives.push(new descartesJS.Primitive3D( vertices,
@@ -56,7 +56,9 @@ var descartesJS = (function(descartesJS) {
                                                         lineCap: "round",
                                                         lineJoin: "round",
                                                         edges: this.edges, 
-                                                        model: this.model
+                                                        model: this.model,
+                                                        fcolor: this.color,
+                                                        bcolor: this.backcolor
                                                       }
                                                     ));
 

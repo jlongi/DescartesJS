@@ -10,36 +10,7 @@ var descartesJS = (function(descartesJS) {
   var MathMax = Math.max;
   var externalDecimals = 2;
   var externalFixed = false;
-  var metrics;
-
-  var decimals;
-  var fixed;
-  var textTemp;
-  var tmpAscent;
-  var tmpStyle;
-  var tmpRadican;
-  var tmpMetric;
-  var prevAscent;
-  var prevDescent;
-  var prevHeigth;
-  var num;
-  var den;
-  var index;
-  var radicand;
-  var from;
-  var to;
-  var what;
-  var symbolStyle;
-  var symbolWidth;
-  var childH;
-  var childW;
-  var maxAscenderHeight;
-  var maxDescenderHeight;
-  var maxHeigth;
-  var maxWidth;
-
-  var children_i;
-      
+  
   /**
    * A node of rtf text
    * @constructor 
@@ -52,7 +23,7 @@ var descartesJS = (function(descartesJS) {
     this.value = value;
     this.nodeType = nodeType;
     this.style = style;
-    this.styleStr = style.toString()
+    this.styleString = style.toString()
     this.color = style.textColor;
     this.underline = style.textUnderline;
     this.overline = style.textOverline;
@@ -171,6 +142,7 @@ var descartesJS = (function(descartesJS) {
         this.draw = this.drawComponentSpace;
         break;
     }
+
   }
 
   /**
@@ -194,552 +166,573 @@ var descartesJS = (function(descartesJS) {
   }
   
   // metric values, needed to calculate the super and sub indices
-  var previousMetric = { ascent: 0, descent: 0, h: 0 };
+  var previousMetric = { ascent: 0, descent: 0, height: 0 };
   /**
    * Set the previous metric
    * @param {Number} ascent the ascent value
    * @param {Number} descent the descent value
-   * @param {Number} h the h value
+   * @param {Number} height the height value
    */
-  function updatePreviousMetric(ascent, descent, h) {
+  function updatePreviousMetric(ascent, descent, height) {
     previousMetric.ascent = ascent;
     previousMetric.descent = descent;
-    previousMetric.h = h; 
+    previousMetric.height = height; 
   }
   
   /**
    * Get the text metrics of the rtf text
    */
   descartesJS.RTFNode.prototype.getTextMetrics = function() {
-    // width of a space
-    this.spaceW = descartesJS.getTextWidth(" ", this.styleStr);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    if (this.nodeType == "textBlock") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
 
-    switch(this.nodeType) {
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("textBlock"):
-        for (var i=0, l=this.children.length; i<l; i++) {
-          this.children[i].getTextMetrics();
-        }
+      for (var i=0, l=this.children.length; i<l; i++) {
+        this.children[i].getTextMetrics();
+      }
+    }
 
-        break;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "textLineBlock") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("textLineBlock"):
-      case ("formula"):
-        this.getBlockMetric();
+      this.getBlockMetric();
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "newLine") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
 
-        break;
+      var metrics = descartesJS.getFontMetrics(this.styleString);
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("newLine"):
-        metrics = descartesJS.getFontMetrics(this.styleStr);
+      this.baseline = metrics.baseline;
 
-        this.baseline = metrics.baseline;
-        this.descent = metrics.descent;
-        this.ascent = metrics.ascent;
-        this.w = metrics.w;
-        this.h = metrics.h;
-
-        break;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("text"):
-      case ("dynamicText"):
-        metrics = descartesJS.getFontMetrics(this.styleStr);
-
-        this.baseline = metrics.baseline;
-        this.descent = metrics.descent;
-        this.ascent = metrics.ascent;
-        
-        textTemp = this.value;
-
-        // if the text is a dynamic text
-        if (typeof(this.value) != "string") {
-          decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
-          fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
-          textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
-
-          // is a number
-          if (parseFloat(textTemp) == textTemp) {
-            textTemp = parseFloat(textTemp).toFixed(decimals);
-            textTemp = (fixed) ? textTemp : parseFloat(textTemp);
-            textTemp = textTemp.toString().replace(".", this.decimal_symbol);
-          }
-          
-          textTemp += " ";
-        }
-              
-        this.w = descartesJS.getTextWidth(textTemp, this.styleStr);
-        this.h = metrics.h;
-
-        break;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("hyperlink"):
-        metrics = descartesJS.getFontMetrics(this.styleStr);
-
-        this.baseline = metrics.baseline;
-        this.descent = metrics.descent;
-        this.ascent = metrics.ascent;
-        
-        this.w = descartesJS.getTextWidth(this.value, this.styleStr);
-        this.h = metrics.h;
-
-        this.clickCacher = document.createElement("div");
-        this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px;")
-
-        break;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("superIndex"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-
-        metric = descartesJS.getFontMetrics(this.styleStr);
-
-        this.getBlockMetric();
-
-        if (this.h < 0) {
-          this.ascent = metric.ascent;
-          this.descent = metric.descent;
-          this.h = this.ascent + this.descent;
-          this.w = this.spaceW*1.5;
-        }
-        
-        tmpAscent = prevHeigth/2 - prevDescent + this.h;
-        this.superIndexPos = tmpAscent - this.ascent;
-        
-        this.ascent = tmpAscent;
-        this.descent = prevDescent;
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
-
-        break;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("subIndex"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        metric = descartesJS.getFontMetrics(this.styleStr);
-
-        this.getBlockMetric();
-
-        if (this.h < 0) {
-          this.ascent = metric.ascent;
-          this.descent = metric.descent;
-          this.h = this.ascent + this.descent;
-          this.w = this.spaceW*1.5;
-        }
-
-        this.subIndexPos = prevDescent +1;
-        
-        this.ascent = prevAscent;
-        this.descent = this.subIndexPos + this.descent;
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
-
-        break;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("fraction"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        num = this.children[0];
-        den = this.children[1];
-
-        metric = descartesJS.getFontMetrics(num.styleStr);
-
-        num.getBlockMetric();
-        den.getBlockMetric();
-        
-        if (num.h < 0) {
-          num.h = metric.h;
-          num.w = this.spaceW;
-        }
-        if (den.h < 0) {
-          den.h = metric.h;
-          den.w = this.spaceW;
-        }
-        
-        this.h = num.h + den.h -1;
-
-        this.ascent = num.h + prevHeigth/2-prevDescent;
-        this.descent = this.h - this.ascent;
-        this.baseline = this.ascent;
-
-        this.w = MathMax(num.w, den.w) +this.spaceW +8;
-
-        break;
+      this.descent = metrics.descent;
+      this.ascent = metrics.ascent;
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("radical"):
-        tmpStyle = this.children[0].style.clone();
+      this.width = metrics.width;
+      this.height = metrics.height;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if ( (this.nodeType == "text") || (this.nodeType == "dynamicText")) {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
 
-        // correction in the roots when has only one child (problem in some lessons of Arquimedes)
-        if (this.children.length === 1) {
+      var metrics = descartesJS.getFontMetrics(this.styleString);
+
+      this.baseline = metrics.baseline;
+
+      this.descent = metrics.descent;
+      this.ascent = metrics.ascent;
+      
+      var textTemp = this.value;
+      var decimals;
+      var fixed;
+
+      // if the text is a dynamic text
+      if (typeof(this.value) != "string") {
+        decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
+        fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
+        textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
+
+        // is a number
+        if (parseFloat(textTemp) == textTemp) {
+          textTemp = parseFloat(textTemp).toFixed(decimals);
+          textTemp = (fixed) ? textTemp : parseFloat(textTemp);
+          textTemp = textTemp.toString().replace(".", this.decimal_symbol);
+        }
+        
+        textTemp += " ";
+      }
+            
+      this.width = descartesJS.getTextWidth(textTemp, this.styleString);
+      this.height = metrics.height;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "formula") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      this.getBlockMetric();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "hyperlink") {
+      var metric = descartesJS.getFontMetrics(this.styleString);
+
+      this.baseline = metric.baseline;
+      this.descent = metric.descent;
+      this.ascent = metric.ascent;
+      
+      this.width = descartesJS.getTextWidth(this.value, this.styleString);
+      this.height = metric.height;
+
+      this.clickCacher = document.createElement("div");
+      this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px;")
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "superIndex") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+
+      var metric = descartesJS.getFontMetrics(this.styleString);
+
+      this.getBlockMetric();
+
+      if (this.height < 0) {
+        this.ascent = metric.ascent;
+        this.descent = metric.descent;
+        this.height = this.ascent + this.descent;
+        this.width = this.spaceWidth*1.5;
+      }
+      
+      var tmpAscent = prevHeight/2 - prevDescent + this.height;
+      this.superIndexPos = tmpAscent - this.ascent;
+      
+      this.ascent = tmpAscent;
+      this.descent = prevDescent;
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "subIndex") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var metric = descartesJS.getFontMetrics(this.styleString);
+
+      this.getBlockMetric();
+
+      if (this.height < 0) {
+        this.ascent = metric.ascent;
+        this.descent = metric.descent;
+        this.height = this.ascent + this.descent;
+        this.width = this.spaceWidth*1.5;
+      }
+
+      this.subIndexPos = prevDescent +1;
+      
+      this.ascent = prevAscent;
+      this.descent = this.subIndexPos + this.descent;
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "fraction") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var num = this.children[0];
+      var den = this.children[1];
+
+      var metric = descartesJS.getFontMetrics(num.styleString);
+
+      num.getBlockMetric();
+      den.getBlockMetric();
+      
+      if (num.height < 0) {
+        num.height = metric.height;
+        num.width = this.spaceWidth;
+      }
+      if (den.height < 0) {
+        den.height = metric.height;
+        den.width = this.spaceWidth;
+      }
+      
+      this.height = num.height + den.height -1;
+
+      this.ascent = num.height + prevHeight/2-prevDescent;
+      this.descent = this.height - this.ascent;
+      this.baseline = this.ascent;
+
+      this.width = Math.max(num.width, den.width) +this.spaceWidth +8;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "radical") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var index;
+      var radicand;
+      var tmpStyle = this.children[0].style.clone();
+      var tmpRadican;
+
+      // correction in the roots when has only one child (problem in some lessons of Arquimedes)
+      if (this.children.length === 1) {
+        // radican
+        this.children[1] = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
+        this.children[1].addChild(this.children[0]);
+        // index
+        this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
+      }
+      // if has mora tan one child
+      else {
+        // if the first two children not are an index and radicand, then is a problem in Arquimedes
+        // and is necesary to add all the children un the radicand value
+        if ( (this.children[0].nodeType !== "index") || (this.children[1].nodeType !== "radicand") ) {
           // radican
-          this.children[1] = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
-          this.children[1].addChild(this.children[0]);
-          // index
+          tmpRadican = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
+          for (var i=0, l=this.children.length; i<l; i++) {
+            tmpRadican.addChild(this.children[i]);
+          }
+          this.children = [];
+
           this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
+          this.children[1] = tmpRadican;
         }
-        // if has mora tan one child
-        else {
-          // if the first two children not are an index and radicand, then is a problem in Arquimedes
-          // and is necesary to add all the children un the radicand value
-          if ( (this.children[0].nodeType !== "index") || (this.children[1].nodeType !== "radicand") ) {
-            // radican
-            tmpRadican = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
-            for (var i=0, l=this.children.length; i<l; i++) {
-              tmpRadican.addChild(this.children[i]);
-            }
-            this.children = [];
+      }
 
-            this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
-            this.children[1] = tmpRadican;
-          }
-        }
+      index    = this.children[0];
+      radicand = this.children[1];
 
-        index    = this.children[0];
-        radicand = this.children[1];
+      index.getBlockMetric();
+      radicand.getBlockMetric();
 
-        index.getBlockMetric();
-        radicand.getBlockMetric();
-
-        if (radicand.h/2 < index.h) {
-          this.ascent = radicand.h/2 + index.h+2 - radicand.descent;
-        } 
-        else {
-          this.ascent = radicand.ascent +4;
-        }
-        
-        this.descent = radicand.descent;
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
-
-        this.w = index.w + radicand.w +4*this.spaceW;
-
-        break;
+      if (radicand.height/2 < index.height) {
+        this.ascent = radicand.height/2 + index.height+2 - radicand.descent;
+      } 
+      else {
+        this.ascent = radicand.ascent +4;
+      }
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("sum"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        from = this.children[0];
-        to   = this.children[1];
-        what = this.children[2]
-        
-        from.getBlockMetric();
-        to.getBlockMetric();
-        what.getBlockMetric();
+      this.descent = radicand.descent;
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
 
-        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (from.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
-          from.ascent = tmpMetric.ascent;
-          from.descent = tmpMetric.descent;
-          from.h = tmpMetric.h;
-        }
-        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (to.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
-          to.ascent = tmpMetric.ascent;
-          to.descent = tmpMetric.descent;
-          to.h = tmpMetric.h;
-        }
-        
-        metric = descartesJS.getFontMetrics(this.styleStr);
-
-        // the ascent
-        if (metric.h+to.h > what.ascent) {
-          this.ascent = metric.h-metric.descent +to.h;
-        } else {
-          this.ascent = what.ascent;
-        }
-        
-        // the descent
-        if (from.h > what.descent) {
-          this.descent = from.h + metric.descent;
-        } else {
-          this.descent = what.descent;
-        }
-
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
-
-        symbolStyle = this.style.clone();
-        symbolStyle.fontType = "Times New Roman";
-        symbolStyle.Bold = "bold";
-        symbolStyle = symbolStyle.toString();
-
-        symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
-        
-        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceW) +this.spaceW;
-
-        break;
+      this.width = index.width + radicand.width +4*this.spaceWidth;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "sum") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("integral"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        from = this.children[0];
-        to   = this.children[1];
-        what = this.children[2]
-        
-        from.getBlockMetric();
-        to.getBlockMetric();
-        what.getBlockMetric();
-        
-        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (from.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
-          from.ascent = tmpMetric.ascent;
-          from.descent = tmpMetric.descent;
-          from.h = tmpMetric.h;
-        }
-        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (to.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
-          to.ascent = tmpMetric.ascent;
-          to.descent = tmpMetric.descent;
-          to.h = tmpMetric.h;
-        }
-
-        metric = descartesJS.getFontMetrics(this.styleStr);
-
-        // the ascent
-        if (metric.h+to.h > what.ascent) {
-          this.ascent = metric.h-metric.descent +to.h;
-        } else {
-          this.ascent = what.ascent;
-        }
-        
-        // the descent
-        if (from.h > what.descent) {
-          this.descent = from.h + metric.descent;
-        } else {
-          this.descent = what.descent;
-        }
-
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
-
-        symbolStyle = this.style.clone();
-        symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
-        symbolStyle.fontType = "Times New Roman";
-        symbolStyle.Bold = "bold";
-        symbolStyle = symbolStyle.toString();
-
-        symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
-          
-        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceW) +2*this.spaceW;
-
-        break;
+      var from = this.children[0];
+      var to   = this.children[1];
+      var what = this.children[2]
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("limit"):
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        from = this.children[0];
-        to   = this.children[1];
-        what = this.children[2]
+      from.getBlockMetric();
+      to.getBlockMetric();
+      what.getBlockMetric();
 
-        metric = descartesJS.getFontMetrics(this.styleStr);
+      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (from.ascent == -1) {
+        var tmpMetric = descartesJS.getFontMetrics(from.styleString);
+        from.ascent = tmpMetric.ascent;
+        from.descent = tmpMetric.descent;
+        from.height = tmpMetric.height;
+      }
+      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (to.ascent == -1) {
+        var tmpMetric = descartesJS.getFontMetrics(to.styleString);
+        to.ascent = tmpMetric.ascent;
+        to.descent = tmpMetric.descent;
+        to.height = tmpMetric.height;
+      }
+      
+      var metric = descartesJS.getFontMetrics(this.styleString);
 
-        from.getBlockMetric();
-        to.getBlockMetric();
-        what.getBlockMetric();
-        
-        // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (from.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(from.styleStr);
-          from.ascent = tmpMetric.ascent;
-          from.descent = tmpMetric.descent;
-          from.h = tmpMetric.h;
-        }
-        // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (to.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(to.styleStr);
-          to.ascent = tmpMetric.ascent;
-          to.descent = tmpMetric.descent;
-          to.h = tmpMetric.h;
-        }
-        // if "what" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-        if (what.ascent == -1) {
-          tmpMetric = descartesJS.getFontMetrics(what.styleStr);
-          what.ascent = tmpMetric.ascent;
-          what.descent = tmpMetric.descent;
-          what.h = tmpMetric.h;
-        }
-              
+      // the ascent
+      if (metric.height+to.height > what.ascent) {
+        this.ascent = metric.height-metric.descent +to.height;
+      } else {
         this.ascent = what.ascent;
-        this.descent = MathMax(metric.h, what.descent);
-        this.baseline = this.ascent;
-        this.h = this.ascent + this.descent;
+      }
+      
+      // the descent
+      if (from.height > what.descent) {
+        this.descent = from.height + metric.descent;
+      } else {
+        this.descent = what.descent;
+      }
 
-        if (from.w == 0) {
-          from.w = this.spaceW;
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
+
+      var symbolStyle = this.style.clone();
+      symbolStyle.fontType = "Times New Roman";
+      symbolStyle.Bold = "bold";
+      symbolStyle = symbolStyle.toString();
+
+      var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
+      
+      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +this.spaceWidth;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "integral") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var from = this.children[0];
+      var to   = this.children[1];
+      var what = this.children[2]
+      
+      from.getBlockMetric();
+      to.getBlockMetric();
+      what.getBlockMetric();
+      
+      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (from.ascent == -1) {
+        var tmpMetric = descartesJS.getFontMetrics(from.styleString);
+        from.ascent = tmpMetric.ascent;
+        from.descent = tmpMetric.descent;
+        from.height = tmpMetric.height;
+      }
+      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (to.ascent == -1) {
+        var tmpMetric = descartesJS.getFontMetrics(to.styleString);
+        to.ascent = tmpMetric.ascent;
+        to.descent = tmpMetric.descent;
+        to.height = tmpMetric.height;
+      }
+
+      var metric = descartesJS.getFontMetrics(this.styleString);
+
+      // the ascent
+      if (metric.height+to.height > what.ascent) {
+        this.ascent = metric.height-metric.descent +to.height;
+      } else {
+        this.ascent = what.ascent;
+      }
+      
+      // the descent
+      if (from.height > what.descent) {
+        this.descent = from.height + metric.descent;
+      } else {
+        this.descent = what.descent;
+      }
+
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
+
+      var symbolStyle = this.style.clone();
+      symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
+      symbolStyle.fontType = "Times New Roman";
+      symbolStyle.Bold = "bold";
+      symbolStyle = symbolStyle.toString();
+
+      var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
+        
+      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +2*this.spaceWidth;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "limit") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var from = this.children[0];
+      var to   = this.children[1];
+      var what = this.children[2]
+      var tmpMetric;
+      var metric = descartesJS.getFontMetrics(this.styleString);
+
+      from.getBlockMetric();
+      to.getBlockMetric();
+      what.getBlockMetric();
+      
+      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (from.ascent == -1) {
+        tmpMetric = descartesJS.getFontMetrics(from.styleString);
+        from.ascent = tmpMetric.ascent;
+        from.descent = tmpMetric.descent;
+        from.height = tmpMetric.height;
+      }
+      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (to.ascent == -1) {
+        tmpMetric = descartesJS.getFontMetrics(to.styleString);
+        to.ascent = tmpMetric.ascent;
+        to.descent = tmpMetric.descent;
+        to.height = tmpMetric.height;
+      }
+      // if "what" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
+      if (what.ascent == -1) {
+        tmpMetric = descartesJS.getFontMetrics(what.styleString);
+        what.ascent = tmpMetric.ascent;
+        what.descent = tmpMetric.descent;
+        what.height = tmpMetric.height;
+      }
+            
+      this.ascent = what.ascent;
+      this.descent = Math.max(metric.height, what.descent);
+      this.baseline = this.ascent;
+      this.height = this.ascent + this.descent;
+
+      var limitWidth = descartesJS.getTextWidth(" " + String.fromCharCode(parseInt(8594)), this.styleString);
+
+      if (from.width == 0) {
+        from.width = this.spaceWidth;
+      }
+      if (to.width == 0) {
+        to.width = this.spaceWidth;
+      }
+      if (what.width == 0) {
+        what.width = this.spaceWidth;
+      }
+
+      this.width = to.width + from.width + what.width + limitWidth + this.spaceWidth;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "matrix") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      
+      var metric = descartesJS.getFontMetrics(this.styleString);
+      
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var maxAscenderHeight = metric.ascent;
+      var maxDescenderHeight = metric.descent;
+      var maxHeigth = metric.height;
+      var maxWidth = this.spaceWidth;
+
+      var childHeight;
+      var childWidth;
+      
+      for (var i=0, l=this.children.length; i<l; i++) {
+        this.children[i].getBlockMetric();
+        
+        childHeight = this.children[i].height;
+        childWidth = this.children[i].width;
+        
+        if (maxHeigth < childHeight) {
+          maxHeigth = childHeight;
+          maxAscenderHeight = this.children[i].ascent;
+          maxDescenderHeight = this.children[i].descent;
         }
-        if (to.w == 0) {
-          to.w = this.spaceW;
+        
+        if (maxWidth < childWidth) {
+          maxWidth = childWidth;
         }
-        if (what.w == 0) {
-          what.w = this.spaceW;
-        }
-
-        this.w = to.w + from.w + what.w + this.spaceW + descartesJS.getTextWidth(" " + String.fromCharCode(parseInt(8594)), this.styleStr);
-
-        break;
+      }
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("matrix"):
-        metric = descartesJS.getFontMetrics(this.styleStr);
-        
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        maxAscenderHeight = metric.ascent;
-        maxDescenderHeight = metric.descent;
-        maxHeigth = metric.h;
-        maxWidth = this.spaceW;
-        
-        for (var i=0, l=this.children.length; i<l; i++) {
-          this.children[i].getBlockMetric();
-          
-          childH = this.children[i].h;
-          childW = this.children[i].w;
-          
-          if (maxHeigth < childH) {
-            maxHeigth = childH;
-            maxAscenderHeight = this.children[i].ascent;
-            maxDescenderHeight = this.children[i].descent;
-          }
-          
-          if (maxWidth < childW) {
-            maxWidth = childW;
-          }
-        }
-        
-        this.childW = maxWidth + 2*this.spaceW;
-        this.childH = maxHeigth;
-        this.childAscent = maxAscenderHeight;
-        this.childDescent = maxDescenderHeight;
-        
-        this.h = this.rows * maxHeigth;
-        this.ascent = this.h/2 + prevDescent;
-        this.descent = this.h - this.ascent;
-        this.w = this.columns * this.childW +this.spaceW;
-
-        break;
+      this.childWidth = maxWidth + 2*this.spaceWidth;
+      this.childHeight = maxHeigth;
+      this.childAscent = maxAscenderHeight;
+      this.childDescent = maxDescenderHeight;
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("defparts"):
-        metric = descartesJS.getFontMetrics(this.styleStr);
-        
-        prevAscent = previousMetric.ascent;
-        prevDescent = previousMetric.descent;
-        prevHeigth = previousMetric.h;
-        
-        maxAscenderHeight = metric.ascent;
-        maxDescenderHeight = metric.descent;
-        maxHeigth = metric.h;
-        maxWidth = this.spaceW;
+      this.height = this.rows * maxHeigth;
+      this.ascent = this.height/2 + prevDescent;
+      this.descent = this.height - this.ascent;
+      this.width = this.columns * this.childWidth +this.spaceWidth;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "defparts") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      
+      var metric = descartesJS.getFontMetrics(this.styleString);
+      
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevHeight = previousMetric.height;
+      
+      var maxAscenderHeight = metric.ascent;
+      var maxDescenderHeight = metric.descent;
+      var maxHeigth = metric.height;
+      var maxWidth = this.spaceWidth;
 
-        for (var i=0, l=this.children.length; i<l; i++) {
-          this.children[i].getBlockMetric();
-          
-          childH = this.children[i].h;
-          childW = this.children[i].w;
-          
-          if (maxHeigth < childH) {
-            maxHeigth = childH;
-            maxAscenderHeight = this.children[i].ascent;
-            maxDescenderHeight = this.children[i].descent;
-          }
-          
-          if (maxWidth < childW) {
-            maxWidth = childW;
-          }
+      var childHeight;
+      var childWidth;
+
+      for (var i=0, l=this.children.length; i<l; i++) {
+        this.children[i].getBlockMetric();
+        
+        childHeight = this.children[i].height;
+        childWidth = this.children[i].width;
+        
+        if (maxHeigth < childHeight) {
+          maxHeigth = childHeight;
+          maxAscenderHeight = this.children[i].ascent;
+          maxDescenderHeight = this.children[i].descent;
         }
         
-        this.childW = maxWidth + 2*this.spaceW;
-        this.childH = maxHeigth;
-        this.childAscent = maxAscenderHeight;
-        this.childDescent = maxDescenderHeight;
-        
-        this.h = this.parts * maxHeigth;
-        this.ascent = this.h/2 + prevDescent;
-        this.descent = this.h - this.ascent;
-        this.w = maxWidth +this.spaceW/2;
-
-        break;
+        if (maxWidth < childWidth) {
+          maxWidth = childWidth;
+        }
+      }
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("mathSymbol"):
-        metrics = descartesJS.getFontMetrics(this.styleStr);
-
-        this.baseline = metrics.baseline;
-        this.descent = metrics.descent;
-        this.ascent = metrics.ascent;
-                    
-        this.w = descartesJS.getTextWidth(this.value, this.styleStr) + descartesJS.getTextWidth(" ", this.styleStr);
-        this.h = metrics.h;
-
-        break;
+      this.childWidth = maxWidth + 2*this.spaceWidth;
+      this.childHeight = maxHeigth;
+      this.childAscent = maxAscenderHeight;
+      this.childDescent = maxDescenderHeight;
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("componentNumCtrl"):
-        this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
-        
-        this.baseline = 0;
-        this.descent = 0;
-        this.ascent = 0;
-        
-        this.h = 0;
-        this.w = this.componentNumCtrl.w;
+      this.height = this.parts * maxHeigth;
+      this.ascent = this.height/2 + prevDescent;
+      this.descent = this.height - this.ascent;
+      this.width = maxWidth +this.spaceWidth/2;
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType == "mathSymbol") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var metrics = descartesJS.getFontMetrics(this.styleString);
 
-        break;
+      this.baseline = metrics.baseline;
+      this.descent = metrics.descent;
+      this.ascent = metrics.ascent;
+                  
+      this.width = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
+      this.height = metrics.height;
+    }
+    
+    else if (this.nodeType == "componentNumCtrl") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      case ("componentSpace"):
-        this.componentSpace = this.evaluator.parent.getSpaceByCId(this.value);
-        
-        this.baseline = 0;
-        this.descent = 0;
-        this.ascent = 0;
-        
-        this.h = 0;
-        this.w = this.componentSpace.w;
-        break;
+      this.baseline = 0;
+      this.descent = 0;
+      this.ascent = 0;
       
-      ////////////////////////////////////////////////////////////////////////////////////////////////////
-      default:
-        console.log("Element i=unknown", this.nodeType);
-        break;
-    }    
+      this.height = 0;
+      this.width = this.componentNumCtrl.w;
+    }
+    
+    else if (this.nodeType == "componentSpace") {
+      this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      this.componentSpace = this.evaluator.parent.getSpaceByCId(this.value);
+      
+      this.baseline = 0;
+      this.descent = 0;
+      this.ascent = 0;
+      
+      this.height = 0;
+      this.width = this.componentSpace.w;
+    }
+        
+    else {
+      console.log("Element i=unknown", this.nodeType);
+    }
+    
   }
   
   /**
    * Get the metric of a block
    */
   descartesJS.RTFNode.prototype.getBlockMetric = function() {
-    this.w = 0;
-    maxDescenderHeight = -1;
-    maxAscenderHeight = -1;
+    this.width = 0;
+    var maxDescenderHeight = -1;
+    var maxAscenderHeight = -1;
+    var childHeight;
+    var children_i;
     
-    // loops throught all the children of a text line to determine which is the w and the h
+    // loops throught all the children of a text line to determine which is the width and the height
     for (var i=0, l=this.children.length; i<l; i++) {
       children_i = this.children[i];
       children_i.getTextMetrics();
@@ -747,10 +740,10 @@ var descartesJS = (function(descartesJS) {
       childAscent = children_i.ascent;
       childDescent = children_i.descent;
 
-      this.w += children_i.w;
+      this.width += children_i.width;
      
       // update the previous metric
-      updatePreviousMetric(childAscent, childDescent, children_i.h);
+      updatePreviousMetric(childAscent, childDescent, children_i.height);
       
       if (maxAscenderHeight < childAscent) {
         maxAscenderHeight = childAscent;
@@ -765,7 +758,7 @@ var descartesJS = (function(descartesJS) {
     this.ascent = maxAscenderHeight;
     this.descent = maxDescenderHeight;
     this.baseline = this.ascent;
-    this.h = this.ascent + this.descent;
+    this.height = this.ascent + this.descent;
   }
   
   /**
@@ -780,12 +773,12 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
-    if(!this.stablew) {
+    if(!this.stableWidth) {
       this.getTextMetrics();
       externalDecimals = decimals;
       externalFixed = fixed;
     }
-    // the displace if the text is from a graphic diferent to text
+
     displaceY = (displaceY) ? -this.children[0].ascent : 0;
     
     var desp = 0;
@@ -793,16 +786,16 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        previousChildPos += this.children[i-1].h;
+        previousChildPos += this.children[i-1].height;
       }
       
       // // if the text align is center
       // if (align == "center") {
-      //   desp = -this.children[i].w/2;
+      //   desp = -this.children[i].width/2;
       // }
       // // if the text align is right
       // else if (align == "right") {
-      //   desp =-this.children[i].w;
+      //   desp =-this.children[i].width;
       // }
       
       this.children[i].draw(ctx, x +desp, y +displaceY +previousChildPos);
@@ -817,14 +810,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextLineBlock = function(ctx, x, y) {
     var antChildX = 0;
-
     for (var i=0, l=this.children.length; i<l; i++) {
 
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
 
         if ((this.children[i-1].nodeType == "formula")) {
-          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleStr);
+          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleString);
         }
       }
 
@@ -843,10 +835,9 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
       }
-      
-      this.children[i].draw(ctx, x + this.spaceW + antChildX, y);
+      this.children[i].draw(ctx, x + this.spaceWidth + antChildX, y);
     }    
   }
       
@@ -857,10 +848,10 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawText = function(ctx, x, y) {
-    if (this.color !== null) {
+    if (this.color != null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleStr;
+    ctx.font = this.styleString;
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
 
@@ -870,13 +861,13 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 1 : .5;
 
-      ctx.linew = isBold ? 2 : 1;
+      ctx.lineWidth = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(x-1+this.width, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -884,13 +875,13 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 2 : 1.5;
 
-      ctx.linew = isBold ? 2 : 1;
+      ctx.lineWidth = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(x-1+this.w, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(x-1+this.width, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
   }
@@ -902,15 +893,17 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawDynamicText = function(ctx, x, y) {
-    var spaceW = MathFloor(this.spaceW*.5);
+    var spaceWidth = Math.floor(this.spaceWidth*.5);
 
-    decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
-    fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
+    var decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
+    var fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
 
-    textTemp = this.evaluator.evalExpression(this.value); //, decimals, fixed);
+    var textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
     
     // the text is a number
-    if (parseFloat(textTemp) == textTemp) {
+    // if (parseFloat(textTemp) == textTemp) {
+    // if (parseFloat(textTemp) === textTemp) {
+    if (parseFloat(textTemp).toString() === textTemp.toString()) {
       textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : parseFloat(parseFloat(textTemp).toFixed(decimals));
       textTemp = (""+textTemp).replace(".", this.decimal_symbol);
     }
@@ -918,24 +911,24 @@ var descartesJS = (function(descartesJS) {
     if (this.color != null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleStr;
+    ctx.font = this.styleString;
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
 
-    this.w = descartesJS.getTextWidth(textTemp, this.styleStr);
-    ctx.fillText(textTemp, spaceW + x, y);
+    this.width = descartesJS.getTextWidth(textTemp, this.styleString);
+    ctx.fillText(textTemp, spaceWidth + x, y);
 
     if (this.underline) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 1 : .5;
 
-      ctx.linew = isBold ? 2 : 1;
+      ctx.lineWidth = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
-      ctx.moveTo(spaceW + x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(spaceW + x-1+this.w, parseInt(y+this.descent/2) +sep);
+      ctx.moveTo(spaceWidth + x-1, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -943,17 +936,17 @@ var descartesJS = (function(descartesJS) {
       var isBold = this.style.textBold == "bold";
       var sep = isBold ? 2 : 1.5;
 
-      ctx.linew = isBold ? 2 : 1;
+      ctx.lineWidth = isBold ? 2 : 1;
       if (this.color != null) {
         ctx.strokeStyle = this.color;
       }
       ctx.beginPath();
-      ctx.moveTo(spaceW + x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(spaceW + x-1+this.w, parseInt(y-this.ascent) +sep);
+      ctx.moveTo(spaceWidth + x-1, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
     
-    this.w += 2*spaceW;
+    this.width += 2*spaceWidth;
   }
 
   /**
@@ -997,22 +990,22 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawRadical = function(ctx, x, y) {
-    var spaceW = MathFloor(this.spaceW);
+    var spaceWidth = Math.floor(this.spaceWidth);
     
-    this.children[0].draw(ctx, x, MathFloor(y +this.children[1].descent -this.children[1].h/2 -this.children[0].descent));
-    this.children[1].draw(ctx, x+1.5*spaceW+(this.children[0].w), y);
+    this.children[0].draw(ctx, x, Math.floor(y +this.children[1].descent -this.children[1].height/2 -this.children[0].descent));
+    this.children[1].draw(ctx, x+1.5*spaceWidth+(this.children[0].width), y);
     
-    ctx.linew = 1;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
 
-    ctx.moveTo(x, MathFloor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].w, MathFloor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].w +.5*spaceW, y+this.children[1].descent);
-    ctx.lineTo(x+this.children[0].w +1*spaceW, y-this.children[1].ascent);
-    ctx.lineTo(x+this.children[0].w +2*spaceW+this.children[1].w, y-this.children[1].ascent);
+    ctx.moveTo(x, Math.floor(y +this.children[1].descent -this.children[1].height/2));
+    ctx.lineTo(x+this.children[0].width, Math.floor(y +this.children[1].descent -this.children[1].height/2));
+    ctx.lineTo(x+this.children[0].width +.5*spaceWidth, y+this.children[1].descent);
+    ctx.lineTo(x+this.children[0].width +1*spaceWidth, y-this.children[1].ascent);
+    ctx.lineTo(x+this.children[0].width +2*spaceWidth+this.children[1].width, y-this.children[1].ascent);
 
     ctx.stroke();
   }
@@ -1024,18 +1017,18 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawFraction = function(ctx, x, y) {
-    this.children[0].draw(ctx, x+(this.w-this.children[0].w)/2, y -this.ascent);
-    this.children[1].draw(ctx, x+(this.w-this.children[1].w)/2, y -this.ascent + this.children[0].h -1);
+    this.children[0].draw(ctx, x+(this.width-this.children[0].width)/2, y -this.ascent);
+    this.children[1].draw(ctx, x+(this.width-this.children[1].width)/2, y -this.ascent + this.children[0].height -1);
 
-    var spaceW = MathFloor(this.spaceW*.5);
+    var spaceWidth = Math.floor(this.spaceWidth*.5);
     
-    ctx.linew = 1;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(x+spaceW, parseInt(y -this.ascent + this.children[0].h)+.5);
-    ctx.lineTo(x-spaceW+this.w-1, parseInt(y -this.ascent + this.children[0].h)+.5);
+    ctx.moveTo(x+spaceWidth, parseInt(y -this.ascent + this.children[0].height)+.5);
+    ctx.lineTo(x-spaceWidth+this.width-1, parseInt(y -this.ascent + this.children[0].height)+.5);
     ctx.stroke();
   }
 
@@ -1049,7 +1042,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
       }
       this.children[i].draw(ctx, x+antChildX, y+this.baseline);
     }  
@@ -1065,7 +1058,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
       }
       this.children[i].draw(ctx, x+antChildX, y +this.subIndexPos);
     }
@@ -1081,7 +1074,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
       }
       this.children[i].draw(ctx, x+antChildX, y -this.superIndexPos);
     }  
@@ -1094,29 +1087,29 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawLimit = function(ctx, x, y) {
-    var metric = descartesJS.getFontMetrics(this.styleStr);
+    var metric = descartesJS.getFontMetrics(this.styleString);
 
     var symbolString = " " + String.fromCharCode(parseInt(8594));
-    symbolWidth = descartesJS.getTextWidth(symbolString, this.styleStr);
+    var symbolWidth = descartesJS.getTextWidth(symbolString, this.styleString);
     
     // from
     this.children[0].draw(ctx, x, y +metric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +this.children[0].w +symbolWidth, y +metric.descent +this.children[1].ascent);
+    this.children[1].draw(ctx, x +this.children[0].width +symbolWidth, y +metric.descent +this.children[1].ascent);
     
     //what
-    this.children[2].draw(ctx, x +symbolWidth +this.children[0].w +this.children[1].w, y);
+    this.children[2].draw(ctx, x +symbolWidth +this.children[0].width +this.children[1].width, y);
 
     if (this.color != null) {
       ctx.fillStyle = this.color;
     }
-    ctx.font = this.styleStr
+    ctx.font = this.styleString
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText("lím", x +this.children[0].w, y);
+    ctx.fillText("lím", x +this.children[0].width, y);
     
-    ctx.fillText(symbolString, x+this.children[0].w, y +metric.descent +this.children[0].ascent);
+    ctx.fillText(symbolString, x+this.children[0].width, y +metric.descent +this.children[0].ascent);
   }
   
   /**
@@ -1126,22 +1119,22 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawIntegral = function(ctx, x, y) {
-    symbolStyle = this.style.clone();
+    var symbolStyle = this.style.clone();
     symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
     symbolStyle.fontType = "Times New Roman";
     symbolStyle.Bold = "bold";
     symbolStyle = symbolStyle.toString();    
     
-    symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
+    var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
     var symbolMetric = descartesJS.getFontMetrics(symbolStyle);
 
-    maxWidth = MathMax(this.children[0].w, this.children[1].w, MathFloor(1.5*symbolWidth));
+    var maxWidth = Math.max(this.children[0].width, this.children[1].width, Math.floor(1.5*symbolWidth));
     
     // from
     this.children[0].draw(ctx, x +symbolWidth, y +symbolMetric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +symbolWidth +this.spaceW/2, y -this.ascent +this.children[1].ascent);
+    this.children[1].draw(ctx, x +symbolWidth +this.spaceWidth/2, y -this.ascent +this.children[1].ascent);
     
     // what
     this.children[2].draw(ctx, x +maxWidth +symbolWidth, y);
@@ -1164,21 +1157,21 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawSum = function(ctx, x, y) {
-    symbolStyle = this.style.clone();
+    var symbolStyle = this.style.clone();
     symbolStyle.fontType = "Times New Roman";
     symbolStyle.Bold = "bold";
     symbolStyle = symbolStyle.toString();    
 
-    symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
-    var symbolMetric = descartesJS.getFontMetrics(this.styleStr);
+    var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
+    var symbolMetric = descartesJS.getFontMetrics(this.styleString);
 
-    maxWidth = MathMax(this.children[0].w, this.children[1].w, symbolWidth);
+    var maxWidth = Math.max(this.children[0].width, this.children[1].width, symbolWidth);
     
     // from
-    this.children[0].draw(ctx, x +(maxWidth-this.children[0].w)/2, y +symbolMetric.descent +this.children[0].ascent);
+    this.children[0].draw(ctx, x +(maxWidth-this.children[0].width)/2, y +symbolMetric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +(maxWidth-this.children[1].w)/2, y -symbolMetric.ascent -this.children[1].descent);
+    this.children[1].draw(ctx, x +(maxWidth-this.children[1].width)/2, y -symbolMetric.ascent -this.children[1].descent);
     
     // what
     this.children[2].draw(ctx, x +maxWidth, y);
@@ -1191,7 +1184,7 @@ var descartesJS = (function(descartesJS) {
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
     
-    ctx.fillText(String.fromCharCode(parseInt(8721)), x +MathFloor( (maxWidth-symbolWidth)/2 ), y-5);      
+    ctx.fillText(String.fromCharCode(parseInt(8721)), x +Math.floor( (maxWidth-symbolWidth)/2 ), y-5);      
   }
 
   /**
@@ -1206,25 +1199,25 @@ var descartesJS = (function(descartesJS) {
     
     for (var i=0, l=this.children.length; i<l; i++) {
       columnIndex = i%this.columns;
-      rowIndex = MathFloor(i/this.columns);
+      rowIndex = Math.floor(i/this.columns);
             
-      this.children[i].draw(ctx, 2*this.spaceW + x + columnIndex*this.childW, y-this.ascent+this.childAscent + rowIndex*this.childH);
+      this.children[i].draw(ctx, 2*this.spaceWidth + x + columnIndex*this.childWidth, y-this.ascent+this.childAscent + rowIndex*this.childHeight);
     }
     
-    ctx.linew = 1;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(MathFloor(x +this.spaceW) +.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceW/2) +.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceW/2) +.5, y +this.descent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceW) +.5, y +this.descent +.5);
+    ctx.moveTo(Math.floor(x +this.spaceWidth) +.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.spaceWidth/2) +.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.spaceWidth/2) +.5, y +this.descent +.5);
+    ctx.lineTo(Math.floor(x +this.spaceWidth) +.5, y +this.descent +.5);
     
-    ctx.moveTo(MathFloor(x +this.w -this.spaceW) -.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceW/2) -.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceW/2) -.5, y +this.descent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceW) -.5, y +this.descent +.5);    
+    ctx.moveTo(Math.floor(x +this.width -this.spaceWidth) -.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y +this.descent +.5);
+    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth) -.5, y +this.descent +.5);    
     
     ctx.stroke();  
   }
@@ -1237,23 +1230,23 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + this.spaceW/4, y-this.ascent+this.childAscent + (i%this.parts)*this.childH);
+      this.children[i].draw(ctx, x + this.spaceWidth/4, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
     }
 
-    ctx.linew = 1;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(MathFloor(x +this.spaceW/3) +.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y -this.ascent +.5 +(this.spaceW/3-this.spaceW/6));
+    ctx.moveTo(Math.floor(x +this.spaceWidth/3) +.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y -this.ascent +.5 +(this.spaceWidth/3-this.spaceWidth/6));
     
-    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent -this.h/2 -(this.spaceW/3-this.spaceW/6));
-    ctx.lineTo(x +.5, y +this.descent -this.h/2);
-    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent -this.h/2 +(this.spaceW/3-this.spaceW/6));
+    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.height/2 -(this.spaceWidth/3-this.spaceWidth/6));
+    ctx.lineTo(x +.5, y +this.descent -this.height/2);
+    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.height/2 +(this.spaceWidth/3-this.spaceWidth/6));
     
-    ctx.lineTo(MathFloor(x +this.spaceW/6) +.5, y +this.descent +.5 -(this.spaceW/3-this.spaceW/6));
-    ctx.lineTo(MathFloor(x +this.spaceW/3) +.5, y +this.descent +.5);
+    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent +.5 -(this.spaceWidth/3-this.spaceWidth/6));
+    ctx.lineTo(Math.floor(x +this.spaceWidth/3) +.5, y +this.descent +.5);
     
     ctx.stroke(); 
   }
@@ -1265,7 +1258,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawMathSymbol = function(ctx, x, y) {
-    ctx.linew = 1;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
       ctx.fillStyle = this.color;
@@ -1273,31 +1266,31 @@ var descartesJS = (function(descartesJS) {
     ctx.beginPath()
 
     if (this.value == "(") {
-      ctx.font = this.styleStr;
+      ctx.font = this.styleString;
       ctx.textAlign = "start";
       ctx.textBaseline = "alphabetic";
       ctx.fillText("(", x, y);
-      // ctx.moveTo(x +this.spaceW +.1, y -this.parent.ascent +this.h/10);
-      // ctx.quadraticCurveTo(x +this.spaceW/5, y +this.parent.descent -this.parent.h/2,
-      //                      x +this.spaceW, y +this.parent.descent -this.h/10);
+      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.height/10);
+      // ctx.quadraticCurveTo(x +this.spaceWidth/5, y +this.parent.descent -this.parent.height/2,
+      //                      x +this.spaceWidth, y +this.parent.descent -this.height/10);
       // ctx.stroke();
     }
     else if (this.value == ")") {
-      ctx.font = this.styleStr;
+      ctx.font = this.styleString;
       ctx.textAlign = "start";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(")", x+this.spaceW, y);
-      // ctx.moveTo(x +this.spaceW +.1, y -this.parent.ascent +this.h/10);
-      // ctx.quadraticCurveTo(x +this.spaceW +4*this.spaceW/5, y +this.parent.descent -this.parent.h/2,
-      //                      x +this.spaceW, y +this.parent.descent -this.h/10);
+      ctx.fillText(")", x+this.spaceWidth, y);
+      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.height/10);
+      // ctx.quadraticCurveTo(x +this.spaceWidth +4*this.spaceWidth/5, y +this.parent.descent -this.parent.height/2,
+      //                      x +this.spaceWidth, y +this.parent.descent -this.height/10);
       // ctx.stroke();
     }
     else {
-      ctx.font = this.styleStr;
+      ctx.font = this.styleString;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
       
-      ctx.fillText(this.value, x +this.w/2, y);      
+      ctx.fillText(this.value, x +this.width/2, y);      
     }
   }
   
@@ -1311,7 +1304,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].w;
+        antChildX += this.children[i-1].width;
       }
       this.children[i].draw(ctx, x+antChildX, y);
     }  
@@ -1348,31 +1341,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.draw = function(ctx, x, y) {
     console.log(">>> Dibujo desconocido ", this.nodeType);
-    this.children[0].draw(ctx, x, y);
-  }
-
-  /**
-   * 
-   */
-  descartesJS.RTFNode.prototype.toHTML = function() {
-    var htmlString = "";
-    
-    if ( (this.nodeType === "textLineBlock") || (this.nodeType === "textBlock") ) {
-      for (var i=0, l=this.children.length; i<l; i++) {
-        htmlString = htmlString + this.children[i].toHTML();
-      }
-    }
-    else if (this.nodeType === "text") {
-      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "</span>"; 
-    }
-    else if (this.nodeType === "newLine") {
-      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "<br /></span>";
-    }
-    else {
-      console.log(">>><<<", this);
-    }
-    
-    return htmlString;
+    // this.children[0].draw(ctx, x, y);
   }
   
   return descartesJS;

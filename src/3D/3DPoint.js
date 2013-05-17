@@ -35,14 +35,14 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     // do not apply the rotations in the model view matrix transformation
-    this.updateMVMatrix(true);
+    this.updateMVMatrix();
 
     expr = evaluator.evalExpression(this.expresion);
     this.exprX = expr[0][0];
     this.exprY = expr[0][1];
     this.exprZ = expr[0][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
+    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
                                                       "vertex",
                                                       { fillStyle: this.backcolor.getColor(), 
                                                         strokeStyle: this.color.getColor(), 
@@ -53,7 +53,7 @@ var descartesJS = (function(descartesJS) {
                                                       }
                                                     ));
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
+    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
                                                       "text",
                                                       { fillStyle: this.color.getColor(),
                                                         font: this.font,

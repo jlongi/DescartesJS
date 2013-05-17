@@ -34,7 +34,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFTokenizer.prototype.tokenize = function(input) {
     if (input) {
       // input = input.replace(/\\'(\w{2})/g, function(str, m1){ return StringFromCharCode(parseInt(m1, 16)); });
-      input = input.replace(/\&quote;/g, "''").replace(/\\rquote /g, "'").replace(/\\endash /g, "-").replace(/\n/g, " ").replace(/\r/g, "").replace(/\\uc(\d+) /g, "").replace(/\\uc(\d+)/g, "");
+      input = input.replace(/\&quote;/g, "''").replace(/\&squot;/g, "'").replace(/\\rquote /g, "'").replace(/\\endash /g, "-").replace(/\n/g, " ").replace(/\r/g, "").replace(/\\uc(\d+) /g, "").replace(/\\uc(\d+)/g, "");
     } 
     else {
       return [];

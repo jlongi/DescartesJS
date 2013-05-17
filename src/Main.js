@@ -78,8 +78,8 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=applets.length; i<l; i++) {
       applet_i = applets[i];
       if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
-           (applet_i.getAttribute("code").match("Descartes.class")) || 
            (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
+           (applet_i.getAttribute("code").match("Descartes")) || 
            (applet_i.getAttribute("code").match("Arquimedes")) ||
            (applet_i.getAttribute("code").match("Discurso"))
          ) {

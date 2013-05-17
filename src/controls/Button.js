@@ -173,7 +173,7 @@ var descartesJS = (function(descartesJS) {
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    this.update();
+    // this.update();
   }
   
   /**

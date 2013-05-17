@@ -12,7 +12,8 @@ var descartesJS = (function(descartesJS) {
   var splitColor;
   var hexColor;
   var splitString;
-  var parenthesesStack;
+  var numParentheses;
+  var numSquareParenteses;
   var lastSplitIndex;
   var charAt;
   var r;
@@ -29,6 +30,8 @@ var descartesJS = (function(descartesJS) {
     this.b = 0;
     this.a = 0;
 
+    this.evaluator = evaluator;
+
     // construct a simple color
     if (!color) {
       this.colorStr = "rgba("+ this.r +","+ this.g +","+ this.b +","+ this.a + ")";
@@ -36,8 +39,6 @@ var descartesJS = (function(descartesJS) {
       this.getColor = this.getColorString;
       return;
     }
-
-    this.evaluator = evaluator;
 
     // the color is a color name
     if (babel[color]) {
@@ -79,7 +80,7 @@ var descartesJS = (function(descartesJS) {
     // the color is a Descartes expression (exprR, exprG, exprB, exprA)
     if (color[0] === "(") {
       tmpColor = [];
-      splitColor = this.splitComa(color.substring(1,color.length-1));
+      splitColor = this.splitComa(color.substring(1, color.length-1));
 
       for (var i=0, l=splitColor.length; i<l; i++) {
         hexColor = parseInt(splitColor[i], 16);
@@ -113,18 +114,28 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Color.prototype.splitComa = function(string) {
     splitString = [];
-    parenthesesStack = [];
+    
+    numParentheses = 0;
+    numSquareParenteses = 0;
+
     lastSplitIndex = 0;
 
     for (var i=0, l=string.length; i<l; i++) {
       charAt = string.charAt(i);
+    
       if (charAt === "(") {
-        parenthesesStack.push(i);
+        numParentheses++;
       }
       else if (charAt === ")") {
-        parenthesesStack.pop();
+        numParentheses--;
       }
-      else if ((charAt === ",") && (parenthesesStack.length === 0)) {
+      else if (charAt === "[") {
+        numSquareParenteses++;
+      }
+      else if (charAt === "]") {
+        numSquareParenteses--;
+      }
+      else if ((charAt === ",") && (numParentheses === 0) && (numSquareParenteses === 0)) {
         splitString.push(string.substring(lastSplitIndex, i));
         lastSplitIndex = i+1;
       }

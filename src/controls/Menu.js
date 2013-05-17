@@ -201,7 +201,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Menu.prototype.update = function() { 
     evaluator = this.evaluator;
-
+    
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
     this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);

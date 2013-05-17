@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
     this.evaluator = evaluator;
     this.text = text || "";
 
-    this.light = descartesJS.Vector3D(1,1,1);
+    this.light = (new descartesJS.Vector3D(-1, 0, 0)).normalize();
 
     this.transformedVertices = [];
 
@@ -35,6 +35,14 @@ var descartesJS = (function(descartesJS) {
       this.draw = drawFace;
     }
     else if (type === "text") {
+      // get the font size
+      this.fontSize = style.font.match(/(\d+)px/);
+      if (this.fontSize) {
+        this.fontSize = parseInt(this.fontSize[1]);
+      } else {
+        this.fontSize = 10;
+      }
+
       this.draw = drawPrimitiveText;
     }
     else if (type === "edge") {
@@ -55,7 +63,7 @@ var descartesJS = (function(descartesJS) {
    * Set the vertices of the primitive
    * @param {Array<Vector4D>} vertices an array of the new vertex information
    */
-  descartesJS.Primitive3D.prototype.setVertices = function (vertices) {
+  descartesJS.Primitive3D.prototype.setVertices = function(vertices) {
     this.vertices = vertices;
   }
 
@@ -72,19 +80,26 @@ var descartesJS = (function(descartesJS) {
    * @param
    */
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
+    for (var i=0, l=this.vertices.length; i<l; i++) {
+      // this.transformedVertices[i] = space.rotateVertex(this.vertices[i]);
+      this.transformedVertices[i] = space.rotationMatrix.multiplyVector4(this.vertices[i]);
+    }
+
     // triangles and faces
     if (this.vertices.length >2) {
-      v1 = (this.vertices[0].toVector3D()).direction(this.vertices[1].toVector3D());
-      v2 = (this.vertices[0].toVector3D()).direction(this.vertices[2].toVector3D());
-      this.normal = v1.crossProduct(v2);
-      this.direction = this.normal.dotProduct(space.eye);
+      v1 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[1].toVector3D());
+      v2 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[2].toVector3D());
+      // v1 = (this.transformedVertices[0]).direction(this.transformedVertices[1]);
+      // v2 = (this.transformedVertices[0]).direction(this.transformedVertices[2]);
+      this.normal = (v1.crossProduct(v2)).normalize();
+      this.direction = this.normal.dotProduct(space.eye.normalize());
     }
 
     this.depth = 0;
     this.zMin =  10000;
     this.zMax = -10000;
     for (var i=0, l=this.vertices.length; i<l; i++) {
-      this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4( this.vertices[i] ).toVector3D();
+      this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4(this.transformedVertices[i]).toVector3D() ;
 
       this.depth += this.transformedVertices[i].z;
       this.zMin = Math.min(this.zMin, this.transformedVertices[i].z);
@@ -136,35 +151,47 @@ var descartesJS = (function(descartesJS) {
 
     // color render
     if (this.style.model === "color") {
-      // necesary to cover completely the primitive
       if (this.direction >= 0) {
         ctx.fillStyle = this.style.backcolor;
         ctx.strokeStyle = this.style.backcolor;
       }
       else {
+        ctx.fillStyle = this.style.color;
         ctx.strokeStyle = this.style.fillStyle;
       }
 
       ctx.fill();
 
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      // necesary to cover completely the primitive
+      // ctx.lineWidth = .8;
+      // ctx.stroke();
     }
     // light and metal render (incomplete)
     else if ( (this.style.model === "light") || (this.style.model === "metal") ){
-      // necesary to cover completely the primitive
-      if (this.direction > 0) {
+      // if (this.direction >= 0) {
+      //   ctx.fillStyle = computeColor(this.style.bcolor, this.normal.dotProduct(this.light, (this.style.model === "metal")));
+      //   ctx.strokeStyle = this.style.backcolor;
+      // }
+      // else {
+      //   ctx.fillStyle = computeColor(this.style.fcolor, -this.normal.dotProduct(this.light, (this.style.model === "metal")));
+      //   ctx.strokeStyle = this.style.fillStyle;
+      // }
+
+      if (this.direction >= 0) {
         ctx.fillStyle = this.style.backcolor;
         ctx.strokeStyle = this.style.backcolor;
       }
       else {
+        ctx.fillStyle = this.style.color;
         ctx.strokeStyle = this.style.fillStyle;
       }
 
+
       ctx.fill();
 
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      // necesary to cover completely the primitive
+      // ctx.lineWidth = .8;
+      // ctx.stroke();
     }
     // wireframe render
     else if (this.style.model === "wire") {
@@ -252,6 +279,21 @@ var descartesJS = (function(descartesJS) {
       }
       ctx.fillText(theText, x, y+(verticalDisplace*i));
     }
+  }
+
+  function computeColor(color, angle, metal) {
+    angle = Math.acos(angle) / Math.PI;
+
+    if (metal) {
+      angle = Math.pow(angle, 3);
+    }
+
+    var r = Math.floor(color.r * angle);
+    var g = Math.floor(color.g * angle);
+    var b = Math.floor(color.b * angle);
+    var a = 1 - color.a;
+
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
   }
 
   return descartesJS;

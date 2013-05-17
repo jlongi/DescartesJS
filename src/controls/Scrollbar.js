@@ -430,6 +430,7 @@ var descartesJS = (function(descartesJS) {
    *                         is less than the lower limit then return the lower limit
    */
   descartesJS.Scrollbar.prototype.validateValue = function(value) {
+    value = value || 1000000000000000000000000000000000000000000000;
     evaluator = this.evaluator;
     resultValue = value.toString();
     resultValue = parseFloat( resultValue.replace(this.parent.decimal_symbol, ".") );

@@ -86,14 +86,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.fillP = new descartesJS.Color("00ff80");
+    this.fillP = "";//new descartesJS.Color("00ff80");
 
     /**
      * the condition and the color of the fill-
      * type {String}
      * @private
      */
-    this.fillM = new descartesJS.Color("ffc800");
+    this.fillM = "";//new descartesJS.Color("ffc800");
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -385,8 +385,6 @@ var descartesJS = (function(descartesJS) {
     width = evaluator.evalExpression(this.width);
 
     color = this.color.getColor();
-    colorFillM = this.fillM.getColor();
-    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initX = space.getRelativeX(0);
@@ -414,6 +412,13 @@ var descartesJS = (function(descartesJS) {
         if ( !this.hasSingularity(dx, tmpX, "x", tmpX-dx, va, tmpX, tmpY, minmax) ){
           
           if ((this.fillM) || (this.fillP)) {
+            if (this.fillM) {
+              colorFillM = this.fillM.getColor();
+            }
+            if (this.fillP) {
+              colorFillP = this.fillP.getColor();
+            }
+
             ctx.lineWidth = 1;
             ctx.strokeStyle = (actualTmpAbsoluteY > theZeroY) ? colorFillM : colorFillP;
             ctx.beginPath();
@@ -456,8 +461,6 @@ var descartesJS = (function(descartesJS) {
     width = evaluator.evalExpression(this.width);
 
     color = this.color.getColor();
-    colorFillM = this.fillM.getColor();
-    colorFillP = this.fillP.getColor();
     ctx.fillStyle = color;    
     
     initY = space.getRelativeY(h);
@@ -485,6 +488,13 @@ var descartesJS = (function(descartesJS) {
         if ( !this.hasSingularity(dy, tmpY, "y", tmpY-dy, va, tmpY, tmpX, minmax) ){
           
           if ((this.fillM) || (this.fillP)) {
+            if (this.fillM) {
+              colorFillM = this.fillM.getColor();
+            }
+            if (this.fillP) {
+              colorFillP = this.fillP.getColor();
+            }
+
             ctx.lineWidth = 1;
             ctx.strokeStyle = (actualTmpAbsoluteX > theZeroX) ? colorFillM : colorFillP;
             ctx.beginPath();

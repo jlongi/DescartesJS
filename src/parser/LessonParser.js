@@ -1079,7 +1079,7 @@ var descartesJS = (function(descartesJS, babel) {
             if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
 
               // family interval
-              if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "family_interval") {
+              if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "interval") {
                 graphicObj["family_interval"] = this.parser.parse(values_i_1);
                 break;
               }
@@ -1134,11 +1134,17 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.Text3D(this.parent, graphicObj);
         break;
 
-      case("mesh"):
       case("cube"):
       case("box"):
       case("tetrahedron"):
       case("octahedron"):
+      case("sphere"):
+      case("dodecahedron"):
+      case("icosahedron"):
+      case("ellipsoid"):
+      case("cone"):
+      case("cylinder"):
+      case("mesh"):
         return new descartesJS.OtherGeometry(this.parent, graphicObj);
         break;
 
@@ -1252,7 +1258,8 @@ var descartesJS = (function(descartesJS, babel) {
 
     // sequence
     if (auxiliarObj.sequence) {
-      var auxS = new descartesJS.AuxSequence(this.parent, auxiliarObj);
+      // var auxS = new descartesJS.AuxSequence(this.parent, auxiliarObj);
+      var auxS = new descartesJS.Function(this.parent, auxiliarObj);
       return;
     }
     
@@ -1509,14 +1516,14 @@ var descartesJS = (function(descartesJS, babel) {
         // background color
         case("bgcolor"):
           if (values_i_1 != "") {
-            plecaObj.bgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
+            plecaObj.bgcolor = (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();
           }
           break;
 
         // text color
         case("fgcolor"):
           if (values_i_1 != "") {
-            plecaObj.fgcolor = "#" + (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();;
+            plecaObj.fgcolor = (new descartesJS.Color(values_i_1, this.parent.evaluator)).getColor();
           }
           break;
 

@@ -942,7 +942,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.reinitAnimation = function() {
     if (this.animation) {
-      this.animation.reinit();
+      // this.animation.reinit();
+      this.animation.play();
     }
   }
 

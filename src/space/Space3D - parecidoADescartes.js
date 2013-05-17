@@ -90,6 +90,7 @@ var descartesJS = (function(descartesJS) {
     self.evaluator.setVariable(self.id + ".observador", self.observer);
 
     self.eye = new descartesJS.Vector3D(3, 0, 0);
+    self.eye = new descartesJS.Vector3D(1, 1, 1);
     self.center = new descartesJS.Vector3D(0, 0, 0);
     self.yUpEye = new descartesJS.Vector3D(0, 0, 1);
 
@@ -310,7 +311,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateX = function(x) {
-    // return this.w_2 + this.Ox + x*this.scale*2;
+    return this.w_2 + this.Ox + x*this.scale*2;
     return this.Ox + parseInt((x+1)*this.w_2);
     // return this.w_2 + this.Ox + x*this.scale;
   }
@@ -319,7 +320,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.Space3D.prototype.transformCoordinateY = function(y) {
-    // return this.h_2 + this.Oy - y*this.scale*2;
+    return this.h_2 + this.Oy - y*this.scale*2;
     return this.Oy + parseInt((1-y)*this.h_2);
     // return this.h_2 + this.Oy - y*this.scale;
   }
@@ -331,7 +332,8 @@ var descartesJS = (function(descartesJS) {
     self = this;
 
     self.distanceEyeCenter = self.observer/(5.5*self.scale);
-    self.eye.set(self.distanceEyeCenter, 0, 0);    
+
+    // self.eye.set(self.distanceEyeCenter, 0, 0);    
     // build the look at matrix to orient the camera
     self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
     // build the perspective matrix

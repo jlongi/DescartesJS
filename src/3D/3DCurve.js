@@ -7,8 +7,11 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var vertices;
-  var v;
   var Nu;
+  var tempParamU;
+  var tempParamX;
+  var tempParamY;
+  var tempParamZ;  
 
   /**
    * A Descartes 3D curve
@@ -26,17 +29,7 @@ var descartesJS = (function(descartesJS) {
     
     this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
 
-    this.exprX = parser.parse( this.findExpresion(this.expresion, "x") );
-    this.exprY = parser.parse( this.findExpresion(this.expresion, "y") );
-    this.exprZ = parser.parse( this.findExpresion(this.expresion, "z") );
-
-    this.XcontainsY = this.exprX.contains("y");
-    this.XcontainsZ = this.exprX.contains("z");
-    this.YcontainsX = this.exprY.contains("x");
-    this.YcontainsZ = this.exprY.contains("z");
-    this.ZcontainsX = this.exprZ.contains("x");
-    this.ZcontainsY = this.exprZ.contains("y");
-
+    this.expresion = this.parseExpression();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +47,9 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     // store the u and v parameter values
+    tempParamX = evaluator.getVariable("x");
+    tempParamY = evaluator.getVariable("y");
+    tempParamZ = evaluator.getVariable("z");
     tempParamU = evaluator.getVariable("u");
 
     evaluator.setVariable("u", 0);
@@ -64,14 +60,12 @@ var descartesJS = (function(descartesJS) {
     for (var ui=0; ui<=Nu; ui++) {
       evaluator.setVariable("u", ui/Nu);
 
-      xEval = evaluator.evalExpression(this.exprX);
-      evaluator.setVariable("x", xEval);
-      yEval = evaluator.evalExpression(this.exprY);
-      evaluator.setVariable("y", yEval);
-      zEval = evaluator.evalExpression(this.exprZ);
-      evaluator.setVariable("z", zEval);
+      // eval all the subterms in the expression
+      for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
+        evaluator.evalExpression(this.expresion[ii]);
+      }
 
-      vertices.push( this.mvMatrix.multiplyVector4(new descartesJS.Vector4D(xEval, yEval, zEval, 1)) );
+      vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
     }
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
@@ -86,6 +80,9 @@ var descartesJS = (function(descartesJS) {
                                                       ));
     }
 
+    evaluator.setVariable("x", tempParamX);
+    evaluator.setVariable("y", tempParamZ);
+    evaluator.setVariable("z", tempParamY);
     evaluator.setVariable("u", tempParamU);
   }
 

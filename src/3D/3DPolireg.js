@@ -43,13 +43,13 @@ var descartesJS = (function(descartesJS) {
 
     Nu = evaluator.evalExpression(this.Nu);
 
-    vertices = [this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(0, 0, 0, 1) )];
+    vertices = [this.transformVertex( new descartesJS.Vector4D(0, 0, 0, 1) )];
     w = evaluator.evalExpression(this.width)/2;
     l = evaluator.evalExpression(this.length)/2;
     theta = (2*Math.PI) / Nu;
 
     for (var i=0; i<Nu; i++) {
-      vertices.push ( this.mvMatrix.multiplyVector4( new descartesJS.Vector4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0, 1) ) );
+      vertices.push ( this.transformVertex( new descartesJS.Vector4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0, 1) ) );
     }
 
     for (var i=0; i<Nu; i++) {
@@ -63,7 +63,9 @@ var descartesJS = (function(descartesJS) {
                                                           lineCap: "round",
                                                           lineJoin: "round",
                                                           edges: this.edges, 
-                                                          model: this.model
+                                                          model: this.model,
+                                                          fcolor: this.color,
+                                                          bcolor: this.backcolor
                                                         }
                                                       ));
     }

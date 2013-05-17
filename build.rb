@@ -35,7 +35,6 @@ files = [ "Babel.js",
           "auxiliaries/Vector.js",
           "auxiliaries/Matrix.js",
           "auxiliaries/Function.js",
-          "auxiliaries/AuxSequence.js",
           "auxiliaries/Algorithm.js",
           "auxiliaries/Event.js",
           

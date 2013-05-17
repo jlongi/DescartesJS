@@ -65,27 +65,27 @@ var descartesJS = (function(descartesJS) {
                                    );
   }
   
-  descartesJS.Vector2D.prototype.dist = function (v) {
+  descartesJS.Vector2D.prototype.dist = function(v) {
     var x = v.x - this.x;
     var y = v.y - this.y;
     return Math.sqrt(x*x + y*y);
   }
   
-  descartesJS.Vector2D.prototype.negate = function () {
+  descartesJS.Vector2D.prototype.negate = function() {
     return new descartesJS.Vector2D(-this.x,
                                     -this.y
                                    );
   }
   
-  descartesJS.Vector2D.prototype.length = function () {
+  descartesJS.Vector2D.prototype.length = function() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
     
-  descartesJS.Vector2D.prototype.squaredLength = function () {
+  descartesJS.Vector2D.prototype.squaredLength = function() {
     return this.x * this.x + this.y * this.y;
   }
 
-  descartesJS.Vector2D.prototype.normalize = function () {
+  descartesJS.Vector2D.prototype.normalize = function() {
     var len = this.squaredLength();
     
     if (len > 0) {
@@ -101,7 +101,7 @@ var descartesJS = (function(descartesJS) {
     }
   }
   
-  descartesJS.Vector2D.prototype.crossProduct = function (v) {
+  descartesJS.Vector2D.prototype.crossProduct = function(v) {
 //     return new descartesJS.Vector2D(0,
 //                                     0,
 //                                     this.x * v.y - this.y * v.x
@@ -109,11 +109,11 @@ var descartesJS = (function(descartesJS) {
     return this.x * v.y - this.y * v.x;
   }
   
-  descartesJS.Vector2D.prototype.dot = function (v) {
+  descartesJS.Vector2D.prototype.dot = function(v) {
     return this.x * v.x + this.y * v.y;
   }
   
-  descartesJS.Vector2D.prototype.direction = function (v) {
+  descartesJS.Vector2D.prototype.direction = function(v) {
     var x = this.x - v.x;
     var y = this.y - v.y;
     var len = x * x + y * y;
@@ -411,15 +411,15 @@ var descartesJS = (function(descartesJS) {
                                    );
   }
   
-  descartesJS.Vector4D.prototype.length = function () {
+  descartesJS.Vector4D.prototype.length = function() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
   }
   
-  descartesJS.Vector4D.prototype.squaredLength = function () {
+  descartesJS.Vector4D.prototype.squaredLength = function() {
     return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
   }
   
-  descartesJS.Vector4D.prototype.lerp = function (v, lerp) {
+  descartesJS.Vector4D.prototype.lerp = function(v, lerp) {
     return new descartesJS.Vector4D(this.x + lerp * (v.x - this.x),
                                     this.y + lerp * (v.y - this.y),
                                     this.z + lerp * (v.z - this.z),
@@ -1003,7 +1003,7 @@ var descartesJS = (function(descartesJS) {
                                     );
   }
   
-  descartesJS.Matrix4x4.prototype.frustum = function (left, right, bottom, top, near, far) {
+  descartesJS.Matrix4x4.prototype.frustum = function(left, right, bottom, top, near, far) {
     var rl = (right - left);
     var tb = (top - bottom);
     var fn = (far - near);
@@ -1015,14 +1015,14 @@ var descartesJS = (function(descartesJS) {
                                     );
   }
   
-  descartesJS.Matrix4x4.prototype.perspective = function (fovy, aspect, near, far) {
+  descartesJS.Matrix4x4.prototype.perspective = function(fovy, aspect, near, far) {
     var top = near * Math.tan(fovy * Math.PI / 360.0);
     var right = top * aspect;
     
     return this.frustum(-right, right, -top, top, near, far);
   }
   
-  descartesJS.Matrix4x4.prototype.ortho = function (left, right, bottom, top, near, far) {
+  descartesJS.Matrix4x4.prototype.ortho = function(left, right, bottom, top, near, far) {
     var rl = (right - left);
     var tb = (top - bottom);
     var fn = (far - near);
@@ -1034,60 +1034,60 @@ var descartesJS = (function(descartesJS) {
                                     );
   }
   
-  descartesJS.Matrix4x4.prototype.lookAt = function (eye, center, up) {
-        if ((eye.x === center.x) && (eye.y === center.y) && (eye.z === center.z)) {
-          return (new descartesJS.Matrix4x4()).setIdentity();
-        }
-        
-        var z0 = eye.x - center.x;
-        var z1 = eye.y - center.y;
-        var z2 = eye.z - center.z;
-        
-        var len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-        z0 *= len;
-        z1 *= len;
-        z2 *= len;
+  descartesJS.Matrix4x4.prototype.lookAt = function(eye, center, up) {
+    if ((eye.x === center.x) && (eye.y === center.y) && (eye.z === center.z)) {
+      return (new descartesJS.Matrix4x4()).setIdentity();
+    }
+    
+    var z0 = eye.x - center.x;
+    var z1 = eye.y - center.y;
+    var z2 = eye.z - center.z;
+    
+    var len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+    z0 *= len;
+    z1 *= len;
+    z2 *= len;
 
-        var x0 = up.y * z2 - up.z * z1;
-        var x1 = up.z * z0 - up.x * z2;
-        var x2 = up.x * z1 - up.y * z0;        
-        len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-        
-        if (!len) {
-            x0 = 0;
-            x1 = 0;
-            x2 = 0;
-        } else {
-            len = 1 / len;
-            x0 *= len;
-            x1 *= len;
-            x2 *= len;
-        }
+    var x0 = up.y * z2 - up.z * z1;
+    var x1 = up.z * z0 - up.x * z2;
+    var x2 = up.x * z1 - up.y * z0;        
+    len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+    
+    if (!len) {
+        x0 = 0;
+        x1 = 0;
+        x2 = 0;
+    } else {
+        len = 1 / len;
+        x0 *= len;
+        x1 *= len;
+        x2 *= len;
+    }
 
-        var y0 = z1 * x2 - z2 * x1;
-        var y1 = z2 * x0 - z0 * x2;
-        var y2 = z0 * x1 - z1 * x0;
+    var y0 = z1 * x2 - z2 * x1;
+    var y1 = z2 * x0 - z0 * x2;
+    var y2 = z0 * x1 - z1 * x0;
 
-        len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-        if (!len) {
-            y0 = 0;
-            y1 = 0;
-            y2 = 0;
-        } else {
-            len = 1 / len;
-            y0 *= len;
-            y1 *= len;
-            y2 *= len;
-        }
-        
-        return new descartesJS.Matrix4x4(x0, y0, z0, 0,
-                                         x1, y1, z1, 0,
-                                         x2, y2, z2, 0,
-                                         -(x0 * eye.x + x1 * eye.y + x2 * eye.z), -(y0 * eye.x + y1 * eye.y + y2 * eye.z), -(z0 * eye.x + z1 * eye.y + z2 * eye.z), 1
-                                        );
+    len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+    if (!len) {
+        y0 = 0;
+        y1 = 0;
+        y2 = 0;
+    } else {
+        len = 1 / len;
+        y0 *= len;
+        y1 *= len;
+        y2 *= len;
+    }
+    
+    return new descartesJS.Matrix4x4(x0, y0, z0, 0,
+                                     x1, y1, z1, 0,
+                                     x2, y2, z2, 0,
+                                     -(x0 * eye.x + x1 * eye.y + x2 * eye.z), -(y0 * eye.x + y1 * eye.y + y2 * eye.z), -(z0 * eye.x + z1 * eye.y + z2 * eye.z), 1
+                                    );
   }
   
-  descartesJS.Matrix4x4.prototype.fromRotationTranslation = function (v) {
+  descartesJS.Matrix4x4.prototype.fromRotationTranslation = function(v) {
     var x2 = 2 * this.x;
     var y2 = 2 * this.y;
     var z2 = 2 * this.z;
@@ -1129,7 +1129,7 @@ var descartesJS = (function(descartesJS) {
     return this;
   }
   
-  descartesJS.Quaternion.prototype.calculateW = function () {
+  descartesJS.Quaternion.prototype.calculateW = function() {
     return new descartesJS.Quaternion(this.x, 
                                       this.y, 
                                       this.z, 
@@ -1156,7 +1156,7 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
   
-  descartesJS.Quaternion.prototype.conjugate = function () {
+  descartesJS.Quaternion.prototype.conjugate = function() {
     return new descartesJS.Quaternion(-this.x,
                                       -this.y,
                                       -this.z,
@@ -1164,11 +1164,11 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
   
-  descartesJS.Quaternion.prototype.length = function () {
+  descartesJS.Quaternion.prototype.length = function() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
   }
   
-  descartesJS.Quaternion.prototype.normalize = function (quat, dest) {
+  descartesJS.Quaternion.prototype.normalize = function(quat, dest) {
     var len = this.length();
     
     if (len === 0) {
@@ -1184,7 +1184,7 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
   
-  descartesJS.Quaternion.prototype.add = function (q) {
+  descartesJS.Quaternion.prototype.add = function(q) {
     return new descartesJS.Quaternion(this.x + q.x,
                                       this.y + q.y,
                                       this.z + q.z,
@@ -1192,7 +1192,7 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
 
-  descartesJS.Quaternion.prototype.multiply = function (q) {
+  descartesJS.Quaternion.prototype.multiply = function(q) {
     return new descartesJS.Quaternion(this.x * q.w + this.w * q.x + this.y * q.z - this.z * q.y,
                                       this.y * q.w + this.w * q.y + this.z * q.x - this.x * q.z,
                                       this.z * q.w + this.w * q.z + this.x * q.y - this.y * q.x,
@@ -1200,7 +1200,7 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
 
-  descartesJS.Quaternion.prototype.multiplyVector3 = function (v) {
+  descartesJS.Quaternion.prototype.multiplyVector3 = function(v) {
     var ix =  this.w * v.x + this.y * v.z - this.z * v.y;
     var iy =  this.w * v.y + this.z * v.x - this.x * v.z;
     var iz =  this.w * v.z + this.x * v.y - this.y * v.x;
@@ -1212,7 +1212,7 @@ var descartesJS = (function(descartesJS) {
                                    );
   }
   
-  descartesJS.Quaternion.prototype.scale = function (s) {
+  descartesJS.Quaternion.prototype.scale = function(s) {
     return new descartesJS.Quaternion(this.x * s,
                                       this.y * s,
                                       this.z * s,
@@ -1220,7 +1220,7 @@ var descartesJS = (function(descartesJS) {
                                      );
   }
 
-  descartesJS.Quaternion.prototype.toMatrix3x3 = function () {
+  descartesJS.Quaternion.prototype.toMatrix3x3 = function() {
     var x2 = this.x + this.x;
     var y2 = this.y + this.y;
     var z2 = this.z + this.z;
@@ -1241,7 +1241,7 @@ var descartesJS = (function(descartesJS) {
                                     );
   }
 
-  descartesJS.Quaternion.prototype.toMat4 = function () {
+  descartesJS.Quaternion.prototype.toMat4 = function() {
     var x2 = this.x + this.x;
     var y2 = this.y + this.y;
     var z2 = this.z + this.z;
@@ -1263,7 +1263,7 @@ var descartesJS = (function(descartesJS) {
                                     );
   }
   
-  descartesJS.Quaternion.prototype.slerp = function (q, slerp) {
+  descartesJS.Quaternion.prototype.slerp = function(q, slerp) {
     var cosHalfTheta = this.x * q.x + this.y * q.y + this.z * q.z + this.w * q.w;
     
     if (Math.abs(cosHalfTheta) >= 1) {

@@ -16,14 +16,22 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
 
-    var parser = this.evaluator.parser;
-
-    this.params = [];
-    this.numberOfParams = 0;
-    this.domain = parser.parse("1");
-    this.expresion = parser.parse("0");
-
-    this.algorithmExec = this.buildAlgorithm();
+    var evaluator = this.evaluator;
+    this.parseExpressions(evaluator.parser);
+    
+    // create the function to exec when the algorithm evaluates
+    this.algorithmExec = function() {
+      for (var i=0, l=this.init.length; i<l; i++) {
+        evaluator.evalExpression(this.init[i]);
+      }
+      
+      do {
+        for (var i=0, l=this.doExpr.length; i<l; i++) {
+          evaluator.evalExpression(this.doExpr[i]);
+        }
+      }
+      while (evaluator.evalExpression(this.whileExpr) > 0);
+    }
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +45,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Algorithm.prototype.update = function() {
     this.algorithmExec();
     
-    if (this.evaluate == "onlyOnce") {
+    if (this.evaluate === "onlyOnce") {
       this.update = function() {};
     }
   }

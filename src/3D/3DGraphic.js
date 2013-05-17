@@ -251,6 +251,15 @@ var descartesJS = (function(descartesJS) {
     vectorY = new descartesJS.Vector3D(0, 1, 0); 
     vectorZ = new descartesJS.Vector3D(0, 0, 1);
     translate = new descartesJS.Vector3D(0, 0, 0);
+
+    this.inirotM_X = new descartesJS.Matrix4x4();
+    this.inirotM_Y = new descartesJS.Matrix4x4();
+    this.inirotM_Z = new descartesJS.Matrix4x4();
+    this.iniposM = new descartesJS.Matrix4x4();
+    this.endrotM_X = new descartesJS.Matrix4x4();
+    this.endrotM_Y = new descartesJS.Matrix4x4();
+    this.endrotM_Z = new descartesJS.Matrix4x4();
+    this.endposM = new descartesJS.Matrix4x4();
   }
   
   /**
@@ -302,8 +311,8 @@ var descartesJS = (function(descartesJS) {
       for(var i=0, l=this.fSteps; i<=l; i++) {
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
-                
-        // if the condition to draw if true then update and draw the graphic
+
+        // if the condition to draw is true then update and draw the graphic
         if ( evaluator.evalExpression(this.drawif) ) {
           this.buildPrimitives();
         }
@@ -335,49 +344,91 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
-    // take a look because a differente behavior
-    this.mvMatrix = this.mvMatrix.setIdentity();
-
-    if (!ignoreRotation) {
-      tmpExpr = this.evaluator.evalExpression(this.inirot);    
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
-    }
+    tmpExpr = this.evaluator.evalExpression(this.inirot);    
+    this.inirotM_X = this.inirotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+    this.inirotM_Y = this.inirotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+    this.inirotM_Z = this.inirotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
 
     tmpExpr = this.evaluator.evalExpression(this.inipos);
     translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
-    this.mvMatrix = this.mvMatrix.translate(translate);
+    this.iniposM = this.iniposM.setIdentity().translate(translate);
 
-    if (!ignoreRotation) {
-      tmpExpr = this.evaluator.evalExpression(this.endrot);    
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-      this.mvMatrix = this.mvMatrix.rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
-    }
+    tmpExpr = this.evaluator.evalExpression(this.endrot);
+    this.endrotM_X = this.endrotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
+    this.endrotM_Y = this.endrotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
+    this.endrotM_Z = this.endrotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
 
-    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    tmpExpr = this.evaluator.evalExpression(this.inipos);
     translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
-    this.mvMatrix = this.mvMatrix.translate(translate);
+    this.endposM = this.endposM.setIdentity().translate(translate);
   }
+
+  var tmpVertex;
+  /** 
+   *
+   */
+   descartesJS.Graphic3D.prototype.transformVertex = function(v) {
+    // tmpVertex = this.inirotM_X.multiplyVector4(v);
+    // tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
+    // tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);
+
+    // tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
+
+    // tmpVertex = this.endrotM_X.multiplyVector4(tmpVertex);
+    // tmpVertex = this.endrotM_Y.multiplyVector4(tmpVertex);
+    // tmpVertex = this.endrotM_Z.multiplyVector4(tmpVertex);
+
+    // tmpVertex = this.endposM.multiplyVector4(tmpVertex);
+
+    // return tmpVertex;
+
+    return this.endposM.multiplyVector4(
+             this.endrotM_Z.multiplyVector4(
+               this.endrotM_Y.multiplyVector4(
+                 this.endrotM_X.multiplyVector4(
+                   this.iniposM.multiplyVector4(
+                     this.inirotM_Z.multiplyVector4(
+                       this.inirotM_Y.multiplyVector4(
+                         this.inirotM_X.multiplyVector4( 
+                           v
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+   }
 
   /**
    *
    */
-  descartesJS.Graphic3D.prototype.findExpresion = function(expresion, variable) {
-    indexOfVar = arrayVars.indexOf(variable);
+  descartesJS.Graphic3D.prototype.parseExpression = function() {
+    var tmpExpr = this.expresion.split("=");
+    var tmpExpr2 = tmpExpr[0];
+    var tmpExpr3 = [];
+    var lastIndexOfSpace;
 
-    subexpresion = expresion.split( arrayVars[indexOfVar] + "=" )[1];
+    for (var i=1; i<tmpExpr.length; i++) {
+      tmpExpr2 += "=";
 
-    if (subexpresion) {
-      subexpresion = subexpresion.split( arrayVars[(indexOfVar+1)%3] + "=" )[0];
-      subexpresion = subexpresion.split( arrayVars[(indexOfVar+2)%3] + "=" )[0];
-      return subexpresion;
+      lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
+
+      if (lastIndexOfSpace !== -1) {
+        tmpExpr2 += tmpExpr[i].substring(0,lastIndexOfSpace);
+      }
+      else {
+        tmpExpr2 += tmpExpr[i];
+      }
+      
+      tmpExpr3.push( this.evaluator.parser.parse(tmpExpr2, true) );
+
+      tmpExpr2 = tmpExpr[i].substring(lastIndexOfSpace+1);
     }
-    else {
-      return "";
-    }
-  }  
+
+    return tmpExpr3;
+  }
   
   return descartesJS;
 })(descartesJS || {});
