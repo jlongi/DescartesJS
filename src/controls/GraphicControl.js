@@ -193,7 +193,7 @@ var descartesJS = (function(descartesJS) {
       this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
     }
     
-    this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
+    // this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
     
     // eval the constraint    
     if (this.constraint) {

@@ -25,8 +25,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -54,15 +52,13 @@ var descartesJS = (function(descartesJS) {
       v2_y = expr[i+1][1];
       v2_z = expr[i+1][2];
 
-      this.primitives.push(new descartesJS.Primitive3D( [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                          this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )],
-                                                        "edge",
-                                                        { strokeStyle: this.color.getColor(), 
-                                                          lineCap: "round", 
-                                                          lineJoin: "round",
-                                                          lineWidth: this.evaluator.evalExpression(this.width)
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                             this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                           ],
+                                 type: "edge",
+                                 frontColor: this.color, 
+                                 lineWidth: evaluator.evalExpression(this.width)
+                               } ) );
 
     }
   }

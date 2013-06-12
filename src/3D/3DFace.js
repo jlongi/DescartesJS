@@ -23,8 +23,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Face3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -44,23 +42,17 @@ var descartesJS = (function(descartesJS) {
 
     vertices = [];
 
-    for (var i=0, l=expr.length; i<l; i++) {
+    for (var i=expr.length-1; i>=0; i--) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
     }
 
-    this.primitives.push(new descartesJS.Primitive3D( vertices,
-                                                      "face",
-                                                      { backcolor: this.color.getColor(), 
-                                                        fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: "#808080", 
-                                                        lineCap: "round",
-                                                        lineJoin: "round",
-                                                        edges: this.edges, 
-                                                        model: this.model,
-                                                        fcolor: this.color,
-                                                        bcolor: this.backcolor
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: vertices,
+                               type: "face",
+                               frontColor: this.color, 
+                               backColor: this.backcolor, 
+                               edges: this.edges, 
+                               model: this.model
+                             } ) );
 
   }
   

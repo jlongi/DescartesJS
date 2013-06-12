@@ -163,7 +163,7 @@ var descartesJS = (function(descartesJS) {
     // create the background gradient
     this.createGradient(this.h/2, this.h);
 
-    this.update();
+    // this.update();
   }
 
   /**
@@ -218,7 +218,7 @@ var descartesJS = (function(descartesJS) {
       this.value = this.validateValue( oldFieldValue );
       this.field.value = this.formatOutputValue(this.value);
     }
-        
+
     // register the control value
     evaluator.setVariable(this.id, this.value);
   }
@@ -305,13 +305,13 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Spinner.prototype.validateValue = function(value) {
     evaluator = this.evaluator;
 
-    // remove the exponential notation of the number and convert it to a fixed notation
     if (!isNaN(parseFloat(value))) {
-      value = parseFloat(value).toFixed(20);
+      // remove the exponential notation of the number and convert it to a fixed notation
+      if (value.toString().match("e")) {
+        value = parseFloat(value).toFixed(20);
+      }
     } 
-    else {
-      value = value.toString();
-    }    
+    value = value.toString();
     
     resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
 
@@ -321,12 +321,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     evalMin = evaluator.evalExpression(this.min);
-    if (evalMin == "") {
-      evalMin = -Math.Infinity;
-    }
     evalMax = evaluator.evalExpression(this.max);
-    if (evalMax == "") {
-      evalMax = Math.Infinity;
+
+    if (evalMin === "") {
+      evalMin = -Infinity;
+    }
+    if (evalMax === "") {
+      evalMax = Infinity;
     }
  
     // if is less than the lower limit

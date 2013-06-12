@@ -125,7 +125,6 @@ var descartesJS = (function(descartesJS) {
       val = str.match(numberRegExp);
       if (val) {
         addToken("number", val[0], val[0].length);
-        
         continue;
       }
     
@@ -182,6 +181,11 @@ var descartesJS = (function(descartesJS) {
       // parentheses
       val = str.match( parenthesesRegExp );
       if (val) {
+        if ((val == "(") && (lastTokenType === "number")) {
+          // add a multiplication operator
+          tokens.push({ type: "operator", value: "*" });
+        }
+
         addToken("parentheses", val[0], val[0].length);
         continue;
       }

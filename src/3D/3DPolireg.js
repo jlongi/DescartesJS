@@ -24,8 +24,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -53,21 +51,16 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0; i<Nu; i++) {
-      this.primitives.push(new descartesJS.Primitive3D( [ vertices[0],
-                                                          vertices[i+1],
-                                                          (i+2 <= Nu) ? vertices[i+2] : vertices[1] ],
-                                                        "face",
-                                                        { backcolor: this.color.getColor(), 
-                                                          fillStyle: this.backcolor.getColor(), 
-                                                          strokeStyle: "#808080", 
-                                                          lineCap: "round",
-                                                          lineJoin: "round",
-                                                          edges: this.edges, 
-                                                          model: this.model,
-                                                          fcolor: this.color,
-                                                          bcolor: this.backcolor
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[0],
+                                             (i+2 <= Nu) ? vertices[i+2] : vertices[1],
+                                             vertices[i+1]
+                                           ],
+                                 type: "face",
+                                 frontColor: this.color, 
+                                 backColor: this.backcolor, 
+                                 edges: this.edges, 
+                                 model: this.model
+                               } ) );
     }
 
   }

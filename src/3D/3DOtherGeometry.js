@@ -19,8 +19,6 @@ var descartesJS = (function(descartesJS) {
   var length;
   var Nu;
   var Nv;
-  var backcolor;
-  var fillStyle;
   var v;
   var x;
   var y;
@@ -53,10 +51,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
-    // console.log("XXXXX", this.type)
 
     switch (this.type) {
       case("cube"):
@@ -119,30 +113,19 @@ var descartesJS = (function(descartesJS) {
 
     this.buildGeometry(evaluator.evalExpression(this.width), evaluator.evalExpression(this.height), evaluator.evalExpression(this.length), evaluator.evalExpression(this.Nu), evaluator.evalExpression(this.Nv));
 
-    backcolor = this.backcolor.getColor();
-    fillStyle = this.color.getColor();
-
     for (var i=0, l=this.faces.length; i<l; i++) {
       v = [];
       for (var j=0, k=this.faces[i].length; j<k; j++) {
-        // v.push( this.mvMatrix.multiplyVector4(this.vertices[this.faces[i][j]]) );
         v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
-        
       }
 
-      this.primitives.push(new descartesJS.Primitive3D( v,
-                                                        "face",
-                                                        { backcolor: backcolor, 
-                                                          fillStyle: fillStyle, 
-                                                          strokeStyle: "#808080", 
-                                                          lineCap: "round",
-                                                          lineJoin: "round",
-                                                          edges: this.edges, 
-                                                          model: this.model, 
-                                                          fcolor: this.color,
-                                                          bcolor: this.backcolor
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
+                                type: "face",
+                                frontColor: this.color,
+                                backColor: this.backcolor, 
+                                edges: this.edges, 
+                                model: this.model
+                              } ) );
     }
 
   }
@@ -151,27 +134,7 @@ var descartesJS = (function(descartesJS) {
    * Define the vertex and faces of the cube
    */
   function buildCube(width, height, length, Nu, Nv) {
-    // width  = width/4;
-
-    // // if the geometry has to change
-    // if (this.changeGeometry(width, height, length, Nu, Nv)) {
-    //   return;
-    // }
-
-    // this.vertices = [ new vec4D( width,  width,  width, 1), //0
-    //                   new vec4D( width, -width,  width, 1), //1
-    //                   new vec4D( width,  width, -width, 1), //2
-    //                   new vec4D( width, -width, -width, 1), //3
-    //                   new vec4D(-width,  width,  width, 1), //4
-    //                   new vec4D(-width, -width,  width, 1), //5
-    //                   new vec4D(-width,  width, -width, 1), //6
-    //                   new vec4D(-width, -width, -width, 1)  //7
-    //            ];
-
-    // this.faces = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]];
-
-    // this.updateValues(width, height, length, Nu, Nv);
-    buildBox.call(this, width/2, width/2, width/2, Nu, Nv);
+    buildBox.call(this, width/1.8, width/1.8, width/1.8, Nu, Nv);
   }
 
   /**
@@ -196,6 +159,9 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width,  length, -height, 1), //6
                       new vec4D(-width, -length, -height, 1)  //7
                ];
+    // this.vertices = [ { x:  width, y:  length, z: height, 1 },
+    //                   { x:  width, y: -length, z: height, 1 },
+    // ]
 
     this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
 
@@ -288,7 +254,8 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width_m_goldenRatio, 0, -width_d_goldenRatio, 1)  //19
                ];
 
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
+    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
+    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-MathPI/6);
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
@@ -331,7 +298,8 @@ var descartesJS = (function(descartesJS) {
                   [6, 0, 10], [11, 6, 10], [7, 11, 10], [7, 3, 11], [5, 3, 7], [9, 3, 5], [8, 9, 5], [4, 9, 8], [0, 4, 8], [6, 4, 0],
                   [11, 3, 1], [6, 11, 1], [4, 6, 1], [9, 4, 1], [3, 9, 1]];
 
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
+    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
+    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-1.029);
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }

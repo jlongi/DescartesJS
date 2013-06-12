@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-05-17
+ * 2013-06-12
  */
 
 /**
@@ -541,12 +541,12 @@ var descartesJS = (function(descartesJS) {
     }
 
     // some browsers like chrome do not suport more than 20 decimal in the toFixed function
-    try {
-      (0).toFixed(100);
-    } 
-    catch(e) {
+    // try {
+      // (0).toFixed(100);
+    // } 
+    // catch(e) {
       setNewToFixed();
-    }
+    // }
   }
 
   /**
@@ -557,20 +557,58 @@ var descartesJS = (function(descartesJS) {
     var indexOfDot;
     var extraZero;
     var diff;
+    
+    var indexOfE;
+    var exponentialNotaionSplit;
+    var exponentialNumber;
+    var moveDotTo;
+
+    function getStringExtraZeros(n) {
+      return new Array(n+1).join("0");
+    }
+
+    // maintain the original toFixed function
+    Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
+      if (decimals <= 20) {
+        return this.originalToFixed(decimals);
+      }
+
       decimals = (decimals<0) ? 0 : parseInt(decimals);
       strNum = this.toString();
+
+      indexOfE = strNum.indexOf("e");
       indexOfDot = strNum.indexOf(".");
+
+      if (indexOfE !== -1) {
+        exponentialNotaionSplit = strNum.split("e");
+        exponentialNumber = exponentialNotaionSplit[0];
+        moveDotTo = parseInt(exponentialNotaionSplit[1]);
+
+        if (indexOfDot+moveDotTo < 0) {
+          strNum = "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          indexOfDot = 1;
+        }
+
+        else {
+          exponentialNumber = exponentialNumber.replace(".", "");
+          strNum = exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          indexOfDot = -1;
+        }
+      }
+
       extraZero = "";
 
       if (indexOfDot === -1) {
         if (decimals > 0) {
           extraZero = ".";
         }
-        for (var i=0; i<decimals; i++) {
-          extraZero += "0";
-        }
+        // for (var i=0; i<decimals; i++) {
+        //   extraZero += "0";
+        // }
+
+        extraZero += (new Array(decimals+1)).join("0");
 
         return strNum + extraZero;
       }
@@ -694,27 +732,46 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the best font size of the text that fits in the element
    */
   descartesJS.getFieldFontSize = function(height) {
-    if (height <= 14) {
-      return 8; 
-    }
+    height = Math.min(50, height);
 
-    if ((height > 14) && (height <= 16)) {
-      return 9;
+    if (height >= 24) {
+      height = Math.floor(height/2+2-height/16);
+    } 
+    else if (height >= 20) {
+      height = 12;
+    } 
+    else if (height >= 17) {
+      height = 11;
+    } 
+    else if (height >= 15) {
+      height = 10;
+    } 
+    else {
+      height = 9;
     }
+    return height;
 
-    if ((height > 16) && (height <= 19)) {
-      return 10;
-    }
+    // if (height <= 14) {
+    //   return 8; 
+    // }
 
-    if ((height > 19) && (height <= 22)) {
-      return 11;
-    }
+    // if ((height > 14) && (height <= 16)) {
+    //   return 9;
+    // }
 
-    if (height > 22) {
-      return parseInt(height - 11);
-    }
+    // if ((height > 16) && (height <= 19)) {
+    //   return 10;
+    // }
 
-    return MathFloor(height - (height*.25));
+    // if ((height > 19) && (height <= 22)) {
+    //   return 11;
+    // }
+
+    // if (height > 22) {
+    //   return parseInt(height - 11);
+    // }
+
+    // return MathFloor(height - (height*.25));
   }
 
   /**
@@ -1277,7 +1334,7 @@ var descartesJS = (function(descartesJS) {
     this.r = 0;
     this.g = 0;
     this.b = 0;
-    this.a = 0;
+    this.a = 1;
 
     this.evaluator = evaluator;
 
@@ -1465,6 +1522,12 @@ var descartesJS = (function(descartesJS) {
     meta.setAttribute("content", "black-translucent");
     // add the metadata to the head of the document
     head.appendChild(meta);
+
+    // meta = document.createElement("meta");
+    // meta.setAttribute("http-equiv", "X-UA-Compatible");
+    // meta.setAttribute("content", "IE=edge");
+    // // add the metadata to the head of the document
+    // head.appendChild(meta);
 
     // var link = document.createElement("link");
     // link.setAttribute("rel", "apple-touch-icon-precomposed");
@@ -1848,7 +1911,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Animation.prototype.play = function() {
     if (!this.playing) {
-      // this.reinit();
+      this.reinit();
     
       this.playing = true;
       this.timer = setTimeout(this.animationExec, this.parent.evaluator.evalExpression(this.delay));
@@ -3730,6 +3793,8 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var PI2 = Math.PI*2;
 
+  var b;
+
   var evaluator;
   var parser;
   var space;
@@ -3937,7 +4002,9 @@ var descartesJS = (function(descartesJS) {
     
     width = evaluator.evalExpression(this.width);
     desp = (width%2) ? .5 : 0;
-    width = MathFloor(width)/2;
+    ctx.fillStyle = stroke.getColor();
+    ctx.translate(-this.width_2, -this.width_2);
+    // width = MathFloor(width)/2;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
@@ -3955,7 +4022,8 @@ var descartesJS = (function(descartesJS) {
       dy=3;
     }
 
-    b = [];
+    // b = [];
+    b = new Array();
 
     q0.set(0, 0);
     qb.set(0, 0);
@@ -4074,7 +4142,8 @@ var descartesJS = (function(descartesJS) {
               else {
                 b[Qx + Qy*space.w] = true;
                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
+                  // ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
+                  ctx.drawImage(this.auxCanvas, Qx, Qy);
                 }
               }
             } else {
@@ -4088,6 +4157,9 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
+
+    // reset the translation
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   /**
@@ -6526,337 +6598,100 @@ var descartesJS = (function(descartesJS, babel) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Un espacio de descartes
-   * @constructor 
-   * @param {DescartesApp} parent es la aplicacion de descartes
-   * @param {string} values son los valores que definen la aplicacion de descartes
-   */
-  descartesJS.RenderMath = {};
+  var MathSqrt = Math.sqrt;
+  var MathSin = Math.sin;
+  var MathCos = Math.cos;
 
-  /**
-   * Regresa la inversa de la raiz cuadrada
-   */
-  descartesJS.RenderMath.inverseSqrt = function(n) {
-    return 1.0 / Math.sqrt(number);
-  }
-  
-  /**
-   * Vector bidimensional
-   */
-  descartesJS.Vector2D = function(x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
-  }
-  
-  descartesJS.Vector2D.prototype.clone = function() {
-    return new descartesJS.Vector2D(this.x,
-                                    this.y
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.add = function(v) {
-    return new descartesJS.Vector2D(this.x + v.x,
-                                    this.y + v.y
-                                   );
+  var len;
+  var s;
+  var c;
+  var a00;
+  var a01;
+  var a02;
+  var a03;
+  var a10;
+  var a11;
+  var a12;
+  var a13;
+  var a20;
+  var a21;
+  var a22;
+  var a23;
+  var a30;
+  var a31;
+  var a32;
+  var a33;
+  var b00;
+  var b01;
+
+  descartesJS.norm3D = function(v) {
+    return MathSqrt(v.x * v.x + v.y * v.y + v.z * v.z);
   }
 
-  descartesJS.Vector2D.prototype.substract = function(v) {
-    return new descartesJS.Vector2D(this.x - v.x,
-                                    this.y - v.y
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.multiply = function(v) {
-    return new descartesJS.Vector2D(this.x * v.x,
-                                    this.y * v.y
-                                   );
-  }
+  descartesJS.normalize3D = function(v) {
+    len = descartesJS.norm3D(v);
 
-  descartesJS.Vector2D.prototype.divide = function(v) {
-    return new descartesJS.Vector2D(this.x / v.x,
-                                    this.y / v.y
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.scale = function(s) {
-    return new descartesJS.Vector2D(this.x * s,
-                                    this.y * s
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.dist = function(v) {
-    var x = v.x - this.x;
-    var y = v.y - this.y;
-    return Math.sqrt(x*x + y*y);
-  }
-  
-  descartesJS.Vector2D.prototype.negate = function() {
-    return new descartesJS.Vector2D(-this.x,
-                                    -this.y
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.length = function() {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-  }
-    
-  descartesJS.Vector2D.prototype.squaredLength = function() {
-    return this.x * this.x + this.y * this.y;
-  }
-
-  descartesJS.Vector2D.prototype.normalize = function() {
-    var len = this.squaredLength();
-    
-    if (len > 0) {
-      len = Math.sqrt(len);
-      return new descartesJS.Vector2D(this.x / len,
-                                      this.y / len
-                                     );
+    if (len === 0) {
+      return { x: 0, 
+               y: 0, 
+               z: 0 
+             };
     }
-    else {
-      return new descartesJS.Vector2D(0,
-                                      0
-                                     );
-    }
-  }
-  
-  descartesJS.Vector2D.prototype.crossProduct = function(v) {
-//     return new descartesJS.Vector2D(0,
-//                                     0,
-//                                     this.x * v.y - this.y * v.x
-//                                    );
-    return this.x * v.y - this.y * v.x;
-  }
-  
-  descartesJS.Vector2D.prototype.dot = function(v) {
-    return this.x * v.x + this.y * v.y;
-  }
-  
-  descartesJS.Vector2D.prototype.direction = function(v) {
-    var x = this.x - v.x;
-    var y = this.y - v.y;
-    var len = x * x + y * y;
-
-    if (!len) {
-      return new descartesJS.Vector2D(0, 0);
+    else if (len === 1) {
+      return { x: v.x, 
+               y: v.y, 
+               z: v.z 
+             };
     }
     
-    len = 1 / Math.sqrt(len);
-    
-    return new descartesJS.Vector2D(x * len,
-                                    y * len
-                                   );
-  }
-  
-  descartesJS.Vector2D.prototype.lerp = function(v, lerp) {
-    return new descartesJS.Vector2D(this.x + lerp * (v.x - this.x),
-                                    this.y + lerp * (v.y - this.y)
-                                   );
-  }
-  
-  /**
-   * Vector tridimensional
-   */
-  descartesJS.Vector3D = function(x, y, z) {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
+    len = 1/len;
+
+    return { x: v.x*len, 
+             y: v.y*len, 
+             z: v.z*len 
+           };   
   }
 
-  descartesJS.Vector3D.prototype.set = function(x, y, z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-
-    return this;
+  descartesJS.dotProduct3D = function(v1, v2) {
+    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;    
   }
 
-  descartesJS.Vector3D.prototype.toVector4D = function() {
-    return new descartesJS.Vector4D(this.x, this.y, this.z, 1);
-  }
-  
-  descartesJS.Vector3D.prototype.copy = function() {
-    return new descartesJS.Vector3D(this.x, 
-                                    this.y, 
-                                    this.z);
-  }
-  
-  descartesJS.Vector3D.prototype.add = function(v) {
-    return new descartesJS.Vector3D(this.x + v.x,
-                                    this.y + v.y,
-                                    this.z + v.z);
-  }
-  
-  descartesJS.Vector3D.prototype.substract = function(v) {
-    return new descartesJS.Vector3D(this.x - v.x,
-                                    this.y - v.y,
-                                    this.z - v.z);
-  }
-  
-  descartesJS.Vector3D.prototype.multiply = function(v) {
-    return new descartesJS.Vector3D(this.x * v.x, 
-                                    this.y * v.y, 
-                                    this.z * v.z);
-  }
-  
-  descartesJS.Vector3D.prototype.negate = function() {
-    return new descartesJS.Vector3D(-this.x,
-                                    -this.y,
-                                    -this.z);
-  }
-  
-  descartesJS.Vector3D.prototype.scale = function(s) {
-    return new descartesJS.Vector3D(this.x * s, 
-                                    this.y * s, 
-                                    this.z * s);
-  }
-  
-  descartesJS.Vector3D.prototype.length = function() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-  }
-  
-  descartesJS.Vector3D.prototype.squaredLength = function() {
-    return this.x * this.x + this.y * this.y + this.z * this.z;
-  }
-  
-  descartesJS.Vector3D.prototype.normalize = function() {
-    var len = this.length();
-    
-    // la norma del vector es cero
-    if (len == 0) {
-      return new descartesJS.Vector3D(0, 0, 0);
-    }
-    // la norma es uno, ya estaba normalizado
-    else if (len == 1) {
-      return new descartesJS.Vector3D(this.x, 
-                                      this.y, 
-                                      this.z);
-    }
-    
-    len = 1.0 / len;
-
-    return new descartesJS.Vector3D(this.x * len, 
-                                    this.y * len, 
-                                    this.z * len);
-  }
-  
-  descartesJS.Vector3D.prototype.crossProduct = function(v) {
-    return new descartesJS.Vector3D(this.y * v.z - this.z * v.y, 
-                                    this.z * v.x - this.x * v.z,
-                                    this.x * v.y - this.y * v.x);
-  }
-  
-  descartesJS.Vector3D.prototype.dotProduct = function(v) {
-    return this.x * v.x + this.y * v.y + this.z * v.z;
-
-  }
-  
-  //genera un vector unitario que apunta de un vector a otro
-  descartesJS.Vector3D.prototype.direction = function(v) {
-    var x = this.x - v.x;
-    var y = this.y - v.y;
-    var z = this.z - v.z;
-    var len = Math.sqrt(x * x + y * y + z * z);
-
-    // la norma del vector es cero
-    if (len == 0) {
-      return new descartesJS.Vector3D(0, 0, 0);
-    }
-
-    len = 1.0 / len;
-
-    return new descartesJS.Vector3D(x * len, 
-                                    y * len, 
-                                    z * len);
-  }
-  
-  // linear interpolation
-  descartesJS.Vector3D.prototype.lerp = function(v, interpolant) {
-    return new descartesJS.Vector3D(this.x + interpolant*(v.x - this.x), 
-                                    this.y + interpolant*(v.y - this.y),
-                                    this.z + interpolant*(v.z - this.z));
+  descartesJS.crossProduct3D = function(v1, v2) {
+    return { x: v1.y*v2.z - v1.z*v2.y,
+             y: v1.z*v2.x - v1.x*v2.z,
+             z: v1.x*v2.y - v1.y*v2.x
+           };
   }
 
-  // distancia entre dos vectores
-  descartesJS.Vector3D.prototype.distance = function(v) {
-    var x = v.x - this.x;
-    var y = v.y - this.y;
-    var z = v.z - this.z;
+  descartesJS.scalarProduct3D = function(v, s) {
+    return { x: v.x*s, 
+             y: v.y*s,
+             z: v.z*s
+           };
+  }
 
-    return Math.sqrt(x*x + y*y + z*z);
+  descartesJS.subtract3D = function(v1, v2) {
+    return { x: v1.x - v2.x,
+             y: v1.y - v2.y,
+             z: v1.z - v2.z
+           };
   }
-  
-  // proyecta el vector del espacio de la pantalla al espacio del objeto
-  // viewport [x, y, width, height]
-  descartesJS.Vector3D.prototype.unproject = function(view, proj, viewport) {
-    var v = new descartesJS.Vector4D( (this.x - viewport.x) * 2.0 / viewport.width - 1.0, 
-                                      (this.y - viewport.y) * 2.0 / viewport.height - 1.0, 
-                                      2.0 * this.z - 1.0,
-                                      v[3] = 1.0 
-                                    );
 
-    var m = proj.multiply(view);
-    if (!m.inverse()) {
-      return null;
-    }
-    
-    v = m.multiplyVector4(v);
-    if (v.w == 0.0) {
-      return null;
-    }
-    
-    return new descartesJS.Vector3D(v.x / v.w,
-                                    v.y / v.w,
-                                    v.z / v.w);
+  descartesJS.add3D = function(v1, v2) {
+    return { x: v1.x + v2.x,
+             y: v1.y + v2.y,
+             z: v1.z + v2.z
+           };
   }
-  
-  // regresa un quaternion entre dos vectores
-  descartesJS.Vector3D.prototype.rotationTo = function(v) {
-    var xUnitVec3 = new descartesJS.Vector3D(1, 0, 0);
-    var yUnitVec3 = new descartesJS.Vector3D(0, 1, 0);
-    var zUnitVec3 = new descartesJS.Vector3D(0, 0, 1);
-    
-    var d = this.dotProduct(v);
-//     var axis = new descartesJS.Vector3D();
-    var quaternion = new descartesJS.Quaternion();
-    
-    if (d >= 1.0) {
-      quaternion.setIdentity();
-    }
-    else if (d < (0.000001 - 1.0)) {
-      axis = xUnitVec3.crossProduct(this);
-      if (axis.length() < 0.000001) {
-        axis = yUnitVec3.crossProduct(this);
-      }
-      if (axis.length() < 0.000001) {
-        axis =  zUnitVec3.crossProduct(this);
-      }
-      axis = axis.normalize();
-      
-      quaternion = Quaternion.fromAngleAxis(Math.PI, axis);
-    }
-    
-    else {
-      var s = Math.squrt((1.0 + d) * 2.0);
-      var sInv = 1.0 / s;
-      axis = this.crossProduct(v);
-      quaternion.x = axis.x * sInv;
-      quaternion.y = axis.y * sInv;
-      quaternion.z = axis.z * sInv;
-      quaternion.w = s * 0.5;
-      quaternion = Quaternion.normalize();
-    }
-    
-    if (quaternion.w > 1.0) {
-      quaternion.w = 1.0;
-    }
-    else if (quaternion.w < -1.0) {
-      quaternion.w = -1.0;
-    }
-    
-    return quaternion;
+
+  descartesJS.equals3DEpsilon = function(p1, p2, epsilon) {
+    return (Math.abs(p1.x-p2.x) <= epsilon) && 
+           (Math.abs(p1.y-p2.y) <= epsilon) && 
+           (Math.abs(p1.z-p2.z) <= epsilon);
   }
+
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   descartesJS.Vector4D = function(x, y, z, w) {
     this.x = x || 0;
@@ -6865,304 +6700,6 @@ var descartesJS = (function(descartesJS) {
     this.w = w || 0;
   }
 
-  descartesJS.Vector4D.prototype.set = function(x, y, z, w) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.w = w;
-    return this;
-  }
-
-  descartesJS.Vector4D.prototype.toVector3D = function() {
-    var w = (this.w !== 0) ? 1/this.w : 0;
-    return new descartesJS.Vector3D(this.x*w, this.y*w, this.z*w);
-  }
-  
-  
-  descartesJS.Vector4D.prototype.clone = function() {
-    return new descartesJS.Vector4D(this.x, this.y, this.z, this.w);
-  }
-  
-  descartesJS.Vector4D.prototype.add = function(v) {
-    return new descartesJS.Vector4D(this.x + v.x,
-                                    this.y + v.y,
-                                    this.z + v.z,
-                                    this.w + v.w
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.substract = function(v) {
-    return new descartesJS.Vector4D(this.x - v.x,
-                                    this.y - v.y,
-                                    this.z - v.z,
-                                    this.w - v.w
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.multiply = function(v) {
-    return new descartesJS.Vector4D(this.x * v.x,
-                                    this.y * v.y,
-                                    this.z * v.z,
-                                    this.w * v.w
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.divide = function(v) {
-    return new descartesJS.Vector4D(this.x / v.x,
-                                    this.y / v.y,
-                                    this.z / v.z,
-                                    this.w / v.w
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.scale = function(s) {
-    return new descartesJS.Vector4D(this.x * s,
-                                    this.y * s,
-                                    this.z * s,
-                                    this.w * s
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.negate = function() {
-    return new descartesJS.Vector4D(-this.x,
-                                    -this.y,
-                                    -this.z,
-                                    -this.w
-                                   );
-  }
-  
-  descartesJS.Vector4D.prototype.length = function() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-  }
-  
-  descartesJS.Vector4D.prototype.squaredLength = function() {
-    return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
-  }
-  
-  descartesJS.Vector4D.prototype.lerp = function(v, lerp) {
-    return new descartesJS.Vector4D(this.x + lerp * (v.x - this.x),
-                                    this.y + lerp * (v.y - this.y),
-                                    this.z + lerp * (v.z - this.z),
-                                    this.w + lerp * (v.w - this.w)
-                                   );
-  }
-  
-  descartesJS.Matrix2x2 = function( a00, a01, 
-                                    a10, a11
-                                  ) {
-    this.a00 = a00 || 0;
-    this.a01 = a01 || 0;
-    this.a10 = a10 || 0;
-    this.a11 = a11 || 0;
-  }
-  
-  descartesJS.Matrix2x2.prototype.clone = function() {
-    return new descartesJS.Matrix2x2(this.a00, this.a01,
-                                     this.a10, this.a11
-                                    );
-  }
-
-  descartesJS.Matrix2x2.prototype.setIdentity = function() {
-    this.a00 = 1;
-    this.a01 = 0;
-    this.a10 = 0;
-    this.a11 = 1;
-
-    return this;
-  }
-
-  descartesJS.Matrix2x2.prototype.transpose = function() {
-    return new descartesJS.Matrix2x2(this.a00, this.a10,
-                                     this.a01, this.a11
-                                    );
-  }
-  
-  descartesJS.Matrix2x2.prototype.determinant = function() {
-    return this.a00 * this.a11 - this.a10 * this.a01;
-  }
-
-  descartesJS.Matrix2x2.prototype.inverse = function() {
-    var det = this.determinant();
-    
-    if (!det) {
-      return null;
-    }
-    
-    det = 1 / det;
-    
-    return new descartesJS.Matrix2x2( this.a11 * det, -this.a10 * det,
-                                     -this.a01 * det,  this.a00 * det
-                                    );
-  }
-  
-  descartesJS.Matrix2x2.prototype.multiply = function(m) {
-    return new descartesJS.Matrix2x2(this.a00 * m.a00 + this.a01 * m.a10,
-                                     this.a00 * m.a01 + this.a01 * m.a11,
-                                     this.a10 * m.a00 + this.a11 * m.a10,
-                                     this.a10 * m.a01 + this.a11 * m.a11
-                                    );
-  }
-  
-  descartesJS.Matrix2x2.prototype.rotate = function(angle) {
-    var s = Math.sin(angle);
-    var c = Math.cos(angle);
-    
-    return new descartesJS.Matrix2x2(this.a00 *  c + this.a01 * s,
-                                     this.a00 * -s + this.a01 * c,
-                                     this.a10 *  c + this.a11 * s,
-                                     this.a10 * -s + this.a11 * c
-                                    );
-  }
-    
-  descartesJS.Matrix2x2.prototype.multiplyVector2 = function(v) {
-    return new descartesJS.Vector2D(v.x * this.a00 + v.y * this.a01,
-                                    v.x * this.a10 + v.y * this.a11
-                                   );
-  }
-  
-  descartesJS.Matrix2x2.prototype.scale = function(v) {
-    return new descartesJS.Matrix2x2(this.a00 * v.x, this.a01 * v.y,
-                                     this.a10 * v.x, this.a11 * v.y
-                                    );
-  }    
-
-  descartesJS.Matrix3x3 = function( a00, a01, a02, 
-                                    a10, a11, a12,
-                                    a20, a21, a22
-                                   ) {
-    this.a00 = a00 || 0;
-    this.a01 = a01 || 0;
-    this.a02 = a02 || 0;
-    this.a10 = a10 || 0;
-    this.a11 = a11 || 0;
-    this.a12 = a12 || 0;
-    this.a20 = a20 || 0;
-    this.a21 = a21 || 0;
-    this.a22 = a22 || 0;
-  }
-  
-  descartesJS.Matrix3x3.prototype.copy = function() {
-    return new descartesJS.Matrix3x3(this.a00, this.a01, this.a02, 
-                                     this.a10, this.a11, this.a12, 
-                                     this.a20, this.a21, this.a22
-                                    ); 
-  }
-
-  descartesJS.Matrix3x3.prototype.determinant = function() {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    
-    return a00 * ( a22 * a11 - a12 * a21) + 
-           a01 * (-a22 * a10 + a12 * a20) + 
-           a02 * ( a21 * a10 - a11 * a20);
-  }
-
-  descartesJS.Matrix3x3.prototype.inverse = function() {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-
-    var b01 =  a22 * a11 - a12 * a21;
-    var b11 = -a22 * a10 + a12 * a20;
-    var b21 =  a21 * a10 - a11 * a20;
-    
-    var d = a00 * b01 + a01 * b11 + a02 * b21;
-    
-    if (!d) { 
-      return null; 
-    }
-
-    var invD = 1 / d;
-    
-    return new descartesJS.Matrix3x3( b01 * invD,  (-a22 * a01 + a02 * a21) * invD,  ( a12 * a01 - a02 * a11) * invD,
-                                      b11 * invD,  ( a22 * a00 - a02 * a20) * invD,  (-a12 * a00 + a02 * a10) * invD,
-                                      b21 * invD,  (-a21 * a00 + a01 * a20) * invD,  ( a11 * a00 - a01 * a10) * invD
-                                    );
-  }
-  
-  descartesJS.Matrix3x3.prototype.multply = function(m) {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    
-    var b00 = m.a00;
-    var b01 = m.a01;
-    var b02 = m.a02;
-    var b10 = m.a10;
-    var b11 = m.a11;
-    var b12 = m.a12;
-    var b20 = m.a20;
-    var b21 = m.a21;
-    var b22 = m.a22;
-    
-    return new descartesJS.Matrix3x3( b00 * a00 + b01 * a10 + b02 * a20, b00 * a01 + b01 * a11 + b02 * a21, b00 * a02 + b01 * a12 + b02 * a22,
-                                      b10 * a00 + b11 * a10 + b12 * a20, b10 * a01 + b11 * a11 + b12 * a21, b10 * a02 + b11 * a12 + b12 * a22,
-                                      b20 * a00 + b21 * a10 + b22 * a20, b20 * a01 + b21 * a11 + b22 * a21, b20 * a02 + b21 * a12 + b22 * a22
-                                    );
-  }
-  
-  descartesJS.Matrix3x3.prototype.multiplyVector2 = function(v) {
-    return new descartesJS.Vector2D(v.x * this.a00 + v.y * this.a10 + this.a20,
-                                    v.x * this.a01 + v.y * this.a11 + this.a21);
-  }
-  
-  descartesJS.Matrix3x3.prototype.multiplyVector3 = function(v) {
-    return new descartesJS.Vector3D(v.x * this.a00 + v.y * this.a10 + v.z * this.a20,
-                                    v.x * this.a01 + v.y * this.a11 + v.z * this.a21,
-                                    v.x * this.a02 + v.y * this.a12 + v.z * this.a22
-                                   );
-  }
-  
-  descartesJS.Matrix3x3.prototype.setIdentity = function() {
-    this.a00 = 1;
-    this.a01 = 0;
-    this.a02 = 0;
-    
-    this.a10 = 0;
-    this.a11 = 1;
-    this.a12 = 0;
-    
-    this.a20 = 0;
-    this.a21 = 0;
-    this.a22 = 1;
-    
-    return this;
-  }
-  
-  descartesJS.Matrix3x3.prototype.transpose = function() {
-    return new descartesJS.Matrix3x3(this.a00, this.a10, this.a20,
-                                     this.a01, this.a11, this.a21,
-                                     this.a02, this.a12, this.a22
-                                    );
-  }
-
-  descartesJS.Matrix3x3.prototype.toMatrix4x4 = function() {
-    return new descartesJS.Matrix4x4(this.a00, this.a01, this.a02, 0,
-                                     this.a10, this.a11, this.a12, 0,
-                                     this.a20, this.a21, this.a22, 0,
-                                     0,        0,        0,        1
-                                     );
-  }
-  
   descartesJS.Matrix4x4 = function( a00, a01, a02, a03,
                                     a10, a11, a12, a13,
                                     a20, a21, a22, a23,
@@ -7184,14 +6721,6 @@ var descartesJS = (function(descartesJS) {
     this.a31 = a31 || 0;
     this.a32 = a32 || 0;
     this.a33 = a33 || 0;
-  }
-  
-  descartesJS.Matrix4x4.prototype.copy = function() {
-    return new descartesJS.Matrix4x4(this.a00, this.a01, this.a02, this.a03,
-                                     this.a10, this.a11, this.a12, this.a13,
-                                     this.a20, this.a21, this.a22, this.a23,
-                                     this.a30, this.a31, this.a32, this.a33
-                                    ); 
   }
 
   descartesJS.Matrix4x4.prototype.setIdentity = function() {
@@ -7217,180 +6746,7 @@ var descartesJS = (function(descartesJS) {
     
     return this;
   }
-    
-  descartesJS.Matrix4x4.prototype.transpose = function() {
-    return new descartesJS.Matrix3x3(this.a00, this.a10, this.a20, this.a30,
-                                     this.a01, this.a11, this.a21, this.a31,
-                                     this.a02, this.a12, this.a22, this.a32,
-                                     this.a03, this.a13, this.a23, this.a33
-                                    );
-  }
 
-  descartesJS.Matrix4x4.prototype.determinant = function() {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
-    var a30 = this.a30;
-    var a31 = this.a31;
-    var a32 = this.a32;
-    var a33 = this.a33;
-    
-    return a30 * a21 * a12 * a03 - a20 * a31 * a12 * a03 - a30 * a11 * a22 * a03 + a10 * a31 * a22 * a03 +
-           a20 * a11 * a32 * a03 - a10 * a21 * a32 * a03 - a30 * a21 * a02 * a13 + a20 * a31 * a02 * a13 +
-           a30 * a01 * a22 * a13 - a00 * a31 * a22 * a13 - a20 * a01 * a32 * a13 + a00 * a21 * a32 * a13 +
-           a30 * a11 * a02 * a23 - a10 * a31 * a02 * a23 - a30 * a01 * a12 * a23 + a00 * a31 * a12 * a23 +
-           a10 * a01 * a32 * a23 - a00 * a11 * a32 * a23 - a20 * a11 * a02 * a33 + a10 * a21 * a02 * a33 +
-           a20 * a01 * a12 * a33 - a00 * a21 * a12 * a33 - a10 * a01 * a22 * a33 + a00 * a11 * a22 * a33;
-  }
-
-  descartesJS.Matrix4x4.prototype.inverse = function() {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
-    var a30 = this.a30;
-    var a31 = this.a31;
-    var a32 = this.a32;
-    var a33 = this.a33;
-
-    var b00 = a00 * a11 - a01 * a10;
-    var b01 = a00 * a12 - a02 * a10;
-    var b02 = a00 * a13 - a03 * a10;
-    var b03 = a01 * a12 - a02 * a11;
-    var b04 = a01 * a13 - a03 * a11;
-    var b05 = a02 * a13 - a03 * a12;
-    var b06 = a20 * a31 - a21 * a30;
-    var b07 = a20 * a32 - a22 * a30;
-    var b08 = a20 * a33 - a23 * a30;
-    var b09 = a21 * a32 - a22 * a31;
-    var b10 = a21 * a33 - a23 * a31;
-    var b11 = a22 * a33 - a23 * a32;
-    
-    var d = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06);
-    
-    if (!d) { 
-      return null; 
-    }
-
-    var invD = 1 / d;
-    
-    return new descartesJS.Matrix4x4((a11 * b11 - a12 * b10 + a13 * b09) * invD,  (-a01 * b11 + a02 * b10 - a03 * b09) * invD, (a31 * b05 - a32 * b04 + a33 * b03) * invD,  (-a21 * b05 + a22 * b04 - a23 * b03) * invD, 
-                                     (-a10 * b11 + a12 * b08 - a13 * b07) * invD, (a00 * b11 - a02 * b08 + a03 * b07) * invD,  (-a30 * b05 + a32 * b02 - a33 * b01) * invD, (a20 * b05 - a22 * b02 + a23 * b01) * invD,
-                                     (a10 * b10 - a11 * b08 + a13 * b06) * invD,  (-a00 * b10 + a01 * b08 - a03 * b06) * invD, (a30 * b04 - a31 * b02 + a33 * b00) * invD,  (-a20 * b04 + a21 * b02 - a23 * b00) * invD, 
-                                     (-a10 * b09 + a11 * b07 - a12 * b06) * invD, (a00 * b09 - a01 * b07 + a02 * b06) * invD,  (-a30 * b03 + a31 * b01 - a32 * b00) * invD, (a20 * b03 - a21 * b01 + a22 * b00) * invD
-                                    );
-  }
-
-  descartesJS.Matrix4x4.prototype.toRotationMat = function() {
-    return new descartesJS.Matrix4x4(this.a00, this.a01, this.a02, this.a03,
-                                     this.a10, this.a11, this.a12, this.a13,
-                                     this.a20, this.a21, this.a22, this.a23,
-                                     0,        0,        0,        1);
-  }
-  
-  descartesJS.Matrix4x4.prototype.toMatrix3x3 = function() {
-    return new descartesJS.Matrix4x4(this.a00, this.a01, this.a02,
-                                     this.a10, this.a11, this.a12,
-                                     this.a20, this.a21, this.a22)    
-  }
-
-  descartesJS.Matrix4x4.prototype.toInverseMat3 = function() {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-
-    var b01 = a22 * a11 - a12 * a21;
-    var b11 = -a22 * a10 + a12 * a20;
-    var b21 = a21 * a10 - a11 * a20;
-
-    var d = a00 * b01 + a01 * b11 + a02 * b21;
-
-    if (!d) { 
-      return null; 
-    }
-    
-    var invD = 1 / d;
-
-    return new descartesJS.Matrix3x3(b01 * id, (-a22 * a01 + a02 * a21) * id, ( a12 * a01 - a02 * a11) * id,
-                                     b11 * id, ( a22 * a00 - a02 * a20) * id, (-a12 * a00 + a02 * a10) * id,
-                                     b21 * id, (-a21 * a00 + a01 * a20) * id, ( a11 * a00 - a01 * a10) * id
-                                    );
-  }
-
-  descartesJS.Matrix4x4.prototype.multiply = function(m) {
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
-    var a30 = this.a30;
-    var a31 = this.a31;
-    var a32 = this.a32;
-    var a33 = this.a33;
-    
-    var b00 = m.a00;
-    var b01 = m.a01;
-    var b02 = m.a02;
-    var b03 = m.a03;
-    var b10 = m.a10;
-    var b11 = m.a11;
-    var b12 = m.a12;
-    var b13 = m.a13;
-    var b20 = m.a20;
-    var b21 = m.a21;
-    var b22 = m.a22;
-    var b23 = m.a23;
-    var b30 = m.a30;
-    var b31 = m.a31;
-    var b32 = m.a32;
-    var b33 = m.a33;
-    
-    return new descartesJS.Matrix4x4(b00*a00 + b01*a10 + b02*a20 + b03*a30, b00*a01 + b01*a11 + b02*a21 + b03*a31, b00*a02 + b01*a12 + b02*a22 + b03*a32, b00*a03 + b01*a13 + b02*a23 + b03*a33,
-                                     b10*a00 + b11*a10 + b12*a20 + b13*a30, b10*a01 + b11*a11 + b12*a21 + b13*a31, b10*a02 + b11*a12 + b12*a22 + b13*a32, b10*a03 + b11*a13 + b12*a23 + b13*a33,
-                                     b20*a00 + b21*a10 + b22*a20 + b23*a30, b20*a01 + b21*a11 + b22*a21 + b23*a31, b20*a02 + b21*a12 + b22*a22 + b23*a32, b20*a03 + b21*a13 + b22*a23 + b23*a33,
-                                     b30*a00 + b31*a10 + b32*a20 + b33*a30, b30*a01 + b31*a11 + b32*a21 + b33*a31, b30*a02 + b31*a12 + b32*a22 + b33*a32, b30*a03 + b31*a13 + b32*a23 + b33*a33
-                                    );
-  }
-  
-  descartesJS.Matrix4x4.prototype.multiplyVector3 = function(v) {
-    return new descartesJS.Vector3D(v.x * this.a00 + v.y * this.a10 + v.z * this.a20 + this.a30,
-                                    v.x * this.a01 + v.y * this.a11 + v.z * this.a21 + this.a31,
-                                    v.x * this.a02 + v.y * this.a12 + v.z * this.a22 + this.a32
-                                   );
-  }
-  
   descartesJS.Matrix4x4.prototype.multiplyVector4 = function(v) {
     return new descartesJS.Vector4D(v.x * this.a00 + v.y * this.a10 + v.z * this.a20 + v.w * this.a30,
                                     v.x * this.a01 + v.y * this.a11 + v.z * this.a21 + v.w * this.a31,
@@ -7406,75 +6762,19 @@ var descartesJS = (function(descartesJS) {
                                      this.a00 * v.x + this.a10 * v.y + this.a20 * v.z + this.a30, this.a01 * v.x + this.a11 * v.y + this.a21 * v.z + this.a31, this.a02 * v.x + this.a12 * v.y + this.a22 * v.z + this.a32, this.a03 * v.x + this.a13 * v.y + this.a23 * v.z + this.a33
                                     );
   }
-    
-  descartesJS.Matrix4x4.prototype.scale = function(v) {
-    return new descartesJS.Matrix4x4(this.a00 * v.x, this.a01 * v.x, this.a02 * v.x, this.a03 * v.x,
-                                     this.a10 * v.y, this.a11 * v.y, this.a12 * v.y, this.a13 * v.y,
-                                     this.a20 * v.z, this.a21 * v.z, this.a22 * v.z, this.a23 * v.z,
-                                     this.a30, this.a31, this.a32, this.a33
-                                    );
-  }
-
-  descartesJS.Matrix4x4.prototype.rotate = function(angle, axis) {
-    var len = Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
-    
-    if (!len) {
-      return null;
-    }
-    
-    if (len !== 1) {
-      len = 1 / len;
-      axis.x *= len;
-      axis.y *= len;
-      axis.z *= len;
-    }
-    
-    var s = Math.sin(angle);
-    var c = Math.cos(angle);
-    var t = 1 - c;
-
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
-    
-    var b00 = axis.x * axis.x * t + c; 
-    var b01 = axis.y * axis.x * t + axis.z * s;
-    var b02 = axis.z * axis.x * t - axis.y * s;
-    var b10 = axis.x * axis.y * t - axis.z * s;
-    var b11 = axis.y * axis.y * t + c;
-    var b12 = axis.z * axis.y * t + axis.x * s;
-    var b20 = axis.x * axis.z * t + axis.y * s;
-    var b21 = axis.y * axis.z * t - axis.x * s;
-    var b22 = axis.z * axis.z * t + c;
-
-    return new descartesJS.Matrix4x4(a00 * b00 + a10 * b01 + a20 * b02,  a01 * b00 + a11 * b01 + a21 * b02,  a02 * b00 + a12 * b01 + a22 * b02,  a03 * b00 + a13 * b01 + a23 * b02,
-                                     a00 * b10 + a10 * b11 + a20 * b12,  a01 * b10 + a11 * b11 + a21 * b12,  a02 * b10 + a12 * b11 + a22 * b12,  a03 * b10 + a13 * b11 + a23 * b12,
-                                     a00 * b20 + a10 * b21 + a20 * b22,  a01 * b20 + a11 * b21 + a21 * b22,  a02 * b20 + a12 * b21 + a22 * b22,  a03 * b20 + a13 * b21 + a23 * b22,
-                                     this.a30, this.a31, this.a32, this.a33
-                                    );
-  }
 
   descartesJS.Matrix4x4.prototype.rotateX = function(angle) {
-    var s = Math.sin(angle);
-    var c = Math.cos(angle);
+    s = MathSin(angle);
+    c = MathCos(angle);
     
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
+    a10 = this.a10;
+    a11 = this.a11;
+    a12 = this.a12;
+    a13 = this.a13;
+    a20 = this.a20;
+    a21 = this.a21;
+    a22 = this.a22;
+    a23 = this.a23;
     
     return new descartesJS.Matrix4x4(this.a00, this.a01, this.a02, this.a03,
                                      a10 *  c + a20 * s, a11 *  c + a21 * s, a12 *  c + a22 * s, a13 *  c + a23 * s,
@@ -7484,17 +6784,17 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.Matrix4x4.prototype.rotateY = function(angle) {
-    var s = Math.sin(angle);
-    var c = Math.cos(angle);
+    s = MathSin(angle);
+    c = MathCos(angle);
     
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a20 = this.a20;
-    var a21 = this.a21;
-    var a22 = this.a22;
-    var a23 = this.a23;
+    a00 = this.a00;
+    a01 = this.a01;
+    a02 = this.a02;
+    a03 = this.a03;
+    a20 = this.a20;
+    a21 = this.a21;
+    a22 = this.a22;
+    a23 = this.a23;
     
     return new descartesJS.Matrix4x4(a00 * c + a20 * -s, a01 * c + a21 * -s, a02 * c + a22 * -s, a03 * c + a23 * -s,
                                      this.a10, this.a11, this.a12, this.a13, 
@@ -7504,433 +6804,23 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.Matrix4x4.prototype.rotateZ = function(angle) {  
-    var s = Math.sin(angle);
-    var c = Math.cos(angle);
+    s = MathSin(angle);
+    c = MathCos(angle);
     
-    var a00 = this.a00;
-    var a01 = this.a01;
-    var a02 = this.a02;
-    var a03 = this.a03;
-    var a10 = this.a10;
-    var a11 = this.a11;
-    var a12 = this.a12;
-    var a13 = this.a13;
+    a00 = this.a00;
+    a01 = this.a01;
+    a02 = this.a02;
+    a03 = this.a03;
+    a10 = this.a10;
+    a11 = this.a11;
+    a12 = this.a12;
+    a13 = this.a13;
     
     return new descartesJS.Matrix4x4(a00 *  c + a10 * s, a01 *  c + a11 * s, a02 *  c + a12 * s, a03 *  c + a13 * s,
                                      a00 * -s + a10 * c, a01 * -s + a11 * c, a02 * -s + a12 * c, a03 * -s + a13 * c,
                                      this.a20, this.a21, this.a22, this.a23,
                                      this.a30, this.a31, this.a32, this.a33
                                     );
-  }
-  
-  descartesJS.Matrix4x4.prototype.frustum = function(left, right, bottom, top, near, far) {
-    var rl = (right - left);
-    var tb = (top - bottom);
-    var fn = (far - near);
-    
-    return new descartesJS.Matrix4x4((near * 2) / rl, 0, 0, 0,
-                                     0, (near * 2) / tb, 0, 0,
-                                     (right + left) / rl, (top + bottom) / tb, -(far + near) / fn, -1,
-                                     0, 0, -(far * near * 2) / fn, 0
-                                    );
-  }
-  
-  descartesJS.Matrix4x4.prototype.perspective = function(fovy, aspect, near, far) {
-    var top = near * Math.tan(fovy * Math.PI / 360.0);
-    var right = top * aspect;
-    
-    return this.frustum(-right, right, -top, top, near, far);
-  }
-  
-  descartesJS.Matrix4x4.prototype.ortho = function(left, right, bottom, top, near, far) {
-    var rl = (right - left);
-    var tb = (top - bottom);
-    var fn = (far - near);
-    
-    return new descartesJS.Matrix4x4(2 / rl, 0, 0, 0,
-                                     0, 2 / tb, 0, 0,
-                                     0, 0, -2 / fn, 0,
-                                     -(left + right) / rl, -(top + bottom) / tb, -(far + near) / fn, 1
-                                    );
-  }
-  
-  descartesJS.Matrix4x4.prototype.lookAt = function(eye, center, up) {
-    if ((eye.x === center.x) && (eye.y === center.y) && (eye.z === center.z)) {
-      return (new descartesJS.Matrix4x4()).setIdentity();
-    }
-    
-    var z0 = eye.x - center.x;
-    var z1 = eye.y - center.y;
-    var z2 = eye.z - center.z;
-    
-    var len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
-    z0 *= len;
-    z1 *= len;
-    z2 *= len;
-
-    var x0 = up.y * z2 - up.z * z1;
-    var x1 = up.z * z0 - up.x * z2;
-    var x2 = up.x * z1 - up.y * z0;        
-    len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
-    
-    if (!len) {
-        x0 = 0;
-        x1 = 0;
-        x2 = 0;
-    } else {
-        len = 1 / len;
-        x0 *= len;
-        x1 *= len;
-        x2 *= len;
-    }
-
-    var y0 = z1 * x2 - z2 * x1;
-    var y1 = z2 * x0 - z0 * x2;
-    var y2 = z0 * x1 - z1 * x0;
-
-    len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
-    if (!len) {
-        y0 = 0;
-        y1 = 0;
-        y2 = 0;
-    } else {
-        len = 1 / len;
-        y0 *= len;
-        y1 *= len;
-        y2 *= len;
-    }
-    
-    return new descartesJS.Matrix4x4(x0, y0, z0, 0,
-                                     x1, y1, z1, 0,
-                                     x2, y2, z2, 0,
-                                     -(x0 * eye.x + x1 * eye.y + x2 * eye.z), -(y0 * eye.x + y1 * eye.y + y2 * eye.z), -(z0 * eye.x + z1 * eye.y + z2 * eye.z), 1
-                                    );
-  }
-  
-  descartesJS.Matrix4x4.prototype.fromRotationTranslation = function(v) {
-    var x2 = 2 * this.x;
-    var y2 = 2 * this.y;
-    var z2 = 2 * this.z;
-    
-    var xx = this.x * x2;
-    var xy = this.x * y2;
-    var xz = this.x * z2;
-    var yy = this.y * y2;
-    var yz = this.y * z2;
-    var zz = this.z * z2;
-    var wx = this.w * x2;
-    var wy = this.w * y2;
-    var wz = this.w * z2;
-    
-    return new descartesJS.Matrix4x4(1 - (yy + zz), xy + wz, xz - wy, 0,
-                                     xy - wz, 1 - (xx + zz), yz + wx, 0,
-                                     xz + wy, yz - wx, 1 - (xx + yy), 0,
-                                     v.x, v.y, v.z, 1
-                                    );
-  }
-    
-  descartesJS.Quaternion = function(x, y, z, w) {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
-    this.w = w || 0;
-  }
-  
-  descartesJS.Quaternion.prototype.clone = function() {
-   return new descartesJS.Quaternion(this.x, this.y, this.z, this.w); 
-  }
-  
-  descartesJS.Quaternion.prototype.setIdentity = function() {
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-    this.w = 1;
-    
-    return this;
-  }
-  
-  descartesJS.Quaternion.prototype.calculateW = function() {
-    return new descartesJS.Quaternion(this.x, 
-                                      this.y, 
-                                      this.z, 
-                                      -Math.sqrt(Math.abs(1.0 - this.x * this.x - this.y * this.y - this.z * this.z))
-                                      );
-  }
-  
-  descartesJS.Quaternion.prototype.dot = function(q) {
-    return this.x * q.x + this.y * q.y + this.z * q.z + this.w * q.w;
-  }
-    
-  descartesJS.Quaternion.prototype.inverse = function() {
-    var dot = this.dot(this);
-    var invDot = 0;
-    
-    if (dot != 0) {
-      invDot = 1.0/dot;
-    }
-    
-    return new descartesJS.Quaternion(-this.x * invDot,
-                                      -this.y * invDot,
-                                      -this.z * invDot,
-                                       this.w * invDot
-                                     );
-  }
-  
-  descartesJS.Quaternion.prototype.conjugate = function() {
-    return new descartesJS.Quaternion(-this.x,
-                                      -this.y,
-                                      -this.z,
-                                       this.w
-                                     );
-  }
-  
-  descartesJS.Quaternion.prototype.length = function() {
-    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-  }
-  
-  descartesJS.Quaternion.prototype.normalize = function(quat, dest) {
-    var len = this.length();
-    
-    if (len === 0) {
-      return new descartesJS.Quaternion();
-    }
-    
-    len = 1 / len;
-    
-    return new descartesJS.Quaternion(this.x * len,
-                                      this.y * len,
-                                      this.z * len,
-                                      this.w * len
-                                     );
-  }
-  
-  descartesJS.Quaternion.prototype.add = function(q) {
-    return new descartesJS.Quaternion(this.x + q.x,
-                                      this.y + q.y,
-                                      this.z + q.z,
-                                      this.w + q.w
-                                     );
-  }
-
-  descartesJS.Quaternion.prototype.multiply = function(q) {
-    return new descartesJS.Quaternion(this.x * q.w + this.w * q.x + this.y * q.z - this.z * q.y,
-                                      this.y * q.w + this.w * q.y + this.z * q.x - this.x * q.z,
-                                      this.z * q.w + this.w * q.z + this.x * q.y - this.y * q.x,
-                                      this.w * q.w - this.x * q.x - this.y * q.y - this.z * q.z
-                                     );
-  }
-
-  descartesJS.Quaternion.prototype.multiplyVector3 = function(v) {
-    var ix =  this.w * v.x + this.y * v.z - this.z * v.y;
-    var iy =  this.w * v.y + this.z * v.x - this.x * v.z;
-    var iz =  this.w * v.z + this.x * v.y - this.y * v.x;
-    var iw = -this.x * v.x - this.y * v.y - this.z * v.z;
- 
-    return new descartesJS.Vector3D(ix * this.w + iw * -this.x + iy * -this.z - iz * -this.y,
-                                    iy * this.w + iw * -this.y + iz * -this.x - ix * -this.z,
-                                    iz * this.w + iw * -this.z + ix * -this.y - iy * -this.x
-                                   );
-  }
-  
-  descartesJS.Quaternion.prototype.scale = function(s) {
-    return new descartesJS.Quaternion(this.x * s,
-                                      this.y * s,
-                                      this.z * s,
-                                      this.w * s
-                                     );
-  }
-
-  descartesJS.Quaternion.prototype.toMatrix3x3 = function() {
-    var x2 = this.x + this.x;
-    var y2 = this.y + this.y;
-    var z2 = this.z + this.z;
-    
-    var xx = this.x * x2;
-    var xy = this.x * y2;
-    var xz = this.x * z2;
-    var yy = this.y * y2;
-    var yz = this.y * z2;
-    var zz = this.z * z2;
-    var wx = this.w * x2;
-    var wy = this.w * y2;
-    var wz = this.w * z2;
-    
-    return new descartesJS.Matrix3x3(1 - (yy + zz), xy + wz, xz - wy,
-                                     xy - wz, 1 - (xx + zz), yz + wx,
-                                     xz + wy, yz - wx, 1 - (xx + yy)
-                                    );
-  }
-
-  descartesJS.Quaternion.prototype.toMat4 = function() {
-    var x2 = this.x + this.x;
-    var y2 = this.y + this.y;
-    var z2 = this.z + this.z;
-    
-    var xx = this.x * x2;
-    var xy = this.x * y2;
-    var xz = this.x * z2;
-    var yy = this.y * y2;
-    var yz = this.y * z2;
-    var zz = this.z * z2;
-    var wx = this.w * x2;
-    var wy = this.w * y2;
-    var wz = this.w * z2;
-    
-    return new descartesJS.Matrix4x4(1 - (yy + zz), xy + wz, xz - wy, 0,
-                                     xy - wz, 1 - (xx + zz), yz + wx, 0,
-                                     xz + wy, yz - wx, 1 - (xx + yy), 0,
-                                     0, 0, 0, 1
-                                    );
-  }
-  
-  descartesJS.Quaternion.prototype.slerp = function(q, slerp) {
-    var cosHalfTheta = this.x * q.x + this.y * q.y + this.z * q.z + this.w * q.w;
-    
-    if (Math.abs(cosHalfTheta) >= 1) {
-      return new descartesJS.Quaternion(this.x,
-                                        this.y,
-                                        this.z,
-                                        this.w
-                                       );
-    }
-    
-    var halfTheta = Math.acos(cosHalfTheta);
-    var sinHalfTheta = Math.sqrt(1 - cosHalfTheta * cosHalfTheta);
-    
-    if (Math.abs(sinHalfTheta) < 0.001) {
-      return new descartesJS.Quaternion(this.x * 0.5 + q.x * 0.5,
-                                        this.y * 0.5 + q.y * 0.5,
-                                        this.z * 0.5 + q.z * 0.5,
-                                        this.w * 0.5 + q.w * 0.5
-                                       );
-    }
-    
-    var ratioA = Math.sin((1 - slerp) * halfTheta) / sinHalfTheta;
-    var ratioB = Math.sin(slerp * halfTheta) / sinHalfTheta;
-    
-    return new descartesJS.Quaternion(this.x * ratioA + q.x * ratioB,
-                                      this.y * ratioA + q.y * ratioB,
-                                      this.z * ratioA + q.z * ratioB,
-                                      this.w * ratioA + q.w * ratioB
-                                     );
-  }
-
-  // matriz de 3x3
-  descartesJS.Quaternion.prototype.fromRotationMatrix = function(m) {
-    var quaternion = new descartesJS.Quaternion();
-    fTrace = m.a00 + m.a11 + m.a22;
-    var fRoot;
-    
-    if ( fTrace > 0 ) {
-      fRoot = Math.sqrt(fTrace + 1);
-      quaternion.w = .5 * fRoot;
-      fRoot = .5 / fRoot;
-      quaternion.x = (m.a21 - m.a12) * fRoot;
-      quaternion.y = (m.a02 - m.a20) * fRoot;
-      quaternion.z = (m.a10 - m.a01) * fRoot;
-    }
-    else {
-//       var s_iNext = this.fromRotationMatrix.s_iNext = this.fromRotationMatrix.s_iNext || [1,2,0];
-      var s_iNext = [1,2,0];
-      var i = 0;
-      var mat = [m.a00, m.a01, m.a02, m.a10, m.a11, m.a12, m.a20, m.a21, m.a22];
-
-      if (mat[4] > mat[0]) {
-        i = 1;
-      }
-      if (mat[8] > mat[i*3+i]) {
-        i = 2;
-      }
-      var j = s_iNext[i];
-      var k = s_iNext[j];
-
-      fRoot = Math.sqrt(mat[i*3+i]-mat[j*3+j]-mat[k*3+k] + 1.0);
-
-      if (i == 0) {
-        quaternion.x = 0.5 * fRoot;
-      }
-      else if (i == 1) {
-        quaternion.y = 0.5 * fRoot;
-      }
-      else {
-        quaternion.z = 0.5 * fRoot;
-      }
-      
-      fRoot = 0.5 / fRoot;
-      
-      quaternion.w = (mat[k*3+j] - mat[j*3+k]) * fRoot;
-
-      if (j == 0) {
-        quaternion.x = (mat[j*3+i] + mat[i*3+j]) * fRoot;
-      }
-      else if (j == 1) {
-        quaternion.y = (mat[j*3+i] + mat[i*3+j]) * fRoot;
-      }
-      else {
-        quaternion.z = (mat[j*3+i] + mat[i*3+j]) * fRoot;
-      }
-      
-      if (j == 0) {
-        quaternion.x = (mat[k*3+i] + mat[i*3+k]) * fRoot;
-      }
-      else if (j == 1) {
-        quaternion.y = (mat[k*3+i] + mat[i*3+k]) * fRoot;
-      }
-      else {
-        quaternion.z = (mat[k*3+i] + mat[i*3+k]) * fRoot;
-      }
-    }
-    
-    return quaternion;
-  }
-  
-  descartesJS.Quaternion.prototype.setIdentity = function() {
-    this.x = 0;
-    this.y = 0;
-    this.z = 0;
-    this.w = 1;
-    return this;
-  }
-  
-  descartesJS.Quaternion.prototype.fromAngleAxis = function(angle, axis) {
-    var half = angle * 0.5;
-    var s = Math.sin(half);
-    
-    return new descartesJS.Quaternion(Math.cos(half),
-                                      s * axis.x,
-                                      s * axis.y,
-                                      s * axis.z
-                                     );
-  }
-
-  descartesJS.Quaternion.prototype.toAngleAxis = function() {
-    var sqrlen = this.x * this.x + this.y * this.y + this.z * this.z;
-    var vector = new descartesJS.Vector4D();
-    
-    if (sqrlen > 0) {
-      vector.w = 2 * Math.acos(this.w);
-      var invlen = descartesJS.RenderMath.inverseSqrt(sqrlen);
-      vector.x = this.x * invlen;
-      vector.y = this.y * invlen;
-      vector.z = this.z * invlen;
-    }
-    else {
-      vector.x = 1;
-      vector.y = 0;
-      vector.z = 0;
-      vector.w = 0;
-    }
-    
-    return vector;
-  }
-  
-  
-  descartesJS.Matrix4x4.prototype.toArray = function() {
-    return [this.a00, this.a01, this.a02, this.a03, 
-            this.a10, this.a11, this.a12, this.a13,
-            this.a20, this.a21, this.a22, this.a23,
-            this.a30, this.a31, this.a32, this.a33
-           ];
   }
 
   return descartesJS;
@@ -7942,37 +6832,45 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var MathFloor = Math.floor;
+  var Math2PI = 2*Math.PI;
+  var lineCap = "round";
+  var lineJoin = "round";
+
   var v1;
   var v2;
   var evaluator;
   var verticalDisplace;
   var theText;
 
+  var epsilon = 0.00000001;
+
   /**
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (vertices, type, style, evaluator, text) {
-    this.vertices = vertices;
-    this.type = type;
-    this.style = style;
-    this.evaluator = evaluator;
-    this.text = text || "";
+  descartesJS.Primitive3D = function (values) {
+    // traverse the values to replace the defaults values of the object
+    for (var propName in values) {
+      // verify the own properties of the object
+      if (values.hasOwnProperty(propName)) {
+        this[propName] = values[propName];
+      }
+    }
 
-    this.light = (new descartesJS.Vector3D(-1, 0, 0)).normalize();
-
-    this.transformedVertices = [];
+    this.newV = [];
 
     // asign the corresponding drawing function
-    if (type === "vertex") {
+    if (this.type === "vertex") {
       this.draw = drawVertex;
     }
-    else if (type === "face") {
+    else if (this.type === "face") {
+      this.normal = getNormal(this.vertices[0], this.vertices[1], this.vertices[2]);
       this.draw = drawFace;
     }
-    else if (type === "text") {
+    else if (this.type === "text") {
       // get the font size
-      this.fontSize = style.font.match(/(\d+)px/);
+      this.fontSize = this.font.match(/(\d+)px/);
       if (this.fontSize) {
         this.fontSize = parseInt(this.fontSize[1]);
       } else {
@@ -7981,34 +6879,18 @@ var descartesJS = (function(descartesJS) {
 
       this.draw = drawPrimitiveText;
     }
-    else if (type === "edge") {
+    else if (this.type === "edge") {
       this.draw = drawEdge;
     }
 
     // overwrite the computeDepth function if the primitive is a text
-    if (style.isText) {
-      this.computeDepth = function(space) {
-        this.transformedVertices = this.vertices;
-        this.depth = (space.perspectiveMatrix.multiplyVector4( this.vertices[0] ).toVector3D()).z;
+    if (this.isText) {
+      this.computeDepth = function() {
+        this.newV = this.vertices;
+        this.depth = this.vertices[0].z;
       }
     }
 
-  }
-
-  /**
-   * Set the vertices of the primitive
-   * @param {Array<Vector4D>} vertices an array of the new vertex information
-   */
-  descartesJS.Primitive3D.prototype.setVertices = function(vertices) {
-    this.vertices = vertices;
-  }
-
-  /**
-   * Set the style (how the primitive look) of the primitive 
-   * @param {Object} style is an object containing the style information of the primitive
-   */
-  descartesJS.Primitive3D.prototype.setStyle = function(style) {
-    this.style = style;
   }
 
   /**
@@ -8016,57 +6898,45 @@ var descartesJS = (function(descartesJS) {
    * @param
    */
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
+    this.average = { x: 0, y: 0, z: 0 };
+
+    // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
-      // this.transformedVertices[i] = space.rotateVertex(this.vertices[i]);
-      this.transformedVertices[i] = space.rotationMatrix.multiplyVector4(this.vertices[i]);
+      this.newV[i] = space.rotateVertex(this.vertices[i]);
+      this.average.x += this.newV[i].x;
+      this.average.y += this.newV[i].y;
+      this.average.z += this.newV[i].z;
     }
+    this.average = descartesJS.scalarProduct3D(this.average, 1/l);
 
     // triangles and faces
-    if (this.vertices.length >2) {
-      v1 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[1].toVector3D());
-      v2 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[2].toVector3D());
-      // v1 = (this.transformedVertices[0]).direction(this.transformedVertices[1]);
-      // v2 = (this.transformedVertices[0]).direction(this.transformedVertices[2]);
-      this.normal = (v1.crossProduct(v2)).normalize();
-      this.direction = this.normal.dotProduct(space.eye.normalize());
+    if (this.vertices.length > 2) {
+      // v1 = descartesJS.subtract3D( this.newV[0], this.newV[1] );
+      // v2 = descartesJS.subtract3D( this.newV[0], this.newV[2] );
+      // this.normal = descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
+      this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
+      this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
     this.depth = 0;
-    this.zMin =  10000;
-    this.zMax = -10000;
     for (var i=0, l=this.vertices.length; i<l; i++) {
-      this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4(this.transformedVertices[i]).toVector3D() ;
-
-      this.depth += this.transformedVertices[i].z;
-      this.zMin = Math.min(this.zMin, this.transformedVertices[i].z);
-      this.zMax = Math.max(this.zMax, this.transformedVertices[i].z);
-
-      this.transformedVertices[i].x = space.transformCoordinateX(this.transformedVertices[i].x);
-      this.transformedVertices[i].y = space.transformCoordinateY(this.transformedVertices[i].y);
+      this.newV[i] = space.project(this.newV[i]);
+      this.depth += this.newV[i].z;
     }
 
-    this.depth /= l;
-  }
-
-  /**
-   * Auxiliary function to set the style of the primitive into a render context
-   * @param {RenderingContext} ctx the render context to set the style
-   * @param {Object} style an object with the values of the style to setup in the context
-   */
-  function setContextStyle(ctx, style) {
-    for( var i in style ) {
-      ctx[i] = style[i];
-    }
+    this.depth/= l;
   }
 
   /**
    *
    */
   function drawVertex(ctx) {
-    setContextStyle(ctx, this.style);
+    ctx.lineWidth = 1;
+    ctx.fillStyle = this.backColor.getColor();
+    ctx.strokeStyle = this.frontColor.getColor();
 
     ctx.beginPath();
-    ctx.arc(this.transformedVertices[0].x, this.transformedVertices[0].y, this.style.size, 0, 2*Math.PI);
+    ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
     ctx.fill();
     ctx.stroke();
   }
@@ -8074,74 +6944,54 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function drawFace(ctx) {
-    setContextStyle(ctx, this.style);
+  function drawFace(ctx, space) {
+    ctx.lineCap = lineCap;
+    ctx.lineJoin = lineJoin;
+
+    // compute the color if is an expression
+    this.frontColor.getColor();
+    this.backColor.getColor();
 
     // set the path to draw
     ctx.beginPath();
-    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
-    for (var i=1, l=this.transformedVertices.length; i<l; i++) {
-      ctx.lineTo(this.transformedVertices[i].x, this.transformedVertices[i].y);
+    ctx.moveTo(this.newV[0].x, this.newV[0].y);
+    for (var i=1, l=this.newV.length; i<l; i++) {
+      ctx.lineTo(this.newV[i].x, this.newV[i].y);
     }
     ctx.closePath();
 
     // color render
-    if (this.style.model === "color") {
+    if (this.model === "color") {
       if (this.direction >= 0) {
-        ctx.fillStyle = this.style.backcolor;
-        ctx.strokeStyle = this.style.backcolor;
+        ctx.fillStyle = this.backColor.getColor();
       }
       else {
-        ctx.fillStyle = this.style.color;
-        ctx.strokeStyle = this.style.fillStyle;
+        ctx.fillStyle = this.frontColor.getColor();
       }
 
       ctx.fill();
-
-      // necesary to cover completely the primitive
-      // ctx.lineWidth = .8;
-      // ctx.stroke();
     }
-    // light and metal render (incomplete)
-    else if ( (this.style.model === "light") || (this.style.model === "metal") ){
-      // if (this.direction >= 0) {
-      //   ctx.fillStyle = computeColor(this.style.bcolor, this.normal.dotProduct(this.light, (this.style.model === "metal")));
-      //   ctx.strokeStyle = this.style.backcolor;
-      // }
-      // else {
-      //   ctx.fillStyle = computeColor(this.style.fcolor, -this.normal.dotProduct(this.light, (this.style.model === "metal")));
-      //   ctx.strokeStyle = this.style.fillStyle;
-      // }
-
+    // light and metal render
+    else if ( (this.model === "light") || (this.model === "metal") ){
       if (this.direction >= 0) {
-        ctx.fillStyle = this.style.backcolor;
-        ctx.strokeStyle = this.style.backcolor;
+        ctx.fillStyle = space.computeColor(this.backColor, this, (this.model === "metal"));
       }
       else {
-        ctx.fillStyle = this.style.color;
-        ctx.strokeStyle = this.style.fillStyle;
+        ctx.fillStyle = space.computeColor(this.frontColor, this, (this.model === "metal"));
       }
-
-
       ctx.fill();
-
-      // necesary to cover completely the primitive
-      // ctx.lineWidth = .8;
-      // ctx.stroke();
     }
     // wireframe render
-    else if (this.style.model === "wire") {
+    else if (this.model === "wire") {
       ctx.lineWidth = 1.25;
-      ctx.strokeStyle = this.style.fillStyle;
-
+      ctx.strokeStyle = this.frontColor.getColor();
       ctx.stroke();
     }
 
     // draw the edges
-    if ((this.style.edges) && (this.style.model !== "wire")) {
+    if ((this.edges) && (this.model !== "wire")) {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = this.style.strokeStyle;
-      
+      ctx.strokeStyle = "#808080"
       ctx.stroke();
     }
   }
@@ -8150,19 +7000,22 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function drawPrimitiveText(ctx) {
-    this.drawText(ctx, this.text, this.transformedVertices[0].x, this.transformedVertices[0].y +this.style.displace, this.style.fillStyle, this.style.font, "left", "alphabetic", this.style.decimals, this.style.fixed, true);
+    this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor.getColor(), this.font, "left", "alphabetic", this.decimals, this.fixed, true);
   }
 
   /**
    *
    */
   function drawEdge(ctx) {
-    setContextStyle(ctx, this.style);
+    ctx.lineCap = lineCap;
+    ctx.lineJoin = lineJoin;
+    ctx.lineWidth = this.lineWidth;
+    ctx.strokeStyle = this.frontColor.getColor();
 
     // set the path to draw
     ctx.beginPath();
-    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
-    ctx.lineTo(this.transformedVertices[1].x, this.transformedVertices[1].y);
+    ctx.moveTo(this.newV[0].x, this.newV[0].y);
+    ctx.lineTo(this.newV[1].x, this.newV[1].y);
 
     ctx.stroke();
   }
@@ -8217,19 +7070,216 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  function computeColor(color, angle, metal) {
-    angle = Math.acos(angle) / Math.PI;
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.splitFace = function(p) {
+    if (this.intersects(p)) {
+      var i1 = null;
+      var i2 = null;
+      var ix1 = 0;
+      var ix2 = 0;
 
-    if (metal) {
-      angle = Math.pow(angle, 3);
+      for (var i=0, l=p.vertices.length; i<l; i++) {
+        var inter = this.intersection( p.vertices[i], p.vertices[(i+1)%l] );
+
+        if (inter !== null) {
+          if (i1 === null) {
+            i1 = inter;
+            ix1 = i;
+            if (p.vertices.length === 2) {
+              i2 = i1;
+              break;
+            }
+          }
+          else if (!descartesJS.equals3DEpsilon(inter, i1, epsilon)) {
+            i2 = inter;
+            ix2 = i;
+            break;
+          }
+        }
+      }
+
+      if ((i1 !== null) && (i2 !== null)) {
+        var oneIsInterior = this.isInterior(i1) || this.isInterior(i2);
+        var j1 = null;
+        var j2 = null;
+
+        if ((!oneIsInterior) && (p.vertices.length >= 3)) {
+          for (var j=0, k=this.vertices.length; j<k; j++) {
+            var inter = p.intersection( this.vertices[j], this.vertices[(j+1)%k] );
+            if (inter !== null) {
+              if (j1 === null) {
+                j1 = inter;
+              }
+              else if (!descartesJS.equals3DEpsilon(inter, j1, epsilon)) {
+                j2 = inter;
+                break;
+              }
+            }
+          }
+        }
+
+        if ( (oneIsInterior) || ((j1 !== null) && (j2 !== null) && (p.isInterior(j1)) && (p.isInterior(j2))) ) {
+          var splitted = true;
+          var P0 = p.vertices;
+          var V = null;
+          var v = null;
+
+          if (P0.length === 2) {
+            if (descartesJS.equals(i1, P0[0], epsilon) || descartesJS.equals(i1, P0[1], epsilon)) {
+              splitted = false;
+            }
+            else {
+              V = [];
+              V[0] = P0[0];
+              V[1] = i1;
+              v = [];
+              v[0] = i1;
+              v[1] = P0[1]
+            }
+          }
+          else {
+            V = [];
+            v = [];
+            var J=0;
+            var j=0;
+            var k=0;
+
+            for (var i=0; i<P0.length; i++) {
+              if (i < ix1) {
+                V[J++] = P0[i];
+              }
+              else if (i == ix1) {
+                V[J++] = P0[i];
+                V[J++] = i1;
+                v[j++] = i1;
+              } 
+              else if (i < ix2) {
+                v[j++] = P0[i];
+              } 
+              else if (i == ix2) {
+                v[j++] = P0[i];
+                v[j++] = i2;
+                V[J++] = i2;
+              } 
+              else {
+                V[J++] = P0[i];
+              }
+            }
+          }
+
+          if (splitted) {
+            var fa = [];
+
+            fa[0] = new descartesJS.Primitive3D( { vertices: V,
+                                                   type: "face",
+                                                   frontColor: p.frontColor,
+                                                   backColor: p.backColor,
+                                                   edges: p.edges,
+                                                   model: p.model
+                                                  } );
+            fa[0].normal = p.normal;
+
+            fa[1] = new descartesJS.Primitive3D( { vertices: v,
+                                                   type: "face",
+                                                   frontColor: p.frontColor,
+                                                   backColor: p.backColor,
+                                                   edges: p.edges,
+                                                   model: p.model
+                                                  } );
+            fa[1].normal = p.normal;
+
+            return fa;
+          }
+        }
+      }
     }
 
-    var r = Math.floor(color.r * angle);
-    var g = Math.floor(color.g * angle);
-    var b = Math.floor(color.b * angle);
-    var a = 1 - color.a;
+    return [p];
+  }
 
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  /**
+   * check if two faces has an intersection
+   */
+  descartesJS.Primitive3D.prototype.intersects = function(p) {
+    return this.intersectsPlane(p) && p.intersectsPlane(this);
+  }
+
+  /**
+   * check if two planes intersects
+   */
+  descartesJS.Primitive3D.prototype.intersectsPlane = function(p) {
+    var d = descartesJS.dotProduct3D(p.vertices[0], p.normal);
+    var d0 = descartesJS.dotProduct3D(this.vertices[0], p.normal);
+
+    if (Math.abs(d-d0) < epsilon) {
+      return true;
+    }
+    for (var i=1, l=this.vertices.length; i<l; i++) {
+      var di = descartesJS.dotProduct3D( this.vertices[i], p.normal);
+
+      if ( (Math.abs(d-di) < epsilon) || (di>d && d0<d) || (di<d && d0>d) ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.intersection = function(p1, p2) {
+    if (this.vertices.length > 0) {
+      var p12 = descartesJS.subtract3D(p2, p1);
+      var den = descartesJS.dotProduct3D(p12, this.normal);
+      if (den !== 0) {
+        var t = descartesJS.dotProduct3D( descartesJS.subtract3D(this.vertices[0], p1), this.normal ) / den;
+
+        if ((-epsilon < t) && (t < 1+epsilon)) {
+          return descartesJS.add3D(p1, descartesJS.scalarProduct3D(p12, t));
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.isInterior = function(r) {
+    if (this.vertices.length > 0) {
+      var D = 0;
+      var u = descartesJS.subtract3D(this.vertices[0], r);
+
+      for (var i=0, l=this.vertices.length; i<l; i++) {
+        var v = descartesJS.subtract3D(this.vertices[(i+1)%l], r);
+        var D1 = descartesJS.dotProduct3D( descartesJS.crossProduct3D(u, v), this.normal );
+
+        if (Math.abs(D1) < epsilon) {
+          if (descartesJS.dotProduct3D(u, v) < 0) {
+            return true;
+          }
+        }
+        else {
+          if (((D < 0) && (D1 > 0)) || ((D > 0) && (D1 < 0))) {
+            return false;
+          }
+          u = v;
+          D = D1;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  function getNormal(u1, u2, u3) {
+    v1 = descartesJS.subtract3D( u1, u2 );
+    v2 = descartesJS.subtract3D( u1, u3 );
+    return descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
   }
 
   return descartesJS;
@@ -8241,20 +7291,19 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var translate = {x:0, y:0, z:0};
+
   var evaluator;
   var expr;
   var tempParam;
   var theText;
   var verticalDisplace;
 
+  var tmpVertex;
   var tmpExpr;
-  var vectorX;
-  var vectorY;
-  var vectorZ;
-  var translate;
-
-  var indexOfVar;
-  var arrayVars = ["x", "y", "z"];
+  var tmpExpr2;
+  var tmpExpr3;
+  var lastIndexOfSpace;
 
   /**
    * Descartes 3D graphics
@@ -8277,7 +7326,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluator = parent.evaluator;
 
-    var parser = this.parent.evaluator.parser;
+    var parser = parent.evaluator.parser;
 
     /**
      * identifier of the space that belongs to the graphic
@@ -8306,6 +7355,12 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.color = new descartesJS.Color("eeffaa");
+
+    /**
+     * the back face color of the graphic
+     * type {Node}
+     * @private
+     */
     this.backcolor = new descartesJS.Color("6090a0");
 
     this.Nu = this.evaluator.parser.parse("7");
@@ -8325,20 +7380,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.abs_coord = false;
     
-    /**
-     * the expression for determine the position of the graphic
-     * type {Node}
-     * @private
-     */
-//     this.expresion = parser.parse("(0,0)");
-
-    /**
-     * the color for the trace of the graphic
-     * type {String}
-     * @private
-     */
-    // this.trace = "";
-
     /**
      * the condition and parameter name for family of the graphic
      * type {String}
@@ -8361,20 +7402,6 @@ var descartesJS = (function(descartesJS) {
     this.family_steps = parser.parse("8");
     
     /**
-     * the condition for determining whether the graph is editable
-     * type {Boolean}
-     * @private
-     */
-    // this.editable = false;
-
-    /**
-     * info
-     * type {String}
-     * @private
-     */
-    // this.info = "";
-
-    /**
      * info font
      * type {String}
      * @private
@@ -8387,13 +7414,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.fixed = true;
-
-    /**
-     * point widht
-     * type {Node}
-     * @private
-     */
-    // this.size = parser.parse("2");
 
     /**
      * text of the graphic
@@ -8414,7 +7434,8 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.inirot = parser.parse("(0,0,0)");
+    this.inirot = "(0,0,0)";
+    this.inirotEuler = false;
     
     /**
      * the init position of a graphic
@@ -8428,7 +7449,8 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.endrot = parser.parse("(0,0,0)");
+    this.endrot = "(0,0,0)";
+    this.endrotEuler = false;
     
     /**
      * the init position of a graphic
@@ -8438,7 +7460,7 @@ var descartesJS = (function(descartesJS) {
     this.endpos = parser.parse("(0,0,0)");
 
     /**
-     * 
+     * the ilumination model
      * type {String}
      * @private
      */
@@ -8465,12 +7487,7 @@ var descartesJS = (function(descartesJS) {
       this.canvas = this.space.canvas;
     }
     this.ctx = this.canvas.getContext("2d");
-    
-    // // if the object has trace, then get the background canvas render context
-    // if (this.trace) {
-    //   this.traceCtx = this.space.backgroundCanvas.getContext("2d");
-    // }
-    
+        
     this.font = descartesJS.convertFont(this.font)
 
     // get the font size
@@ -8481,20 +7498,31 @@ var descartesJS = (function(descartesJS) {
       this.fontSize = 10;
     }
 
-    // auxiliary vectors
-    vectorX = new descartesJS.Vector3D(1, 0, 0); 
-    vectorY = new descartesJS.Vector3D(0, 1, 0); 
-    vectorZ = new descartesJS.Vector3D(0, 0, 1);
-    translate = new descartesJS.Vector3D(0, 0, 0);
+    // euler rotations
+    if (this.inirot.match("Euler")) {
+      this.inirot = this.inirot.replace("Euler", "");
+      this.inirotEuler = true;
+    }
+    if (this.endrot.match("Euler")) {
+      this.endrot = this.endrot.replace("Euler", "");
+      this.endrotEuler = true;
+    }
 
+    this.inirot = parser.parse(this.inirot);
+    this.endrot = parser.parse(this.endrot);
+
+    // auxiliary matrices
+    this.inirotM   = new descartesJS.Matrix4x4();
     this.inirotM_X = new descartesJS.Matrix4x4();
     this.inirotM_Y = new descartesJS.Matrix4x4();
     this.inirotM_Z = new descartesJS.Matrix4x4();
-    this.iniposM = new descartesJS.Matrix4x4();
+    this.iniposM   = new descartesJS.Matrix4x4();
+
+    this.endrotM   = new descartesJS.Matrix4x4();
     this.endrotM_X = new descartesJS.Matrix4x4();
     this.endrotM_Y = new descartesJS.Matrix4x4();
     this.endrotM_Z = new descartesJS.Matrix4x4();
-    this.endposM = new descartesJS.Matrix4x4();
+    this.endposM   = new descartesJS.Matrix4x4();
   }
   
   /**
@@ -8579,90 +7607,119 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
-    tmpExpr = this.evaluator.evalExpression(this.inirot);    
-    this.inirotM_X = this.inirotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-    this.inirotM_Y = this.inirotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-    this.inirotM_Z = this.inirotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    if (this.inirotEuler) {
+      this.inirotM = this.inirotM.setIdentity();
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.inirotM = this.inirotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
 
     tmpExpr = this.evaluator.evalExpression(this.inipos);
-    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.iniposM = this.iniposM.setIdentity().translate(translate);
 
     tmpExpr = this.evaluator.evalExpression(this.endrot);
-    this.endrotM_X = this.endrotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-    this.endrotM_Y = this.endrotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-    this.endrotM_Z = this.endrotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    if (this.endrotEuler) {
+      this.endrotM = this.endrotM.setIdentity();
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.endrotM = this.endrotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
 
-    tmpExpr = this.evaluator.evalExpression(this.inipos);
-    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.endposM = this.endposM.setIdentity().translate(translate);
   }
 
-  var tmpVertex;
   /** 
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
-    // tmpVertex = this.inirotM_X.multiplyVector4(v);
-    // tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
-    // tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);
+    if (this.inirotEuler) {
+      tmpVertex = this.inirotM.multiplyVector4(v);
+    }
+    else {
+      tmpVertex = this.inirotM_X.multiplyVector4(v);
+      tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);      
+    }
 
-    // tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
+    tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
 
-    // tmpVertex = this.endrotM_X.multiplyVector4(tmpVertex);
-    // tmpVertex = this.endrotM_Y.multiplyVector4(tmpVertex);
-    // tmpVertex = this.endrotM_Z.multiplyVector4(tmpVertex);
+    if (this.endrotEuler) {
+      tmpVertex = this.endrotM.multiplyVector4(tmpVertex);
+    }
+    else {
+      tmpVertex = this.endrotM_X.multiplyVector4(tmpVertex);
+      tmpVertex = this.endrotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.endrotM_Z.multiplyVector4(tmpVertex);
+    }
 
-    // tmpVertex = this.endposM.multiplyVector4(tmpVertex);
+    tmpVertex = this.endposM.multiplyVector4(tmpVertex);
 
-    // return tmpVertex;
-
-    return this.endposM.multiplyVector4(
-             this.endrotM_Z.multiplyVector4(
-               this.endrotM_Y.multiplyVector4(
-                 this.endrotM_X.multiplyVector4(
-                   this.iniposM.multiplyVector4(
-                     this.inirotM_Z.multiplyVector4(
-                       this.inirotM_Y.multiplyVector4(
-                         this.inirotM_X.multiplyVector4( 
-                           v
-                         )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
+    return tmpVertex;
    }
 
   /**
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    var tmpExpr = this.expresion.split("=");
-    var tmpExpr2 = tmpExpr[0];
-    var tmpExpr3 = [];
-    var lastIndexOfSpace;
+    tmpExpr = this.expresion.split("=");
+    tmpExpr2 = tmpExpr[0];
+    tmpExpr3 = [];
 
     for (var i=1; i<tmpExpr.length; i++) {
       tmpExpr2 += "=";
 
       lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
 
-      if (lastIndexOfSpace !== -1) {
-        tmpExpr2 += tmpExpr[i].substring(0,lastIndexOfSpace);
-      }
-      else {
-        tmpExpr2 += tmpExpr[i];
-      }
-      
+      tmpExpr2 += (lastIndexOfSpace !== -1) ? tmpExpr[i].substring(0, lastIndexOfSpace) : tmpExpr[i];
+     
       tmpExpr3.push( this.evaluator.parser.parse(tmpExpr2, true) );
 
       tmpExpr2 = tmpExpr[i].substring(lastIndexOfSpace+1);
     }
 
     return tmpExpr3;
+  }
+
+  var tmpPrimitives;
+
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.splitFace = function(g) {
+    for (var i=0, l=this.primitives.length; i<l; i++) {
+      tmpPrimitives = [];
+
+      // if the primitive is a face then try to cut the other primitives faces
+      if (this.primitives[i].type === "face") {
+
+        for (var j=0, k=g.primitives.length; j<k; j++) {
+          // the primitives of g are splited and added to an array
+          if (g.primitives[j].type === "face") {
+            tmpPrimitives = tmpPrimitives.concat( this.primitives[i].splitFace(g.primitives[j]) );
+          }
+          // if the primitive is not a face, then do not split it
+          else {
+            tmpPrimitives.push( g.primitives[j] );
+          }
+        }
+
+        g.primitives = tmpPrimitives;
+      }
+    }
   }
   
   return descartesJS;
@@ -8677,6 +7734,9 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   var evaluator;
   var expr;
+  var exprX;
+  var exprY;
+  var exprZ;
   
   /**
    * A Descartes 3D point
@@ -8687,8 +7747,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Point3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -8706,33 +7764,30 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0];
-    this.exprY = expr[0][1];
-    this.exprZ = expr[0][2];
+    exprX = expr[0][0];
+    exprY = expr[0][1];
+    exprZ = expr[0][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
-                                                      "vertex",
-                                                      { fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: this.color.getColor(), 
-                                                        lineCap: "round", 
-                                                        lineJoin: "round",
-                                                        lineWidth: 1,
-                                                        size: evaluator.evalExpression(this.width)
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+                               type: "vertex",
+                               backColor: this.backcolor, 
+                               frontColor: this.color, 
+                               size: evaluator.evalExpression(this.width)
+                             } ) );
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
-                                                      "text",
-                                                      { fillStyle: this.color.getColor(),
-                                                        font: this.font,
-                                                        decimals: this.evaluator.evalExpression(this.decimals),
-                                                        fixed: this.fixed,
-                                                        displace: this.fontSize
-                                                      },
-                                                      this.evaluator,
-                                                      this.text
-                                                    ));
-
+    // add a text primitive only if the text has content
+    if (this.text !== "") {
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+                                 type: "text",
+                                 frontColor: this.color, 
+                                 font: this.font,
+                                 decimals: evaluator.evalExpression(this.decimals),
+                                 fixed: this.fixed,
+                                 displace: this.fontSize,
+                                 evaluator: evaluator,
+                                 text: this.text
+                               } ) );
+    }
   }
 
   return descartesJS;
@@ -8765,8 +7820,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -8792,15 +7845,13 @@ var descartesJS = (function(descartesJS) {
     v2_y = expr[1][1];
     v2_z = expr[1][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                        this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )],
-                                                      "edge",
-                                                      { strokeStyle: this.color.getColor(), 
-                                                        lineCap: "round", 
-                                                        lineJoin: "round",
-                                                        lineWidth: this.evaluator.evalExpression(this.width)
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                         ],
+                               type: "edge",
+                               frontColor: this.color, 
+                               lineWidth: evaluator.evalExpression(this.width)
+                             } ) );
 
   }
   
@@ -8854,10 +7905,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    var parser = this.evaluator.parser;
-    
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
 
     this.expresion = this.parseExpression();
   }
@@ -8913,19 +7960,13 @@ var descartesJS = (function(descartesJS) {
         v.push(vertices[vi+2 + (ui+1)*Nv  + ui]);
         v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
 
-        this.primitives.push(new descartesJS.Primitive3D( v,
-                                                          "face",
-                                                          { backcolor: this.backcolor.getColor(), 
-                                                            fillStyle: this.color.getColor(), 
-                                                            strokeStyle: "#808080", 
-                                                            lineCap: "round", 
-                                                            lineJoin: "round", 
-                                                            edges: this.edges, 
-                                                            model: this.model,
-                                                            fcolor: this.color,
-                                                            bcolor: this.backcolor
-                                                          }
-                                                        ));
+        this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
+                                   type: "face",
+                                   frontColor: this.color, 
+                                   backColor: this.backcolor,
+                                   edges: this.edges, 
+                                   model: this.model
+                                 } ) );
 
       }
     }
@@ -8965,8 +8006,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -8994,15 +8033,13 @@ var descartesJS = (function(descartesJS) {
       v2_y = expr[i+1][1];
       v2_z = expr[i+1][2];
 
-      this.primitives.push(new descartesJS.Primitive3D( [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                          this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )],
-                                                        "edge",
-                                                        { strokeStyle: this.color.getColor(), 
-                                                          lineCap: "round", 
-                                                          lineJoin: "round",
-                                                          lineWidth: this.evaluator.evalExpression(this.width)
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                             this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                           ],
+                                 type: "edge",
+                                 frontColor: this.color, 
+                                 lineWidth: evaluator.evalExpression(this.width)
+                               } ) );
 
     }
   }
@@ -9034,11 +8071,7 @@ var descartesJS = (function(descartesJS) {
 
     // se llama al constructor del padre
     descartesJS.Graphic3D.call(this, parent, values);
-
-    var parser = this.evaluator.parser;
     
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
     this.expresion = this.parseExpression();
   }
   
@@ -9046,7 +8079,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic3D
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Curve3D, descartesJS.Graphic3D);
-  
   
   /**
    * Build the primitives corresponding to the curve
@@ -9079,15 +8111,11 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
-      this.primitives.push(new descartesJS.Primitive3D( [ vertices[i],
-                                                          vertices[i+1] ],
-                                                        "edge",
-                                                        { strokeStyle: this.color.getColor(), 
-                                                          lineCap: "round", 
-                                                          lineJoin: "round",
-                                                          lineWidth: this.evaluator.evalExpression(this.width)
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
+                                 type: "edge",
+                                 frontColor: this.color, 
+                                 lineWidth: evaluator.evalExpression(this.width)
+                               } ) );
     }
 
     evaluator.setVariable("x", tempParamX);
@@ -9124,8 +8152,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Triangle3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -9154,21 +8180,16 @@ var descartesJS = (function(descartesJS) {
     v3_y = expr[2][1];
     v3_z = expr[2][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                        this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) ),
-                                                        this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) )],
-                                                      "face",
-                                                      { backcolor: this.color.getColor(),
-                                                        fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: "#808080", 
-                                                        lineCap: "round",
-                                                        lineJoin: "round",
-                                                        edges: this.edges, 
-                                                        model: this.model,
-                                                        fcolor: this.color,
-                                                        bcolor: this.backcolor
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                           this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                         ],
+                               type: "face",
+                               frontColor: this.color,
+                               backColor: this.backcolor, 
+                               edges: this.edges, 
+                               model: this.model
+                             } ) );
 
   }
 
@@ -9198,8 +8219,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Face3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -9219,23 +8238,17 @@ var descartesJS = (function(descartesJS) {
 
     vertices = [];
 
-    for (var i=0, l=expr.length; i<l; i++) {
+    for (var i=expr.length-1; i>=0; i--) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
     }
 
-    this.primitives.push(new descartesJS.Primitive3D( vertices,
-                                                      "face",
-                                                      { backcolor: this.color.getColor(), 
-                                                        fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: "#808080", 
-                                                        lineCap: "round",
-                                                        lineJoin: "round",
-                                                        edges: this.edges, 
-                                                        model: this.model,
-                                                        fcolor: this.color,
-                                                        bcolor: this.backcolor
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: vertices,
+                               type: "face",
+                               frontColor: this.color, 
+                               backColor: this.backcolor, 
+                               edges: this.edges, 
+                               model: this.model
+                             } ) );
 
   }
   
@@ -9266,8 +8279,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -9295,21 +8306,16 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0; i<Nu; i++) {
-      this.primitives.push(new descartesJS.Primitive3D( [ vertices[0],
-                                                          vertices[i+1],
-                                                          (i+2 <= Nu) ? vertices[i+2] : vertices[1] ],
-                                                        "face",
-                                                        { backcolor: this.color.getColor(), 
-                                                          fillStyle: this.backcolor.getColor(), 
-                                                          strokeStyle: "#808080", 
-                                                          lineCap: "round",
-                                                          lineJoin: "round",
-                                                          edges: this.edges, 
-                                                          model: this.model,
-                                                          fcolor: this.color,
-                                                          bcolor: this.backcolor
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[0],
+                                             (i+2 <= Nu) ? vertices[i+2] : vertices[1],
+                                             vertices[i+1]
+                                           ],
+                                 type: "face",
+                                 frontColor: this.color, 
+                                 backColor: this.backcolor, 
+                                 edges: this.edges, 
+                                 model: this.model
+                               } ) );
     }
 
   }
@@ -9322,6 +8328,12 @@ var descartesJS = (function(descartesJS) {
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
+
+  var evaluator;
+  var expr;
+  var exprX;
+  var exprY;
+  var exprZ;
 
   /**
    * A Descartes 3D text
@@ -9346,22 +8358,21 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0];
-    this.exprY = expr[0][1];
-    this.exprZ = 0;
+    exprX = expr[0][0];
+    exprY = expr[0][1];
+    exprZ = 0;
 
-    this.primitives.push(new descartesJS.Primitive3D( [new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1)],
-                                                      "text",
-                                                      { fillStyle: this.color.getColor(),
-                                                        font: this.font,
-                                                        decimals: this.evaluator.evalExpression(this.decimals),
-                                                        fixed: this.fixed,
-                                                        displace: 0,
-                                                        isText: true
-                                                      },
-                                                      this.evaluator,
-                                                      this.text
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
+                               type:"text",
+                               frontColor: this.color,
+                               font: this.font,
+                               decimals: evaluator.evalExpression(this.decimals),
+                               fixed: this.fixed,
+                               displace: 0,
+                               isText: true,
+                               evaluator: evaluator,
+                               text: this.text
+                             } ) );
 
   }
   
@@ -9387,8 +8398,6 @@ var descartesJS = (function(descartesJS) {
   var length;
   var Nu;
   var Nv;
-  var backcolor;
-  var fillStyle;
   var v;
   var x;
   var y;
@@ -9421,10 +8430,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
-    // console.log("XXXXX", this.type)
 
     switch (this.type) {
       case("cube"):
@@ -9487,30 +8492,19 @@ var descartesJS = (function(descartesJS) {
 
     this.buildGeometry(evaluator.evalExpression(this.width), evaluator.evalExpression(this.height), evaluator.evalExpression(this.length), evaluator.evalExpression(this.Nu), evaluator.evalExpression(this.Nv));
 
-    backcolor = this.backcolor.getColor();
-    fillStyle = this.color.getColor();
-
     for (var i=0, l=this.faces.length; i<l; i++) {
       v = [];
       for (var j=0, k=this.faces[i].length; j<k; j++) {
-        // v.push( this.mvMatrix.multiplyVector4(this.vertices[this.faces[i][j]]) );
         v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
-        
       }
 
-      this.primitives.push(new descartesJS.Primitive3D( v,
-                                                        "face",
-                                                        { backcolor: backcolor, 
-                                                          fillStyle: fillStyle, 
-                                                          strokeStyle: "#808080", 
-                                                          lineCap: "round",
-                                                          lineJoin: "round",
-                                                          edges: this.edges, 
-                                                          model: this.model, 
-                                                          fcolor: this.color,
-                                                          bcolor: this.backcolor
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
+                                type: "face",
+                                frontColor: this.color,
+                                backColor: this.backcolor, 
+                                edges: this.edges, 
+                                model: this.model
+                              } ) );
     }
 
   }
@@ -9519,27 +8513,7 @@ var descartesJS = (function(descartesJS) {
    * Define the vertex and faces of the cube
    */
   function buildCube(width, height, length, Nu, Nv) {
-    // width  = width/4;
-
-    // // if the geometry has to change
-    // if (this.changeGeometry(width, height, length, Nu, Nv)) {
-    //   return;
-    // }
-
-    // this.vertices = [ new vec4D( width,  width,  width, 1), //0
-    //                   new vec4D( width, -width,  width, 1), //1
-    //                   new vec4D( width,  width, -width, 1), //2
-    //                   new vec4D( width, -width, -width, 1), //3
-    //                   new vec4D(-width,  width,  width, 1), //4
-    //                   new vec4D(-width, -width,  width, 1), //5
-    //                   new vec4D(-width,  width, -width, 1), //6
-    //                   new vec4D(-width, -width, -width, 1)  //7
-    //            ];
-
-    // this.faces = [[0, 1, 3, 2], [0, 4, 5, 1], [4, 6, 7, 5], [2, 3, 7, 6], [0, 2, 6, 4], [1, 5, 7, 3]];
-
-    // this.updateValues(width, height, length, Nu, Nv);
-    buildBox.call(this, width/2, width/2, width/2, Nu, Nv);
+    buildBox.call(this, width/1.8, width/1.8, width/1.8, Nu, Nv);
   }
 
   /**
@@ -9564,6 +8538,9 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width,  length, -height, 1), //6
                       new vec4D(-width, -length, -height, 1)  //7
                ];
+    // this.vertices = [ { x:  width, y:  length, z: height, 1 },
+    //                   { x:  width, y: -length, z: height, 1 },
+    // ]
 
     this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
 
@@ -9656,7 +8633,8 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width_m_goldenRatio, 0, -width_d_goldenRatio, 1)  //19
                ];
 
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
+    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
+    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-MathPI/6);
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
@@ -9699,7 +8677,8 @@ var descartesJS = (function(descartesJS) {
                   [6, 0, 10], [11, 6, 10], [7, 11, 10], [7, 3, 11], [5, 3, 7], [9, 3, 5], [8, 9, 5], [4, 9, 8], [0, 4, 8], [6, 4, 0],
                   [11, 3, 1], [6, 11, 1], [4, 6, 1], [9, 4, 1], [3, 9, 1]];
 
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
+    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
+    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-1.029);
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
@@ -11190,7 +10169,7 @@ var descartesJS = (function(descartesJS) {
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    // this.update();
+    canvas.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
   }
   
   /**
@@ -11281,7 +10260,7 @@ var descartesJS = (function(descartesJS) {
     ctx.textBaseline = "middle";
     
     // text border
-    if (this.colorInt != this.color) {
+    if (this.colorInt.getColor() != this.color.getColor()) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
@@ -11365,6 +10344,9 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       evt.preventDefault();
+
+      // blur other elements when clicked
+      document.activeElement.blur();
 
       self.whichButton = descartesJS.whichButton(evt);
 
@@ -11606,7 +10588,7 @@ var descartesJS = (function(descartesJS) {
     // create the background gradient
     this.createGradient(this.h/2, this.h);
 
-    this.update();
+    // this.update();
   }
 
   /**
@@ -11661,7 +10643,7 @@ var descartesJS = (function(descartesJS) {
       this.value = this.validateValue( oldFieldValue );
       this.field.value = this.formatOutputValue(this.value);
     }
-        
+
     // register the control value
     evaluator.setVariable(this.id, this.value);
   }
@@ -11748,13 +10730,13 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Spinner.prototype.validateValue = function(value) {
     evaluator = this.evaluator;
 
-    // remove the exponential notation of the number and convert it to a fixed notation
     if (!isNaN(parseFloat(value))) {
-      value = parseFloat(value).toFixed(20);
+      // remove the exponential notation of the number and convert it to a fixed notation
+      if (value.toString().match("e")) {
+        value = parseFloat(value).toFixed(20);
+      }
     } 
-    else {
-      value = value.toString();
-    }    
+    value = value.toString();
     
     resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
 
@@ -11764,12 +10746,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     evalMin = evaluator.evalExpression(this.min);
-    if (evalMin == "") {
-      evalMin = -Math.Infinity;
-    }
     evalMax = evaluator.evalExpression(this.max);
-    if (evalMax == "") {
-      evalMax = Math.Infinity;
+
+    if (evalMin === "") {
+      evalMin = -Infinity;
+    }
+    if (evalMax === "") {
+      evalMax = Infinity;
     }
  
     // if is less than the lower limit
@@ -12039,7 +11022,12 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Control.call(this, parent, values);
     
     if (this.valueExprString === undefined) {
-      this.valueExprString = "";
+      if (this.onlyText) {
+        this.valueExprString = '0';
+      }
+      else {
+        this.valueExprString = "";
+      }
     }
 
     // an empty string
@@ -12074,14 +11062,21 @@ var descartesJS = (function(descartesJS) {
     
     // if the text field is only text, then the value has to fulfill the validation norms
     if (this.onlyText) {
-      if ( !(this.valueExprString.match(/^'/)) || !(this.valueExprString.match(/^'/)) ) {
+      if ( !(this.valueExprString.match(/^'/)) || !(this.valueExprString.match(/'$/)) ) {
         this.valueExpr = this.evaluator.parser.parse( "'" + this.valueExprString + "'" );
       }
 
-      this.validateValue = function(value) { 
+      this.validateValue = function(value) {
+        // value = value.replace(evaluator.parent.decimal_symbol, ".");
+
         if ( (value == "''") || (value == "'") ) {
           return "";
         }
+
+        if (value.match(/^'/) && value.match(/'$/)) {
+          return value.substring(1,value.length-1);
+        }
+
         return value;
       }
       this.formatOutputValue = function(value) { 
@@ -12359,7 +11354,8 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onBlur_textField(evt) {
-      self.update();
+      // self.update();
+      self.changeValue(self.field.value, true);
     }
     this.field.addEventListener("blur", onBlur_textField);
         
@@ -12979,7 +11975,7 @@ var descartesJS = (function(descartesJS) {
     // create the label text
     self.txtLabel = document.createTextNode(self.name);
 
-    this.update();
+    // this.update();
   }
     
   /**
@@ -13133,7 +12129,6 @@ var descartesJS = (function(descartesJS) {
    *                         is less than the lower limit then return the lower limit
    */
   descartesJS.Scrollbar.prototype.validateValue = function(value) {
-    value = value || 1000000000000000000000000000000000000000000000;
     evaluator = this.evaluator;
     resultValue = value.toString();
     resultValue = parseFloat( resultValue.replace(this.parent.decimal_symbol, ".") );
@@ -14358,7 +13353,7 @@ var descartesJS = (function(descartesJS) {
       this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
     }
     
-    this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
+    // this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
     
     // eval the constraint    
     if (this.constraint) {
@@ -15075,7 +14070,7 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
     controlObj = {};
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
@@ -15230,12 +14225,11 @@ var descartesJS = (function(descartesJS, babel) {
               tmpVal = tmpVal.substring(0, tmpVal.length-1) + "'";
             }
           }
-          
+
           // the value expression for future evaluation
           controlObj["valueExpr"] = this.parser.parse(tmpVal);
           // the value string for reference
-          controlObj["valueExprString"] = tmpVal;
-          
+          controlObj["valueExprString"] = tmpVal;          
           break;
           
         // increment
@@ -15650,6 +14644,8 @@ var descartesJS = (function(descartesJS, babel) {
         case("fixed"):
         // condition to draw the edges
         case("edges"):
+        // condition to calculate the intersection edges of faces
+        case("split"):
           graphicObj[babelValue] = (babel[values_i_1] === "true");
           break;
 
@@ -15674,10 +14670,6 @@ var descartesJS = (function(descartesJS, babel) {
         case("Nu"):
         // Nv parameter
         case("Nv"):
-        // initial rotation
-        case("inirot"):
-        // end rotation
-        case("endrot"):
         // initial position
         case("inipos"):
         // end position
@@ -15693,6 +14685,10 @@ var descartesJS = (function(descartesJS, babel) {
         case("font"):
         // name
         case("name"):
+        // initial rotation
+        case("inirot"):
+        // end rotation
+        case("endrot"):
           graphicObj[babelValue] = values_i_1;
           break;          
           
@@ -15707,7 +14703,7 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
             graphicObj["expresionString"] = values_i_1;
           } else {
-            graphicObj["expresion"] = values_i_1;
+            graphicObj["expresion"] = values_i_1.replace(/\\n/g, "");
           }
           break;
                     
@@ -16723,7 +15719,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           // if the name of the variable is the name of a matrix, for matrix operations
-          if ((variableValue == undefined) && (getMatrix)) {
+          if ((variableValue == undefined) && (getMatrix || evaluator.matrices[this.value])) {            
             variableValue = evaluator.matrices[this.value];
           }
 
@@ -16771,6 +15767,7 @@ var descartesJS = (function(descartesJS) {
     // function
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
+
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
@@ -16778,7 +15775,7 @@ var descartesJS = (function(descartesJS) {
         }
       
         if (this.value === "_Eval_") {
-          return evaluator.evalExpression( evaluator.parser.parse(argu[0]) );
+          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") || '' ) );
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);
@@ -17373,7 +16370,6 @@ var descartesJS = (function(descartesJS) {
       val = str.match(numberRegExp);
       if (val) {
         addToken("number", val[0], val[0].length);
-        
         continue;
       }
     
@@ -17430,6 +16426,11 @@ var descartesJS = (function(descartesJS) {
       // parentheses
       val = str.match( parenthesesRegExp );
       if (val) {
+        if ((val == "(") && (lastTokenType === "number")) {
+          // add a multiplication operator
+          tokens.push({ type: "operator", value: "*" });
+        }
+
         addToken("parentheses", val[0], val[0].length);
         continue;
       }
@@ -17516,7 +16517,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} name the name of the variable to set
    * @param {Object} value the value of the variable to set
    */
-  descartesJS.Parser.prototype.setVariable = function(name, value){
+  descartesJS.Parser.prototype.setVariable = function(name, value) {
     this.variables[name] = value;
   }
 
@@ -17524,7 +16525,8 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a variable
    * @param {String} name the name of the variable to get the value
    */
-  descartesJS.Parser.prototype.getVariable = function(name){
+  descartesJS.Parser.prototype.getVariable = function(name) {
+    // this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
     return this.variables[name];
   }
 
@@ -17534,7 +16536,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} pos the position in the vector to set
    * @param {Object} value the value of the vector to set
    */
-  descartesJS.Parser.prototype.setVector = function(name, pos, value){
+  descartesJS.Parser.prototype.setVector = function(name, pos, value) {
     this.vectors[name][pos] = value;
   }
 
@@ -17542,7 +16544,7 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a vector
    * @param {String} name the name of the vector to get the value
    */
-  descartesJS.Parser.prototype.getVector = function(name){
+  descartesJS.Parser.prototype.getVector = function(name) {
     if (!this.vectors.hasOwnProperty(name)) {
       this.vectors[name] = [0,0,0];
     }
@@ -17623,9 +16625,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Boolean} asignation identify if the input is treated like an asignation
    * @return {Node} return a parse tree from the parses input
    */
-  // descartesJS.Parser.prototype.parse = function(input, asignation, prefix) {
   descartesJS.Parser.prototype.parse = function(input, asignation) {
-    // prefix = (prefix) ? prefix+"." : "";
 
     tokens = this.tokenizer.tokenize(input);
     // tokens is undefined
@@ -18229,8 +17229,9 @@ var descartesJS = (function(descartesJS) {
     }
   }  
 
-//  console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
+// console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
+// console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -21038,7 +20039,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra) {
-    if (gra.background) {
+    if ((gra.background) && (this.type !== "R3")) {
       this.backgroundGraphics.push(gra);
     }
     else {
@@ -21144,6 +20145,8 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var MathRound = Math.round;
   var PI2 = Math.PI*2;
+  var minScale = 0.000001;
+  var maxScale = 1000000;
 
   var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
@@ -21343,14 +20346,14 @@ var descartesJS = (function(descartesJS) {
       self.drawBefore = self.drawIfValue;
 
       // check if the scale is not below the lower limit
-      if (self.scale < 0.000001) {
-        self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0.000001);
+      if (self.scale < minScale) {
+        self.scale = minScale;
+        evaluator.setVariable(self.scaleString, minScale);
       }
       // check if the scale is not above the upper limit
-      else if (self.scale > 1000000) {
-        self.scale = 1000000;
-        evaluator.setVariable(self.scaleString, 1000000);
+      else if (self.scale > maxScale) {
+        self.scale = maxScale;
+        evaluator.setVariable(self.scaleString, maxScale);
       }
       
       // if some property change then adjust the container style
@@ -21520,7 +20523,6 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text showing the mouse postion
     if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
-      console.log("aqui")
       ctx.fillStyle = this.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
@@ -21801,7 +20803,7 @@ var descartesJS = (function(descartesJS) {
 
       // // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-        evt.preventDefault();
+      evt.preventDefault();
       // }
     }
   }
@@ -21817,26 +20819,55 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var MathRound = Math.round;
+  var MathMax   = Math.max;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
+  var MathSqrt  = Math.sqrt;
   var MathPI_2  = Math.PI/2;
-
-  var valorArbitrario = 4.826;
+  var tiltAngle = Math.PI*15/180;
+  var minScale = 0.000001;
+  var maxScale = 1000000;
 
   var evaluator;
   var parent;
   var self;
   var thisGraphics_i;
+  var thisGraphicsNext;
   var primitives;
   var primitivesLength;
   var hasTouchSupport;
   var changeX;
   var changeY;
-  var cosAlpha;
-  var sinAlpha;
-  var cosBeta;
-  var sinBeta;
-  
+  var dispX;
+  var dispY;
+
+  var dx;
+  var dy;
+  var dz;
+  var t;
+
+  var angle;
+  var cosAngle;
+  var sinAngle;
+  var newV1;
+
+  var r;
+  var g;
+  var b;
+  var angle;
+  var dl3;
+  var intensity = [];
+  var I;
+  var c;
+  var normal;
+  var toEye;
+  var aveDistanceToEye;
+  var unitToEye;
+
+  var t_rr;
+  var r_rr;
+  var N_rr;
+
   /**
    * Descartes 3D space
    * @constructor 
@@ -21894,41 +20925,45 @@ var descartesJS = (function(descartesJS) {
     
     parent.container.insertBefore(self.container, parent.loader);
     
-    // initial value of the observer
-    self.observer = (self.w + self.h) * 2.5;
-    self.evaluator.setVariable(self.id + ".observador", self.observer);
+    self.eye = { x: 0, y: 0, z: 0 };
 
-    self.eye = new descartesJS.Vector3D(3, 0, 0);
-    self.center = new descartesJS.Vector3D(0, 0, 0);
-    self.yUpEye = new descartesJS.Vector3D(0, 0, 1);
+    self.lights = [ { x: 50, y:  50, z: 70},
+                    { x: 50, y: -50, z: 30},
+                    { x: 20, y:   0, z: -80},
+                    { x:  0, y:   0, z: 0}
+                  ];
+    for (var i=0, l=self.lights.length; i<l; i++) {
+      self.lights[i] = descartesJS.normalize3D(self.lights[i]);
+    }
+    self.light3 = { x:  0, y:   0, z: 0};
 
-    self.distanceEyeCenter = self.observer/(5.5*self.scale);
-
-    self.alpha = 0;
-    self.beta = 0;
+    self.intensity = [.4, .5, .3, 0];
+    self.userIntensity = 0;
+    self.dim = 1;
+    self.tmpIntensity = [];
     
+    self.OxStr = self.id + ".Ox";
+    self.OyStr = self.id + ".Oy";
+    self.scaleStr = self.id + ".escala";
+    self.wStr = self.id + "._w";
+    self.hStr = self.id + "._h";
+    self.obsStr = self.id + ".observador";
+    self.rotZStr = self.id + ".rot.z";
+    self.rotYStr = self.id + ".rot.y";
+    self.userI_Dim_Str = self.id + ".userIlum.dim";
+    self.userI_I_Str = self.id + ".userIlum.I";
+    self.userI_x_Str = self.id + ".userIlum.x";
+    self.userI_y_Str = self.id + ".userIlum.y";
+    self.userI_z_Str = self.id + ".userIlum.z";
+
     // set the value to the rotation variables
-    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
-    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
-
-    self.lookAtMatrix = new descartesJS.Matrix4x4();
-    self.perspectiveMatrix = new descartesJS.Matrix4x4();
-    self.perspective = (new descartesJS.Matrix4x4()).perspective(45, self.w/self.h, 0.01, 1000.0);
-    self.rotationMatrix = new descartesJS.Matrix4x4();
-
-    // build the look at matrix to orient the camera
-    self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
-    // build the perspective matrix
-    self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
-
-    self.OxString = self.id + ".Ox";
-    self.OyString = self.id + ".Oy";
-    self.scaleString = self.id + ".escala";
-    self.wString = self.id + "._w";
-    self.hString = self.id + "._h";
-    self.observerString = self.id + ".observador";
-
-    self.update();
+    self.evaluator.setVariable(self.rotZStr, 0);
+    self.evaluator.setVariable(self.rotYStr, 0);
+    self.evaluator.setVariable(self.userI_Dim_Str, self.dim);
+    self.evaluator.setVariable(self.userI_I_Str, self.userIntensity);
+    self.evaluator.setVariable(self.userI_x_Str, 0);
+    self.evaluator.setVariable(self.userI_y_Str, 0);
+    self.evaluator.setVariable(self.userI_z_Str, 0);
 
     // register the mouse and touch events
     self.registerMouseAndTouchEvents();
@@ -21942,7 +20977,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the space
    */
-  descartesJS.Space3D.prototype.init = function() {
+  descartesJS.Space3D.prototype.init = function(checkObserver) {
     self = this;
     
     // call the init of the parent
@@ -21977,8 +21012,8 @@ var descartesJS = (function(descartesJS) {
     parent = self.parent;
 
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.wString, self.w);
-    evaluator.setVariable(self.hString, self.h);
+    evaluator.setVariable(self.wStr, self.w);
+    evaluator.setVariable(self.hStr, self.h);
 
     // check the draw if condition
     self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
@@ -21992,33 +21027,60 @@ var descartesJS = (function(descartesJS) {
                          changeX ||
                          changeY ||
                          (self.drawBefore !== self.drawIfValue) ||
-                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
-                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
-                         (self.scale !== evaluator.getVariable(self.scaleString));
+                         (self.Ox !== evaluator.getVariable(self.OxStr)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyStr)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleStr));
 
       self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
       self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
-      self.Ox = evaluator.getVariable(self.OxString);
-      self.Oy = evaluator.getVariable(self.OyString);
-      self.scale = evaluator.getVariable(self.scaleString);
+      self.Ox = evaluator.getVariable(self.OxStr);
+      self.Oy = evaluator.getVariable(self.OyStr);
+      self.scale = evaluator.getVariable(self.scaleStr);
       self.drawBefore = self.drawIfValue;
 
-      self.observer = evaluator.getVariable(self.observerString);
+      if (firstTime) {
+        var observerSet;
+        // check if the observer is the name of some control
+        for (var i=0, l=self.parent.controls.length; i<l; i++) {
+          if (self.parent.controls[i].id === self.obsStr) {
+            observerSet = true;
+          }
+        }
 
-      // if (self.observer < .5*(self.w+self.h)) {
-      //   self.observer = .5*(self.w+self.h);
-      //   evaluator.setVariable(self.observerString, self.observer);
-      // }
+        if (observerSet) {
+          self.observer = evaluator.getVariable(self.obsStr) || (self.w + self.h) * 0.5;
+        }
+        else {
+          self.observer = (self.w + self.h) * 2.5;
+        }
+
+        self.observer = MathMax(self.observer, 0.1*(self.w+self.h));
+
+        evaluator.setVariable(self.obsStr, self.observer);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        self.eye = { x: (self.observer/self.scale)*MathCos(tiltAngle), 
+                     y: 0, 
+                     z: (self.observer/self.scale)*MathSin(tiltAngle)
+                   };
+        self.D = self.scale*self.eye.x/MathCos(tiltAngle);
+        self.XE = MathRound(self.scale*self.eye.y +0.5);
+        self.YE = MathRound(self.scale*self.eye.z +0.5);
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+      }
+
+      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.1*(self.w+self.h));
+      evaluator.setVariable(self.obsStr, self.observer);
 
       // check if the scale is not below the lower limit
-      if (self.scale < 0.000001) {
-        self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0.000001);
+      if (self.scale < minScale) {
+        self.scale = minScale;
+        evaluator.setVariable(self.scaleStr, minScale);
       }
       // check if the scale is not above the upper limit
-      else if (self.scale > 1000000) {
-        self.scale = 1000000;
-        evaluator.setVariable(self.scaleString, 1000000);
+      else if (self.scale > maxScale) {
+        self.scale = maxScale;
+        evaluator.setVariable(self.scaleStr, maxScale);
       }
 
       // if some property change then adjust the container style
@@ -22030,6 +21092,16 @@ var descartesJS = (function(descartesJS) {
 
       self.container.style.display = "block";
 
+      self.dim = evaluator.getVariable(self.userI_Dim_Str);
+      self.userIntensity = evaluator.getVariable(self.userI_I_Str);
+      // user defined light
+      self.light3 = { x: parseInt(evaluator.getVariable(self.userI_x_Str)),
+                      y: parseInt(evaluator.getVariable(self.userI_y_Str)),
+                      z: parseInt(evaluator.getVariable(self.userI_z_Str))
+                    };
+
+      self.updateCamera();
+
       // draw the geometry
       self.draw();
     }
@@ -22037,7 +21109,6 @@ var descartesJS = (function(descartesJS) {
     else {
       self.container.style.display = "none";
     }
-
   }
 
   /**
@@ -22046,7 +21117,6 @@ var descartesJS = (function(descartesJS) {
   function depthSort(a, b) {
     return b.depth - a.depth;
   }
-
 
   /**
    * Draw the primitives of the graphics, the primitives are obtained from the update step
@@ -22073,27 +21143,33 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    this.setRotation();
-
     // if not interact with the space
     // if (!this.click) {
-      this.primitives = [];
-
-      // update the graphics
+      // update the graphics to build its primitives
       for(var i=0, l=this.graphics.length; i<l; i++) {
         thisGraphics_i = this.graphics[i];
         thisGraphics_i.update();
-        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
       }
-
-      // update the background background graphics
-      for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
-        thisGraphics_i = this.backgroundGraphics[i];
-        thisGraphics_i.update();
-        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
-      }
-
     // }
+
+    this.primitives = [];
+
+    // split the primitives if needed
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      if ((thisGraphics_i.split) || (this.split)) {
+        for (var j=i+1; j<l; j++) {
+          thisGraphicsNext = this.graphics[j];
+
+          if ((thisGraphicsNext.split) || (this.split)) {
+            thisGraphics_i.splitFace(thisGraphicsNext);
+          }
+        }
+      }
+
+      this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+    }
 
     primitives = this.primitives;
     primitivesLength = primitives.length;
@@ -22105,97 +21181,125 @@ var descartesJS = (function(descartesJS) {
     primitives = primitives.sort(depthSort);
 
     for(var i=0; i<primitivesLength; i++) {
-      primitives[i].draw(this.ctx);
+      primitives[i].draw(this.ctx, this);
     }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
-
-  }
-
-  /**
-   * 
-   */
-  descartesJS.Space3D.prototype.transformCoordinateX = function(x) {
-    // return this.w_2 + this.Ox + x*this.scale*2;
-    return this.Ox + parseInt((x+1)*this.w_2);
-    // return this.w_2 + this.Ox + x*this.scale;
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.Space3D.prototype.transformCoordinateY = function(y) {
-    // return this.h_2 + this.Oy - y*this.scale*2;
-    return this.Oy + parseInt((1-y)*this.h_2);
-    // return this.h_2 + this.Oy - y*this.scale;
   }
 
   /**
    *
    */
-  descartesJS.Space3D.prototype.setRotation = function() {
+  descartesJS.Space3D.prototype.updateCamera = function() {
     self = this;
 
-    self.distanceEyeCenter = self.observer/(5.5*self.scale);
-    self.eye.set(self.distanceEyeCenter, 0, 0);    
-    // build the look at matrix to orient the camera
-    self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
-    // build the perspective matrix
-    self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
+    self.D = self.observer;
 
-    self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.id + ".rot.z"));
-    self.beta  = descartesJS.degToRad(-self.evaluator.getVariable(self.id + ".rot.y"));
-
-    self.alpha = MathRound( descartesJS.radToDeg(self.alpha + (self.mouse_x - self.oldMouse.x)) );
-    self.beta  = MathRound( descartesJS.radToDeg(self.beta  + (self.mouse_y - self.oldMouse.y)) );
-
-    // set the value to the rotation variables
-    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
-    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
-
-    self.alpha = descartesJS.degToRad(self.alpha);
-    self.beta = descartesJS.degToRad(self.beta);
-
-    self.rotationMatrix = self.rotationMatrix.setIdentity().rotateY(-self.beta +Math.PI/10).rotateZ(self.alpha);
-  }
-
-  /**
-   *
-   */
-  descartesJS.Space3D.prototype.project = function(v) {
-    console.log(v);
+    self.eye.x = self.D/self.scale;
+    self.eye.y = self.XE/self.scale;
+    self.eye.z = self.YE/self.scale;
   }
 
   /**
    *
    */
   descartesJS.Space3D.prototype.rotateVertex = function(v) {
-    var i2do = 2/this.observer;
-    var cb = Math.cos(this.beta -Math.PI/18);
-    var sb = Math.sin(this.beta -Math.PI/18);
-    var ca = Math.cos(this.alpha);
-    var sa = Math.sin(this.alpha);
-    var ux = ca*cb;
-    var uy = sa*cb;
-    var uz = sb;
-    var Xx = -sa;
-    var Xy = ca;
-    var Xz = 0;
-    var Yx = -sb*ca;
-    var Yy = -sb*sa;
-    var Yz = cb;
+    // Z rotation
+    angle = descartesJS.degToRad(self.evaluator.getVariable(self.rotZStr));
+    cosAngle = MathCos(angle);
+    sinAngle = MathSin(angle);
 
-    var xx = ux*v.x + uy*v.y + uz*v.z;
-    var f = 1/(2 - xx*i2do);
-    var nX = f*(Xx*v.x + Xy*v.y);
-    var nY = f*(Yx*v.x + Yy*v.y + Yz*v.z);
-    var nZ = xx;
+    newV1 = { x: v.x*cosAngle - v.y*sinAngle,
+              y: v.x*sinAngle + v.y*cosAngle,
+              z: v.z
+            };
 
-    // console.log("|||||", nX, nY, nZ);
-    return new descartesJS.Vector3D(nX, nY, nZ);
+    // Y rotation    
+    angle  = descartesJS.degToRad(self.evaluator.getVariable(self.rotYStr));
+    cosAngle  = MathCos(angle);
+    sinAngle  = MathSin(angle);
+
+    return { x: newV1.z*sinAngle + newV1.x*cosAngle,
+             y: newV1.y,
+             z: newV1.z*cosAngle - newV1.x*sinAngle
+           };
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.project = function(v) {
+    self = this;
+
+    dx = self.eye.x - v.x;
+    dy = self.eye.y - v.y;
+    dz = self.eye.z - v.z;
+    t = -v.x/MathSqrt(dx*dx + dy*dy + dz*dz) || 0;
+
+    dx =  self.scale*(v.y + t*(self.eye.y - v.y));
+    dy = -self.scale*(v.z + t*(self.eye.z - v.z));
+
+    return { x: parseInt(dx +this.w_2 +this.Ox),
+             y: parseInt(dy +this.h_2 +this.Oy),
+             z: t
+           };
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.computeColor = function(color, primitive, metal) {
+    toEye = descartesJS.subtract3D(this.eye, primitive.average);
+    aveDistanceToEye = descartesJS.norm3D(toEye);
+    unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
+
+    this.lights[3] = descartesJS.subtract3D( this.light3, primitive.average);
+    dl3 = descartesJS.norm3D(this.lights[3]);
+
+    for (var i=0, l=this.intensity.length-1; i<l; i++) {
+      intensity[i] = this.intensity[i]*this.dim;
+    }
+    intensity[3] = ((this.userIntensity*this.userIntensity)/dl3) || 0;
+
+    I = (metal) ? this.dim/2 : this.dim/4;
+    c = 0;
+
+    normal = (primitive.direction >=0) ? primitive.normal : descartesJS.scalarProduct3D(primitive.normal, -1);
+
+    for (var i=0, l=this.lights.length; i<l; i++) {
+      if (metal) {
+        c = Math.max( 0, descartesJS.dotProduct3D(reflectedRay(this.lights[i], normal), unitToEye) );
+        c = c*c*c;
+      }
+      else {
+        c = Math.max(0, descartesJS.dotProduct3D(this.lights[i], normal));
+      }
+
+      I+= intensity[i]*c;
+    }
+    I = Math.min(I, 1);
+
+    r = MathFloor(color.r*I);
+    g = MathFloor(color.g*I);
+    b = MathFloor(color.b*I);
+
+    return "rgba(" + r + "," + g + "," + b + "," + color.a + ")";
+  }    
+
+  /**
+   *
+   */
+  function reflectedRay(l, uN) {
+    t_rr = descartesJS.subtract3D(l, descartesJS.scalarProduct3D(uN, descartesJS.dotProduct3D(l, uN)));
+    r_rr = descartesJS.add3D(l, descartesJS.scalarProduct3D(t_rr, -2));
+    N_rr = descartesJS.norm3D(r_rr);
+    if (N_rr !== 0) {
+      return descartesJS.scalarProduct3D(r_rr, 1/N_rr);
+    }
+    return descartesJS.scalarProduct3D(l, -1);
   }
 
   /**
@@ -22225,6 +21329,10 @@ var descartesJS = (function(descartesJS) {
 
       // se desactivan los controles graficos
       self.parent.deactivateGraphiControls();
+
+      self.posAnte = self.getCursorPosition(evt);
+      self.oldMouse.x = self.getRelativeX(self.posAnte.x);
+      self.oldMouse.y = self.getRelativeY(self.posAnte.y);
 
       onSensitiveToMouseMovements(evt);
 
@@ -22328,7 +21436,6 @@ var descartesJS = (function(descartesJS) {
       self.posAnte = self.getCursorPosition(evt);
       self.mouse_x = self.getRelativeX(self.posAnte.x);
       self.mouse_y = self.getRelativeY(self.posAnte.y);
-
       self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
       self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
 
@@ -22345,11 +21452,13 @@ var descartesJS = (function(descartesJS) {
 
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
 
-      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+      self.evaluator.setVariable(self.scaleStr, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
 
       self.parent.update();
     }
     
+    this.disp = {x: 0, y: 0};
+
     /**
      * 
      * @param {Event} evt 
@@ -22357,13 +21466,31 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
+
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
+
+        if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
+          self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));
+          self.beta  = descartesJS.degToRad(-self.evaluator.getVariable(self.rotYStr));
+
+          self.alpha = MathRound( descartesJS.radToDeg(self.alpha) - dispX );
+          self.beta  = MathRound( descartesJS.radToDeg(self.beta)  - dispY );
+
+          // set the value to the rotation variables
+          self.evaluator.setVariable(self.rotZStr, self.alpha);
+          self.evaluator.setVariable(self.rotYStr, -self.beta);
+
+          self.disp.x = dispX;
+          self.disp.y = dispY;
+
+          self.oldMouse.x = self.getRelativeX(self.posAnte.x);
+          self.oldMouse.y = self.getRelativeY(self.posAnte.y);
+        }
+
         onSensitiveToMouseMovements(evt);
 
-        self.setRotation();
-      
-        self.oldMouse = { x: self.mouse_x, 
-                     y: self.mouse_y 
-                   };
+        evt.preventDefault();
       }
     }
   }
@@ -23262,6 +22389,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.decimal_symbol = ".";
+    this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
 
     /**
      * parameters of the applet
@@ -23571,6 +22699,7 @@ var descartesJS = (function(descartesJS) {
       // find the decimal symbol
       if (babel[children_i.name] == "decimal_symbol") {
         this.decimal_symbol = children_i.value;
+        this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
         continue;
       }
       
@@ -23677,7 +22806,7 @@ var descartesJS = (function(descartesJS) {
       // increase the z index for the next space is placed on the above space
       this.zIndex++;
     }
-    
+
     // init the graphics
     var tmpGraph;
     for (var i=0, l=tmpGraphics.length; i<l; i++) {
@@ -23849,6 +22978,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=northSpaceControls.length; i<l; i++) {
         northSpaceControls[i].expresion = parser.parse("(" + (displaceButton +controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
         northSpaceControls[i].drawif = parser.parse("1");
+        northSpaceControls[i].init();
       }
       
       // create the credits button
@@ -23921,6 +23051,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=southSpaceControls.length; i<l; i++) {
         southSpaceControls[i].expresion = parser.parse("(" + (displaceButton + controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
         southSpaceControls[i].drawif = parser.parse("1");
+        southSpaceControls[i].init();
       }
       
       // create the init button
@@ -23977,6 +23108,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=eastSpaceControls.length; i<l; i++) {
         eastSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + eastRegionWidth + "," + buttonsConfig.height +")");
         eastSpaceControls[i].drawif = parser.parse("1");
+        eastSpaceControls[i].init();
       }
     }
 
@@ -23996,6 +23128,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=westSpaceControls.length; i<l; i++) {
         westSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + westRegionWidth + "," + buttonsConfig.height +")");
         westSpaceControls[i].drawif = parser.parse("1");
+        westSpaceControls[i].init();
       }
     }
     
@@ -24643,6 +23776,7 @@ var descartesJS = (function(descartesJS) {
   function getDescartesApplets() {
     // get all the applets in the document
     var applets = document.getElementsByTagName("applet");
+    var appletsAJS = document.getElementsByTagName("ajs");
     var applet_i;
     
     // se crea un arreglo donde guardar los applets encontrados
@@ -24650,6 +23784,18 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=applets.length; i<l; i++) {
       applet_i = applets[i];
+      if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
+           (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
+           (applet_i.getAttribute("code").match("Descartes")) || 
+           (applet_i.getAttribute("code").match("Arquimedes")) ||
+           (applet_i.getAttribute("code").match("Discurso"))
+         ) {
+        tmpArrayApplets.push(applet_i);
+      }
+    }
+
+    for (var i=0, l=appletsAJS.length; i<l; i++) {
+      applet_i = appletsAJS[i];
       if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
            (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
            (applet_i.getAttribute("code").match("Descartes")) || 
@@ -24721,7 +23867,6 @@ var descartesJS = (function(descartesJS) {
       spaces = descartesJS.apps[i].spaces;
 
       for (var j=0, k=spaces.length; j<k; j++) {
-        
         spaces[j].findOffset();
       }
     }
@@ -24743,7 +23888,7 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
-      setTimeout(function() { window.scrollTo(0, 1); }, 1);
+      window.scrollTo(0, 2);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {

@@ -27,7 +27,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} name the name of the variable to set
    * @param {Object} value the value of the variable to set
    */
-  descartesJS.Parser.prototype.setVariable = function(name, value){
+  descartesJS.Parser.prototype.setVariable = function(name, value) {
     this.variables[name] = value;
   }
 
@@ -35,7 +35,8 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a variable
    * @param {String} name the name of the variable to get the value
    */
-  descartesJS.Parser.prototype.getVariable = function(name){
+  descartesJS.Parser.prototype.getVariable = function(name) {
+    // this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
     return this.variables[name];
   }
 
@@ -45,7 +46,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} pos the position in the vector to set
    * @param {Object} value the value of the vector to set
    */
-  descartesJS.Parser.prototype.setVector = function(name, pos, value){
+  descartesJS.Parser.prototype.setVector = function(name, pos, value) {
     this.vectors[name][pos] = value;
   }
 
@@ -53,7 +54,7 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a vector
    * @param {String} name the name of the vector to get the value
    */
-  descartesJS.Parser.prototype.getVector = function(name){
+  descartesJS.Parser.prototype.getVector = function(name) {
     if (!this.vectors.hasOwnProperty(name)) {
       this.vectors[name] = [0,0,0];
     }
@@ -134,9 +135,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Boolean} asignation identify if the input is treated like an asignation
    * @return {Node} return a parse tree from the parses input
    */
-  // descartesJS.Parser.prototype.parse = function(input, asignation, prefix) {
   descartesJS.Parser.prototype.parse = function(input, asignation) {
-    // prefix = (prefix) ? prefix+"." : "";
 
     tokens = this.tokenizer.tokenize(input);
     // tokens is undefined
@@ -740,8 +739,9 @@ var descartesJS = (function(descartesJS) {
     }
   }  
 
-//  console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
+// console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
+// console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 
   return descartesJS;
 })(descartesJS || {});

@@ -462,7 +462,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra) {
-    if (gra.background) {
+    if ((gra.background) && (this.type !== "R3")) {
       this.backgroundGraphics.push(gra);
     }
     else {

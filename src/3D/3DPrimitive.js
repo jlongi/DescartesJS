@@ -6,37 +6,45 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var MathFloor = Math.floor;
+  var Math2PI = 2*Math.PI;
+  var lineCap = "round";
+  var lineJoin = "round";
+
   var v1;
   var v2;
   var evaluator;
   var verticalDisplace;
   var theText;
 
+  var epsilon = 0.00000001;
+
   /**
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (vertices, type, style, evaluator, text) {
-    this.vertices = vertices;
-    this.type = type;
-    this.style = style;
-    this.evaluator = evaluator;
-    this.text = text || "";
+  descartesJS.Primitive3D = function (values) {
+    // traverse the values to replace the defaults values of the object
+    for (var propName in values) {
+      // verify the own properties of the object
+      if (values.hasOwnProperty(propName)) {
+        this[propName] = values[propName];
+      }
+    }
 
-    this.light = (new descartesJS.Vector3D(-1, 0, 0)).normalize();
-
-    this.transformedVertices = [];
+    this.newV = [];
 
     // asign the corresponding drawing function
-    if (type === "vertex") {
+    if (this.type === "vertex") {
       this.draw = drawVertex;
     }
-    else if (type === "face") {
+    else if (this.type === "face") {
+      this.normal = getNormal(this.vertices[0], this.vertices[1], this.vertices[2]);
       this.draw = drawFace;
     }
-    else if (type === "text") {
+    else if (this.type === "text") {
       // get the font size
-      this.fontSize = style.font.match(/(\d+)px/);
+      this.fontSize = this.font.match(/(\d+)px/);
       if (this.fontSize) {
         this.fontSize = parseInt(this.fontSize[1]);
       } else {
@@ -45,34 +53,18 @@ var descartesJS = (function(descartesJS) {
 
       this.draw = drawPrimitiveText;
     }
-    else if (type === "edge") {
+    else if (this.type === "edge") {
       this.draw = drawEdge;
     }
 
     // overwrite the computeDepth function if the primitive is a text
-    if (style.isText) {
-      this.computeDepth = function(space) {
-        this.transformedVertices = this.vertices;
-        this.depth = (space.perspectiveMatrix.multiplyVector4( this.vertices[0] ).toVector3D()).z;
+    if (this.isText) {
+      this.computeDepth = function() {
+        this.newV = this.vertices;
+        this.depth = this.vertices[0].z;
       }
     }
 
-  }
-
-  /**
-   * Set the vertices of the primitive
-   * @param {Array<Vector4D>} vertices an array of the new vertex information
-   */
-  descartesJS.Primitive3D.prototype.setVertices = function(vertices) {
-    this.vertices = vertices;
-  }
-
-  /**
-   * Set the style (how the primitive look) of the primitive 
-   * @param {Object} style is an object containing the style information of the primitive
-   */
-  descartesJS.Primitive3D.prototype.setStyle = function(style) {
-    this.style = style;
   }
 
   /**
@@ -80,57 +72,45 @@ var descartesJS = (function(descartesJS) {
    * @param
    */
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
+    this.average = { x: 0, y: 0, z: 0 };
+
+    // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
-      // this.transformedVertices[i] = space.rotateVertex(this.vertices[i]);
-      this.transformedVertices[i] = space.rotationMatrix.multiplyVector4(this.vertices[i]);
+      this.newV[i] = space.rotateVertex(this.vertices[i]);
+      this.average.x += this.newV[i].x;
+      this.average.y += this.newV[i].y;
+      this.average.z += this.newV[i].z;
     }
+    this.average = descartesJS.scalarProduct3D(this.average, 1/l);
 
     // triangles and faces
-    if (this.vertices.length >2) {
-      v1 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[1].toVector3D());
-      v2 = (this.transformedVertices[0].toVector3D()).direction(this.transformedVertices[2].toVector3D());
-      // v1 = (this.transformedVertices[0]).direction(this.transformedVertices[1]);
-      // v2 = (this.transformedVertices[0]).direction(this.transformedVertices[2]);
-      this.normal = (v1.crossProduct(v2)).normalize();
-      this.direction = this.normal.dotProduct(space.eye.normalize());
+    if (this.vertices.length > 2) {
+      // v1 = descartesJS.subtract3D( this.newV[0], this.newV[1] );
+      // v2 = descartesJS.subtract3D( this.newV[0], this.newV[2] );
+      // this.normal = descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
+      this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
+      this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
     this.depth = 0;
-    this.zMin =  10000;
-    this.zMax = -10000;
     for (var i=0, l=this.vertices.length; i<l; i++) {
-      this.transformedVertices[i] = space.perspectiveMatrix.multiplyVector4(this.transformedVertices[i]).toVector3D() ;
-
-      this.depth += this.transformedVertices[i].z;
-      this.zMin = Math.min(this.zMin, this.transformedVertices[i].z);
-      this.zMax = Math.max(this.zMax, this.transformedVertices[i].z);
-
-      this.transformedVertices[i].x = space.transformCoordinateX(this.transformedVertices[i].x);
-      this.transformedVertices[i].y = space.transformCoordinateY(this.transformedVertices[i].y);
+      this.newV[i] = space.project(this.newV[i]);
+      this.depth += this.newV[i].z;
     }
 
-    this.depth /= l;
-  }
-
-  /**
-   * Auxiliary function to set the style of the primitive into a render context
-   * @param {RenderingContext} ctx the render context to set the style
-   * @param {Object} style an object with the values of the style to setup in the context
-   */
-  function setContextStyle(ctx, style) {
-    for( var i in style ) {
-      ctx[i] = style[i];
-    }
+    this.depth/= l;
   }
 
   /**
    *
    */
   function drawVertex(ctx) {
-    setContextStyle(ctx, this.style);
+    ctx.lineWidth = 1;
+    ctx.fillStyle = this.backColor.getColor();
+    ctx.strokeStyle = this.frontColor.getColor();
 
     ctx.beginPath();
-    ctx.arc(this.transformedVertices[0].x, this.transformedVertices[0].y, this.style.size, 0, 2*Math.PI);
+    ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
     ctx.fill();
     ctx.stroke();
   }
@@ -138,74 +118,54 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function drawFace(ctx) {
-    setContextStyle(ctx, this.style);
+  function drawFace(ctx, space) {
+    ctx.lineCap = lineCap;
+    ctx.lineJoin = lineJoin;
+
+    // compute the color if is an expression
+    this.frontColor.getColor();
+    this.backColor.getColor();
 
     // set the path to draw
     ctx.beginPath();
-    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
-    for (var i=1, l=this.transformedVertices.length; i<l; i++) {
-      ctx.lineTo(this.transformedVertices[i].x, this.transformedVertices[i].y);
+    ctx.moveTo(this.newV[0].x, this.newV[0].y);
+    for (var i=1, l=this.newV.length; i<l; i++) {
+      ctx.lineTo(this.newV[i].x, this.newV[i].y);
     }
     ctx.closePath();
 
     // color render
-    if (this.style.model === "color") {
+    if (this.model === "color") {
       if (this.direction >= 0) {
-        ctx.fillStyle = this.style.backcolor;
-        ctx.strokeStyle = this.style.backcolor;
+        ctx.fillStyle = this.backColor.getColor();
       }
       else {
-        ctx.fillStyle = this.style.color;
-        ctx.strokeStyle = this.style.fillStyle;
+        ctx.fillStyle = this.frontColor.getColor();
       }
 
       ctx.fill();
-
-      // necesary to cover completely the primitive
-      // ctx.lineWidth = .8;
-      // ctx.stroke();
     }
-    // light and metal render (incomplete)
-    else if ( (this.style.model === "light") || (this.style.model === "metal") ){
-      // if (this.direction >= 0) {
-      //   ctx.fillStyle = computeColor(this.style.bcolor, this.normal.dotProduct(this.light, (this.style.model === "metal")));
-      //   ctx.strokeStyle = this.style.backcolor;
-      // }
-      // else {
-      //   ctx.fillStyle = computeColor(this.style.fcolor, -this.normal.dotProduct(this.light, (this.style.model === "metal")));
-      //   ctx.strokeStyle = this.style.fillStyle;
-      // }
-
+    // light and metal render
+    else if ( (this.model === "light") || (this.model === "metal") ){
       if (this.direction >= 0) {
-        ctx.fillStyle = this.style.backcolor;
-        ctx.strokeStyle = this.style.backcolor;
+        ctx.fillStyle = space.computeColor(this.backColor, this, (this.model === "metal"));
       }
       else {
-        ctx.fillStyle = this.style.color;
-        ctx.strokeStyle = this.style.fillStyle;
+        ctx.fillStyle = space.computeColor(this.frontColor, this, (this.model === "metal"));
       }
-
-
       ctx.fill();
-
-      // necesary to cover completely the primitive
-      // ctx.lineWidth = .8;
-      // ctx.stroke();
     }
     // wireframe render
-    else if (this.style.model === "wire") {
+    else if (this.model === "wire") {
       ctx.lineWidth = 1.25;
-      ctx.strokeStyle = this.style.fillStyle;
-
+      ctx.strokeStyle = this.frontColor.getColor();
       ctx.stroke();
     }
 
     // draw the edges
-    if ((this.style.edges) && (this.style.model !== "wire")) {
+    if ((this.edges) && (this.model !== "wire")) {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = this.style.strokeStyle;
-      
+      ctx.strokeStyle = "#808080"
       ctx.stroke();
     }
   }
@@ -214,19 +174,22 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function drawPrimitiveText(ctx) {
-    this.drawText(ctx, this.text, this.transformedVertices[0].x, this.transformedVertices[0].y +this.style.displace, this.style.fillStyle, this.style.font, "left", "alphabetic", this.style.decimals, this.style.fixed, true);
+    this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor.getColor(), this.font, "left", "alphabetic", this.decimals, this.fixed, true);
   }
 
   /**
    *
    */
   function drawEdge(ctx) {
-    setContextStyle(ctx, this.style);
+    ctx.lineCap = lineCap;
+    ctx.lineJoin = lineJoin;
+    ctx.lineWidth = this.lineWidth;
+    ctx.strokeStyle = this.frontColor.getColor();
 
     // set the path to draw
     ctx.beginPath();
-    ctx.moveTo(this.transformedVertices[0].x, this.transformedVertices[0].y);
-    ctx.lineTo(this.transformedVertices[1].x, this.transformedVertices[1].y);
+    ctx.moveTo(this.newV[0].x, this.newV[0].y);
+    ctx.lineTo(this.newV[1].x, this.newV[1].y);
 
     ctx.stroke();
   }
@@ -281,19 +244,216 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  function computeColor(color, angle, metal) {
-    angle = Math.acos(angle) / Math.PI;
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.splitFace = function(p) {
+    if (this.intersects(p)) {
+      var i1 = null;
+      var i2 = null;
+      var ix1 = 0;
+      var ix2 = 0;
 
-    if (metal) {
-      angle = Math.pow(angle, 3);
+      for (var i=0, l=p.vertices.length; i<l; i++) {
+        var inter = this.intersection( p.vertices[i], p.vertices[(i+1)%l] );
+
+        if (inter !== null) {
+          if (i1 === null) {
+            i1 = inter;
+            ix1 = i;
+            if (p.vertices.length === 2) {
+              i2 = i1;
+              break;
+            }
+          }
+          else if (!descartesJS.equals3DEpsilon(inter, i1, epsilon)) {
+            i2 = inter;
+            ix2 = i;
+            break;
+          }
+        }
+      }
+
+      if ((i1 !== null) && (i2 !== null)) {
+        var oneIsInterior = this.isInterior(i1) || this.isInterior(i2);
+        var j1 = null;
+        var j2 = null;
+
+        if ((!oneIsInterior) && (p.vertices.length >= 3)) {
+          for (var j=0, k=this.vertices.length; j<k; j++) {
+            var inter = p.intersection( this.vertices[j], this.vertices[(j+1)%k] );
+            if (inter !== null) {
+              if (j1 === null) {
+                j1 = inter;
+              }
+              else if (!descartesJS.equals3DEpsilon(inter, j1, epsilon)) {
+                j2 = inter;
+                break;
+              }
+            }
+          }
+        }
+
+        if ( (oneIsInterior) || ((j1 !== null) && (j2 !== null) && (p.isInterior(j1)) && (p.isInterior(j2))) ) {
+          var splitted = true;
+          var P0 = p.vertices;
+          var V = null;
+          var v = null;
+
+          if (P0.length === 2) {
+            if (descartesJS.equals(i1, P0[0], epsilon) || descartesJS.equals(i1, P0[1], epsilon)) {
+              splitted = false;
+            }
+            else {
+              V = [];
+              V[0] = P0[0];
+              V[1] = i1;
+              v = [];
+              v[0] = i1;
+              v[1] = P0[1]
+            }
+          }
+          else {
+            V = [];
+            v = [];
+            var J=0;
+            var j=0;
+            var k=0;
+
+            for (var i=0; i<P0.length; i++) {
+              if (i < ix1) {
+                V[J++] = P0[i];
+              }
+              else if (i == ix1) {
+                V[J++] = P0[i];
+                V[J++] = i1;
+                v[j++] = i1;
+              } 
+              else if (i < ix2) {
+                v[j++] = P0[i];
+              } 
+              else if (i == ix2) {
+                v[j++] = P0[i];
+                v[j++] = i2;
+                V[J++] = i2;
+              } 
+              else {
+                V[J++] = P0[i];
+              }
+            }
+          }
+
+          if (splitted) {
+            var fa = [];
+
+            fa[0] = new descartesJS.Primitive3D( { vertices: V,
+                                                   type: "face",
+                                                   frontColor: p.frontColor,
+                                                   backColor: p.backColor,
+                                                   edges: p.edges,
+                                                   model: p.model
+                                                  } );
+            fa[0].normal = p.normal;
+
+            fa[1] = new descartesJS.Primitive3D( { vertices: v,
+                                                   type: "face",
+                                                   frontColor: p.frontColor,
+                                                   backColor: p.backColor,
+                                                   edges: p.edges,
+                                                   model: p.model
+                                                  } );
+            fa[1].normal = p.normal;
+
+            return fa;
+          }
+        }
+      }
     }
 
-    var r = Math.floor(color.r * angle);
-    var g = Math.floor(color.g * angle);
-    var b = Math.floor(color.b * angle);
-    var a = 1 - color.a;
+    return [p];
+  }
 
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  /**
+   * check if two faces has an intersection
+   */
+  descartesJS.Primitive3D.prototype.intersects = function(p) {
+    return this.intersectsPlane(p) && p.intersectsPlane(this);
+  }
+
+  /**
+   * check if two planes intersects
+   */
+  descartesJS.Primitive3D.prototype.intersectsPlane = function(p) {
+    var d = descartesJS.dotProduct3D(p.vertices[0], p.normal);
+    var d0 = descartesJS.dotProduct3D(this.vertices[0], p.normal);
+
+    if (Math.abs(d-d0) < epsilon) {
+      return true;
+    }
+    for (var i=1, l=this.vertices.length; i<l; i++) {
+      var di = descartesJS.dotProduct3D( this.vertices[i], p.normal);
+
+      if ( (Math.abs(d-di) < epsilon) || (di>d && d0<d) || (di<d && d0>d) ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.intersection = function(p1, p2) {
+    if (this.vertices.length > 0) {
+      var p12 = descartesJS.subtract3D(p2, p1);
+      var den = descartesJS.dotProduct3D(p12, this.normal);
+      if (den !== 0) {
+        var t = descartesJS.dotProduct3D( descartesJS.subtract3D(this.vertices[0], p1), this.normal ) / den;
+
+        if ((-epsilon < t) && (t < 1+epsilon)) {
+          return descartesJS.add3D(p1, descartesJS.scalarProduct3D(p12, t));
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.isInterior = function(r) {
+    if (this.vertices.length > 0) {
+      var D = 0;
+      var u = descartesJS.subtract3D(this.vertices[0], r);
+
+      for (var i=0, l=this.vertices.length; i<l; i++) {
+        var v = descartesJS.subtract3D(this.vertices[(i+1)%l], r);
+        var D1 = descartesJS.dotProduct3D( descartesJS.crossProduct3D(u, v), this.normal );
+
+        if (Math.abs(D1) < epsilon) {
+          if (descartesJS.dotProduct3D(u, v) < 0) {
+            return true;
+          }
+        }
+        else {
+          if (((D < 0) && (D1 > 0)) || ((D > 0) && (D1 < 0))) {
+            return false;
+          }
+          u = v;
+          D = D1;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  function getNormal(u1, u2, u3) {
+    v1 = descartesJS.subtract3D( u1, u2 );
+    v2 = descartesJS.subtract3D( u1, u3 );
+    return descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
   }
 
   return descartesJS;

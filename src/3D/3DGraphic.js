@@ -6,20 +6,19 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var translate = {x:0, y:0, z:0};
+
   var evaluator;
   var expr;
   var tempParam;
   var theText;
   var verticalDisplace;
 
+  var tmpVertex;
   var tmpExpr;
-  var vectorX;
-  var vectorY;
-  var vectorZ;
-  var translate;
-
-  var indexOfVar;
-  var arrayVars = ["x", "y", "z"];
+  var tmpExpr2;
+  var tmpExpr3;
+  var lastIndexOfSpace;
 
   /**
    * Descartes 3D graphics
@@ -42,7 +41,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluator = parent.evaluator;
 
-    var parser = this.parent.evaluator.parser;
+    var parser = parent.evaluator.parser;
 
     /**
      * identifier of the space that belongs to the graphic
@@ -71,6 +70,12 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.color = new descartesJS.Color("eeffaa");
+
+    /**
+     * the back face color of the graphic
+     * type {Node}
+     * @private
+     */
     this.backcolor = new descartesJS.Color("6090a0");
 
     this.Nu = this.evaluator.parser.parse("7");
@@ -90,20 +95,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.abs_coord = false;
     
-    /**
-     * the expression for determine the position of the graphic
-     * type {Node}
-     * @private
-     */
-//     this.expresion = parser.parse("(0,0)");
-
-    /**
-     * the color for the trace of the graphic
-     * type {String}
-     * @private
-     */
-    // this.trace = "";
-
     /**
      * the condition and parameter name for family of the graphic
      * type {String}
@@ -126,20 +117,6 @@ var descartesJS = (function(descartesJS) {
     this.family_steps = parser.parse("8");
     
     /**
-     * the condition for determining whether the graph is editable
-     * type {Boolean}
-     * @private
-     */
-    // this.editable = false;
-
-    /**
-     * info
-     * type {String}
-     * @private
-     */
-    // this.info = "";
-
-    /**
      * info font
      * type {String}
      * @private
@@ -152,13 +129,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.fixed = true;
-
-    /**
-     * point widht
-     * type {Node}
-     * @private
-     */
-    // this.size = parser.parse("2");
 
     /**
      * text of the graphic
@@ -179,7 +149,8 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.inirot = parser.parse("(0,0,0)");
+    this.inirot = "(0,0,0)";
+    this.inirotEuler = false;
     
     /**
      * the init position of a graphic
@@ -193,7 +164,8 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.endrot = parser.parse("(0,0,0)");
+    this.endrot = "(0,0,0)";
+    this.endrotEuler = false;
     
     /**
      * the init position of a graphic
@@ -203,7 +175,7 @@ var descartesJS = (function(descartesJS) {
     this.endpos = parser.parse("(0,0,0)");
 
     /**
-     * 
+     * the ilumination model
      * type {String}
      * @private
      */
@@ -230,12 +202,7 @@ var descartesJS = (function(descartesJS) {
       this.canvas = this.space.canvas;
     }
     this.ctx = this.canvas.getContext("2d");
-    
-    // // if the object has trace, then get the background canvas render context
-    // if (this.trace) {
-    //   this.traceCtx = this.space.backgroundCanvas.getContext("2d");
-    // }
-    
+        
     this.font = descartesJS.convertFont(this.font)
 
     // get the font size
@@ -246,20 +213,31 @@ var descartesJS = (function(descartesJS) {
       this.fontSize = 10;
     }
 
-    // auxiliary vectors
-    vectorX = new descartesJS.Vector3D(1, 0, 0); 
-    vectorY = new descartesJS.Vector3D(0, 1, 0); 
-    vectorZ = new descartesJS.Vector3D(0, 0, 1);
-    translate = new descartesJS.Vector3D(0, 0, 0);
+    // euler rotations
+    if (this.inirot.match("Euler")) {
+      this.inirot = this.inirot.replace("Euler", "");
+      this.inirotEuler = true;
+    }
+    if (this.endrot.match("Euler")) {
+      this.endrot = this.endrot.replace("Euler", "");
+      this.endrotEuler = true;
+    }
 
+    this.inirot = parser.parse(this.inirot);
+    this.endrot = parser.parse(this.endrot);
+
+    // auxiliary matrices
+    this.inirotM   = new descartesJS.Matrix4x4();
     this.inirotM_X = new descartesJS.Matrix4x4();
     this.inirotM_Y = new descartesJS.Matrix4x4();
     this.inirotM_Z = new descartesJS.Matrix4x4();
-    this.iniposM = new descartesJS.Matrix4x4();
+    this.iniposM   = new descartesJS.Matrix4x4();
+
+    this.endrotM   = new descartesJS.Matrix4x4();
     this.endrotM_X = new descartesJS.Matrix4x4();
     this.endrotM_Y = new descartesJS.Matrix4x4();
     this.endrotM_Z = new descartesJS.Matrix4x4();
-    this.endposM = new descartesJS.Matrix4x4();
+    this.endposM   = new descartesJS.Matrix4x4();
   }
   
   /**
@@ -344,90 +322,119 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
-    tmpExpr = this.evaluator.evalExpression(this.inirot);    
-    this.inirotM_X = this.inirotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-    this.inirotM_Y = this.inirotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-    this.inirotM_Z = this.inirotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    if (this.inirotEuler) {
+      this.inirotM = this.inirotM.setIdentity();
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.inirotM = this.inirotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
 
     tmpExpr = this.evaluator.evalExpression(this.inipos);
-    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.iniposM = this.iniposM.setIdentity().translate(translate);
 
     tmpExpr = this.evaluator.evalExpression(this.endrot);
-    this.endrotM_X = this.endrotM_X.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][0]), vectorX); //X
-    this.endrotM_Y = this.endrotM_Y.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][1]), vectorY); //Y
-    this.endrotM_Z = this.endrotM_Z.setIdentity().rotate(descartesJS.degToRad(tmpExpr[0][2]), vectorZ); //Z
+    if (this.endrotEuler) {
+      this.endrotM = this.endrotM.setIdentity();
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.endrotM = this.endrotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
 
-    tmpExpr = this.evaluator.evalExpression(this.inipos);
-    translate.set(tmpExpr[0][0], tmpExpr[0][1], tmpExpr[0][2]);
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.endposM = this.endposM.setIdentity().translate(translate);
   }
 
-  var tmpVertex;
   /** 
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
-    // tmpVertex = this.inirotM_X.multiplyVector4(v);
-    // tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
-    // tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);
+    if (this.inirotEuler) {
+      tmpVertex = this.inirotM.multiplyVector4(v);
+    }
+    else {
+      tmpVertex = this.inirotM_X.multiplyVector4(v);
+      tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);      
+    }
 
-    // tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
+    tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
 
-    // tmpVertex = this.endrotM_X.multiplyVector4(tmpVertex);
-    // tmpVertex = this.endrotM_Y.multiplyVector4(tmpVertex);
-    // tmpVertex = this.endrotM_Z.multiplyVector4(tmpVertex);
+    if (this.endrotEuler) {
+      tmpVertex = this.endrotM.multiplyVector4(tmpVertex);
+    }
+    else {
+      tmpVertex = this.endrotM_X.multiplyVector4(tmpVertex);
+      tmpVertex = this.endrotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.endrotM_Z.multiplyVector4(tmpVertex);
+    }
 
-    // tmpVertex = this.endposM.multiplyVector4(tmpVertex);
+    tmpVertex = this.endposM.multiplyVector4(tmpVertex);
 
-    // return tmpVertex;
-
-    return this.endposM.multiplyVector4(
-             this.endrotM_Z.multiplyVector4(
-               this.endrotM_Y.multiplyVector4(
-                 this.endrotM_X.multiplyVector4(
-                   this.iniposM.multiplyVector4(
-                     this.inirotM_Z.multiplyVector4(
-                       this.inirotM_Y.multiplyVector4(
-                         this.inirotM_X.multiplyVector4( 
-                           v
-                         )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
+    return tmpVertex;
    }
 
   /**
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    var tmpExpr = this.expresion.split("=");
-    var tmpExpr2 = tmpExpr[0];
-    var tmpExpr3 = [];
-    var lastIndexOfSpace;
+    tmpExpr = this.expresion.split("=");
+    tmpExpr2 = tmpExpr[0];
+    tmpExpr3 = [];
 
     for (var i=1; i<tmpExpr.length; i++) {
       tmpExpr2 += "=";
 
       lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
 
-      if (lastIndexOfSpace !== -1) {
-        tmpExpr2 += tmpExpr[i].substring(0,lastIndexOfSpace);
-      }
-      else {
-        tmpExpr2 += tmpExpr[i];
-      }
-      
+      tmpExpr2 += (lastIndexOfSpace !== -1) ? tmpExpr[i].substring(0, lastIndexOfSpace) : tmpExpr[i];
+     
       tmpExpr3.push( this.evaluator.parser.parse(tmpExpr2, true) );
 
       tmpExpr2 = tmpExpr[i].substring(lastIndexOfSpace+1);
     }
 
     return tmpExpr3;
+  }
+
+  var tmpPrimitives;
+
+  /**
+   *
+   */
+  descartesJS.Graphic3D.prototype.splitFace = function(g) {
+    for (var i=0, l=this.primitives.length; i<l; i++) {
+      tmpPrimitives = [];
+
+      // if the primitive is a face then try to cut the other primitives faces
+      if (this.primitives[i].type === "face") {
+
+        for (var j=0, k=g.primitives.length; j<k; j++) {
+          // the primitives of g are splited and added to an array
+          if (g.primitives[j].type === "face") {
+            tmpPrimitives = tmpPrimitives.concat( this.primitives[i].splitFace(g.primitives[j]) );
+          }
+          // if the primitive is not a face, then do not split it
+          else {
+            tmpPrimitives.push( g.primitives[j] );
+          }
+        }
+
+        g.primitives = tmpPrimitives;
+      }
+    }
   }
   
   return descartesJS;

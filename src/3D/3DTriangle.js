@@ -25,8 +25,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Triangle3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -55,21 +53,16 @@ var descartesJS = (function(descartesJS) {
     v3_y = expr[2][1];
     v3_z = expr[2][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                        this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) ),
-                                                        this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) )],
-                                                      "face",
-                                                      { backcolor: this.color.getColor(),
-                                                        fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: "#808080", 
-                                                        lineCap: "round",
-                                                        lineJoin: "round",
-                                                        edges: this.edges, 
-                                                        model: this.model,
-                                                        fcolor: this.color,
-                                                        bcolor: this.backcolor
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                                           this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                         ],
+                               type: "face",
+                               frontColor: this.color,
+                               backColor: this.backcolor, 
+                               edges: this.edges, 
+                               model: this.model
+                             } ) );
 
   }
 

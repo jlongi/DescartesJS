@@ -49,6 +49,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.decimal_symbol = ".";
+    this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
 
     /**
      * parameters of the applet
@@ -358,6 +359,7 @@ var descartesJS = (function(descartesJS) {
       // find the decimal symbol
       if (babel[children_i.name] == "decimal_symbol") {
         this.decimal_symbol = children_i.value;
+        this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
         continue;
       }
       
@@ -464,7 +466,7 @@ var descartesJS = (function(descartesJS) {
       // increase the z index for the next space is placed on the above space
       this.zIndex++;
     }
-    
+
     // init the graphics
     var tmpGraph;
     for (var i=0, l=tmpGraphics.length; i<l; i++) {
@@ -636,6 +638,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=northSpaceControls.length; i<l; i++) {
         northSpaceControls[i].expresion = parser.parse("(" + (displaceButton +controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
         northSpaceControls[i].drawif = parser.parse("1");
+        northSpaceControls[i].init();
       }
       
       // create the credits button
@@ -708,6 +711,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=southSpaceControls.length; i<l; i++) {
         southSpaceControls[i].expresion = parser.parse("(" + (displaceButton + controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
         southSpaceControls[i].drawif = parser.parse("1");
+        southSpaceControls[i].init();
       }
       
       // create the init button
@@ -764,6 +768,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=eastSpaceControls.length; i<l; i++) {
         eastSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + eastRegionWidth + "," + buttonsConfig.height +")");
         eastSpaceControls[i].drawif = parser.parse("1");
+        eastSpaceControls[i].init();
       }
     }
 
@@ -783,6 +788,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=westSpaceControls.length; i<l; i++) {
         westSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + westRegionWidth + "," + buttonsConfig.height +")");
         westSpaceControls[i].drawif = parser.parse("1");
+        westSpaceControls[i].init();
       }
     }
     

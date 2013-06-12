@@ -9,6 +9,9 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   var evaluator;
   var expr;
+  var exprX;
+  var exprY;
+  var exprZ;
   
   /**
    * A Descartes 3D point
@@ -19,8 +22,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Point3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
-
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -38,33 +39,30 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0];
-    this.exprY = expr[0][1];
-    this.exprZ = expr[0][2];
+    exprX = expr[0][0];
+    exprY = expr[0][1];
+    exprZ = expr[0][2];
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
-                                                      "vertex",
-                                                      { fillStyle: this.backcolor.getColor(), 
-                                                        strokeStyle: this.color.getColor(), 
-                                                        lineCap: "round", 
-                                                        lineJoin: "round",
-                                                        lineWidth: 1,
-                                                        size: evaluator.evalExpression(this.width)
-                                                      }
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+                               type: "vertex",
+                               backColor: this.backcolor, 
+                               frontColor: this.color, 
+                               size: evaluator.evalExpression(this.width)
+                             } ) );
 
-    this.primitives.push(new descartesJS.Primitive3D( [this.transformVertex( new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1) )],
-                                                      "text",
-                                                      { fillStyle: this.color.getColor(),
-                                                        font: this.font,
-                                                        decimals: this.evaluator.evalExpression(this.decimals),
-                                                        fixed: this.fixed,
-                                                        displace: this.fontSize
-                                                      },
-                                                      this.evaluator,
-                                                      this.text
-                                                    ));
-
+    // add a text primitive only if the text has content
+    if (this.text !== "") {
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+                                 type: "text",
+                                 frontColor: this.color, 
+                                 font: this.font,
+                                 decimals: evaluator.evalExpression(this.decimals),
+                                 fixed: this.fixed,
+                                 displace: this.fontSize,
+                                 evaluator: evaluator,
+                                 text: this.text
+                               } ) );
+    }
   }
 
   return descartesJS;

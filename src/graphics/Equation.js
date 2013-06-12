@@ -9,6 +9,8 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var PI2 = Math.PI*2;
 
+  var b;
+
   var evaluator;
   var parser;
   var space;
@@ -216,7 +218,9 @@ var descartesJS = (function(descartesJS) {
     
     width = evaluator.evalExpression(this.width);
     desp = (width%2) ? .5 : 0;
-    width = MathFloor(width)/2;
+    ctx.fillStyle = stroke.getColor();
+    ctx.translate(-this.width_2, -this.width_2);
+    // width = MathFloor(width)/2;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
@@ -234,7 +238,8 @@ var descartesJS = (function(descartesJS) {
       dy=3;
     }
 
-    b = [];
+    // b = [];
+    b = new Array();
 
     q0.set(0, 0);
     qb.set(0, 0);
@@ -353,7 +358,8 @@ var descartesJS = (function(descartesJS) {
               else {
                 b[Qx + Qy*space.w] = true;
                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
+                  // ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
+                  ctx.drawImage(this.auxCanvas, Qx, Qy);
                 }
               }
             } else {
@@ -367,6 +373,9 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
+
+    // reset the translation
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   /**

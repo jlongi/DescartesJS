@@ -37,6 +37,12 @@ var descartesJS = (function(descartesJS) {
     // add the metadata to the head of the document
     head.appendChild(meta);
 
+    // meta = document.createElement("meta");
+    // meta.setAttribute("http-equiv", "X-UA-Compatible");
+    // meta.setAttribute("content", "IE=edge");
+    // // add the metadata to the head of the document
+    // head.appendChild(meta);
+
     // var link = document.createElement("link");
     // link.setAttribute("rel", "apple-touch-icon-precomposed");
     // link.setAttribute("href", "images/descartesLogo.png");

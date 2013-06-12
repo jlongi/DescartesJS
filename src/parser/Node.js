@@ -152,7 +152,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           // if the name of the variable is the name of a matrix, for matrix operations
-          if ((variableValue == undefined) && (getMatrix)) {
+          if ((variableValue == undefined) && (getMatrix || evaluator.matrices[this.value])) {            
             variableValue = evaluator.matrices[this.value];
           }
 
@@ -200,6 +200,7 @@ var descartesJS = (function(descartesJS) {
     // function
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
+
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
@@ -207,7 +208,7 @@ var descartesJS = (function(descartesJS) {
         }
       
         if (this.value === "_Eval_") {
-          return evaluator.evalExpression( evaluator.parser.parse(argu[0]) );
+          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") || '' ) );
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);

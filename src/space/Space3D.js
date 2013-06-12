@@ -8,26 +8,55 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var MathRound = Math.round;
+  var MathMax   = Math.max;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
+  var MathSqrt  = Math.sqrt;
   var MathPI_2  = Math.PI/2;
-
-  var valorArbitrario = 4.826;
+  var tiltAngle = Math.PI*15/180;
+  var minScale = 0.000001;
+  var maxScale = 1000000;
 
   var evaluator;
   var parent;
   var self;
   var thisGraphics_i;
+  var thisGraphicsNext;
   var primitives;
   var primitivesLength;
   var hasTouchSupport;
   var changeX;
   var changeY;
-  var cosAlpha;
-  var sinAlpha;
-  var cosBeta;
-  var sinBeta;
-  
+  var dispX;
+  var dispY;
+
+  var dx;
+  var dy;
+  var dz;
+  var t;
+
+  var angle;
+  var cosAngle;
+  var sinAngle;
+  var newV1;
+
+  var r;
+  var g;
+  var b;
+  var angle;
+  var dl3;
+  var intensity = [];
+  var I;
+  var c;
+  var normal;
+  var toEye;
+  var aveDistanceToEye;
+  var unitToEye;
+
+  var t_rr;
+  var r_rr;
+  var N_rr;
+
   /**
    * Descartes 3D space
    * @constructor 
@@ -85,41 +114,45 @@ var descartesJS = (function(descartesJS) {
     
     parent.container.insertBefore(self.container, parent.loader);
     
-    // initial value of the observer
-    self.observer = (self.w + self.h) * 2.5;
-    self.evaluator.setVariable(self.id + ".observador", self.observer);
+    self.eye = { x: 0, y: 0, z: 0 };
 
-    self.eye = new descartesJS.Vector3D(3, 0, 0);
-    self.center = new descartesJS.Vector3D(0, 0, 0);
-    self.yUpEye = new descartesJS.Vector3D(0, 0, 1);
+    self.lights = [ { x: 50, y:  50, z: 70},
+                    { x: 50, y: -50, z: 30},
+                    { x: 20, y:   0, z: -80},
+                    { x:  0, y:   0, z: 0}
+                  ];
+    for (var i=0, l=self.lights.length; i<l; i++) {
+      self.lights[i] = descartesJS.normalize3D(self.lights[i]);
+    }
+    self.light3 = { x:  0, y:   0, z: 0};
 
-    self.distanceEyeCenter = self.observer/(5.5*self.scale);
-
-    self.alpha = 0;
-    self.beta = 0;
+    self.intensity = [.4, .5, .3, 0];
+    self.userIntensity = 0;
+    self.dim = 1;
+    self.tmpIntensity = [];
     
+    self.OxStr = self.id + ".Ox";
+    self.OyStr = self.id + ".Oy";
+    self.scaleStr = self.id + ".escala";
+    self.wStr = self.id + "._w";
+    self.hStr = self.id + "._h";
+    self.obsStr = self.id + ".observador";
+    self.rotZStr = self.id + ".rot.z";
+    self.rotYStr = self.id + ".rot.y";
+    self.userI_Dim_Str = self.id + ".userIlum.dim";
+    self.userI_I_Str = self.id + ".userIlum.I";
+    self.userI_x_Str = self.id + ".userIlum.x";
+    self.userI_y_Str = self.id + ".userIlum.y";
+    self.userI_z_Str = self.id + ".userIlum.z";
+
     // set the value to the rotation variables
-    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
-    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
-
-    self.lookAtMatrix = new descartesJS.Matrix4x4();
-    self.perspectiveMatrix = new descartesJS.Matrix4x4();
-    self.perspective = (new descartesJS.Matrix4x4()).perspective(45, self.w/self.h, 0.01, 1000.0);
-    self.rotationMatrix = new descartesJS.Matrix4x4();
-
-    // build the look at matrix to orient the camera
-    self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
-    // build the perspective matrix
-    self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
-
-    self.OxString = self.id + ".Ox";
-    self.OyString = self.id + ".Oy";
-    self.scaleString = self.id + ".escala";
-    self.wString = self.id + "._w";
-    self.hString = self.id + "._h";
-    self.observerString = self.id + ".observador";
-
-    self.update();
+    self.evaluator.setVariable(self.rotZStr, 0);
+    self.evaluator.setVariable(self.rotYStr, 0);
+    self.evaluator.setVariable(self.userI_Dim_Str, self.dim);
+    self.evaluator.setVariable(self.userI_I_Str, self.userIntensity);
+    self.evaluator.setVariable(self.userI_x_Str, 0);
+    self.evaluator.setVariable(self.userI_y_Str, 0);
+    self.evaluator.setVariable(self.userI_z_Str, 0);
 
     // register the mouse and touch events
     self.registerMouseAndTouchEvents();
@@ -133,7 +166,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the space
    */
-  descartesJS.Space3D.prototype.init = function() {
+  descartesJS.Space3D.prototype.init = function(checkObserver) {
     self = this;
     
     // call the init of the parent
@@ -168,8 +201,8 @@ var descartesJS = (function(descartesJS) {
     parent = self.parent;
 
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.wString, self.w);
-    evaluator.setVariable(self.hString, self.h);
+    evaluator.setVariable(self.wStr, self.w);
+    evaluator.setVariable(self.hStr, self.h);
 
     // check the draw if condition
     self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
@@ -183,33 +216,60 @@ var descartesJS = (function(descartesJS) {
                          changeX ||
                          changeY ||
                          (self.drawBefore !== self.drawIfValue) ||
-                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
-                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
-                         (self.scale !== evaluator.getVariable(self.scaleString));
+                         (self.Ox !== evaluator.getVariable(self.OxStr)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyStr)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleStr));
 
       self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
       self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
-      self.Ox = evaluator.getVariable(self.OxString);
-      self.Oy = evaluator.getVariable(self.OyString);
-      self.scale = evaluator.getVariable(self.scaleString);
+      self.Ox = evaluator.getVariable(self.OxStr);
+      self.Oy = evaluator.getVariable(self.OyStr);
+      self.scale = evaluator.getVariable(self.scaleStr);
       self.drawBefore = self.drawIfValue;
 
-      self.observer = evaluator.getVariable(self.observerString);
+      if (firstTime) {
+        var observerSet;
+        // check if the observer is the name of some control
+        for (var i=0, l=self.parent.controls.length; i<l; i++) {
+          if (self.parent.controls[i].id === self.obsStr) {
+            observerSet = true;
+          }
+        }
 
-      // if (self.observer < .5*(self.w+self.h)) {
-      //   self.observer = .5*(self.w+self.h);
-      //   evaluator.setVariable(self.observerString, self.observer);
-      // }
+        if (observerSet) {
+          self.observer = evaluator.getVariable(self.obsStr) || (self.w + self.h) * 0.5;
+        }
+        else {
+          self.observer = (self.w + self.h) * 2.5;
+        }
+
+        self.observer = MathMax(self.observer, 0.1*(self.w+self.h));
+
+        evaluator.setVariable(self.obsStr, self.observer);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        self.eye = { x: (self.observer/self.scale)*MathCos(tiltAngle), 
+                     y: 0, 
+                     z: (self.observer/self.scale)*MathSin(tiltAngle)
+                   };
+        self.D = self.scale*self.eye.x/MathCos(tiltAngle);
+        self.XE = MathRound(self.scale*self.eye.y +0.5);
+        self.YE = MathRound(self.scale*self.eye.z +0.5);
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+      }
+
+      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.1*(self.w+self.h));
+      evaluator.setVariable(self.obsStr, self.observer);
 
       // check if the scale is not below the lower limit
-      if (self.scale < 0.000001) {
-        self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0.000001);
+      if (self.scale < minScale) {
+        self.scale = minScale;
+        evaluator.setVariable(self.scaleStr, minScale);
       }
       // check if the scale is not above the upper limit
-      else if (self.scale > 1000000) {
-        self.scale = 1000000;
-        evaluator.setVariable(self.scaleString, 1000000);
+      else if (self.scale > maxScale) {
+        self.scale = maxScale;
+        evaluator.setVariable(self.scaleStr, maxScale);
       }
 
       // if some property change then adjust the container style
@@ -221,6 +281,16 @@ var descartesJS = (function(descartesJS) {
 
       self.container.style.display = "block";
 
+      self.dim = evaluator.getVariable(self.userI_Dim_Str);
+      self.userIntensity = evaluator.getVariable(self.userI_I_Str);
+      // user defined light
+      self.light3 = { x: parseInt(evaluator.getVariable(self.userI_x_Str)),
+                      y: parseInt(evaluator.getVariable(self.userI_y_Str)),
+                      z: parseInt(evaluator.getVariable(self.userI_z_Str))
+                    };
+
+      self.updateCamera();
+
       // draw the geometry
       self.draw();
     }
@@ -228,7 +298,6 @@ var descartesJS = (function(descartesJS) {
     else {
       self.container.style.display = "none";
     }
-
   }
 
   /**
@@ -237,7 +306,6 @@ var descartesJS = (function(descartesJS) {
   function depthSort(a, b) {
     return b.depth - a.depth;
   }
-
 
   /**
    * Draw the primitives of the graphics, the primitives are obtained from the update step
@@ -264,27 +332,33 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    this.setRotation();
-
     // if not interact with the space
     // if (!this.click) {
-      this.primitives = [];
-
-      // update the graphics
+      // update the graphics to build its primitives
       for(var i=0, l=this.graphics.length; i<l; i++) {
         thisGraphics_i = this.graphics[i];
         thisGraphics_i.update();
-        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
       }
-
-      // update the background background graphics
-      for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
-        thisGraphics_i = this.backgroundGraphics[i];
-        thisGraphics_i.update();
-        this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] ); 
-      }
-
     // }
+
+    this.primitives = [];
+
+    // split the primitives if needed
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      if ((thisGraphics_i.split) || (this.split)) {
+        for (var j=i+1; j<l; j++) {
+          thisGraphicsNext = this.graphics[j];
+
+          if ((thisGraphicsNext.split) || (this.split)) {
+            thisGraphics_i.splitFace(thisGraphicsNext);
+          }
+        }
+      }
+
+      this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+    }
 
     primitives = this.primitives;
     primitivesLength = primitives.length;
@@ -296,97 +370,125 @@ var descartesJS = (function(descartesJS) {
     primitives = primitives.sort(depthSort);
 
     for(var i=0; i<primitivesLength; i++) {
-      primitives[i].draw(this.ctx);
+      primitives[i].draw(this.ctx, this);
     }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
-
-  }
-
-  /**
-   * 
-   */
-  descartesJS.Space3D.prototype.transformCoordinateX = function(x) {
-    // return this.w_2 + this.Ox + x*this.scale*2;
-    return this.Ox + parseInt((x+1)*this.w_2);
-    // return this.w_2 + this.Ox + x*this.scale;
-  }
-  
-  /**
-   * 
-   */
-  descartesJS.Space3D.prototype.transformCoordinateY = function(y) {
-    // return this.h_2 + this.Oy - y*this.scale*2;
-    return this.Oy + parseInt((1-y)*this.h_2);
-    // return this.h_2 + this.Oy - y*this.scale;
   }
 
   /**
    *
    */
-  descartesJS.Space3D.prototype.setRotation = function() {
+  descartesJS.Space3D.prototype.updateCamera = function() {
     self = this;
 
-    self.distanceEyeCenter = self.observer/(5.5*self.scale);
-    self.eye.set(self.distanceEyeCenter, 0, 0);    
-    // build the look at matrix to orient the camera
-    self.lookAtMatrix = self.lookAtMatrix.setIdentity().lookAt(self.eye, self.center, self.yUpEye);
-    // build the perspective matrix
-    self.perspectiveMatrix = self.perspective.multiply(self.lookAtMatrix);
+    self.D = self.observer;
 
-    self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.id + ".rot.z"));
-    self.beta  = descartesJS.degToRad(-self.evaluator.getVariable(self.id + ".rot.y"));
-
-    self.alpha = MathRound( descartesJS.radToDeg(self.alpha + (self.mouse_x - self.oldMouse.x)) );
-    self.beta  = MathRound( descartesJS.radToDeg(self.beta  + (self.mouse_y - self.oldMouse.y)) );
-
-    // set the value to the rotation variables
-    self.evaluator.setVariable(self.id + ".rot.z", self.alpha);
-    self.evaluator.setVariable(self.id + ".rot.y", -self.beta);
-
-    self.alpha = descartesJS.degToRad(self.alpha);
-    self.beta = descartesJS.degToRad(self.beta);
-
-    self.rotationMatrix = self.rotationMatrix.setIdentity().rotateY(-self.beta +Math.PI/10).rotateZ(self.alpha);
-  }
-
-  /**
-   *
-   */
-  descartesJS.Space3D.prototype.project = function(v) {
-    console.log(v);
+    self.eye.x = self.D/self.scale;
+    self.eye.y = self.XE/self.scale;
+    self.eye.z = self.YE/self.scale;
   }
 
   /**
    *
    */
   descartesJS.Space3D.prototype.rotateVertex = function(v) {
-    var i2do = 2/this.observer;
-    var cb = Math.cos(this.beta -Math.PI/18);
-    var sb = Math.sin(this.beta -Math.PI/18);
-    var ca = Math.cos(this.alpha);
-    var sa = Math.sin(this.alpha);
-    var ux = ca*cb;
-    var uy = sa*cb;
-    var uz = sb;
-    var Xx = -sa;
-    var Xy = ca;
-    var Xz = 0;
-    var Yx = -sb*ca;
-    var Yy = -sb*sa;
-    var Yz = cb;
+    // Z rotation
+    angle = descartesJS.degToRad(self.evaluator.getVariable(self.rotZStr));
+    cosAngle = MathCos(angle);
+    sinAngle = MathSin(angle);
 
-    var xx = ux*v.x + uy*v.y + uz*v.z;
-    var f = 1/(2 - xx*i2do);
-    var nX = f*(Xx*v.x + Xy*v.y);
-    var nY = f*(Yx*v.x + Yy*v.y + Yz*v.z);
-    var nZ = xx;
+    newV1 = { x: v.x*cosAngle - v.y*sinAngle,
+              y: v.x*sinAngle + v.y*cosAngle,
+              z: v.z
+            };
 
-    // console.log("|||||", nX, nY, nZ);
-    return new descartesJS.Vector3D(nX, nY, nZ);
+    // Y rotation    
+    angle  = descartesJS.degToRad(self.evaluator.getVariable(self.rotYStr));
+    cosAngle  = MathCos(angle);
+    sinAngle  = MathSin(angle);
+
+    return { x: newV1.z*sinAngle + newV1.x*cosAngle,
+             y: newV1.y,
+             z: newV1.z*cosAngle - newV1.x*sinAngle
+           };
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.project = function(v) {
+    self = this;
+
+    dx = self.eye.x - v.x;
+    dy = self.eye.y - v.y;
+    dz = self.eye.z - v.z;
+    t = -v.x/MathSqrt(dx*dx + dy*dy + dz*dz) || 0;
+
+    dx =  self.scale*(v.y + t*(self.eye.y - v.y));
+    dy = -self.scale*(v.z + t*(self.eye.z - v.z));
+
+    return { x: parseInt(dx +this.w_2 +this.Ox),
+             y: parseInt(dy +this.h_2 +this.Oy),
+             z: t
+           };
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.computeColor = function(color, primitive, metal) {
+    toEye = descartesJS.subtract3D(this.eye, primitive.average);
+    aveDistanceToEye = descartesJS.norm3D(toEye);
+    unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
+
+    this.lights[3] = descartesJS.subtract3D( this.light3, primitive.average);
+    dl3 = descartesJS.norm3D(this.lights[3]);
+
+    for (var i=0, l=this.intensity.length-1; i<l; i++) {
+      intensity[i] = this.intensity[i]*this.dim;
+    }
+    intensity[3] = ((this.userIntensity*this.userIntensity)/dl3) || 0;
+
+    I = (metal) ? this.dim/2 : this.dim/4;
+    c = 0;
+
+    normal = (primitive.direction >=0) ? primitive.normal : descartesJS.scalarProduct3D(primitive.normal, -1);
+
+    for (var i=0, l=this.lights.length; i<l; i++) {
+      if (metal) {
+        c = Math.max( 0, descartesJS.dotProduct3D(reflectedRay(this.lights[i], normal), unitToEye) );
+        c = c*c*c;
+      }
+      else {
+        c = Math.max(0, descartesJS.dotProduct3D(this.lights[i], normal));
+      }
+
+      I+= intensity[i]*c;
+    }
+    I = Math.min(I, 1);
+
+    r = MathFloor(color.r*I);
+    g = MathFloor(color.g*I);
+    b = MathFloor(color.b*I);
+
+    return "rgba(" + r + "," + g + "," + b + "," + color.a + ")";
+  }    
+
+  /**
+   *
+   */
+  function reflectedRay(l, uN) {
+    t_rr = descartesJS.subtract3D(l, descartesJS.scalarProduct3D(uN, descartesJS.dotProduct3D(l, uN)));
+    r_rr = descartesJS.add3D(l, descartesJS.scalarProduct3D(t_rr, -2));
+    N_rr = descartesJS.norm3D(r_rr);
+    if (N_rr !== 0) {
+      return descartesJS.scalarProduct3D(r_rr, 1/N_rr);
+    }
+    return descartesJS.scalarProduct3D(l, -1);
   }
 
   /**
@@ -416,6 +518,10 @@ var descartesJS = (function(descartesJS) {
 
       // se desactivan los controles graficos
       self.parent.deactivateGraphiControls();
+
+      self.posAnte = self.getCursorPosition(evt);
+      self.oldMouse.x = self.getRelativeX(self.posAnte.x);
+      self.oldMouse.y = self.getRelativeY(self.posAnte.y);
 
       onSensitiveToMouseMovements(evt);
 
@@ -519,7 +625,6 @@ var descartesJS = (function(descartesJS) {
       self.posAnte = self.getCursorPosition(evt);
       self.mouse_x = self.getRelativeX(self.posAnte.x);
       self.mouse_y = self.getRelativeY(self.posAnte.y);
-
       self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
       self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
 
@@ -536,11 +641,13 @@ var descartesJS = (function(descartesJS) {
 
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
 
-      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+      self.evaluator.setVariable(self.scaleStr, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
 
       self.parent.update();
     }
     
+    this.disp = {x: 0, y: 0};
+
     /**
      * 
      * @param {Event} evt 
@@ -548,13 +655,31 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
+
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
+
+        if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
+          self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));
+          self.beta  = descartesJS.degToRad(-self.evaluator.getVariable(self.rotYStr));
+
+          self.alpha = MathRound( descartesJS.radToDeg(self.alpha) - dispX );
+          self.beta  = MathRound( descartesJS.radToDeg(self.beta)  - dispY );
+
+          // set the value to the rotation variables
+          self.evaluator.setVariable(self.rotZStr, self.alpha);
+          self.evaluator.setVariable(self.rotYStr, -self.beta);
+
+          self.disp.x = dispX;
+          self.disp.y = dispY;
+
+          self.oldMouse.x = self.getRelativeX(self.posAnte.x);
+          self.oldMouse.y = self.getRelativeY(self.posAnte.y);
+        }
+
         onSensitiveToMouseMovements(evt);
 
-        self.setRotation();
-      
-        self.oldMouse = { x: self.mouse_x, 
-                     y: self.mouse_y 
-                   };
+        evt.preventDefault();
       }
     }
   }

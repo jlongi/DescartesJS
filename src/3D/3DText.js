@@ -6,6 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var expr;
+  var exprX;
+  var exprY;
+  var exprZ;
+
   /**
    * A Descartes 3D text
    * @constructor 
@@ -29,22 +35,21 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     expr = evaluator.evalExpression(this.expresion);
-    this.exprX = expr[0][0];
-    this.exprY = expr[0][1];
-    this.exprZ = 0;
+    exprX = expr[0][0];
+    exprY = expr[0][1];
+    exprZ = 0;
 
-    this.primitives.push(new descartesJS.Primitive3D( [new descartesJS.Vector4D(this.exprX, this.exprY, this.exprZ, 1)],
-                                                      "text",
-                                                      { fillStyle: this.color.getColor(),
-                                                        font: this.font,
-                                                        decimals: this.evaluator.evalExpression(this.decimals),
-                                                        fixed: this.fixed,
-                                                        displace: 0,
-                                                        isText: true
-                                                      },
-                                                      this.evaluator,
-                                                      this.text
-                                                    ));
+    this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
+                               type:"text",
+                               frontColor: this.color,
+                               font: this.font,
+                               decimals: evaluator.evalExpression(this.decimals),
+                               fixed: this.fixed,
+                               displace: 0,
+                               isText: true,
+                               evaluator: evaluator,
+                               text: this.text
+                             } ) );
 
   }
   

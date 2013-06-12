@@ -9,6 +9,8 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var MathRound = Math.round;
   var PI2 = Math.PI*2;
+  var minScale = 0.000001;
+  var maxScale = 1000000;
 
   var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
@@ -208,14 +210,14 @@ var descartesJS = (function(descartesJS) {
       self.drawBefore = self.drawIfValue;
 
       // check if the scale is not below the lower limit
-      if (self.scale < 0.000001) {
-        self.scale = 0.000001;
-        evaluator.setVariable(self.scaleString, 0.000001);
+      if (self.scale < minScale) {
+        self.scale = minScale;
+        evaluator.setVariable(self.scaleString, minScale);
       }
       // check if the scale is not above the upper limit
-      else if (self.scale > 1000000) {
-        self.scale = 1000000;
-        evaluator.setVariable(self.scaleString, 1000000);
+      else if (self.scale > maxScale) {
+        self.scale = maxScale;
+        evaluator.setVariable(self.scaleString, maxScale);
       }
       
       // if some property change then adjust the container style
@@ -385,7 +387,6 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text showing the mouse postion
     if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
-      console.log("aqui")
       ctx.fillStyle = this.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
@@ -666,7 +667,7 @@ var descartesJS = (function(descartesJS) {
 
       // // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-        evt.preventDefault();
+      evt.preventDefault();
       // }
     }
   }

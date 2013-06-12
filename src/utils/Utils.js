@@ -179,12 +179,12 @@ var descartesJS = (function(descartesJS) {
     }
 
     // some browsers like chrome do not suport more than 20 decimal in the toFixed function
-    try {
-      (0).toFixed(100);
-    } 
-    catch(e) {
+    // try {
+      // (0).toFixed(100);
+    // } 
+    // catch(e) {
       setNewToFixed();
-    }
+    // }
   }
 
   /**
@@ -195,20 +195,58 @@ var descartesJS = (function(descartesJS) {
     var indexOfDot;
     var extraZero;
     var diff;
+    
+    var indexOfE;
+    var exponentialNotaionSplit;
+    var exponentialNumber;
+    var moveDotTo;
+
+    function getStringExtraZeros(n) {
+      return new Array(n+1).join("0");
+    }
+
+    // maintain the original toFixed function
+    Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
+      if (decimals <= 20) {
+        return this.originalToFixed(decimals);
+      }
+
       decimals = (decimals<0) ? 0 : parseInt(decimals);
       strNum = this.toString();
+
+      indexOfE = strNum.indexOf("e");
       indexOfDot = strNum.indexOf(".");
+
+      if (indexOfE !== -1) {
+        exponentialNotaionSplit = strNum.split("e");
+        exponentialNumber = exponentialNotaionSplit[0];
+        moveDotTo = parseInt(exponentialNotaionSplit[1]);
+
+        if (indexOfDot+moveDotTo < 0) {
+          strNum = "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          indexOfDot = 1;
+        }
+
+        else {
+          exponentialNumber = exponentialNumber.replace(".", "");
+          strNum = exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          indexOfDot = -1;
+        }
+      }
+
       extraZero = "";
 
       if (indexOfDot === -1) {
         if (decimals > 0) {
           extraZero = ".";
         }
-        for (var i=0; i<decimals; i++) {
-          extraZero += "0";
-        }
+        // for (var i=0; i<decimals; i++) {
+        //   extraZero += "0";
+        // }
+
+        extraZero += (new Array(decimals+1)).join("0");
 
         return strNum + extraZero;
       }
@@ -332,27 +370,46 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the best font size of the text that fits in the element
    */
   descartesJS.getFieldFontSize = function(height) {
-    if (height <= 14) {
-      return 8; 
-    }
+    height = Math.min(50, height);
 
-    if ((height > 14) && (height <= 16)) {
-      return 9;
+    if (height >= 24) {
+      height = Math.floor(height/2+2-height/16);
+    } 
+    else if (height >= 20) {
+      height = 12;
+    } 
+    else if (height >= 17) {
+      height = 11;
+    } 
+    else if (height >= 15) {
+      height = 10;
+    } 
+    else {
+      height = 9;
     }
+    return height;
 
-    if ((height > 16) && (height <= 19)) {
-      return 10;
-    }
+    // if (height <= 14) {
+    //   return 8; 
+    // }
 
-    if ((height > 19) && (height <= 22)) {
-      return 11;
-    }
+    // if ((height > 14) && (height <= 16)) {
+    //   return 9;
+    // }
 
-    if (height > 22) {
-      return parseInt(height - 11);
-    }
+    // if ((height > 16) && (height <= 19)) {
+    //   return 10;
+    // }
 
-    return MathFloor(height - (height*.25));
+    // if ((height > 19) && (height <= 22)) {
+    //   return 11;
+    // }
+
+    // if (height > 22) {
+    //   return parseInt(height - 11);
+    // }
+
+    // return MathFloor(height - (height*.25));
   }
 
   /**

@@ -41,7 +41,12 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Control.call(this, parent, values);
     
     if (this.valueExprString === undefined) {
-      this.valueExprString = "";
+      if (this.onlyText) {
+        this.valueExprString = '0';
+      }
+      else {
+        this.valueExprString = "";
+      }
     }
 
     // an empty string
@@ -76,14 +81,21 @@ var descartesJS = (function(descartesJS) {
     
     // if the text field is only text, then the value has to fulfill the validation norms
     if (this.onlyText) {
-      if ( !(this.valueExprString.match(/^'/)) || !(this.valueExprString.match(/^'/)) ) {
+      if ( !(this.valueExprString.match(/^'/)) || !(this.valueExprString.match(/'$/)) ) {
         this.valueExpr = this.evaluator.parser.parse( "'" + this.valueExprString + "'" );
       }
 
-      this.validateValue = function(value) { 
+      this.validateValue = function(value) {
+        // value = value.replace(evaluator.parent.decimal_symbol, ".");
+
         if ( (value == "''") || (value == "'") ) {
           return "";
         }
+
+        if (value.match(/^'/) && value.match(/'$/)) {
+          return value.substring(1,value.length-1);
+        }
+
         return value;
       }
       this.formatOutputValue = function(value) { 
@@ -361,7 +373,8 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onBlur_textField(evt) {
-      self.update();
+      // self.update();
+      self.changeValue(self.field.value, true);
     }
     this.field.addEventListener("blur", onBlur_textField);
         

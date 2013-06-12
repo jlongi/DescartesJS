@@ -70,6 +70,7 @@ var descartesJS = (function(descartesJS) {
   function getDescartesApplets() {
     // get all the applets in the document
     var applets = document.getElementsByTagName("applet");
+    var appletsAJS = document.getElementsByTagName("ajs");
     var applet_i;
     
     // se crea un arreglo donde guardar los applets encontrados
@@ -77,6 +78,18 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=applets.length; i<l; i++) {
       applet_i = applets[i];
+      if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
+           (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
+           (applet_i.getAttribute("code").match("Descartes")) || 
+           (applet_i.getAttribute("code").match("Arquimedes")) ||
+           (applet_i.getAttribute("code").match("Discurso"))
+         ) {
+        tmpArrayApplets.push(applet_i);
+      }
+    }
+
+    for (var i=0, l=appletsAJS.length; i<l; i++) {
+      applet_i = appletsAJS[i];
       if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
            (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
            (applet_i.getAttribute("code").match("Descartes")) || 
@@ -148,7 +161,6 @@ var descartesJS = (function(descartesJS) {
       spaces = descartesJS.apps[i].spaces;
 
       for (var j=0, k=spaces.length; j<k; j++) {
-        
         spaces[j].findOffset();
       }
     }
@@ -170,7 +182,7 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
-      setTimeout(function() { window.scrollTo(0, 1); }, 1);
+      window.scrollTo(0, 2);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {

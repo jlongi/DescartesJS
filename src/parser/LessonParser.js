@@ -336,7 +336,7 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
     controlObj = {};
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
@@ -491,12 +491,11 @@ var descartesJS = (function(descartesJS, babel) {
               tmpVal = tmpVal.substring(0, tmpVal.length-1) + "'";
             }
           }
-          
+
           // the value expression for future evaluation
           controlObj["valueExpr"] = this.parser.parse(tmpVal);
           // the value string for reference
-          controlObj["valueExprString"] = tmpVal;
-          
+          controlObj["valueExprString"] = tmpVal;          
           break;
           
         // increment
@@ -911,6 +910,8 @@ var descartesJS = (function(descartesJS, babel) {
         case("fixed"):
         // condition to draw the edges
         case("edges"):
+        // condition to calculate the intersection edges of faces
+        case("split"):
           graphicObj[babelValue] = (babel[values_i_1] === "true");
           break;
 
@@ -935,10 +936,6 @@ var descartesJS = (function(descartesJS, babel) {
         case("Nu"):
         // Nv parameter
         case("Nv"):
-        // initial rotation
-        case("inirot"):
-        // end rotation
-        case("endrot"):
         // initial position
         case("inipos"):
         // end position
@@ -954,6 +951,10 @@ var descartesJS = (function(descartesJS, babel) {
         case("font"):
         // name
         case("name"):
+        // initial rotation
+        case("inirot"):
+        // end rotation
+        case("endrot"):
           graphicObj[babelValue] = values_i_1;
           break;          
           
@@ -968,7 +969,7 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
             graphicObj["expresionString"] = values_i_1;
           } else {
-            graphicObj["expresion"] = values_i_1;
+            graphicObj["expresion"] = values_i_1.replace(/\\n/g, "");
           }
           break;
                     

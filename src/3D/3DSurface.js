@@ -48,10 +48,6 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
 
-    var parser = this.evaluator.parser;
-    
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
     this.expresion = this.parseExpression();
   }
   
@@ -106,19 +102,13 @@ var descartesJS = (function(descartesJS) {
         v.push(vertices[vi+2 + (ui+1)*Nv  + ui]);
         v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
 
-        this.primitives.push(new descartesJS.Primitive3D( v,
-                                                          "face",
-                                                          { backcolor: this.backcolor.getColor(), 
-                                                            fillStyle: this.color.getColor(), 
-                                                            strokeStyle: "#808080", 
-                                                            lineCap: "round", 
-                                                            lineJoin: "round", 
-                                                            edges: this.edges, 
-                                                            model: this.model,
-                                                            fcolor: this.color,
-                                                            bcolor: this.backcolor
-                                                          }
-                                                        ));
+        this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
+                                   type: "face",
+                                   frontColor: this.color, 
+                                   backColor: this.backcolor,
+                                   edges: this.edges, 
+                                   model: this.model
+                                 } ) );
 
       }
     }

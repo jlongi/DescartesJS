@@ -173,7 +173,7 @@ var descartesJS = (function(descartesJS) {
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    // this.update();
+    canvas.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
   }
   
   /**
@@ -264,7 +264,7 @@ var descartesJS = (function(descartesJS) {
     ctx.textBaseline = "middle";
     
     // text border
-    if (this.colorInt != this.color) {
+    if (this.colorInt.getColor() != this.color.getColor()) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
@@ -348,6 +348,9 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       evt.preventDefault();
+
+      // blur other elements when clicked
+      document.activeElement.blur();
 
       self.whichButton = descartesJS.whichButton(evt);
 

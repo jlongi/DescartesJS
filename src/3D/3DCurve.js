@@ -24,11 +24,7 @@ var descartesJS = (function(descartesJS) {
 
     // se llama al constructor del padre
     descartesJS.Graphic3D.call(this, parent, values);
-
-    var parser = this.evaluator.parser;
     
-    this.mvMatrix = (new descartesJS.Matrix4x4()).setIdentity();
-
     this.expresion = this.parseExpression();
   }
   
@@ -36,7 +32,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic3D
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Curve3D, descartesJS.Graphic3D);
-  
   
   /**
    * Build the primitives corresponding to the curve
@@ -69,15 +64,11 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
-      this.primitives.push(new descartesJS.Primitive3D( [ vertices[i],
-                                                          vertices[i+1] ],
-                                                        "edge",
-                                                        { strokeStyle: this.color.getColor(), 
-                                                          lineCap: "round", 
-                                                          lineJoin: "round",
-                                                          lineWidth: this.evaluator.evalExpression(this.width)
-                                                        }
-                                                      ));
+      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
+                                 type: "edge",
+                                 frontColor: this.color, 
+                                 lineWidth: evaluator.evalExpression(this.width)
+                               } ) );
     }
 
     evaluator.setVariable("x", tempParamX);

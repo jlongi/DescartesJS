@@ -75,7 +75,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Animation.prototype.play = function() {
     if (!this.playing) {
-      // this.reinit();
+      this.reinit();
     
       this.playing = true;
       this.timer = setTimeout(this.animationExec, this.parent.evaluator.evalExpression(this.delay));
