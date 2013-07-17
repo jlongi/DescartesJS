@@ -28,7 +28,7 @@ var descartesJS = (function(descartesJS) {
    * Execute the action
    */
   descartesJS.Message.prototype.execute = function() {
-    alert(this.parameter);
+    alert(this.parameter.replace(/\\n/g, "\n"));
   }
 
   return descartesJS;

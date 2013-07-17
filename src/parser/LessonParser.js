@@ -234,9 +234,10 @@ var descartesJS = (function(descartesJS, babel) {
         // width
         case("width"):
           temp = values_i_1;
-          
+
           // if specified with a percentage use the parent container's width to get the value in pixels
           if (temp[temp.length-1] === "%") {
+            spaceObj["wExpr"] = temp;
             temp = this.parent.container.width*parseFloat(temp)/100;
           }
           // if not specified with a percentage get the numerical value of the width
@@ -255,9 +256,10 @@ var descartesJS = (function(descartesJS, babel) {
         // height
         case("height"):
           temp = values_i_1;
-          
+
           // if specified with a percentage use the parent container's height to get the value in pixels
           if (temp[temp.length-1] === "%") {
+            spaceObj["hExpr"] = temp;
             temp = this.parent.container.height*parseFloat(temp)/100;
           } 
           // if not specified with a percentage get the numerical value of the height
@@ -1555,6 +1557,11 @@ var descartesJS = (function(descartesJS, babel) {
           console.log("----- attributo de la pleca no identificado: <" + values_i_0 + ">  <" + values_i_1 + "> -----");
           break;
       }
+    }
+
+    // the pleca is empty
+    if ((plecaObj.title === "") && (plecaObj.subtitle === "")) {
+      return document.createElement("div");
     }
 
     // the subtitle font size

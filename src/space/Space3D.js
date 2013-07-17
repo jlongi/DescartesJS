@@ -14,6 +14,8 @@ var descartesJS = (function(descartesJS) {
   var MathSqrt  = Math.sqrt;
   var MathPI_2  = Math.PI/2;
   var tiltAngle = Math.PI*15/180;
+  var cosTiltAngle = Math.cos(tiltAngle);
+  var sinTiltAngle = Math.sin(tiltAngle);
   var minScale = 0.000001;
   var maxScale = 1000000;
 
@@ -43,7 +45,6 @@ var descartesJS = (function(descartesJS) {
   var r;
   var g;
   var b;
-  var angle;
   var dl3;
   var intensity = [];
   var I;
@@ -248,11 +249,11 @@ var descartesJS = (function(descartesJS) {
         evaluator.setVariable(self.obsStr, self.observer);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
-        self.eye = { x: (self.observer/self.scale)*MathCos(tiltAngle), 
+        self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
                      y: 0, 
-                     z: (self.observer/self.scale)*MathSin(tiltAngle)
+                     z: (self.observer/self.scale)*sinTiltAngle
                    };
-        self.D = self.scale*self.eye.x/MathCos(tiltAngle);
+        self.D = self.scale*self.eye.x/cosTiltAngle;
         self.XE = MathRound(self.scale*self.eye.y +0.5);
         self.YE = MathRound(self.scale*self.eye.z +0.5);
         ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,7 +496,7 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
-    self = this;
+    var self = this;
 
     hasTouchSupport = descartesJS.hasTouchSupport;
 

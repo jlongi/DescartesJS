@@ -52,6 +52,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     expr = evaluator.evalExpression(this.expresion);
+
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
 
@@ -100,7 +101,7 @@ var descartesJS = (function(descartesJS) {
 
     coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
     coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
-     
+
     ctx.beginPath();
     ctx.arc(coordX, coordY, size, 0, PI2, true);
     ctx.fill()

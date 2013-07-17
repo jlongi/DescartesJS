@@ -27,7 +27,8 @@ var descartesJS = (function(descartesJS) {
 
     this.delay = (values.delay) ? parser.parse(values.delay) : parser.parse("60");
     this.loop = (values.loop) ? values.loop : false;
-    this.auto = ((values.auto == undefined) && (this.parent.version === 2)) ? true : values.auto;
+    // this.auto = ((values.auto == undefined) && (this.parent.version === 2)) ? true : values.auto;
+    this.auto = (values.auto == undefined) ? true : values.auto;
     this.controls = values.controls;
     
     // parse the init expression

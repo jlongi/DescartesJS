@@ -99,6 +99,21 @@ var descartesJS = (function(descartesJS) {
     this.audios.length = -1;
     
     /**
+     * variable to record if the applet is interpreted for the first time, used to show the loader screen
+     * type {Boolean}
+     * @private
+     */
+    this.firstRun = true;
+
+    // init the interpretation
+    this.init()
+  }
+
+  /**
+   * Init the variables needed for parsing and create the descartes lesson
+   */
+  descartesJS.DescartesApp.prototype.init = function() {
+    /**
      * evaluator and parser of expressions
      * type {Evaluator}
      * @private
@@ -111,13 +126,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.lessonParser = new descartesJS.LessonParser(this);
-
-    /**
-     * variable to record if the applet is interpreted for the first time, used to show the loader screen
-     * type {Boolean}
-     * @private
-     */
-    this.firstRun = true;
 
     /**
      * variable that tell us whether the lesson is an arquimedes lesson
@@ -141,6 +149,7 @@ var descartesJS = (function(descartesJS) {
                     "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
                     "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
                     "}";
+    // this.licenseA = "";
 
     var children = this.children;
     var children_i;
@@ -171,18 +180,10 @@ var descartesJS = (function(descartesJS) {
     if (this.arquimedes) {
       // modify the lesson height if find rtf height
       if (heightRTF) {
-        this.height =  heightRTF + heightButtons + 70; // 70 is the height of the licence image
+        this.height =  heightRTF + heightButtons + 90; // 70 is the height of the licence image
       }
     }
 
-    // init the interpretation
-    this.init()
-  }
-
-  /**
-   * Init the variables needed for parsing and create the descartes lesson
-   */
-  descartesJS.DescartesApp.prototype.init = function() {
     /**
      * array to store the lesson spaces
      * type {Array.<Space>}
@@ -384,11 +385,12 @@ var descartesJS = (function(descartesJS) {
       // ##ARQUIMEDES## //
       // find the rtf text of an arquimedes lesson
       if (children_i.name == "rtf") {
+        var posX = (this.width-780)/2;
         var posY = (parseInt(this.height) -this.plecaHeight -this.buttonsConfig.height -45);
 
         tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
-        tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[10," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
-        tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[15," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+        tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
+        tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
 
         continue;
       }
@@ -554,6 +556,20 @@ var descartesJS = (function(descartesJS) {
       window.parent.postMessage({ type: "ready" }, '*');
 
       descartesJS.onResize();
+    }
+
+    if (window.opener) {
+      document.body.style.margin = "0px";
+      document.body.style.padding = "0px";
+      this.parentContainer.style.margin = "0px";
+      this.parentContainer.style.padding = "0px";
+      var winWidth = parseInt(this.width)+20;
+      var winHeight = parseInt(this.height)+80;
+
+      window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
+      window.resizeTo(winWidth, winHeight);
+
+      descartesJS.onResize();      
     }
 
     // evaluator used in a range evaluation

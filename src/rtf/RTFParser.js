@@ -54,13 +54,13 @@ var descartesJS = (function(descartesJS) {
    * @param {RTFNode} return a parse tree corresponding to the rtf input
    */
   descartesJS.RTFParser.prototype.parse = function(input) {
-    // console.log(input);
+// console.log(input);
     tokens = this.tokenizer.tokenize(input);
     tokens = checkMathSymboslInFormula(tokens);
     indexToken = 0;
     fontTable = {};
     tempI = 2;
-    // console.log(tokens);
+// console.log(tokens);
     
     // build the font block
     if ( (tokens[0].type == "openBlock") && (tokens[1].value == "fonttbl") ) {
@@ -408,7 +408,7 @@ var descartesJS = (function(descartesJS) {
       }
       // set the number of decimals
       else if ((tokens[i].type == "text") && (setDecimals)) {
-        lastDynamicNode.decimals = this.evaluator.parser.parse(parseInt(tokens[i].value)+"");
+        lastDynamicNode.decimals = this.evaluator.parser.parse( tokens[i].value +"");
         setDecimals = false;
         continue;
       }

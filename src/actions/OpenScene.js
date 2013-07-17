@@ -56,7 +56,8 @@ var descartesJS = (function(descartesJS) {
  
       // build an action to open a new page relative to the actual page
       this.actionExec = function() {
-        this.window = window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + "location=no,menubar=no,scrollbars=no,status=no,titlebar=no,toolbar=no");
+        this.window = window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + 
+          "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
 
         this.window.onload = function(evt) {
           var document = this.document;

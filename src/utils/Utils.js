@@ -199,6 +199,7 @@ var descartesJS = (function(descartesJS) {
     var indexOfE;
     var exponentialNotaionSplit;
     var exponentialNumber;
+    var exponentialSign;
     var moveDotTo;
 
     function getStringExtraZeros(n) {
@@ -221,17 +222,18 @@ var descartesJS = (function(descartesJS) {
 
       if (indexOfE !== -1) {
         exponentialNotaionSplit = strNum.split("e");
-        exponentialNumber = exponentialNotaionSplit[0];
+        exponentialSign = (exponentialNotaionSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? exponentialNotaionSplit[0].substring(1) : exponentialNotaionSplit[0];
+
         moveDotTo = parseInt(exponentialNotaionSplit[1]);
 
         if (indexOfDot+moveDotTo < 0) {
-          strNum = "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
           indexOfDot = 1;
         }
-
         else {
           exponentialNumber = exponentialNumber.replace(".", "");
-          strNum = exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
           indexOfDot = -1;
         }
       }

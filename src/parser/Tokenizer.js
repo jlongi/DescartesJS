@@ -43,7 +43,7 @@ var descartesJS = (function(descartesJS) {
       input = input.replace(/\\u(\S+) /g, function(str, m1){ return String.fromCharCode(parseInt(m1, 16)); });
 
       // superindex numbers codified with &sup#;
-      input = input.replace(/\&sup(.+);/g, "^$1 ");
+      input = input.replace(/\&sup(.+);/g, "^ $1 ");
 
       // single quotation marks
       input = input.replace(/&squot;/g, "'");
@@ -82,6 +82,8 @@ var descartesJS = (function(descartesJS) {
     while ((input) && (pos < input.length)) {
       exit = pos;
       
+// console.log("--253", input.charAt(pos), input.charAt(pos).charCodeAt(0), String.fromCharCode(179))
+
       // string
       if (str[0] == "'") {
         inc = 1;
@@ -194,6 +196,25 @@ var descartesJS = (function(descartesJS) {
       val = str.match(separatorRegExp);
       if (val) {
         addToken("separator", val[0], val[0].length);
+        continue;
+      }
+
+      // square
+      if (str.charCodeAt(0) === 178) {
+        // add a multiplication operator
+        tokens.push({ type: "operator", value: "^" });
+
+        // add the identifier token
+        addToken("number", 2, 1);
+        continue;
+      }
+      // cube
+      if (str.charCodeAt(0) === 179) {
+        // add a multiplication operator
+        tokens.push({ type: "operator", value: "^" });
+
+        // add the identifier token
+        addToken("number", 3, 1);
         continue;
       }
 

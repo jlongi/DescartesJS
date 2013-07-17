@@ -8,6 +8,7 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var PI2 = Math.PI*2;
+  var netsz = 8;
 
   var b;
 
@@ -16,10 +17,8 @@ var descartesJS = (function(descartesJS) {
   var space;
   var color;
   var width;
-  var desp;
   var savex;
   var savey;
-  var netsz;
   var w;
   var h;
   var dx;
@@ -77,13 +76,6 @@ var descartesJS = (function(descartesJS) {
     this.width = parent.evaluator.parser.parse("1");
 
     /**
-     * the condition and the color of the fill
-     * type {String}
-     * @private
-     */
-    // this.fill = "";
-    
-    /**
      * the condition and the color of the fill+
      * type {String}
      * @private
@@ -128,28 +120,32 @@ var descartesJS = (function(descartesJS) {
    * Parse the expression and build a newton evaluator
    */
   descartesJS.Equation.prototype.parseExpression = function() {
-    if (this.expresion.type == "compOperator") {
+    if (this.expresion.type === "compOperator") {
       var left = this.expresion.childs[0];
       var right = this.expresion.childs[1];
 
       if ( (left.type == "identifier") && (left.value == "y") && (!right.contains("y")) ) {
         this.funExpr = right;
-        this.drawAux = this.drawAuxFunY;
+        this.of_y = false;
+        this.drawAux = this.drawAuxFun;
       }
       
       else if ( (right.type == "identifier") && (right.value == "y") && (!left.contains("y")) ) {
         this.funExpr = left;
-        this.drawAux = this.drawAuxFunY;        
+        this.of_y = false;
+        this.drawAux = this.drawAuxFun;        
       }
       
       else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
         this.funExpr = right;
-        this.drawAux = this.drawAuxFunX;
+        this.of_y = true;
+        this.drawAux = this.drawAuxFun;
       }
       
       else if ( (right.type == "identifier") && (right.value == "x") && (!left.contains("x")) ) {
+        this.of_y = true;
         this.funExpr = right;
-        this.drawAux = this.drawAuxFunX;
+        this.drawAux = this.drawAuxFun;
       }
     }
 
@@ -169,9 +165,10 @@ var descartesJS = (function(descartesJS) {
 
     this.auxCtx.fillStyle = this.color.getColor();
 
-    this.auxCtx.beginPath();
-    this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
-    this.auxCtx.fill();
+    // this.auxCtx.beginPath();
+    // this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
+    // this.auxCtx.fill();
+    this.auxCtx.fillRect(0, 0, width, width);
   }
   
   /**
@@ -195,6 +192,40 @@ var descartesJS = (function(descartesJS) {
       this.drawAux(this.ctx, this.fill, this.color);
     }
   }
+
+  /**
+   * Auxiliar function for draw a family graphic
+   * @param {CanvasRenderingContext2D} ctx the render context to draw
+   * @param {String} fill the fill color of the graphic
+   * @param {String} stroke the stroke color of the graphic
+   */
+  descartesJS.Equation.prototype.drawFamilyAux = function(ctx, fill, stroke) {
+    evaluator = this.evaluator;
+
+    // update the family values
+    this.getFamilyValues();
+
+    // save the las value of the family parameter
+    tempParam = evaluator.getVariable(this.family);
+
+    if (this.fSteps >= 0) {
+      // draw all the family mebers of the graphic
+      for(var i=0, l=this.fSteps; i<=l; i++) {
+        // update the value of the family parameter
+        evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
+
+        // // if the condition to draw if true then update and draw the graphic
+        // if ( evaluator.evalExpression(this.drawif) > 0 ) {
+          // update the values of the graphic
+          // this.update();
+          // draw the graphic
+          this.drawAux(ctx, fill, stroke);
+        // }
+      }
+    }
+
+    evaluator.setVariable(this.family, tempParam);
+  }
   
   /**
    * Draw the trace of the equation
@@ -217,36 +248,33 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
     
     width = evaluator.evalExpression(this.width);
-    desp = (width%2) ? .5 : 0;
     ctx.fillStyle = stroke.getColor();
-    ctx.translate(-this.width_2, -this.width_2);
+    ctx.translate(-parseInt(width/2), -parseInt(width/2));
     // width = MathFloor(width)/2;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
-    netsz = 8;
     
     w = space.w;
     h = space.h;
     
-    dx = MathFloor(w/netsz);
+    dx = parseInt(w/netsz);
     if (dx<3) {
       dx=3;
     }
-    dy = MathFloor(h/netsz);
+    dy = parseInt(h/netsz);
     if (dy<3) {
       dy=3;
     }
 
-    // b = [];
-    b = new Array();
+    b = [];
 
     q0.set(0, 0);
     qb.set(0, 0);
     t.set(0, 0);
 
-    for (j=MathFloor(dy/2); j<h; j+=dy) {
-      for (i=MathFloor(dx/2); i<w; i+=dx) {
+    for (j=parseInt(dy/2); j<h; j+=dy) {
+      for (i=parseInt(dx/2); i<w; i+=dx) {
         if (this.abs_coord) {
           q_ij.set(i, j);
           q = this.newt.findZero(q_ij);
@@ -261,14 +289,18 @@ var descartesJS = (function(descartesJS) {
           Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
         }
         
-        Qx = MathFloor(Q.ix());
-        Qy = MathFloor(Q.iy());
-//         if (Qx<0 || Qx>=w || Qy<0 || Qy>=h || b[Qx][Qy]) {
+        Qx = Q.ix();
+        Qy = Q.iy();
+
         if (Qx<0 || Qx>=w || Qy<0 || Qy>=h || b[Qx + Qy*space.w]) {
-          continue; // cero detectado
+          continue; // zero detected
         }
-//         b[Qx][Qy] = true;
+
         b[Qx + Qy*space.w] = true;
+
+        if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
+          ctx.drawImage(this.auxCanvas, Qx, Qy);
+        }
 
         q0.x = q.x;
         q0.y = q.y;
@@ -358,7 +390,6 @@ var descartesJS = (function(descartesJS) {
               else {
                 b[Qx + Qy*space.w] = true;
                 if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  // ctx.drawImage(this.auxCanvas, (Qx-this.width_2), (Qy-this.width_2));
                   ctx.drawImage(this.auxCanvas, Qx, Qy);
                 }
               }
@@ -378,210 +409,461 @@ var descartesJS = (function(descartesJS) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+/**
+ *
+ */
+descartesJS.Equation.prototype.X = function(size, x, abs_coord) {
+  if (!abs_coord) {
+    x = (this.space.w/2+this.space.Ox) + this.space.scale*x;
+  }
+  if (x < -size) {
+    x = -size;
+  }
+  if (x > this.space.w+size) {
+    x = this.space.w+size;
+  }
+
+  return x;
+}
+
+/**
+ *
+ */
+descartesJS.Equation.prototype.Y = function(size, y, abs_coord) {
+  if (!abs_coord) {
+    y = (this.space.h/2+this.space.Oy) - this.space.scale*y;
+  }
+  if (y < -size) {
+    y = -size;
+  }
+  if (y > this.space.h+size) {
+    y = this.space.h+size;
+  }
+
+  return y;
+}
+
+/**
+ *
+ */
+descartesJS.Equation.prototype.XX = function(size, v, abs_coord) {
+  return Math.round(this.X(size, v, abs_coord));
+}
+
+/**
+ *
+ */
+descartesJS.Equation.prototype.YY = function(size, v, abs_coord) {
+  return Math.round(this.Y(size, v, abs_coord));
+}
+
+/**
+ * 
+ */
+descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
+  var saveX = this.evaluator.getVariable(X);
+  var dxx = dx/2;
+  var Dx = 0;
+  var vv = v;
+
+  while (Math.abs(dxx)>1E-12) {
+    var xa = this.evaluator.getVariable(X);
+    var x = this.evaluator.getVariable(X) + dxx;
+
+    this.evaluator.setVariable(X, x);
+
+    var ok = true;
+
+    // try {
+      var vva = vv;
+      vv = this.evaluator.evalExpression(this.funExpr);
+      this.evaluator.setVariable(Y, vv);
+
+      if (this.evaluator.evalExpression(cond) > 0) {
+        var minmax = new descartesJS.R2(Math.min(vva, vv), Math.max(vva, vv));
+        var sing = 0;
+
+        if (dx>0) {
+          sing = this.Singularity(Math.abs(dxx), X, F, xa, vva, x, vv, minmax);
+        } 
+        else {
+          sing = this.Singularity(Math.abs(dxx), X, F, x, vv, xa, vva, minmax);
+        }
+        if (sing > 0) {
+          ok = false;
+        }
+      } 
+      else {
+        ok = false;
+      }
+    // } 
+    // catch (e) {
+    //   ok = false;
+    // }
+
+    if (ok) {
+      Dx += dxx;
+    } 
+    else {
+      this.evaluator.setVariable(X, xa);
+    }
+    dxx/=2;
+  }
+
+  this.evaluator.setVariable(X, saveX);
+
+  return new descartesJS.R2(Dx/Math.abs(dx),vv);
+}
+
+/**
+ * 
+ */
+descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F, v, dx) {
+  var saveX = this.evaluator.getVariable(X);
+  var dxx = dx/2;
+  var Dx = 0;
+  var vv = v;
+
+  while (Math.abs(dxx)>1E-12) {
+    this.evaluator.setVariable(this.evaluator.getVariable(X) +dxx);
+    var ok = true;
+
+    if (this.evaluator.evalExpression(cond) > 0) {
+      // try {
+        var vva = vv;
+        vv = this.evaluator.evalExpression(this.funExpr);
+        
+        this.evaluator.setVariable(Y, vv);
+
+        if (this.evaluator.evalExpression(cond) <= 0) {
+          ok = false;
+        }
+      // }
+      // catch (e) {
+      //   ok = false;
+      // }
+    }
+    else {
+      ok = false;
+    }
+
+    if (ok) {
+      Dx += dxx;
+    }
+    else {
+      this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
+    }
+    dxx/=2;
+  }
+  
+  if (Dx == 0) {
+    dxx = dx/2;
+    Dx = dx;
+    vv = v;
+
+    while (Math.abs(dxx)>1E-12) {
+      this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
+
+      var ok = true;
+
+      if (this.evaluator.evalExpression(cond) > 0) {
+        // try {
+          vv = this.evaluator.evalExpression(this.funExpr);
+        // }
+        // catch (e) {
+        //   ok = false;
+        // }
+      }
+      else {
+        ok = false;
+      }
+
+      if (ok) {
+        Dx += -dxx;
+      } 
+      else {
+        this.evaluator.setVariable(this.evaluator.getVariable(X)+dxx);
+      }
+      dxx/=2;
+    }
+  }
+
+  this.evaluator.setVariable(saveX);
+
+  return new descartesJS.R2(Dx/Math.abs(dx), vv);
+}
+
+/**
+ * 
+ */
+descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, minmax) {
+    if (a >= b) {
+      return 2;
+    }
+    var saveX = this.evaluator.getVariable(X);
+    var disc=0;
+
+    // try {
+      if ( (Math.abs(b-a) < 1E-12) || 
+           ( (Math.abs(b-a) < 1E-8) && (Math.abs(vb-va) > Math.abs(e)) ) 
+         ) {
+        this.evaluator.setVariable(X, saveX);
+        return 1;
+      }
+
+      var ab2=(a+b)/2;
+      this.evaluator.setVariable(X, ab2);
+
+      var auxv = this.evaluator.evalExpression(this.funExpr);
+
+      if (Math.abs(vb-va)>e) {  // detectar saltos
+        var epsilon = 0.000001;
+        this.evaluator.setVariable(X, a-epsilon);
+        var _v = this.evaluator.evalExpression(this.funExpr);
+        var _D = (va-_v)/epsilon;
+
+        this.evaluator.setVariable(X, b+epsilon);
+        var v_ = this.evaluator.evalExpression(this.funExpr);
+        var D_ = (v_-vb)/epsilon;
+
+        var Dj = (vb-va)/(b-a);
+
+        if ( (Math.abs(D_) < 10) || 
+             (Math.abs(_D) < 10)
+           ) { 
+          if ((D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
+            if (8*Math.abs(D_) < Math.abs(Dj)) {
+              this.evaluator.setVariable(X, saveX);
+              return 2;
+            }
+          }
+        }
+      }
+      if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
+        this.evaluator.setVariable(X, ab2);
+        minmax.x = Math.min(va, auxv);
+        minmax.y = Math.max(va, auxv);
+        var s1 = this.Singularity(e/2, X, F, a, va, ab2, auxv, minmax);
+
+        this.evaluator.setVariable(X, b);
+        minmax.x = Math.min(vb, auxv);
+        minmax.y = Math.max(vb, auxv);
+        var s2 = this.Singularity(e/2, X, F, ab2, auxv, b, vb, minmax);
+
+        disc = Math.max(s1, s2);
+      }
+    // } 
+    // catch (exc) {
+    //   disc = 1;
+    // }
+
+    this.evaluator.setVariable(X, saveX)
+
+    return disc;
+  }
+
   /**
    * Auxiliary function for draw an equation of y
    * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
    * @param {String} fill the fill color of the equation
    * @param {String} stroke the stroke color of the equation
    */
-  descartesJS.Equation.prototype.drawAuxFunY = function(ctx, fill, stroke) {
-    evaluator = this.evaluator;
-    space = this.space;
-    w = space.w;
-    dx = 1/space.scale;
-    theZeroY = space.getAbsoluteY(0);
+  descartesJS.Equation.prototype.drawAuxFun = function(ctx, fill, stroke) {
+    savex = this.evaluator.parser.getVariable("x");
+    savey = this.evaluator.parser.getVariable("y");
 
-    width = evaluator.evalExpression(this.width);
+    var X = "x";
+    var Y = "y";
 
-    color = this.color.getColor();
-    ctx.fillStyle = color;    
-    
-    initX = space.getRelativeX(0);
+    if (this.of_y) {
+      X = "y";
+      Y = "x";
+    }
 
-    evaluator.setVariable("x", initX);
-    previousTmpAbsoluteX = space.getAbsoluteX(initX);
-    previousTmpAbsoluteY = space.getAbsoluteY(evaluator.evalExpression(this.funExpr));
-    
-    va = 0;
-    
-    for (var i=1; i<w; i++) {
-      tmpX = initX + i*dx;
-      evaluator.setVariable("x", tmpX);
-      tmpY = evaluator.evalExpression(this.funExpr)
-      evaluator.setVariable("y", tmpY);
-      
-      actualTmpAbsoluteX = space.getAbsoluteX(tmpX);
-      actualTmpAbsoluteY = space.getAbsoluteY(tmpY);
-      
-      min = Math.min(va, tmpY);
-      max = Math.max(va, tmpY);
-      minmax = { min: min, max: max};
-      
-      if ( (tmpY !== undefined) && (descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif)) ) {
-        if ( !this.hasSingularity(dx, tmpX, "x", tmpX-dx, va, tmpX, tmpY, minmax) ){
-          
-          if ((this.fillM) || (this.fillP)) {
-            if (this.fillM) {
-              colorFillM = this.fillM.getColor();
+    var F = 000000;
+    var cond = (this.drawif) ;
+    var width = this.evaluator.evalExpression(this.width);
+
+    var defa = false;
+    var singa = 0;
+    var Or = new descartesJS.R2((this.space.w/2+this.space.Ox), (this.space.h/2+this.space.Oy));
+    var y0 = (this.of_y) ? Or.ix() : Or.iy();
+
+    var y = 0;
+    var ya = 0;
+    var x = 0;
+    var xa = 0;
+
+    var dx = 1/this.space.scale;
+    var Xr = dx*((this.of_y)?-this.space.h+(this.space.h/2+this.space.Oy):-(this.space.w/2+this.space.Ox));
+    var va = 0;
+
+    if (this.abs_coord) {
+      Xr = this.space.h;
+      dx = -1;
+    }
+
+    var condWhile = (this.of_y) ? this.space.h : this.space.w;
+    while (x < condWhile) {
+      var def = true;
+      var sing = 0;
+      this.evaluator.setVariable(X, Xr);
+
+      // try {
+        var v = this.evaluator.evalExpression(this.funExpr);
+
+        if (!isNaN(v)) {
+          this.evaluator.setVariable(Y, v);
+
+          if ((this.evaluator.evalExpression(this.drawif) > 0) && (descartesJS.rangeOK)) {
+            if (defa) {
+              var min = Math.min(va, v);
+              var max = Math.max(va, v);
+              var minmax = new descartesJS.R2(min, max);
+
+              sing = this.Singularity(dx, X, F, Xr-dx, va, Xr, v, minmax);
+
+              if (sing === 0) {
+                if (va <= v) {
+                  va = minmax.x;
+                  v =  minmax.y;
+                }
+                else {
+                  v = minmax.x;
+                  va = minmax.y;
+                }
+
+                var nya = (this.of_y) ? this.XX(width, va, this.abs_coord) : this.YY(width, va, this.abs_coord);
+                if (this.abs_coord) {
+                  y = Math.round(v);
+                } 
+                else {
+                  y = (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord);
+                }
+
+                if ((this.fillM) && (y>y0)) {
+                  ctx.lineWidth = 1;
+                  ctx.strokeStyle = this.fillM.getColor();
+                  ctx.beginPath();
+                  if (this.of_y) {
+                    ctx.moveTo(y0+1, this.space.h-x+.5);
+                    ctx.lineTo(y, this.space.h-x+.5);
+                  }
+                  else {
+                    ctx.moveTo(x+.5, y0+1);
+                    ctx.lineTo(x+.5, y);
+                  }
+                  ctx.stroke();
+                }
+                if ((this.fillP) && (y<y0)) {
+                  ctx.lineWidth = 1;
+                  ctx.strokeStyle = this.fillP.getColor();
+                  ctx.beginPath();
+                  if (this.of_y) {
+                    ctx.moveTo(y0-1, this.space.h-x+.5);
+                    ctx.lineTo(y, this.space.h-x+.5);
+                  }
+                  else {
+                    ctx.moveTo(x+.5, y0-1);
+                    ctx.lineTo(x+.5, y);
+                  }
+                  ctx.stroke();
+                }
+                // g[i].setColor(mjac[i].getAdaptedColor());
+                // if (ya!=nya) {
+                //   Line(g[i],width,xa,ya,xa,nya,of_y);
+                // }
+
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                if (this.of_y) {
+                  ctx.moveTo(nya+.5, this.space.h-xa);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(xa+.5, nya);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+              }
+              // sing === 1
+              else if (sing === 1) {
+                this.evaluator.setVariable(X, Xr-dx);
+                var pn = this.extrapolate(cond, X, Y, F, va, dx);
+                y = this.YY(width, pn.y, this.abs_coord);
+                
+                // g[i].setColor(mjac[i].getAdaptedColor());
+                // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+
+                this.evaluator.setVariable(X, Xr);
+                var pa = this.extrapolate(cond, X, Y, F, v, -dx);
+                ya = this.YY(width, pa.y, this.abs_coord);
+                y = this.YY(width, v, this.abs_coord);
+
+                // g[i].setColor(mjac[i].getAdaptedColor());
+                // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
+              }
+              // sing === 2
+              else {
+                y = this.YY(width, v, this.abs_coord);
+
+                // g[i].setColor(mjac[i].getAdaptedColor());
+                // Line(g[i],width,x,y,x,y,of_y);
+              }
             }
-            if (this.fillP) {
-              colorFillP = this.fillP.getColor();
+            // defa === false; extrapolate forward
+            else {
+              var pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
+
+              ya = this.YY(width, pa.y, this.abs_coord);
+              y = this.YY(width, v, this.abs_coord);
+
+              // g[i].setColor(mjac[i].getAdaptedColor());
+              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
             }
 
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = (actualTmpAbsoluteY > theZeroY) ? colorFillM : colorFillP;
-            ctx.beginPath();
-            ctx.moveTo(actualTmpAbsoluteX+.5, actualTmpAbsoluteY);
-            ctx.lineTo(actualTmpAbsoluteX+.5, theZeroY);
-            ctx.stroke();
+            va = v;
           }
 
-          ctx.lineWidth = width;
-          ctx.strokeStyle = color;
-          ctx.beginPath();
-          ctx.moveTo(previousTmpAbsoluteX, previousTmpAbsoluteY);
-          ctx.lineTo(actualTmpAbsoluteX, actualTmpAbsoluteY);
-          ctx.stroke();
-        }
-        
-      }
-      
-      va = tmpY || 0;
-      
-      previousTmpAbsoluteX = actualTmpAbsoluteX;
-      previousTmpAbsoluteY = actualTmpAbsoluteY;
-    }
-    
-  }
-  
-  /**
-   * Auxiliary function for draw an equation of x
-   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
-   * @param {String} fill the fill color of the equation
-   * @param {String} stroke the stroke color of the equation
-   */
-  descartesJS.Equation.prototype.drawAuxFunX = function(ctx, fill, stroke) {
-    evaluator = this.evaluator;
-    space = this.space;
-    h = space.h;
-    dy = 1/space.scale;
-    theZeroX = space.getAbsoluteX(0);
-
-    width = evaluator.evalExpression(this.width);
-
-    color = this.color.getColor();
-    ctx.fillStyle = color;    
-    
-    initY = space.getRelativeY(h);
-
-    evaluator.setVariable("y", initY);
-    previousTmpAbsoluteX = space.getAbsoluteX(evaluator.evalExpression(this.funExpr));
-    previousTmpAbsoluteY = space.getAbsoluteY(initY);
-    
-    var va = 0;    
-    
-    for (var i=1; i<h; i++) {
-      tmpY = initY + i*dy;
-      evaluator.setVariable("y", tmpY);
-      tmpX = evaluator.evalExpression(this.funExpr)
-      evaluator.setVariable("x", tmpX);
-
-      actualTmpAbsoluteX = space.getAbsoluteX(tmpX);
-      actualTmpAbsoluteY = space.getAbsoluteY(tmpY);
-      
-      min = Math.min(va, tmpX);
-      max = Math.max(va, tmpX);
-      minmax = { min: min, max: max};
-
-      if ( (tmpY !== undefined) && (descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif)) ) {
-        if ( !this.hasSingularity(dy, tmpY, "y", tmpY-dy, va, tmpY, tmpX, minmax) ){
-          
-          if ((this.fillM) || (this.fillP)) {
-            if (this.fillM) {
-              colorFillM = this.fillM.getColor();
-            }
-            if (this.fillP) {
-              colorFillP = this.fillP.getColor();
-            }
-
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = (actualTmpAbsoluteX > theZeroX) ? colorFillM : colorFillP;
-            ctx.beginPath();
-            ctx.moveTo(actualTmpAbsoluteX, actualTmpAbsoluteY+.5);
-            ctx.lineTo(theZeroX, actualTmpAbsoluteY+.5);
-            ctx.stroke();
+          else {
+            def = false;
           }
 
-          ctx.lineWidth = width;
-          ctx.strokeStyle = color;
-          ctx.beginPath();
-          ctx.moveTo(previousTmpAbsoluteX, previousTmpAbsoluteY);
-          ctx.lineTo(actualTmpAbsoluteX, actualTmpAbsoluteY);
-          ctx.stroke();
+          if (defa && !def) {
+            this.evaluator.setVariable(X, Xr-dx);
+            this.evaluator.setVariable(Y, va);
+
+            var pn = this.extrapolate(cond, X, Y, F, va, dx);
+            y = this.YY(width, pn.y, this.abs_coord);
+
+            // g[i].setColor(mjac[i].getAdaptedColor());
+            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+
+            this.evaluator.setVariable(X, Xr);
+          }
         }
-        
-      }
+        else {
+          def = false;
+        }
 
-      va = tmpX || 0;
-        
-      previousTmpAbsoluteX = actualTmpAbsoluteX;
-      previousTmpAbsoluteY = actualTmpAbsoluteY;
+      // }
+      // catch(e) {
+      //   def = false;
+      // }
+
+      defa = def;
+      singa = sing;
+      Xr += dx;
+      ya = y;
+      xa = x++;
     }
-    
-  }
-  
-// //   if ( !this.hasSingularity(dx, tmpX, "x", tmpX-dx, va, tmpX, tmpY, minmax) ){
-// //   X = tmpX
-// //   vari = "x"
-// //   a = tmpX-dx
-// //   va = tmpY <-anterior
-// //   b = tmpX
-// //   vb = tmpY
-// //   minimo entre tmpY anterior y tmpY
-// //   maximo entre tmpY anterior y tmpY
 
-  /**
-   * Find if the equation has a singularity
-   */
-  descartesJS.Equation.prototype.hasSingularity = function(e, X, vari, a, va, b, vb, minmax) {
-    if ( (Math.abs(b-a) < 1E-12) || ((Math.abs(b-a) < 1E-8) && (Math.abs(vb-va) > Math.abs(e))) ) {
-      return true;
-    }
-    disc = false;
-    saveX = X;
-    
-    Xr = (a+b)/2;
-    this.evaluator.setVariable(vari, Xr);
-    auxv = this.evaluator.evalExpression(this.funExpr);
-    
-//     try {
-      if ((minmax.min <= auxv) && (auxv <= minmax.max)) {
-        disc = false;
-      } else {
-        minmax.x = Math.min(minmax.min, auxv);
-        minmax.y = Math.max(minmax.max, auxv);
-        disc = this.hasSingularity(e, X, vari, a, va, Xr, auxv, minmax) || this.hasSingularity(e, X, vari, Xr, auxv, b, vb, minmax);
-      }
-//     }catch (e) { 
-//       disc = true; 
-//     }
-        
-    this.evaluator.setVariable(vari, saveX);
 
-    return disc;
-  }
-  
-  /**
-   * Draw a pixel using an arc
-   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   * @param {Number} radius the size of the pixel
-   */
-  descartesJS.drawPixel = function(ctx, x, y, radius) {
-    ctx.moveTo(x, y);
-    ctx.arc(x, y, radius, 0, PI2, false);
-  }
+    this.evaluator.parser.setVariable("x", savex);
+    this.evaluator.parser.setVariable("y", savey);
+}  
 
   /**
    * Register a text field in case the equation expression is editable

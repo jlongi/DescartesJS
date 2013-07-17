@@ -70,17 +70,6 @@ var descartesJS = (function(descartesJS) {
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
-      // // get the value of a variable
-      // var iframeGet = function(varName) {
-      //   if (this.parent.cacheVars[varName]) {
-      //     return this.parent.cacheVars[varName];
-      //   }
-
-      //   iframe.contentWindow.postMessage({ type: "get", name: varName }, "*");
-      //   return 0;
-      // }
-      // self.evaluator.setFunction(self.id + ".get", iframeGet);
-
       // update the scene
       var iframeUpdate = function() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
@@ -93,32 +82,9 @@ var descartesJS = (function(descartesJS) {
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
 
-      // // PATCH
-      // // if the iframe is already interpreted 
-      // if (isFirefox) {
-      //   var receiveMessage = function(event) {
-      //     var data = event.data;
-            
-      //     if (data.type === "ready") {
-      //       window.removeEventListener("message", receiveMessage);
-      //       self.update = self.iframeUpdate;
-      //       self.update();
-      //     }
-      //   }
-      //   window.addEventListener("message", receiveMessage)
-      // }
-      // // PATCH
-
     }
 
-    // // PATCH
-    // if (!isFirefox) {
-      this.update = this.iframeUpdate;
-    // }
-    // else {
-    //   this.update = function() { };
-    // }
-    // // PATCH
+    this.update = this.iframeUpdate;
 
     // a scroll variable to determine if the scroll is show or not
     this.evaluator.setVariable(this.id + "._scroll", 0);

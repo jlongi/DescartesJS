@@ -34,7 +34,16 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFTokenizer.prototype.tokenize = function(input) {
     if (input) {
       // input = input.replace(/\\'(\w{2})/g, function(str, m1){ return StringFromCharCode(parseInt(m1, 16)); });
-      input = input.replace(/\&quote;/g, "''").replace(/\&squot;/g, "'").replace(/\\rquote /g, "'").replace(/\\endash /g, "-").replace(/\n/g, " ").replace(/\r/g, "").replace(/\\uc(\d+) /g, "").replace(/\\uc(\d+)/g, "");
+      input = input.replace(/\&gt;/g, ">")
+                   .replace(/\&lt;/g, "<")
+                   .replace(/\&quote;/g, "''")
+                   .replace(/\&squot;/g, "'")
+                   .replace(/\\rquote /g, "'")
+                   .replace(/\\endash /g, "-")
+                   .replace(/\n/g, " ")
+                   .replace(/\r/g, "")
+                   .replace(/\\uc(\d+) /g, "")
+                   .replace(/\\uc(\d+)/g, "");
     } 
     else {
       return [];
@@ -97,14 +106,16 @@ var descartesJS = (function(descartesJS) {
         }
         // control word
         else {
-          if ((tokenValue === "") && (currentChar === " ") && (lastTokenType === "controlWord")) {
-            lastTokenType = "text";
-          }
-          else {
+          // if ((tokenValue === "") && (currentChar === " ") && (lastTokenType === "controlWord")) {
+          //   // lastTokenType = "text";
+          //   lastTokenType = "controlWord";
+          // }
+          // else {
             tokenValue += currentChar;
-          }
+          // }
         }
       }
+
       // inside a controlWord
       else {
         if ((nextChar === "\\") || (nextChar === "{") || (nextChar === "}") || (nextChar === " ") || (nextChar === ";")) {

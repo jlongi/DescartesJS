@@ -136,8 +136,8 @@ var descartesJS = (function(descartesJS) {
    * @return {Node} return a parse tree from the parses input
    */
   descartesJS.Parser.prototype.parse = function(input, asignation) {
-
     tokens = this.tokenizer.tokenize(input);
+
     // tokens is undefined
     if (!tokens) {
       tokens = [];
@@ -653,8 +653,8 @@ var descartesJS = (function(descartesJS) {
       case "*":  return 7;
       case "sign-": return 7;
       case "sign+": return 7;
-      case "!":  return 8;
       case "^":  return 8;
+      case "!":  return 8;
       case "%":  return 8;
       default:   return 9;
     }
@@ -664,6 +664,7 @@ var descartesJS = (function(descartesJS) {
    * Register the default variables and functions of Descartes
    */
   descartesJS.Parser.prototype.registerDefaultValues = function() {
+    var decimals = 1000000000000000;
     // register the default variables
     this.variables["rnd"] = Math.random;
     this.variables["pi"] = Math.PI;
@@ -678,7 +679,7 @@ var descartesJS = (function(descartesJS) {
     this.functions["log"]   = Math.log;
     this.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
     this.functions["abs"]   = Math.abs;
-    this.functions["ent"]   = Math.floor;
+    this.functions["ent"]   = Math.floor; //function(x) { return Math.floor( parseInt(x*decimals)/decimals ); };
     this.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
     this.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
     this.functions["sin"]   = this.functions["sen"] = Math.sin;
@@ -742,6 +743,7 @@ var descartesJS = (function(descartesJS) {
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
+// console.log(((new descartesJS.Parser).parse("-2^1.4")).toString());
 
   return descartesJS;
 })(descartesJS || {});

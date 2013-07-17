@@ -47,6 +47,12 @@ var descartesJS = (function(descartesJS) {
 
     evaluator = this.evaluator;
     parser = evaluator.parser;
+
+    /**
+     * identifier
+     * type {String}
+     */
+    this.id = "";
     
     /**
      * initial values
@@ -63,13 +69,6 @@ var descartesJS = (function(descartesJS) {
     this.type = "R2";
 
     /**
-     * identifier
-     * type {String}
-     * @private
-     */
-//     this.id = (parent.version != 2) ? "" : "descartes2_space";
-
-    /**
      * x position
      * type {Node}
      * @private
@@ -82,7 +81,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.yExpr = parser.parse("0");
-    
+
     /**
      * width
      * type {Number}
@@ -292,7 +291,7 @@ var descartesJS = (function(descartesJS) {
         this[propName] = values[propName];
       }
     }
-    
+
     this.init();
   }
   
@@ -307,13 +306,16 @@ var descartesJS = (function(descartesJS) {
     this.displaceRegionNorth = parent.displaceRegionNorth || 0;
     this.displaceRegionWest = parent.displaceRegionWest || 0;
 
+    if (this.wExpr != undefined) {
+      this.w = (parseInt(parent.container.width) - this.displaceRegionWest)*parseFloat(this.wExpr)/100;
+    }
+    if (this.hExpr != undefined) {
+      this.h = (parseInt(parent.container.height) - this.displaceRegionNorth)*parseFloat(this.hExpr)/100;
+    }
+
     parentH = parseInt(parent.container.height);
     parentW = parseInt(parent.container.width);
-    
-    // get the initial values to calculate the x and y position
-    evaluator.setVariable(thisID + "._w", this.w);
-    evaluator.setVariable(thisID + "._h", this.h);
-    
+        
     // get the x and y position
     this.x = evaluator.evalExpression(this.xExpr) + this.displaceRegionWest;
     this.y = evaluator.evalExpression(this.yExpr) + this.plecaHeight + this.displaceRegionNorth;
@@ -400,7 +402,7 @@ var descartesJS = (function(descartesJS) {
 
     // register the space variables
     // ## Descartes 2 patch ## //
-    if (parent.version !== 2) {
+    if ((this.id !== "") && (parent.version !== 2)) {
       evaluator.setVariable(thisID + "._w", this.w);
       evaluator.setVariable(thisID + "._h", this.h);
       evaluator.setVariable(thisID + ".escala", this.scale);
@@ -434,8 +436,9 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable("mouse_x", 0);
       evaluator.setVariable("mouse_y", 0);
       evaluator.setVariable("mouse_pressed", 0);
+      evaluator.setVariable("mouse_clicked", 0);
 
-      if ((this.x_axis === "") && (this.y_axis === "")) {
+      if ((this.x_axis === "") && (this.y_axis === "") && (parent.version == 2)) {
         this.axes = "";
       }
     }
@@ -528,15 +531,15 @@ var descartesJS = (function(descartesJS) {
         containerClass = tmpContainer.getAttribute("class");
       }
 
-      if ( (containerClass) && ((containerClass === "DescartesSpace2DContainer") || 
-                                (containerClass === "DescartesSpace3DContainer") ||
-                                (containerClass === "DescartesAppContainer")) 
-         ) {
+      if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
         this.offsetLeft += tmpContainer.offsetLeft || 0;
         this.offsetTop  += tmpContainer.offsetTop || 0;
+        tmpContainer = tmpContainer.parentNode;
       }
-
-      tmpContainer = tmpContainer.parentNode;
+      else {
+        tmpContainer = null;
+      }
+     
     }
 
     // restore the display style

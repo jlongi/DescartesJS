@@ -263,12 +263,16 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = "round";
     ctx.strokeStyle = stroke.getColor();
 
-    ctx.beginPath();
-    ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
+      ctx.beginPath();
+      ctx.moveTo(coordX, coordY);
+      ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
       ctx.fill();
     }
+
+    ctx.beginPath();
+    ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
     ctx.stroke();
     
     // draw the text of the arc

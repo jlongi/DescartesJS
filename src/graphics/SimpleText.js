@@ -14,6 +14,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.SimpleText = function(parent, text) {
     this.text = text.replace("&#x2013", "–");
+
     this.textElements = [];
     this.textElementsMacros = [];
     this.parent = parent;
@@ -31,20 +32,22 @@ var descartesJS = (function(descartesJS) {
       charAt = text.charAt(pos);
       charAtAnt = text.charAt(pos-1);
 
+      // open square bracket scaped
       if ((charAt === "[") && (charAtAnt === "\\")) {
         this.textElements.push(text.substring(lastPos, pos-1) + "[");
         this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "['");
         lastPos = pos+1;
       }
       
+      // close square bracket scaped
       else if ((charAt === "]") && (charAtAnt === "\\")) {
         this.textElements.push(text.substring(lastPos, pos-1) + "]");
         this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "]'");
         lastPos = pos+1;
       }
       
-      // if find an open square bracket add the string '+
-      else if ((charAt === "[") && (ignoreSquareBracket == -1)) {
+      // if find an open square bracket
+      else if ((charAt === "[") && (ignoreSquareBracket === -1)) {
         this.textElements.push(text.substring(lastPos, pos));
         this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
         lastPos = pos;
@@ -56,7 +59,7 @@ var descartesJS = (function(descartesJS) {
       } 
 
       // if find a close square bracket add the strin +'
-      else if ((charAt === "]") && (ignoreSquareBracket == 0)) {
+      else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
         this.textElements.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
         this.textElementsMacros.push( "[" + text.substring(lastPos, pos+1) + "]");
         lastPos = pos+1;

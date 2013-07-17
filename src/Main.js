@@ -41,7 +41,7 @@ var descartesJS = (function(descartesJS) {
     cssNode.id = "StyleDescartesApps";
     cssNode.type = "text/css";
     cssNode.setAttribute("rel", "stylesheet");
-    cssNode.innerHTML = "applet.DescartesJS {display:none;} applet {display:none;}";
+    cssNode.innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
     
     // add the style in the head of the document
     document.head.appendChild(cssNode); 
@@ -53,14 +53,14 @@ var descartesJS = (function(descartesJS) {
   function showApplets() {
     var cssNode = document.getElementById("StyleDescartesApps");
 
-    cssNode.innerHTML = "applet {display:block;}";
+    cssNode.innerHTML = "applet.DescartesJS {display:block;} applet {display:block;} ajs.DescartesJS {display:block;} ajs {display:block;}";
   }
   
   /** 
    * Shows applets that are not descartes
    */
   function showNoDescartesJSApplets() {
-    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:none;}";
+    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
   }
   
   /**
@@ -178,7 +178,7 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasCanvasSupport) {
       removeDescartesAppContainers();
       makeDescartesApps();
-      showNoDescartesJSApplets();
+      // showNoDescartesJSApplets();
       window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 1 pixel to remove the address bar when page is done loading in mobile

@@ -290,6 +290,12 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "^") {
         this.evaluate = function(evaluator) {
+          // var num = this.childs[0].evaluate(evaluator);
+          // var expo = this.childs[1].evaluate(evaluator);
+          // if ((num <0) && (expo !== parseInt(expo))) {
+          //   return -Math.pow( -num, expo );
+          // }
+          // return Math.pow(num, expo);
           return Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) );
         }
       }

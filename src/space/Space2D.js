@@ -128,19 +128,35 @@ var descartesJS = (function(descartesJS) {
     self.parent.images[self.id + ".back"].ready = 1;
     self.parent.images[self.id + ".back"].complete = true;
     self.evaluator.setVariable(self.id + ".back", self.id + ".back");
-    
-    // ## Descartes 2 patch ## //
-    self.OxString = (parent.version !== 2) ? self.id + ".Ox" : "Ox";
-    self.OyString = (parent.version !== 2) ? self.id + ".Oy" : "Oy";
-    self.scaleString = (parent.version !== 2) ? self.id + ".escala" : "escala";
-    // ## Descartes 2 patch ## //
-    self.wString = self.id + "._w";
-    self.hString = self.id + "._h";
+
+    if ((self.id !== "") && (parent.version !== 2)) {
+      self.OxString    = self.id + ".Ox";
+      self.OyString    = self.id + ".Oy";
+      self.scaleString = self.id + ".escala";
+      self.wString     = self.id + "._w";
+      self.hString     = self.id + "._h";  
+      self.mxString    = self.id + ".mouse_x";
+      self.myString    = self.id + ".mouse_y";
+      self.mpressedString = self.id + ".mouse_pressed";
+      self.mclickedString = self.id + ".mouse_clicked";
+    }
+    else {
+      self.OxString    = "Ox";
+      self.OyString    = "Oy";
+      self.scaleString = "escala";
+      self.wString     = "_w";
+      self.hString     = "_h";
+      self.mxString    = "mouse_x";
+      self.myString    = "mouse_y";
+      self.mpressedString = "mouse_pressed";
+      self.mclickedString = "mouse_clicked";
+    }
 
     // register the mouse and touch events
     if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
     }
+
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +335,7 @@ var descartesJS = (function(descartesJS) {
       }
       
       ctx.stroke();
-      
+
       this.drawMarks(ctx, rsc, 4);
       this.drawMarks(ctx, rsc/2, 2);
       this.drawMarks(ctx, rsc/10, 1);
@@ -327,7 +343,8 @@ var descartesJS = (function(descartesJS) {
     
     // draw the axis names
     if ((this.x_axis !== "") || (this.y_axis !== "")) {
-      ctx.fillStyle = this.axes.getColor();
+      ctx.fillStyle = (this.axes !== "") ? this.axes.getColor() : "black";
+
       ctx.font = axisFont
       ctx.textAlign = "right";
       ctx.textBaseline = "alphabetic";
@@ -513,7 +530,8 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchStart(evt) {
       self.click = 1;
-      self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
+      self.evaluator.setVariable(self.mpressedString, 1);
+      self.evaluator.setVariable(self.mclickedString, 0);
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
@@ -536,7 +554,8 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchEnd(evt) {
       self.click = 0;
-      self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
+      self.evaluator.setVariable(self.mpressedString, 0);
+      self.evaluator.setVariable(self.mclickedString, 1);
 
       window.removeEventListener("touchmove", onMouseMove, false);
       window.removeEventListener("touchend", onTouchEnd, false);
@@ -563,8 +582,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       self.click = 1;
-      self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
-      
+
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
 
@@ -582,8 +600,9 @@ var descartesJS = (function(descartesJS) {
       }
       
       if (self.whichButton === "L") {
-        self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
-        
+        self.evaluator.setVariable(self.mpressedString, 1);
+        self.evaluator.setVariable(self.mclickedString, 0);
+
         onSensitiveToMouseMovements(evt);
 
         window.addEventListener("mousemove", onMouseMove);
@@ -600,7 +619,9 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseUp(evt) {
       self.click = 0;
-      self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
+      self.evaluator.setVariable(self.mpressedString, 0);
+      self.evaluator.setVariable(self.mclickedString, 1);
+
       evt.preventDefault();
 
       if (self.whichButton === "R") {
@@ -625,9 +646,10 @@ var descartesJS = (function(descartesJS) {
       self.posAnte = self.getCursorPosition(evt);
       self.mouse_x = self.getRelativeX(self.posAnte.x);
       self.mouse_y = self.getRelativeY(self.posAnte.y);
-      self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
-      self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
-      
+      self.evaluator.setVariable(self.mxString, self.mouse_x);
+      self.evaluator.setVariable(self.myString, self.mouse_y);
+      self.evaluator.setVariable(self.mclickedString, 0);
+
       self.parent.update();
     }
     

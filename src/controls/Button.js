@@ -101,6 +101,8 @@ var descartesJS = (function(descartesJS) {
 
       // empty image, i.e. reference to vacio.gif
       if (imageSrc.toLowerCase().match(/vacio.gif$/)) {
+        this.imageSrc = this.parser.parse("'vacio.gif'");
+
         this.image.ready = 1;
 
         // ## Descartes 3 patch ##
@@ -221,7 +223,7 @@ var descartesJS = (function(descartesJS) {
       despX = 1;
       despY = 1;
     }
-    
+
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {

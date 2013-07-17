@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+
   /**
    * A Descartes macro
    * @constructor 
@@ -47,6 +49,7 @@ var descartesJS = (function(descartesJS, babel) {
     if (this.expresion == undefined) {
       return;
     }
+
     
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.charAt(0) === "'")) {
@@ -56,18 +59,13 @@ var descartesJS = (function(descartesJS, babel) {
 
     var filename = this.evaluator.evalExpression(this.expresion)
     var response;
-
-    // if the macro is readed from an external file omit 2 values of the string
-    var sliceValue = 2; 
     
     if (filename) {
       // the macro is embeded in the webpage
       var macroElement = document.getElementById(filename);
+
       if ((macroElement) && (macroElement.type == "descartes/macro")) {
         response = macroElement.text;
-        
-        // if is embeded then omit 3 values of the string
-        sliceValue = 3;
       }
 
       // the macro is in an external file
@@ -81,28 +79,25 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    var idsMacro = "|";
+    var indexOfEqual;
+    var tmpIniti;
+    var tmpResponse;
+
     // if it was posible to read the macro
     if (response) {
-      response = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&") ).split("\n").slice(sliceValue);
+      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
-      var respTemp;
-      var tempIndexParentheses;
+      // maintain only the lines that have information for the macro
+      response = [];
 
-      // lines are divided into pseudotokens
-      for (var i=0, l=response.length; i<l; i++) {
-        if (response[i]) {
-          response[i] = lessonParser.split(response[i]);
-          
-          if ( (response[i]) && (response[i][0]) && (response[i][0][0]) && (response[i][0][0] === "id") ) {
-            respTemp = response[i][0][1];
-            tempIndexParentheses = respTemp.indexOf("(");
-            
-            if (tempIndexParentheses != -1) {
-              respTemp = respTemp.substring(0,tempIndexParentheses)
-            }
+      for(var i=0, l=tmpResponse.length; i<l; i++) {
+        indexOfEqual = tmpResponse[i].indexOf("=");
 
-            idsMacro += respTemp + "|";
+        if(indexOfEqual !== -1) {
+          tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
+        
+          if (babel[tmpIniti] === "id" || babel[tmpIniti] === "type") {
+            response.push( lessonParser.split( tmpResponse[i] ) );
           }
         }
       }
@@ -113,21 +108,30 @@ var descartesJS = (function(descartesJS, babel) {
       var tmpTokens;
       var tmpTokensRespText;
       
+      var isID;
+
       // add the macro name as a prefix, only in some expressions
       for (var i=0, l=response.length; i<l; i++) {
         respText = response[i] || [];
-       
-        for (var j=0, k=respText.length; j<k; j++) {
-          babelResp = babel[respText[j][0]];
 
-          // is useful for the parameters that have a dot
+        isID = ((respText) && (respText[0]) && (respText[0][0] === "id"));
+
+        for (var j=0, k=respText.length; j<k; j++) {
+          // if the parameters that have a dot
           dotIndex = respText[j][0].indexOf(".");
-          if (dotIndex != -1) {
+          if ((dotIndex !== -1) && (!isID)) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
+            respText[j][0] = this.name + "." + respText[j][0];
+          }
+          else {
+            babelResp = babel[respText[j][0]];
           }
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
-          if ((babelResp != "id") && (babel[respText[j][1]] != undefined)) {
+          if ( (babelResp === "font") ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
+             ) {
             continue;
           }
           
@@ -145,16 +149,16 @@ var descartesJS = (function(descartesJS, babel) {
                 var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
                 
                 for (var t=0, lt=tokens.length; t<lt; t++) {
-                  if ( (tokens[t].type == "identifier") && (idsMacro.match("\\|" + tokens[t].value + "\\|")) ) {
+                  if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
 
-                  // if the identifier has a dot (example vector.long)
-                  else if ((tokens[t].type == "identifier") && ((dotIndex = (tokens[t].value).indexOf(".")) != -1)) {
-                    if (idsMacro.match("\\|" + tokens[t].value.substring(0, dotIndex) + "\\|")) {
-                      tokens[t].value = self.name + "." + tokens[t].value;
-                    }
-                  }
+                  // // if the identifier has a dot (example vector.long)
+                  // else if ((tokens[t].type == "identifier") && ((dotIndex = (tokens[t].value).indexOf(".")) != -1)) {
+                  //   if (idsMacro.match("\\|" + tokens[t].value.substring(0, dotIndex) + "\\|")) {
+                  //     tokens[t].value = self.name + "." + tokens[t].value;
+                  //   }
+                  // }
                 }
                 
                 var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
@@ -176,11 +180,13 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                 for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                  if ( (tmpTokens[tt].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[tt].value + "\\|")) ) {
+                  // if ( (tmpTokens[tt].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[tt].value + "\\|")) ) {
+                  if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
                     tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                   }
                 }
                 tmpTokens = (tokenizer.flatTokens(tmpTokens)).replace(/&squot;/g, "'").replace(/'\+\(/g, "[").replace(/\)\+'/g, "]");
+
                 tmpTokensRespText[ttrt] = tmpTokens.substring(1, tmpTokens.length-1);
               }
 
@@ -190,24 +196,22 @@ var descartesJS = (function(descartesJS, babel) {
           // the token is not a text
           else {
             tmpTokens = tokenizer.tokenize(respText[j][1]);
-            
+
             for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-              if ( (tmpTokens[t].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[t].value + "\\|")) ) {
+
+              if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
                 tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
               }
-              
-              // if the identifier has a dot (example vector.long)
-              else if ((tmpTokens[t].type == "identifier") && ((dotIndex = (tmpTokens[t].value).indexOf(".")) != -1)) {
-                if (idsMacro.match("\\|" + tmpTokens[t].value.substring(0, dotIndex) + "\\|")) {
-                  tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
-                }
-              }
+
             }
+
             respText[j][1] = tokenizer.flatTokens(tmpTokens);
           }
         
         }
+
       }
+
 
       var tempResp;
       var isGraphic;
