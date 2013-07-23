@@ -110,7 +110,7 @@ var descartesJS = (function(descartesJS) {
         this.draw = this.drawText;
         break;
       
-      // a text or new line
+      // a hyperlink
       case ("hyperlink"):
         this.draw = this.drawHyperlink;
         break;
@@ -142,7 +142,6 @@ var descartesJS = (function(descartesJS) {
         this.draw = this.drawComponentSpace;
         break;
     }
-
   }
 
   /**
@@ -210,7 +209,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
       
-      this.width = metrics.width;
+      this.w = metrics.w;
       this.h = metrics.h;
     }
     
@@ -245,7 +244,7 @@ var descartesJS = (function(descartesJS) {
         textTemp += " ";
       }
             
-      this.width = descartesJS.getTextWidth(textTemp, this.styleString);
+      this.w = descartesJS.getTextWidth(textTemp, this.styleString);
       this.h = metrics.h;
     }
     
@@ -263,7 +262,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metric.descent;
       this.ascent = metric.ascent;
       
-      this.width = descartesJS.getTextWidth(this.value, this.styleString);
+      this.w = descartesJS.getTextWidth(this.value, this.styleString);
       this.h = metric.h;
 
       this.clickCacher = document.createElement("div");
@@ -285,7 +284,7 @@ var descartesJS = (function(descartesJS) {
         this.ascent = metric.ascent;
         this.descent = metric.descent;
         this.h = this.ascent + this.descent;
-        this.width = this.spaceWidth*1.5;
+        this.w = this.spaceWidth*1.5;
       }
       
       var tmpAscent = prevh/2 - prevDescent + this.h;
@@ -312,7 +311,7 @@ var descartesJS = (function(descartesJS) {
         this.ascent = metric.ascent;
         this.descent = metric.descent;
         this.h = this.ascent + this.descent;
-        this.width = this.spaceWidth*1.5;
+        this.w = this.spaceWidth*1.5;
       }
 
       this.subIndexPos = prevDescent +1;
@@ -340,11 +339,11 @@ var descartesJS = (function(descartesJS) {
       
       if (num.h < 0) {
         num.h = metric.h;
-        num.width = this.spaceWidth;
+        num.w = this.spaceWidth;
       }
       if (den.h < 0) {
         den.h = metric.h;
-        den.width = this.spaceWidth;
+        den.w = this.spaceWidth;
       }
       
       this.h = num.h + den.h -1;
@@ -353,7 +352,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = this.h - this.ascent;
       this.baseline = this.ascent;
 
-      this.width = Math.max(num.width, den.width) +this.spaceWidth +8;
+      this.w = Math.max(num.w, den.w) +this.spaceWidth +8;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -367,10 +366,10 @@ var descartesJS = (function(descartesJS) {
       // correction in the roots when has only one child (problem in some lessons of Arquimedes)
       if (this.children.length === 1) {
         // radican
-        this.children[1] = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
+        this.children[1] = new descartesJS.RTFNode(this.evaluator, " ", "radicand", tmpStyle);
         this.children[1].addChild(this.children[0]);
         // index
-        this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
+        this.children[0] = new descartesJS.RTFNode(this.evaluator, " ", "index", tmpStyle);
       }
       // if has mora tan one child
       else {
@@ -392,6 +391,15 @@ var descartesJS = (function(descartesJS) {
       index    = this.children[0];
       radicand = this.children[1];
 
+      if(index.children.length <= 0) {
+        var tmpStyle = this.style.clone();
+        tmpStyle.fontSize = parseInt(tmpStyle.fontSize - tmpStyle.fontSize*.2);
+        index.addChild( new descartesJS.RTFNode(this.evaluator, " ", "text", tmpStyle) );
+      }
+      if(radicand.children.length <= 0) {
+        radicand.addChild( new descartesJS.RTFNode(this.evaluator, " ", "text", this.style.clone()) );
+      }
+
       index.getBlockMetric();
       radicand.getBlockMetric();
 
@@ -406,7 +414,7 @@ var descartesJS = (function(descartesJS) {
       this.baseline = this.ascent;
       this.h = this.ascent + this.descent;
 
-      this.width = index.width + radicand.width +4*this.spaceWidth;
+      this.w = index.w + radicand.w +4*this.spaceWidth;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -465,7 +473,7 @@ var descartesJS = (function(descartesJS) {
 
       var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
       
-      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +this.spaceWidth;
+      this.w = Math.max(from.w, to.w, symbolWidth) + Math.max(what.w, this.spaceWidth) +this.spaceWidth;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -525,7 +533,7 @@ var descartesJS = (function(descartesJS) {
 
       var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
         
-      this.width = Math.max(from.width, to.width, symbolWidth) + Math.max(what.width, this.spaceWidth) +2*this.spaceWidth;
+      this.w = Math.max(from.w, to.w, symbolWidth) + Math.max(what.w, this.spaceWidth) +2*this.spaceWidth;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,17 +582,17 @@ var descartesJS = (function(descartesJS) {
 
       var limitWidth = descartesJS.getTextWidth(" " + String.fromCharCode(parseInt(8594)), this.styleString);
 
-      if (from.width == 0) {
-        from.width = this.spaceWidth;
+      if (from.w == 0) {
+        from.w = this.spaceWidth;
       }
-      if (to.width == 0) {
-        to.width = this.spaceWidth;
+      if (to.w == 0) {
+        to.w = this.spaceWidth;
       }
-      if (what.width == 0) {
-        what.width = this.spaceWidth;
+      if (what.w == 0) {
+        what.w = this.spaceWidth;
       }
 
-      this.width = to.width + from.width + what.width + limitWidth + this.spaceWidth;
+      this.w = to.w + from.w + what.w + limitWidth + this.spaceWidth;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -609,7 +617,7 @@ var descartesJS = (function(descartesJS) {
         this.children[i].getBlockMetric();
 
         childh = this.children[i].h;
-        childWidth = this.children[i].width;
+        childWidth = this.children[i].w;
         
         if (maxHeigth < childh) {
           maxHeigth = childh;
@@ -630,7 +638,7 @@ var descartesJS = (function(descartesJS) {
       this.h = this.rows * maxHeigth;
       this.ascent = this.h/2 + prevDescent;
       this.descent = this.h - this.ascent;
-      this.width = this.columns * this.childWidth +this.spaceWidth;
+      this.w = this.columns * this.childWidth +this.spaceWidth;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -655,7 +663,7 @@ var descartesJS = (function(descartesJS) {
         this.children[i].getBlockMetric();
         
         childh = this.children[i].h;
-        childWidth = this.children[i].width;
+        childWidth = this.children[i].w;
         
         if (maxHeigth < childh) {
           maxHeigth = childh;
@@ -676,7 +684,7 @@ var descartesJS = (function(descartesJS) {
       this.h = this.parts * maxHeigth;
       this.ascent = this.h/2 + prevDescent;
       this.descent = this.h - this.ascent;
-      this.width = maxWidth +this.spaceWidth/2;
+      this.w = maxWidth +this.spaceWidth/2;
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -688,7 +696,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
                   
-      this.width = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
+      this.w = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
       this.h = metrics.h;
     }
     
@@ -701,7 +709,7 @@ var descartesJS = (function(descartesJS) {
       this.ascent = 0;
       
       this.h = 0;
-      this.width = this.componentNumCtrl.w;
+      this.w = this.componentNumCtrl.w;
     }
     
     else if (this.nodeType == "componentSpace") {
@@ -713,7 +721,7 @@ var descartesJS = (function(descartesJS) {
       this.ascent = 0;
       
       this.h = 0;
-      this.width = this.componentSpace.w;
+      this.w = this.componentSpace.w;
     }
         
     else {
@@ -726,7 +734,7 @@ var descartesJS = (function(descartesJS) {
    * Get the metric of a block
    */
   descartesJS.RTFNode.prototype.getBlockMetric = function() {
-    this.width = 0;
+    this.w = 0;
     var maxDescenderh = -1;
     var maxAscenderh = -1;
     var childh;
@@ -740,7 +748,7 @@ var descartesJS = (function(descartesJS) {
       childAscent = children_i.ascent;
       childDescent = children_i.descent;
 
-      this.width += children_i.width;
+      this.w += children_i.w;
      
       // update the previous metric
       updatePreviousMetric(childAscent, childDescent, children_i.h);
@@ -791,11 +799,11 @@ var descartesJS = (function(descartesJS) {
       
       // // if the text align is center
       // if (align == "center") {
-      //   desp = -this.children[i].width/2;
+      //   desp = -this.children[i].w/2;
       // }
       // // if the text align is right
       // else if (align == "right") {
-      //   desp =-this.children[i].width;
+      //   desp =-this.children[i].w;
       // }
       
       this.children[i].draw(ctx, x +desp, y +displaceY +previousChildPos);
@@ -813,7 +821,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=this.children.length; i<l; i++) {
 
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
 
         if ((this.children[i-1].nodeType == "formula")) {
           antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleString);
@@ -835,7 +843,7 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x + this.spaceWidth + antChildX, y);
     }    
@@ -867,7 +875,7 @@ var descartesJS = (function(descartesJS) {
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(x-1+this.width, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -881,7 +889,7 @@ var descartesJS = (function(descartesJS) {
       }
       ctx.beginPath();
       ctx.moveTo(x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(x-1+this.width, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(x-1+this.w, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
   }
@@ -915,7 +923,7 @@ var descartesJS = (function(descartesJS) {
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
 
-    this.width = descartesJS.getTextWidth(textTemp, this.styleString);
+    this.w = descartesJS.getTextWidth(textTemp, this.styleString);
     ctx.fillText(textTemp, spaceWidth + x, y);
 
     if (this.underline) {
@@ -928,7 +936,7 @@ var descartesJS = (function(descartesJS) {
       }
       ctx.beginPath();
       ctx.moveTo(spaceWidth + x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y+this.descent/2) +sep);
+      ctx.lineTo(spaceWidth + x-1+this.w, parseInt(y+this.descent/2) +sep);
       ctx.stroke();
     }
     
@@ -942,11 +950,11 @@ var descartesJS = (function(descartesJS) {
       }
       ctx.beginPath();
       ctx.moveTo(spaceWidth + x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.width, parseInt(y-this.ascent) +sep);
+      ctx.lineTo(spaceWidth + x-1+this.w, parseInt(y-this.ascent) +sep);
       ctx.stroke();
     }
     
-    this.width += 2*spaceWidth;
+    this.w += 2*spaceWidth;
   }
 
   /**
@@ -993,7 +1001,7 @@ var descartesJS = (function(descartesJS) {
     var spaceWidth = Math.floor(this.spaceWidth);
     
     this.children[0].draw(ctx, x, Math.floor(y +this.children[1].descent -this.children[1].h/2 -this.children[0].descent));
-    this.children[1].draw(ctx, x+1.5*spaceWidth+(this.children[0].width), y);
+    this.children[1].draw(ctx, x+1.5*spaceWidth+(this.children[0].w), y);
     
     ctx.lineWidth = 1;
     if (this.color != null) {
@@ -1002,10 +1010,10 @@ var descartesJS = (function(descartesJS) {
     ctx.beginPath()
 
     ctx.moveTo(x, Math.floor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].width, Math.floor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].width +.5*spaceWidth, y+this.children[1].descent);
-    ctx.lineTo(x+this.children[0].width +1*spaceWidth, y-this.children[1].ascent);
-    ctx.lineTo(x+this.children[0].width +2*spaceWidth+this.children[1].width, y-this.children[1].ascent);
+    ctx.lineTo(x+this.children[0].w, Math.floor(y +this.children[1].descent -this.children[1].h/2));
+    ctx.lineTo(x+this.children[0].w +.5*spaceWidth, y+this.children[1].descent);
+    ctx.lineTo(x+this.children[0].w +1*spaceWidth, y-this.children[1].ascent);
+    ctx.lineTo(x+this.children[0].w +2*spaceWidth+this.children[1].w, y-this.children[1].ascent);
 
     ctx.stroke();
   }
@@ -1017,8 +1025,8 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawFraction = function(ctx, x, y) {
-    this.children[0].draw(ctx, x+(this.width-this.children[0].width)/2, y -this.ascent);
-    this.children[1].draw(ctx, x+(this.width-this.children[1].width)/2, y -this.ascent + this.children[0].h -1);
+    this.children[0].draw(ctx, x+(this.w-this.children[0].w)/2, y -this.ascent);
+    this.children[1].draw(ctx, x+(this.w-this.children[1].w)/2, y -this.ascent + this.children[0].h -1);
 
     var spaceWidth = Math.floor(this.spaceWidth*.5);
     
@@ -1027,8 +1035,8 @@ var descartesJS = (function(descartesJS) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath()
-    ctx.moveTo(x+spaceWidth, parseInt(y -this.ascent + this.children[0].h)+.5);
-    ctx.lineTo(x-spaceWidth+this.width-1, parseInt(y -this.ascent + this.children[0].h)+.5);
+    ctx.moveTo(x+spaceWidth, parseInt(y -this.ascent + this.children[0].h) -.5);
+    ctx.lineTo(x-spaceWidth+this.w-1, parseInt(y -this.ascent + this.children[0].h) -.5);
     ctx.stroke();
   }
 
@@ -1042,7 +1050,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y+this.baseline);
     }  
@@ -1058,7 +1066,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y +this.subIndexPos);
     }
@@ -1074,7 +1082,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y -this.superIndexPos);
     }  
@@ -1096,10 +1104,10 @@ var descartesJS = (function(descartesJS) {
     this.children[0].draw(ctx, x, y +metric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +this.children[0].width +symbolWidth, y +metric.descent +this.children[1].ascent);
+    this.children[1].draw(ctx, x +this.children[0].w +symbolWidth, y +metric.descent +this.children[1].ascent);
     
     //what
-    this.children[2].draw(ctx, x +symbolWidth +this.children[0].width +this.children[1].width, y);
+    this.children[2].draw(ctx, x +symbolWidth +this.children[0].w +this.children[1].w, y);
 
     if (this.color != null) {
       ctx.fillStyle = this.color;
@@ -1107,9 +1115,9 @@ var descartesJS = (function(descartesJS) {
     ctx.font = this.styleString
     ctx.textAlign = "start";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText("lím", x +this.children[0].width, y);
+    ctx.fillText("lím", x +this.children[0].w, y);
     
-    ctx.fillText(symbolString, x+this.children[0].width, y +metric.descent +this.children[0].ascent);
+    ctx.fillText(symbolString, x+this.children[0].w, y +metric.descent +this.children[0].ascent);
   }
   
   /**
@@ -1128,7 +1136,7 @@ var descartesJS = (function(descartesJS) {
     var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8747)), symbolStyle);
     var symbolMetric = descartesJS.getFontMetrics(symbolStyle);
 
-    var maxWidth = Math.max(this.children[0].width, this.children[1].width, Math.floor(1.5*symbolWidth));
+    var maxWidth = Math.max(this.children[0].w, this.children[1].w, Math.floor(1.5*symbolWidth));
     
     // from
     this.children[0].draw(ctx, x +symbolWidth, y +symbolMetric.descent +this.children[0].ascent);
@@ -1165,13 +1173,13 @@ var descartesJS = (function(descartesJS) {
     var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(parseInt(8721)), symbolStyle);
     var symbolMetric = descartesJS.getFontMetrics(this.styleString);
 
-    var maxWidth = Math.max(this.children[0].width, this.children[1].width, symbolWidth);
+    var maxWidth = Math.max(this.children[0].w, this.children[1].w, symbolWidth);
     
     // from
-    this.children[0].draw(ctx, x +(maxWidth-this.children[0].width)/2, y +symbolMetric.descent +this.children[0].ascent);
+    this.children[0].draw(ctx, x +(maxWidth-this.children[0].w)/2, y +symbolMetric.descent +this.children[0].ascent);
     
     // to
-    this.children[1].draw(ctx, x +(maxWidth-this.children[1].width)/2, y -symbolMetric.ascent -this.children[1].descent);
+    this.children[1].draw(ctx, x +(maxWidth-this.children[1].w)/2, y -symbolMetric.ascent -this.children[1].descent);
     
     // what
     this.children[2].draw(ctx, x +maxWidth, y);
@@ -1214,10 +1222,10 @@ var descartesJS = (function(descartesJS) {
     ctx.lineTo(Math.floor(x +this.spaceWidth/2) +.5, y +this.descent +.5);
     ctx.lineTo(Math.floor(x +this.spaceWidth) +.5, y +this.descent +.5);
     
-    ctx.moveTo(Math.floor(x +this.width -this.spaceWidth) -.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth/2) -.5, y +this.descent +.5);
-    ctx.lineTo(Math.floor(x +this.width -this.spaceWidth) -.5, y +this.descent +.5);    
+    ctx.moveTo(Math.floor(x +this.w -this.spaceWidth) -.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.w -this.spaceWidth/2) -.5, y -this.ascent +.5);
+    ctx.lineTo(Math.floor(x +this.w -this.spaceWidth/2) -.5, y +this.descent +.5);
+    ctx.lineTo(Math.floor(x +this.w -this.spaceWidth) -.5, y +this.descent +.5);    
     
     ctx.stroke();  
   }
@@ -1230,23 +1238,21 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + this.spaceWidth/4, y-this.ascent+this.childAscent + (i%this.parts)*this.childh);
+      this.children[i].draw(ctx, x + 3*this.spaceWidth, y-this.ascent+this.childAscent + (i%this.parts)*this.childh);
     }
 
     ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
-    ctx.beginPath()
-    ctx.moveTo(Math.floor(x +this.spaceWidth/3) +.5, y -this.ascent +.5);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y -this.ascent +.5 +(this.spaceWidth/3-this.spaceWidth/6));
-    
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.h/2 -(this.spaceWidth/3-this.spaceWidth/6));
-    ctx.lineTo(x +.5, y +this.descent -this.h/2);
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent -this.h/2 +(this.spaceWidth/3-this.spaceWidth/6));
-    
-    ctx.lineTo(Math.floor(x +this.spaceWidth/6) +.5, y +this.descent +.5 -(this.spaceWidth/3-this.spaceWidth/6));
-    ctx.lineTo(Math.floor(x +this.spaceWidth/3) +.5, y +this.descent +.5);
+    ctx.beginPath();
+    ctx.moveTo(parseInt(x +2*this.spaceWidth) +.5, y -this.ascent +.5);
+    ctx.lineTo(parseInt(x +2*this.spaceWidth) -4.5, y -this.ascent +4.5);
+    ctx.lineTo(parseInt(x +2*this.spaceWidth) -4.5, y +this.descent -this.h/2 -4.5);
+    ctx.lineTo(x -.5, y +this.descent -this.h/2);
+    ctx.lineTo(parseInt(x +2*this.spaceWidth) -4.5, y +this.descent -this.h/2 +4.5);
+    ctx.lineTo(parseInt(x +2*this.spaceWidth) -4.5, y +this.descent -4.5);
+    ctx.lineTo(parseInt(x +2*this.spaceWidth) +.5, y +this.descent +.5);
     
     ctx.stroke(); 
   }
@@ -1290,7 +1296,7 @@ var descartesJS = (function(descartesJS) {
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
       
-      ctx.fillText(this.value, x +this.width/2, y);      
+      ctx.fillText(this.value, x +this.w/2, y);      
     }
   }
   
@@ -1304,7 +1310,7 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
     for (var i=0, l=this.children.length; i<l; i++) {
       if (i>0) {
-        antChildX += this.children[i-1].width;
+        antChildX += this.children[i-1].w;
       }
       this.children[i].draw(ctx, x+antChildX, y);
     }  
@@ -1343,6 +1349,31 @@ var descartesJS = (function(descartesJS) {
     console.log(">>> Dibujo desconocido ", this.nodeType);
     // this.children[0].draw(ctx, x, y);
   }
+
+  /**
+   * 
+   */
+  descartesJS.RTFNode.prototype.toHTML = function() {
+    var htmlString = "";
+    
+    if ( (this.nodeType === "textLineBlock") || (this.nodeType === "textBlock") ) {
+      for (var i=0, l=this.children.length; i<l; i++) {
+        htmlString = htmlString + this.children[i].toHTML();
+      }
+    }
+    else if (this.nodeType === "text") {
+      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "</span>"; 
+    }
+    else if (this.nodeType === "newLine") {
+      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "<br /></span>";
+    }
+    else {
+      // console.log(">>><<<", this);
+    }
+    
+    return htmlString;
+  }
+  
   
   return descartesJS;
 })(descartesJS || {});

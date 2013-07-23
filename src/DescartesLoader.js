@@ -60,8 +60,8 @@ var descartesJS = (function(descartesJS) {
     var children = this.children;
     var images = this.images;
     var audios = this.audios;
-    var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
-    var regExpAudio = /[\w-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
+    var regExpImage = /[\w\.-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+    var regExpAudio = /[\w\.-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
     var regExpVector = /vector|array|bektore|vecteur|matriz/g;
     var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
@@ -80,9 +80,13 @@ var descartesJS = (function(descartesJS) {
     var i, j, l, il, al;
     // check all children in the applet
     for (i=0, l=children.length; i<l; i++) {
+    if (children[i].name === "rtf") {
+      continue;
+    }
+
       // check if the children has an image filename
       imageFilename = (children[i].value).match(regExpImage);
-      
+
       // if imageFilename has a match then add the images
       if (imageFilename) {
         for (j=0, il=imageFilename.length; j<il; j++) {
@@ -92,7 +96,7 @@ var descartesJS = (function(descartesJS) {
           if (!(imageTmp.toLowerCase().match(/vacio.gif$/)) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
             images[imageTmp] = new Image();
             images[imageTmp].addEventListener('load', function() { this.ready = 1; });
-            images[imageTmp].addEventListener('error', function() { this.errorload = 1; });            
+            images[imageTmp].addEventListener('error', function() { this.errorload = 1; });
             images[imageTmp].src = imageTmp;
           }
         }
@@ -110,7 +114,7 @@ var descartesJS = (function(descartesJS) {
 
       // check if the children has a vector that loads a file
       vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
-     
+
       // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
       if (vec) {
         this.lessonParser.parseAuxiliar(children[i].value);

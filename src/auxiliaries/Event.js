@@ -37,7 +37,6 @@ var descartesJS = (function(descartesJS) {
     if (this.execution == "alternate") {
       this.eventExec = function() {
         var cond = (evaluator.evalExpression(this.condition) > 0);
-        
         //////////////////////////////////////////////////////////////////
         // DESCARTES 3
         if (this.parent.version == 3) {

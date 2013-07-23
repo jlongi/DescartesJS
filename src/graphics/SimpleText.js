@@ -13,7 +13,8 @@ var descartesJS = (function(descartesJS) {
    * @param {String} text the content text 
    */
   descartesJS.SimpleText = function(parent, text) {
-    this.text = text.replace("&#x2013", "–");
+    text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
+    this.text = text;
 
     this.textElements = [];
     this.textElementsMacros = [];

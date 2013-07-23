@@ -139,6 +139,7 @@ var descartesJS = (function(descartesJS) {
       self.myString    = self.id + ".mouse_y";
       self.mpressedString = self.id + ".mouse_pressed";
       self.mclickedString = self.id + ".mouse_clicked";
+      self.mclicizquierdoString = self.id + ".clic_izquierdo";
     }
     else {
       self.OxString    = "Ox";
@@ -150,6 +151,7 @@ var descartesJS = (function(descartesJS) {
       self.myString    = "mouse_y";
       self.mpressedString = "mouse_pressed";
       self.mclickedString = "mouse_clicked";
+      self.mclicizquierdoString = "clic_izquierdo";
     }
 
     // register the mouse and touch events
@@ -532,6 +534,7 @@ var descartesJS = (function(descartesJS) {
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
+      self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
@@ -556,6 +559,7 @@ var descartesJS = (function(descartesJS) {
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
+      self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
       window.removeEventListener("touchmove", onMouseMove, false);
       window.removeEventListener("touchend", onTouchEnd, false);
@@ -591,7 +595,7 @@ var descartesJS = (function(descartesJS) {
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
         
-        // if fixed add a zoom manager
+        // if not fixed add a zoom manager
         if (!self.fixed) {
           self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
@@ -602,6 +606,7 @@ var descartesJS = (function(descartesJS) {
       if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
         self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
         onSensitiveToMouseMovements(evt);
 
@@ -621,6 +626,7 @@ var descartesJS = (function(descartesJS) {
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
+      self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
       evt.preventDefault();
 
@@ -648,7 +654,9 @@ var descartesJS = (function(descartesJS) {
       self.mouse_y = self.getRelativeY(self.posAnte.y);
       self.evaluator.setVariable(self.mxString, self.mouse_x);
       self.evaluator.setVariable(self.myString, self.mouse_y);
+
       self.evaluator.setVariable(self.mclickedString, 0);
+      self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
       self.parent.update();
     }

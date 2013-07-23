@@ -411,6 +411,8 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable(thisID + ".mouse_x", 0);
       evaluator.setVariable(thisID + ".mouse_y", 0);
       evaluator.setVariable(thisID + ".mouse_pressed", 0);
+      evaluator.setVariable(thisID + ".mouse_clicked", 0);
+      evaluator.setVariable(thisID + ".clic_izquierdo", 0);
     }
     else {
       temp = evaluator.getVariable("_w");
@@ -437,6 +439,7 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable("mouse_y", 0);
       evaluator.setVariable("mouse_pressed", 0);
       evaluator.setVariable("mouse_clicked", 0);
+      evaluator.setVariable("clic_izquierdo", 0);
 
       if ((this.x_axis === "") && (this.y_axis === "") && (parent.version == 2)) {
         this.axes = "";
@@ -479,7 +482,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the X axis
    */
   descartesJS.Space.prototype.getRelativeX = function(x) {
-    return (x - this.w_2 - this.Ox)/this.scale;
+    return (parseInt(x) - this.w_2 - this.Ox)/this.scale;
   }
 
   /**
@@ -488,7 +491,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the Y axis
    */
   descartesJS.Space.prototype.getRelativeY = function(y) {
-    return (-y + this.h_2 + this.Oy)/this.scale;
+    return (-parseInt(y) + this.h_2 + this.Oy)/this.scale;
   }
   
   /**
@@ -524,24 +527,24 @@ var descartesJS = (function(descartesJS) {
     // make visible the element to get the offset values
     this.container.style.display = "block";
 
-    while (tmpContainer) {
-      containerClass = null;
-      
-      if (tmpContainer.getAttribute) {
-        containerClass = tmpContainer.getAttribute("class");
-      }
-
-      if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
-        this.offsetLeft += tmpContainer.offsetLeft || 0;
-        this.offsetTop  += tmpContainer.offsetTop || 0;
-        tmpContainer = tmpContainer.parentNode;
-      }
-      else {
-        tmpContainer = null;
-      }
-     
+    if (tmpContainer.getBoundingClientRect) {
+      var boundingRect = tmpContainer.getBoundingClientRect();
+      this.offsetLeft = boundingRect.left;
+      this.offsetTop  = boundingRect.top;
     }
-
+    else {
+      while (tmpContainer) {
+        if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
+          this.offsetLeft += tmpContainer.offsetLeft || 0;
+          this.offsetTop  += tmpContainer.offsetTop || 0;
+          tmpContainer = tmpContainer.parentNode;
+        }
+        else {
+          tmpContainer = null;
+        }
+      }
+    }
+    
     // restore the display style
     this.container.style.display = tmpDisplay;
   }

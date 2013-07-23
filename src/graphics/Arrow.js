@@ -131,8 +131,8 @@ var descartesJS = (function(descartesJS) {
     
     desp = 10 + evaluator.evalExpression(this.size);
     width1 = evaluator.evalExpression(this.width);
-    if (width1 < 1) {
-      width1 = 1;
+    if (width1 < 0) {
+      width1 = 0;
     }
 
     width2 = Math.ceil(width1/2);

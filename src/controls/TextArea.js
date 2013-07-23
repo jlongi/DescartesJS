@@ -64,6 +64,7 @@ var descartesJS = (function(descartesJS) {
     if ( (this.text == undefined) || (this.text.type == undefined)) {
       this.text = this.rawText || "";
     }
+    // rtf text
     else {
       if (this.text.hasFormula) {
         this.text = this.rawText;
@@ -75,6 +76,7 @@ var descartesJS = (function(descartesJS) {
     
     // rtf answer
     if ((parseAnswer) && (parseAnswer.type != undefined)) {
+// console.log(parser)
       if (!this.text.hasFormula) {
         this.answer = parseAnswer.toHTML();
       }

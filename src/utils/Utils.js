@@ -346,19 +346,28 @@ var descartesJS = (function(descartesJS) {
     text.setAttribute("style", "font: " + font + "; margin: 0px; padding: 0px;");
 
     document.body.appendChild(div);
-    
+
     var result = {};
-    
-    block.style.verticalAlign = "baseline";
-    result.ascent = block.offsetTop - text.offsetTop;
-    
-    block.style.verticalAlign = "bottom";
-    result.h = block.offsetTop - text.offsetTop;
-    
-    result.descent = result.h - result.ascent;
-    
-    result.baseline = result.ascent;
-    
+
+    if (div.getBoundingClientRect) {
+      block.style.verticalAlign = "baseline";
+      result.ascent = block.offsetTop - text.offsetTop;
+      result.h = div.getBoundingClientRect().height || 0;
+      result.descent = result.h - result.ascent;
+      result.baseline = result.ascent;
+    }
+    else {
+      block.style.verticalAlign = "baseline";
+      result.ascent = block.offsetTop - text.offsetTop;
+      
+      block.style.verticalAlign = "bottom";
+      result.h = block.offsetTop - text.offsetTop;
+      
+      result.descent = result.h - result.ascent;
+      
+      result.baseline = result.ascent;
+    }
+
     document.body.removeChild(div);
 
     metricCache[font] = result;

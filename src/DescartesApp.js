@@ -49,7 +49,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.decimal_symbol = ".";
-    this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
+    this.decimal_symbol_regexp = new RegExp("\\" + this.decimal_symbol, "g");
 
     /**
      * parameters of the applet
@@ -360,7 +360,7 @@ var descartesJS = (function(descartesJS) {
       // find the decimal symbol
       if (babel[children_i.name] == "decimal_symbol") {
         this.decimal_symbol = children_i.value;
-        this.decimal_symbol_regexp = new RegExp(this.decimal_symbol, "g");
+        this.decimal_symbol_regexp = new RegExp("\\" + this.decimal_symbol, "g");
         continue;
       }
       
@@ -1025,9 +1025,9 @@ var descartesJS = (function(descartesJS) {
       }
       // if do not exist then create a new audio
       else {
-        var lastIndexOfDot = file.lastIndexOf(".");
-        lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
-        var filename = file.substring(0, lastIndexOfDot);
+        var lastIndexOfDot = name.lastIndexOf(".");
+        lastIndexOfDot = (lastIndexOfDot === -1) ? name.lenght : lastIndexOfDot;
+        var namename = name.substring(0, lastIndexOfDot);
 
         // var mediaElement = new Audio();
         // mediaElement.setAttribute("preload", "auto");
@@ -1037,7 +1037,7 @@ var descartesJS = (function(descartesJS) {
         // }
         
         // var onError = function() {
-        //   console.log("El archivo '" + file + "' no puede ser reproducido");
+        //   console.log("El archivo '" + name + "' no puede ser reproducido");
         //   this.errorload = 1;
         // }
 
@@ -1077,7 +1077,7 @@ var descartesJS = (function(descartesJS) {
         // mediaElement.play();
         // mediaElement.pause();
 
-        // audios[file] = mediaElement;
+        // audios[name] = mediaElement;
         
         audios[name] = new Audio(name);
         

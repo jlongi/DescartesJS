@@ -145,7 +145,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.font = "Monospaced,PLAIN,12";
+    this.font = (this.parent.version >=5) ? "Monospaced,PLAIN,15" : "Monospaced,PLAIN,12";
     
     /**
      * the condition for determining whether the text of the graph is fixed or not

@@ -122,6 +122,23 @@ var descartesJS = (function(descartesJS) {
     // register the mouse and touch events
     this.registerMouseAndTouchEvents();
 
+    this.xString = this.id + ".x";
+    this.yString = this.id + ".y";
+    this.activoString = this.id + ".activo";
+
+    if ((this.space.id !== "") && (parent.version !== 2)) {
+      this.mxString = this.space.id + ".mouse_x";
+      this.myString = this.space.id + ".mouse_y";
+      this.mclickedString = this.space.id + ".mouse_clicked";
+      this.mclicizquierdoString = this.space.id + ".clic_izquierdo";
+    }
+    else {
+      this.mxString = "mouse_x";
+      this.myString = "mouse_y";
+      this.mclickedString = "mouse_clicked";
+      this.mclicizquierdoString = "clic_izquierdo";
+    }
+
     this.init();
   }
 
@@ -141,11 +158,11 @@ var descartesJS = (function(descartesJS) {
     var expr = evaluator.evalExpression(this.expresion);
     this.x = expr[0][0];
     this.y = expr[0][1];
-    evaluator.setVariable(this.id+".x", this.x);
-    evaluator.setVariable(this.id+".y", this.y);
+    evaluator.setVariable(this.xString, this.x);
+    evaluator.setVariable(this.yString, this.y);
 
     var radioTouch = 70;
-    
+
     // if the control has an image name
     if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
       this.image = this.parent.getImage(this.imageSrc);
@@ -155,7 +172,8 @@ var descartesJS = (function(descartesJS) {
     
       this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
       this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
-    } else {
+    } 
+    else {
       this.width = (evaluator.evalExpression(this.size)*2);
       this.height = (evaluator.evalExpression(this.size)*2);
       
@@ -167,7 +185,7 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
-    evaluator.setVariable(this.id+".activo", 0);
+    evaluator.setVariable(this.activoString, 0);
 
     this.update();
   }
@@ -183,8 +201,8 @@ var descartesJS = (function(descartesJS) {
     this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
 
     // update the position
-    this.x = evaluator.getVariable(this.id+".x");
-    this.y = evaluator.getVariable(this.id+".y");
+    this.x = evaluator.getVariable(this.xString);
+    this.y = evaluator.getVariable(this.yString);
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
@@ -281,8 +299,8 @@ var descartesJS = (function(descartesJS) {
     cpos = this.newt.findZero(constraintPosition);
     this.x = cpos.x;
     this.y = cpos.y;
-    this.evaluator.setVariable(this.id+".x", this.x);
-    this.evaluator.setVariable(this.id+".y", this.y);
+    this.evaluator.setVariable(this.xString, this.x);
+    this.evaluator.setVariable(this.yString, this.y);
   }
 
   /**
@@ -335,7 +353,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.GraphicControl.prototype.deactivate = function() {
     this.active = false;
-    this.evaluator.setVariable(this.id+".activo", 0);
+    this.evaluator.setVariable(this.activoString, 0);
   }  
   
   /**
@@ -375,13 +393,20 @@ var descartesJS = (function(descartesJS) {
           self.parent.deactivateGraphiControls();
           self.click = true;
           self.active = true;
-          self.evaluator.setVariable(self.id+".activo", 1);
+          self.evaluator.setVariable(self.activoString, 1);
+
+          self.evaluator.setVariable(self.mclickedString, 0);
+          self.evaluator.setVariable(self.mclicizquierdoString, 0);
           
           self.posAnte = self.getCursorPosition(evt);
+// console.log(self.posAnte, self.space.getRelativeX(self.space.getCursorPosition(evt).x), self.space.getRelativeY(self.space.getCursorPosition(evt).y));
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
 
-          self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
-          self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+          // self.evaluator.setVariable(self.mxString, self.x);
+          // self.evaluator.setVariable(self.myString, self.y);
+
+          self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x));
+          self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y));
 
           self.parent.update();
           
@@ -403,13 +428,19 @@ var descartesJS = (function(descartesJS) {
         self.parent.deactivateGraphiControls();
         self.click = true;
         self.active = true;
-        self.evaluator.setVariable(self.id+".activo", 1);
+        self.evaluator.setVariable(self.activoString, 1);
+
+        self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);        
 
         self.posAnte = self.getCursorPosition(evt);
         self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
 
-        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
-        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+        // self.evaluator.setVariable(self.mxString, self.x);
+        // self.evaluator.setVariable(self.myString", self.y);
+
+        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x));
+        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y));
 
         self.parent.update();
         
@@ -427,6 +458,9 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
       self.touchId = null;
 
+      self.evaluator.setVariable(self.mclickedString, 1);
+      self.evaluator.setVariable(self.mclicizquierdoString, 1);
+
       if ((self.activeIfValue) || (self.active)) {
         self.click = false;
 
@@ -438,8 +472,10 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("mousemove", onMouseMove, false);
         }
         
-        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
-        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+        // self.evaluator.setVariable(self.mxString, self.x);
+        // self.evaluator.setVariable(self.myString, self.y);
+        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.x);
+        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.y);
 
         self.parent.update();
         
@@ -462,6 +498,9 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
       evt.touchId = self.touchId;
 
+      self.evaluator.setVariable(self.mclickedString, 0);
+      self.evaluator.setVariable(self.mclicizquierdoString, 0);
+
       posNew = self.getCursorPosition(evt);
 
       self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
@@ -475,15 +514,18 @@ var descartesJS = (function(descartesJS) {
         // cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
         // self.x = cpos.x;
         // self.y = cpos.y;
-        // self.evaluator.setVariable(self.id+".x", self.x);
-        // self.evaluator.setVariable(self.id+".y", self.y);
+        // self.evaluator.setVariable(self.xString, self.x);
+        // self.evaluator.setVariable(self.yString, self.y);
       // }
       // ////////////////////////////////////////////////////////////////////////////
       // else {
-        self.evaluator.setVariable(self.id+".x", self.space.getRelativeX(self.posX));
-        self.evaluator.setVariable(self.id+".y", self.space.getRelativeY(self.posY));
-        self.evaluator.setVariable(self.space.id + ".mouse_x", self.x);
-        self.evaluator.setVariable(self.space.id + ".mouse_y", self.y);
+        self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
+        self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
+        // self.evaluator.setVariable(self.mxString, self.x);
+        // self.evaluator.setVariable(self.myString, self.y);
+        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.space.getRelativeX(self.posX));
+        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.space.getRelativeY(self.posY));
+
       // }
 
       // update the controls

@@ -11,6 +11,7 @@ var descartesJS = (function(descartesJS) {
   var newRoot;
   var root;
   var right;
+  var evalArgument;
 
   /**
    * Nodes of a parse tree
@@ -483,7 +484,12 @@ var descartesJS = (function(descartesJS) {
 
           // the asignation is a variable
           if (!asignation.type) {
-            evaluator.variables[ide.value] = asignation;
+
+            // prevent to asign a value to an auxiliar variable
+            if (typeof(evaluator.variables[ide.value]) !== "object") {
+              evaluator.variables[ide.value] = asignation;
+            }
+
           } 
           // the asignation is a matrix
           else {

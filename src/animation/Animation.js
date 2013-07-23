@@ -30,7 +30,7 @@ var descartesJS = (function(descartesJS) {
     // this.auto = ((values.auto == undefined) && (this.parent.version === 2)) ? true : values.auto;
     this.auto = (values.auto == undefined) ? true : values.auto;
     this.controls = values.controls;
-    
+
     // parse the init expression
     this.init = algorithmAuxiliary.splitInstructions(parser, values.init);
 
@@ -46,8 +46,8 @@ var descartesJS = (function(descartesJS) {
     var delay;
     var i;
     var l = self.doExpr.length;
+
     this.animationExec = function() {
-      
       for (i=0; i<l; i++) {
         evaluator.evalExpression(self.doExpr[i]);
       }
@@ -68,7 +68,7 @@ var descartesJS = (function(descartesJS) {
     // init the animation automatically
     if (this.auto) {
       this.play();
-    }    
+    }
   }  
   
   /**

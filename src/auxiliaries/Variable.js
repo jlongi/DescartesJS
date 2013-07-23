@@ -15,7 +15,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Variable = function(parent, values){
     // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
-    
+
     var parser = this.evaluator.parser;
  
     this.expresionString = this.expresion;

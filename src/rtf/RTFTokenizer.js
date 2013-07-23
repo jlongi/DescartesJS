@@ -155,10 +155,18 @@ var descartesJS = (function(descartesJS) {
             }
             // generic controlWord
             else {
-              tokens.push({ type: "controlWord", value: tokenValue });
-              lastTokenType = "controlWord";
 
-              tokenValue = "";            
+              // scaped characters
+              if ((tokenValue === "{") || (tokenValue === "}")) {
+                tokens.push({ type: "text", value: tokenValue });
+                lastTokenType = "text";
+              }
+              else {
+                tokens.push({ type: "controlWord", value: tokenValue });
+                lastTokenType = "controlWord";
+              }
+              
+              tokenValue = "";
             }
           }
         }

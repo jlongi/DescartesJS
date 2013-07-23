@@ -16,7 +16,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
     
-    this.parameter = parameter;
+    this.parameter = (parameter || "").replace(/\\n/g, "\n").replace(/&squot;/g, "'");
   }  
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ var descartesJS = (function(descartesJS) {
    * Execute the action
    */
   descartesJS.Message.prototype.execute = function() {
-    alert(this.parameter.replace(/\\n/g, "\n"));
+    alert(this.parameter);
   }
 
   return descartesJS;
