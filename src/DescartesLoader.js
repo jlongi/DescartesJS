@@ -60,8 +60,8 @@ var descartesJS = (function(descartesJS) {
     var children = this.children;
     var images = this.images;
     var audios = this.audios;
-    var regExpImage = /[\w\.-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
-    var regExpAudio = /[\w\.-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
+    var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+    var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
     var regExpVector = /vector|array|bektore|vecteur|matriz/g;
     var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 

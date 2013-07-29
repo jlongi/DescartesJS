@@ -646,8 +646,6 @@ var descartesJS = (function(descartesJS, babel) {
 
         // color
         case("color"):
-        // trace
-        case("trace"):
         // fill color
         case("fill"):
         // equation fill+ color
@@ -656,7 +654,15 @@ var descartesJS = (function(descartesJS, babel) {
         case("fillM"):
         // arrow color
         case("arrow"):
-          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+        // trace
+        case("trace"):
+          // patch for catala
+          if (babel[values_i_1] === "false") {
+            graphicObj[babelValue] = "";
+          }
+          else {
+            graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+          }
           break;
 
         // family parameter

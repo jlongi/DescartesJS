@@ -24,80 +24,98 @@ var descartesJS = (function(descartesJS) {
 
     this.file = "";
 
+    this.oldDrawIf = 0;    
+
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    var evaluator = this.evaluator;    
+    var self = this;
+    evaluator = self.evaluator;    
     
-    var expr = this.evaluator.evalExpression(this.expresion);
+    var expr = self.evaluator.evalExpression(self.expresion);
     if (expr[0].length == 4) {
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      self.w = expr[0][2];
+      self.h = expr[0][3];
     } else {
-      this.w = null;
-      this.h = null;
+      self.w = null;
+      self.h = null;
     }
     
-    this.video = document.createElement("video");
+    self.video = document.createElement("video");
 
-    if (this.autoplay) {
-      this.video.setAttribute("autoplay", "autoplay");
+    if (self.autoplay) {
+      self.video.setAttribute("autoplay", "autoplay");
     }
 
-    if (this.loop) {
-      this.video.setAttribute("loop", "loop");
+    if (self.loop) {
+      self.video.setAttribute("loop", "loop");
     }
 
-    if (this.controls) {
-      this.video.setAttribute("controls", "controls");
+    if (self.controls) {
+      self.video.setAttribute("controls", "controls");
     }
 
-    if (this.poster) {
-      this.video.setAttribute("poster", this.poster);
+    if (self.poster) {
+      self.video.setAttribute("poster", self.poster);
     }
 
-    if (this.w) {
-      this.video.setAttribute("width", this.w);
-      this.video.setAttribute("height", this.h);
+    if (self.w) {
+      self.video.setAttribute("width", self.w);
+      self.video.setAttribute("height", self.h);
     }
-    this.video.setAttribute("style", "position: absolute; overflow: hidden; left: " + this.x + "px; top: " + this.y + "px;");
+    self.video.setAttribute("style", "position: absolute; overflow: hidden; left: " + self.x + "px; top: " + self.y + "px;");
     
-    var filename = this.file;
+    var filename = self.file;
     var indexDot = filename.lastIndexOf(".");
     
     if (indexDot != -1) {
-      filename = this.file.substring(0, indexDot);
+      filename = self.file.substring(0, indexDot);
     }
     
     var source;
     //mp4
-    if (this.video.canPlayType("video/mp4")) {
+    if (self.video.canPlayType("video/mp4")) {
       source = document.createElement("source");
       source.setAttribute("src", filename + ".mp4");
       source.setAttribute("type", "video/mp4");
-      this.video.appendChild(source);
+      self.video.appendChild(source);
     }
     // ogg, ogv
-    if (this.video.canPlayType("video/ogg")) {
+    if (self.video.canPlayType("video/ogg")) {
       source = document.createElement("source");
       source.setAttribute("src", filename + ".ogg");
       source.setAttribute("type", "video/ogg");
-      this.video.appendChild(source);
+      self.video.appendChild(source);
 
       source = document.createElement("source");
       source.setAttribute("src", filename + ".ogv");
       source.setAttribute("type", "video/ogg");
-      this.video.appendChild(source);
+      self.video.appendChild(source);
     }
     // webm
-    if (this.video.canPlayType("video/webm")) {
+    if (self.video.canPlayType("video/webm")) {
       source = document.createElement("source");
       source.setAttribute("src", filename + ".webm");
       source.setAttribute("type", "video/webm");
-      this.video.appendChild(source);
+      self.video.appendChild(source);
     }
 
-    this.addControlContainer(this.video);
+    self.addControlContainer(self.video);
+
+    //
+    self.evaluator.setFunction(self.id + ".play", function() {
+      self.video.play();
+    });
+    self.evaluator.setFunction(self.id + ".pause", function() {
+      self.video.pause();
+    });
+    self.evaluator.setFunction(self.id + ".stop", function() {
+      self.video.pause();
+      self.video.currentTime = 0.0;
+    });
+    self.video.addEventListener("timeupdate", function(evt) {
+      self.evaluator.setVariable(self.id + ".currentTime", self.video.currentTime);
+    });
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -117,19 +135,27 @@ var descartesJS = (function(descartesJS) {
     this.update();
   }
 
+  var drawif;
   /**
    * Update the video control
    */
   descartesJS.Video.prototype.update = function() {
     evaluator = this.evaluator;
 
+    drawif = evaluator.evalExpression(this.drawif) > 0
+
     // hide or show the audio control
     if (evaluator.evalExpression(this.drawif) > 0) {
       this.video.style.display = "block"
     } else {
       this.video.style.display = "none";
-      this.video.pause();
+
+      if (drawif !== this.oldDrawIf) {
+        this.audio.pause();
+      }
     }
+
+    this.oldDrawIf = drawif;
 
     // update the position and size
     this.updatePositionAndSize();    

@@ -123,7 +123,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    if (values.type !== "graphic") {
+    if ((values.type !== "graphic") && (values.type !== "audio") && (values.type !== "video")) {
       if (values.type !== "text") {
         this.expresion = parser.parse("(0,0,100,23)");
       } else {
@@ -162,7 +162,8 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("ff0000");
+    // this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("ff0000");
+    this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("cc0022");
 
     /**
      * bold text condition

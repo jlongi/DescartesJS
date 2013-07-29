@@ -266,7 +266,13 @@ var descartesJS = (function(descartesJS) {
       this.h = metric.h;
 
       this.clickCacher = document.createElement("div");
-      this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; h: " + this.h + "px;")
+      this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; cursor: pointer;");
+
+      var _self = this;
+      this.clickCacher.addEventListener("click", function(evt) {
+        _self.click = true;
+        window.open(_self.URL, _self.URL);
+      })
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -703,12 +709,14 @@ var descartesJS = (function(descartesJS) {
     else if (this.nodeType == "componentNumCtrl") {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
+
+      var tmpH = this.componentNumCtrl.h || 0;
       
-      this.baseline = 0;
-      this.descent = 0;
-      this.ascent = 0;
-      
-      this.h = 0;
+      this.baseline = Math.round(3*tmpH/5);
+      this.descent = Math.round(2*tmpH/5);
+      this.ascent = this.baseline;
+
+      this.h = tmpH;
       this.w = this.componentNumCtrl.w;
     }
     
@@ -740,7 +748,7 @@ var descartesJS = (function(descartesJS) {
     var childh;
     var children_i;
     
-    // loops throught all the children of a text line to determine which is the width and the h
+    // loops throught all the children of a text line to determine which is the width and the height
     for (var i=0, l=this.children.length; i<l; i++) {
       children_i = this.children[i];
       children_i.getTextMetrics();
@@ -752,15 +760,14 @@ var descartesJS = (function(descartesJS) {
      
       // update the previous metric
       updatePreviousMetric(childAscent, childDescent, children_i.h);
-      
+
       if (maxAscenderh < childAscent) {
         maxAscenderh = childAscent;
       }
 
       if (maxDescenderh < childDescent) {
         maxDescenderh = childDescent;
-      }
-      
+      }      
     }
 
     this.ascent = maxAscenderh;
@@ -964,6 +971,19 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawHyperlink = function(ctx, x, y) {
+    // add and position of the click cacher div
+    if (!this.clickCacher.parentNode) {
+      // ctx.canvas.parentNode.appendChild(this.clickCacher);
+      if (ctx.canvas.nextSibling.className) {
+        ctx.canvas.parentNode.insertBefore(this.clickCacher, ctx.canvas.nextSibling.nextSibling);
+      }
+      else {
+        ctx.canvas.parentNode.insertBefore(this.clickCacher, ctx.canvas.nextSibling);
+      }
+      this.clickCacher.style.left = (x -2) + "px";
+      this.clickCacher.style.top  = (y - this.ascent -2) + "px";
+    }
+
     ctx.save();
 
     if (this.click) {
@@ -983,10 +1003,10 @@ var descartesJS = (function(descartesJS) {
     
     var isBold = this.style.textBold == "bold";
     var sep = isBold ? 1 : .5;
-    ctx.linew = isBold ? 2 : 1;
+    ctx.lineWidth = isBold ? 2 : 1;
     ctx.beginPath();
-    ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
-    ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
+    ctx.moveTo(x-1, Math.ceil(y+this.descent/2) +sep -2);
+    ctx.lineTo(x-1+this.w, Math.ceil(y+this.descent/2) +sep -2);
     ctx.stroke();
     ctx.restore();
   }
@@ -1323,8 +1343,10 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} y the y position of the text
    */
   descartesJS.RTFNode.prototype.drawComponentNumCtrl = function(ctx, x, y) {
-    this.getTextMetrics();
-    this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + x + "," + (y-this.parent.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
+    // update the metrics of the parent
+    this.parent.getTextMetrics();
+    // this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + x + "," + (y-this.parent.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
+    this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + x + "," + (y-this.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
   }
   
   /**

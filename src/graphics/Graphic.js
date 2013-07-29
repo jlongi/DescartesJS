@@ -355,7 +355,7 @@ var descartesJS = (function(descartesJS) {
         
     if (this.border) {
       ctx.strokeStyle = this.border.getColor();
-      ctx.lineWidth = parseInt(this.fontSize/12)+1.5;
+      ctx.lineWidth = 3;
     }
     
     verticalDisplace = this.fontSize*1.2 || 0;

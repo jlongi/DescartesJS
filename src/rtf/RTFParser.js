@@ -442,6 +442,7 @@ var descartesJS = (function(descartesJS) {
         tmpStyle = styleStackTop.clone();
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "hyperlink", tmpStyle);
+        newNode.URL = ((tokens[i].value).split("|"))[1];
         
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;

@@ -9,6 +9,19 @@ var descartesJS = (function(descartesJS) {
   var PI2 = Math.PI*2;
   var mathRound = Math.round;
   
+  var evaluator;
+  var space;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var coordX;
+  var coordY;
+  var size;
+  var desp;
+  
   /**
    * A Descartes point
    * @constructor 
@@ -31,19 +44,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Point, descartesJS.Graphic);
-
-  var evaluator;
-  var space;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var coordX;
-  var coordY;
-  var size;
-  var desp;
 
   /**
    * Update the point

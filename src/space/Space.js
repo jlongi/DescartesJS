@@ -522,7 +522,9 @@ var descartesJS = (function(descartesJS) {
     this.offsetTop = 0;
 
     // store the display style
-    tmpDisplay = this.container.style.display;
+    if ((this.container) && (this.container.style)) {
+      tmpDisplay = this.container.style.display;
+    }
 
     // make visible the element to get the offset values
     this.container.style.display = "block";
@@ -546,7 +548,9 @@ var descartesJS = (function(descartesJS) {
     }
     
     // restore the display style
-    this.container.style.display = tmpDisplay;
+    if ((this.container) && (this.container.style)) {
+      this.container.style.display = tmpDisplay;
+    }
   }
 
   /**

@@ -653,9 +653,9 @@ var descartesJS = (function(descartesJS) {
       case "*":  return 7;
       case "sign-": return 7;
       case "sign+": return 7;
-      case "^":  return 8;
       case "!":  return 8;
       case "%":  return 8;
+      case "^":  return 9;
       default:   return 9;
     }
   }

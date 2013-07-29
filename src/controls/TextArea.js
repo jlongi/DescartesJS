@@ -17,6 +17,8 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the scrollbar control
    */
   descartesJS.TextArea = function(parent, values){
+    this.font = "Monospaced,PLAIN,12";
+
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
@@ -61,7 +63,7 @@ var descartesJS = (function(descartesJS) {
     this.showAnswer = false;
 
     // plain text
-    if ( (this.text == undefined) || (this.text.type == undefined)) {
+    if ( (this.text == undefined) || (this.text.type == "simpleText")) {
       this.text = this.rawText || "";
     }
     // rtf text
@@ -75,10 +77,12 @@ var descartesJS = (function(descartesJS) {
     }
     
     // rtf answer
-    if ((parseAnswer) && (parseAnswer.type != undefined)) {
-// console.log(parser)
+    if ((parseAnswer) && (parseAnswer.type != "simpleText")) {
       if (!this.text.hasFormula) {
         this.answer = parseAnswer.toHTML();
+      }
+      else {
+        this.answer = "";
       }
     }
    
@@ -104,7 +108,14 @@ var descartesJS = (function(descartesJS) {
     displaceY = (this.answer) ? 28 : 8;
     evaluator = this.evaluator;
     
-    this.text = evaluator.getVariable(this.id);
+    var newText;
+
+    if (this.text.match(/<span/)) {
+      newText = this.text;
+    }
+    else {
+      newText = this.text.replace(/\\n/g, "<br/>");
+    } 
 
     this.containerControl.setAttribute("class", "DescartesTextAreaContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
@@ -115,7 +126,7 @@ var descartesJS = (function(descartesJS) {
     this.textArea.setAttribute("class", "DescartesTextAreaContainer");
     this.textArea.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
     this.textArea.setAttribute("contenteditable", "true");  
-    this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + this.text + "</span>";
+    this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
     
     // text area answer
     this.textAreaAnswer.setAttribute("class", "DescartesTextAreaContainer");
@@ -182,7 +193,16 @@ var descartesJS = (function(descartesJS) {
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
     this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
 
-    evaluator.setVariable(this.id, this.text);
+    var newText;
+
+    if (this.text.match(/<span/)) {
+      newText = this.rawText;
+    }
+    else {
+      newText = this.text;
+    } 
+
+    evaluator.setVariable(this.id, newText);
 
     // enable or disable the control
     this.activeCover.style.display = (this.activeIfValue) ? "none" : "block";

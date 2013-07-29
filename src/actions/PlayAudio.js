@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
+
   /**
    * Descartes play audio action
    * @constructor 
@@ -16,9 +18,12 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
     
-    this.filenameExpr = (parameter) ? this.evaluator.parser.parse("'" + parameter.split(" ")[0].trim() + "'") : "";
-    this.filename = this.evaluator.evalExpression(this.filenameExpr);
-    this.theAudio = parent.getAudio(this.filename);
+    if ((parameter) && (parameter.match(regExpAudio))) {
+      this.filenameExpr = this.evaluator.parser.parse("'" + parameter.match(regExpAudio) + "'");
+    }
+    else {
+      this.filenameExpr = this.evaluator.parser.parse(parameter);
+    }
   }  
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -26,13 +31,11 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.PlayAudio, descartesJS.Action);
   
-  var theAudio;
   /**
    * Execute the action
    */
   descartesJS.PlayAudio.prototype.execute = function() {
-    // this.filename = this.evaluator.evalExpression(this.filenameExpr);
-    // var theAudio = this.parent.getAudio(this.filename);
+    this.theAudio = this.parent.getAudio( this.evaluator.evalExpression(this.filenameExpr) );
 
     var theAudio = this.theAudio;
 

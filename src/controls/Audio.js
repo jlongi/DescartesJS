@@ -24,37 +24,57 @@ var descartesJS = (function(descartesJS) {
 
     this.file = "";
 
+    this.oldDrawIf = 0;
+
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
+    var self = this;
+
     // the audio position and size
-    var expr = this.evaluator.evalExpression(this.expresion);
+    var expr = self.evaluator.evalExpression(self.expresion);
     if (expr[0].length == 4) {
-      this.w = expr[0][2];
-      this.h = expr[0][3];
+      self.w = expr[0][2];
+      self.h = expr[0][3];
     } else {
-      this.w = 100;
-      this.h = 28;
+      self.w = 200;
+      self.h = 28;
     }
     
-    this.audio = this.parent.getAudio(this.file);
+    self.audio = self.parent.getAudio(self.file);
 
-    if (this.autoplay) {
-      this.audio.setAttribute("autoplay", "autoplay");
-      this.audio.play();
+    if (self.autoplay) {
+      self.audio.setAttribute("autoplay", "autoplay");
+      self.audio.play();
     }
     
-    if (this.loop) {
-      this.audio.setAttribute("loop", "loop");
+    if (self.loop) {
+      self.audio.setAttribute("loop", "loop");
     }
 
-    if (this.controls) {
-      this.audio.setAttribute("controls", "controls");
+    if (self.controls) {
+      self.audio.setAttribute("controls", "controls");
     }
 
-    this.audio.setAttribute("style", "position: absolute; width: " + this.w + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    self.audio.setAttribute("style", "position: absolute; width: " + self.w + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
 
-    this.addControlContainer(this.audio);
+    self.addControlContainer(self.audio);
+
+    //
+    self.evaluator.setFunction(self.id + ".play", function() {
+      self.audio.play();
+    });
+    self.evaluator.setFunction(self.id + ".pause", function() {
+      self.audio.pause();
+    });
+    self.evaluator.setFunction(self.id + ".stop", function() {
+      self.audio.pause();
+      self.audio.currentTime = 0.0;
+    });
+    self.audio.addEventListener("timeupdate", function(evt) {
+      self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
+      // self.parent.update();
+    });
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -74,19 +94,27 @@ var descartesJS = (function(descartesJS) {
     this.update();
   }
 
+  var drawif;
   /**
    * Update the audio control
    */
   descartesJS.Audio.prototype.update = function() {
     evaluator = this.evaluator;
+
+    drawif = evaluator.evalExpression(this.drawif) > 0
     
     // hide or show the audio control
-    if (evaluator.evalExpression(this.drawif) > 0) {
+    if (drawif) {
       this.audio.style.display = "block";
     } else {
       this.audio.style.display = "none";
-      this.audio.pause();
+
+      if (drawif !== this.oldDrawIf) {
+        this.audio.pause();
+      }
     }    
+
+    this.oldDrawIf = drawif;
 
     // update the position and size
     this.updatePositionAndSize();
