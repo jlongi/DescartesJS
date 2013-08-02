@@ -62,8 +62,8 @@ var descartesJS = (function(descartesJS) {
     var audios = this.audios;
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
-    var regExpVector = /vector|array|bektore|vecteur|matriz/g;
-    var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
+    // var regExpVector = /vector|array|bektore|vecteur|matriz/g;
+    // var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
     // if arquimedes then add the license image
     if (this.arquimedes) {
@@ -112,13 +112,13 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // check if the children has a vector that loads a file
-      vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
-
-      // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
-      if (vec) {
-        this.lessonParser.parseAuxiliar(children[i].value);
-      }      
+      // // check if the children has a vector that loads a file
+      // vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
+      //
+      // // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
+      // if (vec) {
+      //   this.lessonParser.parseAuxiliar(children[i].value);
+      // }      
     }
         
     // count how many images

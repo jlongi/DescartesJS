@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-07-29
+ * 2013-08-01
  */
 
 /**
@@ -2753,6 +2753,11 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evaluator;
+  var parser;
+  var newFile;
+  var response;
+
   /**
    * Descartes vector
    * @constructor 
@@ -2760,8 +2765,8 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the auxiliary
    */
   descartesJS.Vector = function(parent, values) {
-    var evaluator = parent.evaluator;
-    var parser = evaluator.parser;
+    evaluator = parent.evaluator;
+    parser = evaluator.parser;
 
     /**
      * number of elements of the vector
@@ -2774,81 +2779,8 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Auxiliary.call(this, parent, values);
     
     this.expresion = this.expresion.split(";");
-    
-    var response;
-    // if has an asociate file then read it
-    if (this.file) {
-      // if the vector is embedded in the page
-      var vectorElement = document.getElementById(this.file);
-      if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
-        response = vectorElement.text;
-        
-        if (response[0] == '\n') {
-          response = response.substring(1);
-        }
-      }
-      // read the vector data from a file
-      else {
-        response = descartesJS.openExternalFile(this.file);
-      }
-      
-      // if the reading info has content, split the content
-      if (response != null) {
-        response = response.split("\n");
-      }
-        
-      // if the file has no content or could not be read
-      if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
-        response = [];
-        this.size = 0;
-      }
-      // if the file has content and could be read
-      else {
-        this.expresion = [];
-        this.size = null;
-      }
-        
-      var tmpImg;
-      var nonEmptyValuesIndex = 0;
-      var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
 
-      for(var i=0, l=response.length; i<l; i++) {
-        if (response[i].match(/./)) {
-          this.expresion[nonEmptyValuesIndex] = this.id + "[" + nonEmptyValuesIndex + "]=" + response[i];
-          nonEmptyValuesIndex++;
-          
-          // if the value has a reference to a imagen, then preload it
-          tmpImg = response[i].match(regExpImage);
-          if (tmpImg) {
-            this.parent.getImage(tmpImg);
-          }
-        }
-      }
-      
-      if (this.size === null) {
-        this.size = parser.parse( this.expresion.length + "" );
-      }
-      
-    }
-
-    var tmpExp;
-    // parse the elements of the expression
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      tmpExp = parser.parse(this.expresion[i], true);
-      
-      // if the expression is not an assignment
-      if ((tmpExp) && (tmpExp.type != "asign")) {
-        tmpExp = parser.parse( this.id + "[" + i + "]=" + this.expresion[i], true );
-      }
-
-      this.expresion[i] = tmpExp;
-    }
-
-    var vectInit = [];
-    for (var i=0, l=evaluator.evalExpression(this.size); i<l; i++) {
-      vectInit.push(0);
-    }
-    evaluator.vectors[this.id] = vectInit;
+    this.parseFile = parser.parse(this.file);
     
     this.update();
   }
@@ -2862,13 +2794,78 @@ var descartesJS = (function(descartesJS) {
    * Update the vector
    */
   descartesJS.Vector.prototype.update = function() {
-    var evaluator = this.evaluator;
+    evaluator = this.evaluator;
+    parser = evaluator.parser;
+
+    // if the filename is a variable
+    this.oldFile = this.file;
+    newFile = evaluator.evalExpression(this.parseFile);
+    if (newFile) {
+      this.file = newFile;
+    }
+
+    var response;
+    // if has an asociate file then read it
+    if (this.file) {
+      // if the vector is embedded in the page
+      vectorElement = document.getElementById(this.file);
+      if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
+        response = vectorElement.text;
+        
+        if (response[0] == '\n') {
+          response = response.substring(1);
+        }
+      }
+      // read the vector data from a file
+      else {
+        response = descartesJS.openExternalFile(this.file);
+      }
+
+      // if the reading info has content, split the content
+      if (response != null) {
+        response = response.replace(/\r/g, "").split("\n");
+      }
+
+      // if the file has no content or could not be read
+      if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
+        response = [];
+        this.size = 0;
+      }
+      // if the file has content and could be read
+      else {
+        this.expresion = response;
+        this.size = null;
+      }
+      
+      if (this.size === null) {
+        this.size = parser.parse( this.expresion.length + "" );
+      }      
+    }
+
+    var tmpExp;
+    // parse the elements of the expression
+    for(var i=0, l=this.expresion.length; i<l; i++) {
+      tmpExp = parser.parse(this.expresion[i], true);
+
+      // if the expression is not an assignment
+      if ((tmpExp) && (tmpExp.type != "asign")) {
+        tmpExp = parser.parse( this.id + "[" + i + "]=" + this.expresion[i], true );
+      }
+
+      this.expresion[i] = tmpExp;
+    }
+
+    var vectInit = [];
+    for (var i=0, l=evaluator.evalExpression(this.size); i<l; i++) {
+      vectInit.push(0);
+    }
+    evaluator.vectors[this.id] = vectInit;
 
     evaluator.setVariable(this.id + ".long", evaluator.evalExpression(this.size));
 
     for(var i=0, l=this.expresion.length; i<l; i++) {
       evaluator.evalExpression(this.expresion[i]);
-    }
+    }    
   }
 
   return descartesJS;
@@ -3148,7 +3145,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Event = function(parent, values){
     // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
-    
+console.log(values)    
     var evaluator = this.evaluator;
     
     this.condition = evaluator.parser.parse(this.condition);
@@ -3265,7 +3262,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.spaceID = "E0";
+    this.spaceID = "";
 
     /**
      * the condition for determining whether the graph is drawn in the background
@@ -4852,6 +4849,8 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.size = parent.evaluator.parser.parse("2");
+
+    this.range = parent.evaluator.parser.parse("[1, 100]");
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -12261,7 +12260,14 @@ var descartesJS = (function(descartesJS) {
     this.updatePositionAndSize();
 
     // update the value of the menu
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
+    var tmpValue = this.validateValue( evaluator.getVariable(this.id) );
+    if ( (tmpValue != this.value) && !((Math.abs(tmpValue - this.value)>0) && (Math.abs(tmpValue - this.value)<.000000001))) {
+      this.value = tmpValue;
+      this.changeScrollPositionFromValue();
+      this.prePos = this.pos;
+    }
+
+    this.value = tmpValue;
     this.field.value = this.formatOutputValue(this.value);
 
     // register the control value
@@ -13203,14 +13209,14 @@ var descartesJS = (function(descartesJS) {
 
     drawif = evaluator.evalExpression(this.drawif) > 0
 
-    // hide or show the audio control
+    // hide or show the video control
     if (evaluator.evalExpression(this.drawif) > 0) {
       this.video.style.display = "block"
     } else {
       this.video.style.display = "none";
 
       if (drawif !== this.oldDrawIf) {
-        this.audio.pause();
+        this.video.pause();
       }
     }
 
@@ -13523,7 +13529,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.spaceID = "E0";
+    this.spaceID = "";
 
     /**
      * text
@@ -13692,16 +13698,9 @@ var descartesJS = (function(descartesJS) {
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
-    if (!this.activeIfValue) {
-      this.mouseCacher.style.display = "none";
-      this.mouseCacher.style.left = parseInt(x-this._w/2)+"px";
-      this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
-    }
-    else {
-      this.mouseCacher.style.display = "block";
-    }
-    
-    // this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
+    this.mouseCacher.style.display = (!this.activeIfValue) ? "none" : "block";
+    this.mouseCacher.style.left = parseInt(x-this._w/2)+"px";
+    this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
     
     // eval the constraint    
     if (this.constraint) {
@@ -14723,7 +14722,7 @@ var descartesJS = (function(descartesJS, babel) {
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
-      
+
       babelValue = babel[values_i_0];
 
       switch(babelValue) {        
@@ -14875,21 +14874,27 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
-            
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
-              
-                // find the interval variable of a curve
+
+            if (values_i_0.match(graphicObj["parameter"] + ".")) {
+
+              // default parameter in a macro
+              if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
+                graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+              }
+
+              switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
+
+                // find the interval variable of a family
                 case("interval"):
                   graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
                   break;
-                
-                // find the number of steps in the curve
+                  
+                // find the number of steps in the family
                 case("steps"):
                   graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
                   break;
               }
-              break
+              break;
             }
           }
 
@@ -14897,7 +14902,7 @@ var descartesJS = (function(descartesJS, babel) {
           break;
       }
     }
-    
+
     // MACRO //
     // when absolute coordinates are used
     if (abs_coord) {
@@ -15327,6 +15332,8 @@ var descartesJS = (function(descartesJS, babel) {
         case("matrix"):
         // algorithm condition
         case("algorithm"):
+        // event expression
+        case("event"):
         // sequence condition
         case("sequence"):
           auxiliarObj[babelValue] = (babel[values_i_1] === "true");
@@ -15343,8 +15350,8 @@ var descartesJS = (function(descartesJS, babel) {
 
         // type of evaluation
         case("evaluate"):
-        // event expression
-        case("event"):
+        // // event expression
+        // case("event"):
         // execution expression of an event
         case("execution"):
         // relative position of event mesagges
@@ -20935,8 +20942,8 @@ var descartesJS = (function(descartesJS) {
     wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
 
     while (rsc>(wh_temp)) {
-      rsc/=10; 
-      dec++; 
+      rsc/=10;
+      dec++;
     }
     while (rsc<(wh_temp)/10) {
       rsc*=10;
@@ -21040,6 +21047,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].update();
       this.graphicsCtr[i].draw();
     }
 
@@ -22516,8 +22524,8 @@ var descartesJS = (function(descartesJS) {
     var audios = this.audios;
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
-    var regExpVector = /vector|array|bektore|vecteur|matriz/g;
-    var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
+    // var regExpVector = /vector|array|bektore|vecteur|matriz/g;
+    // var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
     // if arquimedes then add the license image
     if (this.arquimedes) {
@@ -22566,13 +22574,13 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // check if the children has a vector that loads a file
-      vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
-
-      // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
-      if (vec) {
-        this.lessonParser.parseAuxiliar(children[i].value);
-      }      
+      // // check if the children has a vector that loads a file
+      // vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
+      //
+      // // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
+      // if (vec) {
+      //   this.lessonParser.parseAuxiliar(children[i].value);
+      // }      
     }
         
     // count how many images
@@ -23339,7 +23347,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmpControls.length; i<l; i++) {
       this.controls.push( lessonParser.parseControl(tmpControls[i]) );
     }
-
+    
     // init the auxiliary
     for (var i=0, l=tmpAuxiliaries.length; i<l; i++) {
       lessonParser.parseAuxiliar(tmpAuxiliaries[i]);
@@ -23510,6 +23518,9 @@ var descartesJS = (function(descartesJS) {
         else if (this.language == "english") {
           text = "about";
         }
+        else {
+          text = "cr\u00E9ditos";
+        }
 
         var btnAbout = new descartesJS.Button(this, {region: "north", 
                                                      name: text, 
@@ -23583,6 +23594,9 @@ var descartesJS = (function(descartesJS) {
         else if (this.language == "english") {
           text = "init";
         }
+        else {
+          text = "inicio";
+        }
 
         var btnInit = new descartesJS.Button(this, {region: "south", 
                                                     name: text, 
@@ -23600,6 +23614,9 @@ var descartesJS = (function(descartesJS) {
         } 
         else if (this.language == "english") {
           text = "clear";
+        }
+        else {
+          text = "limpiar";
         }
         
         var btnClear = new descartesJS.Button(this, {region: "south", 

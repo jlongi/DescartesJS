@@ -495,7 +495,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmpControls.length; i<l; i++) {
       this.controls.push( lessonParser.parseControl(tmpControls[i]) );
     }
-
+    
     // init the auxiliary
     for (var i=0, l=tmpAuxiliaries.length; i<l; i++) {
       lessonParser.parseAuxiliar(tmpAuxiliaries[i]);
@@ -666,6 +666,9 @@ var descartesJS = (function(descartesJS) {
         else if (this.language == "english") {
           text = "about";
         }
+        else {
+          text = "cr\u00E9ditos";
+        }
 
         var btnAbout = new descartesJS.Button(this, {region: "north", 
                                                      name: text, 
@@ -739,6 +742,9 @@ var descartesJS = (function(descartesJS) {
         else if (this.language == "english") {
           text = "init";
         }
+        else {
+          text = "inicio";
+        }
 
         var btnInit = new descartesJS.Button(this, {region: "south", 
                                                     name: text, 
@@ -756,6 +762,9 @@ var descartesJS = (function(descartesJS) {
         } 
         else if (this.language == "english") {
           text = "clear";
+        }
+        else {
+          text = "limpiar";
         }
         
         var btnClear = new descartesJS.Button(this, {region: "south", 

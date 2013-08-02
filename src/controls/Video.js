@@ -144,14 +144,14 @@ var descartesJS = (function(descartesJS) {
 
     drawif = evaluator.evalExpression(this.drawif) > 0
 
-    // hide or show the audio control
+    // hide or show the video control
     if (evaluator.evalExpression(this.drawif) > 0) {
       this.video.style.display = "block"
     } else {
       this.video.style.display = "none";
 
       if (drawif !== this.oldDrawIf) {
-        this.audio.pause();
+        this.video.pause();
       }
     }
 

@@ -617,7 +617,7 @@ var descartesJS = (function(descartesJS, babel) {
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
-      
+
       babelValue = babel[values_i_0];
 
       switch(babelValue) {        
@@ -769,21 +769,27 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           if (graphicObj["parameter"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["parameter"].length+1) === (graphicObj["parameter"] + ".")) {
-            
-              switch(babel[values_i_0.substring(graphicObj["parameter"].length+1)]) {
-              
-                // find the interval variable of a curve
+
+            if (values_i_0.match(graphicObj["parameter"] + ".")) {
+
+              // default parameter in a macro
+              if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
+                graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+              }
+
+              switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
+
+                // find the interval variable of a family
                 case("interval"):
                   graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
                   break;
-                
-                // find the number of steps in the curve
+                  
+                // find the number of steps in the family
                 case("steps"):
                   graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
                   break;
               }
-              break
+              break;
             }
           }
 
@@ -791,7 +797,7 @@ var descartesJS = (function(descartesJS, babel) {
           break;
       }
     }
-    
+
     // MACRO //
     // when absolute coordinates are used
     if (abs_coord) {
@@ -1221,6 +1227,8 @@ var descartesJS = (function(descartesJS, babel) {
         case("matrix"):
         // algorithm condition
         case("algorithm"):
+        // event expression
+        case("event"):
         // sequence condition
         case("sequence"):
           auxiliarObj[babelValue] = (babel[values_i_1] === "true");
@@ -1237,8 +1245,8 @@ var descartesJS = (function(descartesJS, babel) {
 
         // type of evaluation
         case("evaluate"):
-        // event expression
-        case("event"):
+        // // event expression
+        // case("event"):
         // execution expression of an event
         case("execution"):
         // relative position of event mesagges

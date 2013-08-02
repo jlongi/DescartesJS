@@ -38,6 +38,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.size = parent.evaluator.parser.parse("2");
 
+    this.range = parent.evaluator.parser.parse("[1, 100]");
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }

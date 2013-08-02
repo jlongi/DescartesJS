@@ -15,7 +15,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Event = function(parent, values){
     // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
-    
+console.log(values)    
     var evaluator = this.evaluator;
     
     this.condition = evaluator.parser.parse(this.condition);

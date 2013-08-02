@@ -296,8 +296,8 @@ var descartesJS = (function(descartesJS) {
     wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
 
     while (rsc>(wh_temp)) {
-      rsc/=10; 
-      dec++; 
+      rsc/=10;
+      dec++;
     }
     while (rsc<(wh_temp)/10) {
       rsc*=10;
@@ -401,6 +401,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].update();
       this.graphicsCtr[i].draw();
     }
 

@@ -312,7 +312,14 @@ var descartesJS = (function(descartesJS) {
     this.updatePositionAndSize();
 
     // update the value of the menu
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
+    var tmpValue = this.validateValue( evaluator.getVariable(this.id) );
+    if ( (tmpValue != this.value) && !((Math.abs(tmpValue - this.value)>0) && (Math.abs(tmpValue - this.value)<.000000001))) {
+      this.value = tmpValue;
+      this.changeScrollPositionFromValue();
+      this.prePos = this.pos;
+    }
+
+    this.value = tmpValue;
     this.field.value = this.formatOutputValue(this.value);
 
     // register the control value

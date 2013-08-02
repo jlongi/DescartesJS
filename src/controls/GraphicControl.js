@@ -37,7 +37,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.spaceID = "E0";
+    this.spaceID = "";
 
     /**
      * text
@@ -206,16 +206,9 @@ var descartesJS = (function(descartesJS) {
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
-    if (!this.activeIfValue) {
-      this.mouseCacher.style.display = "none";
-      this.mouseCacher.style.left = parseInt(x-this._w/2)+"px";
-      this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
-    }
-    else {
-      this.mouseCacher.style.display = "block";
-    }
-    
-    // this.mouseCacher.style.display = (this.drawIfValue) ? "block" : "none";
+    this.mouseCacher.style.display = (!this.activeIfValue) ? "none" : "block";
+    this.mouseCacher.style.left = parseInt(x-this._w/2)+"px";
+    this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
     
     // eval the constraint    
     if (this.constraint) {

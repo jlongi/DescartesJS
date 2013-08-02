@@ -40,7 +40,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.spaceID = "E0";
+    this.spaceID = "";
 
     /**
      * the condition for determining whether the graph is drawn in the background
