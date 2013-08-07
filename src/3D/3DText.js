@@ -48,7 +48,9 @@ var descartesJS = (function(descartesJS) {
                                displace: 0,
                                isText: true,
                                evaluator: evaluator,
-                               text: this.text
+                               text: this.text,
+                               family: this.family,
+                               familyValue: this.familyValue
                              } ) );
 
   }

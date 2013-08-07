@@ -77,7 +77,6 @@ var descartesJS = (function(descartesJS) {
       y = parseInt( this.space.getAbsoluteY(this.exprY) );
     }
 
-console.log(x, y)
     if ((x < 0) || (y < 0) || (x >= this.space.w) || (y >= this.space.h)) {
       return;
     }

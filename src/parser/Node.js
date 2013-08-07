@@ -205,7 +205,7 @@ var descartesJS = (function(descartesJS) {
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
-          argu.push( this.childs[0].childs[i].evaluate(evaluator) );
+          argu[i] = this.childs[0].childs[i].evaluate(evaluator).toString();
         }
       
         if (this.value === "_Eval_") {

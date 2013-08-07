@@ -8,6 +8,21 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var imgFile;
+  var space;
+  var despX;
+  var despY;
+  var coordX;
+  var coordY;
+  var rotation;
+
   /**
    * A Descartes image
    * @constructor 
@@ -32,13 +47,6 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
     
-    // ######################
-    // ######################
-    // revisar este error con las expresiones
-    // '(areas[figura]==resp)?'images/bien.png':'images/mal.png''
-    // ######################
-    // ######################
-
     this.img = new Image();
 
     this.scaleX = 1;
@@ -51,21 +59,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Image, descartesJS.Graphic);
-
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var imgFile;
-  var space;
-  var despX;
-  var despY;
-  var coordX;
-  var coordY;
-  var rotation;
 
   /**
    * Update the image
@@ -114,7 +107,6 @@ var descartesJS = (function(descartesJS) {
     }
     
     imgFile = evaluator.evalExpression(this.file);
-
     if ((imgFile) || (imgFile == "")) {
       this.img = this.parent.getImage(imgFile);
     }

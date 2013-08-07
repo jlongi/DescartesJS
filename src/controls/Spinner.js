@@ -38,6 +38,14 @@ var descartesJS = (function(descartesJS) {
     // tabular index
     this.tabindex = ++this.parent.tabindex;
 
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     // control container
     this.containerControl = document.createElement("div");
     this.canvas = document.createElement("canvas");
@@ -47,13 +55,10 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
+    // this.txtLabel = document.createTextNode();
+    // this.label.appendChild(this.txtLabel);
 
-    // add the elements to the container
-    if (this.name.trim() != "") {
-      this.containerControl.appendChild(this.label);
-    }
+    this.containerControl.appendChild(this.label);
     this.containerControl.appendChild(this.field);
     this.containerControl.appendChild(this.canvas);
     this.containerControl.appendChild(this.divUp);
@@ -93,6 +98,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Spinner.prototype.init = function() {
     evaluator = this.evaluator;
 
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
+
     // validate the initial value
     this.value = this.validateValue(evaluator.evalExpression(this.valueExpr));
     
@@ -111,8 +119,8 @@ var descartesJS = (function(descartesJS) {
     var canvasWidth = 2 + parseInt(this.h/2);
     var labelWidth = parseInt(this.w/2 - canvasWidth/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(this.name+extraSpace, this.fieldFontSize+"px Arial");
-    
+    var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px Arial");
+
     if (!this.visible) {
       labelWidth = this.w - canvasWidth;
       minTFWidth = 0;
@@ -122,7 +130,7 @@ var descartesJS = (function(descartesJS) {
       labelWidth = minLabelWidth;
     }
     
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     
@@ -171,6 +179,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Spinner.prototype.update = function() {
     evaluator = this.evaluator;
+    
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
     if (evaluator.evalExpression(this.decimals) <= 0) {
       tmpIncr = evaluator.evalExpression(this.incr);

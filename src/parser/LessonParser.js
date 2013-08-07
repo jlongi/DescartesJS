@@ -337,7 +337,7 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
-    controlObj = {};
+    controlObj = { type: "numeric" };
 
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
@@ -1754,88 +1754,6 @@ var descartesJS = (function(descartesJS, babel) {
     return splitValues;
   }
   
-  // /**
-  //  * Split a string using a coma delimiter
-  //  * @param {String} string the string to split
-  //  * @return {Array<String>} return an array of the spliting string using a coma delimiter
-  //  */
-  // descartesJS.LessonParser.prototype.splitComa = function(string) {
-  //   splitString = [];
-  //   parenthesesStack = [];
-  //   lastSplitIndex = 0;
-
-  //   for (var i=0, l=string.length; i<l; i++) {
-  //     charAt = string.charAt(i);
-  //     if (charAt === "(") {
-  //       parenthesesStack.push(i);
-  //     }
-  //     else if (charAt === ")") {
-  //       parenthesesStack.pop();
-  //     }
-  //     else if ((charAt === ",") && (parenthesesStack.length === 0)) {
-  //       splitString.push(string.substring(lastSplitIndex, i));
-  //       lastSplitIndex = i+1;
-  //     }
-  //   }
-    
-  //   splitString.push(string.substring(lastSplitIndex));
-    
-  //   return splitString;
-  // }
-  
-  // /**
-  //  * Given a Descartes color get an CSS color
-  //  * @param {String} color the Descartes color to convert
-  //  * @return {String} return a CSS color string
-  //  */
-  // descartesJS.LessonParser.prototype.convertColor = function(color) {
-  //   // the color is a color name
-  //   if (babel[color]) {
-  //     if (babel[color] === "net") {
-  //       return "red";
-  //     }
-  //     return babel[color];
-  //   }
-    
-  //   // the color is six hexadecimals digits #RRGGBB
-  //   if (color.length === 6) {
-  //     return "#" + color;
-  //   }
-
-  //   // the color is eight hexadecimals digits #RRGGBBAA
-  //   if (color.length === 8) {
-  //     return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
-  //                   + parseInt("0x"+color.substring(4,6), 16) +","
-  //                   + parseInt("0x"+color.substring(6,8), 16) +","
-  //                   + (1-parseInt("0x"+color.substring(0,2), 16)/255)
-  //                   + ")";
-  //   }
-
-  //   // the color is a Descartes expression (exprR, exprG, exprB, exprA)
-  //   if (color[0] === "(") {
-  //     tmpColor = "(";
-  //     splitColor = this.splitComa(color.substring(1,color.length-1));
-
-  //     for (var i=0, l=splitColor.length; i<l; i++) {
-  //       hexColor = parseInt(splitColor[i], 16);
-
-  //       if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
-  //         if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
-  //           splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
-  //         }
-  //         tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
-  //       } else {
-  //         tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
-  //       }
-  //     }
-
-  //     return this.parser.parse(tmpColor);
-  //   }
-    
-  //   // otherwise
-  //   return "#aa0000";
-  // }
-
   /**
    * Parse a text an construct a simple text or rtf text
    * @param {String} text the string text to parse

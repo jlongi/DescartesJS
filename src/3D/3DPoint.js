@@ -60,7 +60,9 @@ var descartesJS = (function(descartesJS) {
                                  fixed: this.fixed,
                                  displace: this.fontSize,
                                  evaluator: evaluator,
-                                 text: this.text
+                                 text: this.text,
+                                 family: this.family,
+                                 familyValue: this.familyValue
                                } ) );
     }
   }

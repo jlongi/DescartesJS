@@ -510,7 +510,10 @@ var descartesJS = (function(descartesJS) {
     this.configRegions();
 
     this.updateAuxiliaries();
-
+    // beware
+    this.updateAuxiliaries();
+    // beware
+    
     for (var i=0, l=this.controls.length; i<l; i++) {
       this.controls[i].init();
     }
@@ -526,6 +529,8 @@ var descartesJS = (function(descartesJS) {
     else {
       this.finishInit();
     }
+
+// console.log(this.auxiliaries)
 
   }
   

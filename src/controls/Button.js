@@ -290,8 +290,11 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-in";
       ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
+      ctx.restore();
     }
     
   }

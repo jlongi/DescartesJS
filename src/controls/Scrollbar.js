@@ -48,6 +48,14 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     this.orientation = (this.w >= this.h) ? horizontalScrollbar : verticalScrollbar;
 
     // control container
@@ -62,8 +70,6 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
 
     // add the elements to the container
     this.containerControl.appendChild(this.canvas);
@@ -136,6 +142,9 @@ var descartesJS = (function(descartesJS) {
     self = this;
     evaluator = self.evaluator;
 
+    var name = evaluator.evalExpression(self.name).toString();
+    self.label.innerHTML = name;
+
     var defaultHeight = (self.orientation === verticalScrollbar) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
     // find the font size of the text field
@@ -145,7 +154,7 @@ var descartesJS = (function(descartesJS) {
     
     var spaceH = self.parent.getSpaceById(self.spaceID).h;
     
-    self.labelHeight = (self.name == "") ? 0 : defaultHeight;
+    self.labelHeight = (name == "") ? 0 : defaultHeight;
     self.fieldHeight = (self.visible == "") ? 0 : defaultHeight;
     
     // vertical orientation
@@ -188,12 +197,12 @@ var descartesJS = (function(descartesJS) {
       var minsbw = 58;
       
       // get the width of all elements in the scrollbar
-      var minLabelWidth = descartesJS.getTextWidth(self.name, self.fieldFontSize+"px Arial") +10;
+      var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px Arial") +10;
       self.labelWidth = minLabelWidth;
       var minTFWidth = fieldValueSize;
       self.fieldWidth = minTFWidth;
       
-      if (self.name == "") {
+      if (name == "") {
         self.labelWidth = 0;
       }
       
@@ -273,10 +282,6 @@ var descartesJS = (function(descartesJS) {
     self.label.setAttribute("class", "DescartesScrollbarLabel");
     self.label.setAttribute("style", "font-size:" + self.fieldFontSize + "px; width: " + self.labelWidth + "px; height: " + self.labelHeight + "px; line-height: " + self.labelHeight + "px; left: 0px; top:" + self.labelY + "px;");
     
-    // create the label text
-    self.txtLabel = document.createTextNode(self.name);
-
-    // this.update();
   }
     
   /**
@@ -284,6 +289,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Scrollbar.prototype.update = function() {
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
     // the incremente is the interval [min, max] dividen by 100 if has decimasl, if not then the incremente is 1
     if (evaluator.evalExpression(this.decimals) == 0) {

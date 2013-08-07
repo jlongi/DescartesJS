@@ -17,6 +17,8 @@ var descartesJS = (function(descartesJS) {
   var verticalDisplace;
   var theText;
 
+  var tempParam;
+
   var epsilon = 0.00000001;
 
   /**
@@ -174,7 +176,12 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function drawPrimitiveText(ctx) {
+    tempParam = this.evaluator.getVariable(this.family);
+    this.evaluator.setVariable(this.family, this.familyValue);
+    
     this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor.getColor(), this.font, "left", "alphabetic", this.decimals, this.fixed, true);
+
+    this.evaluator.setVariable(this.family, tempParam);
   }
 
   /**

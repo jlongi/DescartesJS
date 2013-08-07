@@ -47,6 +47,8 @@ var descartesJS = (function(descartesJS) {
    * Update the vector
    */
   descartesJS.Vector.prototype.update = function() {
+    var expresion = this.expresion;
+
     evaluator = this.evaluator;
     parser = evaluator.parser;
 
@@ -74,7 +76,7 @@ var descartesJS = (function(descartesJS) {
         response = descartesJS.openExternalFile(this.file);
       }
 
-      // if the reading info has content, split the content
+      // if the read information has content, split the content
       if (response != null) {
         response = response.replace(/\r/g, "").split("\n");
       }
@@ -86,26 +88,27 @@ var descartesJS = (function(descartesJS) {
       }
       // if the file has content and could be read
       else {
-        this.expresion = response;
+        expresion = response;
         this.size = null;
       }
       
       if (this.size === null) {
-        this.size = parser.parse( this.expresion.length + "" );
-      }      
+        this.size = parser.parse( expresion.length + "" );
+      }
     }
 
     var tmpExp;
+    var newExpression = [];
     // parse the elements of the expression
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      tmpExp = parser.parse(this.expresion[i], true);
+    for(var i=0, l=expresion.length; i<l; i++) {
+      tmpExp = parser.parse(expresion[i], true);
 
       // if the expression is not an assignment
       if ((tmpExp) && (tmpExp.type != "asign")) {
-        tmpExp = parser.parse( this.id + "[" + i + "]=" + this.expresion[i], true );
+        tmpExp = parser.parse( this.id + "[" + i + "]=" + expresion[i], true );
       }
 
-      this.expresion[i] = tmpExp;
+      newExpression.push( tmpExp );
     }
 
     var vectInit = [];
@@ -116,8 +119,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable(this.id + ".long", evaluator.evalExpression(this.size));
 
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      evaluator.evalExpression(this.expresion[i]);
+    for(var i=0, l=newExpression.length; i<l; i++) {
+      evaluator.evalExpression(newExpression[i]);
     }    
   }
 

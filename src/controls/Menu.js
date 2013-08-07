@@ -32,6 +32,15 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Control.call(this, parent, values);
 
     var parser = this.parser;
+
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     
     // options are separated using the comma as separator
     this.options = this.options.split(",");
@@ -75,8 +84,6 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
     
     // the menu
     this.select = document.createElement("select");
@@ -123,6 +130,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Menu.prototype.init = function() {
     evaluator = this.evaluator;
 
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
+
     // find the font size of the text field
     this.fieldFontSize = (this.parent.version != 2) ? descartesJS.getFieldFontSize(this.h) : 10;
 
@@ -145,10 +155,10 @@ var descartesJS = (function(descartesJS) {
     minchw += 25;
     minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.evalExpression(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
     
-    var labelWidth = descartesJS.getTextWidth(this.name, this.fieldFontSize+"px Arial") +10;
+    var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
     var fieldWidth = minTFw;
 
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     if (!this.visible) {
@@ -187,7 +197,7 @@ var descartesJS = (function(descartesJS) {
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
-    this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
+    this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
@@ -201,6 +211,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Menu.prototype.update = function() { 
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);

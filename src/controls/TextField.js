@@ -39,6 +39,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.TextField = function(parent, values){
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
+
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
     
     if (this.valueExprString === undefined) {
       if (this.onlyText) {
@@ -104,8 +112,8 @@ var descartesJS = (function(descartesJS) {
     }
     
     // if the name is only white spaces
-    if (this.name.trim() == "") {
-      this.name = "";
+    if (name.trim() == "") {
+      name = "";
     }
 
     // control container
@@ -116,9 +124,7 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
-    
+
     // add the elements to the container
     this.containerControl.appendChild(this.label);
     this.containerControl.appendChild(this.field);
@@ -141,6 +147,9 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextField.prototype.init = function() {
     evaluator = this.evaluator;
+
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
     
     // validate the initial value
     this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
@@ -156,13 +165,13 @@ var descartesJS = (function(descartesJS) {
     // widths are calculated for each element
     var labelWidth = parseInt(this.w/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(this.name, this.fieldFontSize+"px Arial");
+    var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial");
     
     if (labelWidth < minLabelWidth) {
       labelWidth = minLabelWidth;
     }
     
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     
@@ -208,6 +217,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextField.prototype.update = function() {
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();    
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);

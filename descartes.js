@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-08-01
+ * 2013-08-07
  */
 
 /**
@@ -2794,6 +2794,8 @@ var descartesJS = (function(descartesJS) {
    * Update the vector
    */
   descartesJS.Vector.prototype.update = function() {
+    var expresion = this.expresion;
+
     evaluator = this.evaluator;
     parser = evaluator.parser;
 
@@ -2821,7 +2823,7 @@ var descartesJS = (function(descartesJS) {
         response = descartesJS.openExternalFile(this.file);
       }
 
-      // if the reading info has content, split the content
+      // if the read information has content, split the content
       if (response != null) {
         response = response.replace(/\r/g, "").split("\n");
       }
@@ -2833,26 +2835,27 @@ var descartesJS = (function(descartesJS) {
       }
       // if the file has content and could be read
       else {
-        this.expresion = response;
+        expresion = response;
         this.size = null;
       }
       
       if (this.size === null) {
-        this.size = parser.parse( this.expresion.length + "" );
-      }      
+        this.size = parser.parse( expresion.length + "" );
+      }
     }
 
     var tmpExp;
+    var newExpression = [];
     // parse the elements of the expression
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      tmpExp = parser.parse(this.expresion[i], true);
+    for(var i=0, l=expresion.length; i<l; i++) {
+      tmpExp = parser.parse(expresion[i], true);
 
       // if the expression is not an assignment
       if ((tmpExp) && (tmpExp.type != "asign")) {
-        tmpExp = parser.parse( this.id + "[" + i + "]=" + this.expresion[i], true );
+        tmpExp = parser.parse( this.id + "[" + i + "]=" + expresion[i], true );
       }
 
-      this.expresion[i] = tmpExp;
+      newExpression.push( tmpExp );
     }
 
     var vectInit = [];
@@ -2863,8 +2866,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable(this.id + ".long", evaluator.evalExpression(this.size));
 
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      evaluator.evalExpression(this.expresion[i]);
+    for(var i=0, l=newExpression.length; i<l; i++) {
+      evaluator.evalExpression(newExpression[i]);
     }    
   }
 
@@ -3145,7 +3148,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Event = function(parent, values){
     // call the parent constructor
     descartesJS.Auxiliary.call(this, parent, values);
-console.log(values)    
+    
     var evaluator = this.evaluator;
     
     this.condition = evaluator.parser.parse(this.condition);
@@ -5603,6 +5606,33 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var iniAng;
+  var endAng;
+  var u1;
+  var u2;
+  var v1;
+  var v2;
+  var w1;
+  var w2;
+  var angulo1;
+  var angulo2;
+  var tmpAngulo1;
+  var tmpAngulo2;
+  var space;
+  var coordX;
+  var coordY;
+  var radius;
+  var tempAng;
+  var clockwise;
+  var tmpLineWidth;
+
   /**
    * A Descartes arc
    * @constructor 
@@ -5661,33 +5691,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arc, descartesJS.Graphic);
 
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var iniAng;
-  var endAng;
-  var u1;
-  var u2;
-  var v1;
-  var v2;
-  var w1;
-  var w2;
-  var angulo1;
-  var angulo2;
-  var tmpAngulo1;
-  var tmpAngulo2;
-  var space;
-  var coordX;
-  var coordY;
-  var radius;
-  var tempAng;
-  var clockwise;
-  var tmpLineWidth;
-
   /**
    * Update the arc
    */
@@ -5710,21 +5713,45 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
 
-    iniAng = evaluator.evalExpression(this.init);
-    endAng = evaluator.evalExpression(this.end);
+    var initVal = evaluator.evalExpression(this.init);
+    var endVal  = evaluator.evalExpression(this.end);
 
-    // if the expression of the initial and final angle are parenthesized expressions, then the angles are specified as vectors
+    // if the expression of the initial and final angle are parenthesized expressions
     if ( ((this.init.type == "(expr)") && (this.end.type == "(expr)")) || 
          ((this.init.type == "[expr]") && (this.end.type == "[expr]")) || 
          ((this.init.type == "(expr)") && (this.end.type == "[expr]")) || 
          ((this.init.type == "[expr]") && (this.end.type == "(expr)")) 
        ) {
-      this.vectors = true;
-      u1 = iniAng[0][0];
-      u2 = iniAng[0][1];
-      v1 = endAng[0][0];
-      v2 = endAng[0][1];
-    
+
+      u1 = initVal[0][0];
+      u2 = initVal[0][1];
+      v1 = endVal[0][0];
+      v2 = endVal[0][1];
+
+
+      // arc expressed with points in the space
+      if (!this.vectors) {
+        if (this.abs_coord) {
+          u1 =  u1 - this.exprX;
+          u2 = -u2 + this.exprY;
+          v1 =  v1 - this.exprX;
+          v2 = -v2 + this.exprY;
+        }
+        else {
+          u1 = u1 - this.exprX;
+          u2 = u2 - this.exprY;
+          v1 = v1 - this.exprX;
+          v2 = v2 - this.exprY;
+        }
+      }
+      // arc expressed with vectors
+      else {
+        if (this.abs_coord) {
+          u2 = -u2;
+          v2 = -v2;
+        }
+      }
+
       w1 = 1;
       w2 = 0;
       
@@ -5733,33 +5760,33 @@ var descartesJS = (function(descartesJS) {
       angulo2 = Math.acos( (v1*w1+v2*w2)/Math.sqrt(v1*v1+v2*v2) );
 
       // change considering the quadrant for the first angle
-      if ((u1 > 0) && (u2 > 0) && !this.abs_coord) {
+      if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 > 0) && (u2 < 0) && this.abs_coord) {
+      if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 < 0) && (u2 < 0) && this.abs_coord) {
+      if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 < 0) && (u2 > 0) && !this.abs_coord) {
+      if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
       
       // change considering the quadrant for the second angle
-      if ((v1 > 0) && (v2 > 0) && !this.abs_coord) {
+      if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 > 0) && (v2 < 0) && this.abs_coord) {
+      if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 < 0) && (v2 < 0) && this.abs_coord) {
+      if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 < 0) && (v2 > 0) && !this.abs_coord) {
+      if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      
+
       // always choose the angles in order from lowest to highest
       tmpAngulo1 = Math.min(angulo1, angulo2);
       tmpAngulo2 = Math.max(angulo1, angulo2);
@@ -5779,13 +5806,16 @@ var descartesJS = (function(descartesJS) {
 
       this.iniAng = angulo1;
       this.endAng = angulo2;
+
+      this.drawPoints = true;
     }
+    // arc expressed with angles
     else {
-      this.vectors = false;
-      this.iniAng = descartesJS.degToRad(iniAng);
-      this.endAng = descartesJS.degToRad(endAng);
+      this.iniAng = descartesJS.degToRad(initVal);
+      this.endAng = descartesJS.degToRad(endVal);
+      this.drawAngle = true;
     }
-    
+
   }
 
   /**
@@ -5814,49 +5844,52 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
-    coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
     radius = evaluator.evalExpression(this.radius);
-    
-    if (!this.vectors) {
-      if (this.iniAng > this.endAng) {
-        tempAng = this.iniAng;
-        this.iniAng = this.endAng;
-        this.endAng = tempAng;
-      }
-    }
-   
     if (radius < 0) {
       radius = 0;
     }
-    
-    clockwise = false;
 
-    if (!this.abs_coord) {
-      radius = radius*space.scale;
-      if (!this.vectors) {
-        this.iniAng = -this.iniAng;
-        this.endAng = -this.endAng;
-        clockwise = true;
-      }
-    }
-    
-    // if the arc is especified with vectors
-    if (this.vectors) {
-      if (this.abs_coord) {
-        clockwise = false;
-      }
-      else {
-        clockwise = true;
-      }
-    }
-    
     // the width of a line can not be 0 or negative
     tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
     ctx.strokeStyle = stroke.getColor();
+
+    // draw the arc when especified in angles
+    if (this.drawAngle) {
+      if (this.abs_coord) {
+        coordX = mathRound(this.exprX);
+        coordY = mathRound(this.exprY);
+      }
+      else {
+        coordX = mathRound(space.getAbsoluteX(this.exprX));
+        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        radius = radius*space.scale;
+        this.iniAng = -this.iniAng;
+        this.endAng = -this.endAng;
+      }
+
+      if (this.iniAng > this.endAng) {
+        tempAng = this.iniAng;
+        this.iniAng = this.endAng;
+        this.endAng = tempAng;
+      }       
+    }
+    // draw the arc when especified with points
+    else if (this.drawPoints) {
+      if (this.abs_coord) {
+        coordX = mathRound(this.exprX);
+        coordY = mathRound(this.exprY);
+      }
+      else {
+        coordX = mathRound(space.getAbsoluteX(this.exprX));
+        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        radius = radius*space.scale;
+        this.iniAng = -this.iniAng;
+        this.endAng = -this.endAng;
+      }      
+    }
 
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
@@ -5874,151 +5907,6 @@ var descartesJS = (function(descartesJS) {
     if (this.text != [""]) {
       this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
     }      
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  var expr;
-  var x;
-  var y;
-  var pixelStack;
-  var currentPixel;
-  var startColor;
-  var index;
-
-  /**
-   * A Descartes fill
-   * @constructor 
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the fill
-   */
-  descartesJS.Fill = function(parent, values) {
-    // call the parent constructor
-    descartesJS.Graphic.call(this, parent, values);
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Graphic
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Fill, descartesJS.Graphic);
-
-  /**
-   * Update the fill
-   */
-  descartesJS.Fill.prototype.update = function() {
-    expr = this.evaluator.evalExpression(this.expresion);
-
-    this.exprX = expr[0][0]; // the first value of the first expression
-    this.exprY = expr[0][1]; // the second value of the first expression
-  }
-
-  /**
-   * Draw the fill
-   */
-  descartesJS.Fill.prototype.draw = function() {
-    // call the draw function of the father (uber instead of super as it is reserved word)
-    this.uber.draw.call(this, this.color, this.color);
-  }
-
-  /**
-   * Draw the trace of the fill
-   */
-  descartesJS.Fill.prototype.drawTrace = function() {
-    // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    // this.uber.drawTrace.call(this, this.trace, this.trace);
-  }
-  
-  /**
-   * Auxiliary function for draw a fill
-   * @param {CanvasRenderingContext2D} ctx rendering context on which the fill is drawn
-   * @param {String} fill the fill color of the fill
-   */
-  descartesJS.Fill.prototype.drawAux = function(ctx, fill) {
-    // update the color components of the fill color
-    fill.getColor();
-
-    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h).data;
-    imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
-
-    if (this.abs_coord) {
-      x = parseInt(this.exprX);
-      y = parseInt(this.exprY);
-    }
-    else {
-      x = parseInt( this.space.getAbsoluteX(this.exprX) );
-      y = parseInt( this.space.getAbsoluteY(this.exprY) );
-    }
-
-console.log(x, y)
-    if ((x < 0) || (y < 0) || (x >= this.space.w) || (y >= this.space.h)) {
-      return;
-    }
-
-    pixelStack = [{x: x, y: y}];
-
-    startColor = getPixel(imageData, x, y);
-
-    // floodFill(x, y, this.startColor, fill, this.imageData);
-    while(pixelStack.length > 0) {
-      currentPixel = pixelStack.pop();
-      x = currentPixel.x;
-      y = currentPixel.y;
-
-      if (equalColor(startColor, getPixel(imageData, x, y))) {
-        // asign the color
-        setPixel(imageData, x, y, fill);
-
-        // add the next pixel to the stack
-        if (x > 0) {
-          pixelStack.push({x: x-1, y: y});
-        }
-        if (x <imageData.width-1) {
-          pixelStack.push({x: x+1, y: y});
-        }
-        pixelStack.push({x: x, y: y-1});
-        pixelStack.push({x: x, y: y+1});
-      }
-    }
-
-    this.ctx.putImageData(imageData, 0, 0);
-  }
-
-  /**
-   *
-   */
-  function getPixel(imageData, x, y) {
-    index = (x + y*imageData.width) *4;
-
-    return { r: imageData.data[index],
-             g: imageData.data[index+1],
-             b: imageData.data[index+2],
-             a: imageData.data[index+3]
-           }
-  }
-
-  /**
-   *
-   */
-  function setPixel(imageData, x, y, color) {
-    index = (x + y * imageData.width) * 4;
-    imageData.data[index+0] = color.r;
-    imageData.data[index+1] = color.g;
-    imageData.data[index+2] = color.b;
-    imageData.data[index+3] = 255 - color.a;
-  }
-
-  /**
-   *
-   */
-  function equalColor(c1, c2) {
-    return (c1.r === c2.r) && (c1.g === c2.g) && (c1.b === c2.b) && (c1.a === c2.a);
   }
 
   return descartesJS;
@@ -6242,6 +6130,21 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var imgFile;
+  var space;
+  var despX;
+  var despY;
+  var coordX;
+  var coordY;
+  var rotation;
+
   /**
    * A Descartes image
    * @constructor 
@@ -6266,13 +6169,6 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
     
-    // ######################
-    // ######################
-    // revisar este error con las expresiones
-    // '(areas[figura]==resp)?'images/bien.png':'images/mal.png''
-    // ######################
-    // ######################
-
     this.img = new Image();
 
     this.scaleX = 1;
@@ -6285,21 +6181,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Image, descartesJS.Graphic);
-
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var imgFile;
-  var space;
-  var despX;
-  var despY;
-  var coordX;
-  var coordY;
-  var rotation;
 
   /**
    * Update the image
@@ -6348,7 +6229,6 @@ var descartesJS = (function(descartesJS) {
     }
     
     imgFile = evaluator.evalExpression(this.file);
-
     if ((imgFile) || (imgFile == "")) {
       this.img = this.parent.getImage(imgFile);
     }
@@ -6481,7 +6361,6 @@ var descartesJS = (function(descartesJS) {
       y = parseInt( this.space.getAbsoluteY(this.exprY) );
     }
 
-console.log(x, y)
     if ((x < 0) || (y < 0) || (x >= this.space.w) || (y >= this.space.h)) {
       return;
     }
@@ -6556,6 +6435,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
 
   /**
    * A Descartes macro
@@ -6606,7 +6486,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
     this.expresion = this.evaluator.parser.parse(this.expresion);
 
-    var filename = this.evaluator.evalExpression(this.expresion)
+    var filename = this.evaluator.evalExpression(this.expresion);
     var response;
     
     if (filename) {
@@ -6679,6 +6559,7 @@ var descartesJS = (function(descartesJS, babel) {
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
             continue;
@@ -6701,13 +6582,6 @@ var descartesJS = (function(descartesJS, babel) {
                   if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
-
-                  // // if the identifier has a dot (example vector.long)
-                  // else if ((tokens[t].type == "identifier") && ((dotIndex = (tokens[t].value).indexOf(".")) != -1)) {
-                  //   if (idsMacro.match("\\|" + tokens[t].value.substring(0, dotIndex) + "\\|")) {
-                  //     tokens[t].value = self.name + "." + tokens[t].value;
-                  //   }
-                  // }
                 }
                 
                 var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
@@ -6729,7 +6603,6 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                 for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                  // if ( (tmpTokens[tt].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[tt].value + "\\|")) ) {
                   if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
                     tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                   }
@@ -7089,6 +6962,8 @@ var descartesJS = (function(descartesJS) {
   var verticalDisplace;
   var theText;
 
+  var tempParam;
+
   var epsilon = 0.00000001;
 
   /**
@@ -7246,7 +7121,12 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function drawPrimitiveText(ctx) {
+    tempParam = this.evaluator.getVariable(this.family);
+    this.evaluator.setVariable(this.family, this.familyValue);
+    
     this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor.getColor(), this.font, "left", "alphabetic", this.decimals, this.fixed, true);
+
+    this.evaluator.setVariable(this.family, tempParam);
   }
 
   /**
@@ -7821,6 +7701,8 @@ var descartesJS = (function(descartesJS) {
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
 
+        this.familyValue = this.familyInf+(i*this.family_sep);
+
         // if the condition to draw is true then update and draw the graphic
         if ( evaluator.evalExpression(this.drawif) ) {
           this.buildPrimitives();
@@ -8031,7 +7913,9 @@ var descartesJS = (function(descartesJS) {
                                  fixed: this.fixed,
                                  displace: this.fontSize,
                                  evaluator: evaluator,
-                                 text: this.text
+                                 text: this.text,
+                                 family: this.family,
+                                 familyValue: this.familyValue
                                } ) );
     }
   }
@@ -8617,7 +8501,9 @@ var descartesJS = (function(descartesJS) {
                                displace: 0,
                                isText: true,
                                evaluator: evaluator,
-                               text: this.text
+                               text: this.text,
+                               family: this.family,
+                               familyValue: this.familyValue
                              } ) );
 
   }
@@ -10533,8 +10419,11 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-in";
       ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
+      ctx.restore();
     }
     
   }
@@ -10712,6 +10601,14 @@ var descartesJS = (function(descartesJS) {
     // tabular index
     this.tabindex = ++this.parent.tabindex;
 
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     // control container
     this.containerControl = document.createElement("div");
     this.canvas = document.createElement("canvas");
@@ -10721,13 +10618,10 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
+    // this.txtLabel = document.createTextNode();
+    // this.label.appendChild(this.txtLabel);
 
-    // add the elements to the container
-    if (this.name.trim() != "") {
-      this.containerControl.appendChild(this.label);
-    }
+    this.containerControl.appendChild(this.label);
     this.containerControl.appendChild(this.field);
     this.containerControl.appendChild(this.canvas);
     this.containerControl.appendChild(this.divUp);
@@ -10767,6 +10661,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Spinner.prototype.init = function() {
     evaluator = this.evaluator;
 
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
+
     // validate the initial value
     this.value = this.validateValue(evaluator.evalExpression(this.valueExpr));
     
@@ -10785,8 +10682,8 @@ var descartesJS = (function(descartesJS) {
     var canvasWidth = 2 + parseInt(this.h/2);
     var labelWidth = parseInt(this.w/2 - canvasWidth/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(this.name+extraSpace, this.fieldFontSize+"px Arial");
-    
+    var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px Arial");
+
     if (!this.visible) {
       labelWidth = this.w - canvasWidth;
       minTFWidth = 0;
@@ -10796,7 +10693,7 @@ var descartesJS = (function(descartesJS) {
       labelWidth = minLabelWidth;
     }
     
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     
@@ -10845,6 +10742,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Spinner.prototype.update = function() {
     evaluator = this.evaluator;
+    
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
     if (evaluator.evalExpression(this.decimals) <= 0) {
       tmpIncr = evaluator.evalExpression(this.incr);
@@ -11269,6 +11168,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.TextField = function(parent, values){
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
+
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
     
     if (this.valueExprString === undefined) {
       if (this.onlyText) {
@@ -11334,8 +11241,8 @@ var descartesJS = (function(descartesJS) {
     }
     
     // if the name is only white spaces
-    if (this.name.trim() == "") {
-      this.name = "";
+    if (name.trim() == "") {
+      name = "";
     }
 
     // control container
@@ -11346,9 +11253,7 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
-    
+
     // add the elements to the container
     this.containerControl.appendChild(this.label);
     this.containerControl.appendChild(this.field);
@@ -11371,6 +11276,9 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextField.prototype.init = function() {
     evaluator = this.evaluator;
+
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
     
     // validate the initial value
     this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
@@ -11386,13 +11294,13 @@ var descartesJS = (function(descartesJS) {
     // widths are calculated for each element
     var labelWidth = parseInt(this.w/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(this.name, this.fieldFontSize+"px Arial");
+    var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial");
     
     if (labelWidth < minLabelWidth) {
       labelWidth = minLabelWidth;
     }
     
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     
@@ -11438,6 +11346,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextField.prototype.update = function() {
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();    
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -11659,6 +11569,15 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Control.call(this, parent, values);
 
     var parser = this.parser;
+
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     
     // options are separated using the comma as separator
     this.options = this.options.split(",");
@@ -11702,8 +11621,6 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
     
     // the menu
     this.select = document.createElement("select");
@@ -11750,6 +11667,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Menu.prototype.init = function() {
     evaluator = this.evaluator;
 
+    var name = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = name;
+
     // find the font size of the text field
     this.fieldFontSize = (this.parent.version != 2) ? descartesJS.getFieldFontSize(this.h) : 10;
 
@@ -11772,10 +11692,10 @@ var descartesJS = (function(descartesJS) {
     minchw += 25;
     minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.evalExpression(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
     
-    var labelWidth = descartesJS.getTextWidth(this.name, this.fieldFontSize+"px Arial") +10;
+    var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
     var fieldWidth = minTFw;
 
-    if (this.name == "") {
+    if (name == "") {
       labelWidth = 0;
     }
     if (!this.visible) {
@@ -11814,7 +11734,7 @@ var descartesJS = (function(descartesJS) {
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
-    this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
+    this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
@@ -11828,6 +11748,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Menu.prototype.update = function() { 
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -11996,6 +11918,14 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
+    // modification to change the name of the button with an expression
+    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+      this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+    }
+    else {
+      this.name = this.parser.parse("'" + this.name + "'");
+    }
+
     this.orientation = (this.w >= this.h) ? horizontalScrollbar : verticalScrollbar;
 
     // control container
@@ -12010,8 +11940,6 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    this.txtLabel = document.createTextNode(this.name);
-    this.label.appendChild(this.txtLabel);
 
     // add the elements to the container
     this.containerControl.appendChild(this.canvas);
@@ -12084,6 +12012,9 @@ var descartesJS = (function(descartesJS) {
     self = this;
     evaluator = self.evaluator;
 
+    var name = evaluator.evalExpression(self.name).toString();
+    self.label.innerHTML = name;
+
     var defaultHeight = (self.orientation === verticalScrollbar) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
     // find the font size of the text field
@@ -12093,7 +12024,7 @@ var descartesJS = (function(descartesJS) {
     
     var spaceH = self.parent.getSpaceById(self.spaceID).h;
     
-    self.labelHeight = (self.name == "") ? 0 : defaultHeight;
+    self.labelHeight = (name == "") ? 0 : defaultHeight;
     self.fieldHeight = (self.visible == "") ? 0 : defaultHeight;
     
     // vertical orientation
@@ -12136,12 +12067,12 @@ var descartesJS = (function(descartesJS) {
       var minsbw = 58;
       
       // get the width of all elements in the scrollbar
-      var minLabelWidth = descartesJS.getTextWidth(self.name, self.fieldFontSize+"px Arial") +10;
+      var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px Arial") +10;
       self.labelWidth = minLabelWidth;
       var minTFWidth = fieldValueSize;
       self.fieldWidth = minTFWidth;
       
-      if (self.name == "") {
+      if (name == "") {
         self.labelWidth = 0;
       }
       
@@ -12221,10 +12152,6 @@ var descartesJS = (function(descartesJS) {
     self.label.setAttribute("class", "DescartesScrollbarLabel");
     self.label.setAttribute("style", "font-size:" + self.fieldFontSize + "px; width: " + self.labelWidth + "px; height: " + self.labelHeight + "px; line-height: " + self.labelHeight + "px; left: 0px; top:" + self.labelY + "px;");
     
-    // create the label text
-    self.txtLabel = document.createTextNode(self.name);
-
-    // this.update();
   }
     
   /**
@@ -12232,6 +12159,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Scrollbar.prototype.update = function() {
     evaluator = this.evaluator;
+
+    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
     // the incremente is the interval [min, max] dividen by 100 if has decimasl, if not then the incremente is 1
     if (evaluator.evalExpression(this.decimals) == 0) {
@@ -14442,7 +14371,7 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
-    controlObj = {};
+    controlObj = { type: "numeric" };
 
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
@@ -15859,88 +15788,6 @@ var descartesJS = (function(descartesJS, babel) {
     return splitValues;
   }
   
-  // /**
-  //  * Split a string using a coma delimiter
-  //  * @param {String} string the string to split
-  //  * @return {Array<String>} return an array of the spliting string using a coma delimiter
-  //  */
-  // descartesJS.LessonParser.prototype.splitComa = function(string) {
-  //   splitString = [];
-  //   parenthesesStack = [];
-  //   lastSplitIndex = 0;
-
-  //   for (var i=0, l=string.length; i<l; i++) {
-  //     charAt = string.charAt(i);
-  //     if (charAt === "(") {
-  //       parenthesesStack.push(i);
-  //     }
-  //     else if (charAt === ")") {
-  //       parenthesesStack.pop();
-  //     }
-  //     else if ((charAt === ",") && (parenthesesStack.length === 0)) {
-  //       splitString.push(string.substring(lastSplitIndex, i));
-  //       lastSplitIndex = i+1;
-  //     }
-  //   }
-    
-  //   splitString.push(string.substring(lastSplitIndex));
-    
-  //   return splitString;
-  // }
-  
-  // /**
-  //  * Given a Descartes color get an CSS color
-  //  * @param {String} color the Descartes color to convert
-  //  * @return {String} return a CSS color string
-  //  */
-  // descartesJS.LessonParser.prototype.convertColor = function(color) {
-  //   // the color is a color name
-  //   if (babel[color]) {
-  //     if (babel[color] === "net") {
-  //       return "red";
-  //     }
-  //     return babel[color];
-  //   }
-    
-  //   // the color is six hexadecimals digits #RRGGBB
-  //   if (color.length === 6) {
-  //     return "#" + color;
-  //   }
-
-  //   // the color is eight hexadecimals digits #RRGGBBAA
-  //   if (color.length === 8) {
-  //     return "rgba("+ parseInt("0x"+color.substring(2,4), 16) +","
-  //                   + parseInt("0x"+color.substring(4,6), 16) +","
-  //                   + parseInt("0x"+color.substring(6,8), 16) +","
-  //                   + (1-parseInt("0x"+color.substring(0,2), 16)/255)
-  //                   + ")";
-  //   }
-
-  //   // the color is a Descartes expression (exprR, exprG, exprB, exprA)
-  //   if (color[0] === "(") {
-  //     tmpColor = "(";
-  //     splitColor = this.splitComa(color.substring(1,color.length-1));
-
-  //     for (var i=0, l=splitColor.length; i<l; i++) {
-  //       hexColor = parseInt(splitColor[i], 16);
-
-  //       if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
-  //         if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
-  //           splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
-  //         }
-  //         tmpColor = tmpColor + splitColor[i] + ((i<l-1)?",":")");
-  //       } else {
-  //         tmpColor = tmpColor + (hexColor/255) + ((i<l-1)?",":")");
-  //       }
-  //     }
-
-  //     return this.parser.parse(tmpColor);
-  //   }
-    
-  //   // otherwise
-  //   return "#aa0000";
-  // }
-
   /**
    * Parse a text an construct a simple text or rtf text
    * @param {String} text the string text to parse
@@ -22542,9 +22389,60 @@ var descartesJS = (function(descartesJS) {
     var i, j, l, il, al;
     // check all children in the applet
     for (i=0, l=children.length; i<l; i++) {
-    if (children[i].name === "rtf") {
-      continue;
-    }
+      if (children[i].name === "rtf") {
+        continue;
+      }
+
+      // macro patch
+      if (children[i].value.match(/'macro'|'makro'/g)) {
+        var filename = "";
+        var response;
+
+        var values = this.lessonParser.split(children[i].value);
+        for (var v_i=0, v_l=values.length; v_i<v_l; v_i++) {
+          if (babel[values[v_i][0]] === "expresion") {
+            filename = values[v_i][1];
+          }
+        }
+
+        if (filename) {
+          // the macro is embeded in the webpage
+          var macroElement = document.getElementById(filename);
+
+          if ((macroElement) && (macroElement.type == "descartes/macro")) {
+            response = macroElement.text;
+          }
+
+          // the macro is in an external file
+          else {
+            response = descartesJS.openExternalFile(filename);
+            
+            // verify the content is a Descartes macro
+            if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
+              response = null;
+            }
+          }
+        }
+
+        if (response) {
+          imageFilename = response.match(regExpImage);
+
+          if (imageFilename) {
+            for (var j, il=imageFilename.length; j<il; j++) {
+              imageTmp = imageFilename[j];
+
+              // if the filename is not VACIO.GIF or vacio.gif
+              if (!(imageTmp.toLowerCase().match(/vacio.gif$/)) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
+                images[imageTmp] = new Image();
+                images[imageTmp].addEventListener('load', function() { this.ready = 1; });
+                images[imageTmp].addEventListener('error', function() { this.errorload = 1; });
+                images[imageTmp].src = imageTmp;
+              }
+            }
+          }
+        }
+      }
+      // macro patch
 
       // check if the children has an image filename
       imageFilename = (children[i].value).match(regExpImage);
@@ -23362,7 +23260,10 @@ var descartesJS = (function(descartesJS) {
     this.configRegions();
 
     this.updateAuxiliaries();
-
+    // beware
+    this.updateAuxiliaries();
+    // beware
+    
     for (var i=0, l=this.controls.length; i<l; i++) {
       this.controls[i].init();
     }
@@ -23378,6 +23279,8 @@ var descartesJS = (function(descartesJS) {
     else {
       this.finishInit();
     }
+
+// console.log(this.auxiliaries)
 
   }
   

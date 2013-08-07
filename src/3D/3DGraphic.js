@@ -290,6 +290,8 @@ var descartesJS = (function(descartesJS) {
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
 
+        this.familyValue = this.familyInf+(i*this.family_sep);
+
         // if the condition to draw is true then update and draw the graphic
         if ( evaluator.evalExpression(this.drawif) ) {
           this.buildPrimitives();

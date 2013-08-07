@@ -8,6 +8,33 @@ var descartesJS = (function(descartesJS) {
 
   var mathRound = Math.round;
 
+  var evaluator;
+  var expr;
+  var radianAngle;
+  var cosTheta;
+  var senTheta;
+  var tmpRotX;
+  var tmpRotY;
+  var iniAng;
+  var endAng;
+  var u1;
+  var u2;
+  var v1;
+  var v2;
+  var w1;
+  var w2;
+  var angulo1;
+  var angulo2;
+  var tmpAngulo1;
+  var tmpAngulo2;
+  var space;
+  var coordX;
+  var coordY;
+  var radius;
+  var tempAng;
+  var clockwise;
+  var tmpLineWidth;
+
   /**
    * A Descartes arc
    * @constructor 
@@ -66,33 +93,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arc, descartesJS.Graphic);
 
-  var evaluator;
-  var expr;
-  var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var iniAng;
-  var endAng;
-  var u1;
-  var u2;
-  var v1;
-  var v2;
-  var w1;
-  var w2;
-  var angulo1;
-  var angulo2;
-  var tmpAngulo1;
-  var tmpAngulo2;
-  var space;
-  var coordX;
-  var coordY;
-  var radius;
-  var tempAng;
-  var clockwise;
-  var tmpLineWidth;
-
   /**
    * Update the arc
    */
@@ -115,21 +115,45 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
 
-    iniAng = evaluator.evalExpression(this.init);
-    endAng = evaluator.evalExpression(this.end);
+    var initVal = evaluator.evalExpression(this.init);
+    var endVal  = evaluator.evalExpression(this.end);
 
-    // if the expression of the initial and final angle are parenthesized expressions, then the angles are specified as vectors
+    // if the expression of the initial and final angle are parenthesized expressions
     if ( ((this.init.type == "(expr)") && (this.end.type == "(expr)")) || 
          ((this.init.type == "[expr]") && (this.end.type == "[expr]")) || 
          ((this.init.type == "(expr)") && (this.end.type == "[expr]")) || 
          ((this.init.type == "[expr]") && (this.end.type == "(expr)")) 
        ) {
-      this.vectors = true;
-      u1 = iniAng[0][0];
-      u2 = iniAng[0][1];
-      v1 = endAng[0][0];
-      v2 = endAng[0][1];
-    
+
+      u1 = initVal[0][0];
+      u2 = initVal[0][1];
+      v1 = endVal[0][0];
+      v2 = endVal[0][1];
+
+
+      // arc expressed with points in the space
+      if (!this.vectors) {
+        if (this.abs_coord) {
+          u1 =  u1 - this.exprX;
+          u2 = -u2 + this.exprY;
+          v1 =  v1 - this.exprX;
+          v2 = -v2 + this.exprY;
+        }
+        else {
+          u1 = u1 - this.exprX;
+          u2 = u2 - this.exprY;
+          v1 = v1 - this.exprX;
+          v2 = v2 - this.exprY;
+        }
+      }
+      // arc expressed with vectors
+      else {
+        if (this.abs_coord) {
+          u2 = -u2;
+          v2 = -v2;
+        }
+      }
+
       w1 = 1;
       w2 = 0;
       
@@ -138,33 +162,33 @@ var descartesJS = (function(descartesJS) {
       angulo2 = Math.acos( (v1*w1+v2*w2)/Math.sqrt(v1*v1+v2*v2) );
 
       // change considering the quadrant for the first angle
-      if ((u1 > 0) && (u2 > 0) && !this.abs_coord) {
+      if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 > 0) && (u2 < 0) && this.abs_coord) {
+      if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 < 0) && (u2 < 0) && this.abs_coord) {
+      if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
-      if ((u1 < 0) && (u2 > 0) && !this.abs_coord) {
+      if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
         angulo1 = 2*Math.PI-angulo1;
       }
       
       // change considering the quadrant for the second angle
-      if ((v1 > 0) && (v2 > 0) && !this.abs_coord) {
+      if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 > 0) && (v2 < 0) && this.abs_coord) {
+      if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 < 0) && (v2 < 0) && this.abs_coord) {
+      if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      if ((v1 < 0) && (v2 > 0) && !this.abs_coord) {
+      if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
         angulo2 = 2*Math.PI-angulo2;
       }
-      
+
       // always choose the angles in order from lowest to highest
       tmpAngulo1 = Math.min(angulo1, angulo2);
       tmpAngulo2 = Math.max(angulo1, angulo2);
@@ -184,13 +208,16 @@ var descartesJS = (function(descartesJS) {
 
       this.iniAng = angulo1;
       this.endAng = angulo2;
+
+      this.drawPoints = true;
     }
+    // arc expressed with angles
     else {
-      this.vectors = false;
-      this.iniAng = descartesJS.degToRad(iniAng);
-      this.endAng = descartesJS.degToRad(endAng);
+      this.iniAng = descartesJS.degToRad(initVal);
+      this.endAng = descartesJS.degToRad(endVal);
+      this.drawAngle = true;
     }
-    
+
   }
 
   /**
@@ -219,49 +246,52 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
-    coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
     radius = evaluator.evalExpression(this.radius);
-    
-    if (!this.vectors) {
-      if (this.iniAng > this.endAng) {
-        tempAng = this.iniAng;
-        this.iniAng = this.endAng;
-        this.endAng = tempAng;
-      }
-    }
-   
     if (radius < 0) {
       radius = 0;
     }
-    
-    clockwise = false;
 
-    if (!this.abs_coord) {
-      radius = radius*space.scale;
-      if (!this.vectors) {
-        this.iniAng = -this.iniAng;
-        this.endAng = -this.endAng;
-        clockwise = true;
-      }
-    }
-    
-    // if the arc is especified with vectors
-    if (this.vectors) {
-      if (this.abs_coord) {
-        clockwise = false;
-      }
-      else {
-        clockwise = true;
-      }
-    }
-    
     // the width of a line can not be 0 or negative
     tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
     ctx.strokeStyle = stroke.getColor();
+
+    // draw the arc when especified in angles
+    if (this.drawAngle) {
+      if (this.abs_coord) {
+        coordX = mathRound(this.exprX);
+        coordY = mathRound(this.exprY);
+      }
+      else {
+        coordX = mathRound(space.getAbsoluteX(this.exprX));
+        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        radius = radius*space.scale;
+        this.iniAng = -this.iniAng;
+        this.endAng = -this.endAng;
+      }
+
+      if (this.iniAng > this.endAng) {
+        tempAng = this.iniAng;
+        this.iniAng = this.endAng;
+        this.endAng = tempAng;
+      }       
+    }
+    // draw the arc when especified with points
+    else if (this.drawPoints) {
+      if (this.abs_coord) {
+        coordX = mathRound(this.exprX);
+        coordY = mathRound(this.exprY);
+      }
+      else {
+        coordX = mathRound(space.getAbsoluteX(this.exprX));
+        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        radius = radius*space.scale;
+        this.iniAng = -this.iniAng;
+        this.endAng = -this.endAng;
+      }      
+    }
 
     if (this.fill) {
       ctx.fillStyle = fill.getColor();

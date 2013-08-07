@@ -80,9 +80,60 @@ var descartesJS = (function(descartesJS) {
     var i, j, l, il, al;
     // check all children in the applet
     for (i=0, l=children.length; i<l; i++) {
-    if (children[i].name === "rtf") {
-      continue;
-    }
+      if (children[i].name === "rtf") {
+        continue;
+      }
+
+      // macro patch
+      if (children[i].value.match(/'macro'|'makro'/g)) {
+        var filename = "";
+        var response;
+
+        var values = this.lessonParser.split(children[i].value);
+        for (var v_i=0, v_l=values.length; v_i<v_l; v_i++) {
+          if (babel[values[v_i][0]] === "expresion") {
+            filename = values[v_i][1];
+          }
+        }
+
+        if (filename) {
+          // the macro is embeded in the webpage
+          var macroElement = document.getElementById(filename);
+
+          if ((macroElement) && (macroElement.type == "descartes/macro")) {
+            response = macroElement.text;
+          }
+
+          // the macro is in an external file
+          else {
+            response = descartesJS.openExternalFile(filename);
+            
+            // verify the content is a Descartes macro
+            if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
+              response = null;
+            }
+          }
+        }
+
+        if (response) {
+          imageFilename = response.match(regExpImage);
+
+          if (imageFilename) {
+            for (var j, il=imageFilename.length; j<il; j++) {
+              imageTmp = imageFilename[j];
+
+              // if the filename is not VACIO.GIF or vacio.gif
+              if (!(imageTmp.toLowerCase().match(/vacio.gif$/)) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
+                images[imageTmp] = new Image();
+                images[imageTmp].addEventListener('load', function() { this.ready = 1; });
+                images[imageTmp].addEventListener('error', function() { this.errorload = 1; });
+                images[imageTmp].src = imageTmp;
+              }
+            }
+          }
+        }
+      }
+      // macro patch
 
       // check if the children has an image filename
       imageFilename = (children[i].value).match(regExpImage);

@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
 
   /**
    * A Descartes macro
@@ -57,7 +58,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
     this.expresion = this.evaluator.parser.parse(this.expresion);
 
-    var filename = this.evaluator.evalExpression(this.expresion)
+    var filename = this.evaluator.evalExpression(this.expresion);
     var response;
     
     if (filename) {
@@ -130,6 +131,7 @@ var descartesJS = (function(descartesJS, babel) {
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
             continue;
@@ -152,13 +154,6 @@ var descartesJS = (function(descartesJS, babel) {
                   if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
-
-                  // // if the identifier has a dot (example vector.long)
-                  // else if ((tokens[t].type == "identifier") && ((dotIndex = (tokens[t].value).indexOf(".")) != -1)) {
-                  //   if (idsMacro.match("\\|" + tokens[t].value.substring(0, dotIndex) + "\\|")) {
-                  //     tokens[t].value = self.name + "." + tokens[t].value;
-                  //   }
-                  // }
                 }
                 
                 var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
@@ -180,7 +175,6 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                 for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                  // if ( (tmpTokens[tt].type == "identifier") && (idsMacro.match("\\|" + tmpTokens[tt].value + "\\|")) ) {
                   if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
                     tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                   }
