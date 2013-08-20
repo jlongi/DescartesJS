@@ -85,7 +85,6 @@ var descartesJS = (function(descartesJS) {
 
     startColor = getPixel(imageData, x, y);
 
-    // floodFill(x, y, this.startColor, fill, this.imageData);
     while(pixelStack.length > 0) {
       currentPixel = pixelStack.pop();
       x = currentPixel.x;

@@ -157,10 +157,10 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Equation.prototype.generateStroke = function() {
     this.auxCanvas = document.createElement("canvas");
-    var width = parseInt(this.evaluator.evalExpression(this.width));
-    this.width_2 = parseInt(width/2) || 1;
-    this.auxCanvas.setAttribute("width", width);
-    this.auxCanvas.setAttribute("height", width);
+    this.oldWwidth = parseInt(this.evaluator.evalExpression(this.width));
+    this.width_2 = parseInt(this.oldWwidth/2) || 1;
+    this.auxCanvas.setAttribute("width", this.oldWwidth);
+    this.auxCanvas.setAttribute("height", this.oldWwidth);
     this.auxCtx = this.auxCanvas.getContext("2d");
 
     this.auxCtx.fillStyle = this.color.getColor();
@@ -168,13 +168,20 @@ var descartesJS = (function(descartesJS) {
     // this.auxCtx.beginPath();
     // this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
     // this.auxCtx.fill();
-    this.auxCtx.fillRect(0, 0, width, width);
+    this.auxCtx.fillRect(0, 0, this.oldWwidth, this.oldWwidth);
   }
   
+  var tmpOldWidth;
   /**
    * Update the equation
    */
-  descartesJS.Equation.prototype.update = function() { }
+  descartesJS.Equation.prototype.update = function() {
+    tmpOldWidth = parseInt(this.evaluator.evalExpression(this.width));
+
+    if (tmpOldWidth !== this.oldWwidth) {
+      this.generateStroke();
+    }
+  }
   
   /**
    * Draw the equation (special case of the draw defined in Graphic)
@@ -217,7 +224,7 @@ var descartesJS = (function(descartesJS) {
         // // if the condition to draw if true then update and draw the graphic
         // if ( evaluator.evalExpression(this.drawif) > 0 ) {
           // update the values of the graphic
-          // this.update();
+          this.update();
           // draw the graphic
           this.drawAux(ctx, fill, stroke);
         // }

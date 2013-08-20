@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-08-07
+ * 2013-08-19
  */
 
 /**
@@ -913,13 +913,20 @@ var descartesJS = (function(descartesJS) {
   
   var response;
   var xhr;
+  descartesJS._externalFilesContent = {};
   /**
    * Open an external file using an ajax request
    * Abre un archivo externo
    * @param {String} filename el nombre del archivo que se quiere abrir
-   * @return en contenido del archivo como cadena o null si el archivo no se pudo abrir
+   * @return the content of the file if readed or null if not
    */
   descartesJS.openExternalFile = function(filename) {
+    ////////////////////////////////////////////////////////// 
+    if (descartesJS._externalFilesContent[filename]) {
+      return descartesJS._externalFilesContent[filename];
+    }
+    //////////////////////////////////////////////////////////
+
     response = null;
     xhr = newXMLHttpRequest();
     xhr.open("GET", filename, false);
@@ -943,6 +950,13 @@ var descartesJS = (function(descartesJS) {
     }
     
     return response;
+  }
+
+  /**
+   *
+   */
+  descartesJS.addExternalFileContent = function (filename, data) {
+    descartesJS._externalFilesContent[filename] = data;
   }
 
   return descartesJS;
@@ -1591,7 +1605,7 @@ var descartesJS = (function(descartesJS) {
     cssNode.innerHTML = 
                         "body{ text-rendering:geometricPrecision; }\n" +
                         "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
-                        "div.DescartesCatcher{ background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; }\n" +
+                        "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -moz-box-shadow:0px 0px 0px #888; -webkit-box-shadow:0px 0px 100px #888; box-shadow:0px 0px 100px #888; background-image:linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-o-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-moz-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-webkit-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-ms-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
@@ -2814,9 +2828,9 @@ var descartesJS = (function(descartesJS) {
       if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
         response = vectorElement.text;
         
-        if (response[0] == '\n') {
-          response = response.substring(1);
-        }
+        // if (response[0] == '\n') {
+        //   response = response.substring(1);
+        // }
       }
       // read the vector data from a file
       else {
@@ -2826,6 +2840,15 @@ var descartesJS = (function(descartesJS) {
       // if the read information has content, split the content
       if (response != null) {
         response = response.replace(/\r/g, "").split("\n");
+
+        var tmpResponse = [];
+        for (var i=0,l=response.length; i<l; i++) {
+
+          if (response[i] != "") {
+            tmpResponse.push( response[i] );
+          }
+        }
+        response = tmpResponse;
       }
 
       // if the file has no content or could not be read
@@ -3879,10 +3902,10 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Equation.prototype.generateStroke = function() {
     this.auxCanvas = document.createElement("canvas");
-    var width = parseInt(this.evaluator.evalExpression(this.width));
-    this.width_2 = parseInt(width/2) || 1;
-    this.auxCanvas.setAttribute("width", width);
-    this.auxCanvas.setAttribute("height", width);
+    this.oldWwidth = parseInt(this.evaluator.evalExpression(this.width));
+    this.width_2 = parseInt(this.oldWwidth/2) || 1;
+    this.auxCanvas.setAttribute("width", this.oldWwidth);
+    this.auxCanvas.setAttribute("height", this.oldWwidth);
     this.auxCtx = this.auxCanvas.getContext("2d");
 
     this.auxCtx.fillStyle = this.color.getColor();
@@ -3890,13 +3913,20 @@ var descartesJS = (function(descartesJS) {
     // this.auxCtx.beginPath();
     // this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
     // this.auxCtx.fill();
-    this.auxCtx.fillRect(0, 0, width, width);
+    this.auxCtx.fillRect(0, 0, this.oldWwidth, this.oldWwidth);
   }
   
+  var tmpOldWidth;
   /**
    * Update the equation
    */
-  descartesJS.Equation.prototype.update = function() { }
+  descartesJS.Equation.prototype.update = function() {
+    tmpOldWidth = parseInt(this.evaluator.evalExpression(this.width));
+
+    if (tmpOldWidth !== this.oldWwidth) {
+      this.generateStroke();
+    }
+  }
   
   /**
    * Draw the equation (special case of the draw defined in Graphic)
@@ -3939,7 +3969,7 @@ var descartesJS = (function(descartesJS) {
         // // if the condition to draw if true then update and draw the graphic
         // if ( evaluator.evalExpression(this.drawif) > 0 ) {
           // update the values of the graphic
-          // this.update();
+          this.update();
           // draw the graphic
           this.drawAux(ctx, fill, stroke);
         // }
@@ -6369,7 +6399,6 @@ var descartesJS = (function(descartesJS) {
 
     startColor = getPixel(imageData, x, y);
 
-    // floodFill(x, y, this.startColor, fill, this.imageData);
     while(pixelStack.length > 0) {
       currentPixel = pixelStack.pop();
       x = currentPixel.x;
@@ -10327,6 +10356,13 @@ var descartesJS = (function(descartesJS) {
       canvas.style.display = "none";
     }
 
+    if (this.activeIfValue) {
+      this.canvas.style.cursor = "pointer";
+    }
+    else {
+      this.canvas.style.cursor = "not-allowed";
+    }
+
     // update the position and size
     this.updatePositionAndSize();
   }
@@ -10374,14 +10410,14 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, 0, this.w, this.h);
     }
     
-    if ( (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
+    if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
       ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
 
-    if ((this.imageDown.src != "") && (this.imageDown.ready) && (this.click)){
+    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
       ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
-    else if (this.click) {
+    else if ((this.click) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
       descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
 
@@ -10419,11 +10455,10 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
-      ctx.save();
       ctx.globalCompositeOperation = "destination-in";
       ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
-      ctx.restore();
+      ctx.globalCompositeOperation = "source-over";
     }
     
   }
@@ -10709,7 +10744,8 @@ var descartesJS = (function(descartesJS) {
 
     this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-  
+    this.containerControl.setAttribute("id", this.id);
+
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position: absolute; left: " + labelWidth + "px; top: 0px;");
@@ -16011,11 +16047,12 @@ var descartesJS = (function(descartesJS) {
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
-          argu.push( this.childs[0].childs[i].evaluate(evaluator) );
+          argu[i] = this.childs[0].childs[i].evaluate(evaluator);
         }
       
         if (this.value === "_Eval_") {
-          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") || '' ) );
+          argu[0] = (argu.length > 0) ? argu[0].toString() : '';
+          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) );
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);
@@ -17500,6 +17537,100 @@ var descartesJS = (function(descartesJS) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
       }
     }
+
+    ////////////////////////////////////////
+    // new funcionaity //
+    this.functions["_GetValues_"] = function(file, name) {
+      var response = descartesJS.openExternalFile(file);
+      var initialIndex = -1;
+      var finalIndex = -1;
+      var values = [];
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        initialIndex = response.indexOf("<" + name + ">");
+        finalIndex   = response.indexOf("</" + name + ">");
+
+        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
+          for (var i=initialIndex+1; i<finalIndex; i++) {
+            values = values.concat(response[i].split("¦"))
+          }
+        }
+
+        for(var i=0,l=values.length; i<l; i++) {
+          tmpValue = values[i].split("=");
+          tmpValue[0] = tmpValue[0].trim();
+
+          if (tmpValue[0] != "") {
+            // is a string
+            if (isNaN(parseFloat(tmpValue[1]))) {
+              // .replace(/^\s|\s$/g, "") remove the initial white space
+              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, ""));
+            }
+            // is a number
+            else {
+              self.setVariable(tmpValue[0], parseFloat(tmpValue[1]));
+            }
+          }
+        }
+      }
+
+    };
+
+    this.functions["_GetMatrix_"] = function(file, name) {
+      var response = descartesJS.openExternalFile(file);
+      var initialIndex = -1;
+      var finalIndex = -1;
+      var values = [];
+      values.type = "matrix";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        initialIndex = response.indexOf("<" + name + ">");
+        finalIndex   = response.indexOf("</" + name + ">");
+
+        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
+          for (var i=initialIndex+1; i<finalIndex; i++) {
+            values.push( response[i].split("¦").map(function(x) {
+              if (isNaN(parseFloat(x))) {
+                // .replace(/^\s|\s$/g, "") remove the initial white space
+                return x.replace(/^\s|\s$/g, "");
+              }
+              else {
+                return parseFloat(x);
+              }
+            }) );
+          }
+
+          self.matrices[name] = values;
+          self.setVariable(name + ".filas", values[0].length);
+          self.setVariable(name + ".columnas", values.length);
+
+        }
+      }
+    };
+
+    // var anchor = document.createElement("a");
+    // var blob;
+    // /**
+    //  *
+    //  */
+    // this.functions["_Save_"] = function(filename, data) {
+    //   document.body.appendChild(anchor);
+    //   blob = new Blob([data], {type: "text/plain"});
+
+    //   anchor.setAttribute("download", filename);
+    //   anchor.setAttribute("href", window.URL.createObjectURL(blob));
+    //   anchor.click();
+
+    //   document.body.removeChild(anchor);
+    // };
+    ////////////////////////////////////////
   }  
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
@@ -21128,10 +21259,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
-      if (!self.sensitive_to_mouse_movements) {
-        window.removeEventListener("mousemove", onMouseMove, false);
-      }
-
+      window.removeEventListener("mousemove", onMouseMove, false);
       window.removeEventListener("mouseup", onMouseUp, false);
       
       self.parent.update();
@@ -22222,7 +22350,6 @@ var descartesJS = (function(descartesJS) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
-
     }
 
     this.update = this.iframeUpdate;
@@ -23701,7 +23828,10 @@ var descartesJS = (function(descartesJS) {
   descartesJS.DescartesApp.prototype.clear = function() {
     for (var i=0, l=this.spaces.length; i<l; i++) {
       this.spaces[i].spaceChange = true;
-      this.spaces[i].drawBackground();
+
+      if (this.spaces[i].drawBackground) {
+        this.spaces[i].drawBackground();
+      }
     }    
   }
   
@@ -24299,9 +24429,9 @@ var descartesJS = (function(descartesJS) {
   
   /**
    * Function to handle the resize of the browser
-   * @param {Event} event the event of resize the browser
+   * @param {Event} evt the evt of resize the browser
    */
-  descartesJS.onResize = function(event) {
+  descartesJS.onResize = function(evt) {
     var spaces;
     for (var i=0, l=descartesJS.apps.length; i<l; i++) {
       spaces = descartesJS.apps[i].spaces;
@@ -24313,10 +24443,10 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Function to handle the load event of the document
-   * @param {Event} event the event of load the web page
+   * Function to handle the load evt of the document
+   * @param {Event} evt the evt of load the web page
    */
-  function onLoad(event) {
+  function onLoad(evt) {
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
 
@@ -24342,11 +24472,11 @@ var descartesJS = (function(descartesJS) {
   
   /**
    * Function to handle the message between frames
-   * @param {Event} event the event of receive a message
+   * @param {Event} evt the evt of receive a message
    */
-  descartesJS.receiveMessage = function(event) {
+  descartesJS.receiveMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
-      var data = event.data;
+      var data = evt.data;
       
       if (!data) {
         return;
@@ -24383,14 +24513,14 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
+  // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
-    // register the onload event
+    // register the onload evt
     window.addEventListener("load", onLoad);
     
-    // register the message event, to handle the messages between frames
+    // register the message evt, to handle the messages between frames
     window.addEventListener("message", descartesJS.receiveMessage);
   }
 

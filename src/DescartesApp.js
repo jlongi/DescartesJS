@@ -951,7 +951,10 @@ var descartesJS = (function(descartesJS) {
   descartesJS.DescartesApp.prototype.clear = function() {
     for (var i=0, l=this.spaces.length; i<l; i++) {
       this.spaces[i].spaceChange = true;
-      this.spaces[i].drawBackground();
+
+      if (this.spaces[i].drawBackground) {
+        this.spaces[i].drawBackground();
+      }
     }    
   }
   

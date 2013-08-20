@@ -738,6 +738,100 @@ var descartesJS = (function(descartesJS) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
       }
     }
+
+    ////////////////////////////////////////
+    // new funcionaity //
+    this.functions["_GetValues_"] = function(file, name) {
+      var response = descartesJS.openExternalFile(file);
+      var initialIndex = -1;
+      var finalIndex = -1;
+      var values = [];
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        initialIndex = response.indexOf("<" + name + ">");
+        finalIndex   = response.indexOf("</" + name + ">");
+
+        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
+          for (var i=initialIndex+1; i<finalIndex; i++) {
+            values = values.concat(response[i].split("¦"))
+          }
+        }
+
+        for(var i=0,l=values.length; i<l; i++) {
+          tmpValue = values[i].split("=");
+          tmpValue[0] = tmpValue[0].trim();
+
+          if (tmpValue[0] != "") {
+            // is a string
+            if (isNaN(parseFloat(tmpValue[1]))) {
+              // .replace(/^\s|\s$/g, "") remove the initial white space
+              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, ""));
+            }
+            // is a number
+            else {
+              self.setVariable(tmpValue[0], parseFloat(tmpValue[1]));
+            }
+          }
+        }
+      }
+
+    };
+
+    this.functions["_GetMatrix_"] = function(file, name) {
+      var response = descartesJS.openExternalFile(file);
+      var initialIndex = -1;
+      var finalIndex = -1;
+      var values = [];
+      values.type = "matrix";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        initialIndex = response.indexOf("<" + name + ">");
+        finalIndex   = response.indexOf("</" + name + ">");
+
+        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
+          for (var i=initialIndex+1; i<finalIndex; i++) {
+            values.push( response[i].split("¦").map(function(x) {
+              if (isNaN(parseFloat(x))) {
+                // .replace(/^\s|\s$/g, "") remove the initial white space
+                return x.replace(/^\s|\s$/g, "");
+              }
+              else {
+                return parseFloat(x);
+              }
+            }) );
+          }
+
+          self.matrices[name] = values;
+          self.setVariable(name + ".filas", values[0].length);
+          self.setVariable(name + ".columnas", values.length);
+
+        }
+      }
+    };
+
+    // var anchor = document.createElement("a");
+    // var blob;
+    // /**
+    //  *
+    //  */
+    // this.functions["_Save_"] = function(filename, data) {
+    //   document.body.appendChild(anchor);
+    //   blob = new Blob([data], {type: "text/plain"});
+
+    //   anchor.setAttribute("download", filename);
+    //   anchor.setAttribute("href", window.URL.createObjectURL(blob));
+    //   anchor.click();
+
+    //   document.body.removeChild(anchor);
+    // };
+    ////////////////////////////////////////
   }  
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());

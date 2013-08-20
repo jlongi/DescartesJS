@@ -81,7 +81,6 @@ var descartesJS = (function(descartesJS) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
-
     }
 
     this.update = this.iframeUpdate;

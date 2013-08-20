@@ -198,6 +198,13 @@ var descartesJS = (function(descartesJS) {
       canvas.style.display = "none";
     }
 
+    if (this.activeIfValue) {
+      this.canvas.style.cursor = "pointer";
+    }
+    else {
+      this.canvas.style.cursor = "not-allowed";
+    }
+
     // update the position and size
     this.updatePositionAndSize();
   }
@@ -245,14 +252,14 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, 0, this.w, this.h);
     }
     
-    if ( (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
+    if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
       ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
 
-    if ((this.imageDown.src != "") && (this.imageDown.ready) && (this.click)){
+    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
       ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
-    else if (this.click) {
+    else if ((this.click) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
       descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
 
@@ -290,11 +297,10 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
-      ctx.save();
       ctx.globalCompositeOperation = "destination-in";
       ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
-      ctx.restore();
+      ctx.globalCompositeOperation = "source-over";
     }
     
   }

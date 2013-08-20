@@ -146,7 +146,8 @@ var descartesJS = (function(descartesJS) {
 
     this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-  
+    this.containerControl.setAttribute("id", this.id);
+
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position: absolute; left: " + labelWidth + "px; top: 0px;");

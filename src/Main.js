@@ -153,9 +153,9 @@ var descartesJS = (function(descartesJS) {
   
   /**
    * Function to handle the resize of the browser
-   * @param {Event} event the event of resize the browser
+   * @param {Event} evt the evt of resize the browser
    */
-  descartesJS.onResize = function(event) {
+  descartesJS.onResize = function(evt) {
     var spaces;
     for (var i=0, l=descartesJS.apps.length; i<l; i++) {
       spaces = descartesJS.apps[i].spaces;
@@ -167,10 +167,10 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Function to handle the load event of the document
-   * @param {Event} event the event of load the web page
+   * Function to handle the load evt of the document
+   * @param {Event} evt the evt of load the web page
    */
-  function onLoad(event) {
+  function onLoad(evt) {
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
 
@@ -196,11 +196,11 @@ var descartesJS = (function(descartesJS) {
   
   /**
    * Function to handle the message between frames
-   * @param {Event} event the event of receive a message
+   * @param {Event} evt the evt of receive a message
    */
-  descartesJS.receiveMessage = function(event) {
+  descartesJS.receiveMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
-      var data = event.data;
+      var data = evt.data;
       
       if (!data) {
         return;
@@ -237,14 +237,14 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
+  // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
-    // register the onload event
+    // register the onload evt
     window.addEventListener("load", onLoad);
     
-    // register the message event, to handle the messages between frames
+    // register the message evt, to handle the messages between frames
     window.addEventListener("message", descartesJS.receiveMessage);
   }
 

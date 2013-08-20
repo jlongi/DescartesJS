@@ -205,11 +205,12 @@ var descartesJS = (function(descartesJS) {
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
-          argu[i] = this.childs[0].childs[i].evaluate(evaluator).toString();
+          argu[i] = this.childs[0].childs[i].evaluate(evaluator);
         }
       
         if (this.value === "_Eval_") {
-          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") || '' ) );
+          argu[0] = (argu.length > 0) ? argu[0].toString() : '';
+          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) );
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);

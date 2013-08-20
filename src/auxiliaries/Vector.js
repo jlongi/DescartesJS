@@ -67,9 +67,9 @@ var descartesJS = (function(descartesJS) {
       if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
         response = vectorElement.text;
         
-        if (response[0] == '\n') {
-          response = response.substring(1);
-        }
+        // if (response[0] == '\n') {
+        //   response = response.substring(1);
+        // }
       }
       // read the vector data from a file
       else {
@@ -79,6 +79,15 @@ var descartesJS = (function(descartesJS) {
       // if the read information has content, split the content
       if (response != null) {
         response = response.replace(/\r/g, "").split("\n");
+
+        var tmpResponse = [];
+        for (var i=0,l=response.length; i<l; i++) {
+
+          if (response[i] != "") {
+            tmpResponse.push( response[i] );
+          }
+        }
+        response = tmpResponse;
       }
 
       // if the file has no content or could not be read

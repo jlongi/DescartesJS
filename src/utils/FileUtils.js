@@ -42,13 +42,20 @@ var descartesJS = (function(descartesJS) {
   
   var response;
   var xhr;
+  descartesJS._externalFilesContent = {};
   /**
    * Open an external file using an ajax request
    * Abre un archivo externo
    * @param {String} filename el nombre del archivo que se quiere abrir
-   * @return en contenido del archivo como cadena o null si el archivo no se pudo abrir
+   * @return the content of the file if readed or null if not
    */
   descartesJS.openExternalFile = function(filename) {
+    ////////////////////////////////////////////////////////// 
+    if (descartesJS._externalFilesContent[filename]) {
+      return descartesJS._externalFilesContent[filename];
+    }
+    //////////////////////////////////////////////////////////
+
     response = null;
     xhr = newXMLHttpRequest();
     xhr.open("GET", filename, false);
@@ -72,6 +79,13 @@ var descartesJS = (function(descartesJS) {
     }
     
     return response;
+  }
+
+  /**
+   *
+   */
+  descartesJS.addExternalFileContent = function (filename, data) {
+    descartesJS._externalFilesContent[filename] = data;
   }
 
   return descartesJS;

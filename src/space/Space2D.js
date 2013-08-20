@@ -635,10 +635,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
       }
 
-      if (!self.sensitive_to_mouse_movements) {
-        window.removeEventListener("mousemove", onMouseMove, false);
-      }
-
+      window.removeEventListener("mousemove", onMouseMove, false);
       window.removeEventListener("mouseup", onMouseUp, false);
       
       self.parent.update();
