@@ -272,7 +272,7 @@ var descartesJS = (function(descartesJS) {
     self.field.setAttribute("type", "text");
     self.field.setAttribute("id", self.id+"scrollbar");
     self.field.setAttribute("class", "DescartesScrollbarField");
-    self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + (self.fieldWidth-2) + "px; height : " + (self.fieldHeight-2) + "px; left: " + self.fieldX + "px; top: 0px;");
+    self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + self.fieldWidth + "px; height : " + self.fieldHeight + "px; left: " + self.fieldX + "px; top: 0px;");
     self.field.value = fieldValue;
     if (self.fieldHeight === 0) {
       self.field.style.display = "none";

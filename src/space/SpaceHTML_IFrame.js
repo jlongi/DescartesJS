@@ -54,9 +54,23 @@ var descartesJS = (function(descartesJS) {
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
     // this.MyIFrame.setAttribute("style", "overflow: hidden; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    // this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
 
-    this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
+    this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
+
+    this.container = document.createElement("div");
+    // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    if (descartesJS.isIOS) {
+      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    }
+    else {
+      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;"); 
+    }
+    
+    this.container.appendChild(this.MyIFrame);
+
+    // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
+    this.parent.container.insertBefore(this.container, this.parent.loader);
 
     // register the comunication functions
     var self = this;

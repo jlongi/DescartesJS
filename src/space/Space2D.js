@@ -532,6 +532,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchStart(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
@@ -557,6 +560,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchEnd(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -586,6 +592,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
 
       // deactivate the graphic controls
@@ -595,10 +604,12 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
+
+        self.clickPosForZoom = (self.getCursorPosition(evt)).y;
+        self.clickPosForZoomNew = self.clickPosForZoom;
         
         // if not fixed add a zoom manager
         if (!self.fixed) {
-          self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
@@ -624,6 +635,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -633,6 +647,11 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
+
+        // show the external space
+        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+          self.parent.externalSpace.show();
+        }
       }
 
       window.removeEventListener("mousemove", onMouseMove, false);

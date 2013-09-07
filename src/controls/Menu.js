@@ -8,6 +8,9 @@ var descartesJS = (function(descartesJS) {
 
   var MathAbs = Math.abs;
 
+  var parser;
+  var evaluator;
+
   var expr
   var val;
   var tempInd;
@@ -18,6 +21,14 @@ var descartesJS = (function(descartesJS) {
   var indexDot;
   var subS;
   var hasTouchSupport;
+
+  var closeBracket;
+  var tmpText;
+  var pos;
+  var lastPos;
+  var ignoreSquareBracket;
+  var charAt;
+  var charAtAnt;
 
   /**
    * Descartes menu control
@@ -31,7 +42,8 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    var parser = this.parser;
+    parser = this.parser;
+    evaluator = this.evaluator;
 
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
@@ -47,12 +59,13 @@ var descartesJS = (function(descartesJS) {
     
     this.menuOptions = [];
     this.strValue = [];
-    
+
     var splitOption;
     // parse the options
     for (var i=0, l=this.options.length; i<l; i++) {
+
       // split the options if has values with square backets (option[value])
-      splitOption = this.options[i].split(/[\[\]]/,2);
+      splitOption = this.customSplit(this.options[i]);
 
       // if divide the option only has a value, then are not specifying its value and take the order in which it appears
       if (splitOption.length == 1) {
@@ -74,9 +87,25 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    for (var i=0, l=this.menuOptions.length; i<l; i++) {
+      // is an expression
+      if ( (this.menuOptions[i].match(/^\[/)) && (this.menuOptions[i].match(/\]$/)) ) {
+        this.menuOptions[i] = parser.parse( this.menuOptions[i].substring(1, this.menuOptions[i].length-1) );
+      }
+      // is a string
+      else {
+        this.menuOptions[i] = parser.parse( "'" + this.menuOptions[i] + "'" );
+      }
+    }
+
     // parse the option values
     for (var i=0, l=this.strValue.length; i<l; i++) {
-      this.strValue[i] = parser.parse( this.strValue[i] );
+      if ( (this.strValue[i].match(/^\[/)) && (this.strValue[i].match(/\]$/)) ) {
+        this.strValue[i] = parser.parse( this.strValue[i].substring(1, this.strValue[i].length-1) );
+      } 
+      else {
+        this.strValue[i] = parser.parse( this.strValue[i] );
+      }
     }
    
     // control container
@@ -92,7 +121,7 @@ var descartesJS = (function(descartesJS) {
     var opt;
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
       opt = document.createElement("option");
-      opt.innerHTML = this.menuOptions[i];
+      opt.innerHTML = evaluator.evalExpression( this.menuOptions[i] );
       this.select.appendChild(opt);
     }
 
@@ -145,7 +174,7 @@ var descartesJS = (function(descartesJS) {
 
     // find the widest choice to set the menu width
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      mow = descartesJS.getTextWidth( this.menuOptions[i], this.fieldFontSize+"px Arial" );
+      mow = descartesJS.getTextWidth( evaluator.evalExpression(this.menuOptions[i]).toString(), this.fieldFontSize+"px Arial" );
       if (mow > minchw) {
         minchw = mow;
         indMinTFw = i;
@@ -183,7 +212,7 @@ var descartesJS = (function(descartesJS) {
     
     var fieldValue = this.formatOutputValue( evaluator.evalExpression(this.strValue[this.indexValue]) );
 
-    this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
+    this.containerControl.setAttribute("class", "DescartesMenuContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
 
     this.label.setAttribute("class", "DescartesMenuLabel");
@@ -193,7 +222,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("id", this.id+"menu");
     this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesMenuField");
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth -2) + "px; height : " + (this.h-2) + "px; left: " + TFx + "px;");
+    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
@@ -213,6 +242,12 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+
+
+
+    for (var i=0, l=this.menuOptions.length; i<l; i++) {
+      this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+    }
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -232,15 +267,67 @@ var descartesJS = (function(descartesJS) {
 
     // update the position and size
     this.updatePositionAndSize();
-    
-    // update the value of the menu
-    this.value = evaluator.getVariable(this.id);
-    this.field.value = this.formatOutputValue(this.value);
-    
-    // register the control value
-    evaluator.setVariable(this.id, parseFloat(this.value));
-    this.select.selectedIndex = parseFloat(this.getIndex(this.value));
- }
+
+    if (document.activeElement != this.select) {
+      // update the value of the menu
+      this.value = evaluator.getVariable(this.id);
+      if (isNaN(this.value)) {
+        this.value = 0;
+      }
+      this.field.value = this.formatOutputValue(this.value);
+      
+      // register the control value
+      evaluator.setVariable(this.id, parseFloat(this.value));
+      this.select.selectedIndex = parseFloat(this.getIndex(this.value));
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Menu.prototype.customSplit = function(op) {
+    closeBracket = false;
+    tmpText = "";
+    pos = 0;
+    lastPos = 0;
+    ignoreSquareBracket = -1;
+
+    while (pos < op.length) {
+      charAt = op.charAt(pos);
+      charAtAnt = op.charAt(pos-1);
+
+      // find a open square bracket
+      if ((charAt === "[") && (ignoreSquareBracket === -1)) {
+        if ((closeBracket) || (tmpText != "")) {
+          tmpText += "¦";
+        }
+
+        lastPos = pos;
+        ignoreSquareBracket++;
+
+      }
+      else if (charAt === "[") {
+        ignoreSquareBracket++;
+      }
+
+      // if find a close square bracket add the strin +'
+      else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
+        closeBracket = true;
+        lastPos = pos+1;
+        ignoreSquareBracket--;
+      }
+      
+      else if (op.charAt(pos) == "]") {
+        ignoreSquareBracket = (ignoreSquareBracket < 0) ? ignoreSquareBracket : ignoreSquareBracket-1;
+      } 
+
+      tmpText = tmpText + op.charAt(pos);
+
+      pos++;
+    }
+
+    return tmpText.split("¦");
+  }
 
   /**
    * Get the selected index

@@ -74,41 +74,24 @@ var descartesJS = (function(descartesJS) {
     // add the style to the head of the document
     document.head.appendChild(cssNode); 
 
-    // reset style
-    // cssNode.innerHTML = "html{ color:#000; background:#FFF; }\n" +
-    //                     "body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{ margin:0; padding:0; }\n" +
-    //                     "table{ border-collapse:collapse; border-spacing:0; }\n" +
-    //                     "fieldset,img{ border:0; }\n" +
-    //                     "address,caption,cite,code,dfn,em,strong,th,var,optgroup{ font-style:inherit; font-weight:inherit; }\n" +
-    //                     "del,ins{ text-decoration:none; }\n" +
-    //                     "li{ list-style:none; }\n" +
-    //                     "caption,th{ text-align:left; }\n" +
-    //                     "h1,h2,h3,h4,h5,h6{ font-size:100%; font-weight:normal; }\n" +
-    //                     "q:before,q:after{ content:''; }\n" +
-    //                     "abbr,acronym{ border:0; font-variant:normal; }\n" +
-    //                     "sup,sub{ vertical-align:baseline; }\n" +
-    //                     "legend{ color:#000; }\n" +
-    //                     "input,button,textarea,select,optgroup,option{ font-family:inherit; font-size:inherit; font-style:inherit; font-weight:inherit; }\n" +
-    //                     "input,button,textarea,select{ *font-size:100%; }\n" +
-
     cssNode.innerHTML = 
                         "body{ text-rendering:geometricPrecision; }\n" +
                         "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -moz-box-shadow:0px 0px 0px #888; -webkit-box-shadow:0px 0px 100px #888; box-shadow:0px 0px 100px #888; background-image:linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-o-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-moz-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-webkit-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-ms-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); top:0px; left:0px; }\n" +
+                        "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -box-shadow:0px 0px 0px #888; background-image:linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-o-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-moz-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-webkit-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-ms-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
                         "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
-                        "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
-                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666666 1px; position:absolute; top:0px; }\n" +
+                        "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
+                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
                         "div.DescartesGraphicControl{ border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
                         "select.DescartesMenuSelect{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding-top:0%; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ background:#eeeeee; overflow:hidden; position:absolute; }\n";
+                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n";
   }
 
   // immediately add the style to the document

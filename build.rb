@@ -94,6 +94,7 @@ files = [ "Babel.js",
           "rtf/RTFParser.js",
 
           "space/Space.js",
+          "space/SpaceExternal.js",
           "space/Space2D.js",
           "space/Space3D.js",
           "space/SpaceAP.js",

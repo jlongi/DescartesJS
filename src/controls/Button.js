@@ -298,7 +298,8 @@ var descartesJS = (function(descartesJS) {
      
     if (!this.activeIfValue) {
       ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
       ctx.globalCompositeOperation = "source-over";
     }
@@ -358,6 +359,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       // blur other elements when clicked
@@ -393,6 +397,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+      
       if ((self.activeIfValue) || (self.click)) {
         self.click = false;
         self.draw();

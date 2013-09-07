@@ -3,7 +3,7 @@
  * joel.espinosa@amite.mx
  * j.longi@gmail.com
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-08-19
+ * 2013-09-06
  */
 
 /**
@@ -531,6 +531,8 @@ var descartesJS = (function(descartesJS) {
     var system = navigator.appVersion.toLowerCase();
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || (system.match("android")&&true);
     descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
+
+    descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');
@@ -1585,41 +1587,24 @@ var descartesJS = (function(descartesJS) {
     // add the style to the head of the document
     document.head.appendChild(cssNode); 
 
-    // reset style
-    // cssNode.innerHTML = "html{ color:#000; background:#FFF; }\n" +
-    //                     "body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td{ margin:0; padding:0; }\n" +
-    //                     "table{ border-collapse:collapse; border-spacing:0; }\n" +
-    //                     "fieldset,img{ border:0; }\n" +
-    //                     "address,caption,cite,code,dfn,em,strong,th,var,optgroup{ font-style:inherit; font-weight:inherit; }\n" +
-    //                     "del,ins{ text-decoration:none; }\n" +
-    //                     "li{ list-style:none; }\n" +
-    //                     "caption,th{ text-align:left; }\n" +
-    //                     "h1,h2,h3,h4,h5,h6{ font-size:100%; font-weight:normal; }\n" +
-    //                     "q:before,q:after{ content:''; }\n" +
-    //                     "abbr,acronym{ border:0; font-variant:normal; }\n" +
-    //                     "sup,sub{ vertical-align:baseline; }\n" +
-    //                     "legend{ color:#000; }\n" +
-    //                     "input,button,textarea,select,optgroup,option{ font-family:inherit; font-size:inherit; font-style:inherit; font-weight:inherit; }\n" +
-    //                     "input,button,textarea,select{ *font-size:100%; }\n" +
-
     cssNode.innerHTML = 
                         "body{ text-rendering:geometricPrecision; }\n" +
                         "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -moz-box-shadow:0px 0px 0px #888; -webkit-box-shadow:0px 0px 100px #888; box-shadow:0px 0px 100px #888; background-image:linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-o-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-moz-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-webkit-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); background-image:-ms-linear-gradient(bottom, #bbbbbb 0%, #efefef 50%, #bbbbbb 100%); top:0px; left:0px; }\n" +
+                        "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -box-shadow:0px 0px 0px #888; background-image:linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-o-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-moz-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-webkit-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-ms-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
                         "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
-                        "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
-                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666666 1px; position:absolute; top:0px; }\n" +
+                        "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
+                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
                         "div.DescartesGraphicControl{ border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
                         "select.DescartesMenuSelect{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding-top:0%; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ background:#eeeeee; overflow:hidden; position:absolute; }\n";
+                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n";
   }
 
   // immediately add the style to the document
@@ -8269,6 +8254,8 @@ var descartesJS = (function(descartesJS) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
     }
 
+console.log(vertices);
+
     for (var i=0, l=vertices.length-1; i<l; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
                                  type: "edge",
@@ -9872,6 +9859,7 @@ var descartesJS = (function(descartesJS) {
     // if the control is in the external region
     else if (this.region === "external") {
       // this.space = this.parent.externalSpace;
+      this.parent.externalSpace.addCtr(this);      
       return this.parent.externalSpace.container;
     }
     // if the control is in the scenario
@@ -10456,7 +10444,8 @@ var descartesJS = (function(descartesJS) {
      
     if (!this.activeIfValue) {
       ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
       ctx.fillRect(0, 0, this.w, this.h);
       ctx.globalCompositeOperation = "source-over";
     }
@@ -10516,6 +10505,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       // blur other elements when clicked
@@ -10551,6 +10543,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+      
       if ((self.activeIfValue) || (self.click)) {
         self.click = false;
         self.draw();
@@ -10757,7 +10752,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
     this.field.setAttribute("class", "DescartesSpinnerField");
-    this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth-2) + "px; height : " + (this.h-2) + "px; left: " + (canvasWidth + labelWidth) + "px;");
+    this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
 
@@ -10815,21 +10810,23 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    oldFieldValue = this.field.value;
-    oldValue = this.value;
-    
-    // update the spinner value
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
-    this.field.value = this.formatOutputValue(this.value);
-
-    if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
+    if (document.activeElement != this.field) {
+      oldFieldValue = this.field.value;
+      oldValue = this.value;
+      
       // update the spinner value
-      this.value = this.validateValue( oldFieldValue );
+      this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
-    }
 
-    // register the control value
-    evaluator.setVariable(this.id, this.value);
+      if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
+        // update the spinner value
+        this.value = this.validateValue( oldFieldValue );
+        this.field.value = this.formatOutputValue(this.value);
+      }
+
+      // register the control value
+      evaluator.setVariable(this.id, this.value);
+    }
   }
 
   /**
@@ -11265,7 +11262,7 @@ var descartesJS = (function(descartesJS) {
           return "";
         }
 
-        if (value.match(/^'/) && value.match(/'$/)) {
+        if ((value) && value.match(/^'/) && value.match(/'$/)) {
           return value.substring(1,value.length-1);
         }
 
@@ -11356,7 +11353,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"TextField");
     this.field.setAttribute("class", "DescartesTextFieldField");
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth -2) + "px; height : " + (this.h-2) + "px; left: " + (labelWidth) + "px;");
+    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + labelWidth + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
     
@@ -11402,21 +11399,23 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
     
-    oldFieldValue = this.field.value;
-    oldValue = this.value;
-        
-    // update the text field value
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
-    this.field.value = this.formatOutputValue(this.value);
-    
-    if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
-      // update the spinner value
-      this.value = this.validateValue( oldFieldValue );
+    if (document.activeElement != this.field) {
+      oldFieldValue = this.field.value;
+      oldValue = this.value;
+          
+      // update the text field value
+      this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
+      
+      if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
+        // update the spinner value
+        this.value = this.validateValue( oldFieldValue );
+        this.field.value = this.formatOutputValue(this.value);
+      }
+      
+      // register the control value
+      evaluator.setVariable(this.id, this.value);
     }
-    
-    // register the control value
-    evaluator.setVariable(this.id, this.value);
   }
 
   /**
@@ -11534,7 +11533,8 @@ var descartesJS = (function(descartesJS) {
     var self = this;    
 
     // prevent the context menu display
-    self.label.oncontextmenu = function() { return false; };
+    self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
+
     // prevent the default events int the label    
     if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
@@ -11581,6 +11581,9 @@ var descartesJS = (function(descartesJS) {
 
   var MathAbs = Math.abs;
 
+  var parser;
+  var evaluator;
+
   var expr
   var val;
   var tempInd;
@@ -11591,6 +11594,14 @@ var descartesJS = (function(descartesJS) {
   var indexDot;
   var subS;
   var hasTouchSupport;
+
+  var closeBracket;
+  var tmpText;
+  var pos;
+  var lastPos;
+  var ignoreSquareBracket;
+  var charAt;
+  var charAtAnt;
 
   /**
    * Descartes menu control
@@ -11604,7 +11615,8 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    var parser = this.parser;
+    parser = this.parser;
+    evaluator = this.evaluator;
 
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
@@ -11620,12 +11632,13 @@ var descartesJS = (function(descartesJS) {
     
     this.menuOptions = [];
     this.strValue = [];
-    
+
     var splitOption;
     // parse the options
     for (var i=0, l=this.options.length; i<l; i++) {
+
       // split the options if has values with square backets (option[value])
-      splitOption = this.options[i].split(/[\[\]]/,2);
+      splitOption = this.customSplit(this.options[i]);
 
       // if divide the option only has a value, then are not specifying its value and take the order in which it appears
       if (splitOption.length == 1) {
@@ -11647,9 +11660,25 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    for (var i=0, l=this.menuOptions.length; i<l; i++) {
+      // is an expression
+      if ( (this.menuOptions[i].match(/^\[/)) && (this.menuOptions[i].match(/\]$/)) ) {
+        this.menuOptions[i] = parser.parse( this.menuOptions[i].substring(1, this.menuOptions[i].length-1) );
+      }
+      // is a string
+      else {
+        this.menuOptions[i] = parser.parse( "'" + this.menuOptions[i] + "'" );
+      }
+    }
+
     // parse the option values
     for (var i=0, l=this.strValue.length; i<l; i++) {
-      this.strValue[i] = parser.parse( this.strValue[i] );
+      if ( (this.strValue[i].match(/^\[/)) && (this.strValue[i].match(/\]$/)) ) {
+        this.strValue[i] = parser.parse( this.strValue[i].substring(1, this.strValue[i].length-1) );
+      } 
+      else {
+        this.strValue[i] = parser.parse( this.strValue[i] );
+      }
     }
    
     // control container
@@ -11665,7 +11694,7 @@ var descartesJS = (function(descartesJS) {
     var opt;
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
       opt = document.createElement("option");
-      opt.innerHTML = this.menuOptions[i];
+      opt.innerHTML = evaluator.evalExpression( this.menuOptions[i] );
       this.select.appendChild(opt);
     }
 
@@ -11718,7 +11747,7 @@ var descartesJS = (function(descartesJS) {
 
     // find the widest choice to set the menu width
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      mow = descartesJS.getTextWidth( this.menuOptions[i], this.fieldFontSize+"px Arial" );
+      mow = descartesJS.getTextWidth( evaluator.evalExpression(this.menuOptions[i]).toString(), this.fieldFontSize+"px Arial" );
       if (mow > minchw) {
         minchw = mow;
         indMinTFw = i;
@@ -11756,7 +11785,7 @@ var descartesJS = (function(descartesJS) {
     
     var fieldValue = this.formatOutputValue( evaluator.evalExpression(this.strValue[this.indexValue]) );
 
-    this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
+    this.containerControl.setAttribute("class", "DescartesMenuContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
 
     this.label.setAttribute("class", "DescartesMenuLabel");
@@ -11766,7 +11795,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("id", this.id+"menu");
     this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesMenuField");
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth -2) + "px; height : " + (this.h-2) + "px; left: " + TFx + "px;");
+    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
@@ -11786,6 +11815,12 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+
+
+
+    for (var i=0, l=this.menuOptions.length; i<l; i++) {
+      this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+    }
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -11805,15 +11840,67 @@ var descartesJS = (function(descartesJS) {
 
     // update the position and size
     this.updatePositionAndSize();
-    
-    // update the value of the menu
-    this.value = evaluator.getVariable(this.id);
-    this.field.value = this.formatOutputValue(this.value);
-    
-    // register the control value
-    evaluator.setVariable(this.id, parseFloat(this.value));
-    this.select.selectedIndex = parseFloat(this.getIndex(this.value));
- }
+
+    if (document.activeElement != this.select) {
+      // update the value of the menu
+      this.value = evaluator.getVariable(this.id);
+      if (isNaN(this.value)) {
+        this.value = 0;
+      }
+      this.field.value = this.formatOutputValue(this.value);
+      
+      // register the control value
+      evaluator.setVariable(this.id, parseFloat(this.value));
+      this.select.selectedIndex = parseFloat(this.getIndex(this.value));
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Menu.prototype.customSplit = function(op) {
+    closeBracket = false;
+    tmpText = "";
+    pos = 0;
+    lastPos = 0;
+    ignoreSquareBracket = -1;
+
+    while (pos < op.length) {
+      charAt = op.charAt(pos);
+      charAtAnt = op.charAt(pos-1);
+
+      // find a open square bracket
+      if ((charAt === "[") && (ignoreSquareBracket === -1)) {
+        if ((closeBracket) || (tmpText != "")) {
+          tmpText += "¦";
+        }
+
+        lastPos = pos;
+        ignoreSquareBracket++;
+
+      }
+      else if (charAt === "[") {
+        ignoreSquareBracket++;
+      }
+
+      // if find a close square bracket add the strin +'
+      else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
+        closeBracket = true;
+        lastPos = pos+1;
+        ignoreSquareBracket--;
+      }
+      
+      else if (op.charAt(pos) == "]") {
+        ignoreSquareBracket = (ignoreSquareBracket < 0) ? ignoreSquareBracket : ignoreSquareBracket-1;
+      } 
+
+      tmpText = tmpText + op.charAt(pos);
+
+      pos++;
+    }
+
+    return tmpText.split("¦");
+  }
 
   /**
    * Get the selected index
@@ -12178,7 +12265,7 @@ var descartesJS = (function(descartesJS) {
     self.field.setAttribute("type", "text");
     self.field.setAttribute("id", self.id+"scrollbar");
     self.field.setAttribute("class", "DescartesScrollbarField");
-    self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + (self.fieldWidth-2) + "px; height : " + (self.fieldHeight-2) + "px; left: " + self.fieldX + "px; top: 0px;");
+    self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + self.fieldWidth + "px; height : " + self.fieldHeight + "px; left: " + self.fieldX + "px; top: 0px;");
     self.field.value = fieldValue;
     if (self.fieldHeight === 0) {
       self.field.style.display = "none";
@@ -13837,6 +13924,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       self.whichButton = descartesJS.whichButton(evt);
@@ -13876,6 +13966,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchStart(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       if (self.activeIfValue) {
@@ -13909,6 +14002,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
       self.touchId = null;
 
@@ -17545,17 +17641,41 @@ var descartesJS = (function(descartesJS) {
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
+      var storeValues = false;
       var tmpValue;
 
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
 
-        initialIndex = response.indexOf("<" + name + ">");
-        finalIndex   = response.indexOf("</" + name + ">");
+        for (var i=0, l=response.length; i<l; i++) {
 
-        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
-          for (var i=initialIndex+1; i<finalIndex; i++) {
-            values = values.concat(response[i].split("¦"))
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values = values.concat(tmpValue[1].split("¦"));
+            }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values = values.concat(tmpValue[0].split("¦"))
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values = values.concat(response[i].split("¦"));
           }
         }
 
@@ -17563,7 +17683,7 @@ var descartesJS = (function(descartesJS) {
           tmpValue = values[i].split("=");
           tmpValue[0] = tmpValue[0].trim();
 
-          if (tmpValue[0] != "") {
+          if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
             // is a string
             if (isNaN(parseFloat(tmpValue[1]))) {
               // .replace(/^\s|\s$/g, "") remove the initial white space
@@ -17577,6 +17697,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
+      return 0;
     };
 
     this.functions["_GetMatrix_"] = function(file, name) {
@@ -17588,50 +17709,126 @@ var descartesJS = (function(descartesJS) {
 
       var tmpValue;
 
+
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
 
-        initialIndex = response.indexOf("<" + name + ">");
-        finalIndex   = response.indexOf("</" + name + ">");
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
 
-        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
-          for (var i=initialIndex+1; i<finalIndex; i++) {
-            values.push( response[i].split("¦").map(function(x) {
-              if (isNaN(parseFloat(x))) {
-                // .replace(/^\s|\s$/g, "") remove the initial white space
-                return x.replace(/^\s|\s$/g, "");
-              }
-              else {
-                return parseFloat(x);
-              }
-            }) );
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values.push(tmpValue[1].split("¦").map(myMapFun));
+            }
+
+            storeValues = true;
+            continue;
           }
 
-          self.matrices[name] = values;
-          self.setVariable(name + ".filas", values[0].length);
-          self.setVariable(name + ".columnas", values.length);
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
 
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values.push(tmpValue[0].split("¦").map(myMapFun));
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push(response[i].split("¦").map(myMapFun));
+          }
         }
+
+        self.matrices[name] = values;
+        self.setVariable(name + ".filas", values[0].length);
+        self.setVariable(name + ".columnas", values.length);
       }
+
+      return 0;
     };
 
-    // var anchor = document.createElement("a");
-    // var blob;
-    // /**
-    //  *
-    //  */
-    // this.functions["_Save_"] = function(filename, data) {
-    //   document.body.appendChild(anchor);
-    //   blob = new Blob([data], {type: "text/plain"});
+    var anchor = document.createElement("a");
+    var blob;
+    /**
+     *
+     */
+    this.functions["_Save_"] = function(filename, data) {
+      document.body.appendChild(anchor);
+      blob = new Blob([data], {type: "text/plain"});
 
-    //   anchor.setAttribute("download", filename);
-    //   anchor.setAttribute("href", window.URL.createObjectURL(blob));
-    //   anchor.click();
+      anchor.setAttribute("download", filename);
+      anchor.setAttribute("href", window.URL.createObjectURL(blob));
+      anchor.click();
 
-    //   document.body.removeChild(anchor);
-    // };
+      document.body.removeChild(anchor);
+
+      return 0;
+    };
+
+    var files;
+    var reader;
+    var _varname;
+    var _callback;
+    var input = document.createElement("input");
+    input.setAttribute("type", "file");
+
+    onHandleFileSelect = function(evt) {
+      files = evt.target.files;
+
+      reader = new FileReader();
+      /**
+       * read the content of the file
+       */
+      reader.onload = function(evt) {
+        descartesJS.addExternalFileContent(files[0].name, evt.target.result)
+
+        self.setVariable(_varname, files[0].name);
+
+        if (self.getFunction(_callback)) {
+          self.getFunction(_callback).apply(self.evaluator, []);
+          self.evaluator.parent.update();
+        }
+      }
+
+      if (files.length >0) {
+        reader.readAsText(files[0]);
+      }
+    }
+
+    input.addEventListener("change", onHandleFileSelect);
+
+    /**
+     *
+     */
+    this.functions["_Open_"] = function(varname, callback) {
+      _varname = varname;
+      _callback = callback;
+
+      input.click();
+
+      return 0;
+    }
     ////////////////////////////////////////
   }  
+
+/**
+ *
+ */
+function myMapFun(x) {
+  if (isNaN(parseFloat(x))) {
+    // .replace(/^\s|\s$/g, "") remove the initial white space
+    return x.replace(/^\s|\s$/g, "");
+  }
+  else {
+    return parseFloat(x);
+  }
+}
+
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
@@ -20630,6 +20827,290 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var self;
+
+  /**
+   * Descartes 2D space
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the graphic
+   */
+  descartesJS.SpaceExternal = function(parent) {
+    // call the parent constructor
+    // descartesJS.Space.call(this, parent, values);
+
+    self = this;
+    self.parent = parent;
+
+    self.width = 228;
+    self.vSpace = 25;
+
+    // create the principal container
+    self.container = document.createElement("div");
+    self.container.setAttribute("id", "_DescartesExternalRegion_");
+    // self.container.setAttribute("class", "DescartesSpaceExternalContainer");
+    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: 0px 0px 25px 5px #000; overflow-y: scroll; overflow-x: hidden; position: absolute; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
+
+    self.moveManipulator = document.createElement("div");
+    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
+    self.moveManipulator.innerHTML = "Descartes";
+    self.container.appendChild(self.moveManipulator);
+
+    self.ctrs = [];
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Space
+  ////////////////////////////////////////////////////////////////////////////////////
+  // descartesJS.extend(descartesJS.SpaceExternal, descartesJS.Space);
+   
+  descartesJS.SpaceExternal.prototype.init = function() {
+    document.body.appendChild(this.container);
+
+    self = this;
+    var parser = self.parent.evaluator.parser;
+    var fontSizeDefaultButtons = "15";
+    var text;
+
+    for (var i=0,l=self.ctrs.length; i<l; i++) {
+      self.ctrs[i].expresion = parser.parse("(0," + (self.vSpace + 23 + i*35) + "," + (self.width) + ",35)");
+      self.ctrs[i].update();
+    }
+
+    self.numCtr = l;
+
+    // create the credits button
+    if (self.language == "espa\u00F1ol") {
+      text = "cr\u00E9ditos";
+    } 
+    else if (self.language == "english") {
+      text = "about";
+    }
+    else {
+      text = "cr\u00E9ditos";
+    }
+
+    var btnAbout = new descartesJS.Button(self.parent, { region: "external", 
+                                                         name: text, 
+                                                         font_size: parser.parse(fontSizeDefaultButtons),
+                                                         expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)") 
+                                                        });
+    btnAbout.update();
+
+    // create the configuration button
+    var btnConfig = new descartesJS.Button(self.parent, { region: "external", 
+                                                          name: "config", 
+                                                          font_size: parser.parse(fontSizeDefaultButtons),
+                                                          action: "config",
+                                                          expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)") 
+                                                        });
+    btnConfig.update();    
+
+    // create the init button
+    if (self.language == "espa\u00F1ol") {
+      text = "inicio";
+    } 
+    else if (self.language == "english") {
+      text = "init";
+    }
+    else {
+      text = "inicio";
+    }
+
+    var btnInit = new descartesJS.Button(self.parent, { region: "external", 
+                                                        name: text, 
+                                                        font_size: parser.parse(fontSizeDefaultButtons), 
+                                                        action: "init", 
+                                                        expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)") 
+                                                      });
+    btnInit.update();
+
+    // create the clear button
+    if (self.language == "espa\u00F1ol") {
+      text = "limpiar";
+    } 
+    else if (self.language == "english") {
+      text = "clear";
+    }
+    else {
+      text = "limpiar";
+    }
+    
+    var btnClear = new descartesJS.Button(self.parent, { region: "external", 
+                                                         name: text, 
+                                                         font_size: parser.parse(fontSizeDefaultButtons),
+                                                         action: "clear",
+                                                         expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)") 
+                                                       });
+    btnClear.update();
+
+    // create the clear button
+    if (self.language == "espa\u00F1ol") {
+      text = "cerrar";
+    } 
+    else if (self.language == "english") {
+      text = "close";
+    }
+    else {
+      text = "close";
+    }
+
+    var btnClose = new descartesJS.Button(self.parent, { region: "external", 
+                                                         name: text, 
+                                                         font_size: parser.parse(fontSizeDefaultButtons),
+                                                         expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)") 
+                                                       });
+    btnClose.update();
+    btnClose.canvas.addEventListener("click", function(evt) {
+      self.hide();
+    });
+
+    self.setPositionAndSize();
+
+    // add the events for the movement
+    /**
+     *
+     */
+    function onMouseMove(evt) {
+      self.newPosition = descartesJS.getCursorPosition(evt);
+      self.container.style.left = self.initialPosition.x + (self.newPosition.x - self.oldPosition.x) + "px";
+      self.container.style.top  = self.initialPosition.y + (self.newPosition.y - self.oldPosition.y) + "px";
+    }
+
+    /**
+     *
+     */
+    function onMouseUp(evt) {
+      evt.preventDefault();
+
+      self.findOffset();
+
+      document.body.removeEventListener("mousemove", onMouseMove);
+      document.body.removeEventListener("mouseup", onMouseUp);
+    }
+
+    /**
+     *
+     */
+    function onMouseDown(evt) {
+      evt.preventDefault();
+
+      self.oldPosition = descartesJS.getCursorPosition(evt);
+      self.initialPosition = { x: self.container.offsetLeft, y: self.container.offsetTop };
+
+      document.body.addEventListener("mousemove", onMouseMove);
+      document.body.addEventListener("mouseup", onMouseUp);
+    }
+
+    self.moveManipulator.addEventListener("mousedown", onMouseDown);
+
+    self.findOffset();
+    self.hide();
+  }
+
+  /**
+   * Add a control to the list of controls of the space
+   * @param {Control} ctr is the control to add
+   */
+  descartesJS.SpaceExternal.prototype.addCtr = function(ctr) {
+    this.ctrs.push(ctr);
+  }  
+
+  /**
+   *
+   */
+  descartesJS.SpaceExternal.prototype.show = function() {
+    this.setPositionAndSize();
+
+    this.container.style.display = "block";
+  }  
+
+  /**
+   *
+   */
+  descartesJS.SpaceExternal.prototype.hide = function() {
+    this.container.style.display = "none";
+  }  
+
+  /**
+   *
+   */
+  descartesJS.SpaceExternal.prototype.setPositionAndSize = function() {
+    var self = this;
+    var newHeight = self.vSpace + 46 + self.numCtr*35 + 25 + 10;
+
+    self.container.style.left = Math.max((parseInt(window.innerWidth - self.width)/2), 0) + "px";
+    self.container.style.top = "5px";
+
+    // minimun space
+    if (window.innerHeight < (self.vSpace + 75)) {
+      self.container.style.height = (self.vSpace + 75) + "px";
+    }
+    else if (newHeight > (window.innerHeight-10)) {
+      self.container.style.height = window.innerHeight-10;
+    }
+    else {
+      self.container.style.height = newHeight + "px";
+    }
+  }
+
+  /**
+   * Find the offset postion of a space
+   */
+  descartesJS.SpaceExternal.prototype.findOffset = function() {
+    tmpContainer = this.container;
+
+    this.offsetLeft = 0;
+    this.offsetTop = 0;
+
+    // store the display style
+    if ((this.container) && (this.container.style)) {
+      tmpDisplay = this.container.style.display;
+    }
+
+    // make visible the element to get the offset values
+    this.container.style.display = "block";
+
+    if (tmpContainer.getBoundingClientRect) {
+      var boundingRect = tmpContainer.getBoundingClientRect();
+      this.offsetLeft = boundingRect.left;
+      this.offsetTop  = boundingRect.top;
+    }
+    else {
+      while (tmpContainer) {
+        if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
+          this.offsetLeft += tmpContainer.offsetLeft || 0;
+          this.offsetTop  += tmpContainer.offsetTop || 0;
+          tmpContainer = tmpContainer.parentNode;
+        }
+        else {
+          tmpContainer = null;
+        }
+      }
+    }
+    
+    // restore the display style
+    if ((this.container) && (this.container.style)) {
+      this.container.style.display = tmpDisplay;
+    }
+
+    // find the offset for the controls that need it
+    for (var i=0,l=this.ctrs.length; i<l; i++) {
+      if (this.ctrs[i].findOffset) {
+        this.ctrs[i].findOffset();
+      }
+    }
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
   var MathFloor = Math.floor;
   var MathRound = Math.round;
   var PI2 = Math.PI*2;
@@ -21156,6 +21637,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchStart(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
@@ -21181,6 +21665,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchEnd(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -21210,6 +21697,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
 
       // deactivate the graphic controls
@@ -21219,10 +21709,12 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
+
+        self.clickPosForZoom = (self.getCursorPosition(evt)).y;
+        self.clickPosForZoomNew = self.clickPosForZoom;
         
         // if not fixed add a zoom manager
         if (!self.fixed) {
-          self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
@@ -21248,6 +21740,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -21257,6 +21752,11 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
+
+        // show the external space
+        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+          self.parent.externalSpace.show();
+        }
       }
 
       window.removeEventListener("mousemove", onMouseMove, false);
@@ -21555,7 +22055,7 @@ var descartesJS = (function(descartesJS) {
       self.scale = evaluator.getVariable(self.scaleStr);
       self.drawBefore = self.drawIfValue;
 
-      if (firstTime) {
+      if ((firstTime) || (self.observer == undefined)) {
         var observerSet;
         // check if the observer is the name of some control
         for (var i=0, l=self.parent.controls.length; i<l; i++) {
@@ -21841,6 +22341,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchStart(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
@@ -21867,6 +22370,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchEnd(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
 
@@ -21892,6 +22398,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 1;
 
       // se desactivan los controles graficos
@@ -21901,10 +22410,12 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
-        
+
+        self.clickPosForZoom = (self.getCursorPosition(evt)).y;
+        self.clickPosForZoomNew = self.clickPosForZoom;
+
         // if fixed add a zoom manager
         if (!self.fixed) {
-          self.clickPosForZoom = (self.getCursorPosition(evt)).y;
           self.tempScale = self.scale;
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
@@ -21932,12 +22443,20 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       self.click = 0;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
       evt.preventDefault();
 
       if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
+
+        // show the external space
+        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+          self.parent.externalSpace.show();
+        }
       }
 
       window.removeEventListener("mousemove", onMouseMove, false);
@@ -22323,9 +22842,23 @@ var descartesJS = (function(descartesJS) {
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
     // this.MyIFrame.setAttribute("style", "overflow: hidden; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    // this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
 
-    this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
+    this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
+
+    this.container = document.createElement("div");
+    // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    if (descartesJS.isIOS) {
+      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    }
+    else {
+      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;"); 
+    }
+    
+    this.container.appendChild(this.MyIFrame);
+
+    // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
+    this.parent.container.insertBefore(this.container, this.parent.loader);
 
     // register the comunication functions
     var self = this;
@@ -23073,8 +23606,11 @@ var descartesJS = (function(descartesJS) {
      * type {Space}
      * @private
      */
-    this.externalSpace = {container: document.createElement("div"), controls: []};
-    
+    if (this.externalSpace) {
+      document.body.removeChild(this.externalSpace.container);
+    }
+    this.externalSpace = new descartesJS.SpaceExternal(this);
+
     /**
      * north region
      * type {Space}
@@ -23172,7 +23708,7 @@ var descartesJS = (function(descartesJS) {
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
-      this.parentContainer.removeChild(this.container)
+      this.parentContainer.removeChild(this.container);
     }
 
     this.container = document.createElement("div");
@@ -23456,6 +23992,8 @@ var descartesJS = (function(descartesJS) {
 
     // evaluator used in a range evaluation
     descartesJS.externalEvaluator = new descartesJS.Evaluator();
+
+    this.externalSpace.init();
   }
   
   /**
@@ -24452,13 +24990,17 @@ var descartesJS = (function(descartesJS) {
 
     // if has support for canvas start the interpretation
     if (descartesJS.hasCanvasSupport) {
+      window.scrollTo(0, 10);
+
       removeDescartesAppContainers();
       makeDescartesApps();
       // showNoDescartesJSApplets();
       window.addEventListener("resize", descartesJS.onResize);
 
-      // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
-      window.scrollTo(0, 2);
+      // scroll the page 2 pixel to remove the address bar when page is done loading in mobile
+      window.scrollTo(0, 2);      
+
+      document.body.setAttribute("tabIndex", 1000000);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {

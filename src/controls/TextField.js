@@ -100,7 +100,7 @@ var descartesJS = (function(descartesJS) {
           return "";
         }
 
-        if (value.match(/^'/) && value.match(/'$/)) {
+        if ((value) && value.match(/^'/) && value.match(/'$/)) {
           return value.substring(1,value.length-1);
         }
 
@@ -191,7 +191,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"TextField");
     this.field.setAttribute("class", "DescartesTextFieldField");
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth -2) + "px; height : " + (this.h-2) + "px; left: " + (labelWidth) + "px;");
+    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + labelWidth + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
     
@@ -237,21 +237,23 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
     
-    oldFieldValue = this.field.value;
-    oldValue = this.value;
-        
-    // update the text field value
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
-    this.field.value = this.formatOutputValue(this.value);
-    
-    if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
-      // update the spinner value
-      this.value = this.validateValue( oldFieldValue );
+    if (document.activeElement != this.field) {
+      oldFieldValue = this.field.value;
+      oldValue = this.value;
+          
+      // update the text field value
+      this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
+      
+      if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
+        // update the spinner value
+        this.value = this.validateValue( oldFieldValue );
+        this.field.value = this.formatOutputValue(this.value);
+      }
+      
+      // register the control value
+      evaluator.setVariable(this.id, this.value);
     }
-    
-    // register the control value
-    evaluator.setVariable(this.id, this.value);
   }
 
   /**
@@ -369,7 +371,8 @@ var descartesJS = (function(descartesJS) {
     var self = this;    
 
     // prevent the context menu display
-    self.label.oncontextmenu = function() { return false; };
+    self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
+
     // prevent the default events int the label    
     if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });

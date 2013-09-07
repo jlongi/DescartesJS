@@ -196,8 +196,11 @@ var descartesJS = (function(descartesJS) {
      * type {Space}
      * @private
      */
-    this.externalSpace = {container: document.createElement("div"), controls: []};
-    
+    if (this.externalSpace) {
+      document.body.removeChild(this.externalSpace.container);
+    }
+    this.externalSpace = new descartesJS.SpaceExternal(this);
+
     /**
      * north region
      * type {Space}
@@ -295,7 +298,7 @@ var descartesJS = (function(descartesJS) {
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
-      this.parentContainer.removeChild(this.container)
+      this.parentContainer.removeChild(this.container);
     }
 
     this.container = document.createElement("div");
@@ -579,6 +582,8 @@ var descartesJS = (function(descartesJS) {
 
     // evaluator used in a range evaluation
     descartesJS.externalEvaluator = new descartesJS.Evaluator();
+
+    this.externalSpace.init();
   }
   
   /**

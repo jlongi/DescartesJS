@@ -398,6 +398,7 @@ var descartesJS = (function(descartesJS) {
     // if the control is in the external region
     else if (this.region === "external") {
       // this.space = this.parent.externalSpace;
+      this.parent.externalSpace.addCtr(this);      
       return this.parent.externalSpace.container;
     }
     // if the control is in the scenario

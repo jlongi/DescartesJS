@@ -159,7 +159,7 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
     this.field.setAttribute("class", "DescartesSpinnerField");
-    this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + (fieldWidth-2) + "px; height : " + (this.h-2) + "px; left: " + (canvasWidth + labelWidth) + "px;");
+    this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
 
@@ -217,21 +217,23 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    oldFieldValue = this.field.value;
-    oldValue = this.value;
-    
-    // update the spinner value
-    this.value = this.validateValue( evaluator.getVariable(this.id) );
-    this.field.value = this.formatOutputValue(this.value);
-
-    if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
+    if (document.activeElement != this.field) {
+      oldFieldValue = this.field.value;
+      oldValue = this.value;
+      
       // update the spinner value
-      this.value = this.validateValue( oldFieldValue );
+      this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
-    }
 
-    // register the control value
-    evaluator.setVariable(this.id, this.value);
+      if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
+        // update the spinner value
+        this.value = this.validateValue( oldFieldValue );
+        this.field.value = this.formatOutputValue(this.value);
+      }
+
+      // register the control value
+      evaluator.setVariable(this.id, this.value);
+    }
   }
 
   /**

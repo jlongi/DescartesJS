@@ -380,6 +380,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseDown(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       self.whichButton = descartesJS.whichButton(evt);
@@ -419,6 +422,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onTouchStart(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
 
       if (self.activeIfValue) {
@@ -452,6 +458,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // remove the focus of the controls
+      document.body.focus();
+
       evt.preventDefault();
       self.touchId = null;
 

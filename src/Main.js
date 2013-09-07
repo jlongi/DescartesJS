@@ -176,13 +176,17 @@ var descartesJS = (function(descartesJS) {
 
     // if has support for canvas start the interpretation
     if (descartesJS.hasCanvasSupport) {
+      window.scrollTo(0, 10);
+
       removeDescartesAppContainers();
       makeDescartesApps();
       // showNoDescartesJSApplets();
       window.addEventListener("resize", descartesJS.onResize);
 
-      // scroll the page 1 pixel to remove the address bar when page is done loading in mobile
-      window.scrollTo(0, 2);
+      // scroll the page 2 pixel to remove the address bar when page is done loading in mobile
+      window.scrollTo(0, 2);      
+
+      document.body.setAttribute("tabIndex", 1000000);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {

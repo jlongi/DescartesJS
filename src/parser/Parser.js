@@ -746,17 +746,41 @@ var descartesJS = (function(descartesJS) {
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
+      var storeValues = false;
       var tmpValue;
 
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
 
-        initialIndex = response.indexOf("<" + name + ">");
-        finalIndex   = response.indexOf("</" + name + ">");
+        for (var i=0, l=response.length; i<l; i++) {
 
-        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
-          for (var i=initialIndex+1; i<finalIndex; i++) {
-            values = values.concat(response[i].split("¦"))
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values = values.concat(tmpValue[1].split("¦"));
+            }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values = values.concat(tmpValue[0].split("¦"))
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values = values.concat(response[i].split("¦"));
           }
         }
 
@@ -764,7 +788,7 @@ var descartesJS = (function(descartesJS) {
           tmpValue = values[i].split("=");
           tmpValue[0] = tmpValue[0].trim();
 
-          if (tmpValue[0] != "") {
+          if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
             // is a string
             if (isNaN(parseFloat(tmpValue[1]))) {
               // .replace(/^\s|\s$/g, "") remove the initial white space
@@ -778,6 +802,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
+      return 0;
     };
 
     this.functions["_GetMatrix_"] = function(file, name) {
@@ -789,50 +814,126 @@ var descartesJS = (function(descartesJS) {
 
       var tmpValue;
 
+
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
 
-        initialIndex = response.indexOf("<" + name + ">");
-        finalIndex   = response.indexOf("</" + name + ">");
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
 
-        if ((initialIndex != -1) && (finalIndex != -1) && (initialIndex < finalIndex)) {
-          for (var i=initialIndex+1; i<finalIndex; i++) {
-            values.push( response[i].split("¦").map(function(x) {
-              if (isNaN(parseFloat(x))) {
-                // .replace(/^\s|\s$/g, "") remove the initial white space
-                return x.replace(/^\s|\s$/g, "");
-              }
-              else {
-                return parseFloat(x);
-              }
-            }) );
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values.push(tmpValue[1].split("¦").map(myMapFun));
+            }
+
+            storeValues = true;
+            continue;
           }
 
-          self.matrices[name] = values;
-          self.setVariable(name + ".filas", values[0].length);
-          self.setVariable(name + ".columnas", values.length);
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
 
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values.push(tmpValue[0].split("¦").map(myMapFun));
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push(response[i].split("¦").map(myMapFun));
+          }
         }
+
+        self.matrices[name] = values;
+        self.setVariable(name + ".filas", values[0].length);
+        self.setVariable(name + ".columnas", values.length);
       }
+
+      return 0;
     };
 
-    // var anchor = document.createElement("a");
-    // var blob;
-    // /**
-    //  *
-    //  */
-    // this.functions["_Save_"] = function(filename, data) {
-    //   document.body.appendChild(anchor);
-    //   blob = new Blob([data], {type: "text/plain"});
+    var anchor = document.createElement("a");
+    var blob;
+    /**
+     *
+     */
+    this.functions["_Save_"] = function(filename, data) {
+      document.body.appendChild(anchor);
+      blob = new Blob([data], {type: "text/plain"});
 
-    //   anchor.setAttribute("download", filename);
-    //   anchor.setAttribute("href", window.URL.createObjectURL(blob));
-    //   anchor.click();
+      anchor.setAttribute("download", filename);
+      anchor.setAttribute("href", window.URL.createObjectURL(blob));
+      anchor.click();
 
-    //   document.body.removeChild(anchor);
-    // };
+      document.body.removeChild(anchor);
+
+      return 0;
+    };
+
+    var files;
+    var reader;
+    var _varname;
+    var _callback;
+    var input = document.createElement("input");
+    input.setAttribute("type", "file");
+
+    onHandleFileSelect = function(evt) {
+      files = evt.target.files;
+
+      reader = new FileReader();
+      /**
+       * read the content of the file
+       */
+      reader.onload = function(evt) {
+        descartesJS.addExternalFileContent(files[0].name, evt.target.result)
+
+        self.setVariable(_varname, files[0].name);
+
+        if (self.getFunction(_callback)) {
+          self.getFunction(_callback).apply(self.evaluator, []);
+          self.evaluator.parent.update();
+        }
+      }
+
+      if (files.length >0) {
+        reader.readAsText(files[0]);
+      }
+    }
+
+    input.addEventListener("change", onHandleFileSelect);
+
+    /**
+     *
+     */
+    this.functions["_Open_"] = function(varname, callback) {
+      _varname = varname;
+      _callback = callback;
+
+      input.click();
+
+      return 0;
+    }
     ////////////////////////////////////////
   }  
+
+/**
+ *
+ */
+function myMapFun(x) {
+  if (isNaN(parseFloat(x))) {
+    // .replace(/^\s|\s$/g, "") remove the initial white space
+    return x.replace(/^\s|\s$/g, "");
+  }
+  else {
+    return parseFloat(x);
+  }
+}
+
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());

@@ -63,6 +63,8 @@ var descartesJS = (function(descartesJS) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
     }
 
+console.log(vertices);
+
     for (var i=0, l=vertices.length-1; i<l; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
                                  type: "edge",
