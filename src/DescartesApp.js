@@ -6,6 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
+                 "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
+                 "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
+                 "}";
+
   /**
    * Descartes application interprete with javascript
    * @constructor 
@@ -28,7 +34,7 @@ var descartesJS = (function(descartesJS) {
      * @private 
      */
     this.parentContainer = applet.parentNode;
-    
+
     /**
      * width of the applet
      * @type {Number}
@@ -57,6 +63,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.children = applet.getElementsByTagName("param");
+
+    descartesJS.creativeCommonsLicense = true;
+    for (var i=0,l=this.children.length; i<l; i++) {
+      if (this.children[i].name == "CreativeCommonsLicense") {
+        descartesJS.creativeCommonsLicense = (this.children[i].value == "no") ? false : true;
+      }
+    }
 
     /**
      * string that determines what kind of descartes lesson is
@@ -137,24 +150,13 @@ var descartesJS = (function(descartesJS) {
                       !!this.code.match("Discurso", "i");
 
     // licences for arquimedes
-    // this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-    //                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-    //                  "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-    //                  "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-    //                  "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-    //                  "}";
-    this.licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                    "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                    "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                    "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-                    "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-                    "}";
-    // this.licenseA = "";
+    this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
 
     var children = this.children;
     var children_i;
     var heightRTF = 0;
     var heightButtons = 0;
+    var licenceHeight = (descartesJS.creativeCommonsLicense) ? 90 : 0;
 
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
@@ -180,7 +182,7 @@ var descartesJS = (function(descartesJS) {
     if (this.arquimedes) {
       // modify the lesson height if find rtf height
       if (heightRTF) {
-        this.height =  heightRTF + heightButtons + 90; // 70 is the height of the licence image
+        this.height =  heightRTF + heightButtons + licenceHeight; // 70 is the height of the licence image
       }
     }
 
@@ -393,7 +395,9 @@ var descartesJS = (function(descartesJS) {
 
         tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
         tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
-        tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+        if (descartesJS.creativeCommonsLicense) {
+          tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+        }
 
         continue;
       }
@@ -580,9 +584,6 @@ var descartesJS = (function(descartesJS) {
       descartesJS.onResize();      
     }
 
-    // evaluator used in a range evaluation
-    descartesJS.externalEvaluator = new descartesJS.Evaluator();
-
     this.externalSpace.init();
   }
   
@@ -685,6 +686,7 @@ var descartesJS = (function(descartesJS) {
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
                                                     });
+        btnAbout.actionExec = { execute: descartesJS.showAbout };
         btnAbout.update();
       }
       // create the configuration button

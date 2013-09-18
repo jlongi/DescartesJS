@@ -74,6 +74,7 @@ var descartesJS = (function(descartesJS) {
                                                          font_size: parser.parse(fontSizeDefaultButtons),
                                                          expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)") 
                                                         });
+    btnAbout.actionExec = { execute: descartesJS.showAbout };
     btnAbout.update();
 
     // create the configuration button

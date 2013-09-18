@@ -236,7 +236,7 @@ var descartesJS = (function(descartesJS) {
     
     // update the position and size
     this.updatePositionAndSize();
-    
+
     if (document.activeElement != this.field) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
@@ -406,6 +406,14 @@ var descartesJS = (function(descartesJS) {
       }
     }
     this.field.addEventListener("keydown", onKeyDown_TextField);
+
+    /*
+     * Prevent an error with the focus of a text field
+     */
+    self.field.addEventListener("click", function(evt) {
+      this.select();
+      this.focus();
+    });    
   }
   
   return descartesJS;

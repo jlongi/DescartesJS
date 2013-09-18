@@ -105,6 +105,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Evaluator.prototype.evalExpression = function (expr) {
     return (expr) ? expr.evaluate(this) : 0;
   }
+
+  // evaluator used in a range evaluation
+  descartesJS.externalEvaluator = new descartesJS.Evaluator();  
     
   return descartesJS;
 })(descartesJS || {});

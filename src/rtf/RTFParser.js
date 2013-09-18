@@ -185,6 +185,10 @@ var descartesJS = (function(descartesJS) {
       // color text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value.match(/^cf(\d+)/))) {
         styleStackTop.textColor = colorTable[parseInt(tokens[i].value.substring(2))];
+        if (formulaStack.length > 0) {
+          formulaStack[formulaStack.length-1].style.textColor = styleStackTop.textColor;
+        }
+
         continue;
       }
       // init a rtf block, expressions or formulas
@@ -198,7 +202,7 @@ var descartesJS = (function(descartesJS) {
 
         continue;
       }
-      // close a rtf block, espressions or formulas
+      // close a rtf block, expression or formulas
       else if (tokens[i].type == "closeBlock") {
         if (tokens[i].value == formulaBlock) {
           formulaBlock = -1;
@@ -560,7 +564,7 @@ var descartesJS = (function(descartesJS) {
       
       rootNode.hasFormula = hasFormula;
       
-      //console.log(rootNode);
+      // console.log(rootNode);
     }
     
     return rootNode;

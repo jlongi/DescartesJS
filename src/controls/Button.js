@@ -85,13 +85,7 @@ var descartesJS = (function(descartesJS) {
       this.imageSrc  = "";
     }
 
-    // // modificacion para hacer que el boton sea mas configurable y pueda recibir el nombre de la imagen a mostrar desde una variable
-    // if ((this.imageSrc.charAt(0) == "[") && (this.imageSrc.charAt(this.imageSrc.length-1))) {
-    //   this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
-    // }
-    // else {
-      this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
-    // }
+    this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
     
     // if the button has an image then load it and try to load the over and down images
     var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
@@ -234,7 +228,9 @@ var descartesJS = (function(descartesJS) {
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-        ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
+        this.canvas.style.backgroundPosition = "center";
+        // ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
     // the image is not ready or do not have a image
@@ -297,11 +293,12 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
-      ctx.globalCompositeOperation = "destination-in";
-      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
-      ctx.fillRect(0, 0, this.w, this.h);
-      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      ctx.fillRect(0, 0, this.w, this.h);      
+      // ctx.globalCompositeOperation = "destination-in";
+      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
+      // ctx.fillRect(0, 0, this.w, this.h);
+      // ctx.globalCompositeOperation = "source-over";
     }
     
   }

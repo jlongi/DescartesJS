@@ -209,7 +209,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
       
-      this.w = metrics.w;
+      this.w = 0;
       this.h = metrics.h;
     }
     
@@ -235,10 +235,9 @@ var descartesJS = (function(descartesJS) {
         textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
 
         // is a number
-        if (parseFloat(textTemp) == textTemp) {
-          textTemp = parseFloat(textTemp).toFixed(decimals);
-          textTemp = (fixed) ? textTemp : parseFloat(textTemp);
-          textTemp = textTemp.toString().replace(".", this.decimal_symbol);
+        if (parseFloat(textTemp).toString() === textTemp.toString()) {
+          textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
+          textTemp = (""+textTemp).replace(".", this.decimal_symbol);
         }
         
         textTemp += " ";
@@ -702,7 +701,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
                   
-      this.w = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
+      this.w = descartesJS.getTextWidth(this.value, this.styleString) + this.spaceWidth;
       this.h = metrics.h;
     }
     
@@ -789,9 +788,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
     if(!this.stableWidth) {
-      this.getTextMetrics();
       externalDecimals = decimals;
       externalFixed = fixed;
+      this.getTextMetrics();
     }
 
     displaceY = (displaceY) ? -this.children[0].ascent : 0;
@@ -825,18 +824,20 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextLineBlock = function(ctx, x, y) {
     var antChildX = 0;
+
     for (var i=0, l=this.children.length; i<l; i++) {
 
       if (i>0) {
         antChildX += this.children[i-1].w;
 
         if ((this.children[i-1].nodeType == "formula")) {
-          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleString);
+          antChildX += 2*this.children[i-1].spaceWidth;
         }
       }
 
       this.children[i].draw(ctx, x+antChildX, y+this.baseline);
     }
+
   }  
   
   /**
@@ -913,13 +914,10 @@ var descartesJS = (function(descartesJS) {
     var decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
     var fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
 
-    var textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
-    
+    var textTemp = this.evaluator.evalExpression(this.value);
     // the text is a number
-    // if (parseFloat(textTemp) == textTemp) {
-    // if (parseFloat(textTemp) === textTemp) {
     if (parseFloat(textTemp).toString() === textTemp.toString()) {
-      textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : parseFloat(parseFloat(textTemp).toFixed(decimals));
+      textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
       textTemp = (""+textTemp).replace(".", this.decimal_symbol);
     }
 

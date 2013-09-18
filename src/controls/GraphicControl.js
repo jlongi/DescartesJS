@@ -187,6 +187,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable(this.activoString, 0);
 
+    this.setImage = false;
+
     this.update();
   }
   
@@ -264,8 +266,10 @@ var descartesJS = (function(descartesJS) {
       } 
       // if the control has an image and is ready
       else {
-      	if (this.image.complete){
-          ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
+      	if ((this.image.complete) && (!this.setImage)) {
+          this.mouseCacher.style.backgroundImage = "url(" + this.image.src + ")";
+          this.setImage = true;
+          // ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
         }
         
         // if has trace

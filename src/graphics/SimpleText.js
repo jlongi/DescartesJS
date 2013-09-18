@@ -110,7 +110,7 @@ var descartesJS = (function(descartesJS) {
           else {
             evalString = parseFloat(evalString);
 
-            evalString = (fixed) ? evalString.toFixed(decimals) : parseFloat(evalString.toFixed(decimals));
+            evalString = (fixed) ? evalString.toFixed(decimals) : descartesJS.removeNeedlessDecimals(evalString.toFixed(decimals));
             txt += evalString.toString().replace(".", this.parent.decimal_symbol);                        
           }
         }

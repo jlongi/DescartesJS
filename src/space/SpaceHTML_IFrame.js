@@ -58,13 +58,15 @@ var descartesJS = (function(descartesJS) {
 
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
+console.log()
+
     this.container = document.createElement("div");
     // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
     if (descartesJS.isIOS) {
-      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
     }
     else {
-      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;"); 
+      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
     }
     
     this.container.appendChild(this.MyIFrame);

@@ -108,8 +108,8 @@ files = [ "Babel.js",
 out.write(
 "/**
  * @preserve Joel Espinosa Longi
- * joel.espinosa@amite.mx
  * j.longi@gmail.com
+ * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
  * " + Date.today.to_s() + "
  */\n\n")

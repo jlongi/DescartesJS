@@ -155,9 +155,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     // register the mouse and touch events
-    if (self.id !== "descartesJS_scenario") {
+    // if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
-    }
+    // }
 
   }
   

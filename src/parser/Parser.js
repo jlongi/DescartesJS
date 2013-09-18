@@ -699,6 +699,7 @@ var descartesJS = (function(descartesJS) {
     this.functions["atan"]  = Math.atan;
     this.functions["min"]   = Math.min;
     this.functions["max"]   = Math.max;
+    this.functions["_Num_"] = function(x) { return parseFloat(x); };
 
     // new internal functions
     var self = this;
@@ -915,6 +916,81 @@ var descartesJS = (function(descartesJS) {
       _callback = callback;
 
       input.click();
+
+      return 0;
+    }
+
+    /**
+     *
+     */
+    this.functions["_SaveState_"] = function() {
+      this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
+      return 0;
+    }
+
+    var files2;
+    var reader2;
+    var input2 = document.createElement("input");
+    input2.setAttribute("type", "file");
+
+    /**
+     *
+     */
+    function copyNewValues(oldVal, newVal) {
+      // traverse the values to replace the defaults values of the object
+      for (var propName in newVal) {
+        // verify the own properties of the object
+        if (newVal.hasOwnProperty(propName)) {
+          oldVal[propName] = newVal[propName];
+        }
+      }
+    }
+
+    /**
+     *
+     */
+    onHandleFileSelect2 = function(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+
+      files2 = evt.target.files;
+
+      reader2 = new FileReader();
+      /**
+       * read the content of the file
+       */
+      reader2.onload = function(evt) {
+        var jsonParse = {};
+        try {
+          jsonParse = JSON.parse(evt.target.result);
+        }
+        catch(e) { };
+
+        if (jsonParse.variables) {
+          copyNewValues(self.variables, jsonParse.variables);
+        }
+        if (jsonParse.vectors) {
+          copyNewValues(self.vectors, jsonParse.vectors);
+        }
+        if (jsonParse.matrices) {
+          copyNewValues(self.matrices, jsonParse.matrices);
+        }
+
+        self.evaluator.parent.update();
+      }
+
+      if (files2.length >0) {
+        reader2.readAsText(files2[0]);
+      }
+    }
+    input2.removeEventListener("change", onHandleFileSelect2);
+    input2.addEventListener("change", onHandleFileSelect2);
+
+    /**
+     *
+     */
+    this.functions["_OpenState_"] = function() {
+      input2.click(); 
 
       return 0;
     }

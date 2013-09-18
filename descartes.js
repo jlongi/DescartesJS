@@ -1,9 +1,9 @@
 /**
  * @preserve Joel Espinosa Longi
- * joel.espinosa@amite.mx
  * j.longi@gmail.com
+ * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-09-06
+ * 2013-09-17
  */
 
 /**
@@ -542,13 +542,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
     }
 
-    // some browsers like chrome do not suport more than 20 decimal in the toFixed function
-    // try {
-      // (0).toFixed(100);
-    // } 
-    // catch(e) {
-      setNewToFixed();
-    // }
+    setNewToFixed();
   }
 
   /**
@@ -574,9 +568,9 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      if (decimals <= 20) {
-        return this.originalToFixed(decimals);
-      }
+      // if (decimals <= 20) {
+      //   return this.originalToFixed(decimals);
+      // }
 
       decimals = (decimals<0) ? 0 : parseInt(decimals);
       strNum = this.toString();
@@ -608,9 +602,6 @@ var descartesJS = (function(descartesJS) {
         if (decimals > 0) {
           extraZero = ".";
         }
-        // for (var i=0; i<decimals; i++) {
-        //   extraZero += "0";
-        // }
 
         extraZero += (new Array(decimals+1)).join("0");
 
@@ -632,6 +623,22 @@ var descartesJS = (function(descartesJS) {
     }
   }
   
+  /**
+   *
+   */
+  descartesJS.removeNeedlessDecimals = function(num) {
+    var indexOfDot;
+
+    if (typeof(num) == "string") {
+      indexOfDot = num.indexOf(".");
+      if ((indexOfDot != -1) && (parseFloat(num.substring(indexOfDot)) == 0)) {
+        return num.substring(0, indexOfDot);
+      }
+    }
+
+    return num;
+  }
+
   /**
    * Get which mouse button is pressed
    */
@@ -870,6 +877,70 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  var htmlAbout = 
+  "<html>\n" +
+  "<head>\n" +
+  "<style>\n" +
+  "body{ text-align:center; }\n" +
+  "iframe{ width:650px; height:73px; overflow:hidden; border:1px solid black; }\n" +
+  "dt{ font-weight:bold; margin-top:10px; }\n" +
+  "</style>\n" +
+  "</head>\n" +
+  "<body>\n" +
+  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>\n" +
+  "<h2> <a href='http://proyectodescartes.org/'>ProyectoDescartes.org</a> <br> <a href=''>descartesjs.org</a> </h2>\n" +
+  "<dl>\n" +
+  "<dt> Dise&ntilde;o funcional:</dt>\n" +
+  "<dd>\n" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
+  "<nobr>Jos&eacute; R. Galo Sanchez</nobr>\n" +
+  "</dd>\n" +
+  "<dt>Autores del software:</dt>\n" +
+  "<dd>\n" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
+  "<nobr>Marta Oliver&oacute; Serrat,</nobr>\n" +
+  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>\n" +
+  "<nobr>Joel Espinosa Longi</nobr>\n" +
+  "</dd>\n" +
+  "</dl>\n" +
+  "<p>\n" +
+  "El software en Java est&aacute; bajo la licencia\n" +
+  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1 </a>\n" +
+  "<br>\n" +
+  "El software en JavaScrpit est&aacute; bajo licencia\n" +
+  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>\n" +
+  "</p>\n" +
+  "<p>\n" +
+  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :\n" +
+  "<br>\n" +
+  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>\n" +
+  "</p>";
+
+  var htmlCreative = "<p>\n" +
+  "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
+  "por sus autores como\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><nobr>Creative Commons</nobr></a>\n" +
+  "<br>\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><img src='http://i.creativecommons.org/l/by-nc-sa/3.0/es/88x31.png'></a>\n" +
+  "</p>";
+
+  var htmlFinal = "</body> </html>";
+
+  /**
+   *
+   */
+  descartesJS.showAbout = function() {
+    var content = "data:text/html;charset=utf-8,";
+    if (descartesJS.creativeCommonsLicense) {
+      content += encodeURI(htmlAbout + htmlCreative + htmlFinal);
+    }
+    else {
+      content += encodeURI(htmlAbout + htmlFinal);
+    }
+
+    window.open(content, "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+  }
+
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -957,7 +1028,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  descartesJS.addExternalFileContent = function (filename, data) {
+  descartesJS.addExternalFileContent = function(filename, data) {
     descartesJS._externalFilesContent[filename] = data;
   }
 
@@ -3717,7 +3788,7 @@ var descartesJS = (function(descartesJS) {
           else {
             evalString = parseFloat(evalString);
 
-            evalString = (fixed) ? evalString.toFixed(decimals) : parseFloat(evalString.toFixed(decimals));
+            evalString = (fixed) ? evalString.toFixed(decimals) : descartesJS.removeNeedlessDecimals(evalString.toFixed(decimals));
             txt += evalString.toString().replace(".", this.parent.decimal_symbol);                        
           }
         }
@@ -8254,8 +8325,6 @@ var descartesJS = (function(descartesJS) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
     }
 
-console.log(vertices);
-
     for (var i=0, l=vertices.length-1; i<l; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
                                  type: "edge",
@@ -10231,13 +10300,7 @@ var descartesJS = (function(descartesJS) {
       this.imageSrc  = "";
     }
 
-    // // modificacion para hacer que el boton sea mas configurable y pueda recibir el nombre de la imagen a mostrar desde una variable
-    // if ((this.imageSrc.charAt(0) == "[") && (this.imageSrc.charAt(this.imageSrc.length-1))) {
-    //   this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
-    // }
-    // else {
-      this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
-    // }
+    this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
     
     // if the button has an image then load it and try to load the over and down images
     var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
@@ -10380,7 +10443,9 @@ var descartesJS = (function(descartesJS) {
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-        ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
+        this.canvas.style.backgroundPosition = "center";
+        // ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
     // the image is not ready or do not have a image
@@ -10443,11 +10508,12 @@ var descartesJS = (function(descartesJS) {
     }
      
     if (!this.activeIfValue) {
-      ctx.globalCompositeOperation = "destination-in";
-      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
-      ctx.fillRect(0, 0, this.w, this.h);
-      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+      ctx.fillRect(0, 0, this.w, this.h);      
+      // ctx.globalCompositeOperation = "destination-in";
+      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
+      // ctx.fillRect(0, 0, this.w, this.h);
+      // ctx.globalCompositeOperation = "source-over";
     }
     
   }
@@ -11156,7 +11222,15 @@ var descartesJS = (function(descartesJS) {
     } else {
       this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
       window.addEventListener("mouseup", onMouseUp_DownButton);
-    } 
+    }
+
+    /*
+     * Prevent an error with the focus of a text field
+     */
+    self.field.addEventListener("click", function(evt) {
+      this.select();
+      this.focus();
+    });    
   }
   
   return descartesJS;
@@ -11398,7 +11472,7 @@ var descartesJS = (function(descartesJS) {
     
     // update the position and size
     this.updatePositionAndSize();
-    
+
     if (document.activeElement != this.field) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
@@ -11568,6 +11642,14 @@ var descartesJS = (function(descartesJS) {
       }
     }
     this.field.addEventListener("keydown", onKeyDown_TextField);
+
+    /*
+     * Prevent an error with the focus of a text field
+     */
+    self.field.addEventListener("click", function(evt) {
+      this.select();
+      this.focus();
+    });    
   }
   
   return descartesJS;
@@ -11988,6 +12070,17 @@ var descartesJS = (function(descartesJS) {
       }
     }
     this.field.addEventListener("keydown", onKeyDown_TextField);
+
+    /*
+     * Prevent an error with the focus of a text field
+     */
+    self.field.addEventListener("click", function(evt) {
+      this.select();      
+      this.focus();
+    });
+    self.select.addEventListener("click", function(evt) {
+      this.focus();
+    });
   }
 
   return descartesJS;
@@ -13731,6 +13824,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable(this.activoString, 0);
 
+    this.setImage = false;
+
     this.update();
   }
   
@@ -13808,8 +13903,10 @@ var descartesJS = (function(descartesJS) {
       } 
       // if the control has an image and is ready
       else {
-      	if (this.image.complete){
-          ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
+      	if ((this.image.complete) && (!this.setImage)) {
+          this.mouseCacher.style.backgroundImage = "url(" + this.image.src + ")";
+          this.setImage = true;
+          // ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
         }
         
         // if has trace
@@ -17594,6 +17691,7 @@ var descartesJS = (function(descartesJS) {
     this.functions["atan"]  = Math.atan;
     this.functions["min"]   = Math.min;
     this.functions["max"]   = Math.max;
+    this.functions["_Num_"] = function(x) { return parseFloat(x); };
 
     // new internal functions
     var self = this;
@@ -17813,6 +17911,81 @@ var descartesJS = (function(descartesJS) {
 
       return 0;
     }
+
+    /**
+     *
+     */
+    this.functions["_SaveState_"] = function() {
+      this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
+      return 0;
+    }
+
+    var files2;
+    var reader2;
+    var input2 = document.createElement("input");
+    input2.setAttribute("type", "file");
+
+    /**
+     *
+     */
+    function copyNewValues(oldVal, newVal) {
+      // traverse the values to replace the defaults values of the object
+      for (var propName in newVal) {
+        // verify the own properties of the object
+        if (newVal.hasOwnProperty(propName)) {
+          oldVal[propName] = newVal[propName];
+        }
+      }
+    }
+
+    /**
+     *
+     */
+    onHandleFileSelect2 = function(evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+
+      files2 = evt.target.files;
+
+      reader2 = new FileReader();
+      /**
+       * read the content of the file
+       */
+      reader2.onload = function(evt) {
+        var jsonParse = {};
+        try {
+          jsonParse = JSON.parse(evt.target.result);
+        }
+        catch(e) { };
+
+        if (jsonParse.variables) {
+          copyNewValues(self.variables, jsonParse.variables);
+        }
+        if (jsonParse.vectors) {
+          copyNewValues(self.vectors, jsonParse.vectors);
+        }
+        if (jsonParse.matrices) {
+          copyNewValues(self.matrices, jsonParse.matrices);
+        }
+
+        self.evaluator.parent.update();
+      }
+
+      if (files2.length >0) {
+        reader2.readAsText(files2[0]);
+      }
+    }
+    input2.removeEventListener("change", onHandleFileSelect2);
+    input2.addEventListener("change", onHandleFileSelect2);
+
+    /**
+     *
+     */
+    this.functions["_OpenState_"] = function() {
+      input2.click(); 
+
+      return 0;
+    }
     ////////////////////////////////////////
   }  
 
@@ -17943,6 +18116,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Evaluator.prototype.evalExpression = function (expr) {
     return (expr) ? expr.evaluate(this) : 0;
   }
+
+  // evaluator used in a range evaluation
+  descartesJS.externalEvaluator = new descartesJS.Evaluator();  
     
   return descartesJS;
 })(descartesJS || {});/**
@@ -18156,7 +18332,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
       
-      this.w = metrics.w;
+      this.w = 0;
       this.h = metrics.h;
     }
     
@@ -18182,10 +18358,9 @@ var descartesJS = (function(descartesJS) {
         textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
 
         // is a number
-        if (parseFloat(textTemp) == textTemp) {
-          textTemp = parseFloat(textTemp).toFixed(decimals);
-          textTemp = (fixed) ? textTemp : parseFloat(textTemp);
-          textTemp = textTemp.toString().replace(".", this.decimal_symbol);
+        if (parseFloat(textTemp).toString() === textTemp.toString()) {
+          textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
+          textTemp = (""+textTemp).replace(".", this.decimal_symbol);
         }
         
         textTemp += " ";
@@ -18649,7 +18824,7 @@ var descartesJS = (function(descartesJS) {
       this.descent = metrics.descent;
       this.ascent = metrics.ascent;
                   
-      this.w = descartesJS.getTextWidth(this.value, this.styleString) + descartesJS.getTextWidth(" ", this.styleString);
+      this.w = descartesJS.getTextWidth(this.value, this.styleString) + this.spaceWidth;
       this.h = metrics.h;
     }
     
@@ -18736,9 +18911,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
     if(!this.stableWidth) {
-      this.getTextMetrics();
       externalDecimals = decimals;
       externalFixed = fixed;
+      this.getTextMetrics();
     }
 
     displaceY = (displaceY) ? -this.children[0].ascent : 0;
@@ -18772,18 +18947,20 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawTextLineBlock = function(ctx, x, y) {
     var antChildX = 0;
+
     for (var i=0, l=this.children.length; i<l; i++) {
 
       if (i>0) {
         antChildX += this.children[i-1].w;
 
         if ((this.children[i-1].nodeType == "formula")) {
-          antChildX += 2*descartesJS.getTextWidth(" ", this.children[i].styleString);
+          antChildX += 2*this.children[i-1].spaceWidth;
         }
       }
 
       this.children[i].draw(ctx, x+antChildX, y+this.baseline);
     }
+
   }  
   
   /**
@@ -18860,13 +19037,10 @@ var descartesJS = (function(descartesJS) {
     var decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.evalExpression(this.decimals);
     var fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
 
-    var textTemp = this.evaluator.evalExpression(this.value, decimals, fixed);
-    
+    var textTemp = this.evaluator.evalExpression(this.value);
     // the text is a number
-    // if (parseFloat(textTemp) == textTemp) {
-    // if (parseFloat(textTemp) === textTemp) {
     if (parseFloat(textTemp).toString() === textTemp.toString()) {
-      textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : parseFloat(parseFloat(textTemp).toFixed(decimals));
+      textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
       textTemp = (""+textTemp).replace(".", this.decimal_symbol);
     }
 
@@ -19721,6 +19895,10 @@ var descartesJS = (function(descartesJS) {
       // color text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value.match(/^cf(\d+)/))) {
         styleStackTop.textColor = colorTable[parseInt(tokens[i].value.substring(2))];
+        if (formulaStack.length > 0) {
+          formulaStack[formulaStack.length-1].style.textColor = styleStackTop.textColor;
+        }
+
         continue;
       }
       // init a rtf block, expressions or formulas
@@ -19734,7 +19912,7 @@ var descartesJS = (function(descartesJS) {
 
         continue;
       }
-      // close a rtf block, espressions or formulas
+      // close a rtf block, expression or formulas
       else if (tokens[i].type == "closeBlock") {
         if (tokens[i].value == formulaBlock) {
           formulaBlock = -1;
@@ -20096,7 +20274,7 @@ var descartesJS = (function(descartesJS) {
       
       rootNode.hasFormula = hasFormula;
       
-      //console.log(rootNode);
+      // console.log(rootNode);
     }
     
     return rootNode;
@@ -20895,6 +21073,7 @@ var descartesJS = (function(descartesJS) {
                                                          font_size: parser.parse(fontSizeDefaultButtons),
                                                          expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)") 
                                                         });
+    btnAbout.actionExec = { execute: descartesJS.showAbout };
     btnAbout.update();
 
     // create the configuration button
@@ -21260,9 +21439,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     // register the mouse and touch events
-    if (self.id !== "descartesJS_scenario") {
+    // if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
-    }
+    // }
 
   }
   
@@ -22846,13 +23025,15 @@ var descartesJS = (function(descartesJS) {
 
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
+console.log()
+
     this.container = document.createElement("div");
     // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
     if (descartesJS.isIOS) {
-      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
     }
     else {
-      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;"); 
+      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
     }
     
     this.container.appendChild(this.MyIFrame);
@@ -23416,6 +23597,12 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
+                 "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
+                 "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
+                 "}";
+
   /**
    * Descartes application interprete with javascript
    * @constructor 
@@ -23438,7 +23625,7 @@ var descartesJS = (function(descartesJS) {
      * @private 
      */
     this.parentContainer = applet.parentNode;
-    
+
     /**
      * width of the applet
      * @type {Number}
@@ -23467,6 +23654,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.children = applet.getElementsByTagName("param");
+
+    descartesJS.creativeCommonsLicense = true;
+    for (var i=0,l=this.children.length; i<l; i++) {
+      if (this.children[i].name == "CreativeCommonsLicense") {
+        descartesJS.creativeCommonsLicense = (this.children[i].value == "no") ? false : true;
+      }
+    }
 
     /**
      * string that determines what kind of descartes lesson is
@@ -23547,24 +23741,13 @@ var descartesJS = (function(descartesJS) {
                       !!this.code.match("Discurso", "i");
 
     // licences for arquimedes
-    // this.licenseW2 = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-    //                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-    //                  "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-    //                  "                                       La unidad didáctica fue creada con DescartesWeb2.0, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-    //                  "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-    //                  "}";
-    this.licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                    "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                    "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                    "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto del  {\\*\\hyperlink Ministerio de Educación de España|http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/} y\\par "+
-                    "                                       el {\\*\\hyperlink Instituto de Matemáticas|http://arquimedes.matem.unam.mx/} de la Universidad Nacional Autónoma de México, cedido bajo licencia {\\*\\hyperlink EUPL v 1.1|/resources/eupl_v1.1es.pdf}, con {\\*\\hyperlink código en Java|http://recursostic.educacion.es/descartes/web/source/}."+
-                    "}";
-    // this.licenseA = "";
+    this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
 
     var children = this.children;
     var children_i;
     var heightRTF = 0;
     var heightButtons = 0;
+    var licenceHeight = (descartesJS.creativeCommonsLicense) ? 90 : 0;
 
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
@@ -23590,7 +23773,7 @@ var descartesJS = (function(descartesJS) {
     if (this.arquimedes) {
       // modify the lesson height if find rtf height
       if (heightRTF) {
-        this.height =  heightRTF + heightButtons + 90; // 70 is the height of the licence image
+        this.height =  heightRTF + heightButtons + licenceHeight; // 70 is the height of the licence image
       }
     }
 
@@ -23803,7 +23986,9 @@ var descartesJS = (function(descartesJS) {
 
         tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
         tmpGraphics.push("space='descartesJS_scenario' type='text' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
-        tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+        if (descartesJS.creativeCommonsLicense) {
+          tmpGraphics.push("space='descartesJS_scenario' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+        }
 
         continue;
       }
@@ -23990,9 +24175,6 @@ var descartesJS = (function(descartesJS) {
       descartesJS.onResize();      
     }
 
-    // evaluator used in a range evaluation
-    descartesJS.externalEvaluator = new descartesJS.Evaluator();
-
     this.externalSpace.init();
   }
   
@@ -24095,6 +24277,7 @@ var descartesJS = (function(descartesJS) {
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
                                                     });
+        btnAbout.actionExec = { execute: descartesJS.showAbout };
         btnAbout.update();
       }
       // create the configuration button

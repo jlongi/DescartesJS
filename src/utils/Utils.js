@@ -180,13 +180,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
     }
 
-    // some browsers like chrome do not suport more than 20 decimal in the toFixed function
-    // try {
-      // (0).toFixed(100);
-    // } 
-    // catch(e) {
-      setNewToFixed();
-    // }
+    setNewToFixed();
   }
 
   /**
@@ -212,9 +206,9 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      if (decimals <= 20) {
-        return this.originalToFixed(decimals);
-      }
+      // if (decimals <= 20) {
+      //   return this.originalToFixed(decimals);
+      // }
 
       decimals = (decimals<0) ? 0 : parseInt(decimals);
       strNum = this.toString();
@@ -246,9 +240,6 @@ var descartesJS = (function(descartesJS) {
         if (decimals > 0) {
           extraZero = ".";
         }
-        // for (var i=0; i<decimals; i++) {
-        //   extraZero += "0";
-        // }
 
         extraZero += (new Array(decimals+1)).join("0");
 
@@ -270,6 +261,22 @@ var descartesJS = (function(descartesJS) {
     }
   }
   
+  /**
+   *
+   */
+  descartesJS.removeNeedlessDecimals = function(num) {
+    var indexOfDot;
+
+    if (typeof(num) == "string") {
+      indexOfDot = num.indexOf(".");
+      if ((indexOfDot != -1) && (parseFloat(num.substring(indexOfDot)) == 0)) {
+        return num.substring(0, indexOfDot);
+      }
+    }
+
+    return num;
+  }
+
   /**
    * Get which mouse button is pressed
    */
@@ -506,6 +513,70 @@ var descartesJS = (function(descartesJS) {
 
       ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
     }
+  }
+
+  var htmlAbout = 
+  "<html>\n" +
+  "<head>\n" +
+  "<style>\n" +
+  "body{ text-align:center; }\n" +
+  "iframe{ width:650px; height:73px; overflow:hidden; border:1px solid black; }\n" +
+  "dt{ font-weight:bold; margin-top:10px; }\n" +
+  "</style>\n" +
+  "</head>\n" +
+  "<body>\n" +
+  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>\n" +
+  "<h2> <a href='http://proyectodescartes.org/'>ProyectoDescartes.org</a> <br> <a href=''>descartesjs.org</a> </h2>\n" +
+  "<dl>\n" +
+  "<dt> Dise&ntilde;o funcional:</dt>\n" +
+  "<dd>\n" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
+  "<nobr>Jos&eacute; R. Galo Sanchez</nobr>\n" +
+  "</dd>\n" +
+  "<dt>Autores del software:</dt>\n" +
+  "<dd>\n" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
+  "<nobr>Marta Oliver&oacute; Serrat,</nobr>\n" +
+  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>\n" +
+  "<nobr>Joel Espinosa Longi</nobr>\n" +
+  "</dd>\n" +
+  "</dl>\n" +
+  "<p>\n" +
+  "El software en Java est&aacute; bajo la licencia\n" +
+  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1 </a>\n" +
+  "<br>\n" +
+  "El software en JavaScrpit est&aacute; bajo licencia\n" +
+  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>\n" +
+  "</p>\n" +
+  "<p>\n" +
+  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :\n" +
+  "<br>\n" +
+  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>\n" +
+  "</p>";
+
+  var htmlCreative = "<p>\n" +
+  "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
+  "por sus autores como\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><nobr>Creative Commons</nobr></a>\n" +
+  "<br>\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><img src='http://i.creativecommons.org/l/by-nc-sa/3.0/es/88x31.png'></a>\n" +
+  "</p>";
+
+  var htmlFinal = "</body> </html>";
+
+  /**
+   *
+   */
+  descartesJS.showAbout = function() {
+    var content = "data:text/html;charset=utf-8,";
+    if (descartesJS.creativeCommonsLicense) {
+      content += encodeURI(htmlAbout + htmlCreative + htmlFinal);
+    }
+    else {
+      content += encodeURI(htmlAbout + htmlFinal);
+    }
+
+    window.open(content, "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
   }
 
   return descartesJS;
