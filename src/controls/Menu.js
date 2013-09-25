@@ -45,6 +45,23 @@ var descartesJS = (function(descartesJS) {
     parser = this.parser;
     evaluator = this.evaluator;
 
+    // the evaluation of the control
+    this.ok = 0;
+    
+    // tabular index
+    this.tabindex = ++this.parent.tabindex;
+
+    // if the answer exist
+    if (this.answer) {
+      // the answer is encrypted
+      if (this.answer.match("krypto_")) {
+        var krypt = new descartesJS.Krypto();
+        this.answer = krypt.decode(this.answer.substring(7));
+      }
+
+      this.answer = parseInt(this.answer.split(",")[0].replace("[", "")) || 0;
+    }
+
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -52,7 +69,6 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-
     
     // options are separated using the comma as separator
     this.options = this.options.split(",");
@@ -223,10 +239,12 @@ var descartesJS = (function(descartesJS) {
     this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesMenuField");
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
+    this.field.setAttribute("tabindex", this.tabindex);
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
     this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
+    this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
@@ -242,8 +260,6 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
-
-
 
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
       this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
@@ -280,6 +296,9 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable(this.id, parseFloat(this.value));
       this.select.selectedIndex = parseFloat(this.getIndex(this.value));
     }
+
+    this.ok = (this.value == this.answer) ? 1 : 0;
+    this.evaluator.setVariable(this.id+".ok", this.ok);    
   }
 
   /**

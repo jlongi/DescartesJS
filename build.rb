@@ -65,7 +65,7 @@ files = [ "Babel.js",
           "3D/3DFace.js",
           "3D/3DPolireg.js",
           "3D/3DText.js",
-
+          "3D/3DMacro.js",
           "3D/3DOtherGeometry.js",
 
           "math/R2.js",

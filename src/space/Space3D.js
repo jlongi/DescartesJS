@@ -67,7 +67,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Space.call(this, parent, values);
-    
+
     self = this;
 
     // create the canvas
@@ -337,8 +337,7 @@ var descartesJS = (function(descartesJS) {
     // if (!this.click) {
       // update the graphics to build its primitives
       for(var i=0, l=this.graphics.length; i<l; i++) {
-        thisGraphics_i = this.graphics[i];
-        thisGraphics_i.update();
+        this.graphics[i].update();
       }
     // }
 
@@ -676,8 +675,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*70);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*70);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));

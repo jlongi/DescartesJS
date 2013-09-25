@@ -323,7 +323,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
+  descartesJS.Graphic3D.prototype.updateMVMatrix = function() {
     tmpExpr = this.evaluator.evalExpression(this.inirot);
     if (this.inirotEuler) {
       this.inirotM = this.inirotM.setIdentity();
@@ -363,6 +363,10 @@ var descartesJS = (function(descartesJS) {
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
+    if (this.macroChildren) {
+      v = this.applyMacroTransform(v)
+    }
+
     if (this.inirotEuler) {
       tmpVertex = this.inirotM.multiplyVector4(v);
     }
@@ -384,6 +388,35 @@ var descartesJS = (function(descartesJS) {
     }
 
     tmpVertex = this.endposM.multiplyVector4(tmpVertex);
+
+    return tmpVertex;
+   }
+
+  /** 
+   *
+   */
+   descartesJS.Graphic3D.prototype.applyMacroTransform = function(v) {
+    if (this.macro_inirotEuler) {
+      tmpVertex = this.macro_inirotM.multiplyVector4(v);
+    }
+    else {
+      tmpVertex = this.macro_inirotM_X.multiplyVector4(v);
+      tmpVertex = this.macro_inirotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);      
+    }
+
+    tmpVertex = this.macro_iniposM.multiplyVector4(tmpVertex);
+
+    if (this.macro_endrotEuler) {
+      tmpVertex = this.macro_endrotM.multiplyVector4(tmpVertex);
+    }
+    else {
+      tmpVertex = this.macro_endrotM_X.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_endrotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_endrotM_Z.multiplyVector4(tmpVertex);
+    }
+
+    tmpVertex = this.macro_endposM.multiplyVector4(tmpVertex);
 
     return tmpVertex;
    }

@@ -1163,6 +1163,10 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.OtherGeometry(this.parent, graphicObj);
         break;
 
+      case("macro"):
+        return new descartesJS.Macro3D(this.parent, graphicObj);
+        break;
+
       default:
         console.log(graphicObj.type);
         break;

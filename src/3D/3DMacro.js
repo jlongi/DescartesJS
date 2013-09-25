@@ -6,9 +6,10 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-";
+  var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
-  var expr;
+  var thisGraphics_i;
+  var thisGraphicsNext;
 
   /**
    * A Descartes macro
@@ -16,7 +17,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the macro
    */
-  descartesJS.Macro = function(parent, values) {
+  descartesJS.Macro3D = function(parent, values) {
     /**
      * the expression for determine the position of the graphic
      * type {Node}
@@ -25,18 +26,34 @@ var descartesJS = (function(descartesJS, babel) {
     this.expresion = undefined;
 
     /**
-     * the macro rotation
+     * the init rotation of the graphic
      * type {Node}
      * @private
      */
-    this.inirot = parent.evaluator.parser.parse("0");
+    this.inirot = "(0,0,0)";
+    this.inirotEuler = false;
+    
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.inipos = parent.evaluator.parser.parse("(0,0,0)");
 
     /**
-     * the macro position
+     * the init rotation of the graphic
      * type {Node}
      * @private
      */
-    this.inipos = parent.evaluator.parser.parse("(0,0)");
+    this.endrot = "(0,0,0)";
+    this.endrotEuler = false;
+
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.endpos = parent.evaluator.parser.parse("(0,0,0)");
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -49,16 +66,32 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    // if (reservedIdentifiers == null) {
-    //   reservedIdentifiers = "-rnd-pi-e-";
+    // euler rotations
+    if (this.inirot.match("Euler")) {
+      this.inirot = this.inirot.replace("Euler", "");
+      this.inirotEuler = true;
+    }
+    if (this.endrot.match("Euler")) {
+      this.endrot = this.endrot.replace("Euler", "");
+      this.endrotEuler = true;
+    }
 
-    //   for (var funName in this.evaluator.functions) {
-    //     // verify the own properties of the object
-    //     if (this.evaluator.functions.hasOwnProperty(funName)) {
-    //       reservedIdentifiers += funName + "-";
-    //     }
-    //   }
-    // }
+    this.inirot = this.evaluator.parser.parse(this.inirot);
+    this.endrot = this.evaluator.parser.parse(this.endrot);
+
+    // auxiliary matrices
+    this.inirotM   = new descartesJS.Matrix4x4();
+    this.inirotM_X = new descartesJS.Matrix4x4();
+    this.inirotM_Y = new descartesJS.Matrix4x4();
+    this.inirotM_Z = new descartesJS.Matrix4x4();
+    this.iniposM   = new descartesJS.Matrix4x4();
+
+    this.endrotM   = new descartesJS.Matrix4x4();
+    this.endrotM_X = new descartesJS.Matrix4x4();
+    this.endrotM_Y = new descartesJS.Matrix4x4();
+    this.endrotM_Z = new descartesJS.Matrix4x4();
+    this.endposM   = new descartesJS.Matrix4x4();
+
 
     this.graphics = [];
     
@@ -70,7 +103,6 @@ var descartesJS = (function(descartesJS, babel) {
       return;
     }
 
-    
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.charAt(0) === "'")) {
       this.expresion = "'" + this.expresion + "'";
@@ -127,7 +159,6 @@ var descartesJS = (function(descartesJS, babel) {
       var dotIndex;
       var tmpTokens;
       var tmpTokensRespText;
-      
       var isID;
 
       // add the macro name as a prefix, only in some expressions
@@ -188,7 +219,7 @@ var descartesJS = (function(descartesJS, babel) {
             }
             // simple text
             else {
-              tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacros;
+              tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacro3Ds;
 
               for (var ttrt=0, lttrt=tmpTokensRespText.length; ttrt<lttrt; ttrt++) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
@@ -211,20 +242,15 @@ var descartesJS = (function(descartesJS, babel) {
             tmpTokens = tokenizer.tokenize(respText[j][1]);
 
             for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-
               if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
                 tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
               }
-
             }
 
             respText[j][1] = tokenizer.flatTokens(tmpTokens);
           }
-        
         }
-
       }
-
 
       var tempResp;
       var isGraphic;
@@ -250,7 +276,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // build and add the graphic elements to the space
           if (isGraphic) {
-            this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
+            this.graphics.push( lessonParser.parse3DGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene
           else {
@@ -259,42 +285,116 @@ var descartesJS = (function(descartesJS, babel) {
         }
       }
     }
+
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      this.graphics[i].macroChildren = true;
+    }
+
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Macro, descartesJS.Graphic);
+  descartesJS.extend(descartesJS.Macro3D, descartesJS.Graphic);
     
   /**
    * Update the macro
    */
-  descartesJS.Macro.prototype.update = function() {
-    expr = this.evaluator.evalExpression(this.inipos);
-    this.iniPosX = expr[0][0];
-    this.iniPosY = expr[0][1];
+  descartesJS.Macro3D.prototype.update = function() {
+    this.updateTransformation();
+
+    if (this.inipos) {
+      var expr = this.evaluator.evalExpression(this.inipos);
+      this.iniPosX = expr[0][0];
+      this.iniPosY = expr[0][1];
+    }
+
+    this.primitives = [];
+
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      thisGraphics_i.macro_inirotEuler = this.inirotEuler;
+      thisGraphics_i.macro_inirotM = this.inirotM;
+      thisGraphics_i.macro_inirotM_X = this.inirotM_X;
+      thisGraphics_i.macro_inirotM_Y = this.inirotM_Y;
+      thisGraphics_i.macro_inirotM_Z = this.inirotM_Z;
+
+      thisGraphics_i.macro_iniposM = this.iniposM;
+
+      thisGraphics_i.macro_endrotEuler = this.endrotEuler;
+      thisGraphics_i.macro_endrotM = this.endrotM;
+      thisGraphics_i.macro_endrotM_X = this.endrotM_X;
+      thisGraphics_i.macro_endrotM_Y = this.endrotM_Y;
+      thisGraphics_i.macro_endrotM_Z = this.endrotM_Z;
+
+      thisGraphics_i.macro_endposM = this.endposM;
+
+      thisGraphics_i.update();      
+    }
+
+    // split the primitives if needed
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      if ((thisGraphics_i.split) || (this.split)) {
+        for (var j=i+1; j<l; j++) {
+          thisGraphicsNext = this.graphics[j];
+
+          if ((thisGraphicsNext.split) || (this.split)) {
+            thisGraphics_i.splitFace(thisGraphicsNext);
+          }
+        }
+      }
+
+      this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Macro3D.prototype.updateTransformation = function() {
+    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    if (this.inirotEuler) {
+      this.inirotM = this.inirotM.setIdentity();
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.inirotM = this.inirotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
+    this.iniposM = this.iniposM.setIdentity().translate(translate);
+
+    tmpExpr = this.evaluator.evalExpression(this.endrot);
+    if (this.endrotEuler) {
+      this.endrotM = this.endrotM.setIdentity();
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.endrotM = this.endrotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
+    this.endposM = this.endposM.setIdentity().translate(translate);
   }
   
   /**
    * Auxiliary function for draw a macro
    * @param {CanvasRenderingContext2D} ctx rendering context on which the macro is drawn
    */
-  descartesJS.Macro.prototype.drawAux = function(ctx) {
-    for (var i=0, l=this.graphics.length; i<l; i++) {
-
-      if (this.graphics[i].abs_coord) {
-        ctx.translate(this.iniPosX, this.iniPosY);
-      } 
-      else {
-        ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
-      }
-      
-      this.graphics[i].draw();
-
-      // reset the transformations
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-    }      
-  }
+  descartesJS.Macro3D.prototype.drawAux = function(ctx) { }
 
   return descartesJS;
 })(descartesJS || {}, babel);

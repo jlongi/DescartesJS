@@ -10,6 +10,7 @@ var descartesJS = (function(descartesJS) {
   var MathMax = Math.max;
   var externalDecimals = 2;
   var externalFixed = false;
+  var localColor;
   
   /**
    * A node of rtf text
@@ -330,18 +331,18 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     else if (this.nodeType == "fraction") {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
       
       var num = this.children[0];
       var den = this.children[1];
-
       var metric = descartesJS.getFontMetrics(num.styleString);
 
       num.getBlockMetric();
       den.getBlockMetric();
-      
+
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevh = previousMetric.h;
+
       if (num.h < 0) {
         num.h = metric.h;
         num.w = this.spaceWidth;
@@ -353,11 +354,14 @@ var descartesJS = (function(descartesJS) {
       
       this.h = num.h + den.h -1;
 
-      this.ascent = num.h + prevh/2-prevDescent;
+      this.ascent = num.h + Math.round( prevh/2 )-prevDescent;
       this.descent = this.h - this.ascent;
       this.baseline = this.ascent;
 
       this.w = Math.max(num.w, den.w) +this.spaceWidth +8;
+
+console.log(this.ascent, "|", this.descent, "|", this.baseline);
+
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -785,7 +789,9 @@ var descartesJS = (function(descartesJS) {
    * @param {String} align the alignment of the text
    * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
    */
-  descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
+  descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY, color) {
+    localColor = color;
+
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
     if(!this.stableWidth) {
       externalDecimals = decimals;
@@ -826,6 +832,8 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
 
     for (var i=0, l=this.children.length; i<l; i++) {
+      ctx.strokeStyle = localColor;
+      ctx.fillStyle = localColor;
 
       if (i>0) {
         antChildX += this.children[i-1].w;

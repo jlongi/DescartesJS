@@ -124,7 +124,7 @@ var descartesJS = (function(descartesJS) {
     // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
-        return parseFloat(this.value);
+        return parseFloat(parseFloat(this.value).originalToFixed(11));
       }
     }
     

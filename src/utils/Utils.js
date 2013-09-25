@@ -248,7 +248,11 @@ var descartesJS = (function(descartesJS) {
       else {
         diff = strNum.length - indexOfDot - 1;
 
-        if ( diff >= decimals) {
+        if (diff >= decimals) {
+          if (decimals <= 11) {
+            strNum = parseFloat(strNum).originalToFixed(decimals);
+          }
+          
           return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
@@ -266,11 +270,25 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.removeNeedlessDecimals = function(num) {
     var indexOfDot;
+    var decimalNumbers;
 
     if (typeof(num) == "string") {
       indexOfDot = num.indexOf(".");
-      if ((indexOfDot != -1) && (parseFloat(num.substring(indexOfDot)) == 0)) {
-        return num.substring(0, indexOfDot);
+      if (indexOfDot != -1) {
+        decimalNumbers = num.substring(indexOfDot)
+
+        if (parseFloat(decimalNumbers) == 0) {
+          return num.substring(0, indexOfDot);
+        }
+        else {
+          for (var i=decimalNumbers.length; i>0; i--) {
+            if (decimalNumbers.charAt(i) != 0) {
+              return num.substring(0, indexOfDot+i+1);
+            }
+          }
+        }
+        
+        return num;        
       }
     }
 
@@ -328,7 +346,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getTextWidth = function(text, font) {
     descartesJS.ctx.font = font;
-    return descartesJS.ctx.measureText(text).width;
+    return Math.round( descartesJS.ctx.measureText(text).width );
   }
 
   // auxiliary values to calculate the metrics
@@ -356,7 +374,11 @@ var descartesJS = (function(descartesJS) {
 
     document.body.appendChild(div);
 
-    var result = {};
+    var result = { ascent: 0,
+                   descent: 0,
+                   h: 0,
+                   baseline: 0
+                 };
 
     if (div.getBoundingClientRect) {
       block.style.verticalAlign = "baseline";
@@ -526,12 +548,13 @@ var descartesJS = (function(descartesJS) {
   "</head>\n" +
   "<body>\n" +
   "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>\n" +
-  "<h2> <a href='http://proyectodescartes.org/'>ProyectoDescartes.org</a> <br> <a href=''>descartesjs.org</a> </h2>\n" +
+  "<h2> <a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a> <br> <a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a> </h2>\n" +
   "<dl>\n" +
   "<dt> Dise&ntilde;o funcional:</dt>\n" +
   "<dd>\n" +
   "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
-  "<nobr>Jos&eacute; R. Galo Sanchez</nobr>\n" +
+  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>\n" +
+  "<nobr>Juan Madrigal Muga</nobr>\n" +
   "</dd>\n" +
   "<dt>Autores del software:</dt>\n" +
   "<dd>\n" +
@@ -545,7 +568,7 @@ var descartesJS = (function(descartesJS) {
   "El software en Java est&aacute; bajo la licencia\n" +
   "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1 </a>\n" +
   "<br>\n" +
-  "El software en JavaScrpit est&aacute; bajo licencia\n" +
+  "El software en JavaScript est&aacute; bajo licencia\n" +
   "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>\n" +
   "</p>\n" +
   "<p>\n" +

@@ -248,6 +248,7 @@ var descartesJS = (function(descartesJS) {
         lastNode = newNode;
         
         formulaStack[formulaStack.length-1] = newNode;
+
         continue;
       }
       // fraction, sum, integral and limit

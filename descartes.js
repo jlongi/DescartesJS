@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-09-17
+ * 2013-09-25
  */
 
 /**
@@ -610,7 +610,11 @@ var descartesJS = (function(descartesJS) {
       else {
         diff = strNum.length - indexOfDot - 1;
 
-        if ( diff >= decimals) {
+        if (diff >= decimals) {
+          if (decimals <= 11) {
+            strNum = parseFloat(strNum).originalToFixed(decimals);
+          }
+          
           return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
@@ -628,11 +632,25 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.removeNeedlessDecimals = function(num) {
     var indexOfDot;
+    var decimalNumbers;
 
     if (typeof(num) == "string") {
       indexOfDot = num.indexOf(".");
-      if ((indexOfDot != -1) && (parseFloat(num.substring(indexOfDot)) == 0)) {
-        return num.substring(0, indexOfDot);
+      if (indexOfDot != -1) {
+        decimalNumbers = num.substring(indexOfDot)
+
+        if (parseFloat(decimalNumbers) == 0) {
+          return num.substring(0, indexOfDot);
+        }
+        else {
+          for (var i=decimalNumbers.length; i>0; i--) {
+            if (decimalNumbers.charAt(i) != 0) {
+              return num.substring(0, indexOfDot+i+1);
+            }
+          }
+        }
+        
+        return num;        
       }
     }
 
@@ -690,7 +708,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getTextWidth = function(text, font) {
     descartesJS.ctx.font = font;
-    return descartesJS.ctx.measureText(text).width;
+    return Math.round( descartesJS.ctx.measureText(text).width );
   }
 
   // auxiliary values to calculate the metrics
@@ -718,7 +736,11 @@ var descartesJS = (function(descartesJS) {
 
     document.body.appendChild(div);
 
-    var result = {};
+    var result = { ascent: 0,
+                   descent: 0,
+                   h: 0,
+                   baseline: 0
+                 };
 
     if (div.getBoundingClientRect) {
       block.style.verticalAlign = "baseline";
@@ -888,12 +910,13 @@ var descartesJS = (function(descartesJS) {
   "</head>\n" +
   "<body>\n" +
   "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>\n" +
-  "<h2> <a href='http://proyectodescartes.org/'>ProyectoDescartes.org</a> <br> <a href=''>descartesjs.org</a> </h2>\n" +
+  "<h2> <a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a> <br> <a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a> </h2>\n" +
   "<dl>\n" +
   "<dt> Dise&ntilde;o funcional:</dt>\n" +
   "<dd>\n" +
   "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
-  "<nobr>Jos&eacute; R. Galo Sanchez</nobr>\n" +
+  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>\n" +
+  "<nobr>Juan Madrigal Muga</nobr>\n" +
   "</dd>\n" +
   "<dt>Autores del software:</dt>\n" +
   "<dd>\n" +
@@ -907,7 +930,7 @@ var descartesJS = (function(descartesJS) {
   "El software en Java est&aacute; bajo la licencia\n" +
   "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1 </a>\n" +
   "<br>\n" +
-  "El software en JavaScrpit est&aacute; bajo licencia\n" +
+  "El software en JavaScript est&aacute; bajo licencia\n" +
   "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>\n" +
   "</p>\n" +
   "<p>\n" +
@@ -1669,6 +1692,7 @@ var descartesJS = (function(descartesJS) {
                         "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
                         "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
+                        "div.DescartesButtonContainer{ position:absolute; }\n" +
                         "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
                         "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
@@ -3639,7 +3663,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
-      text.draw(ctx, x, y, decimals, fixed, align, displaceY);
+      text.draw(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
       
       return;
     }
@@ -6519,8 +6543,9 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var expr;
 
   /**
    * A Descartes macro
@@ -6543,6 +6568,13 @@ var descartesJS = (function(descartesJS, babel) {
      */
     this.inirot = parent.evaluator.parser.parse("0");
 
+    /**
+     * the macro position
+     * type {Node}
+     * @private
+     */
+    this.inipos = parent.evaluator.parser.parse("(0,0)");
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
@@ -6553,6 +6585,17 @@ var descartesJS = (function(descartesJS, babel) {
         this[propName] = values[propName];
       }
     }
+
+    // if (reservedIdentifiers == null) {
+    //   reservedIdentifiers = "-rnd-pi-e-";
+
+    //   for (var funName in this.evaluator.functions) {
+    //     // verify the own properties of the object
+    //     if (this.evaluator.functions.hasOwnProperty(funName)) {
+    //       reservedIdentifiers += funName + "-";
+    //     }
+    //   }
+    // }
 
     this.graphics = [];
     
@@ -6764,11 +6807,9 @@ var descartesJS = (function(descartesJS, babel) {
    * Update the macro
    */
   descartesJS.Macro.prototype.update = function() {
-    if (this.inipos) {
-      var expr = this.evaluator.evalExpression(this.inipos);
-      this.iniPosX = expr[0][0];
-      this.iniPosY = expr[0][1];
-    }
+    expr = this.evaluator.evalExpression(this.inipos);
+    this.iniPosX = expr[0][0];
+    this.iniPosY = expr[0][1];
   }
   
   /**
@@ -6778,12 +6819,11 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
 
-      if (this.inipos) {
-        if (this.graphics[i].abs_coord) {
-          ctx.translate(this.iniPosX, this.iniPosY);
-        } else {
-          ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
-        }
+      if (this.graphics[i].abs_coord) {
+        ctx.translate(this.iniPosX, this.iniPosY);
+      } 
+      else {
+        ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
       }
       
       this.graphics[i].draw();
@@ -7819,7 +7859,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  descartesJS.Graphic3D.prototype.updateMVMatrix = function(ignoreRotation) {
+  descartesJS.Graphic3D.prototype.updateMVMatrix = function() {
     tmpExpr = this.evaluator.evalExpression(this.inirot);
     if (this.inirotEuler) {
       this.inirotM = this.inirotM.setIdentity();
@@ -7859,6 +7899,10 @@ var descartesJS = (function(descartesJS) {
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
+    if (this.macroChildren) {
+      v = this.applyMacroTransform(v)
+    }
+
     if (this.inirotEuler) {
       tmpVertex = this.inirotM.multiplyVector4(v);
     }
@@ -7880,6 +7924,35 @@ var descartesJS = (function(descartesJS) {
     }
 
     tmpVertex = this.endposM.multiplyVector4(tmpVertex);
+
+    return tmpVertex;
+   }
+
+  /** 
+   *
+   */
+   descartesJS.Graphic3D.prototype.applyMacroTransform = function(v) {
+    if (this.macro_inirotEuler) {
+      tmpVertex = this.macro_inirotM.multiplyVector4(v);
+    }
+    else {
+      tmpVertex = this.macro_inirotM_X.multiplyVector4(v);
+      tmpVertex = this.macro_inirotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);      
+    }
+
+    tmpVertex = this.macro_iniposM.multiplyVector4(tmpVertex);
+
+    if (this.macro_endrotEuler) {
+      tmpVertex = this.macro_endrotM.multiplyVector4(tmpVertex);
+    }
+    else {
+      tmpVertex = this.macro_endrotM_X.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_endrotM_Y.multiplyVector4(tmpVertex);
+      tmpVertex = this.macro_endrotM_Z.multiplyVector4(tmpVertex);
+    }
+
+    tmpVertex = this.macro_endposM.multiplyVector4(tmpVertex);
 
     return tmpVertex;
    }
@@ -8595,6 +8668,405 @@ var descartesJS = (function(descartesJS) {
   
   return descartesJS;
 })(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS, babel) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var thisGraphics_i;
+  var thisGraphicsNext;
+
+  /**
+   * A Descartes macro
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the macro
+   */
+  descartesJS.Macro3D = function(parent, values) {
+    /**
+     * the expression for determine the position of the graphic
+     * type {Node}
+     * @private
+     */
+    this.expresion = undefined;
+
+    /**
+     * the init rotation of the graphic
+     * type {Node}
+     * @private
+     */
+    this.inirot = "(0,0,0)";
+    this.inirotEuler = false;
+    
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.inipos = parent.evaluator.parser.parse("(0,0,0)");
+
+    /**
+     * the init rotation of the graphic
+     * type {Node}
+     * @private
+     */
+    this.endrot = "(0,0,0)";
+    this.endrotEuler = false;
+
+    /**
+     * the init position of a graphic
+     * type {Node}
+     * @private
+     */
+    this.endpos = parent.evaluator.parser.parse("(0,0,0)");
+
+    // call the parent constructor
+    descartesJS.Graphic.call(this, parent, values);
+
+    // traverse the values to replace the defaults values of the object
+    for (var propName in values) {
+      // verify the own properties of the object
+      if (values.hasOwnProperty(propName)) {
+        this[propName] = values[propName];
+      }
+    }
+
+    // euler rotations
+    if (this.inirot.match("Euler")) {
+      this.inirot = this.inirot.replace("Euler", "");
+      this.inirotEuler = true;
+    }
+    if (this.endrot.match("Euler")) {
+      this.endrot = this.endrot.replace("Euler", "");
+      this.endrotEuler = true;
+    }
+
+    this.inirot = this.evaluator.parser.parse(this.inirot);
+    this.endrot = this.evaluator.parser.parse(this.endrot);
+
+    // auxiliary matrices
+    this.inirotM   = new descartesJS.Matrix4x4();
+    this.inirotM_X = new descartesJS.Matrix4x4();
+    this.inirotM_Y = new descartesJS.Matrix4x4();
+    this.inirotM_Z = new descartesJS.Matrix4x4();
+    this.iniposM   = new descartesJS.Matrix4x4();
+
+    this.endrotM   = new descartesJS.Matrix4x4();
+    this.endrotM_X = new descartesJS.Matrix4x4();
+    this.endrotM_Y = new descartesJS.Matrix4x4();
+    this.endrotM_Z = new descartesJS.Matrix4x4();
+    this.endposM   = new descartesJS.Matrix4x4();
+
+
+    this.graphics = [];
+    
+    var lessonParser = parent.lessonParser;
+    var tokenizer = new descartesJS.Tokenizer();
+    
+    // if the expression is empty
+    if (this.expresion == undefined) {
+      return;
+    }
+
+    // if the macro name was not specified as a string, then adds single quotes to turn it into string
+    if ( !(this.expresion.charAt(0) === "'")) {
+      this.expresion = "'" + this.expresion + "'";
+    }
+    this.expresion = this.evaluator.parser.parse(this.expresion);
+
+    var filename = this.evaluator.evalExpression(this.expresion);
+    var response;
+    
+    if (filename) {
+      // the macro is embeded in the webpage
+      var macroElement = document.getElementById(filename);
+
+      if ((macroElement) && (macroElement.type == "descartes/macro")) {
+        response = macroElement.text;
+      }
+
+      // the macro is in an external file
+      else {
+        response = descartesJS.openExternalFile(filename);
+        
+        // verify the content is a Descartes macro
+        if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
+          response = null;
+        }
+      }
+    }
+
+    var indexOfEqual;
+    var tmpIniti;
+    var tmpResponse;
+
+    // if it was posible to read the macro
+    if (response) {
+      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+
+      // maintain only the lines that have information for the macro
+      response = [];
+
+      for(var i=0, l=tmpResponse.length; i<l; i++) {
+        indexOfEqual = tmpResponse[i].indexOf("=");
+
+        if(indexOfEqual !== -1) {
+          tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
+        
+          if (babel[tmpIniti] === "id" || babel[tmpIniti] === "type") {
+            response.push( lessonParser.split( tmpResponse[i] ) );
+          }
+        }
+      }
+      
+      var respText;
+      var babelResp;
+      var dotIndex;
+      var tmpTokens;
+      var tmpTokensRespText;
+      var isID;
+
+      // add the macro name as a prefix, only in some expressions
+      for (var i=0, l=response.length; i<l; i++) {
+        respText = response[i] || [];
+
+        isID = ((respText) && (respText[0]) && (respText[0][0] === "id"));
+
+        for (var j=0, k=respText.length; j<k; j++) {
+          // if the parameters that have a dot
+          dotIndex = respText[j][0].indexOf(".");
+          if ((dotIndex !== -1) && (!isID)) {
+            babelResp = babel[respText[j][0].substring(dotIndex+1)];
+            respText[j][0] = this.name + "." + respText[j][0];
+          }
+          else {
+            babelResp = babel[respText[j][0]];
+          }
+
+          // if the expressions are different from this, then the cycle continues and is not replaced nothing          
+          if ( (babelResp === "font") ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
+               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
+             ) {
+            continue;
+          }
+          
+          // is a text
+          if (babelResp == "text") {
+            // if the text is rtf must processing it diferent
+            if (respText[j][1].match(/\{\\rtf1/)) {
+              var textTemp = respText[j][1];
+ 
+              //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+              var self = this;
+
+              // function to replace expresions
+              var funReplace = function(str, m1) {
+                var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
+                
+                for (var t=0, lt=tokens.length; t<lt; t++) {
+                  if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
+                    tokens[t].value = self.name + "." + tokens[t].value;
+                  }
+                }
+                
+                var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
+
+                return prefix + tokenizer.flatTokens(tokens);
+              }
+              //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
+              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
+              
+              respText[j][1] = textTemp;
+            }
+            // simple text
+            else {
+              tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacro3Ds;
+
+              for (var ttrt=0, lttrt=tmpTokensRespText.length; ttrt<lttrt; ttrt++) {
+                tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
+
+                for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
+                  if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
+                    tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
+                  }
+                }
+                tmpTokens = (tokenizer.flatTokens(tmpTokens)).replace(/&squot;/g, "'").replace(/'\+\(/g, "[").replace(/\)\+'/g, "]");
+
+                tmpTokensRespText[ttrt] = tmpTokens.substring(1, tmpTokens.length-1);
+              }
+
+              respText[j][1] = tmpTokensRespText.join("");
+            }
+          }
+          // the token is not a text
+          else {
+            tmpTokens = tokenizer.tokenize(respText[j][1]);
+
+            for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+              if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
+                tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+              }
+            }
+
+            respText[j][1] = tokenizer.flatTokens(tmpTokens);
+          }
+        }
+      }
+
+      var tempResp;
+      var isGraphic;
+
+      // flat the expresions to obtain a string
+      for (var i=0, l=response.length; i<l; i++) {
+        if (response[i][0]) {
+          tempResp = "";
+          isGraphic = false;
+
+          for (var j=0, k=response[i].length; j<k; j++) {
+
+            // if is a graphic object, add the corresponding space
+            if (babel[response[i][j][0]] === "type") {
+              tempResp = "espacio='" + this.spaceID + "' ";
+              isGraphic = true;
+            }
+
+            tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
+          }
+
+          response[i] = tempResp;
+
+          // build and add the graphic elements to the space
+          if (isGraphic) {
+            this.graphics.push( lessonParser.parse3DGraphic(response[i], this.abs_coord, this.background, this.inirot) );
+          } 
+          // build and add the axiliaries to the scene
+          else {
+            lessonParser.parseAuxiliar(response[i]);
+          }
+        }
+      }
+    }
+
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      this.graphics[i].macroChildren = true;
+    }
+
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Macro3D, descartesJS.Graphic);
+    
+  /**
+   * Update the macro
+   */
+  descartesJS.Macro3D.prototype.update = function() {
+    this.updateTransformation();
+
+    if (this.inipos) {
+      var expr = this.evaluator.evalExpression(this.inipos);
+      this.iniPosX = expr[0][0];
+      this.iniPosY = expr[0][1];
+    }
+
+    this.primitives = [];
+
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      thisGraphics_i.macro_inirotEuler = this.inirotEuler;
+      thisGraphics_i.macro_inirotM = this.inirotM;
+      thisGraphics_i.macro_inirotM_X = this.inirotM_X;
+      thisGraphics_i.macro_inirotM_Y = this.inirotM_Y;
+      thisGraphics_i.macro_inirotM_Z = this.inirotM_Z;
+
+      thisGraphics_i.macro_iniposM = this.iniposM;
+
+      thisGraphics_i.macro_endrotEuler = this.endrotEuler;
+      thisGraphics_i.macro_endrotM = this.endrotM;
+      thisGraphics_i.macro_endrotM_X = this.endrotM_X;
+      thisGraphics_i.macro_endrotM_Y = this.endrotM_Y;
+      thisGraphics_i.macro_endrotM_Z = this.endrotM_Z;
+
+      thisGraphics_i.macro_endposM = this.endposM;
+
+      thisGraphics_i.update();      
+    }
+
+    // split the primitives if needed
+    for (var i=0, l=this.graphics.length; i<l; i++) {
+      thisGraphics_i = this.graphics[i];
+
+      if ((thisGraphics_i.split) || (this.split)) {
+        for (var j=i+1; j<l; j++) {
+          thisGraphicsNext = this.graphics[j];
+
+          if ((thisGraphicsNext.split) || (this.split)) {
+            thisGraphics_i.splitFace(thisGraphicsNext);
+          }
+        }
+      }
+
+      this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Macro3D.prototype.updateTransformation = function() {
+    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    if (this.inirotEuler) {
+      this.inirotM = this.inirotM.setIdentity();
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.inirotM = this.inirotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
+    this.iniposM = this.iniposM.setIdentity().translate(translate);
+
+    tmpExpr = this.evaluator.evalExpression(this.endrot);
+    if (this.endrotEuler) {
+      this.endrotM = this.endrotM.setIdentity();
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
+      this.endrotM = this.endrotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
+      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+    else {
+      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
+      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
+      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+    }
+
+    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
+    this.endposM = this.endposM.setIdentity().translate(translate);
+  }
+  
+  /**
+   * Auxiliary function for draw a macro
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the macro is drawn
+   */
+  descartesJS.Macro3D.prototype.drawAux = function(ctx) { }
+
+  return descartesJS;
+})(descartesJS || {}, babel);/**
  * @author Joel Espinosa Longi
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
@@ -10375,7 +10847,7 @@ var descartesJS = (function(descartesJS) {
     
     canvas.setAttribute("width", this.w+"px");
     canvas.setAttribute("height", this.h+"px");
-    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block;");
+    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -10444,7 +10916,7 @@ var descartesJS = (function(descartesJS) {
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
         this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
-        this.canvas.style.backgroundPosition = "center";
+        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
         // ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
@@ -10464,11 +10936,15 @@ var descartesJS = (function(descartesJS) {
     }
     
     if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
-      ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
+      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      // ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
 
     if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
-      ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
+      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      // ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
     else if ((this.click) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
@@ -11700,6 +12176,23 @@ var descartesJS = (function(descartesJS) {
     parser = this.parser;
     evaluator = this.evaluator;
 
+    // the evaluation of the control
+    this.ok = 0;
+    
+    // tabular index
+    this.tabindex = ++this.parent.tabindex;
+
+    // if the answer exist
+    if (this.answer) {
+      // the answer is encrypted
+      if (this.answer.match("krypto_")) {
+        var krypt = new descartesJS.Krypto();
+        this.answer = krypt.decode(this.answer.substring(7));
+      }
+
+      this.answer = parseInt(this.answer.split(",")[0].replace("[", "")) || 0;
+    }
+
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -11707,7 +12200,6 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-
     
     // options are separated using the comma as separator
     this.options = this.options.split(",");
@@ -11878,10 +12370,12 @@ var descartesJS = (function(descartesJS) {
     this.field.value = fieldValue;
     this.field.setAttribute("class", "DescartesMenuField");
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
+    this.field.setAttribute("tabindex", this.tabindex);
 
     this.select.setAttribute("id", this.id+"menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
     this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
+    this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
@@ -11897,8 +12391,6 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
-
-
 
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
       this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
@@ -11935,6 +12427,9 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable(this.id, parseFloat(this.value));
       this.select.selectedIndex = parseFloat(this.getIndex(this.value));
     }
+
+    this.ok = (this.value == this.answer) ? 1 : 0;
+    this.evaluator.setVariable(this.id+".ok", this.ok);    
   }
 
   /**
@@ -15426,6 +15921,10 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.OtherGeometry(this.parent, graphicObj);
         break;
 
+      case("macro"):
+        return new descartesJS.Macro3D(this.parent, graphicObj);
+        break;
+
       default:
         console.log(graphicObj.type);
         break;
@@ -16159,7 +16658,7 @@ var descartesJS = (function(descartesJS) {
     // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
-        return parseFloat(this.value);
+        return parseFloat(parseFloat(this.value).originalToFixed(11));
       }
     }
     
@@ -17659,8 +18158,8 @@ var descartesJS = (function(descartesJS) {
     var decimals = 1000000000000000;
     // register the default variables
     this.variables["rnd"] = Math.random;
-    this.variables["pi"] = Math.PI;
-    this.variables["e"] = Math.E;
+    this.variables["pi"] = parseFloat(Math.PI.toFixed(11));
+    this.variables["e"] = parseFloat(Math.E.toFixed(11));
     this.variables["Infinity"] = Infinity;
     this.variables["-Infinity"] = -Infinity;
     
@@ -18133,6 +18632,7 @@ var descartesJS = (function(descartesJS) {
   var MathMax = Math.max;
   var externalDecimals = 2;
   var externalFixed = false;
+  var localColor;
   
   /**
    * A node of rtf text
@@ -18453,18 +18953,18 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     else if (this.nodeType == "fraction") {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-      var prevAscent = previousMetric.ascent;
-      var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
       
       var num = this.children[0];
       var den = this.children[1];
-
       var metric = descartesJS.getFontMetrics(num.styleString);
 
       num.getBlockMetric();
       den.getBlockMetric();
-      
+
+      var prevAscent = previousMetric.ascent;
+      var prevDescent = previousMetric.descent;
+      var prevh = previousMetric.h;
+
       if (num.h < 0) {
         num.h = metric.h;
         num.w = this.spaceWidth;
@@ -18476,11 +18976,14 @@ var descartesJS = (function(descartesJS) {
       
       this.h = num.h + den.h -1;
 
-      this.ascent = num.h + prevh/2-prevDescent;
+      this.ascent = num.h + Math.round( prevh/2 )-prevDescent;
       this.descent = this.h - this.ascent;
       this.baseline = this.ascent;
 
       this.w = Math.max(num.w, den.w) +this.spaceWidth +8;
+
+console.log(this.ascent, "|", this.descent, "|", this.baseline);
+
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18908,7 +19411,9 @@ var descartesJS = (function(descartesJS) {
    * @param {String} align the alignment of the text
    * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
    */
-  descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY) {
+  descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY, color) {
+    localColor = color;
+
     // if the text has a dynamic text, then is necesary to calculate the width of the elements
     if(!this.stableWidth) {
       externalDecimals = decimals;
@@ -18949,6 +19454,8 @@ var descartesJS = (function(descartesJS) {
     var antChildX = 0;
 
     for (var i=0, l=this.children.length; i<l; i++) {
+      ctx.strokeStyle = localColor;
+      ctx.fillStyle = localColor;
 
       if (i>0) {
         antChildX += this.children[i-1].w;
@@ -19958,6 +20465,7 @@ var descartesJS = (function(descartesJS) {
         lastNode = newNode;
         
         formulaStack[formulaStack.length-1] = newNode;
+
         continue;
       }
       // fraction, sum, integral and limit
@@ -22073,7 +22581,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space3D = function(parent, values) {
     // call the parent constructor
     descartesJS.Space.call(this, parent, values);
-    
+
     self = this;
 
     // create the canvas
@@ -22343,8 +22851,7 @@ var descartesJS = (function(descartesJS) {
     // if (!this.click) {
       // update the graphics to build its primitives
       for(var i=0, l=this.graphics.length; i<l; i++) {
-        thisGraphics_i = this.graphics[i];
-        thisGraphics_i.update();
+        this.graphics[i].update();
       }
     // }
 
@@ -22682,8 +23189,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*70);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*70);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));

@@ -667,8 +667,8 @@ var descartesJS = (function(descartesJS) {
     var decimals = 1000000000000000;
     // register the default variables
     this.variables["rnd"] = Math.random;
-    this.variables["pi"] = Math.PI;
-    this.variables["e"] = Math.E;
+    this.variables["pi"] = parseFloat(Math.PI.toFixed(11));
+    this.variables["e"] = parseFloat(Math.E.toFixed(11));
     this.variables["Infinity"] = Infinity;
     this.variables["-Infinity"] = -Infinity;
     

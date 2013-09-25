@@ -160,7 +160,7 @@ var descartesJS = (function(descartesJS) {
     
     canvas.setAttribute("width", this.w+"px");
     canvas.setAttribute("height", this.h+"px");
-    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block;");
+    canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -229,7 +229,7 @@ var descartesJS = (function(descartesJS) {
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
         this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
-        this.canvas.style.backgroundPosition = "center";
+        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
         // ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
@@ -249,11 +249,15 @@ var descartesJS = (function(descartesJS) {
     }
     
     if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
-      ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
+      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      // ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
 
     if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
-      ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
+      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      // ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
     }
     else if ((this.click) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
