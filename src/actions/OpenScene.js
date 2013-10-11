@@ -56,22 +56,7 @@ var descartesJS = (function(descartesJS) {
  
       // build an action to open a new page relative to the actual page
       this.actionExec = function() {
-        this.window = window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + 
-          "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
-
-        this.window.onload = function(evt) {
-          var document = this.document;
-          var applet = document.getElementsByTagName("applet")
-
-          if ((applet) && (applet.length > 0)) {
-            this.innerWidth = applet[0].width;
-            this.height = applet[0].height;
-            document.body.style.margin = "0px";
-            document.body.style.padding = "0px";
-            applet[0].parentNode.style.margin = "0px";
-            applet[0].parentNode.style.padding = "0px";
-          }
-        }
+        window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
       }
     }
 

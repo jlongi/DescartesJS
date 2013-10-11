@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-09-25
+ * 2013-10-10
  */
 
 /**
@@ -571,8 +571,9 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
-
+      decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
+
       strNum = this.toString();
 
       indexOfE = strNum.indexOf("e");
@@ -658,14 +659,27 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   *
+   */
+  descartesJS.returnValue = function(v) {
+    if (descartesJS.fullDecimals) {
+      return v;
+    }
+
+    if (typeof(v) === "number") {
+      return parseFloat(v.toFixed(11));
+    }
+    return v;
+  }
+
+  /**
    * Get which mouse button is pressed
    */
   descartesJS.whichButton = function(evt) {
     // all browsers
     if (evt.which !== null) {
       return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
-    } 
-
+    }
     // IE
     return (evt.button < 2) ? "L" : ((evt.button === 4) ? "M" : "R");
   }
@@ -2293,22 +2307,7 @@ var descartesJS = (function(descartesJS) {
  
       // build an action to open a new page relative to the actual page
       this.actionExec = function() {
-        this.window = window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + 
-          "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
-
-        this.window.onload = function(evt) {
-          var document = this.document;
-          var applet = document.getElementsByTagName("applet")
-
-          if ((applet) && (applet.length > 0)) {
-            this.innerWidth = applet[0].width;
-            this.height = applet[0].height;
-            document.body.style.margin = "0px";
-            document.body.style.padding = "0px";
-            applet[0].parentNode.style.margin = "0px";
-            applet[0].parentNode.style.padding = "0px";
-          }
-        }
+        window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
       }
     }
 
@@ -6544,7 +6543,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-";
-  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
   /**
@@ -7069,7 +7068,7 @@ var descartesJS = (function(descartesJS) {
 
   return descartesJS;
 })(descartesJS || {});/**
- * @author Joel Espinosa Longi
+ * @author i Espinosa Longi
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
 
@@ -7105,6 +7104,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.newV = [];
+    this.spaceVertices = [];
 
     // asign the corresponding drawing function
     if (this.type === "vertex") {
@@ -7146,9 +7146,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
     this.average = { x: 0, y: 0, z: 0 };
 
+    this.removeDoubles();
+
     // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.rotateVertex(this.vertices[i]);
+      this.spaceVertices[i] = space.rotateVertex(this.vertices[i]);
       this.average.x += this.newV[i].x;
       this.average.y += this.newV[i].y;
       this.average.z += this.newV[i].z;
@@ -7157,11 +7160,12 @@ var descartesJS = (function(descartesJS) {
 
     // triangles and faces
     if (this.vertices.length > 2) {
-      // v1 = descartesJS.subtract3D( this.newV[0], this.newV[1] );
-      // v2 = descartesJS.subtract3D( this.newV[0], this.newV[2] );
-      // this.normal = descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
       this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
+    }
+    else {
+      this.normal = { x: 0, y: 1, z: 0 };
+      this.direction = { x: 1, y: 0, z: 0 };
     }
 
     this.depth = 0;
@@ -7171,6 +7175,25 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.depth/= l;
+  }
+
+  var tmpVertices;
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.removeDoubles = function() {
+    tmpVertices = [];
+    for (var i=0, l=this.vertices.length; i<l; i++) {
+      if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
+           (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
+           (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
+           (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
+         ) {
+        tmpVertices.push(this.vertices[i]);
+      }
+    }
+    this.vertices = tmpVertices;
   }
 
   /**
@@ -8469,15 +8492,15 @@ var descartesJS = (function(descartesJS) {
     v3_z = expr[2][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                         ],
-                               type: "face",
-                               frontColor: this.color,
-                               backColor: this.backcolor, 
-                               edges: this.edges, 
-                               model: this.model
-                             } ) );
+                                                                     this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+                                                                     this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                                   ],
+                                                         type: "face",
+                                                         frontColor: this.color,
+                                                         backColor: this.backcolor, 
+                                                         edges: this.edges, 
+                                                         model: this.model
+                                                       } ) );
 
   }
 
@@ -8676,7 +8699,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
-  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;
 
@@ -9901,6 +9924,7 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", q0.x);
     evaluator.setVariable("y", q0.y);
     
+    descartesJS.fullDecimals = true;
     this.f0 = evaluator.evalExpression(this.constraint);
     
     if ((this.sign === "menor") && (this.f0 <= 0)) {
@@ -9931,10 +9955,12 @@ var descartesJS = (function(descartesJS) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
+        descartesJS.fullDecimals = false;
         return q;
       }
     }
     
+    descartesJS.fullDecimals = false;
     return q;
   }
 
@@ -10758,7 +10784,7 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-    
+
     // color expression of the form _COLORES_ffffff_000000_P_22 specified in the image field
     // the first color is the background color
     // the second color is the text color
@@ -10899,6 +10925,7 @@ var descartesJS = (function(descartesJS) {
 
     font_size = evaluator.evalExpression(this.font_size);
     name = evaluator.evalExpression(this.name);
+
     imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
     
@@ -14277,7 +14304,7 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.GraphicControl, descartesJS.Control);
+  // descartesJS.extend(descartesJS.GraphicControl, descartesJS.Control);
 
   /**
    * Init the graphic control
@@ -14399,9 +14426,9 @@ var descartesJS = (function(descartesJS) {
       // if the control has an image and is ready
       else {
       	if ((this.image.complete) && (!this.setImage)) {
-          this.mouseCacher.style.backgroundImage = "url(" + this.image.src + ")";
-          this.setImage = true;
-          // ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
+          // this.mouseCacher.style.backgroundImage = "url(" + this.image.src + ")";
+          // this.setImage = true;
+          ctx.drawImage(this.image, parseInt(x-this.image.width/2), parseInt(y-this.image.height/2));
         }
         
         // if has trace
@@ -14772,7 +14799,7 @@ var descartesJS = (function(descartesJS, babel) {
   var controlObj;
   var graphicObj;
   var auxiliarObj;
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
 
   var theAction_action;
   var theAction_parent;
@@ -16546,14 +16573,15 @@ var descartesJS = (function(descartesJS) {
   var root;
   var right;
   var evalArgument;
-
+  descartesJS.fullDecimals = false;
+  
   /**
    * Nodes of a parse tree
    * @param {String} type the type of the node
    * @param {Object} value the value of the node
    * @constructor 
    */
-  descartesJS.Node = function (type, value) {
+  descartesJS.Node = function(type, value) {
     this.sep = "";
     this.type = type;
     this.value = value;
@@ -16658,7 +16686,7 @@ var descartesJS = (function(descartesJS) {
     // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
-        return parseFloat(parseFloat(this.value).originalToFixed(11));
+        return descartesJS.returnValue(parseFloat(this.value));
       }
     }
     
@@ -16673,7 +16701,7 @@ var descartesJS = (function(descartesJS) {
     else if ( (this.type === "identifier") && (this.childs.length === 0) ) {
       if (this.value == "rnd") {
         this.evaluate = function(evaluator) {
-          return Math.random();
+          return descartesJS.returnValue(Math.random());
         }
       }
       else {
@@ -16744,10 +16772,10 @@ var descartesJS = (function(descartesJS) {
       
         if (this.value === "_Eval_") {
           argu[0] = (argu.length > 0) ? argu[0].toString() : '';
-          return evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) );
+          return descartesJS.returnValue( evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) ) );
         }
 
-        return evaluator.functions[this.value].apply(evaluator, argu);
+        return descartesJS.returnValue( evaluator.functions[this.value].apply(evaluator, argu) );
       }
     }
     
@@ -16764,7 +16792,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric or string operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return op1 + op2;
+            return descartesJS.returnValue(op1 + op2);
           }
           // matix operation
           else {
@@ -16779,7 +16807,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return op1 - op2;
+            return descartesJS.returnValue(op1 - op2);
           }
           // matrix operation
           else {
@@ -16794,7 +16822,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return op1 * op2;
+            return descartesJS.returnValue(op1 * op2);
           }
           // matrix operation
           else {
@@ -16809,7 +16837,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return op1 / op2;
+            return descartesJS.returnValue(op1 / op2);
           }
           // matrix operation
           else {
@@ -16826,13 +16854,7 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "^") {
         this.evaluate = function(evaluator) {
-          // var num = this.childs[0].evaluate(evaluator);
-          // var expo = this.childs[1].evaluate(evaluator);
-          // if ((num <0) && (expo !== parseInt(expo))) {
-          //   return -Math.pow( -num, expo );
-          // }
-          // return Math.pow(num, expo);
-          return Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) );
+          return descartesJS.returnValue( Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) ) );
         }
       }
     }
@@ -18158,8 +18180,8 @@ var descartesJS = (function(descartesJS) {
     var decimals = 1000000000000000;
     // register the default variables
     this.variables["rnd"] = Math.random;
-    this.variables["pi"] = parseFloat(Math.PI.toFixed(11));
-    this.variables["e"] = parseFloat(Math.E.toFixed(11));
+    this.variables["pi"] = descartesJS.returnValue(Math.PI);
+    this.variables["e"] = descartesJS.returnValue(Math.E);
     this.variables["Infinity"] = Infinity;
     this.variables["-Infinity"] = -Infinity;
     
@@ -18209,16 +18231,6 @@ var descartesJS = (function(descartesJS) {
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
       }
-
-      // // function to get a variable value from the parent
-      // this.functions["parent.get"] = function(varName) {
-      //   if (this.parent.cacheVars[varName]) {
-      //     return this.parent.cacheVars[varName];
-      //   }
-
-      //   window.parent.postMessage({ type: "get", name: varName }, '*');
-      //   return 0;
-      // }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
@@ -18234,7 +18246,18 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////
     // new funcionaity //
     this.functions["_GetValues_"] = function(file, name) {
-      var response = descartesJS.openExternalFile(file);
+      var response;
+      if (file) {
+        var fileElement = document.getElementById(file);
+
+        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
+          response = fileElement.text.replace(/&brvbar;/g, "¦");
+        }
+      }
+      else {
+        response = descartesJS.openExternalFile(file);
+      }
+
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
@@ -18298,14 +18321,25 @@ var descartesJS = (function(descartesJS) {
     };
 
     this.functions["_GetMatrix_"] = function(file, name) {
-      var response = descartesJS.openExternalFile(file);
+      var response;
+      if (file) {
+        var fileElement = document.getElementById(file);
+
+        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
+          response = fileElement.text.replace(/&brvbar;/g, "¦");
+        }
+      }
+      else {
+        response = descartesJS.openExternalFile(file);
+      }
+      
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
+      var storeValues = false;
       values.type = "matrix";
 
       var tmpValue;
-
 
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
@@ -18356,7 +18390,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data], {type: "text/plain"});
+      blob = new Blob([data.replace(/\\n/g, "\n")], {type: "text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
@@ -18485,6 +18519,31 @@ var descartesJS = (function(descartesJS) {
 
       return 0;
     }
+
+    /**
+     *
+     */
+    this.functions["_Rojo_"] = function(c) {
+      return (new descartesJS.Color(c).r)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_Verde_"] = function(c) {
+      return (new descartesJS.Color(c).g)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_Azul_"] = function(c) {
+      return (new descartesJS.Color(c).b)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
+      return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
+    }
     ////////////////////////////////////////
   }  
 
@@ -18500,7 +18559,6 @@ function myMapFun(x) {
     return parseFloat(x);
   }
 }
-
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
@@ -18981,9 +19039,6 @@ var descartesJS = (function(descartesJS) {
       this.baseline = this.ascent;
 
       this.w = Math.max(num.w, den.w) +this.spaceWidth +8;
-
-console.log(this.ascent, "|", this.descent, "|", this.baseline);
-
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20183,7 +20238,6 @@ var descartesJS = (function(descartesJS) {
             }
             // generic controlWord
             else {
-
               // scaped characters
               if ((tokenValue === "{") || (tokenValue === "}")) {
                 tokens.push({ type: "text", value: tokenValue });
@@ -22883,14 +22937,180 @@ var descartesJS = (function(descartesJS) {
 
     primitives = primitives.sort(depthSort);
 
-    for(var i=0; i<primitivesLength; i++) {
-      primitives[i].draw(this.ctx, this);
-    }
+    // // draw the primitives
+    // if (this.render === "painter") {
+    //   this.drawPainter(primitives);
+    // }
+    // else {
+      for(var i=0; i<primitivesLength; i++) {
+        primitives[i].draw(this.ctx, this);
+      }
+    // }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
+  }
+
+  var tmpPrimitive;
+
+  descartesJS.renderNode = function(v) {
+    this.value = v;
+    this.back = null;
+    this.front = null;
+  }
+
+  descartesJS.renderNode.prototype.inOrder = function() {
+    var list = [];
+    if (this.back) {
+      list = list.concat(this.back.inOrder());
+    }
+    list.push(this.value);
+    if (this.front) {
+      list = list.concat(this.front.inOrder());
+    }
+
+    return list;
+  }
+
+  descartesJS.Space3D.prototype.buildTree = function(primitives) {
+    if (primitives.length === 0) {
+      return null;
+    }
+
+    var front_or_back;
+    var backList = [];
+    var frontList = [];
+    tmpPrimitive = primitives.shift();
+
+    for (var i=0, l=primitives.length; i<l; i++) {
+      front_or_back = null;
+
+      for (var vert=0,vertL=primitives[i].spaceVertices.length; vert<vertL; vert++) {
+        // if (tmpPrimitive.spaceVertices.length > 2) {
+        //   whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
+        // }
+        // else {
+        //   whereIs = 0;
+        // }
+        whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        whereIs = (tmpPrimitive.direction > 0) ? -whereIs : whereIs;
+
+        if (front_or_back === null) {
+          if (whereIs < 0) {
+            front_or_back = "front";
+          }
+          else if (whereIs > 0) {
+            front_or_back = "back";
+          }
+        }
+        else {
+          if (whereIs < 0) {
+            if (front_or_back === "back") {
+              front_or_back = "cross";
+            }
+          }
+          else if (whereIs > 0) {
+            if (front_or_back === "front") {
+              front_or_back = "cross";
+            }
+          }
+        }
+      }
+
+      if (front_or_back === "back") {
+        backList.push( primitives[i] );
+      }
+      else if (front_or_back === "front") {
+        frontList.push( primitives[i] );
+      }
+//       else if (front_or_back == null) {
+//         backList.push( primitives[i] );
+// // console.log(front_or_back);
+//       } 
+      else {
+        front_or_back = null;
+
+        for (var vert=0,vertL=tmpPrimitive.spaceVertices.length; vert<vertL; vert++) {
+          // if (primitives[i].spaceVertices.length > 2) {
+          //   whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
+          // }
+          // else {
+          //   whereIs = 0;
+          // }
+          whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          whereIs = (primitives[i].direction > 0) ? -whereIs : whereIs;
+
+          if (front_or_back === null) {
+            if (whereIs < 0) {
+              front_or_back = "front";
+            }
+            else if (whereIs > 0) {
+              front_or_back = "back";
+            }
+          }
+          else {
+            if (whereIs < 0) {
+              if (front_or_back === "back") {
+                front_or_back = "cross";
+              }
+            }
+            else if (whereIs > 0) {
+              if (front_or_back === "front") {
+                front_or_back = "cross";
+              }
+            }
+          }
+        }
+
+        if (front_or_back === "front") {
+          backList.push( primitives[i] );
+        }
+        else {
+          frontList.push( primitives[i] );
+        }
+
+// console.log(front_or_back);
+      }
+
+    }
+
+    var returnTree = new descartesJS.renderNode(tmpPrimitive);
+    returnTree.back = this.buildTree(backList);
+    returnTree.front = this.buildTree(frontList);
+    return returnTree;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.drawPainter = function(primitives) {
+    var renderTree = this.buildTree(primitives).inOrder();
+
+    for(var i=0; i<renderTree.length; i++) {
+      renderTree[i].draw(this.ctx, this);
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.inPlane = function(p1, p2, p3, p) {
+    return parseFloat( ((p.x - p1.x)*(p2.y - p1.y)*(p3.z - p1.z) + 
+                        (p.y - p1.y)*(p2.z - p1.z)*(p3.x - p1.x) + 
+                        (p.z - p1.z)*(p2.x - p1.x)*(p3.y - p1.y) -
+                        (p.z - p1.z)*(p2.y - p1.y)*(p3.x - p1.x) -
+                        (p.y - p1.y)*(p2.x - p1.x)*(p3.z - p1.z) -
+                        (p.x - p1.x)*(p2.z - p1.z)*(p3.y - p1.y)).toFixed(8)
+                      );
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).toFixed(8) );
   }
 
   /**
@@ -23189,8 +23409,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*70);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*70);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*100);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*100);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));
@@ -23717,8 +23937,8 @@ var descartesJS = (function(descartesJS) {
     var children = this.children;
     var images = this.images;
     var audios = this.audios;
-    var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
-    var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
+    var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+    var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
     // var regExpVector = /vector|array|bektore|vecteur|matriz/g;
     // var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
@@ -24668,21 +24888,29 @@ var descartesJS = (function(descartesJS) {
       descartesJS.onResize();
     }
 
+    // scene open in a new window
     if (window.opener) {
-      document.body.style.margin = "0px";
-      document.body.style.padding = "0px";
-      this.parentContainer.style.margin = "0px";
-      this.parentContainer.style.padding = "0px";
-      var winWidth = parseInt(this.width)+20;
-      var winHeight = parseInt(this.height)+80;
-
-      window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
-      window.resizeTo(winWidth, winHeight);
-
-      descartesJS.onResize();      
+      window.opener.postMessage({ type: "isResizeNeeded", href: window.location.href }, '*');
     }
 
     this.externalSpace.init();
+  }
+
+  /**
+   * Adjust the size of the window if needed
+   */
+  descartesJS.DescartesApp.prototype.adjustSize = function() {
+    document.body.style.margin = "0px";
+    document.body.style.padding = "0px";
+    this.parentContainer.style.margin = "0px";
+    this.parentContainer.style.padding = "0px";
+    var winWidth = parseInt(this.width)+30;
+    var winHeight = parseInt(this.height)+90;
+
+    window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
+    window.resizeTo(winWidth, winHeight);
+
+    descartesJS.onResize();      
   }
   
   /**
@@ -25740,6 +25968,16 @@ var descartesJS = (function(descartesJS) {
         
         if (fun) {
           fun.apply(descartesJS.apps[0].evaluator, params);
+        }
+      }
+
+      else if (data.type === "isResizeNeeded") {
+        evt.source.postMessage({ type: "doResize" }, '*');
+      }
+
+      else if (data.type === "doResize") {
+        if (descartesJS.apps.length > 0) {
+          descartesJS.apps[0].adjustSize();
         }
       }
     }

@@ -238,6 +238,16 @@ var descartesJS = (function(descartesJS) {
           fun.apply(descartesJS.apps[0].evaluator, params);
         }
       }
+
+      else if (data.type === "isResizeNeeded") {
+        evt.source.postMessage({ type: "doResize" }, '*');
+      }
+
+      else if (data.type === "doResize") {
+        if (descartesJS.apps.length > 0) {
+          descartesJS.apps[0].adjustSize();
+        }
+      }
     }
   }
 

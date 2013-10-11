@@ -155,7 +155,6 @@ var descartesJS = (function(descartesJS) {
             }
             // generic controlWord
             else {
-
               // scaped characters
               if ((tokenValue === "{") || (tokenValue === "}")) {
                 tokens.push({ type: "text", value: tokenValue });

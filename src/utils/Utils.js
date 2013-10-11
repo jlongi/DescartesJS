@@ -209,8 +209,9 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
-
+      decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
+
       strNum = this.toString();
 
       indexOfE = strNum.indexOf("e");
@@ -296,14 +297,27 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   *
+   */
+  descartesJS.returnValue = function(v) {
+    if (descartesJS.fullDecimals) {
+      return v;
+    }
+
+    if (typeof(v) === "number") {
+      return parseFloat(v.toFixed(11));
+    }
+    return v;
+  }
+
+  /**
    * Get which mouse button is pressed
    */
   descartesJS.whichButton = function(evt) {
     // all browsers
     if (evt.which !== null) {
       return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
-    } 
-
+    }
     // IE
     return (evt.button < 2) ? "L" : ((evt.button === 4) ? "M" : "R");
   }

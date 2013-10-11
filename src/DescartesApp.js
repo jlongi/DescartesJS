@@ -570,21 +570,29 @@ var descartesJS = (function(descartesJS) {
       descartesJS.onResize();
     }
 
+    // scene open in a new window
     if (window.opener) {
-      document.body.style.margin = "0px";
-      document.body.style.padding = "0px";
-      this.parentContainer.style.margin = "0px";
-      this.parentContainer.style.padding = "0px";
-      var winWidth = parseInt(this.width)+20;
-      var winHeight = parseInt(this.height)+80;
-
-      window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
-      window.resizeTo(winWidth, winHeight);
-
-      descartesJS.onResize();      
+      window.opener.postMessage({ type: "isResizeNeeded", href: window.location.href }, '*');
     }
 
     this.externalSpace.init();
+  }
+
+  /**
+   * Adjust the size of the window if needed
+   */
+  descartesJS.DescartesApp.prototype.adjustSize = function() {
+    document.body.style.margin = "0px";
+    document.body.style.padding = "0px";
+    this.parentContainer.style.margin = "0px";
+    this.parentContainer.style.padding = "0px";
+    var winWidth = parseInt(this.width)+30;
+    var winHeight = parseInt(this.height)+90;
+
+    window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
+    window.resizeTo(winWidth, winHeight);
+
+    descartesJS.onResize();      
   }
   
   /**

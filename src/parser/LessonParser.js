@@ -14,7 +14,7 @@ var descartesJS = (function(descartesJS, babel) {
   var controlObj;
   var graphicObj;
   var auxiliarObj;
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.PNG|\.JPG|\.GIF|\.SVG)/g;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
 
   var theAction_action;
   var theAction_parent;

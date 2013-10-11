@@ -359,9 +359,6 @@ var descartesJS = (function(descartesJS) {
       this.baseline = this.ascent;
 
       this.w = Math.max(num.w, den.w) +this.spaceWidth +8;
-
-console.log(this.ascent, "|", this.descent, "|", this.baseline);
-
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////

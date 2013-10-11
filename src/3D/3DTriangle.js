@@ -54,15 +54,15 @@ var descartesJS = (function(descartesJS) {
     v3_z = expr[2][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                         ],
-                               type: "face",
-                               frontColor: this.color,
-                               backColor: this.backcolor, 
-                               edges: this.edges, 
-                               model: this.model
-                             } ) );
+                                                                     this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+                                                                     this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                                   ],
+                                                         type: "face",
+                                                         frontColor: this.color,
+                                                         backColor: this.backcolor, 
+                                                         edges: this.edges, 
+                                                         model: this.model
+                                                       } ) );
 
   }
 

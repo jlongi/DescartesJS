@@ -369,14 +369,180 @@ var descartesJS = (function(descartesJS) {
 
     primitives = primitives.sort(depthSort);
 
-    for(var i=0; i<primitivesLength; i++) {
-      primitives[i].draw(this.ctx, this);
-    }
+    // // draw the primitives
+    // if (this.render === "painter") {
+    //   this.drawPainter(primitives);
+    // }
+    // else {
+      for(var i=0; i<primitivesLength; i++) {
+        primitives[i].draw(this.ctx, this);
+      }
+    // }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
+  }
+
+  var tmpPrimitive;
+
+  descartesJS.renderNode = function(v) {
+    this.value = v;
+    this.back = null;
+    this.front = null;
+  }
+
+  descartesJS.renderNode.prototype.inOrder = function() {
+    var list = [];
+    if (this.back) {
+      list = list.concat(this.back.inOrder());
+    }
+    list.push(this.value);
+    if (this.front) {
+      list = list.concat(this.front.inOrder());
+    }
+
+    return list;
+  }
+
+  descartesJS.Space3D.prototype.buildTree = function(primitives) {
+    if (primitives.length === 0) {
+      return null;
+    }
+
+    var front_or_back;
+    var backList = [];
+    var frontList = [];
+    tmpPrimitive = primitives.shift();
+
+    for (var i=0, l=primitives.length; i<l; i++) {
+      front_or_back = null;
+
+      for (var vert=0,vertL=primitives[i].spaceVertices.length; vert<vertL; vert++) {
+        // if (tmpPrimitive.spaceVertices.length > 2) {
+        //   whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
+        // }
+        // else {
+        //   whereIs = 0;
+        // }
+        whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        whereIs = (tmpPrimitive.direction > 0) ? -whereIs : whereIs;
+
+        if (front_or_back === null) {
+          if (whereIs < 0) {
+            front_or_back = "front";
+          }
+          else if (whereIs > 0) {
+            front_or_back = "back";
+          }
+        }
+        else {
+          if (whereIs < 0) {
+            if (front_or_back === "back") {
+              front_or_back = "cross";
+            }
+          }
+          else if (whereIs > 0) {
+            if (front_or_back === "front") {
+              front_or_back = "cross";
+            }
+          }
+        }
+      }
+
+      if (front_or_back === "back") {
+        backList.push( primitives[i] );
+      }
+      else if (front_or_back === "front") {
+        frontList.push( primitives[i] );
+      }
+//       else if (front_or_back == null) {
+//         backList.push( primitives[i] );
+// // console.log(front_or_back);
+//       } 
+      else {
+        front_or_back = null;
+
+        for (var vert=0,vertL=tmpPrimitive.spaceVertices.length; vert<vertL; vert++) {
+          // if (primitives[i].spaceVertices.length > 2) {
+          //   whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
+          // }
+          // else {
+          //   whereIs = 0;
+          // }
+          whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          whereIs = (primitives[i].direction > 0) ? -whereIs : whereIs;
+
+          if (front_or_back === null) {
+            if (whereIs < 0) {
+              front_or_back = "front";
+            }
+            else if (whereIs > 0) {
+              front_or_back = "back";
+            }
+          }
+          else {
+            if (whereIs < 0) {
+              if (front_or_back === "back") {
+                front_or_back = "cross";
+              }
+            }
+            else if (whereIs > 0) {
+              if (front_or_back === "front") {
+                front_or_back = "cross";
+              }
+            }
+          }
+        }
+
+        if (front_or_back === "front") {
+          backList.push( primitives[i] );
+        }
+        else {
+          frontList.push( primitives[i] );
+        }
+
+// console.log(front_or_back);
+      }
+
+    }
+
+    var returnTree = new descartesJS.renderNode(tmpPrimitive);
+    returnTree.back = this.buildTree(backList);
+    returnTree.front = this.buildTree(frontList);
+    return returnTree;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.drawPainter = function(primitives) {
+    var renderTree = this.buildTree(primitives).inOrder();
+
+    for(var i=0; i<renderTree.length; i++) {
+      renderTree[i].draw(this.ctx, this);
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.inPlane = function(p1, p2, p3, p) {
+    return parseFloat( ((p.x - p1.x)*(p2.y - p1.y)*(p3.z - p1.z) + 
+                        (p.y - p1.y)*(p2.z - p1.z)*(p3.x - p1.x) + 
+                        (p.z - p1.z)*(p2.x - p1.x)*(p3.y - p1.y) -
+                        (p.z - p1.z)*(p2.y - p1.y)*(p3.x - p1.x) -
+                        (p.y - p1.y)*(p2.x - p1.x)*(p3.z - p1.z) -
+                        (p.x - p1.x)*(p2.z - p1.z)*(p3.y - p1.y)).toFixed(8)
+                      );
+  }
+
+  /**
+   *
+   */
+  descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).toFixed(8) );
   }
 
   /**
@@ -675,8 +841,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*70);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*70);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*100);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*100);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));

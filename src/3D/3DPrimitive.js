@@ -1,5 +1,5 @@
 /**
- * @author Joel Espinosa Longi
+ * @author i Espinosa Longi
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
 
@@ -35,6 +35,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.newV = [];
+    this.spaceVertices = [];
 
     // asign the corresponding drawing function
     if (this.type === "vertex") {
@@ -76,9 +77,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
     this.average = { x: 0, y: 0, z: 0 };
 
+    this.removeDoubles();
+
     // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.rotateVertex(this.vertices[i]);
+      this.spaceVertices[i] = space.rotateVertex(this.vertices[i]);
       this.average.x += this.newV[i].x;
       this.average.y += this.newV[i].y;
       this.average.z += this.newV[i].z;
@@ -87,11 +91,12 @@ var descartesJS = (function(descartesJS) {
 
     // triangles and faces
     if (this.vertices.length > 2) {
-      // v1 = descartesJS.subtract3D( this.newV[0], this.newV[1] );
-      // v2 = descartesJS.subtract3D( this.newV[0], this.newV[2] );
-      // this.normal = descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
       this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
+    }
+    else {
+      this.normal = { x: 0, y: 1, z: 0 };
+      this.direction = { x: 1, y: 0, z: 0 };
     }
 
     this.depth = 0;
@@ -101,6 +106,25 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.depth/= l;
+  }
+
+  var tmpVertices;
+
+  /**
+   *
+   */
+  descartesJS.Primitive3D.prototype.removeDoubles = function() {
+    tmpVertices = [];
+    for (var i=0, l=this.vertices.length; i<l; i++) {
+      if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
+           (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
+           (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
+           (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
+         ) {
+        tmpVertices.push(this.vertices[i]);
+      }
+    }
+    this.vertices = tmpVertices;
   }
 
   /**

@@ -667,8 +667,8 @@ var descartesJS = (function(descartesJS) {
     var decimals = 1000000000000000;
     // register the default variables
     this.variables["rnd"] = Math.random;
-    this.variables["pi"] = parseFloat(Math.PI.toFixed(11));
-    this.variables["e"] = parseFloat(Math.E.toFixed(11));
+    this.variables["pi"] = descartesJS.returnValue(Math.PI);
+    this.variables["e"] = descartesJS.returnValue(Math.E);
     this.variables["Infinity"] = Infinity;
     this.variables["-Infinity"] = -Infinity;
     
@@ -718,16 +718,6 @@ var descartesJS = (function(descartesJS) {
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
       }
-
-      // // function to get a variable value from the parent
-      // this.functions["parent.get"] = function(varName) {
-      //   if (this.parent.cacheVars[varName]) {
-      //     return this.parent.cacheVars[varName];
-      //   }
-
-      //   window.parent.postMessage({ type: "get", name: varName }, '*');
-      //   return 0;
-      // }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
@@ -743,7 +733,18 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////
     // new funcionaity //
     this.functions["_GetValues_"] = function(file, name) {
-      var response = descartesJS.openExternalFile(file);
+      var response;
+      if (file) {
+        var fileElement = document.getElementById(file);
+
+        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
+          response = fileElement.text.replace(/&brvbar;/g, "¦");
+        }
+      }
+      else {
+        response = descartesJS.openExternalFile(file);
+      }
+
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
@@ -807,14 +808,25 @@ var descartesJS = (function(descartesJS) {
     };
 
     this.functions["_GetMatrix_"] = function(file, name) {
-      var response = descartesJS.openExternalFile(file);
+      var response;
+      if (file) {
+        var fileElement = document.getElementById(file);
+
+        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
+          response = fileElement.text.replace(/&brvbar;/g, "¦");
+        }
+      }
+      else {
+        response = descartesJS.openExternalFile(file);
+      }
+      
       var initialIndex = -1;
       var finalIndex = -1;
       var values = [];
+      var storeValues = false;
       values.type = "matrix";
 
       var tmpValue;
-
 
       if (response) {
         response = response.replace(/\r/g, "").split("\n");
@@ -865,7 +877,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data], {type: "text/plain"});
+      blob = new Blob([data.replace(/\\n/g, "\n")], {type: "text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
@@ -994,6 +1006,31 @@ var descartesJS = (function(descartesJS) {
 
       return 0;
     }
+
+    /**
+     *
+     */
+    this.functions["_Rojo_"] = function(c) {
+      return (new descartesJS.Color(c).r)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_Verde_"] = function(c) {
+      return (new descartesJS.Color(c).g)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_Azul_"] = function(c) {
+      return (new descartesJS.Color(c).b)/255;
+    }
+    /**
+     *
+     */
+    this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
+      return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
+    }
     ////////////////////////////////////////
   }  
 
@@ -1009,7 +1046,6 @@ function myMapFun(x) {
     return parseFloat(x);
   }
 }
-
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());

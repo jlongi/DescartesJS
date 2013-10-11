@@ -71,7 +71,7 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-    
+
     // color expression of the form _COLORES_ffffff_000000_P_22 specified in the image field
     // the first color is the background color
     // the second color is the text color
@@ -212,6 +212,7 @@ var descartesJS = (function(descartesJS) {
 
     font_size = evaluator.evalExpression(this.font_size);
     name = evaluator.evalExpression(this.name);
+
     imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
     
