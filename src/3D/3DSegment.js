@@ -22,7 +22,6 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the point
    */
   descartesJS.Segment3D = function(parent, values) {
-
     this.width = parent.evaluator.parser.parse("1");
 
     // call the parent constructor
@@ -53,12 +52,13 @@ var descartesJS = (function(descartesJS) {
     v2_z = expr[1][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                         ],
-                               type: "edge",
-                               frontColor: this.color, 
-                               lineWidth: evaluator.evalExpression(this.width)
-                             } ) );
+                                                         this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                       ],
+                                                         type: "edge",
+                                                         frontColor: this.color, 
+                                                         lineWidth: evaluator.evalExpression(this.width)
+                                                       },
+                            this.space ));
 
   }
   

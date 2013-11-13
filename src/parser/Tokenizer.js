@@ -28,6 +28,9 @@ var descartesJS = (function(descartesJS) {
   var parenthesesRegExp = /^\(|^\)/;
   var separatorRegExp = /^,/;
   var finalOfExpressionRegExp = /^;/;
+  var pipeStringDelimiterRegExp = /\|/g;
+  var pipeAsteriskLeftRegExp = /\|\*/g;
+  var pipeAsteriskRightRegExp = /\*\|/g;
 
   /**
    * Descartes tokenizer
@@ -50,14 +53,19 @@ var descartesJS = (function(descartesJS) {
       
       // replace the pipes used like string marks
       if (input.match(/\=\|\*/g)) {
-        input = input.replace("|*", "'", "g").replace("*|", "'", "g");
+        input = input.replace(pipeAsteriskLeftRegExp, "'").replace(pipeAsteriskRightRegExp, "'");
       }
       // replace the pipes used like string marks
       if (input.match(/\=\|/g)) {
-        input = input.replace("|", "'", "g");
+        input = input.replace(pipeStringDelimiterRegExp, "'");
+      }
+
+      var inputTrimed = input.trim();
+      if ((inputTrimed.charAt(0) == "|") && (inputTrimed.charAt(inputTrimed.length-1) == "|")) {
+        input = inputTrimed.replace(pipeStringDelimiterRegExp, "'");
       }
     }
-    
+
     tokens = [];
     exit = false;
     pos = 0;

@@ -7,7 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var tmpAnswer;
-  var tempAnswers;
+  var regExpPattern_i;
   var answerArray;
   var regExpPattern;
   var answerValue;
@@ -21,12 +21,19 @@ var descartesJS = (function(descartesJS) {
   var cond3;
   var cond4;
 
+  var indexOfRadial;
+
   /**
    * Build a text regular expression pattern from a Descartes answer pattern (auxiliary function)
    * @param {String} answer the Descartes answer pattern to convert
    * @return {Object} return an object representing a simple regular expression pattern
    */
   function buildTextRegularExpressionPattern(answer) {
+    indexOfRadial = answer.indexOf("--radial--");
+    if (indexOfRadial != -1) {
+      answer = answer.substring(0, indexOfRadial);
+    }
+
     tmpAnswer = answer.trim();
     answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
 
@@ -125,12 +132,12 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Remove the accents in a string and change the ñ for n
+   * Remove the accents in a string and change the \u00f1 for n
    * @param {String} value the string to remove the accents
    * @return {String} return ths string with the accents remove
    */
   function removeAccents(value) {
-    return value.toString().replace(/á/g, "a").replace(/é/g, "e").replace(/í/g, "i").replace(/ó/g, "o").replace(/ú/g, "u").replace(/Á/g, "A").replace(/É/g, "E").replace(/Í/g, "I").replace(/Ó/g, "O").replace(/Ú/g, "U").replace(/ñ/g, "n").replace(/Ñ/g, "N");
+    return value.toString().replace(/\u00e1/g, "a").replace(/\u00e9/g, "e").replace(/\u00ed/g, "i").replace(/\u00f3/g, "o").replace(/\u00fa/g, "u").replace(/\u00c1/g, "A").replace(/\u00c9/g, "E").replace(/\u00cd/g, "I").replace(/\u00d3/g, "O").replace(/\u00da/g, "U").replace(/\u00f1/g, "n").replace(/\u00d1/g, "N");
   }
   
   /**
@@ -147,11 +154,11 @@ var descartesJS = (function(descartesJS) {
     answer = ((answer.replace(/&squot;/g, "'")).replace(/&amp;/g, "&")).split("|");
 
     for (var i=0, l=answer.length; i<l; i++) {
-      tempAnswers = answer[i].split("&");
+      regExpPattern_i = answer[i].split("&");
       answerArray = [];
 
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
-        tmpAnswer = tempAnswers[j];
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
+        tmpAnswer = regExpPattern_i[j];
 
         // numeric pattern
         if ( (tmpAnswer.indexOf(",") !== -1) && 
@@ -187,17 +194,17 @@ var descartesJS = (function(descartesJS) {
     resp = removeAccents(resp);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswers = regExpPattern[i];
+      regExpPattern_i = regExpPattern[i];
       answerValue = true;
 
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
         // a text pattern
-        if (tempAnswers[j].regExp) {
-          answerValue = answerValue && !!(resp.match( removeAccents(tempAnswers[j].regExp), "i" ));
+        if (regExpPattern_i[j].regExp) {
+          answerValue = answerValue && !!(resp.match( new RegExp(removeAccents(regExpPattern_i[j].regExp), "i" )) );
         }
         // a numeric pattern
         else {
-          answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
+          answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
       
@@ -205,7 +212,6 @@ var descartesJS = (function(descartesJS) {
         return 1;
       }
     }
-    
     return 0;
   }
 
@@ -220,20 +226,20 @@ var descartesJS = (function(descartesJS) {
     regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswers = regExpPattern[i];
+      regExpPattern_i = regExpPattern[i];
       answerValue = true;
       
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
-        tmpAnswer = tempAnswers[j].regExp;
-        
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
+        tmpAnswer = regExpPattern_i[j].regExp;
+
         // a text pattern
         if (tmpAnswer) {
-          if (tempAnswers[j].ignoreAcents) {
+          if (regExpPattern_i[j].ignoreAcents) {
             resp = removeAccents(resp);
             tmpAnswer = removeAccents(tmpAnswer);
           }
           
-          if (tempAnswers[j].ignoreCaps) {
+          if (regExpPattern_i[j].ignoreCaps) {
             resp = resp.toLowerCase();
             tmpAnswer = removeAccents(tmpAnswer).toLowerCase();
           }
@@ -242,7 +248,7 @@ var descartesJS = (function(descartesJS) {
         }
         // a numeric pattern
         else {
-          answerValue = answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
+          answerValue = answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
       

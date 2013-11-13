@@ -62,7 +62,8 @@ var descartesJS = (function(descartesJS) {
                                                          backColor: this.backcolor, 
                                                          edges: this.edges, 
                                                          model: this.model
-                                                       } ) );
+                                                       },
+                          this.space ));
 
   }
 

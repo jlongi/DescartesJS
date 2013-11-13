@@ -103,12 +103,13 @@ var descartesJS = (function(descartesJS) {
         v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
 
         this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
-                                   type: "face",
-                                   frontColor: this.color, 
-                                   backColor: this.backcolor,
-                                   edges: this.edges, 
-                                   model: this.model
-                                 } ) );
+                                                             type: "face",
+                                                             frontColor: this.color, 
+                                                             backColor: this.backcolor,
+                                                             edges: this.edges, 
+                                                             model: this.model
+                                                           },
+                              this.space ));
 
       }
     }

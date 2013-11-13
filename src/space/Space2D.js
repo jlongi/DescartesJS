@@ -154,6 +154,8 @@ var descartesJS = (function(descartesJS) {
       self.mclicizquierdoString = "clic_izquierdo";
     }
 
+    self.click = 0;
+
     // register the mouse and touch events
     // if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
@@ -201,13 +203,11 @@ var descartesJS = (function(descartesJS) {
     // prevents the change of the width and height from an external change
     evaluator.setVariable(self.wString, self.w);
     evaluator.setVariable(self.hString, self.h);
-
     // check the draw if condition
     self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
 
     // draw the space
     if (self.drawIfValue) {
-
       changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
       changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
 
@@ -246,9 +246,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       self.container.style.display = "block";
-        
+
       // draw the trace
-      self.drawTrace = (!self.spaceChange) && (!self.click);
+      self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
 
       if (self.spaceChange) {
         self.drawBackground();
@@ -511,6 +511,8 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Space2D.prototype.registerMouseAndTouchEvents = function() {
+    var lastTime = 0;
+    var newTime;
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
@@ -535,6 +537,8 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      self.parent.clearClick();
+
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
@@ -550,7 +554,8 @@ var descartesJS = (function(descartesJS) {
 
       // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-        evt.preventDefault();
+      evt.stopPropagation();
+      evt.preventDefault();
       // }
     }
     
@@ -595,6 +600,11 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      evt.stopPropagation();
+      evt.preventDefault();
+
+      self.parent.clearClick();
+
       self.click = 1;
 
       // deactivate the graphic controls
@@ -625,8 +635,6 @@ var descartesJS = (function(descartesJS) {
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
       }
-      
-      evt.preventDefault();
     }
     
     /**
@@ -638,12 +646,13 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      evt.stopPropagation();
+      evt.preventDefault();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
-
-      evt.preventDefault();
 
       if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
@@ -675,7 +684,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclickedString, 0);
       self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
-      self.parent.update();
+      // limit the number of updates in the lesson
+      if (Date.now() - lastTime > 10) {
+        self.parent.update();
+        lastTime = Date.now();
+      }
     }
     
     /**
@@ -698,6 +711,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseMove(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
@@ -711,11 +727,6 @@ var descartesJS = (function(descartesJS) {
       }
 
       onSensitiveToMouseMovements(evt);
-
-      // // try to preserv the slide gesture in the tablets
-      // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-      evt.preventDefault();
-      // }
     }
   }
     

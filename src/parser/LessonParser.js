@@ -286,7 +286,8 @@ var descartesJS = (function(descartesJS, babel) {
           
           // whether to convert the value to a number the values ​​are different, then use the default value
           // this case ocurrs when the scale has a no valid value
-          if (temp.toString() != values_i_1) {
+          // if (temp.toString() != values_i_1) {
+          if (isNaN(temp)) {
             temp =  48; // default value
           }          
           
@@ -1218,7 +1219,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("condition"):
         // event parameter
         case("parameter"):
-          auxiliarObj[babelValue] = values_i_1;
+          auxiliarObj[babelValue] = values_i_1.replace(/&squot;/g, "'");
           break;
 
         // editable condition
@@ -1467,7 +1468,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("doExpr"):
         // while expression
         case("whileExpr"):
-          animationObj[babelValue] = values_i_1;
+          animationObj[babelValue] = values_i_1.replace(/&squot;/g, "'");
           break;
           
         // condition to show the controls

@@ -65,10 +65,12 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
-                                 type: "edge",
-                                 frontColor: this.color, 
-                                 lineWidth: evaluator.evalExpression(this.width)
-                               } ) );
+                                                           type: "edge",
+                                                           frontColor: this.color, 
+                                                           lineWidth: evaluator.evalExpression(this.width)
+                                                         },
+                            this.space ));
+
     }
 
     evaluator.setVariable("x", tempParamX);

@@ -25,7 +25,9 @@ var descartesJS = (function(descartesJS) {
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (values) {
+  descartesJS.Primitive3D = function (values, space) {
+    this.space = space;
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -65,6 +67,7 @@ var descartesJS = (function(descartesJS) {
       this.computeDepth = function() {
         this.newV = this.vertices;
         this.depth = this.vertices[0].z;
+        this.average = this.vertices[0];
       }
     }
 
@@ -77,7 +80,11 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
     this.average = { x: 0, y: 0, z: 0 };
 
+    // remove double vertices
     this.removeDoubles();
+
+    this.normal = { x: 0, y: 1, z: 0 };
+    this.direction = { x: 1, y: 0, z: 0 };
 
     // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
@@ -88,28 +95,24 @@ var descartesJS = (function(descartesJS) {
       this.average.z += this.newV[i].z;
     }
     this.average = descartesJS.scalarProduct3D(this.average, 1/l);
+    this.averageP = space.project(this.average);
+    this.depth = this.averageP.z;
 
     // triangles and faces
     if (this.vertices.length > 2) {
       this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
-    else {
-      this.normal = { x: 0, y: 1, z: 0 };
-      this.direction = { x: 1, y: 0, z: 0 };
-    }
 
-    this.depth = 0;
+    // this.depth = 0;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.project(this.newV[i]);
-      this.depth += this.newV[i].z;
+      // this.depth += this.newV[i].z;
     }
-
-    this.depth/= l;
+    // this.depth/= l;
   }
 
   var tmpVertices;
-
   /**
    *
    */
@@ -124,6 +127,11 @@ var descartesJS = (function(descartesJS) {
         tmpVertices.push(this.vertices[i]);
       }
     }
+
+    if (tmpVertices.length === 0) {
+      tmpVertices.push(this.vertices[0]);
+    }
+
     this.vertices = tmpVertices;
   }
 
@@ -383,7 +391,8 @@ var descartesJS = (function(descartesJS) {
                                                    backColor: p.backColor,
                                                    edges: p.edges,
                                                    model: p.model
-                                                  } );
+                                                  },
+                                                  this.space );
             fa[0].normal = p.normal;
 
             fa[1] = new descartesJS.Primitive3D( { vertices: v,
@@ -392,7 +401,8 @@ var descartesJS = (function(descartesJS) {
                                                    backColor: p.backColor,
                                                    edges: p.edges,
                                                    model: p.model
-                                                  } );
+                                                  },
+                                                  this.space );
             fa[1].normal = p.normal;
 
             return fa;
@@ -486,6 +496,163 @@ var descartesJS = (function(descartesJS) {
     v2 = descartesJS.subtract3D( u1, u3 );
     return descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
   }
+
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
+
+  // descartesJS.Primitive3D.prototype.inFrontOf = function(V, F, epsilon) {
+  //   for (var state=0; state<3; state++) {
+  //     var v = null;
+  //     switch (state) {
+  //       case 0: 
+  //         v = this.intersections(F);
+  //         break;
+  //       case 1:
+  //         v = F.verticesContainedIn(this);
+  //         break;
+  //       case 2:
+  //         v = this.verticesContainedIn(F)
+  //         break;
+  //     }
+  //     if ( (v != null) && (v.length > 0) ) {
+  //       for (var k=0; k<v.length; k++) {
+  //         V.push(v[k]);
+  //       }
+
+  //       for (var k=0; k<v.length; k++) {
+  //         var p = v[k];
+  //         var ray = this.space.rayFromEye(p.x, p.y);
+  //         try {
+  //           var t = this.distanceToEyeAlong(ray) - F.distanceToEyeAlong(ray);
+  //           if (t <= -epsilon) {
+  //             return true;
+  //           }
+  //           else if (t >= epsilon) {
+  //             return false;
+  //           }
+  //         } catch (e) {
+  //           console.log("Error: inFrontOf");
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.intersections = function(F) {
+  //   var V = [];
+  //   var tmpR2 = new descartesJS.R2();
+
+  //   for(var i=0; i<this.spaceVertices.length; i++) {
+  //     var pi = this.spaceVertices[i];
+  //     var qi = this.spaceVertices[(i+1)%this.spaceVertices.length];
+      
+  //     for (var j=0; j<F.spaceVertices.length; j++) {
+  //       var pj = F.spaceVertices[j];
+  //       var qj = F.spaceVertices[(j+1)%F.spaceVertices.length];
+
+  //       if ( (!descartesJS.equals3DEpsilon(pi, pj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(pi, qj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(qi, pj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(qi, qj, epsilon))
+  //          ) {
+  //         var ip = tmpR2.intersection( this.newV[i], 
+  //                                      this.newV[(i+1)%this.newV.length], 
+  //                                      F.newV[j],
+  //                                      F.newV[(j+i)%F.newV.length]
+  //                                    );
+
+  //         if (ip != null) {
+  //           V.push(ip);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return V;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.distanceToEyeAlong = function(ray) {
+  //   this.normal = this.normal || { x: 0, y: 1, z: 0 };
+  //   var den = descartesJS.dotProduct3D(this.normal, ray);
+  //   var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.eye), this.normal );
+
+  //   if (Math.abs(den) > 0.000001) {
+  //     return normalToEye/den;
+  //   }
+    
+  //   return null;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.verticesContainedIn = function(F) {
+  //   var V = [];
+
+  //   for (var i=0; i<this.spaceVertices.length; i++) {
+  //     if ( !F.isVertex(this.spaceVertices[i]) && F.appearsToContain(this.newV[i]) ) {
+  //       V.push(this.newV[i]);
+  //     }
+  //   }
+
+  //   // for (var i=0; i<this.newV.length; i++) {
+  //   //   if ( !F.isVertex(this.newV[i]) && F.appearsToContain(this.newV[i]) ) {
+  //   //     V.push(this.newV[i]);
+  //   //   }
+  //   // }
+
+  //   return V;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.appearsToContain = function(p) {
+  //   var D = 0;
+  //   for (var i=0; i<this.spaceVertices.length;i++) {
+  //     var D1 = ((this.newV[i].x-p.x)*(this.newV[(i+1)%this.newV.length].y-p.y))-((this.newV[(i+1)%this.newV.length].x-p.x)*(this.newV[i].y-p.y));
+     
+  //     if (D!=0) {
+  //       if (Math.abs(D1)<epsilon) {
+  //         if (Math.abs(this.newV[i].x-this.newV[(i+1)%this.newV.length].x) > epsilon) {
+  //           return (Math.min(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)<=p.x+epsilon && p.x<=Math.max(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)+epsilon);
+  //         } 
+  //         else if (Math.abs(this.newV[i].y-this.newV[(i+1)%this.newV.length].y)>epsilon) {
+  //           return (Math.min(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)<=p.y+epsilon && p.y<=Math.max(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)+epsilon);
+  //         }
+  //       } 
+  //       else if ( (D>0 && D1<0) || (D<0 && D1>0) ) {
+  //         return false;
+  //       }
+  //     }
+  //     D = D1;
+  //   }
+  //   return true;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.isVertex = function(p) {
+  //   for (var i=0; i<this.spaceVertices.length; i++) {
+  //     if (descartesJS.equals3DEpsilon(p, this.spaceVertices[i], epsilon)) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }  
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   return descartesJS;
 })(descartesJS || {});

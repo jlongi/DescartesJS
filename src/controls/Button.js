@@ -20,7 +20,7 @@ var descartesJS = (function(descartesJS) {
   var despY;
   var txtW;
   var hasTouchSupport;
-  var delay = 900;
+  var delay = 2000;
 
   /**
    * Descartes button control
@@ -320,7 +320,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Button.prototype.registerMouseAndTouchEvents = function() {
     hasTouchSupport = descartesJS.hasTouchSupport;
-    
     var self = this;
     var timer;
 
@@ -339,7 +338,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.click) {
         fun.call(self);
-        delayTime = (firstTime) ? delayTime : 30;
+        delayTime = (firstTime) ? delayTime : 100;
         timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
       }
     }
@@ -365,9 +364,12 @@ var descartesJS = (function(descartesJS) {
       document.body.focus();
 
       evt.preventDefault();
+      evt.stopPropagation();
 
       // blur other elements when clicked
-      document.activeElement.blur();
+      if (document.activeElement != document.body) {
+        document.activeElement.blur();
+      }
 
       self.whichButton = descartesJS.whichButton(evt);
 
@@ -411,6 +413,7 @@ var descartesJS = (function(descartesJS) {
         }
         
         evt.preventDefault();
+        evt.stopPropagation();
 
         if (hasTouchSupport) {
           window.removeEventListener("touchend", onMouseUp, false);

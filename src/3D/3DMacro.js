@@ -137,7 +137,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if it was posible to read the macro
     if (response) {
-      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      tmpResponse = ( response.replace(/&aacute;/g, "\u00e1").replace(/&eacute;/g, "\u00e9").replace(/&iacute;/g, "\u00ed").replace(/&oacute;/g, "\u00f3").replace(/&uacute;/g, "\u00fa").replace(/&Aacute;/g, "\u00c1").replace(/&Eacute;/g, "\u00c9").replace(/&Iacute;/g, "\u00cd").replace(/&Oacute;/g, "\u00d3").replace(/&Uacute;/g, "\u00da").replace(/&ntilde;/g, "\u00f1").replace(/&Ntilde;/g, "\u00d1").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];
@@ -184,9 +184,13 @@ var descartesJS = (function(descartesJS, babel) {
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
-            continue;
+
+               // ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) ||
+              if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
+                continue;
+              }
           }
-          
+
           // is a text
           if (babelResp == "text") {
             // if the text is rtf must processing it diferent
@@ -262,7 +266,6 @@ var descartesJS = (function(descartesJS, babel) {
           isGraphic = false;
 
           for (var j=0, k=response[i].length; j<k; j++) {
-
             // if is a graphic object, add the corresponding space
             if (babel[response[i][j][0]] === "type") {
               tempResp = "espacio='" + this.spaceID + "' ";

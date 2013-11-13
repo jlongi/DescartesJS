@@ -6,12 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evalArgument;
+  var evalCache = {};
+
   var mathFloor = Math.floor;
   var lastChildIndex;
   var newRoot;
   var root;
   var right;
-  var evalArgument;
   descartesJS.fullDecimals = false;
   
   /**
@@ -125,7 +127,7 @@ var descartesJS = (function(descartesJS) {
     // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
-        return descartesJS.returnValue(parseFloat(this.value));
+        return parseFloat(this.value);
       }
     }
     
@@ -140,7 +142,7 @@ var descartesJS = (function(descartesJS) {
     else if ( (this.type === "identifier") && (this.childs.length === 0) ) {
       if (this.value == "rnd") {
         this.evaluate = function(evaluator) {
-          return descartesJS.returnValue(Math.random());
+          return Math.random();
         }
       }
       else {
@@ -211,10 +213,17 @@ var descartesJS = (function(descartesJS) {
       
         if (this.value === "_Eval_") {
           argu[0] = (argu.length > 0) ? argu[0].toString() : '';
-          return descartesJS.returnValue( evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) ) );
+
+          evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
+
+          if (evalCache[evalArgument] == undefined) {
+            evalCache[evalArgument] = evaluator.parser.parse(evalArgument);
+          }
+
+          return evaluator.evalExpression( evalCache[evalArgument] );
         }
 
-        return descartesJS.returnValue( evaluator.functions[this.value].apply(evaluator, argu) );
+        return evaluator.functions[this.value].apply(evaluator, argu);
       }
     }
     
@@ -231,7 +240,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric or string operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 + op2);
+            return op1 + op2;
           }
           // matix operation
           else {
@@ -246,7 +255,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 - op2);
+            return op1 - op2;
           }
           // matrix operation
           else {
@@ -261,7 +270,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 * op2);
+            return op1 * op2;
           }
           // matrix operation
           else {
@@ -276,7 +285,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 / op2);
+            return op1 / op2;
           }
           // matrix operation
           else {
@@ -293,7 +302,7 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "^") {
         this.evaluate = function(evaluator) {
-          return descartesJS.returnValue( Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) ) );
+          return Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) );
         }
       }
     }

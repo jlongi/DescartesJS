@@ -40,18 +40,20 @@ var descartesJS = (function(descartesJS) {
     exprZ = 0;
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
-                               type:"text",
-                               frontColor: this.color,
-                               font: this.font,
-                               decimals: evaluator.evalExpression(this.decimals),
-                               fixed: this.fixed,
-                               displace: 0,
-                               isText: true,
-                               evaluator: evaluator,
-                               text: this.text,
-                               family: this.family,
-                               familyValue: this.familyValue
-                             } ) );
+                                                         type:"text",
+                                                         frontColor: this.color,
+                                                         font: this.font,
+                                                         decimals: evaluator.evalExpression(this.decimals),
+                                                         fixed: this.fixed,
+                                                         displace: 0,
+                                                         isText: true,
+                                                         evaluator: evaluator,
+                                                         text: this.text,
+                                                         family: this.family,
+                                                         familyValue: this.familyValue,
+                                                         joel: "hola"
+                                                       },
+                          this.space ));
 
   }
   

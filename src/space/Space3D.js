@@ -367,23 +367,86 @@ var descartesJS = (function(descartesJS) {
       primitives[i].computeDepth(this);
     }
 
-    primitives = primitives.sort(depthSort);
+    // primitives = primitives.sort(depthSort);
 
     // // draw the primitives
-    // if (this.render === "painter") {
-    //   this.drawPainter(primitives);
-    // }
-    // else {
+    if (this.render === "painter") {
+      // this.drawPainter2(primitives);
+      this.drawPainter(primitives);
+    }
+    else {
+      primitives = primitives.sort(depthSort);      
       for(var i=0; i<primitivesLength; i++) {
         primitives[i].draw(this.ctx, this);
       }
-    // }
+    }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
   }
+
+  // descartesJS.Space3D.prototype.drawPainter2 = function(primitives) {
+  //   var V = [];
+  //   var ordface = primitives;
+  //   for (var i=0, l=ordface.length; i<l; i++) {
+  //     ordface[i].drawn = false;
+  //   }
+
+  //   var NC = ordface.length;
+  //   var epsilon0 = 0.001;
+  //   var epsilon = epsilon0;
+  //   while (true) {
+  //     var NCa = NC;
+  //     var oneDrawn = false;
+  //     for (var i=0; i<ordface.length; i++) {
+  //       if (!ordface[i].drawn) {
+  //         var canDraw = true;
+  //         for (var j=0; j<ordface.length; j++) {
+  //           if ((j != i) &&
+  //               (!ordface[j].drawn) &&
+  //               (ordface[i].inFrontOf(V, ordface[j], epsilon))
+  //              ) {
+  //             canDraw = false;
+  //             break;
+  //           }
+  //         }
+  //         if (canDraw) {
+  //           NC--;
+  //           ordface[i].draw(this.ctx, this);
+  //           ordface[i].drawn = true;
+  //           oneDrawn = true;
+  //         }
+  //       }
+  //     }
+  //     if (NC == 0) {
+  //       break;
+  //     }
+  //     else if (NC == NCa) {
+  //       epsilon = epsilon*10;
+
+  //       if (epsilon > 0.1) {
+  //         console.log("Error in Painter Algorithm");
+
+  //         for (var i=0; i<ordface.length; i++) {
+  //           if (!ordface[i].drawn) {
+  //             ordface[i].draw(this.ctx, this);
+  //             ordface[i].drawn = true;
+  //           }
+  //         }
+  //         break;
+  //       }
+  //     }
+  //     else {
+  //       epsilon = epsilon0;
+  //     }
+  //   }
+  // }
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   var tmpPrimitive;
 
@@ -420,13 +483,14 @@ var descartesJS = (function(descartesJS) {
       front_or_back = null;
 
       for (var vert=0,vertL=primitives[i].spaceVertices.length; vert<vertL; vert++) {
-        // if (tmpPrimitive.spaceVertices.length > 2) {
-        //   whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
-        // }
-        // else {
-        //   whereIs = 0;
-        // }
-        whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        if (tmpPrimitive.spaceVertices.length > 2) {
+          // whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
+          whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        }
+        else {
+          whereIs = 0;
+        }
+        
         whereIs = (tmpPrimitive.direction > 0) ? -whereIs : whereIs;
 
         if (front_or_back === null) {
@@ -457,21 +521,22 @@ var descartesJS = (function(descartesJS) {
       else if (front_or_back === "front") {
         frontList.push( primitives[i] );
       }
-//       else if (front_or_back == null) {
-//         backList.push( primitives[i] );
-// // console.log(front_or_back);
-//       } 
+      else if (front_or_back == null) {
+        backList.push( primitives[i] );
+// console.log(front_or_back);
+      } 
       else {
         front_or_back = null;
 
         for (var vert=0,vertL=tmpPrimitive.spaceVertices.length; vert<vertL; vert++) {
-          // if (primitives[i].spaceVertices.length > 2) {
-          //   whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
-          // }
-          // else {
-          //   whereIs = 0;
-          // }
-          whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          if (primitives[i].spaceVertices.length > 2) {
+            // whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
+            whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          }
+          else {
+            whereIs = -1;
+          }
+
           whereIs = (primitives[i].direction > 0) ? -whereIs : whereIs;
 
           if (front_or_back === null) {
@@ -502,8 +567,6 @@ var descartesJS = (function(descartesJS) {
         else {
           frontList.push( primitives[i] );
         }
-
-// console.log(front_or_back);
       }
 
     }
@@ -542,8 +605,12 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).toFixed(8) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
   }
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   /**
    *
@@ -592,14 +659,15 @@ var descartesJS = (function(descartesJS) {
     dx = self.eye.x - v.x;
     dy = self.eye.y - v.y;
     dz = self.eye.z - v.z;
-    t = -v.x/MathSqrt(dx*dx + dy*dy + dz*dz) || 0;
+    var tt = MathSqrt(dx*dx + dy*dy + dz*dz);
+    t = -v.x/tt || 0;
 
-    dx =  self.scale*(v.y + t*(self.eye.y - v.y));
-    dy = -self.scale*(v.z + t*(self.eye.z - v.z));
+    dx = this.w_2 + this.Ox + self.scale*(v.y + t*(self.eye.y - v.y));
+    dy = this.h_2 + this.Oy - self.scale*(v.z + t*(self.eye.z - v.z));
 
-    return { x: parseInt(dx +this.w_2 +this.Ox),
-             y: parseInt(dy +this.h_2 +this.Oy),
-             z: t
+    return { x: dx,
+             y: dy,
+             z: tt
            };
   }
 
@@ -658,11 +726,21 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   * 
+   */
+  descartesJS.Space3D.prototype.rayFromEye = function(x, y) {
+    return { x: -this.eye.x,
+             y: (x - this.w_2 - this.Ox)/this.scale - this.eye.y,
+             z: (this.h_2 + this.Oy - y)/this.scale - this.eye.z
+           };
+  }
+
+  /**
    * Register the mouse and touch events
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
     var self = this;
-
+    var lastTime = 0;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
     this.canvas.oncontextmenu = function () { return false; };
@@ -813,7 +891,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
       self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
 
-      self.parent.update();
+      // limit the number of updates in the lesson
+      if (Date.now() - lastTime > 70) {
+        self.parent.update();
+        lastTime = Date.now();
+      }
     }
     
     /**
@@ -841,8 +923,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*100);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*100);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));

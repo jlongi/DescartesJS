@@ -193,7 +193,7 @@ var descartesJS = (function(descartesJS) {
     var diff;
     
     var indexOfE;
-    var exponentialNotaionSplit;
+    var exponentialNotationSplit;
     var exponentialNumber;
     var exponentialSign;
     var moveDotTo;
@@ -209,34 +209,35 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
+
       decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
 
       strNum = this.toString();
-
       indexOfE = strNum.indexOf("e");
-      indexOfDot = strNum.indexOf(".");
 
       if (indexOfE !== -1) {
-        exponentialNotaionSplit = strNum.split("e");
-        exponentialSign = (exponentialNotaionSplit[0][0] === "-") ? "-" : "";
-        exponentialNumber = (exponentialSign === "-") ? exponentialNotaionSplit[0].substring(1) : exponentialNotaionSplit[0];
+        exponentialNotationSplit = strNum.split("e");
+        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
 
-        moveDotTo = parseInt(exponentialNotaionSplit[1]);
+        moveDotTo = parseInt(exponentialNotationSplit[1]);
+        indexOfDot = exponentialNumber.indexOf(".");
 
         if (indexOfDot+moveDotTo < 0) {
+          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
           strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
-          indexOfDot = 1;
         }
         else {
           exponentialNumber = exponentialNumber.replace(".", "");
           strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
-          indexOfDot = -1;
         }
       }
 
+      indexOfDot = strNum.indexOf(".");
       extraZero = "";
 
+      // is a float number
       if (indexOfDot === -1) {
         if (decimals > 0) {
           extraZero = ".";
@@ -244,7 +245,7 @@ var descartesJS = (function(descartesJS) {
 
         extraZero += (new Array(decimals+1)).join("0");
 
-        return strNum + extraZero;
+        strNum = strNum + extraZero;
       }
       else {
         diff = strNum.length - indexOfDot - 1;
@@ -254,15 +255,18 @@ var descartesJS = (function(descartesJS) {
             strNum = parseFloat(strNum).originalToFixed(decimals);
           }
           
-          return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
           for (var i=0, l=decimals-diff; i<l; i++) {
             extraZero += "0";
           }
-          return strNum + extraZero;
+
+          strNum = strNum + extraZero;
         }
       }
+
+      return strNum;
     }
   }
   
@@ -300,10 +304,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.returnValue = function(v) {
-    if (descartesJS.fullDecimals) {
-      return v;
-    }
-
     if (typeof(v) === "number") {
       return parseFloat(v.toFixed(11));
     }
@@ -365,7 +365,7 @@ var descartesJS = (function(descartesJS) {
 
   // auxiliary values to calculate the metrics
   var text = document.createElement("span");
-  text.appendChild( document.createTextNode("Áp") );
+  text.appendChild( document.createTextNode("\u00C1p") );
   var block = document.createElement("div");
   block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
   var div = document.createElement("div");

@@ -477,6 +477,15 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   * Change the click to 0
+   */
+  descartesJS.Space.prototype.clearClick = function() {
+    this.evaluator.setVariable(this.mclickedString, 0);
+    this.evaluator.setVariable(this.mclicizquierdoString, 0);
+  }
+
+
+  /**
    * Calculate the position relative to the X axis
    * @param {Number} x ths position
    * @return {Number} return the position relative to the X axis

@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-10-10
+ * 2013-11-13
  */
 
 /**
@@ -555,7 +555,7 @@ var descartesJS = (function(descartesJS) {
     var diff;
     
     var indexOfE;
-    var exponentialNotaionSplit;
+    var exponentialNotationSplit;
     var exponentialNumber;
     var exponentialSign;
     var moveDotTo;
@@ -571,34 +571,35 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
+
       decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
 
       strNum = this.toString();
-
       indexOfE = strNum.indexOf("e");
-      indexOfDot = strNum.indexOf(".");
 
       if (indexOfE !== -1) {
-        exponentialNotaionSplit = strNum.split("e");
-        exponentialSign = (exponentialNotaionSplit[0][0] === "-") ? "-" : "";
-        exponentialNumber = (exponentialSign === "-") ? exponentialNotaionSplit[0].substring(1) : exponentialNotaionSplit[0];
+        exponentialNotationSplit = strNum.split("e");
+        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
 
-        moveDotTo = parseInt(exponentialNotaionSplit[1]);
+        moveDotTo = parseInt(exponentialNotationSplit[1]);
+        indexOfDot = exponentialNumber.indexOf(".");
 
         if (indexOfDot+moveDotTo < 0) {
+          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
           strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
-          indexOfDot = 1;
         }
         else {
           exponentialNumber = exponentialNumber.replace(".", "");
           strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
-          indexOfDot = -1;
         }
       }
 
+      indexOfDot = strNum.indexOf(".");
       extraZero = "";
 
+      // is a float number
       if (indexOfDot === -1) {
         if (decimals > 0) {
           extraZero = ".";
@@ -606,7 +607,7 @@ var descartesJS = (function(descartesJS) {
 
         extraZero += (new Array(decimals+1)).join("0");
 
-        return strNum + extraZero;
+        strNum = strNum + extraZero;
       }
       else {
         diff = strNum.length - indexOfDot - 1;
@@ -616,15 +617,18 @@ var descartesJS = (function(descartesJS) {
             strNum = parseFloat(strNum).originalToFixed(decimals);
           }
           
-          return (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
         }
         else {
           for (var i=0, l=decimals-diff; i<l; i++) {
             extraZero += "0";
           }
-          return strNum + extraZero;
+
+          strNum = strNum + extraZero;
         }
       }
+
+      return strNum;
     }
   }
   
@@ -662,10 +666,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.returnValue = function(v) {
-    if (descartesJS.fullDecimals) {
-      return v;
-    }
-
     if (typeof(v) === "number") {
       return parseFloat(v.toFixed(11));
     }
@@ -727,7 +727,7 @@ var descartesJS = (function(descartesJS) {
 
   // auxiliary values to calculate the metrics
   var text = document.createElement("span");
-  text.appendChild( document.createTextNode("Áp") );
+  text.appendChild( document.createTextNode("\u00C1p") );
   var block = document.createElement("div");
   block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
   var div = document.createElement("div");
@@ -1079,7 +1079,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var tmpAnswer;
-  var tempAnswers;
+  var regExpPattern_i;
   var answerArray;
   var regExpPattern;
   var answerValue;
@@ -1093,12 +1093,19 @@ var descartesJS = (function(descartesJS) {
   var cond3;
   var cond4;
 
+  var indexOfRadial;
+
   /**
    * Build a text regular expression pattern from a Descartes answer pattern (auxiliary function)
    * @param {String} answer the Descartes answer pattern to convert
    * @return {Object} return an object representing a simple regular expression pattern
    */
   function buildTextRegularExpressionPattern(answer) {
+    indexOfRadial = answer.indexOf("--radial--");
+    if (indexOfRadial != -1) {
+      answer = answer.substring(0, indexOfRadial);
+    }
+
     tmpAnswer = answer.trim();
     answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
 
@@ -1197,12 +1204,12 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Remove the accents in a string and change the ñ for n
+   * Remove the accents in a string and change the \u00f1 for n
    * @param {String} value the string to remove the accents
    * @return {String} return ths string with the accents remove
    */
   function removeAccents(value) {
-    return value.toString().replace(/á/g, "a").replace(/é/g, "e").replace(/í/g, "i").replace(/ó/g, "o").replace(/ú/g, "u").replace(/Á/g, "A").replace(/É/g, "E").replace(/Í/g, "I").replace(/Ó/g, "O").replace(/Ú/g, "U").replace(/ñ/g, "n").replace(/Ñ/g, "N");
+    return value.toString().replace(/\u00e1/g, "a").replace(/\u00e9/g, "e").replace(/\u00ed/g, "i").replace(/\u00f3/g, "o").replace(/\u00fa/g, "u").replace(/\u00c1/g, "A").replace(/\u00c9/g, "E").replace(/\u00cd/g, "I").replace(/\u00d3/g, "O").replace(/\u00da/g, "U").replace(/\u00f1/g, "n").replace(/\u00d1/g, "N");
   }
   
   /**
@@ -1219,11 +1226,11 @@ var descartesJS = (function(descartesJS) {
     answer = ((answer.replace(/&squot;/g, "'")).replace(/&amp;/g, "&")).split("|");
 
     for (var i=0, l=answer.length; i<l; i++) {
-      tempAnswers = answer[i].split("&");
+      regExpPattern_i = answer[i].split("&");
       answerArray = [];
 
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
-        tmpAnswer = tempAnswers[j];
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
+        tmpAnswer = regExpPattern_i[j];
 
         // numeric pattern
         if ( (tmpAnswer.indexOf(",") !== -1) && 
@@ -1259,17 +1266,17 @@ var descartesJS = (function(descartesJS) {
     resp = removeAccents(resp);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswers = regExpPattern[i];
+      regExpPattern_i = regExpPattern[i];
       answerValue = true;
 
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
         // a text pattern
-        if (tempAnswers[j].regExp) {
-          answerValue = answerValue && !!(resp.match( removeAccents(tempAnswers[j].regExp), "i" ));
+        if (regExpPattern_i[j].regExp) {
+          answerValue = answerValue && !!(resp.match( new RegExp(removeAccents(regExpPattern_i[j].regExp), "i" )) );
         }
         // a numeric pattern
         else {
-          answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
+          answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
       
@@ -1277,7 +1284,6 @@ var descartesJS = (function(descartesJS) {
         return 1;
       }
     }
-    
     return 0;
   }
 
@@ -1292,20 +1298,20 @@ var descartesJS = (function(descartesJS) {
     regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
-      tempAnswers = regExpPattern[i];
+      regExpPattern_i = regExpPattern[i];
       answerValue = true;
       
-      for (var j=0, k=tempAnswers.length; j<k; j++) {
-        tmpAnswer = tempAnswers[j].regExp;
-        
+      for (var j=0, k=regExpPattern_i.length; j<k; j++) {
+        tmpAnswer = regExpPattern_i[j].regExp;
+
         // a text pattern
         if (tmpAnswer) {
-          if (tempAnswers[j].ignoreAcents) {
+          if (regExpPattern_i[j].ignoreAcents) {
             resp = removeAccents(resp);
             tmpAnswer = removeAccents(tmpAnswer);
           }
           
-          if (tempAnswers[j].ignoreCaps) {
+          if (regExpPattern_i[j].ignoreCaps) {
             resp = resp.toLowerCase();
             tmpAnswer = removeAccents(tmpAnswer).toLowerCase();
           }
@@ -1314,7 +1320,7 @@ var descartesJS = (function(descartesJS) {
         }
         // a numeric pattern
         else {
-          answerValue = answerValue = answerValue && inRange(tempAnswers[j], resp, evaluator);
+          answerValue = answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
       
@@ -3760,7 +3766,7 @@ var descartesJS = (function(descartesJS) {
         ignoreSquareBracket++;
       } 
 
-      // if find a close square bracket add the strin +'
+      // if find a close square bracket add the string +'
       else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
         this.textElements.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
         this.textElementsMacros.push( "[" + text.substring(lastPos, pos+1) + "]");
@@ -4089,11 +4095,13 @@ var descartesJS = (function(descartesJS) {
     w = space.w;
     h = space.h;
     
-    dx = parseInt(w/netsz);
+    // dx = parseInt(w/netsz);
+    dx = w/9;
     if (dx<3) {
       dx=3;
     }
-    dy = parseInt(h/netsz);
+    // dy = parseInt(h/netsz);
+    dy = h/7;
     if (dy<3) {
       dy=3;
     }
@@ -4103,6 +4111,15 @@ var descartesJS = (function(descartesJS) {
     q0.set(0, 0);
     qb.set(0, 0);
     t.set(0, 0);
+
+    var np = 8;
+    var dist = 0.1;
+    var ds = np;
+    if (!this.abs_coord) {
+      var scale = space.scale;
+      dist = dist/scale;
+      ds = ds/scale;
+    }
 
     for (j=parseInt(dy/2); j<h; j+=dy) {
       for (i=parseInt(dx/2); i<w; i+=dx) {
@@ -4154,8 +4171,9 @@ var descartesJS = (function(descartesJS) {
 
         while (side < 2)  {
           if (changeSide) {
+            // Invert Unit Tangent Vector
             t.x = -t0.x;
-            t.y = -t0.y; // Invert Unit Tangent Vector
+            t.y = -t0.y;
             
             q.x = q0.x;
             q.y = q0.y;
@@ -4177,11 +4195,17 @@ var descartesJS = (function(descartesJS) {
           }
           
           if (this.abs_coord) {
+            // advance along t aprox one pixel
             q.x+=t.x; 
-            q.y+=t.y; // advance along t aprox one pixel
+            q.y+=t.y; 
+            // q.x += ds*t.x;
+            // q.y += ds*t.y;
           } else {
+            // advance along t aprox one pixel
             q.x+=t.x/space.scale;
-            q.y+=t.y/space.scale; // advance along t aprox one pixel
+            q.y+=t.y/space.scale; 
+            // q.x += ds*t.x/space.scale;
+            // q.y += ds*t.y/space.scale;
           }
           
           q = this.newt.findZero(q);
@@ -4205,25 +4229,46 @@ var descartesJS = (function(descartesJS) {
             Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
           }
           
-          Px = MathFloor(Q.ix());
-          Py = MathFloor(Q.iy());
+          Px = parseInt(Q.ix());
+          Py = parseInt(Q.iy());
           
           if (Px!=Qx || Py!=Qy) {
+            var Qxa = Qx;
+            var Qya = Qy;
             Qx = Px;
             Qy = Py;
             
-            if (0<=Qx && Qx<w && 0<=Qy && Qy<h) {
+            if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
               zeroVisited = 0;
-              
-              if (b[Qx + Qy*space.w]) {
-                break;
-              } 
-              else {
-                b[Qx + Qy*space.w] = true;
-                if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+
+              var secondVisit = b[Qx + Qy*space.w];
+
+              b[Qx + Qy*space.w] = true;
+              for (var s=1; s<np; s++) {
+                var Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
+                var Qsy = Qya + Math.round((Qy-Qya)*s/np);
+                if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
+                  b[Qsx + Qsy*space.w] = true;
                 }
               }
+
+              if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
+                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+              }
+
+              if (secondVisit) {
+                break;
+              }
+              
+              // if (b[Qx + Qy*space.w]) {
+              //   break;
+              // } 
+              // else {
+              //   b[Qx + Qy*space.w] = true;
+              //   if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
+              //     ctx.drawImage(this.auxCanvas, Qx, Qy);
+              //   }
+              // }
             } else {
               changeSide = true; 
               side++; /* Zero out of bounds */
@@ -4530,8 +4575,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
     var va = 0;
 
     if (this.abs_coord) {
-      Xr = this.space.h;
-      dx = -1;
+      Xr = 0;
+      dx = 1;
     }
 
     var condWhile = (this.of_y) ? this.space.h : this.space.w;
@@ -4600,10 +4645,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   }
                   ctx.stroke();
                 }
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // if (ya!=nya) {
-                //   Line(g[i],width,xa,ya,xa,nya,of_y);
-                // }
 
                 ctx.lineWidth = width;
                 ctx.strokeStyle = this.color.getColor();
@@ -4624,24 +4665,15 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 this.evaluator.setVariable(X, Xr-dx);
                 var pn = this.extrapolate(cond, X, Y, F, va, dx);
                 y = this.YY(width, pn.y, this.abs_coord);
-                
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
 
                 this.evaluator.setVariable(X, Xr);
                 var pa = this.extrapolate(cond, X, Y, F, v, -dx);
                 ya = this.YY(width, pa.y, this.abs_coord);
                 y = this.YY(width, v, this.abs_coord);
-
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
-              }
+             }
               // sing === 2
               else {
                 y = this.YY(width, v, this.abs_coord);
-
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,x,y,x,y,of_y);
               }
             }
             // defa === false; extrapolate forward
@@ -4650,9 +4682,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
               ya = this.YY(width, pa.y, this.abs_coord);
               y = this.YY(width, v, this.abs_coord);
-
-              // g[i].setColor(mjac[i].getAdaptedColor());
-              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
             }
 
             va = v;
@@ -4668,9 +4697,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
             var pn = this.extrapolate(cond, X, Y, F, va, dx);
             y = this.YY(width, pn.y, this.abs_coord);
-
-            // g[i].setColor(mjac[i].getAdaptedColor());
-            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
 
             this.evaluator.setVariable(X, Xr);
           }
@@ -6542,7 +6568,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-";
+  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -6641,7 +6667,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if it was posible to read the macro
     if (response) {
-      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      tmpResponse = ( response.replace(/&aacute;/g, "\u00e1").replace(/&eacute;/g, "\u00e9").replace(/&iacute;/g, "\u00ed").replace(/&oacute;/g, "\u00f3").replace(/&uacute;/g, "\u00fa").replace(/&Aacute;/g, "\u00c1").replace(/&Eacute;/g, "\u00c9").replace(/&Iacute;/g, "\u00cd").replace(/&Oacute;/g, "\u00d3").replace(/&Uacute;/g, "\u00da").replace(/&ntilde;/g, "\u00f1").replace(/&Ntilde;/g, "\u00d1").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];
@@ -6650,10 +6676,15 @@ var descartesJS = (function(descartesJS, babel) {
         indexOfEqual = tmpResponse[i].indexOf("=");
 
         if(indexOfEqual !== -1) {
-          tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
-        
-          if (babel[tmpIniti] === "id" || babel[tmpIniti] === "type") {
-            response.push( lessonParser.split( tmpResponse[i] ) );
+          // tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
+
+          var tmpSplitLine = lessonParser.split(tmpResponse[i]);
+          for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
+            if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
+              if ((babel[tmpSplitLine[iT][0]] === "id") || (babel[tmpSplitLine[iT][0]] === "type")) {
+                response.push(tmpSplitLine);
+              }
+            }
           }
         }
       }
@@ -6691,7 +6722,7 @@ var descartesJS = (function(descartesJS, babel) {
              ) {
             continue;
           }
-          
+
           // is a text
           if (babelResp == "text") {
             // if the text is rtf must processing it diferent
@@ -6717,9 +6748,9 @@ var descartesJS = (function(descartesJS, babel) {
               }
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
-              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
-              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
-              
+              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
+              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
+
               respText[j][1] = textTemp;
             }
             // simple text
@@ -6744,23 +6775,26 @@ var descartesJS = (function(descartesJS, babel) {
           }
           // the token is not a text
           else {
-            tmpTokens = tokenizer.tokenize(respText[j][1]);
+            var tmpTokensArray = respText[j][1].replace(/\&squot;/g, "'").split(";");
 
-            for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+            for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
+              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI]);
 
-              if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
-                tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+              for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+                if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
+                  tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+                }
               }
 
+              tmpTokensArray[tmpI] = tokenizer.flatTokens(tmpTokens);
             }
 
-            respText[j][1] = tokenizer.flatTokens(tmpTokens);
+            respText[j][1] = tmpTokensArray.join(";");
           }
         
         }
 
       }
-
 
       var tempResp;
       var isGraphic;
@@ -6786,6 +6820,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // build and add the graphic elements to the space
           if (isGraphic) {
+            //agregar algo mas para indicar que se viene de un macro
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene
@@ -6817,19 +6852,20 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
+      if (this.graphics[i]) {
+        if (this.graphics[i].abs_coord) {
+          ctx.translate(this.iniPosX, this.iniPosY);
+        } 
+        else {
+          ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
+        }
+        
+        this.graphics[i].draw();
 
-      if (this.graphics[i].abs_coord) {
-        ctx.translate(this.iniPosX, this.iniPosY);
-      } 
-      else {
-        ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
+        // reset the transformations
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
-      
-      this.graphics[i].draw();
-
-      // reset the transformations
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-    }      
+    }
   }
 
   return descartesJS;
@@ -7094,7 +7130,9 @@ var descartesJS = (function(descartesJS) {
    * 3D primitive (vertex, face, text, edge)
    * @constructor 
    */
-  descartesJS.Primitive3D = function (values) {
+  descartesJS.Primitive3D = function (values, space) {
+    this.space = space;
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -7134,6 +7172,7 @@ var descartesJS = (function(descartesJS) {
       this.computeDepth = function() {
         this.newV = this.vertices;
         this.depth = this.vertices[0].z;
+        this.average = this.vertices[0];
       }
     }
 
@@ -7146,7 +7185,11 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Primitive3D.prototype.computeDepth = function(space) {
     this.average = { x: 0, y: 0, z: 0 };
 
+    // remove double vertices
     this.removeDoubles();
+
+    this.normal = { x: 0, y: 1, z: 0 };
+    this.direction = { x: 1, y: 0, z: 0 };
 
     // apply the camera rotation
     for (var i=0, l=this.vertices.length; i<l; i++) {
@@ -7157,28 +7200,24 @@ var descartesJS = (function(descartesJS) {
       this.average.z += this.newV[i].z;
     }
     this.average = descartesJS.scalarProduct3D(this.average, 1/l);
+    this.averageP = space.project(this.average);
+    this.depth = this.averageP.z;
 
     // triangles and faces
     if (this.vertices.length > 2) {
       this.normal = getNormal(this.newV[0], this.newV[1], this.newV[2]);
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
-    else {
-      this.normal = { x: 0, y: 1, z: 0 };
-      this.direction = { x: 1, y: 0, z: 0 };
-    }
 
-    this.depth = 0;
+    // this.depth = 0;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.project(this.newV[i]);
-      this.depth += this.newV[i].z;
+      // this.depth += this.newV[i].z;
     }
-
-    this.depth/= l;
+    // this.depth/= l;
   }
 
   var tmpVertices;
-
   /**
    *
    */
@@ -7193,6 +7232,11 @@ var descartesJS = (function(descartesJS) {
         tmpVertices.push(this.vertices[i]);
       }
     }
+
+    if (tmpVertices.length === 0) {
+      tmpVertices.push(this.vertices[0]);
+    }
+
     this.vertices = tmpVertices;
   }
 
@@ -7452,7 +7496,8 @@ var descartesJS = (function(descartesJS) {
                                                    backColor: p.backColor,
                                                    edges: p.edges,
                                                    model: p.model
-                                                  } );
+                                                  },
+                                                  this.space );
             fa[0].normal = p.normal;
 
             fa[1] = new descartesJS.Primitive3D( { vertices: v,
@@ -7461,7 +7506,8 @@ var descartesJS = (function(descartesJS) {
                                                    backColor: p.backColor,
                                                    edges: p.edges,
                                                    model: p.model
-                                                  } );
+                                                  },
+                                                  this.space );
             fa[1].normal = p.normal;
 
             return fa;
@@ -7555,6 +7601,163 @@ var descartesJS = (function(descartesJS) {
     v2 = descartesJS.subtract3D( u1, u3 );
     return descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
   }
+
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
+
+  // descartesJS.Primitive3D.prototype.inFrontOf = function(V, F, epsilon) {
+  //   for (var state=0; state<3; state++) {
+  //     var v = null;
+  //     switch (state) {
+  //       case 0: 
+  //         v = this.intersections(F);
+  //         break;
+  //       case 1:
+  //         v = F.verticesContainedIn(this);
+  //         break;
+  //       case 2:
+  //         v = this.verticesContainedIn(F)
+  //         break;
+  //     }
+  //     if ( (v != null) && (v.length > 0) ) {
+  //       for (var k=0; k<v.length; k++) {
+  //         V.push(v[k]);
+  //       }
+
+  //       for (var k=0; k<v.length; k++) {
+  //         var p = v[k];
+  //         var ray = this.space.rayFromEye(p.x, p.y);
+  //         try {
+  //           var t = this.distanceToEyeAlong(ray) - F.distanceToEyeAlong(ray);
+  //           if (t <= -epsilon) {
+  //             return true;
+  //           }
+  //           else if (t >= epsilon) {
+  //             return false;
+  //           }
+  //         } catch (e) {
+  //           console.log("Error: inFrontOf");
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.intersections = function(F) {
+  //   var V = [];
+  //   var tmpR2 = new descartesJS.R2();
+
+  //   for(var i=0; i<this.spaceVertices.length; i++) {
+  //     var pi = this.spaceVertices[i];
+  //     var qi = this.spaceVertices[(i+1)%this.spaceVertices.length];
+      
+  //     for (var j=0; j<F.spaceVertices.length; j++) {
+  //       var pj = F.spaceVertices[j];
+  //       var qj = F.spaceVertices[(j+1)%F.spaceVertices.length];
+
+  //       if ( (!descartesJS.equals3DEpsilon(pi, pj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(pi, qj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(qi, pj, epsilon)) &&
+  //            (!descartesJS.equals3DEpsilon(qi, qj, epsilon))
+  //          ) {
+  //         var ip = tmpR2.intersection( this.newV[i], 
+  //                                      this.newV[(i+1)%this.newV.length], 
+  //                                      F.newV[j],
+  //                                      F.newV[(j+i)%F.newV.length]
+  //                                    );
+
+  //         if (ip != null) {
+  //           V.push(ip);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return V;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.distanceToEyeAlong = function(ray) {
+  //   this.normal = this.normal || { x: 0, y: 1, z: 0 };
+  //   var den = descartesJS.dotProduct3D(this.normal, ray);
+  //   var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.eye), this.normal );
+
+  //   if (Math.abs(den) > 0.000001) {
+  //     return normalToEye/den;
+  //   }
+    
+  //   return null;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.verticesContainedIn = function(F) {
+  //   var V = [];
+
+  //   for (var i=0; i<this.spaceVertices.length; i++) {
+  //     if ( !F.isVertex(this.spaceVertices[i]) && F.appearsToContain(this.newV[i]) ) {
+  //       V.push(this.newV[i]);
+  //     }
+  //   }
+
+  //   // for (var i=0; i<this.newV.length; i++) {
+  //   //   if ( !F.isVertex(this.newV[i]) && F.appearsToContain(this.newV[i]) ) {
+  //   //     V.push(this.newV[i]);
+  //   //   }
+  //   // }
+
+  //   return V;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.appearsToContain = function(p) {
+  //   var D = 0;
+  //   for (var i=0; i<this.spaceVertices.length;i++) {
+  //     var D1 = ((this.newV[i].x-p.x)*(this.newV[(i+1)%this.newV.length].y-p.y))-((this.newV[(i+1)%this.newV.length].x-p.x)*(this.newV[i].y-p.y));
+     
+  //     if (D!=0) {
+  //       if (Math.abs(D1)<epsilon) {
+  //         if (Math.abs(this.newV[i].x-this.newV[(i+1)%this.newV.length].x) > epsilon) {
+  //           return (Math.min(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)<=p.x+epsilon && p.x<=Math.max(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)+epsilon);
+  //         } 
+  //         else if (Math.abs(this.newV[i].y-this.newV[(i+1)%this.newV.length].y)>epsilon) {
+  //           return (Math.min(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)<=p.y+epsilon && p.y<=Math.max(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)+epsilon);
+  //         }
+  //       } 
+  //       else if ( (D>0 && D1<0) || (D<0 && D1>0) ) {
+  //         return false;
+  //       }
+  //     }
+  //     D = D1;
+  //   }
+  //   return true;
+  // }
+
+  // /**
+  //  *
+  //  */
+  // descartesJS.Primitive3D.prototype.isVertex = function(p) {
+  //   for (var i=0; i<this.spaceVertices.length; i++) {
+  //     if (descartesJS.equals3DEpsilon(p, this.spaceVertices[i], epsilon)) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }  
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -8087,17 +8290,18 @@ var descartesJS = (function(descartesJS) {
     // add a text primitive only if the text has content
     if (this.text !== "") {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
-                                 type: "text",
-                                 frontColor: this.color, 
-                                 font: this.font,
-                                 decimals: evaluator.evalExpression(this.decimals),
-                                 fixed: this.fixed,
-                                 displace: this.fontSize,
-                                 evaluator: evaluator,
-                                 text: this.text,
-                                 family: this.family,
-                                 familyValue: this.familyValue
-                               } ) );
+                                                           type: "text",
+                                                           frontColor: this.color, 
+                                                           font: this.font,
+                                                           decimals: evaluator.evalExpression(this.decimals),
+                                                           fixed: this.fixed,
+                                                           displace: this.fontSize,
+                                                           evaluator: evaluator,
+                                                           text: this.text,
+                                                           family: this.family,
+                                                           familyValue: this.familyValue
+                                                         },
+                            this.space ));
     }
   }
 
@@ -8126,7 +8330,6 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the point
    */
   descartesJS.Segment3D = function(parent, values) {
-
     this.width = parent.evaluator.parser.parse("1");
 
     // call the parent constructor
@@ -8157,12 +8360,13 @@ var descartesJS = (function(descartesJS) {
     v2_z = expr[1][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                           this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                         ],
-                               type: "edge",
-                               frontColor: this.color, 
-                               lineWidth: evaluator.evalExpression(this.width)
-                             } ) );
+                                                         this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                       ],
+                                                         type: "edge",
+                                                         frontColor: this.color, 
+                                                         lineWidth: evaluator.evalExpression(this.width)
+                                                       },
+                            this.space ));
 
   }
   
@@ -8272,12 +8476,13 @@ var descartesJS = (function(descartesJS) {
         v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
 
         this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
-                                   type: "face",
-                                   frontColor: this.color, 
-                                   backColor: this.backcolor,
-                                   edges: this.edges, 
-                                   model: this.model
-                                 } ) );
+                                                             type: "face",
+                                                             frontColor: this.color, 
+                                                             backColor: this.backcolor,
+                                                             edges: this.edges, 
+                                                             model: this.model
+                                                           },
+                              this.space ));
 
       }
     }
@@ -8345,12 +8550,13 @@ var descartesJS = (function(descartesJS) {
       v2_z = expr[i+1][2];
 
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                             this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                           ],
-                                 type: "edge",
-                                 frontColor: this.color, 
-                                 lineWidth: evaluator.evalExpression(this.width)
-                               } ) );
+                                                                       this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                                     ],
+                                                           type: "edge",
+                                                           frontColor: this.color, 
+                                                           lineWidth: evaluator.evalExpression(this.width)
+                                                         },
+                            this.space ));
 
     }
   }
@@ -8423,10 +8629,12 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
-                                 type: "edge",
-                                 frontColor: this.color, 
-                                 lineWidth: evaluator.evalExpression(this.width)
-                               } ) );
+                                                           type: "edge",
+                                                           frontColor: this.color, 
+                                                           lineWidth: evaluator.evalExpression(this.width)
+                                                         },
+                            this.space ));
+
     }
 
     evaluator.setVariable("x", tempParamX);
@@ -8500,7 +8708,8 @@ var descartesJS = (function(descartesJS) {
                                                          backColor: this.backcolor, 
                                                          edges: this.edges, 
                                                          model: this.model
-                                                       } ) );
+                                                       },
+                          this.space ));
 
   }
 
@@ -8554,12 +8763,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: vertices,
-                               type: "face",
-                               frontColor: this.color, 
-                               backColor: this.backcolor, 
-                               edges: this.edges, 
-                               model: this.model
-                             } ) );
+                                                         type: "face",
+                                                         frontColor: this.color, 
+                                                         backColor: this.backcolor, 
+                                                         edges: this.edges, 
+                                                         model: this.model
+                                                       },
+                          this.space ));
 
   }
   
@@ -8618,15 +8828,16 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0; i<Nu; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[0],
-                                             (i+2 <= Nu) ? vertices[i+2] : vertices[1],
-                                             vertices[i+1]
-                                           ],
-                                 type: "face",
-                                 frontColor: this.color, 
-                                 backColor: this.backcolor, 
-                                 edges: this.edges, 
-                                 model: this.model
-                               } ) );
+                                                                       (i+2 <= Nu) ? vertices[i+2] : vertices[1],
+                                                                       vertices[i+1]
+                                                                     ],
+                                                           type: "face",
+                                                           frontColor: this.color, 
+                                                           backColor: this.backcolor, 
+                                                           edges: this.edges, 
+                                                           model: this.model
+                                                         },
+                            this.space ));
     }
 
   }
@@ -8674,18 +8885,20 @@ var descartesJS = (function(descartesJS) {
     exprZ = 0;
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
-                               type:"text",
-                               frontColor: this.color,
-                               font: this.font,
-                               decimals: evaluator.evalExpression(this.decimals),
-                               fixed: this.fixed,
-                               displace: 0,
-                               isText: true,
-                               evaluator: evaluator,
-                               text: this.text,
-                               family: this.family,
-                               familyValue: this.familyValue
-                             } ) );
+                                                         type:"text",
+                                                         frontColor: this.color,
+                                                         font: this.font,
+                                                         decimals: evaluator.evalExpression(this.decimals),
+                                                         fixed: this.fixed,
+                                                         displace: 0,
+                                                         isText: true,
+                                                         evaluator: evaluator,
+                                                         text: this.text,
+                                                         family: this.family,
+                                                         familyValue: this.familyValue,
+                                                         joel: "hola"
+                                                       },
+                          this.space ));
 
   }
   
@@ -8829,7 +9042,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if it was posible to read the macro
     if (response) {
-      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      tmpResponse = ( response.replace(/&aacute;/g, "\u00e1").replace(/&eacute;/g, "\u00e9").replace(/&iacute;/g, "\u00ed").replace(/&oacute;/g, "\u00f3").replace(/&uacute;/g, "\u00fa").replace(/&Aacute;/g, "\u00c1").replace(/&Eacute;/g, "\u00c9").replace(/&Iacute;/g, "\u00cd").replace(/&Oacute;/g, "\u00d3").replace(/&Uacute;/g, "\u00da").replace(/&ntilde;/g, "\u00f1").replace(/&Ntilde;/g, "\u00d1").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];
@@ -8876,9 +9089,13 @@ var descartesJS = (function(descartesJS, babel) {
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
-            continue;
+
+               // ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) ||
+              if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
+                continue;
+              }
           }
-          
+
           // is a text
           if (babelResp == "text") {
             // if the text is rtf must processing it diferent
@@ -8954,7 +9171,6 @@ var descartesJS = (function(descartesJS, babel) {
           isGraphic = false;
 
           for (var j=0, k=response[i].length; j<k; j++) {
-
             // if is a graphic object, add the corresponding space
             if (babel[response[i][j][0]] === "type") {
               tempResp = "espacio='" + this.spaceID + "' ";
@@ -9211,12 +9427,13 @@ var descartesJS = (function(descartesJS) {
       }
 
       this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
-                                type: "face",
-                                frontColor: this.color,
-                                backColor: this.backcolor, 
-                                edges: this.edges, 
-                                model: this.model
-                              } ) );
+                                                           type: "face",
+                                                           frontColor: this.color,
+                                                           backColor: this.backcolor, 
+                                                           edges: this.edges, 
+                                                           model: this.model
+                                                         },
+                            this.space ));
     }
 
   }
@@ -9754,8 +9971,8 @@ var descartesJS = (function(descartesJS) {
     } 
     
     else if ((p2.x-q1.x)*B2 != (p2.y-q1.y)*B1) {
-      return null; // no están alineados
-    } else { // están alineados
+      return null; // no estan alineados
+    } else { // estan alineados
       if (p1.x != p2.x) {
         mp = MathMin(p1.x, p2.x);
         Mp = MathMax(p1.x, p2.x);
@@ -9924,7 +10141,6 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", q0.x);
     evaluator.setVariable("y", q0.y);
     
-    descartesJS.fullDecimals = true;
     this.f0 = evaluator.evalExpression(this.constraint);
     
     if ((this.sign === "menor") && (this.f0 <= 0)) {
@@ -9955,12 +10171,11 @@ var descartesJS = (function(descartesJS) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
-        descartesJS.fullDecimals = false;
+
         return q;
       }
     }
     
-    descartesJS.fullDecimals = false;
     return q;
   }
 
@@ -10733,7 +10948,7 @@ var descartesJS = (function(descartesJS) {
   var despY;
   var txtW;
   var hasTouchSupport;
-  var delay = 900;
+  var delay = 2000;
 
   /**
    * Descartes button control
@@ -11033,7 +11248,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Button.prototype.registerMouseAndTouchEvents = function() {
     hasTouchSupport = descartesJS.hasTouchSupport;
-    
     var self = this;
     var timer;
 
@@ -11052,7 +11266,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.click) {
         fun.call(self);
-        delayTime = (firstTime) ? delayTime : 30;
+        delayTime = (firstTime) ? delayTime : 100;
         timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
       }
     }
@@ -11078,9 +11292,12 @@ var descartesJS = (function(descartesJS) {
       document.body.focus();
 
       evt.preventDefault();
+      evt.stopPropagation();
 
       // blur other elements when clicked
-      document.activeElement.blur();
+      if (document.activeElement != document.body) {
+        document.activeElement.blur();
+      }
 
       self.whichButton = descartesJS.whichButton(evt);
 
@@ -11124,6 +11341,7 @@ var descartesJS = (function(descartesJS) {
         }
         
         evt.preventDefault();
+        evt.stopPropagation();
 
         if (hasTouchSupport) {
           window.removeEventListener("touchend", onMouseUp, false);
@@ -11379,7 +11597,7 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.field) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.field) ) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
       
@@ -11976,7 +12194,7 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.field) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.field)) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
           
@@ -12095,7 +12313,7 @@ var descartesJS = (function(descartesJS) {
         return this.evaluator.evalExpression(this.firstAnswer);
       }
     }
-    // if the text field has not an anser pattern
+    // if the text field has not an answer pattern
     else {
       return "";
     }
@@ -12419,9 +12637,9 @@ var descartesJS = (function(descartesJS) {
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-    }
+    // for (var i=0, l=this.menuOptions.length; i<l; i++) {
+    //   this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+    // }
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -12442,7 +12660,11 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.select) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
+      for (var i=0, l=this.menuOptions.length; i<l; i++) {
+        this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+      }
+
       // update the value of the menu
       this.value = evaluator.getVariable(this.id);
       if (isNaN(this.value)) {
@@ -14284,6 +14506,7 @@ var descartesJS = (function(descartesJS) {
     this.xString = this.id + ".x";
     this.yString = this.id + ".y";
     this.activoString = this.id + ".activo";
+    this.activeString = this.id + ".active";
 
     if ((this.space.id !== "") && (parent.version !== 2)) {
       this.mxString = this.space.id + ".mouse_x";
@@ -14345,6 +14568,7 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
     evaluator.setVariable(this.activoString, 0);
+    evaluator.setVariable(this.activeString, 0);
 
     this.setImage = false;
 
@@ -14514,6 +14738,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.deactivate = function() {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
+    this.evaluator.setVariable(this.activeString, 0);
   }  
   
   /**
@@ -14557,6 +14782,7 @@ var descartesJS = (function(descartesJS) {
           self.click = true;
           self.active = true;
           self.evaluator.setVariable(self.activoString, 1);
+          self.evaluator.setVariable(self.activeString, 1);
 
           self.evaluator.setVariable(self.mclickedString, 0);
           self.evaluator.setVariable(self.mclicizquierdoString, 0);
@@ -14595,6 +14821,7 @@ var descartesJS = (function(descartesJS) {
         self.click = true;
         self.active = true;
         self.evaluator.setVariable(self.activoString, 1);
+        self.evaluator.setVariable(self.activeString, 1);
 
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);        
@@ -15071,7 +15298,8 @@ var descartesJS = (function(descartesJS, babel) {
           
           // whether to convert the value to a number the values ​​are different, then use the default value
           // this case ocurrs when the scale has a no valid value
-          if (temp.toString() != values_i_1) {
+          // if (temp.toString() != values_i_1) {
+          if (isNaN(temp)) {
             temp =  48; // default value
           }          
           
@@ -16003,7 +16231,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("condition"):
         // event parameter
         case("parameter"):
-          auxiliarObj[babelValue] = values_i_1;
+          auxiliarObj[babelValue] = values_i_1.replace(/&squot;/g, "'");
           break;
 
         // editable condition
@@ -16252,7 +16480,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("doExpr"):
         // while expression
         case("whileExpr"):
-          animationObj[babelValue] = values_i_1;
+          animationObj[babelValue] = values_i_1.replace(/&squot;/g, "'");
           break;
           
         // condition to show the controls
@@ -16567,12 +16795,14 @@ var descartesJS = (function(descartesJS, babel) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var evalArgument;
+  var evalCache = {};
+
   var mathFloor = Math.floor;
   var lastChildIndex;
   var newRoot;
   var root;
   var right;
-  var evalArgument;
   descartesJS.fullDecimals = false;
   
   /**
@@ -16686,7 +16916,7 @@ var descartesJS = (function(descartesJS) {
     // number
     if (this.type === "number") {
       this.evaluate = function(evaluator) {
-        return descartesJS.returnValue(parseFloat(this.value));
+        return parseFloat(this.value);
       }
     }
     
@@ -16701,7 +16931,7 @@ var descartesJS = (function(descartesJS) {
     else if ( (this.type === "identifier") && (this.childs.length === 0) ) {
       if (this.value == "rnd") {
         this.evaluate = function(evaluator) {
-          return descartesJS.returnValue(Math.random());
+          return Math.random();
         }
       }
       else {
@@ -16772,10 +17002,17 @@ var descartesJS = (function(descartesJS) {
       
         if (this.value === "_Eval_") {
           argu[0] = (argu.length > 0) ? argu[0].toString() : '';
-          return descartesJS.returnValue( evaluator.evalExpression( evaluator.parser.parse( argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".") ) ) );
+
+          evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
+
+          if (evalCache[evalArgument] == undefined) {
+            evalCache[evalArgument] = evaluator.parser.parse(evalArgument);
+          }
+
+          return evaluator.evalExpression( evalCache[evalArgument] );
         }
 
-        return descartesJS.returnValue( evaluator.functions[this.value].apply(evaluator, argu) );
+        return evaluator.functions[this.value].apply(evaluator, argu);
       }
     }
     
@@ -16792,7 +17029,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric or string operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 + op2);
+            return op1 + op2;
           }
           // matix operation
           else {
@@ -16807,7 +17044,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 - op2);
+            return op1 - op2;
           }
           // matrix operation
           else {
@@ -16822,7 +17059,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 * op2);
+            return op1 * op2;
           }
           // matrix operation
           else {
@@ -16837,7 +17074,7 @@ var descartesJS = (function(descartesJS) {
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
-            return descartesJS.returnValue(op1 / op2);
+            return op1 / op2;
           }
           // matrix operation
           else {
@@ -16854,7 +17091,7 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "^") {
         this.evaluate = function(evaluator) {
-          return descartesJS.returnValue( Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) ) );
+          return Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) );
         }
       }
     }
@@ -17275,6 +17512,9 @@ var descartesJS = (function(descartesJS) {
   var parenthesesRegExp = /^\(|^\)/;
   var separatorRegExp = /^,/;
   var finalOfExpressionRegExp = /^;/;
+  var pipeStringDelimiterRegExp = /\|/g;
+  var pipeAsteriskLeftRegExp = /\|\*/g;
+  var pipeAsteriskRightRegExp = /\*\|/g;
 
   /**
    * Descartes tokenizer
@@ -17297,14 +17537,19 @@ var descartesJS = (function(descartesJS) {
       
       // replace the pipes used like string marks
       if (input.match(/\=\|\*/g)) {
-        input = input.replace("|*", "'", "g").replace("*|", "'", "g");
+        input = input.replace(pipeAsteriskLeftRegExp, "'").replace(pipeAsteriskRightRegExp, "'");
       }
       // replace the pipes used like string marks
       if (input.match(/\=\|/g)) {
-        input = input.replace("|", "'", "g");
+        input = input.replace(pipeStringDelimiterRegExp, "'");
+      }
+
+      var inputTrimed = input.trim();
+      if ((inputTrimed.charAt(0) == "|") && (inputTrimed.charAt(inputTrimed.length-1) == "|")) {
+        input = inputTrimed.replace(pipeStringDelimiterRegExp, "'");
       }
     }
-    
+
     tokens = [];
     exit = false;
     pos = 0;
@@ -18230,16 +18475,19 @@ var descartesJS = (function(descartesJS) {
       // function to set a variable value to the parent
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
+        return 0;
       }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
         window.parent.postMessage({ type: "update" }, '*');
+        return 0;
       }
 
       // function to execute a function in the parent
       this.functions["parent.exec"] = function(functionName, functionParameters) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
+        return 0;
       }
     }
 
@@ -18253,9 +18501,12 @@ var descartesJS = (function(descartesJS) {
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
           response = fileElement.text.replace(/&brvbar;/g, "¦");
         }
+        else {
+          response = descartesJS.openExternalFile(file);
+        }
       }
       else {
-        response = descartesJS.openExternalFile(file);
+        return;
       }
 
       var initialIndex = -1;
@@ -18307,7 +18558,7 @@ var descartesJS = (function(descartesJS) {
             // is a string
             if (isNaN(parseFloat(tmpValue[1]))) {
               // .replace(/^\s|\s$/g, "") remove the initial white space
-              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, ""));
+              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, "").replace(/^'|'$/g, ""));
             }
             // is a number
             else {
@@ -18328,9 +18579,12 @@ var descartesJS = (function(descartesJS) {
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
           response = fileElement.text.replace(/&brvbar;/g, "¦");
         }
+        else {
+          response = descartesJS.openExternalFile(file);
+        }
       }
       else {
-        response = descartesJS.openExternalFile(file);
+        return;
       }
       
       var initialIndex = -1;
@@ -18390,7 +18644,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data.replace(/\\n/g, "\n")], {type: "text/plain"});
+      blob = new Blob([data.replace(/\\n/g, "\n").replace(/\\q/g, "'")], {type: "text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
@@ -18544,6 +18798,42 @@ var descartesJS = (function(descartesJS) {
     this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
+    /**
+     *
+     */
+    this.functions["_GetDay_"] = function() {
+      return (new Date()).getDate();
+    }
+    /**
+     *
+     */
+    this.functions["_GetMonth_"] = function() {
+      return (new Date()).getMonth() +1;
+    }
+    /**
+     *
+     */
+    this.functions["_GetYear_"] = function() {
+      return (new Date()).getFullYear();
+    }
+    /**
+     *
+     */
+    this.functions["_GetHours_"] = function() {
+      return (new Date()).getHours();
+    }
+    /**
+     *
+     */
+    this.functions["_GetMinutes_"] = function() {
+      return (new Date()).getMinutes();
+    }
+    /**
+     *
+     */
+    this.functions["_GetSeconds_"] = function() {
+      return (new Date()).getSeconds();
+    }
     ////////////////////////////////////////
   }  
 
@@ -18553,7 +18843,7 @@ var descartesJS = (function(descartesJS) {
 function myMapFun(x) {
   if (isNaN(parseFloat(x))) {
     // .replace(/^\s|\s$/g, "") remove the initial white space
-    return x.replace(/^\s|\s$/g, "");
+    return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
   }
   else {
     return parseFloat(x);
@@ -18563,7 +18853,8 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
-// console.log(((new descartesJS.Parser).parse("-2^1.4")).toString());
+// console.log(((new descartesJS.Parser).parse("", true)).toString());
+
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -21469,6 +21760,15 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   * Change the click to 0
+   */
+  descartesJS.Space.prototype.clearClick = function() {
+    this.evaluator.setVariable(this.mclickedString, 0);
+    this.evaluator.setVariable(this.mclicizquierdoString, 0);
+  }
+
+
+  /**
    * Calculate the position relative to the X axis
    * @param {Number} x ths position
    * @return {Number} return the position relative to the X axis
@@ -22000,6 +22300,8 @@ var descartesJS = (function(descartesJS) {
       self.mclicizquierdoString = "clic_izquierdo";
     }
 
+    self.click = 0;
+
     // register the mouse and touch events
     // if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
@@ -22047,13 +22349,11 @@ var descartesJS = (function(descartesJS) {
     // prevents the change of the width and height from an external change
     evaluator.setVariable(self.wString, self.w);
     evaluator.setVariable(self.hString, self.h);
-
     // check the draw if condition
     self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
 
     // draw the space
     if (self.drawIfValue) {
-
       changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
       changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
 
@@ -22092,9 +22392,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       self.container.style.display = "block";
-        
+
       // draw the trace
-      self.drawTrace = (!self.spaceChange) && (!self.click);
+      self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
 
       if (self.spaceChange) {
         self.drawBackground();
@@ -22357,6 +22657,8 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Space2D.prototype.registerMouseAndTouchEvents = function() {
+    var lastTime = 0;
+    var newTime;
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
@@ -22381,6 +22683,8 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      self.parent.clearClick();
+
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
@@ -22396,7 +22700,8 @@ var descartesJS = (function(descartesJS) {
 
       // try to preserv the slide gesture in the tablets
       // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-        evt.preventDefault();
+      evt.stopPropagation();
+      evt.preventDefault();
       // }
     }
     
@@ -22441,6 +22746,11 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      evt.stopPropagation();
+      evt.preventDefault();
+
+      self.parent.clearClick();
+
       self.click = 1;
 
       // deactivate the graphic controls
@@ -22471,8 +22781,6 @@ var descartesJS = (function(descartesJS) {
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
       }
-      
-      evt.preventDefault();
     }
     
     /**
@@ -22484,12 +22792,13 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      evt.stopPropagation();
+      evt.preventDefault();
+
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
-
-      evt.preventDefault();
 
       if (self.whichButton === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
@@ -22521,7 +22830,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclickedString, 0);
       self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
-      self.parent.update();
+      // limit the number of updates in the lesson
+      if (Date.now() - lastTime > 10) {
+        self.parent.update();
+        lastTime = Date.now();
+      }
     }
     
     /**
@@ -22544,6 +22857,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseMove(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
@@ -22557,11 +22873,6 @@ var descartesJS = (function(descartesJS) {
       }
 
       onSensitiveToMouseMovements(evt);
-
-      // // try to preserv the slide gesture in the tablets
-      // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
-      evt.preventDefault();
-      // }
     }
   }
     
@@ -22935,23 +23246,86 @@ var descartesJS = (function(descartesJS) {
       primitives[i].computeDepth(this);
     }
 
-    primitives = primitives.sort(depthSort);
+    // primitives = primitives.sort(depthSort);
 
     // // draw the primitives
-    // if (this.render === "painter") {
-    //   this.drawPainter(primitives);
-    // }
-    // else {
+    if (this.render === "painter") {
+      // this.drawPainter2(primitives);
+      this.drawPainter(primitives);
+    }
+    else {
+      primitives = primitives.sort(depthSort);      
       for(var i=0; i<primitivesLength; i++) {
         primitives[i].draw(this.ctx, this);
       }
-    // }
+    }
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
       this.graphicsCtr[i].draw();
     }
   }
+
+  // descartesJS.Space3D.prototype.drawPainter2 = function(primitives) {
+  //   var V = [];
+  //   var ordface = primitives;
+  //   for (var i=0, l=ordface.length; i<l; i++) {
+  //     ordface[i].drawn = false;
+  //   }
+
+  //   var NC = ordface.length;
+  //   var epsilon0 = 0.001;
+  //   var epsilon = epsilon0;
+  //   while (true) {
+  //     var NCa = NC;
+  //     var oneDrawn = false;
+  //     for (var i=0; i<ordface.length; i++) {
+  //       if (!ordface[i].drawn) {
+  //         var canDraw = true;
+  //         for (var j=0; j<ordface.length; j++) {
+  //           if ((j != i) &&
+  //               (!ordface[j].drawn) &&
+  //               (ordface[i].inFrontOf(V, ordface[j], epsilon))
+  //              ) {
+  //             canDraw = false;
+  //             break;
+  //           }
+  //         }
+  //         if (canDraw) {
+  //           NC--;
+  //           ordface[i].draw(this.ctx, this);
+  //           ordface[i].drawn = true;
+  //           oneDrawn = true;
+  //         }
+  //       }
+  //     }
+  //     if (NC == 0) {
+  //       break;
+  //     }
+  //     else if (NC == NCa) {
+  //       epsilon = epsilon*10;
+
+  //       if (epsilon > 0.1) {
+  //         console.log("Error in Painter Algorithm");
+
+  //         for (var i=0; i<ordface.length; i++) {
+  //           if (!ordface[i].drawn) {
+  //             ordface[i].draw(this.ctx, this);
+  //             ordface[i].drawn = true;
+  //           }
+  //         }
+  //         break;
+  //       }
+  //     }
+  //     else {
+  //       epsilon = epsilon0;
+  //     }
+  //   }
+  // }
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   var tmpPrimitive;
 
@@ -22988,13 +23362,14 @@ var descartesJS = (function(descartesJS) {
       front_or_back = null;
 
       for (var vert=0,vertL=primitives[i].spaceVertices.length; vert<vertL; vert++) {
-        // if (tmpPrimitive.spaceVertices.length > 2) {
-        //   whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
-        // }
-        // else {
-        //   whereIs = 0;
-        // }
-        whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        if (tmpPrimitive.spaceVertices.length > 2) {
+          // whereIs = this.inPlane(tmpPrimitive.spaceVertices[0], tmpPrimitive.spaceVertices[1], tmpPrimitive.spaceVertices[2], primitives[i].spaceVertices[vert]);
+          whereIs = this.inPlane2(tmpPrimitive.spaceVertices[0], tmpPrimitive.normal, primitives[i].spaceVertices[vert]);
+        }
+        else {
+          whereIs = 0;
+        }
+        
         whereIs = (tmpPrimitive.direction > 0) ? -whereIs : whereIs;
 
         if (front_or_back === null) {
@@ -23025,21 +23400,22 @@ var descartesJS = (function(descartesJS) {
       else if (front_or_back === "front") {
         frontList.push( primitives[i] );
       }
-//       else if (front_or_back == null) {
-//         backList.push( primitives[i] );
-// // console.log(front_or_back);
-//       } 
+      else if (front_or_back == null) {
+        backList.push( primitives[i] );
+// console.log(front_or_back);
+      } 
       else {
         front_or_back = null;
 
         for (var vert=0,vertL=tmpPrimitive.spaceVertices.length; vert<vertL; vert++) {
-          // if (primitives[i].spaceVertices.length > 2) {
-          //   whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
-          // }
-          // else {
-          //   whereIs = 0;
-          // }
-          whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          if (primitives[i].spaceVertices.length > 2) {
+            // whereIs = this.inPlane(primitives[i].spaceVertices[0], primitives[i].spaceVertices[1], primitives[i].spaceVertices[2], tmpPrimitive.spaceVertices[vert]);
+            whereIs = this.inPlane2(primitives[i].spaceVertices[0], primitives[i].normal, tmpPrimitive.spaceVertices[vert]);
+          }
+          else {
+            whereIs = -1;
+          }
+
           whereIs = (primitives[i].direction > 0) ? -whereIs : whereIs;
 
           if (front_or_back === null) {
@@ -23070,8 +23446,6 @@ var descartesJS = (function(descartesJS) {
         else {
           frontList.push( primitives[i] );
         }
-
-// console.log(front_or_back);
       }
 
     }
@@ -23110,8 +23484,12 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).toFixed(8) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
   }
+
+//********************************************************************************************************************
+//********************************************************************************************************************
+//********************************************************************************************************************
 
   /**
    *
@@ -23160,14 +23538,15 @@ var descartesJS = (function(descartesJS) {
     dx = self.eye.x - v.x;
     dy = self.eye.y - v.y;
     dz = self.eye.z - v.z;
-    t = -v.x/MathSqrt(dx*dx + dy*dy + dz*dz) || 0;
+    var tt = MathSqrt(dx*dx + dy*dy + dz*dz);
+    t = -v.x/tt || 0;
 
-    dx =  self.scale*(v.y + t*(self.eye.y - v.y));
-    dy = -self.scale*(v.z + t*(self.eye.z - v.z));
+    dx = this.w_2 + this.Ox + self.scale*(v.y + t*(self.eye.y - v.y));
+    dy = this.h_2 + this.Oy - self.scale*(v.z + t*(self.eye.z - v.z));
 
-    return { x: parseInt(dx +this.w_2 +this.Ox),
-             y: parseInt(dy +this.h_2 +this.Oy),
-             z: t
+    return { x: dx,
+             y: dy,
+             z: tt
            };
   }
 
@@ -23226,11 +23605,21 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   * 
+   */
+  descartesJS.Space3D.prototype.rayFromEye = function(x, y) {
+    return { x: -this.eye.x,
+             y: (x - this.w_2 - this.Ox)/this.scale - this.eye.y,
+             z: (this.h_2 + this.Oy - y)/this.scale - this.eye.z
+           };
+  }
+
+  /**
    * Register the mouse and touch events
    */
   descartesJS.Space3D.prototype.registerMouseAndTouchEvents = function() {
     var self = this;
-
+    var lastTime = 0;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
     this.canvas.oncontextmenu = function () { return false; };
@@ -23381,7 +23770,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
       self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
 
-      self.parent.update();
+      // limit the number of updates in the lesson
+      if (Date.now() - lastTime > 70) {
+        self.parent.update();
+        lastTime = Date.now();
+      }
     }
     
     /**
@@ -23409,8 +23802,8 @@ var descartesJS = (function(descartesJS) {
     function onMouseMove(evt) {
       if ((!self.fixed) && (self.click)) {
 
-        dispX = parseInt((self.oldMouse.x - self.mouse_x)*100);
-        dispY = parseInt((self.oldMouse.y - self.mouse_y)*100);
+        dispX = parseInt((self.oldMouse.x - self.mouse_x)*50);
+        dispY = parseInt((self.oldMouse.y - self.mouse_y)*50);
 
         if ((dispX !== self.disp.x) || (dispY !== self.disp.y)) {
           self.alpha = descartesJS.degToRad( self.evaluator.getVariable(self.rotZStr));
@@ -23752,8 +24145,6 @@ var descartesJS = (function(descartesJS) {
 
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
-console.log()
-
     this.container = document.createElement("div");
     // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
     if (descartesJS.isIOS) {
@@ -23777,18 +24168,21 @@ console.log()
       // set a value to a variable
       var iframeSet = function(varName, value) {
         iframe.contentWindow.postMessage({ type: "set", name: varName, value: value }, "*");
+        return 0;
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
       // update the scene
       var iframeUpdate = function() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
+        return 0;
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
       // exec a funcion of the scene
       var iframeExec = function(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
+        return 0;
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
     }
@@ -23830,11 +24224,9 @@ console.log()
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
+    this.container.style.display = (this.drawIfValue)? "block" : "none";
 
-    if (this.drawif) {
-
-      this.MyIFrame.style.display = (this.drawIfValue)? "block" : "none";
-
+    if (this.drawIfValue) {
       if (firstTime) {
         this.x = Math.Infinity;
         this.y = Math.Infinity;
@@ -24326,8 +24718,8 @@ var descartesJS = (function(descartesJS) {
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                 "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
   /**
@@ -24336,6 +24728,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
+    this.animation = {playing : false};
 
     /**
      * applet code
@@ -25221,12 +25614,21 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.update = function() {
     this.updateAuxiliaries();
-    this.updateEvents();
     this.updateControls();
+    this.updateEvents();
     this.updateSpaces();
 
     // send the cache vars to the htmliframes
     // this.sendCacheVars();
+  }
+
+  /**
+   * Change the click to 0
+   */
+  descartesJS.DescartesApp.prototype.clearClick = function() {
+    for (var i=0, l=this.spaces.length; i<l; i++) {
+      this.spaces[i].clearClick()
+    }    
   }
   
   /**
@@ -25622,7 +26024,7 @@ var descartesJS = (function(descartesJS) {
    * Set the state of the applet
    * @param {String} state string containing the values to set of the form variable1=value1\nvariable2=value2\n...\nvariableN=valueN
    */
-  descartesJS.DescartesApp.prototype.setState = function(state) {
+  descartesJS.DescartesApp.prototype.setState = function(state, noUpdate) {
     var theState = state.split("\n");
     
     var tmpParse;
@@ -25653,24 +26055,17 @@ var descartesJS = (function(descartesJS) {
           this.evaluator.variables[tmpParse[0]] = value;
         }
       }
-
-      // update the lesson
-      this.update();
-
-      // tmpParse = this.evaluator.parser.parse(theState[i], true);
-      
-      // // se ejecuta la asignacion de valores que se encuentra en la cadena del estado
-      // this.evaluator.evalExpression( tmpParse );
-      
-      // // se guardan las asinaciones de valores para futuras asignaciones
-      // this.saveState.push(tmpParse);
     }
-    
+
+    if (!noUpdate) {
+      // update the lesson
+      this.update();    
+    }
   }
   
   /**
    * Get the evaluation of the lesson
-   * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 ó 1 \n control2=respuestaAlumno|0 ó 1
+   * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 o 1 \n control2=respuestaAlumno|0 o 1
    */
   descartesJS.DescartesApp.prototype.getEvaluation = function() {
     var questions = 0;

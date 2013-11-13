@@ -52,15 +52,16 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0; i<Nu; i++) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[0],
-                                             (i+2 <= Nu) ? vertices[i+2] : vertices[1],
-                                             vertices[i+1]
-                                           ],
-                                 type: "face",
-                                 frontColor: this.color, 
-                                 backColor: this.backcolor, 
-                                 edges: this.edges, 
-                                 model: this.model
-                               } ) );
+                                                                       (i+2 <= Nu) ? vertices[i+2] : vertices[1],
+                                                                       vertices[i+1]
+                                                                     ],
+                                                           type: "face",
+                                                           frontColor: this.color, 
+                                                           backColor: this.backcolor, 
+                                                           edges: this.edges, 
+                                                           model: this.model
+                                                         },
+                            this.space ));
     }
 
   }

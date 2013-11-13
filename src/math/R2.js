@@ -161,8 +161,8 @@ var descartesJS = (function(descartesJS) {
     } 
     
     else if ((p2.x-q1.x)*B2 != (p2.y-q1.y)*B1) {
-      return null; // no están alineados
-    } else { // están alineados
+      return null; // no estan alineados
+    } else { // estan alineados
       if (p1.x != p2.x) {
         mp = MathMin(p1.x, p2.x);
         Mp = MathMax(p1.x, p2.x);

@@ -237,7 +237,7 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.field) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.field)) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
           
@@ -356,7 +356,7 @@ var descartesJS = (function(descartesJS) {
         return this.evaluator.evalExpression(this.firstAnswer);
       }
     }
-    // if the text field has not an anser pattern
+    // if the text field has not an answer pattern
     else {
       return "";
     }

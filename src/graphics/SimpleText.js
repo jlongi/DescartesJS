@@ -59,7 +59,7 @@ var descartesJS = (function(descartesJS) {
         ignoreSquareBracket++;
       } 
 
-      // if find a close square bracket add the strin +'
+      // if find a close square bracket add the string +'
       else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
         this.textElements.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
         this.textElementsMacros.push( "[" + text.substring(lastPos, pos+1) + "]");

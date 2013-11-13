@@ -717,16 +717,19 @@ var descartesJS = (function(descartesJS) {
       // function to set a variable value to the parent
       this.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
+        return 0;
       }
       
       // function to update the parent
       this.functions["parent.update"] = function() {
         window.parent.postMessage({ type: "update" }, '*');
+        return 0;
       }
 
       // function to execute a function in the parent
       this.functions["parent.exec"] = function(functionName, functionParameters) {
         window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
+        return 0;
       }
     }
 
@@ -740,9 +743,12 @@ var descartesJS = (function(descartesJS) {
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
           response = fileElement.text.replace(/&brvbar;/g, "¦");
         }
+        else {
+          response = descartesJS.openExternalFile(file);
+        }
       }
       else {
-        response = descartesJS.openExternalFile(file);
+        return;
       }
 
       var initialIndex = -1;
@@ -794,7 +800,7 @@ var descartesJS = (function(descartesJS) {
             // is a string
             if (isNaN(parseFloat(tmpValue[1]))) {
               // .replace(/^\s|\s$/g, "") remove the initial white space
-              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, ""));
+              self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, "").replace(/^'|'$/g, ""));
             }
             // is a number
             else {
@@ -815,9 +821,12 @@ var descartesJS = (function(descartesJS) {
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
           response = fileElement.text.replace(/&brvbar;/g, "¦");
         }
+        else {
+          response = descartesJS.openExternalFile(file);
+        }
       }
       else {
-        response = descartesJS.openExternalFile(file);
+        return;
       }
       
       var initialIndex = -1;
@@ -877,7 +886,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data.replace(/\\n/g, "\n")], {type: "text/plain"});
+      blob = new Blob([data.replace(/\\n/g, "\n").replace(/\\q/g, "'")], {type: "text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
@@ -1031,6 +1040,42 @@ var descartesJS = (function(descartesJS) {
     this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
+    /**
+     *
+     */
+    this.functions["_GetDay_"] = function() {
+      return (new Date()).getDate();
+    }
+    /**
+     *
+     */
+    this.functions["_GetMonth_"] = function() {
+      return (new Date()).getMonth() +1;
+    }
+    /**
+     *
+     */
+    this.functions["_GetYear_"] = function() {
+      return (new Date()).getFullYear();
+    }
+    /**
+     *
+     */
+    this.functions["_GetHours_"] = function() {
+      return (new Date()).getHours();
+    }
+    /**
+     *
+     */
+    this.functions["_GetMinutes_"] = function() {
+      return (new Date()).getMinutes();
+    }
+    /**
+     *
+     */
+    this.functions["_GetSeconds_"] = function() {
+      return (new Date()).getSeconds();
+    }
     ////////////////////////////////////////
   }  
 
@@ -1040,7 +1085,7 @@ var descartesJS = (function(descartesJS) {
 function myMapFun(x) {
   if (isNaN(parseFloat(x))) {
     // .replace(/^\s|\s$/g, "") remove the initial white space
-    return x.replace(/^\s|\s$/g, "");
+    return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
   }
   else {
     return parseFloat(x);
@@ -1050,7 +1095,8 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
-// console.log(((new descartesJS.Parser).parse("-2^1.4")).toString());
+// console.log(((new descartesJS.Parser).parse("", true)).toString());
+
 
   return descartesJS;
 })(descartesJS || {});

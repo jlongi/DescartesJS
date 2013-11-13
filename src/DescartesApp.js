@@ -8,8 +8,8 @@ var descartesJS = (function(descartesJS) {
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad didáctica interactiva están bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
-                 "                                       La unidad didáctica fue creada con Arquímedes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
   /**
@@ -18,6 +18,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
+    this.animation = {playing : false};
 
     /**
      * applet code
@@ -903,12 +904,21 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.update = function() {
     this.updateAuxiliaries();
-    this.updateEvents();
     this.updateControls();
+    this.updateEvents();
     this.updateSpaces();
 
     // send the cache vars to the htmliframes
     // this.sendCacheVars();
+  }
+
+  /**
+   * Change the click to 0
+   */
+  descartesJS.DescartesApp.prototype.clearClick = function() {
+    for (var i=0, l=this.spaces.length; i<l; i++) {
+      this.spaces[i].clearClick()
+    }    
   }
   
   /**
@@ -1304,7 +1314,7 @@ var descartesJS = (function(descartesJS) {
    * Set the state of the applet
    * @param {String} state string containing the values to set of the form variable1=value1\nvariable2=value2\n...\nvariableN=valueN
    */
-  descartesJS.DescartesApp.prototype.setState = function(state) {
+  descartesJS.DescartesApp.prototype.setState = function(state, noUpdate) {
     var theState = state.split("\n");
     
     var tmpParse;
@@ -1335,24 +1345,17 @@ var descartesJS = (function(descartesJS) {
           this.evaluator.variables[tmpParse[0]] = value;
         }
       }
-
-      // update the lesson
-      this.update();
-
-      // tmpParse = this.evaluator.parser.parse(theState[i], true);
-      
-      // // se ejecuta la asignacion de valores que se encuentra en la cadena del estado
-      // this.evaluator.evalExpression( tmpParse );
-      
-      // // se guardan las asinaciones de valores para futuras asignaciones
-      // this.saveState.push(tmpParse);
     }
-    
+
+    if (!noUpdate) {
+      // update the lesson
+      this.update();    
+    }
   }
   
   /**
    * Get the evaluation of the lesson
-   * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 ó 1 \n control2=respuestaAlumno|0 ó 1
+   * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 o 1 \n control2=respuestaAlumno|0 o 1
    */
   descartesJS.DescartesApp.prototype.getEvaluation = function() {
     var questions = 0;

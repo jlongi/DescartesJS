@@ -217,7 +217,7 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.field) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.field) ) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
       

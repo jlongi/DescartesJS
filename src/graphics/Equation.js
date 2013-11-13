@@ -265,11 +265,13 @@ var descartesJS = (function(descartesJS) {
     w = space.w;
     h = space.h;
     
-    dx = parseInt(w/netsz);
+    // dx = parseInt(w/netsz);
+    dx = w/9;
     if (dx<3) {
       dx=3;
     }
-    dy = parseInt(h/netsz);
+    // dy = parseInt(h/netsz);
+    dy = h/7;
     if (dy<3) {
       dy=3;
     }
@@ -279,6 +281,15 @@ var descartesJS = (function(descartesJS) {
     q0.set(0, 0);
     qb.set(0, 0);
     t.set(0, 0);
+
+    var np = 8;
+    var dist = 0.1;
+    var ds = np;
+    if (!this.abs_coord) {
+      var scale = space.scale;
+      dist = dist/scale;
+      ds = ds/scale;
+    }
 
     for (j=parseInt(dy/2); j<h; j+=dy) {
       for (i=parseInt(dx/2); i<w; i+=dx) {
@@ -330,8 +341,9 @@ var descartesJS = (function(descartesJS) {
 
         while (side < 2)  {
           if (changeSide) {
+            // Invert Unit Tangent Vector
             t.x = -t0.x;
-            t.y = -t0.y; // Invert Unit Tangent Vector
+            t.y = -t0.y;
             
             q.x = q0.x;
             q.y = q0.y;
@@ -353,11 +365,17 @@ var descartesJS = (function(descartesJS) {
           }
           
           if (this.abs_coord) {
+            // advance along t aprox one pixel
             q.x+=t.x; 
-            q.y+=t.y; // advance along t aprox one pixel
+            q.y+=t.y; 
+            // q.x += ds*t.x;
+            // q.y += ds*t.y;
           } else {
+            // advance along t aprox one pixel
             q.x+=t.x/space.scale;
-            q.y+=t.y/space.scale; // advance along t aprox one pixel
+            q.y+=t.y/space.scale; 
+            // q.x += ds*t.x/space.scale;
+            // q.y += ds*t.y/space.scale;
           }
           
           q = this.newt.findZero(q);
@@ -381,25 +399,46 @@ var descartesJS = (function(descartesJS) {
             Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
           }
           
-          Px = MathFloor(Q.ix());
-          Py = MathFloor(Q.iy());
+          Px = parseInt(Q.ix());
+          Py = parseInt(Q.iy());
           
           if (Px!=Qx || Py!=Qy) {
+            var Qxa = Qx;
+            var Qya = Qy;
             Qx = Px;
             Qy = Py;
             
-            if (0<=Qx && Qx<w && 0<=Qy && Qy<h) {
+            if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
               zeroVisited = 0;
-              
-              if (b[Qx + Qy*space.w]) {
-                break;
-              } 
-              else {
-                b[Qx + Qy*space.w] = true;
-                if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+
+              var secondVisit = b[Qx + Qy*space.w];
+
+              b[Qx + Qy*space.w] = true;
+              for (var s=1; s<np; s++) {
+                var Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
+                var Qsy = Qya + Math.round((Qy-Qya)*s/np);
+                if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
+                  b[Qsx + Qsy*space.w] = true;
                 }
               }
+
+              if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
+                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+              }
+
+              if (secondVisit) {
+                break;
+              }
+              
+              // if (b[Qx + Qy*space.w]) {
+              //   break;
+              // } 
+              // else {
+              //   b[Qx + Qy*space.w] = true;
+              //   if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
+              //     ctx.drawImage(this.auxCanvas, Qx, Qy);
+              //   }
+              // }
             } else {
               changeSide = true; 
               side++; /* Zero out of bounds */
@@ -706,8 +745,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
     var va = 0;
 
     if (this.abs_coord) {
-      Xr = this.space.h;
-      dx = -1;
+      Xr = 0;
+      dx = 1;
     }
 
     var condWhile = (this.of_y) ? this.space.h : this.space.w;
@@ -776,10 +815,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   }
                   ctx.stroke();
                 }
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // if (ya!=nya) {
-                //   Line(g[i],width,xa,ya,xa,nya,of_y);
-                // }
 
                 ctx.lineWidth = width;
                 ctx.strokeStyle = this.color.getColor();
@@ -800,24 +835,15 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 this.evaluator.setVariable(X, Xr-dx);
                 var pn = this.extrapolate(cond, X, Y, F, va, dx);
                 y = this.YY(width, pn.y, this.abs_coord);
-                
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
 
                 this.evaluator.setVariable(X, Xr);
                 var pa = this.extrapolate(cond, X, Y, F, v, -dx);
                 ya = this.YY(width, pa.y, this.abs_coord);
                 y = this.YY(width, v, this.abs_coord);
-
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
-              }
+             }
               // sing === 2
               else {
                 y = this.YY(width, v, this.abs_coord);
-
-                // g[i].setColor(mjac[i].getAdaptedColor());
-                // Line(g[i],width,x,y,x,y,of_y);
               }
             }
             // defa === false; extrapolate forward
@@ -826,9 +852,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
               ya = this.YY(width, pa.y, this.abs_coord);
               y = this.YY(width, v, this.abs_coord);
-
-              // g[i].setColor(mjac[i].getAdaptedColor());
-              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
             }
 
             va = v;
@@ -844,9 +867,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
             var pn = this.extrapolate(cond, X, Y, F, va, dx);
             y = this.YY(width, pn.y, this.abs_coord);
-
-            // g[i].setColor(mjac[i].getAdaptedColor());
-            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
 
             this.evaluator.setVariable(X, Xr);
           }

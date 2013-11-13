@@ -47,12 +47,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: vertices,
-                               type: "face",
-                               frontColor: this.color, 
-                               backColor: this.backcolor, 
-                               edges: this.edges, 
-                               model: this.model
-                             } ) );
+                                                         type: "face",
+                                                         frontColor: this.color, 
+                                                         backColor: this.backcolor, 
+                                                         edges: this.edges, 
+                                                         model: this.model
+                                                       },
+                          this.space ));
 
   }
   

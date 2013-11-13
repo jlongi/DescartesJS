@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-";
+  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -105,7 +105,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if it was posible to read the macro
     if (response) {
-      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      tmpResponse = ( response.replace(/&aacute;/g, "\u00e1").replace(/&eacute;/g, "\u00e9").replace(/&iacute;/g, "\u00ed").replace(/&oacute;/g, "\u00f3").replace(/&uacute;/g, "\u00fa").replace(/&Aacute;/g, "\u00c1").replace(/&Eacute;/g, "\u00c9").replace(/&Iacute;/g, "\u00cd").replace(/&Oacute;/g, "\u00d3").replace(/&Uacute;/g, "\u00da").replace(/&ntilde;/g, "\u00f1").replace(/&Ntilde;/g, "\u00d1").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];
@@ -114,10 +114,15 @@ var descartesJS = (function(descartesJS, babel) {
         indexOfEqual = tmpResponse[i].indexOf("=");
 
         if(indexOfEqual !== -1) {
-          tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
-        
-          if (babel[tmpIniti] === "id" || babel[tmpIniti] === "type") {
-            response.push( lessonParser.split( tmpResponse[i] ) );
+          // tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
+
+          var tmpSplitLine = lessonParser.split(tmpResponse[i]);
+          for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
+            if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
+              if ((babel[tmpSplitLine[iT][0]] === "id") || (babel[tmpSplitLine[iT][0]] === "type")) {
+                response.push(tmpSplitLine);
+              }
+            }
           }
         }
       }
@@ -155,7 +160,7 @@ var descartesJS = (function(descartesJS, babel) {
              ) {
             continue;
           }
-          
+
           // is a text
           if (babelResp == "text") {
             // if the text is rtf must processing it diferent
@@ -181,9 +186,9 @@ var descartesJS = (function(descartesJS, babel) {
               }
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
-              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
-              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
-              
+              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
+              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
+
               respText[j][1] = textTemp;
             }
             // simple text
@@ -208,23 +213,26 @@ var descartesJS = (function(descartesJS, babel) {
           }
           // the token is not a text
           else {
-            tmpTokens = tokenizer.tokenize(respText[j][1]);
+            var tmpTokensArray = respText[j][1].replace(/\&squot;/g, "'").split(";");
 
-            for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+            for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
+              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI]);
 
-              if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
-                tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+              for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+                if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
+                  tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+                }
               }
 
+              tmpTokensArray[tmpI] = tokenizer.flatTokens(tmpTokens);
             }
 
-            respText[j][1] = tokenizer.flatTokens(tmpTokens);
+            respText[j][1] = tmpTokensArray.join(";");
           }
         
         }
 
       }
-
 
       var tempResp;
       var isGraphic;
@@ -250,6 +258,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // build and add the graphic elements to the space
           if (isGraphic) {
+            //agregar algo mas para indicar que se viene de un macro
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene
@@ -281,19 +290,20 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
+      if (this.graphics[i]) {
+        if (this.graphics[i].abs_coord) {
+          ctx.translate(this.iniPosX, this.iniPosY);
+        } 
+        else {
+          ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
+        }
+        
+        this.graphics[i].draw();
 
-      if (this.graphics[i].abs_coord) {
-        ctx.translate(this.iniPosX, this.iniPosY);
-      } 
-      else {
-        ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
+        // reset the transformations
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
-      
-      this.graphics[i].draw();
-
-      // reset the transformations
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-    }      
+    }
   }
 
   return descartesJS;

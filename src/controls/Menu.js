@@ -261,9 +261,9 @@ var descartesJS = (function(descartesJS) {
 
     this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-    }
+    // for (var i=0, l=this.menuOptions.length; i<l; i++) {
+    //   this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+    // }
     
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
@@ -284,7 +284,11 @@ var descartesJS = (function(descartesJS) {
     // update the position and size
     this.updatePositionAndSize();
 
-    if (document.activeElement != this.select) {
+    if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
+      for (var i=0, l=this.menuOptions.length; i<l; i++) {
+        this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+      }
+
       // update the value of the menu
       this.value = evaluator.getVariable(this.id);
       if (isNaN(this.value)) {

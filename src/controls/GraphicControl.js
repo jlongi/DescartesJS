@@ -125,6 +125,7 @@ var descartesJS = (function(descartesJS) {
     this.xString = this.id + ".x";
     this.yString = this.id + ".y";
     this.activoString = this.id + ".activo";
+    this.activeString = this.id + ".active";
 
     if ((this.space.id !== "") && (parent.version !== 2)) {
       this.mxString = this.space.id + ".mouse_x";
@@ -186,6 +187,7 @@ var descartesJS = (function(descartesJS) {
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
     evaluator.setVariable(this.activoString, 0);
+    evaluator.setVariable(this.activeString, 0);
 
     this.setImage = false;
 
@@ -355,6 +357,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.deactivate = function() {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
+    this.evaluator.setVariable(this.activeString, 0);
   }  
   
   /**
@@ -398,6 +401,7 @@ var descartesJS = (function(descartesJS) {
           self.click = true;
           self.active = true;
           self.evaluator.setVariable(self.activoString, 1);
+          self.evaluator.setVariable(self.activeString, 1);
 
           self.evaluator.setVariable(self.mclickedString, 0);
           self.evaluator.setVariable(self.mclicizquierdoString, 0);
@@ -436,6 +440,7 @@ var descartesJS = (function(descartesJS) {
         self.click = true;
         self.active = true;
         self.evaluator.setVariable(self.activoString, 1);
+        self.evaluator.setVariable(self.activeString, 1);
 
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);        

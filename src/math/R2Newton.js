@@ -109,7 +109,6 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", q0.x);
     evaluator.setVariable("y", q0.y);
     
-    descartesJS.fullDecimals = true;
     this.f0 = evaluator.evalExpression(this.constraint);
     
     if ((this.sign === "menor") && (this.f0 <= 0)) {
@@ -140,12 +139,11 @@ var descartesJS = (function(descartesJS) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
-        descartesJS.fullDecimals = false;
+
         return q;
       }
     }
     
-    descartesJS.fullDecimals = false;
     return q;
   }
 

@@ -58,8 +58,6 @@ var descartesJS = (function(descartesJS) {
 
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
-console.log()
-
     this.container = document.createElement("div");
     // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
     if (descartesJS.isIOS) {
@@ -83,18 +81,21 @@ console.log()
       // set a value to a variable
       var iframeSet = function(varName, value) {
         iframe.contentWindow.postMessage({ type: "set", name: varName, value: value }, "*");
+        return 0;
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
       // update the scene
       var iframeUpdate = function() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
+        return 0;
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
       // exec a funcion of the scene
       var iframeExec = function(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
+        return 0;
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
     }
@@ -136,11 +137,9 @@ console.log()
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
+    this.container.style.display = (this.drawIfValue)? "block" : "none";
 
-    if (this.drawif) {
-
-      this.MyIFrame.style.display = (this.drawIfValue)? "block" : "none";
-
+    if (this.drawIfValue) {
       if (firstTime) {
         this.x = Math.Infinity;
         this.y = Math.Infinity;
