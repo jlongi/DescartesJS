@@ -650,7 +650,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.northSpace.container;
       container.setAttribute("id", "descartesJS_northRegion");
-      container.setAttribute("style", "width:" + principalContainer.width + "px; height:" + northRegionHeight + "px; background:#c0c0c0; position:absolute; left:0px; top:0px; z-index:100;")
+      container.setAttribute("style", "width:" + principalContainer.width + "px; height:" + northRegionHeight + "px; background:#c0c0c0; position:absolute; left:0px; top: " + this.plecaHeight + "px; z-index:100;")
 
       principalContainer.insertBefore(container, this.loader);
       

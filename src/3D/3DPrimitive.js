@@ -140,8 +140,8 @@ var descartesJS = (function(descartesJS) {
    */
   function drawVertex(ctx) {
     ctx.lineWidth = 1;
-    ctx.fillStyle = this.backColor.getColor();
-    ctx.strokeStyle = this.frontColor.getColor();
+    ctx.fillStyle = this.backColor;
+    ctx.strokeStyle = this.frontColor;
 
     ctx.beginPath();
     ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
@@ -156,10 +156,6 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
 
-    // compute the color if is an expression
-    this.frontColor.getColor();
-    this.backColor.getColor();
-
     // set the path to draw
     ctx.beginPath();
     ctx.moveTo(this.newV[0].x, this.newV[0].y);
@@ -171,10 +167,10 @@ var descartesJS = (function(descartesJS) {
     // color render
     if (this.model === "color") {
       if (this.direction >= 0) {
-        ctx.fillStyle = this.backColor.getColor();
+        ctx.fillStyle = this.backColor;
       }
       else {
-        ctx.fillStyle = this.frontColor.getColor();
+        ctx.fillStyle = this.frontColor;
       }
 
       ctx.fill();
@@ -192,7 +188,7 @@ var descartesJS = (function(descartesJS) {
     // wireframe render
     else if (this.model === "wire") {
       ctx.lineWidth = 1.25;
-      ctx.strokeStyle = this.frontColor.getColor();
+      ctx.strokeStyle = this.frontColor;
       ctx.stroke();
     }
 
@@ -211,7 +207,7 @@ var descartesJS = (function(descartesJS) {
     tempParam = this.evaluator.getVariable(this.family);
     this.evaluator.setVariable(this.family, this.familyValue);
     
-    this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor.getColor(), this.font, "left", "alphabetic", this.decimals, this.fixed, true);
+    this.drawText(ctx, this.text, this.newV[0].x, this.newV[0].y +this.displace, this.frontColor, this.font, "left", "alphabetic", this.decimals, this.fixed, true);
 
     this.evaluator.setVariable(this.family, tempParam);
   }
@@ -223,7 +219,7 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
     ctx.lineWidth = this.lineWidth;
-    ctx.strokeStyle = this.frontColor.getColor();
+    ctx.strokeStyle = this.frontColor;
 
     // set the path to draw
     ctx.beginPath();
@@ -491,168 +487,14 @@ var descartesJS = (function(descartesJS) {
     return true;
   }
 
+  /**
+   * 
+   */
   function getNormal(u1, u2, u3) {
     v1 = descartesJS.subtract3D( u1, u2 );
     v2 = descartesJS.subtract3D( u1, u3 );
     return descartesJS.normalize3D( descartesJS.crossProduct3D(v1, v2) );
   }
-
-
-//********************************************************************************************************************
-//********************************************************************************************************************
-//********************************************************************************************************************
-
-  // descartesJS.Primitive3D.prototype.inFrontOf = function(V, F, epsilon) {
-  //   for (var state=0; state<3; state++) {
-  //     var v = null;
-  //     switch (state) {
-  //       case 0: 
-  //         v = this.intersections(F);
-  //         break;
-  //       case 1:
-  //         v = F.verticesContainedIn(this);
-  //         break;
-  //       case 2:
-  //         v = this.verticesContainedIn(F)
-  //         break;
-  //     }
-  //     if ( (v != null) && (v.length > 0) ) {
-  //       for (var k=0; k<v.length; k++) {
-  //         V.push(v[k]);
-  //       }
-
-  //       for (var k=0; k<v.length; k++) {
-  //         var p = v[k];
-  //         var ray = this.space.rayFromEye(p.x, p.y);
-  //         try {
-  //           var t = this.distanceToEyeAlong(ray) - F.distanceToEyeAlong(ray);
-  //           if (t <= -epsilon) {
-  //             return true;
-  //           }
-  //           else if (t >= epsilon) {
-  //             return false;
-  //           }
-  //         } catch (e) {
-  //           console.log("Error: inFrontOf");
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return false;
-  // }
-
-  // /**
-  //  *
-  //  */
-  // descartesJS.Primitive3D.prototype.intersections = function(F) {
-  //   var V = [];
-  //   var tmpR2 = new descartesJS.R2();
-
-  //   for(var i=0; i<this.spaceVertices.length; i++) {
-  //     var pi = this.spaceVertices[i];
-  //     var qi = this.spaceVertices[(i+1)%this.spaceVertices.length];
-      
-  //     for (var j=0; j<F.spaceVertices.length; j++) {
-  //       var pj = F.spaceVertices[j];
-  //       var qj = F.spaceVertices[(j+1)%F.spaceVertices.length];
-
-  //       if ( (!descartesJS.equals3DEpsilon(pi, pj, epsilon)) &&
-  //            (!descartesJS.equals3DEpsilon(pi, qj, epsilon)) &&
-  //            (!descartesJS.equals3DEpsilon(qi, pj, epsilon)) &&
-  //            (!descartesJS.equals3DEpsilon(qi, qj, epsilon))
-  //          ) {
-  //         var ip = tmpR2.intersection( this.newV[i], 
-  //                                      this.newV[(i+1)%this.newV.length], 
-  //                                      F.newV[j],
-  //                                      F.newV[(j+i)%F.newV.length]
-  //                                    );
-
-  //         if (ip != null) {
-  //           V.push(ip);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return V;
-  // }
-
-  // /**
-  //  *
-  //  */
-  // descartesJS.Primitive3D.prototype.distanceToEyeAlong = function(ray) {
-  //   this.normal = this.normal || { x: 0, y: 1, z: 0 };
-  //   var den = descartesJS.dotProduct3D(this.normal, ray);
-  //   var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.eye), this.normal );
-
-  //   if (Math.abs(den) > 0.000001) {
-  //     return normalToEye/den;
-  //   }
-    
-  //   return null;
-  // }
-
-  // /**
-  //  *
-  //  */
-  // descartesJS.Primitive3D.prototype.verticesContainedIn = function(F) {
-  //   var V = [];
-
-  //   for (var i=0; i<this.spaceVertices.length; i++) {
-  //     if ( !F.isVertex(this.spaceVertices[i]) && F.appearsToContain(this.newV[i]) ) {
-  //       V.push(this.newV[i]);
-  //     }
-  //   }
-
-  //   // for (var i=0; i<this.newV.length; i++) {
-  //   //   if ( !F.isVertex(this.newV[i]) && F.appearsToContain(this.newV[i]) ) {
-  //   //     V.push(this.newV[i]);
-  //   //   }
-  //   // }
-
-  //   return V;
-  // }
-
-  // /**
-  //  *
-  //  */
-  // descartesJS.Primitive3D.prototype.appearsToContain = function(p) {
-  //   var D = 0;
-  //   for (var i=0; i<this.spaceVertices.length;i++) {
-  //     var D1 = ((this.newV[i].x-p.x)*(this.newV[(i+1)%this.newV.length].y-p.y))-((this.newV[(i+1)%this.newV.length].x-p.x)*(this.newV[i].y-p.y));
-     
-  //     if (D!=0) {
-  //       if (Math.abs(D1)<epsilon) {
-  //         if (Math.abs(this.newV[i].x-this.newV[(i+1)%this.newV.length].x) > epsilon) {
-  //           return (Math.min(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)<=p.x+epsilon && p.x<=Math.max(this.newV[i].x,this.newV[(i+1)%this.newV.length].x)+epsilon);
-  //         } 
-  //         else if (Math.abs(this.newV[i].y-this.newV[(i+1)%this.newV.length].y)>epsilon) {
-  //           return (Math.min(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)<=p.y+epsilon && p.y<=Math.max(this.newV[i].y,this.newV[(i+1)%this.newV.length].y)+epsilon);
-  //         }
-  //       } 
-  //       else if ( (D>0 && D1<0) || (D<0 && D1>0) ) {
-  //         return false;
-  //       }
-  //     }
-  //     D = D1;
-  //   }
-  //   return true;
-  // }
-
-  // /**
-  //  *
-  //  */
-  // descartesJS.Primitive3D.prototype.isVertex = function(p) {
-  //   for (var i=0; i<this.spaceVertices.length; i++) {
-  //     if (descartesJS.equals3DEpsilon(p, this.spaceVertices[i], epsilon)) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }  
-
-//********************************************************************************************************************
-//********************************************************************************************************************
-//********************************************************************************************************************
 
   return descartesJS;
 })(descartesJS || {});

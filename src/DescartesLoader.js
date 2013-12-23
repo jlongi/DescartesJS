@@ -321,7 +321,7 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasTouchSupport) {
       audios[file].load();
       audios[file].play();
-      // setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
+      setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
       audios[file].ready = 1;
     } else {
       audios[file].load();

@@ -387,67 +387,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // descartesJS.Space3D.prototype.drawPainter2 = function(primitives) {
-  //   var V = [];
-  //   var ordface = primitives;
-  //   for (var i=0, l=ordface.length; i<l; i++) {
-  //     ordface[i].drawn = false;
-  //   }
-
-  //   var NC = ordface.length;
-  //   var epsilon0 = 0.001;
-  //   var epsilon = epsilon0;
-  //   while (true) {
-  //     var NCa = NC;
-  //     var oneDrawn = false;
-  //     for (var i=0; i<ordface.length; i++) {
-  //       if (!ordface[i].drawn) {
-  //         var canDraw = true;
-  //         for (var j=0; j<ordface.length; j++) {
-  //           if ((j != i) &&
-  //               (!ordface[j].drawn) &&
-  //               (ordface[i].inFrontOf(V, ordface[j], epsilon))
-  //              ) {
-  //             canDraw = false;
-  //             break;
-  //           }
-  //         }
-  //         if (canDraw) {
-  //           NC--;
-  //           ordface[i].draw(this.ctx, this);
-  //           ordface[i].drawn = true;
-  //           oneDrawn = true;
-  //         }
-  //       }
-  //     }
-  //     if (NC == 0) {
-  //       break;
-  //     }
-  //     else if (NC == NCa) {
-  //       epsilon = epsilon*10;
-
-  //       if (epsilon > 0.1) {
-  //         console.log("Error in Painter Algorithm");
-
-  //         for (var i=0; i<ordface.length; i++) {
-  //           if (!ordface[i].drawn) {
-  //             ordface[i].draw(this.ctx, this);
-  //             ordface[i].drawn = true;
-  //           }
-  //         }
-  //         break;
-  //       }
-  //     }
-  //     else {
-  //       epsilon = epsilon0;
-  //     }
-  //   }
-  // }
-
-//********************************************************************************************************************
-//********************************************************************************************************************
-//********************************************************************************************************************
-
   var tmpPrimitive;
 
   descartesJS.renderNode = function(v) {
@@ -723,16 +662,6 @@ var descartesJS = (function(descartesJS) {
       return descartesJS.scalarProduct3D(r_rr, 1/N_rr);
     }
     return descartesJS.scalarProduct3D(l, -1);
-  }
-
-  /**
-   * 
-   */
-  descartesJS.Space3D.prototype.rayFromEye = function(x, y) {
-    return { x: -this.eye.x,
-             y: (x - this.w_2 - this.Ox)/this.scale - this.eye.y,
-             z: (this.h_2 + this.Oy - y)/this.scale - this.eye.z
-           };
   }
 
   /**

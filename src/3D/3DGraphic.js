@@ -309,14 +309,15 @@ var descartesJS = (function(descartesJS) {
     this.primitives = [];
 
     if (this.evaluator.evalExpression(this.drawif)) {
-      // build the primitives of the family
-      if (this.family) {
-        this.buildFamilyPrimitives();
-      }
       // build the primitives of a single object
-      else {
+      if (!this.family) {
         this.buildPrimitives();
       }
+    }
+
+    // build the primitives of the family
+    if (this.family) {
+      this.buildFamilyPrimitives();
     }
   }  
 

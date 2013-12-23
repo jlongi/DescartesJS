@@ -121,8 +121,8 @@ var descartesJS = (function(descartesJS) {
 
       this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                            type: "face",
-                                                           frontColor: this.color,
-                                                           backColor: this.backcolor, 
+                                                           frontColor: this.color.getColor(),
+                                                           backColor: this.backcolor.getColor(), 
                                                            edges: this.edges, 
                                                            model: this.model
                                                          },

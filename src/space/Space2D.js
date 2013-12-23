@@ -512,7 +512,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space2D.prototype.registerMouseAndTouchEvents = function() {
     var lastTime = 0;
-    var newTime;
+    
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
 

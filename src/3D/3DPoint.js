@@ -45,8 +45,8 @@ var descartesJS = (function(descartesJS) {
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
                                type: "vertex",
-                               backColor: this.backcolor, 
-                               frontColor: this.color, 
+                               backColor: this.backcolor.getColor(), 
+                               frontColor: this.color.getColor(), 
                                size: evaluator.evalExpression(this.width)
                              } ) );
 
@@ -54,7 +54,7 @@ var descartesJS = (function(descartesJS) {
     if (this.text !== "") {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
                                                            type: "text",
-                                                           frontColor: this.color, 
+                                                           frontColor: this.color.getColor(), 
                                                            font: this.font,
                                                            decimals: evaluator.evalExpression(this.decimals),
                                                            fixed: this.fixed,

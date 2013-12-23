@@ -158,8 +158,8 @@ var descartesJS = (function(descartesJS) {
       w2 = 0;
       
       // find the angles
-      angulo1 = Math.acos( (u1*w1+u2*w2)/Math.sqrt(u1*u1+u2*u2) );
-      angulo2 = Math.acos( (v1*w1+v2*w2)/Math.sqrt(v1*v1+v2*v2) );
+      angulo1 = (u1 == 0) ? ((u2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (u1*w1)/Math.sqrt(u1*u1+u2*u2) );
+      angulo2 = (v1 == 0) ? ((v2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (v1*w1)/Math.sqrt(v1*v1+v2*v2) );
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {

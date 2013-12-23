@@ -364,6 +364,8 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.GraphicControl.prototype.registerMouseAndTouchEvents = function() {
+    var lastTime = 0;
+
     var self = this;
 
     this.click = false;
@@ -543,10 +545,16 @@ var descartesJS = (function(descartesJS) {
 
       // }
 
-      // update the controls
-      self.parent.updateControls();
+      // limit the number of updates in the lesson
+      if (Date.now() - lastTime > 10) {
+        // update the controls
+        self.parent.updateControls();
 
-      self.parent.update();      
+        self.parent.update();      
+
+        lastTime = Date.now();
+      }
+
     }
     
     /**

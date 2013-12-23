@@ -47,7 +47,9 @@ var descartesJS = (function(descartesJS) {
     this.oldFile = evaluator.evalExpression(this.file);    
     
     this.MyIFrame = document.createElement("iframe");
-    this.MyIFrame.setAttribute("src", this.oldFile);
+    if (this.oldFile != 0) {
+      this.MyIFrame.setAttribute("src", this.oldFile);
+    }
     this.MyIFrame.setAttribute("id", this.id);
     this.MyIFrame.setAttribute("marginheight", 0);
     this.MyIFrame.setAttribute("marginwidth", 0);

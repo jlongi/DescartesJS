@@ -699,7 +699,7 @@ var descartesJS = (function(descartesJS) {
     this.functions["atan"]  = Math.atan;
     this.functions["min"]   = Math.min;
     this.functions["max"]   = Math.max;
-    this.functions["_Num_"] = function(x) { return parseFloat(x); };
+    this.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
 
     // new internal functions
     var self = this;
@@ -741,7 +741,7 @@ var descartesJS = (function(descartesJS) {
         var fileElement = document.getElementById(file);
 
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, "¦");
+          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
         }
         else {
           response = descartesJS.openExternalFile(file);
@@ -767,7 +767,7 @@ var descartesJS = (function(descartesJS) {
             tmpValue = response[i].trim().split("<" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
-              values = values.concat(tmpValue[1].split("¦"));
+              values = values.concat(tmpValue[1].split(String.fromCharCode("166")));
             }
 
             storeValues = true;
@@ -779,7 +779,7 @@ var descartesJS = (function(descartesJS) {
             tmpValue = response[i].trim().split("</" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
-              values = values.concat(tmpValue[0].split("¦"))
+              values = values.concat(tmpValue[0].split(String.fromCharCode("166")))
             }
 
             storeValues = false;
@@ -788,7 +788,7 @@ var descartesJS = (function(descartesJS) {
 
           // add elementes in between
           if (storeValues) {
-            values = values.concat(response[i].split("¦"));
+            values = values.concat(response[i].split(String.fromCharCode("166")));
           }
         }
 
@@ -819,7 +819,7 @@ var descartesJS = (function(descartesJS) {
         var fileElement = document.getElementById(file);
 
         if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, "¦");
+          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
         }
         else {
           response = descartesJS.openExternalFile(file);
@@ -846,7 +846,7 @@ var descartesJS = (function(descartesJS) {
             tmpValue = response[i].trim().split("<" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
-              values.push(tmpValue[1].split("¦").map(myMapFun));
+              values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
             }
 
             storeValues = true;
@@ -858,7 +858,7 @@ var descartesJS = (function(descartesJS) {
             tmpValue = response[i].trim().split("</" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
-              values.push(tmpValue[0].split("¦").map(myMapFun));
+              values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
             }
 
             storeValues = false;
@@ -867,7 +867,7 @@ var descartesJS = (function(descartesJS) {
 
           // add elementes in between
           if (storeValues) {
-            values.push(response[i].split("¦").map(myMapFun));
+            values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
           }
         }
 
@@ -1075,6 +1075,29 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_GetSeconds_"] = function() {
       return (new Date()).getSeconds();
+    }
+    /**
+     *
+     */
+    this.functions["_MatrixToStr_"] = function(Mstr) {
+      var M = this.matrices[Mstr];
+      if (M) {
+        strM = "<" + Mstr + ">\\n";
+
+        for (var i=0,l=M.rows; i<l; i++) {
+          for (var j=0,k=M.cols; j<k; j++) {
+            strM += M[i][j] + ((j<k-1)?" " + String.fromCharCode("166") + " ":"")
+          }
+          strM += "\\n";
+        }
+
+        strM += "</" + Mstr + ">";
+
+        return strM;
+      }
+      else {
+        return "";
+      }
     }
     ////////////////////////////////////////
   }  

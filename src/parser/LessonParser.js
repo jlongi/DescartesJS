@@ -984,7 +984,7 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
             graphicObj["expresionString"] = values_i_1;
           } else {
-            graphicObj["expresion"] = values_i_1.replace(/\\n/g, "");
+            graphicObj["expresion"] = values_i_1.replace(/\\n/g, " ").replace(/;/g, " ");
           }
           break;
                     

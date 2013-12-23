@@ -30,6 +30,7 @@ var descartesJS = (function(descartesJS) {
    * Execute the action
    */
   descartesJS.About.prototype.execute = function() {
+console.log("about")
     if (this.urlAbout) {
       var codeWindow = window.open(this.urlAbout, "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
     }

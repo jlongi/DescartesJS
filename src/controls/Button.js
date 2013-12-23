@@ -22,6 +22,8 @@ var descartesJS = (function(descartesJS) {
   var hasTouchSupport;
   var delay = 2000;
 
+  var gifPattern = /[\w\.\-//]*(\.gif)/gi;
+
   /**
    * Descartes button control
    * @constructor 
@@ -229,9 +231,14 @@ var descartesJS = (function(descartesJS) {
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-        this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
-        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
-        // ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        // check if is a gif image
+        if ( (this.image.src).match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
+          this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+        }
+        else {
+          ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        }
       }
     }
     // the image is not ready or do not have a image
@@ -250,15 +257,23 @@ var descartesJS = (function(descartesJS) {
     }
     
     if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
-      this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
-      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
-      // ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      if ( (this.image.src).match(gifPattern) ) {
+        this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
+        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      }
+      else {
+        ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      }
     }
 
     if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
-      this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
-      this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
-      // ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      if ( (this.image.src).match(gifPattern) ) {
+        this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
+        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+      }
+      else {
+        ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+      }
     }
     else if ((this.click) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");

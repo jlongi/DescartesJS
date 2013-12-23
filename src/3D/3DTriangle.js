@@ -58,8 +58,8 @@ var descartesJS = (function(descartesJS) {
                                                                      this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
                                                                    ],
                                                          type: "face",
-                                                         frontColor: this.color,
-                                                         backColor: this.backcolor, 
+                                                         frontColor: this.color.getColor(),
+                                                         backColor: this.backcolor.getColor(), 
                                                          edges: this.edges, 
                                                          model: this.model
                                                        },

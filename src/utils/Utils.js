@@ -413,6 +413,11 @@ var descartesJS = (function(descartesJS) {
       result.baseline = result.ascent;
     }
 
+    result.ascent   = parseInt(result.ascent);
+    result.descent  = parseInt(result.descent);
+    result.h        = parseInt(result.h);
+    result.baseline = parseInt(result.baseline);
+
     document.body.removeChild(div);
 
     metricCache[font] = result;
@@ -611,6 +616,15 @@ var descartesJS = (function(descartesJS) {
     }
     else {
       content += encodeURI(htmlAbout + htmlFinal);
+    }
+
+    if (navigator.userAgent.match(/trident/gi)) {
+      if (descartesJS.creativeCommonsLicense) {
+        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html";
+      }
+      else {
+        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/sinCCL.html";
+      }
     }
 
     window.open(content, "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");

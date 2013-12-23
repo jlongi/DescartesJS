@@ -41,7 +41,7 @@ var descartesJS = (function(descartesJS) {
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
                                                          type:"text",
-                                                         frontColor: this.color,
+                                                         frontColor: this.color.getColor(),
                                                          font: this.font,
                                                          decimals: evaluator.evalExpression(this.decimals),
                                                          fixed: this.fixed,

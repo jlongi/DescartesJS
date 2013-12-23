@@ -56,8 +56,8 @@ var descartesJS = (function(descartesJS) {
                                                                        vertices[i+1]
                                                                      ],
                                                            type: "face",
-                                                           frontColor: this.color, 
-                                                           backColor: this.backcolor, 
+                                                           frontColor: this.color.getColor(), 
+                                                           backColor: this.backcolor.getColor(), 
                                                            edges: this.edges, 
                                                            model: this.model
                                                          },
