@@ -151,7 +151,7 @@ var descartesJS = (function(descartesJS) {
         else if (this.bg_display == "patch") {
           styleString += "background-image: url(" + this.imageSrc + ");";
         }
-        else if (this.bg_display == "center") {
+        else if (this.bg_display == "imgcenter") {
           styleString += "background-image: url(" + this.imageSrc + "); background-repeat:no-repeat; background-position: center center;";
         }
       }

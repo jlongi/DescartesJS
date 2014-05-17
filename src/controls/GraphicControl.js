@@ -89,7 +89,7 @@ var descartesJS = (function(descartesJS) {
     // build the contraint
     if (this.constraintExpr) {
       this.constraint = parser.parse(this.constraintExpr);
-      
+
       if (this.constraint.type == "(expr)") {
         this.constraint = parser.parse(this.constraintExpr.substring(1, this.constraintExpr.length-1));
       }
@@ -97,7 +97,19 @@ var descartesJS = (function(descartesJS) {
       if (this.constraint.type == "compOperator") {
         var left = this.constraint.childs[0];
         var right = this.constraint.childs[1];
-        this.newt = new descartesJS.R2Newton(this.evaluator, this.constraint);
+
+        if ( (left.type == "identifier") && (left.value == "y") && (!right.contains("y")) ) {
+          this.evalConstraint = this.evalConstraintX;
+          this.constraint = right;
+        }
+        else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
+          this.evalConstraint = this.evalConstraintY;
+          this.constraint = right;
+        }
+        else {
+          this.newt = new descartesJS.R2Newton(this.evaluator, this.constraint);
+        }
+
       } else {
         this.constraint = null;
       }
@@ -207,6 +219,7 @@ var descartesJS = (function(descartesJS) {
     // update the position
     this.x = evaluator.getVariable(this.xString);
     this.y = evaluator.getVariable(this.yString);
+
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
@@ -242,7 +255,7 @@ var descartesJS = (function(descartesJS) {
       if (!this.image.ready) {
         ctx.beginPath();
         ctx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
-    
+
         ctx.fillStyle = this.colorInt.getColor();
         ctx.fill();
       
@@ -296,7 +309,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Eval the constraint and change the position
    */
-  descartesJS.GraphicControl.prototype.evalConstraint = function(x, y) {
+  descartesJS.GraphicControl.prototype.evalConstraint = function() {
     constraintPosition.set(this.x, this.y);
 
     cpos = this.newt.findZero(constraintPosition);
@@ -304,6 +317,36 @@ var descartesJS = (function(descartesJS) {
     this.y = cpos.y;
     this.evaluator.setVariable(this.xString, this.x);
     this.evaluator.setVariable(this.yString, this.y);
+  }
+
+  /**
+   * Eval the constraint and change the position
+   */
+  descartesJS.GraphicControl.prototype.evalConstraintX = function() {
+    var tmpX = this.evaluator.getVariable("x");
+
+    this.evaluator.setVariable("x", this.x);
+    this.y = this.evaluator.evalExpression( this.constraint );
+
+    this.evaluator.setVariable(this.xString, this.x);
+    this.evaluator.setVariable(this.yString, this.y);
+
+    this.evaluator.setVariable("x", tmpX);
+  }
+
+  /**
+   * Eval the constraint and change the position
+   */
+  descartesJS.GraphicControl.prototype.evalConstraintY = function() {
+    var tmpY = this.evaluator.getVariable("y");
+
+    this.evaluator.setVariable("y", this.y);
+    this.x = this.evaluator.evalExpression( this.constraint );
+
+    this.evaluator.setVariable(this.xString, this.x);
+    this.evaluator.setVariable(this.yString, this.y);
+
+    this.evaluator.setVariable("y", tmpY);
   }
 
   /**
@@ -525,14 +568,14 @@ var descartesJS = (function(descartesJS) {
       
       ////////////////////////////////////////////////////////////////////////////
       // if (self.constraint) {
-        // tmpX = self.space.getRelativeX(self.posX);
-        // tmpY = self.space.getRelativeY(self.posY);
+      //   tmpX = self.space.getRelativeX(self.posX);
+      //   tmpY = self.space.getRelativeY(self.posY);
         
-        // cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
-        // self.x = cpos.x;
-        // self.y = cpos.y;
-        // self.evaluator.setVariable(self.xString, self.x);
-        // self.evaluator.setVariable(self.yString, self.y);
+      //   cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
+      //   self.x = cpos.x;
+      //   self.y = cpos.y;
+      //   self.evaluator.setVariable(self.xString, self.x);
+      //   self.evaluator.setVariable(self.yString, self.y);
       // }
       // ////////////////////////////////////////////////////////////////////////////
       // else {
@@ -549,8 +592,7 @@ var descartesJS = (function(descartesJS) {
       if (Date.now() - lastTime > 10) {
         // update the controls
         self.parent.updateControls();
-
-        self.parent.update();      
+        self.parent.update();
 
         lastTime = Date.now();
       }

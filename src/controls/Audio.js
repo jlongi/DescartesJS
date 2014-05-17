@@ -63,13 +63,16 @@ var descartesJS = (function(descartesJS) {
     //
     self.evaluator.setFunction(self.id + ".play", function() {
       self.audio.play();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".pause", function() {
       self.audio.pause();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".stop", function() {
       self.audio.pause();
       self.audio.currentTime = 0.0;
+      return 0;
     });
     self.audio.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);

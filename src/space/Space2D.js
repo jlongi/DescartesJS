@@ -15,6 +15,8 @@ var descartesJS = (function(descartesJS) {
   var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
 
+  var elapsedTime = 10;
+
   var self;
 
   var evaluator;
@@ -286,7 +288,7 @@ var descartesJS = (function(descartesJS) {
         ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "center") {
+      else if (this.bg_display === "imgcenter") {
         ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -401,7 +403,8 @@ var descartesJS = (function(descartesJS) {
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
-      this.graphicsCtr[i].update();
+      // checar si no ocurren problemas
+      // this.graphicsCtr[i].update();
       this.graphicsCtr[i].draw();
     }
 
@@ -516,8 +519,14 @@ var descartesJS = (function(descartesJS) {
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
+    self.clickPosForZoom = null;
+    self.clickPosForZoomNew = null;
+
+    // self.clickPosForContext = null;
+    // self.clickPosForContextNew = null;
+
     // prevent the context menu display
-    self.canvas.oncontextmenu = function () { return false; };
+    self.canvas.oncontextmenu = function (evt) { return false; };
 
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de touch (iOS, android)
@@ -543,6 +552,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
       self.evaluator.setVariable(self.mclicizquierdoString, 0);
+
+//
+      // self.clickPosForContext = (self.getCursorPosition(evt)).y;
+      // self.clickPosForContextNew = self.clickPosForContext;
+//
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
@@ -573,8 +587,14 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
-      window.removeEventListener("touchmove", onMouseMove, false);
-      window.removeEventListener("touchend", onTouchEnd, false);
+        // self.clickPosForContext = (self.getCursorPosition(evt)).y;
+        // // show the external space
+        // if (self.clickPosForContext == self.clickPosForContextNew) {
+        //   self.parent.externalSpace.show();
+        // }
+
+      window.removeEventListener("touchmove", onMouseMove);
+      window.removeEventListener("touchend", onTouchEnd);
 
       evt.preventDefault();
 
@@ -621,11 +641,11 @@ var descartesJS = (function(descartesJS) {
         // if not fixed add a zoom manager
         if (!self.fixed) {
           self.tempScale = self.scale;
+
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
-      
-      if (self.whichButton === "L") {
+      else if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);
@@ -636,7 +656,7 @@ var descartesJS = (function(descartesJS) {
         window.addEventListener("mouseup", onMouseUp);
       }
     }
-    
+
     /**
      * 
      * @param {Event} evt 
@@ -655,7 +675,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
       if (self.whichButton === "R") {
-        window.removeEventListener("mousemove", onMouseMoveZoom, false);
+        window.removeEventListener("mousemove", onMouseMoveZoom);
 
         // show the external space
         if (self.clickPosForZoom == self.clickPosForZoomNew) {
@@ -663,8 +683,8 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      window.removeEventListener("mousemove", onMouseMove, false);
-      window.removeEventListener("mouseup", onMouseUp, false);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
       
       self.parent.update();
     }
@@ -675,17 +695,17 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onSensitiveToMouseMovements(evt) {
-      self.posAnte = self.getCursorPosition(evt);
-      self.mouse_x = self.getRelativeX(self.posAnte.x);
-      self.mouse_y = self.getRelativeY(self.posAnte.y);
-      self.evaluator.setVariable(self.mxString, self.mouse_x);
-      self.evaluator.setVariable(self.myString, self.mouse_y);
-
-      self.evaluator.setVariable(self.mclickedString, 0);
-      self.evaluator.setVariable(self.mclicizquierdoString, 0);
-
       // limit the number of updates in the lesson
-      if (Date.now() - lastTime > 10) {
+      if (Date.now() - lastTime > elapsedTime) {
+        self.posAnte = self.getCursorPosition(evt);
+        self.mouse_x = self.getRelativeX(self.posAnte.x);
+        self.mouse_y = self.getRelativeY(self.posAnte.y);
+        self.evaluator.setVariable(self.mxString, self.mouse_x);
+        self.evaluator.setVariable(self.myString, self.mouse_y);
+
+        self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+
         self.parent.update();
         lastTime = Date.now();
       }
@@ -715,7 +735,7 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
 
       // if the space is not fixed, then change the origin coordinates
-      if (!self.fixed) {
+      if ((!self.fixed) && (Date.now() - lastTime > elapsedTime)) {
         self.posNext = self.getCursorPosition(evt);
         disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
                  y: MathFloor(self.posAnte.y-self.posNext.y) };

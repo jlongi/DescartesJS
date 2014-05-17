@@ -92,23 +92,23 @@ var descartesJS = (function(descartesJS) {
     else if (fontTokens[1].toLowerCase() == "bold+italic") {
       fontCanvas += "Italic Bold ";
     }
+
+    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
     
     // the font size
     fontCanvas += fontTokens[2] + "px ";
 
-    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
-
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "'Times New Roman', Times, 'Droid Serif', serif";
+      fontCanvas += "liberation_serifregular, 'Times New Roman', Times, serif";
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "Arial, Helvetica, 'Droid Sans', Sans-serif";
+      fontCanvas += "liberation_sansregular, Arial, Helvetica, Sans-serif";
     }
     // monospace font
     else {
-      fontCanvas += "'Courier New', Courier, 'Droid Sans Mono', Monospace";
+      fontCanvas += "liberation_monoregular, 'Courier New', Courier, Monospace";
     }
 
     return fontCanvas;
@@ -209,7 +209,6 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
-
       decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
 
@@ -367,7 +366,7 @@ var descartesJS = (function(descartesJS) {
   var text = document.createElement("span");
   text.appendChild( document.createTextNode("\u00C1p") );
   var block = document.createElement("div");
-  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
+  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px; margin: 0; padding: 0;");
   var div = document.createElement("div");
   div.setAttribute("style", "margin: 0; padding: 0;");
   div.appendChild(text);
@@ -388,16 +387,12 @@ var descartesJS = (function(descartesJS) {
 
     document.body.appendChild(div);
 
-    var result = { ascent: 0,
-                   descent: 0,
-                   h: 0,
-                   baseline: 0
-                 };
+    var result = { ascent: 0, descent: 0, h: 0, baseline: 0 };
 
     if (div.getBoundingClientRect) {
       block.style.verticalAlign = "baseline";
       result.ascent = block.offsetTop - text.offsetTop;
-      result.h = div.getBoundingClientRect().height || 0;
+      result.h = text.getBoundingClientRect().height || 0;
       result.descent = result.h - result.ascent;
       result.baseline = result.ascent;
     }
@@ -594,7 +589,7 @@ var descartesJS = (function(descartesJS) {
   "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :\n" +
   "<br>\n" +
   "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>\n" +
-  "</p>";
+  "</p>\n";
 
   var htmlCreative = "<p>\n" +
   "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
@@ -610,24 +605,17 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.showAbout = function() {
-    var content = "data:text/html;charset=utf-8,";
+    var content;
     if (descartesJS.creativeCommonsLicense) {
-      content += encodeURI(htmlAbout + htmlCreative + htmlFinal);
+      content = htmlAbout + htmlCreative + htmlFinal;
     }
     else {
-      content += encodeURI(htmlAbout + htmlFinal);
+      content = htmlAbout + htmlFinal;
     }
 
-    if (navigator.userAgent.match(/trident/gi)) {
-      if (descartesJS.creativeCommonsLicense) {
-        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html";
-      }
-      else {
-        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/sinCCL.html";
-      }
-    }
-
-    window.open(content, "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+    var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+    tmpW.document.write(content);
+    tmpW.document.close();
   }
 
   return descartesJS;

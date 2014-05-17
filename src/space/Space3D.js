@@ -328,7 +328,7 @@ var descartesJS = (function(descartesJS) {
         this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "center") {
+      else if (this.bg_display === "imgcenter") {
         this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -371,7 +371,6 @@ var descartesJS = (function(descartesJS) {
 
     // // draw the primitives
     if (this.render === "painter") {
-      // this.drawPainter2(primitives);
       this.drawPainter(primitives);
     }
     else {
@@ -389,12 +388,18 @@ var descartesJS = (function(descartesJS) {
 
   var tmpPrimitive;
 
+  /**
+   *
+   */
   descartesJS.renderNode = function(v) {
     this.value = v;
     this.back = null;
     this.front = null;
   }
 
+  /**
+   *
+   */
   descartesJS.renderNode.prototype.inOrder = function() {
     var list = [];
     if (this.back) {
@@ -408,6 +413,9 @@ var descartesJS = (function(descartesJS) {
     return list;
   }
 
+  /**
+   *
+   */
   descartesJS.Space3D.prototype.buildTree = function(primitives) {
     if (primitives.length === 0) {
       return null;
@@ -416,7 +424,8 @@ var descartesJS = (function(descartesJS) {
     var front_or_back;
     var backList = [];
     var frontList = [];
-    tmpPrimitive = primitives.shift();
+    // tmpPrimitive = primitives.shift();
+    tmpPrimitive = primitives.pop();
 
     for (var i=0, l=primitives.length; i<l; i++) {
       front_or_back = null;
@@ -520,10 +529,14 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.drawPainter = function(primitives) {
-    var renderTree = this.buildTree(primitives).inOrder();
+    var renderTree = this.buildTree(primitives);
 
-    for(var i=0; i<renderTree.length; i++) {
-      renderTree[i].draw(this.ctx, this);
+    if (renderTree) {
+      renderTree = renderTree.inOrder();
+
+      for(var i=0; i<renderTree.length; i++) {
+        renderTree[i].draw(this.ctx, this);
+      }
     }
   }
 
@@ -544,7 +557,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(2) );
   }
 
 //********************************************************************************************************************
@@ -614,6 +627,13 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.computeColor = function(color, primitive, metal) {
+    if (color.match("rgba")) {
+      color = descartesJS.RGBAToHexColor(color);
+    }
+    else if (color.match("#")) {
+      color = new descartesJS.Color(color.substring(1));
+    }
+
     toEye = descartesJS.subtract3D(this.eye, primitive.average);
     aveDistanceToEye = descartesJS.norm3D(toEye);
     unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);

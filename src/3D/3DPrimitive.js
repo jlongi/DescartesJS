@@ -117,36 +117,41 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Primitive3D.prototype.removeDoubles = function() {
-    tmpVertices = [];
-    for (var i=0, l=this.vertices.length; i<l; i++) {
-      if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
-           (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
-           (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
-           (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
-         ) {
-        tmpVertices.push(this.vertices[i]);
+    if (this.type !== "edge") {
+
+      tmpVertices = [];
+      for (var i=0, l=this.vertices.length; i<l; i++) {
+        if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
+             (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
+             (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
+             (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
+           ) {
+          tmpVertices.push(this.vertices[i]);
+        }
       }
-    }
 
-    if (tmpVertices.length === 0) {
-      tmpVertices.push(this.vertices[0]);
-    }
+      if (tmpVertices.length === 0) {
+        tmpVertices.push(this.vertices[0]);
+      }
 
-    this.vertices = tmpVertices;
+      this.vertices = tmpVertices;
+    }
   }
 
   /**
    *
    */
   function drawVertex(ctx) {
-    ctx.lineWidth = 1;
-    ctx.fillStyle = this.backColor;
-    ctx.strokeStyle = this.frontColor;
+    if (parseInt(this.size) !== 0) {
+      ctx.lineWidth = 1;
+      ctx.fillStyle = this.backColor;
+      ctx.strokeStyle = this.frontColor;
 
-    ctx.beginPath();
-    ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
-    ctx.fill();
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
+      ctx.fill();
+      ctx.stroke();
+    }
   }
 
   /**
@@ -176,7 +181,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fill();
     }
     // light and metal render
-    else if ( (this.model === "light") || (this.model === "metal") ){
+    else if ( (this.model === "light") || (this.model === "metal") ) {
       if (this.direction >= 0) {
         ctx.fillStyle = space.computeColor(this.backColor, this, (this.model === "metal"));
       }

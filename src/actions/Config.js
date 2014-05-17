@@ -22,12 +22,21 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Config, descartesJS.Action);
 
+  var jsScript = "<script type='text/javascript' src='http://arquimedes.matem.unam.mx/Descartes5/lib/descartes-min.js'></script>\n";
+
+
   /**
    * Execute the action
    */
   descartesJS.Config.prototype.execute = function() {
-    var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
-    codeWindow.document.write("<xmp style='width:100%; height:100%;'>" + this.parent.applet.outerHTML + "</xmp>");
+    if (this.parent.editor) {
+      this.parent.editor.show();
+    }
+    else {
+      var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
+      codeWindow.document.write("<xmp style='width:100%; height:100%;'>" + jsScript + (this.parent.applet.outerHTML.replace(/<applet/g, "<ajs").replace(/<\/applet/g, "</ajs")) + "</xmp>");
+    }
+    
   }
 
   return descartesJS;

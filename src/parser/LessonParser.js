@@ -174,7 +174,12 @@ var descartesJS = (function(descartesJS, babel) {
         case("axes"):
         // color of the coordinate text of the mouse
         case("text"):
-          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
+          if (values_i_1 != "") {
+            spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
+          }
+          else {
+            spaceObj[babelValue] = "";
+          }
           break;
 
         // text of the X axis
@@ -277,7 +282,9 @@ var descartesJS = (function(descartesJS, babel) {
           
         // drawif condition
         case("drawif"):
-          spaceObj["drawif"] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            spaceObj["drawif"] = this.parser.parse(values_i_1);
+          }
           break;
           
         // scale
@@ -434,7 +441,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("max"):
         // control graphic size
         case("size"):
-          controlObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            controlObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;
           
         // control graphic constraint
@@ -621,183 +630,198 @@ var descartesJS = (function(descartesJS, babel) {
 
       babelValue = babel[values_i_0];
 
-      switch(babelValue) {        
+      if (values_i_1 != "") {
+        switch(babelValue) {        
 
-        // type
-        case("type"):
-        // text alignment
-        case("align"):
-          graphicObj[babelValue] = babel[values_i_1];
-          break;
+          // type
+          case("type"):
+          // text alignment
+          case("align"):
+            graphicObj[babelValue] = babel[values_i_1];
+            break;
 
-        // condition to draw the graphic in the background
-        case("background"):
-        // type of coordinates
-        case("abs_coord"):
-        // visible condition
-        case("visible"):
-        // editable condition
-        case("editable"):
-        // condition to use fixed notation in the text
-        case("fixed"):
-        // arc condition to use vectors
-        case("vectors"):
-          graphicObj[babelValue] = (babel[values_i_1] === "true");
-          break;
+          // condition to draw the graphic in the background
+          case("background"):
+          // type of coordinates
+          case("abs_coord"):
+          // visible condition
+          case("visible"):
+          // editable condition
+          case("editable"):
+          // condition to use fixed notation in the text
+          case("fixed"):
+          // arc condition to use vectors
+          case("vectors"):
+            graphicObj[babelValue] = (babel[values_i_1] === "true");
+            break;
 
-        // color
-        case("color"):
-        // fill color
-        case("fill"):
-        // equation fill+ color
-        case("fillP"):
-        // equation fill- color
-        case("fillM"):
-        // arrow color
-        case("arrow"):
-        // trace
-        case("trace"):
-          // patch for catala
-          if (babel[values_i_1] === "false") {
-            graphicObj[babelValue] = "";
-          }
-          else {
-            graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-          }
-          break;
+          // color
+          case("color"):
+          // fill color
+          case("fill"):
+          // equation fill+ color
+          case("fillP"):
+          // equation fill- color
+          case("fillM"):
+          // arrow color
+          case("arrow"):
+          // trace
+          case("trace"):
+            // patch for catala
+            if (babel[values_i_1] === "false") {
+              graphicObj[babelValue] = "";
+            }
+            else {
+              graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+            }
+            break;
 
-        // family parameter
-        case("family"):
-        // parameter of a curve
-        case("parameter"):
-        // information
-        case("info"):
-        // text font
-        case("font"):
-        // macro name
-        case("name"):
-          graphicObj[babelValue] = values_i_1;
-          break;
+          // family parameter
+          case("family"):
+          // parameter of a curve
+          case("parameter"):
+          // information
+          case("info"):
+          // text font
+          case("font"):
+          // macro name
+          case("name"):
+          // arc init angle
+          case("init"):
+          // arc end angle
+          case("end"):
+            graphicObj[babelValue] = values_i_1;
+            break;
 
-        // drawif condition
-        case("drawif"):
-        // width
-        case("width"):
-        // number of decimals of the text in the graphic
-        case("decimals"):
-        // size
-        case("size"):
-        // arrow spear size
-        case("spear"):
-        // arc center
-        case("center"):
-        // arc radius
-        case("radius"):
-        // arc init angle
-        case("init"):
-        // arc end angle
-        case("end"):
-        // image opacity
-        case("opacity"):
-        // image and macro rotation
-        case("inirot"):
-        // macro initial position
-        case("inipos"):
-        // range
-        case("range"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
-          break;
+          // drawif condition
+          case("drawif"):
+          // width
+          case("width"):
+          // number of decimals of the text in the graphic
+          case("decimals"):
+          // size
+          case("size"):
+          // arrow spear size
+          case("spear"):
+          // arc center
+          case("center"):
+          // arc radius
+          case("radius"):
+          // image opacity
+          case("opacity"):
+          // image and macro rotation
+          case("inirot"):
+          // macro initial position
+          case("inipos"):
+          // range
+          case("range"):
+            if (values_i_1 != "") {
+              graphicObj[babelValue] = this.parser.parse(values_i_1);
+            }
+            break;
 
-        // space identifier
-        case("space"):
-          graphicObj["spaceID"] = values_i_1;
-          break;
+          // space identifier
+          case("space"):
+            graphicObj["spaceID"] = values_i_1;
+            break;
 
-        // expression
-        case("expresion"):
-          if (graphicObj.type != "macro") {
-            graphicObj["expresion"] = this.parser.parse(values_i_1);
-            graphicObj["expresionString"] = values_i_1;
-          } else {
-            graphicObj["expresion"] = values_i_1;
-          }
-          break;
+          // expression
+          case("expresion"):
+            if (values_i_1 != "") {
+              if (graphicObj.type != "macro") {
+                graphicObj["expresion"] = this.parser.parse(values_i_1);
+                graphicObj["expresionString"] = values_i_1;
+              } else {
+                graphicObj["expresion"] = values_i_1;
+              }
+            }
+            break;
+                      
+          // text
+          case("text"):
+            graphicObj["text"] = this.parseText(values_i_1);
+            break;
+            
+          // file name
+          case("file"):
+            var fileTmp = values_i_1.replace(/&squot;/g, "'");
+            if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
+              fileTmp = fileTmp.substring(1, fileTmp.length-1);
+            }
+            // explicit image file name
+            if (fileTmp.match(regExpImage)) {
+              fileTmp = "'" + fileTmp + "'";
+            }
+            graphicObj["file"] = this.parser.parse(fileTmp);
+            break;
+            
+          // color border
+          case("border"):
+            if ( (values_i_1 != "") && (babel[values_i_1] != "false") ) {
+              graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+            }
+            break;
+            
+          // any variable missing
+          default:
+            if (graphicObj["family"] != undefined) {
+              if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
+
+                switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
+                  
+                  // find the interval variable of a family
+                  case("interval"):
+                    if (values_i_1 != "") {
+                      graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                    }
+                    break;
                     
-        // text
-        case("text"):
-          graphicObj["text"] = this.parseText(values_i_1);
-          break;
-          
-        // file name
-        case("file"):
-          var fileTmp = values_i_1.replace(/&squot;/g, "'");
-          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
-            fileTmp = fileTmp.substring(1, fileTmp.length-1);
-          }
-          // explicit image file name
-          if (fileTmp.match(regExpImage)) {
-            fileTmp = "'" + fileTmp + "'";
-          }
-          graphicObj["file"] = this.parser.parse(fileTmp);
-          break;
-          
-        // color border
-        case("border"):
-          if (babel[values_i_1] != "false") {
-            graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-          }
-          break;
-          
-        // any variable missing
-        default:
-          if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
-              
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
-                
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
-                  break;
+                  // find the number of steps in the family
+                  case("steps"):
+                    if (values_i_1 != "") {
+                      graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                }
+                break;
               }
-              break;
             }
-          }
 
-          if (graphicObj["parameter"] != undefined) {
+            if (graphicObj["parameter"] != undefined) {
 
-            if (values_i_0.match(graphicObj["parameter"] + ".")) {
+              if (values_i_0.match(graphicObj["parameter"] + ".")) {
 
-              // default parameter in a macro
-              if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
-                graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+                // default parameter in a macro
+                if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
+                  graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+                }
+
+                switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
+
+                  // find the interval variable of a parameter
+                  case("interval"):
+                    if (values_i_1 != "") {
+                      graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                    
+                  // find the number of steps in the parameter
+                  case("steps"):
+                    if (values_i_1 != "") {
+                      graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                }
+                break;
               }
-
-              switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
-
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break;
             }
-          }
 
-          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
-          break;
-      }
-    }
+            console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+            break;
+        }
+      } // end switch
+
+    } // end if
 
     // MACRO //
     // when absolute coordinates are used
@@ -857,6 +881,10 @@ var descartesJS = (function(descartesJS, babel) {
 
       case("fill"):
         return new descartesJS.Fill(this.parent, graphicObj);
+        break;
+
+      case("generic"):
+        return new descartesJS.Generic(this.parent, graphicObj);
         break;
 
       default:
@@ -955,7 +983,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("inipos"):
         // end position
         case("endpos"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            graphicObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;          
 
         // family parameter
@@ -1035,7 +1065,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("inipos"):
         // end position
         case("endpos"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            graphicObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;          
 
         // family parameter
@@ -1096,12 +1128,16 @@ var descartesJS = (function(descartesJS, babel) {
 
               // family interval
               if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "interval") {
-                graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                if (values_i_1 != "") {
+                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                }
                 break;
               }
               // family steps
               else {
-                graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                if (values_i_1 != "") {
+                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                }
                 break;
               }
             }
@@ -1223,7 +1259,7 @@ var descartesJS = (function(descartesJS, babel) {
           break;
 
         // editable condition
-      	case("editable"):
+        case("editable"):
         // constant condition
         case("constant"):
         // vector condition
@@ -1261,6 +1297,25 @@ var descartesJS = (function(descartesJS, babel) {
           auxiliarObj[babelValue] = babel[values_i_1];
           break;
 
+        //////////////////////////////
+        // new objects definitions //
+        // type
+        case("type"):
+          auxiliarObj[babelValue] = babel[values_i_1];
+          break;
+
+        // x
+        case("x"):
+        // y
+        case("y"):
+        // width
+        case("width"):
+        // height
+        case("height"):
+          auxiliarObj[babelValue] = this.parser.parse(values_i_1);
+          break;
+        //////////////////////////////
+
         // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");
@@ -1275,6 +1330,13 @@ var descartesJS = (function(descartesJS, babel) {
           
           console.log("----- attributo de auxiliar no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
           break;
+      }
+    }
+
+    if (auxiliarObj.type) {
+      if (auxiliarObj.type == "rectangle") {
+        this.parent.auxiliaries.push(new descartesJS.Rectangle(this.parent, auxiliarObj));
+        return;
       }
     }
 
@@ -1346,12 +1408,10 @@ var descartesJS = (function(descartesJS, babel) {
     else {
       // function
       if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
-        // var auxF = new descartesJS.Function(this.parent, auxiliarObj);
         new descartesJS.Function(this.parent, auxiliarObj);
       } 
       // variable
       else {
-      	// var auxV = new descartesJS.Variable(this.parent, auxiliarObj);
         new descartesJS.Variable(this.parent, auxiliarObj);
       }
       return;
@@ -1666,7 +1726,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Removes single quotes in the value and divided into an array of parameters name and value pairs
    * @param {String} values the string to divided
-   * @return {Array<Array<Strin>>} return the array of name and value pairs
+   * @return {Array<Array<String>>} return the array of name and value pairs
    */
   descartesJS.LessonParser.prototype.split = function(values) {
     if (typeof(values) != "string") {
@@ -1765,6 +1825,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Object} return a rtf text or a simple text
    */
   descartesJS.LessonParser.prototype.parseText = function(text) {
+    text = text || "";
     // is a RTF text
     if (text.match(/^\{\\rtf1/)) {
       return this.RTFparser.parse(text.substring(10));

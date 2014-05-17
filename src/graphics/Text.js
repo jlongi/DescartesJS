@@ -49,8 +49,7 @@ var descartesJS = (function(descartesJS) {
       this.align = "start";
     }
     
-    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);;
-    
+    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);
     this.abs_coord = true;
   }
   
@@ -112,7 +111,7 @@ var descartesJS = (function(descartesJS) {
       this.ascent = 0;
     }
     else {
-      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"))
+      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"));
     }
 
     // draw the text

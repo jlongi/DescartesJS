@@ -22,7 +22,7 @@ var descartesJS = (function(descartesJS, babel) {
      * type {Node}
      * @private
      */
-    this.expresion = undefined;
+    this.hasExpresion = false;
 
     /**
      * the macro rotation
@@ -43,33 +43,25 @@ var descartesJS = (function(descartesJS, babel) {
 
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
+      if (propName == "expresion") {
+        this.hasExpresion = true;
+      }
+
       // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
     }
 
-    // if (reservedIdentifiers == null) {
-    //   reservedIdentifiers = "-rnd-pi-e-";
-
-    //   for (var funName in this.evaluator.functions) {
-    //     // verify the own properties of the object
-    //     if (this.evaluator.functions.hasOwnProperty(funName)) {
-    //       reservedIdentifiers += funName + "-";
-    //     }
-    //   }
-    // }
-
     this.graphics = [];
     
     var lessonParser = parent.lessonParser;
     var tokenizer = new descartesJS.Tokenizer();
-    
+
     // if the expression is empty
-    if (this.expresion == undefined) {
+    if (!this.hasExpresion) {
       return;
     }
-
     
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.charAt(0) === "'")) {

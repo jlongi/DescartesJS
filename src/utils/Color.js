@@ -172,10 +172,29 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Color.prototype.borderColor = function() {
     if (this.r + this.g + this.b < 380) {
-      return "white";
+      return "#ffffff";
     }
-    return "black";
+    return "#000000";
   }
+
+  /**
+   *
+   */
+  descartesJS.RGBAToHexColor = function(color) {
+    color = color.substring(5, color.length-1).split(",");
+    
+    r = parseInt(color[0]).toString(16);
+    g = parseInt(color[1]).toString(16);
+    b = parseInt(color[2]).toString(16);
+    a = (255- parseInt(parseFloat(color[3])*255)).toString(16);
+    
+    r = (r.length == 1) ? "0"+r : r;
+    g = (g.length == 1) ? "0"+g : g;
+    b = (b.length == 1) ? "0"+b : b;
+    a = (a.length == 1) ? "0"+a : a;
+    
+    return new descartesJS.Color(a+r+g+b);
+  }  
 
   return descartesJS;
 })(descartesJS || {});

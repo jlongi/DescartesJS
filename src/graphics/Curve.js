@@ -58,6 +58,7 @@ var descartesJS = (function(descartesJS) {
     if (this.visible) {
       this.registerTextField();
     }
+
   }
   
   ////////////////////////////////////////////////////////////////////////////////////

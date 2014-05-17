@@ -97,10 +97,10 @@ var descartesJS = (function(descartesJS) {
     for (var ui=0; ui<Nu; ui++) {
       for (var vi=0; vi<Nv; vi++) {
         v = [];
-        v.push(vertices[vi + ui*Nv + ui]);
-        v.push(vertices[vi+1 + ui*Nv + ui]);
-        v.push(vertices[vi+2 + (ui+1)*Nv  + ui]);
-        v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
+        v.push(vertices[vi + ui*Nv + ui]);        // 0
+        v.push(vertices[vi+1 + ui*Nv + ui]);      // 1
+        v.push(vertices[vi+2 + (ui+1)*Nv  + ui]); // 2
+        v.push(vertices[vi+1 + (ui+1)*Nv  + ui]); // 3
 
         this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                              type: "face",

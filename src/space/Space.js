@@ -467,7 +467,12 @@ var descartesJS = (function(descartesJS) {
    * Add a graphic to the list of graphics of the space
    * @param {Graphic} gra is the graphic to add
    */
-  descartesJS.Space.prototype.addGraph = function(gra) {
+  descartesJS.Space.prototype.addGraph = function(gra, is3D) {
+    // add only graphs with the type of the space
+    if ( ((this.type == "R2") && is3D) || (this.type == "R3" && !is3D) ) {
+      return;
+    }
+
     if ((gra.background) && (this.type !== "R3")) {
       this.backgroundGraphics.push(gra);
     }
@@ -570,8 +575,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space.prototype.getCursorPosition = function(evt) {
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: pos.x - this.offsetLeft, 
-             y: pos.y - this.offsetTop 
+    return { x: (pos.x) - this.offsetLeft, 
+             y: (pos.y) - this.offsetTop 
            };
   }
   

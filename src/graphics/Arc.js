@@ -75,17 +75,31 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.init = parent.evaluator.parser.parse("0");
+    this.init = "0";
+
 
     /**
      * final angle or vector of an arc
      * type {Node}
      * @private
      */
-    this.end = parent.evaluator.parser.parse("90");
+    this.end = "90";
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
+
+    if (this.init.match(/^_\(/)) {
+      this.initFlag = true;
+      this.init = this.init.substring(1);
+    }
+    if (this.end.match(/^_\(/)) {
+      this.endFlag = true;
+      this.end = this.end.substring(1);
+    }
+
+
+    this.initExpr = parent.evaluator.parser.parse(this.init);
+    this.endExpr = parent.evaluator.parser.parse(this.end);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +117,8 @@ var descartesJS = (function(descartesJS) {
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
     
+    radianAngle = 0;
+
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
@@ -115,14 +131,14 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
 
-    var initVal = evaluator.evalExpression(this.init);
-    var endVal  = evaluator.evalExpression(this.end);
+    var initVal = evaluator.evalExpression(this.initExpr);
+    var endVal  = evaluator.evalExpression(this.endExpr);
 
     // if the expression of the initial and final angle are parenthesized expressions
-    if ( ((this.init.type == "(expr)") && (this.end.type == "(expr)")) || 
-         ((this.init.type == "[expr]") && (this.end.type == "[expr]")) || 
-         ((this.init.type == "(expr)") && (this.end.type == "[expr]")) || 
-         ((this.init.type == "[expr]") && (this.end.type == "(expr)")) 
+    if ( ((this.initExpr.type == "(expr)") && (this.endExpr.type == "(expr)")) || 
+         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "[expr]")) || 
+         ((this.initExpr.type == "(expr)") && (this.endExpr.type == "[expr]")) || 
+         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "(expr)")) 
        ) {
 
       u1 = initVal[0][0];
@@ -160,6 +176,9 @@ var descartesJS = (function(descartesJS) {
       // find the angles
       angulo1 = (u1 == 0) ? ((u2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (u1*w1)/Math.sqrt(u1*u1+u2*u2) );
       angulo2 = (v1 == 0) ? ((v2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (v1*w1)/Math.sqrt(v1*v1+v2*v2) );
+
+      angulo1 += radianAngle;
+      angulo2 += radianAngle;
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
@@ -213,8 +232,8 @@ var descartesJS = (function(descartesJS) {
     }
     // arc expressed with angles
     else {
-      this.iniAng = descartesJS.degToRad(initVal);
-      this.endAng = descartesJS.degToRad(endVal);
+      this.iniAng = descartesJS.degToRad(initVal) +radianAngle;
+      this.endAng = descartesJS.degToRad(endVal)  +radianAngle;
       this.drawAngle = true;
     }
 

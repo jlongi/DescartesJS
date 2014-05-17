@@ -20,7 +20,20 @@ var descartesJS = (function(descartesJS) {
     this.functions = this.parser.functions;
     this.vectors   = this.parser.vectors;
     this.matrices  = this.parser.matrices;
+
+    this.definitions = this.parser.definitions;
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   */
+  descartesJS.Evaluator.prototype.setDefinition = function(name, value) {
+    this.definitions[name] = value;
+  }
+  descartesJS.Evaluator.prototype.getDefinition = function(name) {
+    return this.definitions[name];
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Set the value to a variable

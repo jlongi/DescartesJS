@@ -21,9 +21,9 @@ var descartesJS = (function(descartesJS) {
 
     var parPos = this.id.indexOf("(");
     this.name = this.id.substring(0, parPos);
-    this.params = this.id.substring(parPos+1, this.id.length-1);
+    this.params = this.id.substring(parPos+1, this.id.indexOf(")"));
     this.domain = (this.range) ? parser.parse(this.range) : parser.parse("1");
-    
+
     if (this.params == "") {
       this.params = [];
     } else {
@@ -54,7 +54,6 @@ var descartesJS = (function(descartesJS) {
         var localVars = [];
         for (var i=0, l=self.privateVars.length; i<l; i++) {
           localVars.push( evaluator.getVariable(self.privateVars[i]) );
-
           // set the local variables to 0
           evaluator.setVariable(self.privateVars[i], 0);
         }
@@ -62,9 +61,8 @@ var descartesJS = (function(descartesJS) {
         // saves the variable values ​​that have the same names as function parameters
         var paramsTemp = [];
         for (var i=0, l=self.params.length; i<l; i++) {
-          paramsTemp[i] = evaluator.getVariable(self.params[i]);
-          
-        // associated input parameters of the function with parameter names
+          paramsTemp[i] = evaluator.getVariable(self.params[i]) || 0;
+          // associated input parameters of the function with parameter names
           evaluator.setVariable(self.params[i], arguments[i]);
         }
         
@@ -83,7 +81,7 @@ var descartesJS = (function(descartesJS) {
           }
         }
         while (evaluator.evalExpression(self.whileExpr) > 0);
-                 
+
         // evaluates to the return value
         var result = evaluator.evalExpression(self.expresion);
         descartesJS.rangeOK = evaluator.evalExpression(self.domain);

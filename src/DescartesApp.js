@@ -26,7 +26,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.applet = applet;
-    
     // this.externalVariables = {};
 
     /**
@@ -57,6 +56,13 @@ var descartesJS = (function(descartesJS) {
      */
     this.decimal_symbol = ".";
     this.decimal_symbol_regexp = new RegExp("\\" + this.decimal_symbol, "g");
+
+    /**
+     * language of the lesson
+     * type {String}
+     * @private
+     */
+    this.language = "espa\u00F1ol";
 
     /**
      * parameters of the applet
@@ -177,6 +183,16 @@ var descartesJS = (function(descartesJS) {
       if (children_i.name == "image_loader") {
         this.image_loader = children_i.value;
       }
+
+      // // set the docBase for the elements in the resources
+      if (children_i.name == "docBase") {
+        this.docBase = children_i.value;
+        var base = document.createElement("base");
+        base.setAttribute("id", "descartesJS_base");
+        base.setAttribute("href", this.docBase);
+        document.head.appendChild(base);
+      }
+
     }
 
     // configure an arquimedes lesson
@@ -237,7 +253,7 @@ var descartesJS = (function(descartesJS) {
      * type {Space}
      * @private
      */
-    this.specialSpace = {container: document.createElement("div"), controls: []};
+    // this.specialSpace = {container: document.createElement("div"), controls: []};
     
     /**
      * region to show text fields for editable content
@@ -245,6 +261,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.editableRegion = {container: document.createElement("div"), textFields: []};
+
+    /**
+     *
+     */
+    if (descartesJS.Editor) {
+      this.editor = new descartesJS.Editor(this);
+    }
         
     /**
      * array to store the lesson controls 
@@ -321,6 +344,8 @@ var descartesJS = (function(descartesJS) {
     this.loader.setAttribute("class", "DescartesLoader");
     this.loader.setAttribute("style", "width:" + this.width + "px; height:" + this.height + "px; z-index:1000;");
 
+    // this.adjustDimensions();
+
     // if is the first time in execute the interpretation
     if (this.firstRun) {
       this.descartesLoader = new descartesJS.DescartesLoader(this);
@@ -349,6 +374,11 @@ var descartesJS = (function(descartesJS) {
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
       
+      // find the language of the lesson
+      if (babel[children_i.name] == "language") {
+        this.language = children_i.value;
+      }
+
       // find the parameters for the pleca
       if (children_i.name == "pleca") {
         var divPleca = lessonParser.parsePleca(children_i.value, this.width);
@@ -495,7 +525,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmp3DGraphics.length; i<l; i++) {
       tmpGraph = lessonParser.parse3DGraphic(tmp3DGraphics[i]);
       if (tmpGraph) {
-        tmpGraph.space.addGraph(tmpGraph);
+        tmpGraph.space.addGraph(tmpGraph, true);
       }
     }
 
@@ -595,6 +625,44 @@ var descartesJS = (function(descartesJS) {
 
     descartesJS.onResize();      
   }
+
+  /**
+   *
+   */
+  descartesJS.DescartesApp.prototype.adjustDimensions = function() {
+    console.log("jiodjsaoidjaosi")
+    var appletsAJS_i = this;
+    var init_w;
+    var w;
+    var percent;
+
+    if ((appletsAJS_i.init_w == undefined) || (appletsAJS_i.init_h == undefined)) {
+      appletsAJS_i.init_w = parseInt( appletsAJS_i.container.style.width );
+      appletsAJS_i.init_h = parseInt( appletsAJS_i.container.style.height );
+    }
+
+    w = parseInt(appletsAJS_i.parentContainer.offsetWidth);
+    init_w = appletsAJS_i.init_w;
+    percent = w/init_w;
+
+    if (init_w > w) {
+      if (appletsAJS_i.parentContainer != document.body) {
+        appletsAJS_i.parentContainer.style.height = appletsAJS_i.init_h*percent + "px";
+      }
+      appletsAJS_i.percent = percent;
+      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "scale(" +percent+ ")";
+      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "top left";
+    }
+    else {
+      if (appletsAJS_i.parentContainer != document.body) {
+        appletsAJS_i.parentContainer.style.height = "auto";
+      }
+      appletsAJS_i.percent = 1;
+
+      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "";
+      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "";
+    }
+  }
   
   /**
    * Configure the regions
@@ -661,6 +729,9 @@ var descartesJS = (function(descartesJS) {
       if (buttonsConfig.about) {
         displaceButton = aboutWidth;
         northRegionWidht -= displaceButton;
+      }
+      else {
+        aboutWidth = 0;
       }
       // show the configuration button
       if (buttonsConfig.config) {
@@ -732,6 +803,9 @@ var descartesJS = (function(descartesJS) {
       if (buttonsConfig.init) {
         displaceButton = initWidth;
         southRegionWidht -= displaceButton;
+      }
+      else {
+        initWidth = 0;
       }
       // show the clear button
       if (buttonsConfig.clear) {

@@ -180,7 +180,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
-               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "backcolor") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {

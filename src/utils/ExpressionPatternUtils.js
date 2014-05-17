@@ -90,6 +90,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object representing a simple regular expression pattern
    */
   function buildNumericRegularExpressionPattern(answer, evaluator) {
+    answer = answer || "";
     tmpAnswer = answer.trim();
     answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
 
@@ -146,6 +147,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object representing a regular expression pattern
    */
   descartesJS.buildRegularExpresionsPatterns = function(answer, evaluator) {
+    answer = answer || "";
     // remove parentheses in a text expression
     if ((answer.charAt(0) === "(" ) && (answer.charAt(answer.length-1) === ")") && (answer.indexOf(",") === -1)) {
       answer = answer.substring(1, answer.length-1);

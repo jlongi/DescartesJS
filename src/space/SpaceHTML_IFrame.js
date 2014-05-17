@@ -143,9 +143,10 @@ var descartesJS = (function(descartesJS) {
 
     if (this.drawIfValue) {
       if (firstTime) {
-        this.x = Math.Infinity;
-        this.y = Math.Infinity;
-      }      
+        this.x = Infinity;
+        this.y = Infinity;
+      }
+
       changeX = (this.x !== (evaluator.evalExpression(this.xExpr) + this.displaceRegionWest));
       changeY = (this.y !== (evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
       this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
@@ -153,8 +154,8 @@ var descartesJS = (function(descartesJS) {
 
       // if the position change
       if ((changeX) || (changeY)) {
-        this.MyIFrame.style.left = this.x + "px";
-        this.MyIFrame.style.top = this.y + "px";
+        this.container.style.left = this.x + "px";
+        this.container.style.top = this.y + "px";
       }
 
       file = evaluator.evalExpression(this.file);

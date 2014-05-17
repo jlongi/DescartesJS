@@ -167,8 +167,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Menu, descartesJS.Control);
 
-  var evaluator;
-
   /**
    * Init the menu
    */
@@ -199,7 +197,7 @@ var descartesJS = (function(descartesJS) {
     
     minchw += 25;
     minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.evalExpression(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
-    
+
     var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
     var fieldWidth = minTFw;
 
@@ -235,20 +233,21 @@ var descartesJS = (function(descartesJS) {
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
     this.field.setAttribute("type", "text");
-    this.field.setAttribute("id", this.id+"menu");
+    this.field.setAttribute("id", this.id+"_menuField");
     this.field.value = fieldValue;
+
     this.field.setAttribute("class", "DescartesMenuField");
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
 
-    this.select.setAttribute("id", this.id+"menuSelect");
+    this.select.setAttribute("id", this.id+"_menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
     this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
     this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
-    evaluator.setVariable(this.id, parseFloat(fieldValue));
+    evaluator.setVariable(this.id, parseFloat(fieldValue.replace(this.parent.decimal_symbol, ".")));
 
     this.update();
   }
@@ -256,15 +255,9 @@ var descartesJS = (function(descartesJS) {
   /**
    * Update the menu
    */
-  descartesJS.Menu.prototype.update = function() { 
+  descartesJS.Menu.prototype.update = function() {
     evaluator = this.evaluator;
 
-    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
-
-    // for (var i=0, l=this.menuOptions.length; i<l; i++) {
-    //   this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-    // }
-    
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
     this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
@@ -285,6 +278,8 @@ var descartesJS = (function(descartesJS) {
     this.updatePositionAndSize();
 
     if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
+      this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+
       for (var i=0, l=this.menuOptions.length; i<l; i++) {
         this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
       }
@@ -446,7 +441,7 @@ var descartesJS = (function(descartesJS) {
       this.select();      
       this.focus();
     });
-    self.select.addEventListener("click", function(evt) {
+    self.select.addEventListener("mouse", function(evt) {
       this.focus();
     });
   }

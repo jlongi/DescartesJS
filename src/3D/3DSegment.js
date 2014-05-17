@@ -15,6 +15,8 @@ var descartesJS = (function(descartesJS) {
   var v2_y;
   var v2_z;
 
+  var tempParamU;
+
   /**
    * A Descartes 3D segment
    * @constructor 
@@ -42,6 +44,9 @@ var descartesJS = (function(descartesJS) {
     // do not apply the rotations in the model view matrix transformation
     this.updateMVMatrix();
 
+    tempParamU = evaluator.getVariable("u");
+    evaluator.setVariable("u", this.Nu);
+
     expr = evaluator.evalExpression(this.expresion);
     v1_x = expr[0][0];
     v1_y = expr[0][1];
@@ -52,14 +57,15 @@ var descartesJS = (function(descartesJS) {
     v2_z = expr[1][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                         this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                                     this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
                                                        ],
                                                          type: "edge",
                                                          frontColor: this.color.getColor(), 
                                                          lineWidth: evaluator.evalExpression(this.width)
                                                        },
-                            this.space ));
+                                                       this.space ));
 
+    evaluator.setVariable("u", tempParamU);
   }
   
   return descartesJS;

@@ -18,9 +18,21 @@ var descartesJS = (function(descartesJS) {
     this.matrices = {};
     this.variables = {};
     this.functions = {};
+    this.definitions = {};
     
     this.registerDefaultValues();
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   */
+  descartesJS.Parser.prototype.setDefinition = function(name, value) {
+    this.definitions[name] = value;
+  }
+  descartesJS.Parser.prototype.getDefinition = function(name) {
+    return this.definitions[name];
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Set the value to a variable
@@ -1119,7 +1131,6 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
-
 
   return descartesJS;
 })(descartesJS || {});

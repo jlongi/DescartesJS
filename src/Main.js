@@ -205,14 +205,25 @@ var descartesJS = (function(descartesJS) {
   descartesJS.receiveMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
       var data = evt.data;
-      
+
       if (!data) {
         return;
       }
 
       // set a value to a variable
       if (data.type === "set") {
-        descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
+
+        if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
+          descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
+        }
+        else {
+          if ((data.value) && (data.value.rows != undefined)) {
+            descartesJS.apps[0].evaluator.matrices[data.name] = data.value;
+          }
+          else {
+            descartesJS.apps[0].evaluator.vectors[data.name] = data.value;
+          }
+        }        
       }
 
       // // get the value of a variable

@@ -24,6 +24,7 @@ var descartesJS = (function(descartesJS) {
   var evalMin;
   var evalMax;
   var hasTouchSupport;
+  var parseTrue;
 
   /**
    * Descartes spinner control
@@ -66,9 +67,11 @@ var descartesJS = (function(descartesJS) {
 
     this.addControlContainer(this.containerControl);
 
-    // if the decimals are negavite or zero
+    parseTrue = this.evaluator.parser.parse("1");
+
+    // if the decimals are negative or zero
     this.originalIncr = this.incr;
-    if (this.evaluator.evalExpression(this.decimals) <= 0) {
+    if ( (this.evaluator.evalExpression(this.decimals) <= 0) || (this.evaluator.evalExpression(this.incr) == 0) ) {
       var tmpIncr = this.evaluator.evalExpression(this.incr);
 
       if (tmpIncr > 0) {
@@ -76,7 +79,7 @@ var descartesJS = (function(descartesJS) {
         this.originalIncr = this.incr;
       }
       else {
-        this.incr = this.evaluator.parser.parse("1");
+        this.incr = parseTrue;
       }
     }
 
@@ -191,11 +194,11 @@ var descartesJS = (function(descartesJS) {
         this.originalIncr = this.incr;
       }
       else {
-        this.incr = evaluator.parser.parse("1");
+        this.incr = parseTrue;
       }
-    } 
+    }
     else {
-      this.incr = this.originalIncr;
+      this.incr = (evaluator.evalExpression(this.originalIncr) != 0) ? this.originalIncr : parseTrue;
     }
 
     // check if the control is active and visible
@@ -325,8 +328,14 @@ var descartesJS = (function(descartesJS) {
       }
     } 
     value = value.toString();
-    
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
+
+    var tmp = value.replace(this.parent.decimal_symbol, ".");
+    if (tmp == parseFloat(tmp)) {
+      resultValue = parseFloat(tmp);
+    }
+    else {
+      resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(tmp) ) );
+    }
 
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {

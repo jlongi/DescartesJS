@@ -196,9 +196,9 @@ var descartesJS = (function(descartesJS) {
     this.font = descartesJS.convertFont(this.font);
 
     // get the font size
-    this.fontSize = this.font.match(/(\d+)px/);
+    this.fontSize = this.font.match(/([\d\.]+)px/);
     if (this.fontSize) {
-      this.fontSize = parseInt(this.fontSize[1]);
+      this.fontSize = parseFloat(this.fontSize[1]);
     } else {
       this.fontSize = 10;
     }
@@ -345,6 +345,7 @@ var descartesJS = (function(descartesJS) {
       text = text.toString(decimals, fixed).split("\\n");
     }
 
+    // font = (15) + font.substring( font.indexOf("px") );
     x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
     
     evaluator = this.evaluator;

@@ -37,7 +37,10 @@ files = [ "Babel.js",
           "auxiliaries/Function.js",
           "auxiliaries/Algorithm.js",
           "auxiliaries/Event.js",
-          
+
+            "objectDefinitions/GenericDefinition.js",
+            "objectDefinitions/Rectangle.js",
+
           "graphics/Graphic.js",
           "graphics/SimpleText.js",
           "graphics/Equation.js",
@@ -52,6 +55,7 @@ files = [ "Babel.js",
           "graphics/Image.js",
           "graphics/Fill.js",
           "graphics/Macro.js",
+          "graphics/Generic.js",
 
           "3D/RenderMath.js",
           "3D/3DPrimitive.js",
@@ -99,7 +103,18 @@ files = [ "Babel.js",
           "space/Space3D.js",
           "space/SpaceAP.js",
           "space/SpaceHTML_IFrame.js",
-          
+
+            "editor/EditorGenericPanel.js",
+            "editor/EditorConfigPanel.js",
+            "editor/EditorSpacePanel.js",
+            "editor/EditorControlPanel.js",
+            "editor/EditorDefinitionPanel.js",
+            "editor/EditorProgramPanel.js",
+            "editor/EditorGraphicPanel.js",
+            "editor/EditorGraphic3DPanel.js",
+            "editor/EditorAnimationPanel.js",
+            "editor/Editor.js",
+
           "DescartesLoader.js",          
           "DescartesApp.js",
           "Main.js"]

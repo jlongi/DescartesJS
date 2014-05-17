@@ -190,16 +190,11 @@ var descartesJS = (function(descartesJS) {
       canvas.style.display = "block";
       this.draw();
     } else {
-      this.click = false;
       canvas.style.display = "none";
+      // this.buttonClick = false;
     }
 
-    if (this.activeIfValue) {
-      this.canvas.style.cursor = "pointer";
-    }
-    else {
-      this.canvas.style.cursor = "not-allowed";
-    }
+    canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
 
     // update the position and size
     this.updatePositionAndSize();
@@ -223,7 +218,7 @@ var descartesJS = (function(descartesJS) {
     // text displace when the button is pressed
     despX = 0;
     despY = 0;
-    if (this.click) {
+    if (this.buttonClick) {
       despX = 1;
       despY = 1;
     }
@@ -246,7 +241,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = this.colorInt.getColor();
       ctx.fillRect(0, 0, this.w, this.h);
 
-      if (!this.click) {
+      if (!this.buttonClick) {
         descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
         descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
         descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
@@ -266,7 +261,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
+    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
         this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
@@ -275,7 +270,7 @@ var descartesJS = (function(descartesJS) {
         ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
-    else if ((this.click) && (!image)) {
+    else if ((this.buttonClick) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
       descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
 
@@ -326,7 +321,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Function executed when the button is pressed
    */
-  descartesJS.Button.prototype.bottonPressed = function() {
+  descartesJS.Button.prototype.buttonPressed = function() {
     this.updateAndExecAction();
   }
   
@@ -351,14 +346,16 @@ var descartesJS = (function(descartesJS) {
     function repeat(delayTime, fun, firstTime) {
       clearInterval(timer);
 
-      if (self.click) {
+      if ((self.buttonClick) && (self.drawIfValue) && (self.activeIfValue)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 100;
         timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
       }
+
+
     }
 
-    this.click = false;
+    this.buttonClick = false;
     this.over = false;
     
     if (hasTouchSupport) {
@@ -390,7 +387,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton == "L") {
         if (self.activeIfValue) {
-          self.click = true;
+          self.buttonClick = true;
           
           self.draw();
           
@@ -398,13 +395,16 @@ var descartesJS = (function(descartesJS) {
           self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
 
           if (self.action == "calculate") {
-            repeat(delay, self.bottonPressed, true);
+            repeat(delay, self.buttonPressed, true);
           }
           
           if (hasTouchSupport) {
-            window.addEventListener("touchend", onMouseUp);
-          } else {
-            window.addEventListener("mouseup", onMouseUp);
+            self.canvas.removeEventListener("touchend", onMouseUp);
+            self.canvas.addEventListener("touchend", onMouseUp);
+          } 
+          else {
+            self.canvas.removeEventListener("mouseup", onMouseUp);
+            self.canvas.addEventListener("mouseup", onMouseUp);
           }
         }
       }
@@ -419,21 +419,22 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
       
-      if ((self.activeIfValue) || (self.click)) {
-        self.click = false;
+      if ((self.activeIfValue) || (self.buttonClick)) {
+        self.buttonClick = false;
         self.draw();
         
         if (self.action != "calculate") {
-          self.bottonPressed();
+          self.buttonPressed();
         }
         
         evt.preventDefault();
         evt.stopPropagation();
 
         if (hasTouchSupport) {
-          window.removeEventListener("touchend", onMouseUp, false);
-        } else {
-          window.removeEventListener("mouseup", onMouseUp, false);
+          self.canvas.removeEventListener("touchend", onMouseUp);
+        } 
+        else {
+          self.canvas.removeEventListener("mouseup", onMouseUp);
         }
       }
     }
@@ -455,9 +456,11 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseOut(evt) {
       self.over = false;
-      self.click = false;
+      self.buttonClick = false;
       self.draw();
     }
+
+
   }
 
   descartesJS.Button.prototype.getScreenshot = function() {

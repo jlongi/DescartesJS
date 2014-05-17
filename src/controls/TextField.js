@@ -166,6 +166,11 @@ var descartesJS = (function(descartesJS) {
     var labelWidth = parseInt(this.w/2);
     var minTFWidth = fieldValueSize;
     var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial");
+
+    if (!this.visible) {
+      labelWidth = this.w;
+      minTFWidth = 0;
+    }
     
     if (labelWidth < minLabelWidth) {
       labelWidth = minLabelWidth;
@@ -244,7 +249,7 @@ var descartesJS = (function(descartesJS) {
       // update the text field value
       this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
-      
+
       if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
         // update the spinner value
         this.value = this.validateValue( oldFieldValue );
@@ -268,10 +273,16 @@ var descartesJS = (function(descartesJS) {
     if ((value === "") || (value == "''")) {
       return "";
     }
-    
+
     evaluator = this.evaluator;
-    
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
+
+    var tmp = value.toString().replace(this.parent.decimal_symbol, ".");
+    if (tmp == parseFloat(tmp)) {
+      resultValue = parseFloat(tmp);
+    }
+    else {
+      resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(tmp) ) );
+    }
     
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
@@ -280,11 +291,11 @@ var descartesJS = (function(descartesJS) {
     
     evalMin = evaluator.evalExpression(this.min);
     if (evalMin == "") {
-      evalMin = -Math.Infinity;
+      evalMin = -Infinity;
     }
     evalMax = evaluator.evalExpression(this.max);
     if (evalMax == "") {
-      evalMax = Math.Infinity;
+      evalMax = Infinity;
     }
 
     if (this.discrete) {

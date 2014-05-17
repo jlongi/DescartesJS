@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2013-12-23
+ * 2014-05-17
  */
 
 /**
@@ -14,24 +14,31 @@
 var babel = (function(babel) {
   if (babel.loadLib) { return babel; }
  
+// ñ -> \u00F1
+// á -> \u00E1
+// é -> \u00E9
+// í -> \u00ED
+// ó -> \u00F3
+// ú -> \u00FA
+
 //  babel["espa\u00F1ol"] = babel["english"] = babel["catal\u00E0"] = babel["euskera"] = babel["fran\u00E7ais"] = babel["galego"] = babel["portugu\u00EAs"] = babel["valenci\u00E0"] = "";
   babel["falso"] = babel["false"] = babel["fals"] = babel["gezurra"] = babel["faux"] = babel["fals"] = "false";
   babel["verdadero"] = babel["true"] = babel["veritable"] = babel["egia"] = babel["vrai"] = babel["verdadeiro"] = babel["veritable"] = "true";
   babel["no"] = babel["ez"] = babel["non"] = babel["n\u00E3o"] = "false";
   babel["s\u00ED"] = babel["yes"] = babel["bai"] = babel["oui"] = babel["si"] = babel["sim "] = "true";
-  babel["negro"] = babel["black"] = babel["negre"] = babel["beltza"] = babel["noir"] = babel["preto"] = "#000000";
-  babel["maxenta"] = babel["magenta"] = "#ff00ff";
-  babel["azul"] = babel["blue"] = babel["blau"] = babel["urdina"] = babel["bleu"] = "#0000ff";
-  babel["turquesa"] = babel["cyan"] = babel["turkesa"] = babel["turquoise"] = "#00ffff";
-  babel["verde"] = babel["green"] = babel["verd"] = babel["berdea"] = babel["vert"] = "#00ff00";
-  babel["amarillo"] = babel["yellow"] = babel["groc"] = babel["horia"] = babel["jaune"] = babel["amarelo"] = "#ffff00";
-  babel["naranja"] = babel["orange"] = babel["taronja"] = babel["laranja"] = babel["laranxa"] = "#ffc800";
-  babel["rojo"] = babel["red"] = babel["vermell"] = babel["gorria"] = babel["rouge"] = babel["vermello"] = babel["vermelho"] = "#ff0000";
-  babel["pink"] = babel["rosa"] = babel["arrosa"] = babel["rose"] = "#ffafaf";
-  babel["grisObscuro"] = babel["darkGray"] = babel["grisFosc"] = babel["gris iluna"] = babel["grisObscur"] = babel["grisEscuro"] = babel["cinzaEscuro"] = "#404040";
-  babel["gris"] = babel["gray"] = babel["grisa"] = babel["cinza"] = "#808080";
-  babel["grisClaro"] = babel["lightGray"] = babel["grisClar"] = babel["gris argia"] = babel["grisClair"] = babel["cinzaClaro"] = "#c0c0c0";
-  babel["blanco"] = babel["white"] = babel["blanc"] = babel["zuria"] = babel["branco"] = "#ffffff";
+  babel["negro"] = babel["black"] = babel["negre"] = babel["beltza"] = babel["noir"] = babel["preto"] = babel["#000000"] = "#000000";
+  babel["maxenta"] = babel["magenta"] = babel["#ff00ff"] = "#ff00ff";
+  babel["azul"] = babel["blue"] = babel["blau"] = babel["urdina"] = babel["bleu"] = babel["#0000ff"] = "#0000ff";
+  babel["turquesa"] = babel["cyan"] = babel["turkesa"] = babel["turquoise"] = babel["#00ffff"] = "#00ffff";
+  babel["verde"] = babel["green"] = babel["verd"] = babel["berdea"] = babel["vert"] = babel["#00ff00"] = "#00ff00";
+  babel["amarillo"] = babel["yellow"] = babel["groc"] = babel["horia"] = babel["jaune"] = babel["amarelo"] = babel["#ffff00"] = "#ffff00";
+  babel["naranja"] = babel["orange"] = babel["taronja"] = babel["laranja"] = babel["laranxa"] = babel["#ffc800"] = "#ffc800";
+  babel["rojo"] = babel["red"] = babel["vermell"] = babel["gorria"] = babel["rouge"] = babel["vermello"] = babel["vermelho"] = babel["#ff0000"] = "#ff0000";
+  babel["pink"] = babel["rosa"] = babel["arrosa"] = babel["rose"] = babel["#ffafaf"] = "#ffafaf";
+  babel["grisObscuro"] = babel["darkGray"] = babel["grisFosc"] = babel["gris iluna"] = babel["grisObscur"] = babel["grisEscuro"] = babel["cinzaEscuro"] = babel["#404040"] = "#404040";
+  babel["gris"] = babel["gray"] = babel["grisa"] = babel["cinza"] = babel["#808080"] = "#808080";
+  babel["grisClaro"] = babel["lightGray"] = babel["grisClar"] = babel["gris argia"] = babel["grisClair"] = babel["cinzaClaro"] = babel["#c0c0c0"] = "#c0c0c0";
+  babel["blanco"] = babel["white"] = babel["blanc"] = babel["zuria"] = babel["branco"] = babel["#ffffff"] = "#ffffff";
   babel["escala"] = babel["scale"] = babel["eskala"] = babel["\u00E9chelle"] = "scale";
 //  babel["Se puede copiar este texto y pegarlo en una p\u00E1gina Web."] = babel["You may copy this text and paste it on a Web page."] = babel["Podeu copiar aquest text i enganxar-lo en una p\u00E0gina web."] = babel["Testu hau kopia dezakezu eta web orri batean itsasi."] = babel["Vous pouvez copier ce texte et l'accrocher en une page web."] = babel["Pode copiar este texto e pegalo nunha p\u00E1xina Web."] = babel["Voc\u00EA pode copiar este texto e col\u00E1-lo em uma p\u00E1gina WEB."] = babel["Podeu copiar aquest text i enganxar-lo en una p\u00E0gina web."] = "";
   babel["nombre"] = babel["name"] = babel["nom"] = babel["izena"] = babel["nome"] = "name";
@@ -40,7 +47,7 @@ var babel = (function(babel) {
   babel["rastro"] = babel["trace"] = babel["rastre"] = babel["arrastoa"] = "trace";
 //   babel["control"] = babel["control"] = babel["control"] = babel["kontrola"] = babel["contr\u00F4le"] = babel["control"] = babel["controle"] = babel["control"] = "";
   babel["fondo"] = babel["background"] = babel["fons"] = babel["hondoa"] = babel["fond"] = babel["fundo"] = "background";
-  babel["colour"] = babel["color"] = babel["kolorea"] = babel["couleur"] = babel["cor"] = "color";
+
   babel["par\u00E1metro"] = babel["parameter"] = babel["parametroa"] = babel["par\u00E2metro"] = babel["par\u00E0metre"] = "parameter";
   babel["sucesi\u00F3n"] = babel["sequence"] = babel["successi\u00F3"] = babel["segida"] = babel["succession"] = babel["seq\u00FC\u00EAncia"] = "sequence";
   babel["tama\u00F1o"] = babel["size"] = babel["neurria"] = babel["taille"] = babel["tamanho"] = babel["grand\u00E0ria"] = "size";
@@ -54,15 +61,15 @@ var babel = (function(babel) {
   //////////////////////////////
   babel["cr\u00E9ditos"] = babel["about"] = babel["cr\u00E8dits"] = babel["kreditoak"] = babel["cr\u00E9dits"] = babel["sobre"] = "about";
   babel["config"] = babel["konfig"] = babel["configura\u00E7\u00E3o"] = "config";
-  babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
+  // babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
   babel["limpiar"] = babel["clear"] = babel["neteja"] = babel["ezabatu"] = babel["nettoye"] = babel["limpar"] = "clear";
   //////////////////////////////
   babel["incr"] = babel["gehi"] = babel["incremento"] = "incr";
   babel["min"] = babel["inf"] = "min";
   babel["max"] = babel["sup"] = babel["m\u00E1x"] = "max";
   babel["relleno"] = babel["fill"] = babel["ple"] = babel["betea"] = babel["plein"] = babel["recheo"] = babel["preencher"] = "fill";
-  babel["relleno+"] = babel["fill+"] = babel["ple+"] = babel["betea+"] = babel["plein+"] = babel["recheo+"] = babel["preencher+"] = "fillP";
-  babel["relleno-"] = babel["fill-"] = babel["ple-"] = babel["betea-"] = babel["plein-"] = babel["recheo-"] = babel["preencher-"] = "fillM";
+  babel["relleno+"] = babel["fill+"] = babel["ple+"] = babel["betea+"] = babel["plein+"] = babel["recheo+"] = babel["preencher+"] = babel["fillP"] = "fillP";
+  babel["relleno-"] = babel["fill-"] = babel["ple-"] = babel["betea-"] = babel["plein-"] = babel["recheo-"] = babel["preencher-"] = babel["fillM"] = "fillM";
   babel["flecha"] = babel["arrow"] = babel["fletxa"] = babel["gezia"] = babel["fl\u00E8che"] = babel["frecha"] = babel["seta"] = "arrow";
   babel["ancho"] = babel["width"] = babel["ample"] = babel["zabalera"] = babel["large"] = babel["largura"] = "width";
   babel["punta"] = babel["spear"] = babel["muturra"] = babel["pointe"] = babel["ponta"] = "spear";
@@ -86,8 +93,8 @@ var babel = (function(babel) {
   babel["arco"] = babel["arc"] = babel["arku"] = "arc";
   babel["pol\u00EDgono"] = babel["polygon"] = babel["pol\u00EDgon"] = babel["poligono"] = babel["polygone"] = "polygon";
   babel["imagen"] = babel["image"] = babel["imatge"] = babel["irudi"] = babel["imaxe"] = babel["imagem"] = "image";
-  babel["Versi\u00F3n"] = babel["Version"] = babel["Versi\u00F3"] = babel["Vers\u00E3o"] = "version";
-  babel["Idioma"] = babel["Language"] = babel["Hizkuntza"] = babel["Langue"] = "language";
+  babel["Versi\u00F3n"] = babel["Version"] = babel["Versi\u00F3"] = babel["Vers\u00E3o"] = babel["version"] = "version";
+  babel["Idioma"] = babel["Language"] = babel["Hizkuntza"] = babel["Langue"] = babel["language"] = "language";
 //  babel["Espacio"] = babel["Space"] = babel["Espai"] = babel["Espazioa"] = babel["Espace"] = babel["Espazo"] = babel["Espa\u00E7o"] = babel["Espai"] = "";
   babel["O.x"] = "O.x";
   babel["O.y"] = "O.y";
@@ -115,36 +122,36 @@ var babel = (function(babel) {
 //  babel["rehacer"] = babel["redo"] = babel["ref\u00E9s"] = babel["berregin"] = babel["refaire"] = babel["refacer"] = babel["refazer"] = babel["ref\u00E9s"] = "";
   babel["num\u00E9rico"] = babel["numeric"] = babel["num\u00E8ric"] = babel["zenbakizko"] = babel["num\u00E9rique"] = "numeric";
   babel["gr\u00E1fico"] = babel["graphic"] = babel["gr\u00E0fic"] = babel["grafiko"] = babel["graphique"] = "graphic";
-  babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
+// babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
 //  babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = "";
   babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
-  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "doExpr";
-  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "whileExpr";
+  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = babel["doExpr"] = "doExpr";
+  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = babel["whileExpr"] = "whileExpr";
   babel["evaluar"] = babel["evaluate"] = babel["avalua"] = babel["ebaluatu"] = babel["\u00E9valuer"] = babel["avaliar"] = "evaluate";
   babel["variable"] = babel["aldagaia"] = babel["vari\u00E1vel"] = "variable";
   babel["funci\u00F3n"] = babel["function"] = babel["funci\u00F3"] = babel["funtzio"] = babel["fonction"] = babel["fun\u00E7\u00E3o"] = "function";
   babel["algoritmo"] = babel["algorithm"] = babel["algorisme"] = babel["algorithme"] = "algorithm";
   babel["vector"] = babel["array"] = babel["bektore"] = babel["vecteur"] = babel["matriz"] = "array";
 //  babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = "";
-  babel["dibujar-si"] = babel["draw-if"] = babel["marraztu-baldin"] = babel["dessiner-si"] = babel["debuxar-se"] = babel["desenhar-se"] = babel["dibuixa-si"] = "drawif";
+  babel["dibujar-si"] = babel["draw-if"] = babel["marraztu-baldin"] = babel["dessiner-si"] = babel["debuxar-se"] = babel["desenhar-se"] = babel["dibuixa-si"] = babel["drawif"] = "drawif";
   babel["dominio"] = babel["range"] = babel["domini"] = babel["izate-eremua"] = babel["domain"] = babel["dom\u00EDnio"] = "range";
   babel["pausa"] = babel["delay"] = babel["eten"] = "delay";
 //  babel["detener"] = babel["stop"] = babel["atura"] = babel["geldiarazi"] = babel["arr\u00EAter"] = babel["deter"] = babel["parar"] = babel["atura"] = "";
-  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x_axis";
-  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y_axis";
+  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = babel["x_axis"] = "x_axis";
+  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = babel["y_axis"] = "y_axis";
   babel["n\u00FAmeros"] = babel["numbers"] = babel["nombres"] = babel["zenbakiak"] = "numbers";
-  babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = "exponentialif";
+  babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = babel["exponentialif"] = "exponentialif";
   babel["familia"] = babel["family"] = babel["fam\u00EDlia"] = babel["famille"] = "family";
   babel["intervalo"] = babel["interval"] = babel["tarte"] = babel["intervalle"] = "interval";
   babel["pasos"] = babel["steps"] = babel["passos"] = babel["pausoak"] = babel["pas"] = "steps";
   babel["centro"] = babel["center"] = babel["centre"] = babel["zentro"] = "center";
   babel["radio"] = babel["radius"] = babel["radi"] = babel["erradio"] = babel["rayon"] = babel["raio"] = "radius";
   babel["fin"] = babel["end"] = babel["fi"] = babel["bukaera"] = babel["fim"] = "end";
-  babel["una-sola-vez"] = babel["only-once"] = babel["una-sola-vegada"] = babel["behin-bakarrik"] = babel["une-seule-fois"] = babel["unha-soa-vez"] = babel["apenas-uma-vez"] = "onlyOnce";
+  babel["una-sola-vez"] = babel["only-once"] = babel["una-sola-vegada"] = babel["behin-bakarrik"] = babel["une-seule-fois"] = babel["unha-soa-vez"] = babel["apenas-uma-vez"] = babel["onlyOnce"] = "onlyOnce";
   babel["siempre"] = babel["always"] = babel["sempre"] = babel["beti"] = babel["toujours"] = "always";
 //  babel["copiar"] = babel["copy"] = babel["copia"] = babel["kopiatu"] = babel["copier"] = babel["copiar"] = babel["copiar"] = babel["copia"] = "";
 //  babel["pegar"] = babel["paste"] = babel["enganxa"] = babel["itsatsi"] = babel["accrocher"] = babel["pegar"] = babel["colar"] = babel["enganxa"] = "";
-  babel["color-int"] = babel["int-colour"] = babel["barruko-kolore"] = babel["couleur-int"] = babel["cor-int"] = "colorInt";
+  babel["color-int"] = babel["int-colour"] = babel["barruko-kolore"] = babel["couleur-int"] = babel["cor-int"] = babel["colorInt"] = "colorInt";
   babel["repetir"] = babel["loop"] = babel["repeteix"] = babel["errepikatu"] = babel["r\u00E9p\u00E9ter"] = "loop";
   babel["controles"] = babel["controls"] = babel["kontrolak"] = babel["contr\u00F4les"] = babel["controis"] = "controls";
 //  babel["c\u00F3digo"] = babel["<applet>"] = babel["</*applet*/>"] = babel["<applet>"] = babel["<applet>"] = babel["c\u00F3digo"] = babel["<applet>"] = babel["<applet>"] = "";
@@ -158,7 +165,7 @@ var babel = (function(babel) {
   babel["espacio"] = babel["space"] = babel["espai"] = babel["espazio"] = babel["espace"] = babel["espazo"] = babel["espa\u00E7o"] = "space";
   babel["Nu"] = "Nu";
   babel["Nv"] = "Nv";
-  babel["ancho"] = babel["depth"] = babel["amplada"] = babel["zabalera"] = babel["largeur"] = babel["ancho"] = babel["profundidade"] = babel["amplada"] = "width";
+  babel["ancho"] = babel["depth"] = babel["amplada"] = babel["zabalera"] = babel["largeur"] = babel["ancho"] = babel["profundidade"] = babel["amplada"] = babel["width"] = "width";
   babel["largo"] = babel["length"] = babel["llargada"] = babel["luzera"] = babel["longueur"] = babel["longo"] = babel["comprimento"] = babel["llargada"] = "length";
   babel["alto"] = babel["height"] = babel["al\u00E7ada"] = babel["altu"] = babel["hauteur"] = babel["alto"] = babel["altura"] = babel["al\u00E7ada"] = "height";
   babel["color_reverso"] = babel["backcolor"] = babel["color_revers"] = babel["atzealde kolorea"] = babel["couleur_revers"] = babel["cor_reverso"] = babel["cor_de_fundo"] = "backcolor";
@@ -182,7 +189,7 @@ var babel = (function(babel) {
   babel["macro"] = babel["makro"] = "macro";
   babel["id"] = "id";
   babel["modelo"] = babel["model"] = babel["eredu"] = babel["mod\u00E8le"] = "model";
-  babel["color"] = babel["kolore"] = babel["couleur"] = babel["cor"] = "color";
+  babel["color"] = babel["kolore"] = babel["couleur"] = babel["cor"] = babel["colour"] = babel["kolorea"] = "color";
 
   babel["luz"] = babel["light"] = babel["llum"] = babel["argia"] = babel["lumi\u00E8re"] = "light";
   babel["metal"] = babel["metall"] = babel["m\u00E9tal"] = "metal";
@@ -192,13 +199,13 @@ var babel = (function(babel) {
   babel["despliegue"] = babel["render"] = babel["desplegament"] = babel["zabaltze"] = babel["d\u00E8ploiement"] = babel["despregamento"] = babel["processar"] = "render";
   babel["orden"] = babel["sort"] = babel["ordre"] = babel["ordena"] = babel["orde"] = babel["ordenar"] = "sort";
   babel["pintor"] = babel["painter"] = babel["margolari"] = babel["peintre"] = "painter";
-  babel["trazado de rayos"] = babel["ray trace"] = babel["tra\u00E7at de raigs"] = babel["izpi trazadura"] = babel["trace de rayons"] = babel["trazado de raios"] = babel["tra\u00E7ado de raios"] = "raytrace";
-  babel["imagen"] = babel["bg_image"] = babel["imatge"] = babel["irudia"] = babel["imaxe"] = babel["imagem_de_fundo"] = "image";
+  babel["trazado de rayos"] = babel["ray trace"] = babel["tra\u00E7at de raigs"] = babel["izpi trazadura"] = babel["trace de rayons"] = babel["trazado de raios"] = babel["tra\u00E7ado de raios"] = babel["raytrace"] = "raytrace";
+  babel["imagen"] = babel["bg_image"] = babel["imatge"] = babel["irudia"] = babel["imaxe"] = babel["imagem_de_fundo"] = babel["image"] = "image";
   babel["despl_imagen"] = babel["bg_display"] = babel["despl_imatge"] = babel["irudi desplazamendu"] = babel["despl_image"] = babel["despr_imaxe"] = babel["apresenta\u00E7\u00E3o_de_imagem"] = "bg_display";
   babel["arr-izq"] = babel["topleft"] = babel["dalt-esq"] = babel["goi-ezk"] = babel["au-dessus-gau"] = babel["arr-esq"] = babel["acima-esquerda"] = "topleft";
   babel["expand."] = babel["stretch"] = babel["hedatu"] = babel["expandir "] = "stretch";
   babel["mosaico"] = babel["patch"] = babel["mosaic"] = babel["mosaiko"] = babel["mosa\u00EFque"] = "patch";
-  babel["centrada"] = babel["center"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "center";
+  babel["centrada"] = babel["center"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "imgcenter";
   babel["archivo"] = babel["file"] = babel["fitxer"] = babel["artxibo"] = babel["fichier"] = babel["arquivo"] = "file";
 //   babel["loc"] = babel["loc"] = babel["lloc"] = babel["lok"] = babel["lieu"] = babel["loc"] = babel["loc"] = babel["lloc"] = "";
 //   babel["rot"] = babel["rot"] = babel["gir"] = babel["rot"] = babel["tour"] = babel["rot"] = babel["rot"] = babel["gir"] = "";
@@ -206,12 +213,12 @@ var babel = (function(babel) {
   babel["tipo_de_macro"] = babel["macro_type"] = babel["tipus_de_macro"] = babel["makro_mota"] = babel["type_de_macro"] = babel["tipo_de_macro"] = babel["tipo_de_macro"] = babel["tipus_de_macro"] = "macro_type";
 //   babel["Poniendo este texto en un archivo <nombre> en el subdirectorio macros/g2d/ se crea la macro <nombre>"] = babel["Puting this text in a file <name> in subdirectory macros/g2d/ creates the macro <name>"] = babel["Posant aquest text en un fitxer <nom> en el subdirectori macros/g2d/ es crea la macro <nom>"] = babel["Artxibo batean testu hau jarriz <izena> macros/g2d/ izeneko azpidirektorioan"] = babel["En mettant ce texte dans un fichier <nom> dans le sous-r\u00E9pertoire macros/g2d/ la macro <nom> est cr\u00E9e "] = babel["Po\u00F1endo este texto nun arquivo <nombre> no subdirectorio macros/g2d/ cr\u00E9ase a macro <nombre>"] = babel["Colocando este texto num arquivo <nome> no subdiret\u00F3rio macros/g2d/ voc\u00EA criar\u00E1 a macro <nome>"] = babel["Posant aquest text en un fitxer <nom> en el subdirectori macros/g2d/ es crea la macro <nom>"] = "";
 //   babel["codigo HTML"] = babel["HTML encoding"] = babel["codi HTML"] = babel[" <izena>duen makroa sortzen da"] = babel["code HTML"] = babel["c\u00F3digo HTML"] = babel["codigo HTML"] = babel["codi HTML"] = "";
-  babel["filas_norte"] = babel["rows_north"] = babel["files_nord"] = babel["HTML kodea"] = babel["files_nord"] = babel["filas_norte"] = babel["linhas_norte"] = babel["files_nord"] = "rowsNorth";
-  babel["filas_sur"] = babel["rows_south"] = babel["files_sud"] = babel["ipar_lerro"] = babel["files_sud"] = babel["filas_sur"] = babel["linhas_sul"] = babel["files_sud"] = "rowsSouth";
-  babel["ancho_este"] = babel["width_east"] = babel["ample_est"] = babel["hego_lerro"] = babel["ample_est"] = babel["ancho_leste"] = babel["largura_leste"] = babel["ample_est"] = "widthEast";
-  babel["ancho_oeste"] = babel["width_west"] = babel["ample_oest"] = babel["ekialde_zabalera"] = babel["ample_ouest"] = babel["ancho_oeste"] = babel["largura_oeste"] = babel["ample_oest"] = "widthWest";
+  babel["filas_norte"] = babel["rows_north"] = babel["files_nord"] = babel["HTML kodea"] = babel["files_nord"] = babel["filas_norte"] = babel["linhas_norte"] = babel["files_nord"] = babel["rowsNorth"] = "rowsNorth";
+  babel["filas_sur"] = babel["rows_south"] = babel["files_sud"] = babel["ipar_lerro"] = babel["files_sud"] = babel["filas_sur"] = babel["linhas_sul"] = babel["files_sud"] = babel["rowsSouth"] = "rowsSouth";
+  babel["ancho_este"] = babel["width_east"] = babel["ample_est"] = babel["hego_lerro"] = babel["ample_est"] = babel["ancho_leste"] = babel["largura_leste"] = babel["ample_est"] = babel["widthEast"] = "widthEast";
+  babel["ancho_oeste"] = babel["width_west"] = babel["ample_oest"] = babel["ekialde_zabalera"] = babel["ample_ouest"] = babel["ancho_oeste"] = babel["largura_oeste"] = babel["ample_oest"] = babel["widthWest"] = "widthWest";
   babel["fijo"] = babel["fixed"] = babel["fix"] = babel["hegoalde_zabalera"] = babel["fixe"] = babel["fixo"] = "fixed";
-  babel["Reiniciar Animaci\u00F3n"] = babel["Init Animation"] = babel["Reinicia Animaci\u00F3"] = babel["finko"] = babel["Recommencer l'Animation"] = babel["Reiniciar Anima\u00E7\u00E3o"] = "initAnimation";
+  babel["Reiniciar Animaci\u00F3n"] = babel["Init Animation"] = babel["Reinicia Animaci\u00F3"] = babel["finko"] = babel["Recommencer l'Animation"] = babel["Reiniciar Anima\u00E7\u00E3o"] = babel["initAnimation"] = "initAnimation";
 //   babel["emergente"] = babel["pop"] = babel["emergent"] = babel["Animazioa bberrabiatu"] = babel["\u00E9mergent"] = babel["emerxente"] = babel["pop"] = babel["emergent"] = "";
 //   babel[" "] = babel[" "] = babel[" "] = babel["azaleratzaile"] = babel[" "] = babel["00:"] = babel["  "] = babel[" "] = "";
 //   babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = "";
@@ -231,8 +238,8 @@ var babel = (function(babel) {
   babel["condici\u00F3n"] = babel["condition"] = babel["condici\u00F3"] = babel["baldintza"] = babel["condi\u00E7\u00E3o"] = "condition";
   babel["acci\u00F3n"] = babel["action"] = babel["acci\u00F3"] = babel["ekintza"] = babel["a\u00E7\u00E3o"] = "action";
   babel["evento"] = babel["event"] = babel["esdeveniment"] = babel["gertaera"] = babel["\u00E9v\u00E9nement"] = "event";
-  babel["abrir URL"] = babel["open URL"] = babel["obre URL"] = babel["URL zabaldu"] = babel["ouvrir URL"] = "openURL";
-  babel["abrir Escena"] = babel["open Scene"] = babel["obre Escena"] = babel["eszena zabaldu"] = babel["ouvrir Escena"] = babel["abrir Cena"] = "openScene";
+  babel["abrir URL"] = babel["open URL"] = babel["obre URL"] = babel["URL zabaldu"] = babel["ouvrir URL"] = babel["openURL"] = "openURL";
+  babel["abrir Escena"] = babel["open Scene"] = babel["obre Escena"] = babel["eszena zabaldu"] = babel["ouvrir Escena"] = babel["abrir Cena"] = babel["openScene"] = "openScene";
   babel["bot\u00F3n"] = babel["button"] = babel["bot\u00F3"] = babel["botoi"] = babel["bouton"] = babel["bot\u00E3o"] = "button";
   babel["mensaje"] = babel["message"] = babel["mezua"] = babel["mensaxe"] = babel["mensagem"] = babel["missatge"] = "message";
   babel["alternar"] = babel["alternate"] = babel["alterna"] = babel["txandakatu"] = babel["alterner"] = "alternate";
@@ -284,19 +291,19 @@ var babel = (function(babel) {
 //   babel["arr_izq"] = babel["top_left"] = babel["dalt_esq"] = babel["goi_ezk"] = babel["au-dessus_gauche"] = babel["arr_esq"] = babel["acima_esquerda"] = babel["dalt_esq"] = "";
 //   babel["arriba"] = babel["top_center"] = babel["dalt"] = babel["goian"] = babel["au-dessus"] = babel["arriba"] = babel["acima_centro"] = babel["dalt"] = "";
 //   babel["arr_der"] = babel["top_right"] = babel["dalt_dreta"] = babel["goi_eskuin"] = babel["au-dessus_droite"] = babel["arr_der"] = babel["acima_direita"] = babel["dalt_dreta"] = "";
-  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "x";
+  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = babel["x"] = "x";
   babel["derecha"] = babel["right"] = babel["dreta"] = babel["eskuinan"] = babel["droite"] = babel["dereita"] = babel["direita"] = babel["dreta"] = "right";
 //   babel["ab_izq"] = babel["bottom_left"] = babel["avall_esq"] = babel["Behe_ezk"] = babel["en bas_gauche"] = babel["ab_esq"] = babel["abaixo_esquerda"] = babel["avall_esq"] = "";
 //   babel["abajo"] = babel["bottom"] = babel["avall"] = babel["behean"] = babel["en bas"] = babel["abaixo"] = babel["abaixo"] = babel["avall"] = "";
 //   babel["ab_der"] = babel["bottom_right"] = babel["avall_dreta"] = babel["behe_eskuin"] = babel["en bas_droite"] = babel["ab_der"] = babel["abaixo_direita"] = babel["avall_dreta"] = "";
 //   babel["img"] = babel["img"] = babel["img"] = babel["irud"] = babel["img"] = babel["img"] = babel["img"] = babel["img"] = "";
   babel["sensible_a_los_movimientos_del_rat\u00F3n"] = babel["sensitive_to_mouse_movements"] = babel["sensible_als_moviments_del_ratol\u00ED"] = babel["xagu mugimenduarekiko sentikorra"] = babel["sensible_aux_mouvements_du_souris"] = babel["sensible_aos_movementos_do_rato"] = babel["sens\u00EDvel_aos_movimentos_do_mouse"] = "sensitive_to_mouse_movements";
-  babel["reproducir"] = babel["play"] = babel["reprodueix"] = babel["erreproduzitu"] = babel["reproduire"] = babel["reproduzir"] = "playAudio";
+  babel["reproducir"] = babel["play"] = babel["reprodueix"] = babel["erreproduzitu"] = babel["reproduire"] = babel["reproduzir"] = babel["playAudio"] = "playAudio";
 //   babel["infoind"] = babel["indinfo"] = babel["infoind"] = babel["baninf"] = babel["infoind"] = babel["infoind"] = babel["infoind"] = babel["infoind"] = "";
 //   babel["infoest"] = babel["statinfo"] = babel["infoest"] = babel["estinf"] = babel["infoest"] = babel["infoest"] = babel["infoest"] = babel["infoest"] = "";
-  babel["activo-si"] = babel["active-if"] = babel["actiu-si"] = babel["altiboa-baldin"] = babel["actif-si"] = babel["activo-se"] = babel["ativo-se"] = "activeif";
-  babel["rotfin"] = babel["finrot"] = babel["bukrot"] = "endrot";
-  babel["posfin"] = babel["finpos"] = babel["bukpos"] = "endpos";
+  babel["activo-si"] = babel["active-if"] = babel["actiu-si"] = babel["altiboa-baldin"] = babel["actif-si"] = babel["activo-se"] = babel["ativo-se"] = babel["activeif"] = "activeif";
+  babel["rotfin"] = babel["finrot"] = babel["bukrot"] = babel["endrot"] = "endrot";
+  babel["posfin"] = babel["finpos"] = babel["bukpos"] = babel["endpos"] = "endpos";
   babel["editable"] = babel["editagarria"] = babel["edit\u00E1vel"] = "editable";
 //   babel["camposMixtos"] = babel["mixedTF"] = babel["CampsMixtes"] = babel["esparruMistoa"] = babel["ChampsMixtes"] = babel["camposMixtos"] = babel["camposMixtos"] = babel["CampsMixtes"] = "";
 //   babel["sonido"] = babel["sound"] = babel["so"] = babel["soinu"] = babel["son"] = babel["son"] = babel["som"] = babel["so"] = "";
@@ -310,7 +317,7 @@ var babel = (function(babel) {
 //   babel["D"] = babel["D"] = babel["D3"] = babel["D"] = babel["D3"] = babel["D"] = babel["D3"] = babel["D"] = "";
   babel["vectores"] = babel["bektoreak"] = babel["vecteurs"] = babel["vetores"] = babel["vectors"] = "vectors";
 //   babel["fuente tipo"] = babel["font type"] = babel["font tipus"] = babel["iturri mota"] = babel["source type"] = babel["fonte tipo"] = babel["tipo de fonte"] = babel["font tipus"] = "";
-  babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = "font_size";
+  babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = babel["font_size"] = "font_size";
 //   babel["SansSerif"] = "SansSerif";
 //   babel["Serif"] = "Serif";
 //   babel["Monoespaciada"] = babel["Monospaced"] = babel["Monoespazada"] = "Monospaced";
@@ -334,18 +341,17 @@ var babel = (function(babel) {
   babel["matriz"] = babel["matrix"] = babel["matriu"] = babel["matrice"] = "matrix";
   babel["filas"] = babel["rows"] = babel["files"] = "rows";
   babel["columnas"] = babel["columns"] = babel["colonnes"] = "columns";
-  babel["solo_texto"] = babel["only_text"] = babel["seulement_texte"] = babel["s\u00F3_texto"] = babel["tan_sols_texte"] = "onlyText";
-  babel["evaluar"] = babel["evaluate"] = "evaluate";
+  babel["solo_texto"] = babel["only_text"] = babel["seulement_texte"] = babel["s\u00F3_texto"] = babel["tan_sols_texte"] = babel["onlyText"] = "onlyText";
+  // babel["evaluar"] = babel["evaluate"] = "evaluate";
   babel["respuesta"] = babel["answer"] = "answer";
-//   babel["peso"] = babel["weight"] = babel["pes"] = babel["peso"] = babel["peso"] = babel["peso"] = babel["peso"] = babel["pes"] = "";
+  babel["peso"] = babel["weight"] = babel["pes"] = "weight";
   babel["decimal_symbol"] = babel["signo decimal"] = babel["decimal symbol"] = "decimal_symbol";
   babel["info"] = "info";
 //   babel["No se encuentra"] = babel["Not Found"] = babel["No es troba"] = babel["Ez da aurkitzen"] = babel["Il ne se trouve pas"] = babel["Non se atopa"] = babel["N\u00E3o Encontrado"] = babel["No es troba"] = "";
   
   ////////////////////////
   //  new options added
-//   babel["borde"] = babel["border"] = babel["contour"] = "border";
-  babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = "border";
+  babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = babel["border"] = "border";
   babel["video"] = babel["vid\u00e9o"] = "video";
   babel["audio"] = babel["\u00e0udio"] = "audio"; 
   babel["autoplay"] = "autoplay";
@@ -355,9 +361,212 @@ var babel = (function(babel) {
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
   babel["local"] = babel["Local"] = "local";
+
+  babel["rectangle"] = babel["rect\u00E1ngulo"] = "rectangle";
+  babel["generic"] = babel["generico"] = "generic";
   ////////////////////////
   
   babel.loadLib = true;
+
+  babel["GUI_espa\u00F1ol"] = { decimal_symbol: "Simbolo decimal",
+                                 language: "Lenguaje",
+                                 about: "Cr\u00E9ditos",
+                                 config: "Configuraci\u00F3n",
+                                 init: "Inicio",
+                                 clear: "Limpiar"
+                               };
+  babel["GUI_english"] = {};
+  babel["GUI_catal\u00E0"] = {};
+  babel["GUI_euskera"] = {};
+  babel["GUI_fran\u00E7ais"] = {};
+  babel["GUI_galego"] = {};
+  babel["GUI_portugu\u00EAs"] = {};
+  babel["GUI_valenci\u00E0"] = {};
+
+  /**
+   *
+   */
+  babel.translate = function(language, word) {
+    var tmp = babel["GUI_"+language][word];
+    // if (tmp) {
+      // return tmp;
+    // }
+    return word.charAt(0).toUpperCase() + word.substring(1);
+  }
+
+
+  babel["LANG_espa\u00F1ol"] = { "true": "s\u00ED",
+                                 "false": "no",
+                                 decimal_symbol: "signo decimal",
+                                 version: "Versi\u00F3n",
+                                 language: "Idioma",
+                                 Buttons: "Botones",
+                                 about: "cr\u00E9ditos",
+                                 // config: "config",
+                                 init: "inicio",
+                                 clear: "limpiar",
+                                 widthEast: "ancho_este",
+                                 widthWest: "ancho_oeste",
+
+                                 type: "tipo",
+                                 width: "ancho",
+                                 height: "alto",
+                                 drawif: "dibujar-si",
+                                 exponentialif: "exponencial-si",
+                                 activeif: "activo-si",
+                                 fixed: "fijo",
+                                 scale: "escala",
+                                 image: "imagen",
+                                 bg_display: "despl_imagen",
+                                 background: "fondo",
+                                 file: "archivo",
+                                 topleft: "arr-izq",
+                                 stretch: "expand.",
+                                 patch: "mosaico",
+                                 imgcenter: "centrada",
+                                 center: "centro",
+                                 net: "red",
+                                 net10: "red10",
+                                 axes: "ejes",
+                                 text: "texto",
+                                 numbers: "n\u00FAmeros",
+                                 x_axis: "eje-x",
+                                 y_axis: "eje-y",
+                                 sensitive_to_mouse_movements: "sensible_a_los_movimientos_del_rat\u00F3n",
+                                 render: "despliegue",
+                                 sort: "orden",
+                                 painter: "pintor",
+                                 split: "cortar",
+                                 raytrace: "trazado de rayos",
+
+                                 numeric: "num\u00E9rico",
+                                 region: "regi\u00F3n",
+                                 north: "norte",
+                                 south: "sur",
+                                 east: "este",
+                                 west: "oeste",
+                                 external: "exterior",
+                                 expresion: "expresi\u00F3n",
+                                 space: "espacio",
+                                 name: "nombre",
+                                 value: "valor",
+                                 incr: "incremento",
+                                 // min: "min",
+                                 // max: "max",
+                                 gui: "interfaz",
+                                 spinner: "pulsador",
+                                 textfield: "campo de texto",
+                                 menu: "men\u00FA",
+                                 scrollbar: "barra",
+                                 options: "opciones",
+                                 button: "bot\u00F3n",
+                                 graphic: "gr\u00E1fico",
+                                 discrete: "discreto",
+                                 decimals: "decimales",
+                                 visible: "visible",
+                                 action: "acci\u00F3n",
+                                 playAudio: "reproducir",
+                                 parameter: "par\u00E1metro",
+                                 interior: "interior",
+                                 condition: "condici\u00F3n",
+                                 action: "acci\u00F3n",
+                                 "event": "evento",
+                                 openURL: "abrir URL",
+                                 openScene: "abrir Escena",
+                                 message: "mensaje",
+                                 alternate: "alternar",
+                                 execution: "ejecuci\u00F3n",
+                                 calculate: "calcular",
+                                 onlyText: "solo_texto",
+                                 msg_pos: "pos_mensajes",
+                                 color: "color",
+                                 colorInt: "color-int",
+                                 bold: "negrita",
+                                 italics: "cursiva",
+                                 underlined: "subrayada",
+                                 font_size: "fuente puntos",
+                                 size: "tama\u00F1o",
+                                 constraint: "constricci\u00F3n",
+                                 answer: "respuesta",
+                                 weight: "peso",
+
+                                 // variable: "variable",
+                                 "function": "funci\u00F3n",
+                                 algorithm: "algoritmo",
+                                 array: "vector",
+                                 doExpr: "hacer",
+                                 whileExpr: "mientras",
+                                 evaluate: "evaluar",
+                                 range: "dominio",
+                                 onlyOnce: "una-sola-vez",
+                                 always: "siempre",
+                                 matrix: "matriz",
+                                 rows: "filas",
+                                 columns: "columnas",
+                                 constant: "constante",
+                                 
+                                 equation: "ecuaci\u00F3n",
+                                 curve: "curva",
+                                 sequence: "sucesi\u00F3n",
+                                 text: "texto",
+                                 point: "punto",
+                                 segment: "segmento",
+                                 arc: "arco",
+                                 polygon: "pol\u00EDgono",
+                                 image: "imagen",
+                                 abs_coord: "coord_abs",
+                                 trace: "rastro",
+                                 family: "familia",
+                                 interval: "intervalo",
+                                 steps: "pasos",
+                                 fillP: "relleno+",
+                                 fillM: "relleno-",
+                                 fill: "relleno",
+                                 spear: "punta",
+                                 arrow: "flecha",
+                                 radius: "radio",
+                                 end: "fin",
+                                 vectors: "vectores", 
+                                 opacity: "opacidad",
+
+                                 backcolor: "color_reverso",
+                                 triangle: "tri\u00E1ngulo",
+                                 face: "cara",
+                                 // polireg: "polireg",
+                                 surface: "superficie",
+                                 cube: "cubo",
+                                 box: "paralelep\u00edpedo",
+                                 cone: "cono",
+                                 cylinder: "cilindro",
+                                 sphere: "esfera",
+                                 tetrahedron: "tetraedro",
+                                 octahedron: "octaedro", 
+                                 dodecahedron: "dodecaedro",
+                                 icosahedron: "icosaedro",
+                                 ellipsoid: "elipsoide",
+                                 model: "modelo",
+                                 // color: "color",
+                                 light: "luz",
+                                 metal: "metal",
+                                 wire: "alambre",
+                                 edges: "aristas",
+                                 length: "largo",
+
+                                 Animation: "Animaci\u00F3n",
+                                 delay: "pausa",
+                                 controls: "controles",
+                                 // auto: "auto",
+                                 loop: "repetir"
+                              };
+
+  /**
+   *
+   */
+  babel.toLanguage = function(word, language) {
+    language = language || "espa\u00F1ol";
+    var tmp = babel["LANG_"+language][word];
+    return tmp || word;
+  }
 
   return babel;
 })(babel || {});/**
@@ -454,23 +663,23 @@ var descartesJS = (function(descartesJS) {
     else if (fontTokens[1].toLowerCase() == "bold+italic") {
       fontCanvas += "Italic Bold ";
     }
+
+    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
     
     // the font size
     fontCanvas += fontTokens[2] + "px ";
 
-    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
-
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "'Times New Roman', Times, 'Droid Serif', serif";
+      fontCanvas += "liberation_serifregular, 'Times New Roman', Times, serif";
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "Arial, Helvetica, 'Droid Sans', Sans-serif";
+      fontCanvas += "liberation_sansregular, Arial, Helvetica, Sans-serif";
     }
     // monospace font
     else {
-      fontCanvas += "'Courier New', Courier, 'Droid Sans Mono', Monospace";
+      fontCanvas += "liberation_monoregular, 'Courier New', Courier, Monospace";
     }
 
     return fontCanvas;
@@ -571,7 +780,6 @@ var descartesJS = (function(descartesJS) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
       // }
-
       decimals = (decimals) ? decimals : 0;
       decimals = (decimals<0) ? 0 : parseInt(decimals);
 
@@ -729,7 +937,7 @@ var descartesJS = (function(descartesJS) {
   var text = document.createElement("span");
   text.appendChild( document.createTextNode("\u00C1p") );
   var block = document.createElement("div");
-  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px;");
+  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px; margin: 0; padding: 0;");
   var div = document.createElement("div");
   div.setAttribute("style", "margin: 0; padding: 0;");
   div.appendChild(text);
@@ -750,16 +958,12 @@ var descartesJS = (function(descartesJS) {
 
     document.body.appendChild(div);
 
-    var result = { ascent: 0,
-                   descent: 0,
-                   h: 0,
-                   baseline: 0
-                 };
+    var result = { ascent: 0, descent: 0, h: 0, baseline: 0 };
 
     if (div.getBoundingClientRect) {
       block.style.verticalAlign = "baseline";
       result.ascent = block.offsetTop - text.offsetTop;
-      result.h = div.getBoundingClientRect().height || 0;
+      result.h = text.getBoundingClientRect().height || 0;
       result.descent = result.h - result.ascent;
       result.baseline = result.ascent;
     }
@@ -956,7 +1160,7 @@ var descartesJS = (function(descartesJS) {
   "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :\n" +
   "<br>\n" +
   "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>\n" +
-  "</p>";
+  "</p>\n";
 
   var htmlCreative = "<p>\n" +
   "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
@@ -972,24 +1176,17 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.showAbout = function() {
-    var content = "data:text/html;charset=utf-8,";
+    var content;
     if (descartesJS.creativeCommonsLicense) {
-      content += encodeURI(htmlAbout + htmlCreative + htmlFinal);
+      content = htmlAbout + htmlCreative + htmlFinal;
     }
     else {
-      content += encodeURI(htmlAbout + htmlFinal);
+      content = htmlAbout + htmlFinal;
     }
 
-    if (navigator.userAgent.match(/trident/gi)) {
-      if (descartesJS.creativeCommonsLicense) {
-        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html";
-      }
-      else {
-        content = "http://arquimedes.matem.unam.mx/Descartes5/creditos/sinCCL.html";
-      }
-    }
-
-    window.open(content, "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+    var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+    tmpW.document.write(content);
+    tmpW.document.close();
   }
 
   return descartesJS;
@@ -1176,6 +1373,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object representing a simple regular expression pattern
    */
   function buildNumericRegularExpressionPattern(answer, evaluator) {
+    answer = answer || "";
     tmpAnswer = answer.trim();
     answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
 
@@ -1232,6 +1430,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object representing a regular expression pattern
    */
   descartesJS.buildRegularExpresionsPatterns = function(answer, evaluator) {
+    answer = answer || "";
     // remove parentheses in a text expression
     if ((answer.charAt(0) === "(" ) && (answer.charAt(answer.length-1) === ")") && (answer.indexOf(",") === -1)) {
       answer = answer.substring(1, answer.length-1);
@@ -1633,10 +1832,29 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Color.prototype.borderColor = function() {
     if (this.r + this.g + this.b < 380) {
-      return "white";
+      return "#ffffff";
     }
-    return "black";
+    return "#000000";
   }
+
+  /**
+   *
+   */
+  descartesJS.RGBAToHexColor = function(color) {
+    color = color.substring(5, color.length-1).split(",");
+    
+    r = parseInt(color[0]).toString(16);
+    g = parseInt(color[1]).toString(16);
+    b = parseInt(color[2]).toString(16);
+    a = (255- parseInt(parseFloat(color[3])*255)).toString(16);
+    
+    r = (r.length == 1) ? "0"+r : r;
+    g = (g.length == 1) ? "0"+g : g;
+    b = (b.length == 1) ? "0"+b : b;
+    a = (a.length == 1) ? "0"+a : a;
+    
+    return new descartesJS.Color(a+r+g+b);
+  }  
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -1656,7 +1874,7 @@ var descartesJS = (function(descartesJS) {
     // try chrome frame // <meta http-equiv="X-UA-Compatible" content="chrome=1">
     var meta = document.createElement("meta");
     meta.setAttribute("http-equiv", "X-UA-Compatible");
-    meta.setAttribute("content", "chrome=1");
+    meta.setAttribute("content", "IE=edge,chrome=1");
     // add the metadata to the head of the document
     head.appendChild(meta);
 
@@ -1677,12 +1895,6 @@ var descartesJS = (function(descartesJS) {
     meta.setAttribute("content", "black-translucent");
     // add the metadata to the head of the document
     head.appendChild(meta);
-
-    // meta = document.createElement("meta");
-    // meta.setAttribute("http-equiv", "X-UA-Compatible");
-    // meta.setAttribute("content", "IE=edge");
-    // // add the metadata to the head of the document
-    // head.appendChild(meta);
 
     // var link = document.createElement("link");
     // link.setAttribute("rel", "apple-touch-icon-precomposed");
@@ -1716,8 +1928,8 @@ var descartesJS = (function(descartesJS) {
     document.head.appendChild(cssNode); 
 
     cssNode.innerHTML = 
-                        "body{ text-rendering:geometricPrecision; }\n" +
-                        "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
+                        // "body{ }\n" +
+                        // "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -box-shadow:0px 0px 0px #888; background-image:linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-o-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-moz-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-webkit-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-ms-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); top:0px; left:0px; }\n" +
@@ -1728,12 +1940,69 @@ var descartesJS = (function(descartesJS) {
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
                         "div.DescartesButtonContainer{ position:absolute; }\n" +
                         "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
-                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
-                        "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
+                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:Arial,Helvetica,'Droid Sans',Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
+                        "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:Arial,Helvetica,'Droid Sans',Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
                         "div.DescartesGraphicControl{ border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
-                        "select.DescartesMenuSelect{ font-family:Arial, Helvetica, 'Droid Sans', Sans-serif; padding-top:0%; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n";
+                        "select.DescartesMenuSelect{ font-family:Arial,Helvetica,'Droid Sans',Sans-serif; padding-top:0px; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
+                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n" +
+
+                        // style for the internal editor
+
+                        "div.DescartesEditorContainer{ font-family:Arial,Helvetica,'Droid Sans',Sans-serif; position:fixed; left:0px; top:0px; width:100%; height:100%; background-color:#2e2e2e; z-index:10001; }\n" +
+                        "div.DescartesEditorTabContainer{ width:100%; height:100%; position:absolute; padding:0px;  }\n" +
+
+                        ".DescartesTabs{ height: 37px; }\n" +
+                        ".DescartesTabs > ul{ font-size:18px; list-style:none; padding:0 1px 1px; margin-left:4px; text-align:center; }\n" +
+                        ".DescartesTabs > ul > li{ margin-right:1px; padding:8px 8px; float:left; color:#fff; -webkit-user-select:none; -moz-user-select:none; user-select:none; border-radius:7px 7px 0px 0px; background:#0C91EC; background:-moz-linear-gradient(top, #0C91EC 0%, #257AB6 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#0C91EC), color-stop(100%,#257AB6)); }\n" +
+                        ".DescartesTabs > ul > li:hover{ background:#fff; background:-moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); cursor:pointer; color:#000; }\n" +
+                        ".DescartesTabs > ul > li.tabActiveHeader{ background:#fff; background:-moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); cursor:pointer; color:#000; }\n" +
+
+                        ".DescartesTabscontent{ position:absolute; left:5px; right:5px; top:55px; bottom:45px; overflow:y-scroll; padding:10px 10px 25px; background:#000; background:-moz-linear-gradient(top, #FFFFFF 0%, #FFFFFF 90%, #e4e9ed 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); margin:0px; color:#000; background-color:#000; }\n" +
+
+                        //
+                        "div.DescartesConfigPanel{ position:absolute; left:10px; right:10px; top:10px; bottom:10px; overflow:y-scroll; border:solid 1px #000; border-radius:5px; font-size:18px; padding:10px; line-height:1.5em; overflow:auto; }\n" +
+                        "div.DescartesLeftPanelClass{ position:absolute; left:10px; top:10px; bottom:10px; width:200px; background-color:; border:1px solid black; overflow:auto; }\n" +
+                        "div.DescartesLeftPanelClass li:nth-child(odd){ background-color:#6495ED; }\n" +
+                        "div.DescartesLeftPanelClass li:nth-child(even){ background-color:#ED6495; }\n" +
+                        // "div.DescartesLeftPanelClass > div{ background-color:yellow; overflow:auto; }\n" +
+                        "div.DescartesLeftPanelClass > div > ul{ list-style:none; background:#bbb; padding:5px; }\n" +
+                        "div.DescartesLeftPanelClass > div > ul > li{ padding:5px; -webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer; white-space: nowrap; overflow: hidden; }\n" +
+
+                        "div.DescartesRightPanelClass{ position:absolute; left:220px; right: 10px; top:10px; bottom:10px; background-color:; border:1px solid black; overflow:auto; }\n" +
+
+                        "div.DescartesLabelAndElementContainer{ padding:4px 8px; margin:4px; display:inline-block; background-color:lightgray; border-radius:3px; }\n" +
+                        "div.DescartesLabelAndElementContainer > select{ font-family:Monospace; font-size:18px; }\n" +
+                        "div.DescartesLabelAndElementContainer > input{ font-family:Monospace; font-size:18px; }\n" +
+
+                        //
+                        "div.DescarteslistContainer{ font-family:Arial,Helvetica,Sans-serif; font-size:20px; position:absolute; left:5px; right:5px; top:45px; bottom:45px; border-radius:5px; background-color:#DDD; overflow:auto; }\n" +
+                        "div.DescarteslistContainer > ul{ margin:5px; padding:5px; padding-bottom:15px; list-style:none; }\n"+
+                        "div.DescarteslistContainer > ul > li{ padding:7px; margin:1px; }\n"+
+                        "div.DescarteslistContainer li:nth-child(odd){ background-color:#BBB; }\n" +
+                        "div.DescarteslistContainer li:nth-child(even){ background-color:#999; }\n" +
+
+                        "div.DescartesExtraInfo{ padding: 12px; }\n" +
+
+                        "span.DescartesSpanName{ background-color:lightblue; margin:5px; }\n" +
+                        "span.DescartesSpanValue{ background-color:#333; color:white; margin:0px; padding:5px; border-radius:3px; line-height:1.75em; }\n" +
+                        "span.DescartesSpanValue br{ display: none; }\n" +  // prevents breaklines
+                        "span.DescartesSpanValue * { display: inline }\n" + // prevents breaklines
+                        //
+
+                        "div.Descartes_param_name{ background-color:#669; color:#ee5; margin-bottom:10px; }\n" +
+
+                        ".DescartesToolbarPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; top:0px; height:40px; min-width:290px; background: #ccc; padding:4px; }\n" +
+
+                        ".DescartesButtonsPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; bottom:0px; height:40px; min-width:290px; background: #ccc; padding:4px; }\n" +
+                        
+                        "div.DescartesAddPanel{ position:absolute; top:10px; left:10px; width:350px; background-color:white; }\n" +
+
+                        "div.DescarteslistContainer li.DescartesElementSelected{ border:1px solid black; background-color:#D66; }\n" +
+
+                        "input.DescartesEditorButton{ cursor:pointer; width:110px; height:30px; padding:5px 25px; margin:0px 2px; background:#257AB6; border:1px solid #fff; border-radius:7px; box-shadow: inset 0px 1px 0px #3e9cbf, 0px 2px 0px 0px #205c73, 0px 4px 5px #999; color:#fff; font-size:1em; }\n" +
+                        "input.DescartesEditorButton:hover, input.DescartesEditorButton:focus{ background-color:#0C91EC; box-shadow:0 0 1px rgba(0,0,0, .75); }\n";
+
   }
 
   // immediately add the style to the document
@@ -1981,6 +2250,9 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
   /**
    * Descartes animation
    * @constructor 
@@ -1999,6 +2271,8 @@ var descartesJS = (function(descartesJS) {
     var evaluator = parent.evaluator;
     var parser = evaluator.parser;
     var algorithmAuxiliary = new descartesJS.Auxiliary(parent);
+
+    this.start = null;
 
     this.delay = (values.delay) ? parser.parse(values.delay) : parser.parse("60");
     this.loop = (values.loop) ? values.loop : false;
@@ -2031,8 +2305,13 @@ var descartesJS = (function(descartesJS) {
 
       if ( (self.playing) && ((evaluator.evalExpression(self.whileExpr) > 0) || (self.loop)) ) {
         delay = evaluator.evalExpression(self.delay);
-        self.timer = setTimeout(self.animationExec, ((delay < 10) ? 10 : delay));
-      } else {
+
+        if (!window.requestAnimationFrame) {
+          self.timer = setTimeout(self.animationExec, ((delay < 10) ? 10 : delay));
+        }
+
+      } 
+      else {
         self.stop();
         self.parent.update();
       }
@@ -2050,11 +2329,21 @@ var descartesJS = (function(descartesJS) {
    * Play the animation
    */
   descartesJS.Animation.prototype.play = function() {
+    var self = this;
     if (!this.playing) {
       this.reinit();
     
       this.playing = true;
-      this.timer = setTimeout(this.animationExec, this.parent.evaluator.evalExpression(this.delay));
+      delay = this.parent.evaluator.evalExpression(this.delay);
+
+      if (window.requestAnimationFrame) {
+        this.timer = requestAnimationFrame( function(t) {
+          self.step(t);
+        });
+      } 
+      else {
+        this.timer = setTimeout(this.animationExec, ((delay < 10) ? 10 : delay));
+      }
     } 
     
     else {
@@ -2067,7 +2356,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Animation.prototype.stop = function() {
     this.playing = false;
-    clearInterval(this.timer);
+
+    if (window.requestAnimationFrame) {
+      window.cancelAnimationFrame(this.timer);
+    }
+    else {
+      clearInterval(this.timer);
+    }
   }
   
   /**
@@ -2076,6 +2371,35 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Animation.prototype.reinit = function() {
     for (var i=0, l=this.init.length; i<l; i++) {
       this.parent.evaluator.evalExpression(this.init[i]);
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Animation.prototype.step = function(timestamp) {
+    var self = this;
+
+    if (self.start === null) {
+      self.start = timestamp;
+    }
+
+    delay = self.parent.evaluator.evalExpression(self.delay);
+    delay = (delay < 10) ? 10 : delay;
+
+    // if ( ((timestamp - self.start) > delay) && (self.parent.evaluator.evalExpression(self.whileExpr) > 0) ) {
+    if ((timestamp - self.start) > delay) {
+      self.animationExec();
+      // self.start = self.start + (timestamp - self.start);
+      self.start = null;
+    }
+
+    // stop condition
+    if (self.playing) {
+    // if (self.parent.evaluator.evalExpression(self.whileExpr) > 0) {
+      self.timer = requestAnimationFrame( function(t) {
+        self.step(t);
+      });
     }
   }
   
@@ -2413,12 +2737,21 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Config, descartesJS.Action);
 
+  var jsScript = "<script type='text/javascript' src='http://arquimedes.matem.unam.mx/Descartes5/lib/descartes-min.js'></script>\n";
+
+
   /**
    * Execute the action
    */
   descartesJS.Config.prototype.execute = function() {
-    var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
-    codeWindow.document.write("<xmp style='width:100%; height:100%;'>" + this.parent.applet.outerHTML + "</xmp>");
+    if (this.parent.editor) {
+      this.parent.editor.show();
+    }
+    else {
+      var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
+      codeWindow.document.write("<xmp style='width:100%; height:100%;'>" + jsScript + (this.parent.applet.outerHTML.replace(/<applet/g, "<ajs").replace(/<\/applet/g, "</ajs")) + "</xmp>");
+    }
+    
   }
 
   return descartesJS;
@@ -3101,9 +3434,9 @@ var descartesJS = (function(descartesJS) {
 
     var parPos = this.id.indexOf("(");
     this.name = this.id.substring(0, parPos);
-    this.params = this.id.substring(parPos+1, this.id.length-1);
+    this.params = this.id.substring(parPos+1, this.id.indexOf(")"));
     this.domain = (this.range) ? parser.parse(this.range) : parser.parse("1");
-    
+
     if (this.params == "") {
       this.params = [];
     } else {
@@ -3134,7 +3467,6 @@ var descartesJS = (function(descartesJS) {
         var localVars = [];
         for (var i=0, l=self.privateVars.length; i<l; i++) {
           localVars.push( evaluator.getVariable(self.privateVars[i]) );
-
           // set the local variables to 0
           evaluator.setVariable(self.privateVars[i], 0);
         }
@@ -3142,9 +3474,8 @@ var descartesJS = (function(descartesJS) {
         // saves the variable values ​​that have the same names as function parameters
         var paramsTemp = [];
         for (var i=0, l=self.params.length; i<l; i++) {
-          paramsTemp[i] = evaluator.getVariable(self.params[i]);
-          
-        // associated input parameters of the function with parameter names
+          paramsTemp[i] = evaluator.getVariable(self.params[i]) || 0;
+          // associated input parameters of the function with parameter names
           evaluator.setVariable(self.params[i], arguments[i]);
         }
         
@@ -3163,7 +3494,7 @@ var descartesJS = (function(descartesJS) {
           }
         }
         while (evaluator.evalExpression(self.whileExpr) > 0);
-                 
+
         // evaluates to the return value
         var result = evaluator.evalExpression(self.expresion);
         descartesJS.rangeOK = evaluator.evalExpression(self.domain);
@@ -3345,6 +3676,131 @@ var descartesJS = (function(descartesJS) {
     this.eventExec();
   }
 
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * Descartes GenericDefinition
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the auxiliary
+   */
+  descartesJS.GenericDefinition = function(parent, values){
+    this.parent = parent;
+    this.evaluator = this.parent.evaluator;
+
+    this.id = "_";
+
+    // traverse the values to replace the defaults values of the object
+    for (var propName in values) {
+      // verify the own properties of the object
+      if (values.hasOwnProperty(propName)) {
+        this[propName] = values[propName];
+      }
+    }
+  }
+
+  /**
+   * Update the GenericDefinition
+   */
+  // descartesJS.GenericDefinition.prototype.update = function() { }   
+
+  /**
+   * Draw the GenericDefinition
+   */
+  // descartesJS.GenericDefinition.prototype.draw = function() { }   
+    
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var mathRound = Math.round;
+
+  /**
+   * Descartes Rectangle
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the GenericDefinition
+   */
+  descartesJS.Rectangle = function(parent, values){
+    this.fill = "";
+
+    // call the parent constructor
+    descartesJS.GenericDefinition.call(this, parent, values);
+
+    this.evaluator.setDefinition(this.id, this);
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of GenericDefinition
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Rectangle, descartesJS.GenericDefinition);
+  
+  /**
+   * Update the Rectangle
+   */
+  descartesJS.Rectangle.prototype.update = function() {
+  }
+
+  /**
+   * Draw the Rectangle
+   */
+  descartesJS.Rectangle.prototype.draw = function(ctx, fill, stroke, genericGraphic) {
+    var space = genericGraphic.space;
+    var evaluator = this.evaluator;
+    var _x = _y = _w = _h = 0;
+
+    if (genericGraphic.abs_coord) {
+      _x = mathRound(evaluator.evalExpression(this.x));
+      _y = mathRound(evaluator.evalExpression(this.y));
+      _w = mathRound(evaluator.evalExpression(this.width));
+      _h = mathRound(evaluator.evalExpression(this.height));
+    }
+    else {
+      _x = mathRound(space.getAbsoluteX(evaluator.evalExpression(this.x)));
+      _y = mathRound(space.getAbsoluteY(evaluator.evalExpression(this.y)));
+      _w = evaluator.evalExpression(this.width)*space.scale;
+      _h = evaluator.evalExpression(this.height)*space.scale;
+    }
+
+    var tmpLineWidth = mathRound( evaluator.evalExpression(genericGraphic.width) );
+    ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+
+    var lineDesp = (ctx.lineWidth%2 == 0) ? 0 : 0.5;
+
+    ctx.strokeStyle = stroke.getColor();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+      ctx.moveTo(_x+lineDesp,     _y+lineDesp);
+      ctx.lineTo(_x+lineDesp +_w, _y+lineDesp);
+      ctx.lineTo(_x+lineDesp +_w, _y+lineDesp +_h);
+      ctx.lineTo(_x+lineDesp,     _y+lineDesp +_h);
+    ctx.closePath();
+
+    // draw the fill
+    if (genericGraphic.fill) {
+      ctx.fillStyle = fill.getColor();
+      ctx.fill();
+    }
+    
+    // draw the stroke
+    ctx.stroke();
+  }  
+
+  
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -3544,9 +4000,9 @@ var descartesJS = (function(descartesJS) {
     this.font = descartesJS.convertFont(this.font);
 
     // get the font size
-    this.fontSize = this.font.match(/(\d+)px/);
+    this.fontSize = this.font.match(/([\d\.]+)px/);
     if (this.fontSize) {
-      this.fontSize = parseInt(this.fontSize[1]);
+      this.fontSize = parseFloat(this.fontSize[1]);
     } else {
       this.fontSize = 10;
     }
@@ -3693,6 +4149,7 @@ var descartesJS = (function(descartesJS) {
       text = text.toString(decimals, fixed).split("\\n");
     }
 
+    // font = (15) + font.substring( font.indexOf("px") );
     x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
     
     evaluator = this.evaluator;
@@ -4562,7 +5019,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
   descartesJS.Equation.prototype.drawAuxFun = function(ctx, fill, stroke) {
     savex = this.evaluator.parser.getVariable("x");
     savey = this.evaluator.parser.getVariable("y");
-
+    descartesJS.rangeOK = 1;
+    
     var X = "x";
     var Y = "y";
 
@@ -4572,7 +5030,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
     }
 
     var F = 000000;
-    var cond = (this.drawif) ;
+    var cond = (this.drawif);
     var width = this.evaluator.evalExpression(this.width);
 
     var defa = false;
@@ -4818,6 +5276,7 @@ var descartesJS = (function(descartesJS) {
     if (this.visible) {
       this.registerTextField();
     }
+
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -5823,17 +6282,31 @@ var descartesJS = (function(descartesJS) {
      * type {Node}
      * @private
      */
-    this.init = parent.evaluator.parser.parse("0");
+    this.init = "0";
+
 
     /**
      * final angle or vector of an arc
      * type {Node}
      * @private
      */
-    this.end = parent.evaluator.parser.parse("90");
+    this.end = "90";
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
+
+    if (this.init.match(/^_\(/)) {
+      this.initFlag = true;
+      this.init = this.init.substring(1);
+    }
+    if (this.end.match(/^_\(/)) {
+      this.endFlag = true;
+      this.end = this.end.substring(1);
+    }
+
+
+    this.initExpr = parent.evaluator.parser.parse(this.init);
+    this.endExpr = parent.evaluator.parser.parse(this.end);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -5851,6 +6324,8 @@ var descartesJS = (function(descartesJS) {
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
     
+    radianAngle = 0;
+
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
@@ -5863,14 +6338,14 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
 
-    var initVal = evaluator.evalExpression(this.init);
-    var endVal  = evaluator.evalExpression(this.end);
+    var initVal = evaluator.evalExpression(this.initExpr);
+    var endVal  = evaluator.evalExpression(this.endExpr);
 
     // if the expression of the initial and final angle are parenthesized expressions
-    if ( ((this.init.type == "(expr)") && (this.end.type == "(expr)")) || 
-         ((this.init.type == "[expr]") && (this.end.type == "[expr]")) || 
-         ((this.init.type == "(expr)") && (this.end.type == "[expr]")) || 
-         ((this.init.type == "[expr]") && (this.end.type == "(expr)")) 
+    if ( ((this.initExpr.type == "(expr)") && (this.endExpr.type == "(expr)")) || 
+         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "[expr]")) || 
+         ((this.initExpr.type == "(expr)") && (this.endExpr.type == "[expr]")) || 
+         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "(expr)")) 
        ) {
 
       u1 = initVal[0][0];
@@ -5908,6 +6383,9 @@ var descartesJS = (function(descartesJS) {
       // find the angles
       angulo1 = (u1 == 0) ? ((u2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (u1*w1)/Math.sqrt(u1*u1+u2*u2) );
       angulo2 = (v1 == 0) ? ((v2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (v1*w1)/Math.sqrt(v1*v1+v2*v2) );
+
+      angulo1 += radianAngle;
+      angulo2 += radianAngle;
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
@@ -5961,8 +6439,8 @@ var descartesJS = (function(descartesJS) {
     }
     // arc expressed with angles
     else {
-      this.iniAng = descartesJS.degToRad(initVal);
-      this.endAng = descartesJS.degToRad(endVal);
+      this.iniAng = descartesJS.degToRad(initVal) +radianAngle;
+      this.endAng = descartesJS.degToRad(endVal)  +radianAngle;
       this.drawAngle = true;
     }
 
@@ -6111,8 +6589,7 @@ var descartesJS = (function(descartesJS) {
       this.align = "start";
     }
     
-    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);;
-    
+    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);
     this.abs_coord = true;
   }
   
@@ -6174,7 +6651,7 @@ var descartesJS = (function(descartesJS) {
       this.ascent = 0;
     }
     else {
-      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"))
+      newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"));
     }
 
     // draw the text
@@ -6599,7 +7076,7 @@ var descartesJS = (function(descartesJS, babel) {
      * type {Node}
      * @private
      */
-    this.expresion = undefined;
+    this.hasExpresion = false;
 
     /**
      * the macro rotation
@@ -6620,33 +7097,25 @@ var descartesJS = (function(descartesJS, babel) {
 
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
+      if (propName == "expresion") {
+        this.hasExpresion = true;
+      }
+
       // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
         this[propName] = values[propName];
       }
     }
 
-    // if (reservedIdentifiers == null) {
-    //   reservedIdentifiers = "-rnd-pi-e-";
-
-    //   for (var funName in this.evaluator.functions) {
-    //     // verify the own properties of the object
-    //     if (this.evaluator.functions.hasOwnProperty(funName)) {
-    //       reservedIdentifiers += funName + "-";
-    //     }
-    //   }
-    // }
-
     this.graphics = [];
     
     var lessonParser = parent.lessonParser;
     var tokenizer = new descartesJS.Tokenizer();
-    
+
     // if the expression is empty
-    if (this.expresion == undefined) {
+    if (!this.hasExpresion) {
       return;
     }
-
     
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.charAt(0) === "'")) {
@@ -6885,6 +7354,68 @@ var descartesJS = (function(descartesJS, babel) {
 
   return descartesJS;
 })(descartesJS || {}, babel);/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * A Descartes Generic
+   * @constructor 
+   * @param {DescartesApp} parent the Descartes application
+   * @param {String} values the values of the Generic
+   */
+  descartesJS.Generic = function(parent, values) {
+    this.width = parent.evaluator.parser.parse("1");
+
+    // call the parent constructor
+    descartesJS.Graphic.call(this, parent, values);
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of Graphic
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.Generic, descartesJS.Graphic);
+
+  /**
+   * Update the Generic
+   */
+  descartesJS.Generic.prototype.update = function() { 
+  }
+
+  /**
+   * Draw the Generic
+   */
+  descartesJS.Generic.prototype.draw = function() {
+    // call the draw function of the father (uber instead of super as it is reserved word)
+    this.uber.draw.call(this, this.fill, this.color);
+  }
+
+  /**
+   * Draw the trace of the Generic
+   */
+  descartesJS.Generic.prototype.drawTrace = function() {
+    // call the drawTrace function of the father (uber instead of super as it is reserved word)
+    this.uber.drawTrace.call(this, this.trace, this.trace);
+  }
+  
+  /**
+   * Auxiliary function for draw a Generic
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the Generic is drawn
+   * @param {String} fill the fill color of the Generic
+   * @param {String} stroke the stroke color of the Generic
+   */
+  descartesJS.Generic.prototype.drawAux = function(ctx, fill, stroke){
+    var objDef = this.evaluator.getDefinition(this.expresionString);
+    if (objDef) {
+      objDef.draw(ctx, fill, stroke, this);
+    }
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
  * @author Joel Espinosa Longi
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
@@ -7237,36 +7768,41 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Primitive3D.prototype.removeDoubles = function() {
-    tmpVertices = [];
-    for (var i=0, l=this.vertices.length; i<l; i++) {
-      if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
-           (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
-           (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
-           (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
-         ) {
-        tmpVertices.push(this.vertices[i]);
+    if (this.type !== "edge") {
+
+      tmpVertices = [];
+      for (var i=0, l=this.vertices.length; i<l; i++) {
+        if ( (this.vertices[i].x !== this.vertices[(i+1)%l].x) ||
+             (this.vertices[i].y !== this.vertices[(i+1)%l].y) ||
+             (this.vertices[i].z !== this.vertices[(i+1)%l].z) ||
+             (this.vertices[i].w !== this.vertices[(i+1)%l].w) 
+           ) {
+          tmpVertices.push(this.vertices[i]);
+        }
       }
-    }
 
-    if (tmpVertices.length === 0) {
-      tmpVertices.push(this.vertices[0]);
-    }
+      if (tmpVertices.length === 0) {
+        tmpVertices.push(this.vertices[0]);
+      }
 
-    this.vertices = tmpVertices;
+      this.vertices = tmpVertices;
+    }
   }
 
   /**
    *
    */
   function drawVertex(ctx) {
-    ctx.lineWidth = 1;
-    ctx.fillStyle = this.backColor;
-    ctx.strokeStyle = this.frontColor;
+    if (parseInt(this.size) !== 0) {
+      ctx.lineWidth = 1;
+      ctx.fillStyle = this.backColor;
+      ctx.strokeStyle = this.frontColor;
 
-    ctx.beginPath();
-    ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
-    ctx.fill();
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(this.newV[0].x, this.newV[0].y, this.size+.5, 0, Math2PI);
+      ctx.fill();
+      ctx.stroke();
+    }
   }
 
   /**
@@ -7296,7 +7832,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fill();
     }
     // light and metal render
-    else if ( (this.model === "light") || (this.model === "metal") ){
+    else if ( (this.model === "light") || (this.model === "metal") ) {
       if (this.direction >= 0) {
         ctx.fillStyle = space.computeColor(this.backColor, this, (this.model === "metal"));
       }
@@ -8181,6 +8717,8 @@ var descartesJS = (function(descartesJS) {
   var v2_y;
   var v2_z;
 
+  var tempParamU;
+
   /**
    * A Descartes 3D segment
    * @constructor 
@@ -8208,6 +8746,9 @@ var descartesJS = (function(descartesJS) {
     // do not apply the rotations in the model view matrix transformation
     this.updateMVMatrix();
 
+    tempParamU = evaluator.getVariable("u");
+    evaluator.setVariable("u", this.Nu);
+
     expr = evaluator.evalExpression(this.expresion);
     v1_x = expr[0][0];
     v1_y = expr[0][1];
@@ -8218,14 +8759,15 @@ var descartesJS = (function(descartesJS) {
     v2_z = expr[1][2];
 
     this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                         this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                                                                     this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
                                                        ],
                                                          type: "edge",
                                                          frontColor: this.color.getColor(), 
                                                          lineWidth: evaluator.evalExpression(this.width)
                                                        },
-                            this.space ));
+                                                       this.space ));
 
+    evaluator.setVariable("u", tempParamU);
   }
   
   return descartesJS;
@@ -8328,10 +8870,10 @@ var descartesJS = (function(descartesJS) {
     for (var ui=0; ui<Nu; ui++) {
       for (var vi=0; vi<Nv; vi++) {
         v = [];
-        v.push(vertices[vi + ui*Nv + ui]);
-        v.push(vertices[vi+1 + ui*Nv + ui]);
-        v.push(vertices[vi+2 + (ui+1)*Nv  + ui]);
-        v.push(vertices[vi+1 + (ui+1)*Nv  + ui]);
+        v.push(vertices[vi + ui*Nv + ui]);        // 0
+        v.push(vertices[vi+1 + ui*Nv + ui]);      // 1
+        v.push(vertices[vi+2 + (ui+1)*Nv  + ui]); // 2
+        v.push(vertices[vi+1 + (ui+1)*Nv  + ui]); // 3
 
         this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                              type: "face",
@@ -8943,7 +9485,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
-               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "backcolor") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
@@ -10976,16 +11518,11 @@ var descartesJS = (function(descartesJS) {
       canvas.style.display = "block";
       this.draw();
     } else {
-      this.click = false;
       canvas.style.display = "none";
+      // this.buttonClick = false;
     }
 
-    if (this.activeIfValue) {
-      this.canvas.style.cursor = "pointer";
-    }
-    else {
-      this.canvas.style.cursor = "not-allowed";
-    }
+    canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
 
     // update the position and size
     this.updatePositionAndSize();
@@ -11009,7 +11546,7 @@ var descartesJS = (function(descartesJS) {
     // text displace when the button is pressed
     despX = 0;
     despY = 0;
-    if (this.click) {
+    if (this.buttonClick) {
       despX = 1;
       despY = 1;
     }
@@ -11032,7 +11569,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = this.colorInt.getColor();
       ctx.fillRect(0, 0, this.w, this.h);
 
-      if (!this.click) {
+      if (!this.buttonClick) {
         descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
         descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
         descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
@@ -11052,7 +11589,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.click) ) {
+    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
         this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
@@ -11061,7 +11598,7 @@ var descartesJS = (function(descartesJS) {
         ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
       }
     }
-    else if ((this.click) && (!image)) {
+    else if ((this.buttonClick) && (!image)) {
       descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
       descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
 
@@ -11112,7 +11649,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Function executed when the button is pressed
    */
-  descartesJS.Button.prototype.bottonPressed = function() {
+  descartesJS.Button.prototype.buttonPressed = function() {
     this.updateAndExecAction();
   }
   
@@ -11137,14 +11674,16 @@ var descartesJS = (function(descartesJS) {
     function repeat(delayTime, fun, firstTime) {
       clearInterval(timer);
 
-      if (self.click) {
+      if ((self.buttonClick) && (self.drawIfValue) && (self.activeIfValue)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 100;
         timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
       }
+
+
     }
 
-    this.click = false;
+    this.buttonClick = false;
     this.over = false;
     
     if (hasTouchSupport) {
@@ -11176,7 +11715,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichButton == "L") {
         if (self.activeIfValue) {
-          self.click = true;
+          self.buttonClick = true;
           
           self.draw();
           
@@ -11184,13 +11723,16 @@ var descartesJS = (function(descartesJS) {
           self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
 
           if (self.action == "calculate") {
-            repeat(delay, self.bottonPressed, true);
+            repeat(delay, self.buttonPressed, true);
           }
           
           if (hasTouchSupport) {
-            window.addEventListener("touchend", onMouseUp);
-          } else {
-            window.addEventListener("mouseup", onMouseUp);
+            self.canvas.removeEventListener("touchend", onMouseUp);
+            self.canvas.addEventListener("touchend", onMouseUp);
+          } 
+          else {
+            self.canvas.removeEventListener("mouseup", onMouseUp);
+            self.canvas.addEventListener("mouseup", onMouseUp);
           }
         }
       }
@@ -11205,21 +11747,22 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
       
-      if ((self.activeIfValue) || (self.click)) {
-        self.click = false;
+      if ((self.activeIfValue) || (self.buttonClick)) {
+        self.buttonClick = false;
         self.draw();
         
         if (self.action != "calculate") {
-          self.bottonPressed();
+          self.buttonPressed();
         }
         
         evt.preventDefault();
         evt.stopPropagation();
 
         if (hasTouchSupport) {
-          window.removeEventListener("touchend", onMouseUp, false);
-        } else {
-          window.removeEventListener("mouseup", onMouseUp, false);
+          self.canvas.removeEventListener("touchend", onMouseUp);
+        } 
+        else {
+          self.canvas.removeEventListener("mouseup", onMouseUp);
         }
       }
     }
@@ -11241,9 +11784,11 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseOut(evt) {
       self.over = false;
-      self.click = false;
+      self.buttonClick = false;
       self.draw();
     }
+
+
   }
 
   descartesJS.Button.prototype.getScreenshot = function() {
@@ -11277,6 +11822,7 @@ var descartesJS = (function(descartesJS) {
   var evalMin;
   var evalMax;
   var hasTouchSupport;
+  var parseTrue;
 
   /**
    * Descartes spinner control
@@ -11319,9 +11865,11 @@ var descartesJS = (function(descartesJS) {
 
     this.addControlContainer(this.containerControl);
 
-    // if the decimals are negavite or zero
+    parseTrue = this.evaluator.parser.parse("1");
+
+    // if the decimals are negative or zero
     this.originalIncr = this.incr;
-    if (this.evaluator.evalExpression(this.decimals) <= 0) {
+    if ( (this.evaluator.evalExpression(this.decimals) <= 0) || (this.evaluator.evalExpression(this.incr) == 0) ) {
       var tmpIncr = this.evaluator.evalExpression(this.incr);
 
       if (tmpIncr > 0) {
@@ -11329,7 +11877,7 @@ var descartesJS = (function(descartesJS) {
         this.originalIncr = this.incr;
       }
       else {
-        this.incr = this.evaluator.parser.parse("1");
+        this.incr = parseTrue;
       }
     }
 
@@ -11444,11 +11992,11 @@ var descartesJS = (function(descartesJS) {
         this.originalIncr = this.incr;
       }
       else {
-        this.incr = evaluator.parser.parse("1");
+        this.incr = parseTrue;
       }
-    } 
+    }
     else {
-      this.incr = this.originalIncr;
+      this.incr = (evaluator.evalExpression(this.originalIncr) != 0) ? this.originalIncr : parseTrue;
     }
 
     // check if the control is active and visible
@@ -11578,8 +12126,14 @@ var descartesJS = (function(descartesJS) {
       }
     } 
     value = value.toString();
-    
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.replace(this.parent.decimal_symbol, ".")) ) );
+
+    var tmp = value.replace(this.parent.decimal_symbol, ".");
+    if (tmp == parseFloat(tmp)) {
+      resultValue = parseFloat(tmp);
+    }
+    else {
+      resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(tmp) ) );
+    }
 
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
@@ -11996,6 +12550,11 @@ var descartesJS = (function(descartesJS) {
     var labelWidth = parseInt(this.w/2);
     var minTFWidth = fieldValueSize;
     var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial");
+
+    if (!this.visible) {
+      labelWidth = this.w;
+      minTFWidth = 0;
+    }
     
     if (labelWidth < minLabelWidth) {
       labelWidth = minLabelWidth;
@@ -12074,7 +12633,7 @@ var descartesJS = (function(descartesJS) {
       // update the text field value
       this.value = this.validateValue( evaluator.getVariable(this.id) );
       this.field.value = this.formatOutputValue(this.value);
-      
+
       if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
         // update the spinner value
         this.value = this.validateValue( oldFieldValue );
@@ -12098,10 +12657,16 @@ var descartesJS = (function(descartesJS) {
     if ((value === "") || (value == "''")) {
       return "";
     }
-    
+
     evaluator = this.evaluator;
-    
-    resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(value.toString().replace(this.parent.decimal_symbol, ".")) ) );
+
+    var tmp = value.toString().replace(this.parent.decimal_symbol, ".");
+    if (tmp == parseFloat(tmp)) {
+      resultValue = parseFloat(tmp);
+    }
+    else {
+      resultValue = parseFloat( evaluator.evalExpression( evaluator.parser.parse(tmp) ) );
+    }
     
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
@@ -12110,11 +12675,11 @@ var descartesJS = (function(descartesJS) {
     
     evalMin = evaluator.evalExpression(this.min);
     if (evalMin == "") {
-      evalMin = -Math.Infinity;
+      evalMin = -Infinity;
     }
     evalMax = evaluator.evalExpression(this.max);
     if (evalMax == "") {
-      evalMax = Math.Infinity;
+      evalMax = Infinity;
     }
 
     if (this.discrete) {
@@ -12416,8 +12981,6 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Menu, descartesJS.Control);
 
-  var evaluator;
-
   /**
    * Init the menu
    */
@@ -12448,7 +13011,7 @@ var descartesJS = (function(descartesJS) {
     
     minchw += 25;
     minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.evalExpression(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
-    
+
     var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
     var fieldWidth = minTFw;
 
@@ -12484,20 +13047,21 @@ var descartesJS = (function(descartesJS) {
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
     
     this.field.setAttribute("type", "text");
-    this.field.setAttribute("id", this.id+"menu");
+    this.field.setAttribute("id", this.id+"_menuField");
     this.field.value = fieldValue;
+
     this.field.setAttribute("class", "DescartesMenuField");
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + TFx + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
 
-    this.select.setAttribute("id", this.id+"menuSelect");
+    this.select.setAttribute("id", this.id+"_menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
     this.select.setAttribute("style", "text-align: left; font-size: " + this.fieldFontSize + "px; line-height: " + this.h + "px; width : " + chw + "px; height : " + this.h + "px; left: " + chx + "px; border-color: #7a8a99; border-width: 1.5px; border-style: solid; background-color: #eeeeee;");
     this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
-    evaluator.setVariable(this.id, parseFloat(fieldValue));
+    evaluator.setVariable(this.id, parseFloat(fieldValue.replace(this.parent.decimal_symbol, ".")));
 
     this.update();
   }
@@ -12505,15 +13069,9 @@ var descartesJS = (function(descartesJS) {
   /**
    * Update the menu
    */
-  descartesJS.Menu.prototype.update = function() { 
+  descartesJS.Menu.prototype.update = function() {
     evaluator = this.evaluator;
 
-    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
-
-    // for (var i=0, l=this.menuOptions.length; i<l; i++) {
-    //   this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-    // }
-    
     // check if the control is active and visible
     this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
     this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
@@ -12534,6 +13092,8 @@ var descartesJS = (function(descartesJS) {
     this.updatePositionAndSize();
 
     if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
+      this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+
       for (var i=0, l=this.menuOptions.length; i<l; i++) {
         this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
       }
@@ -12695,7 +13255,7 @@ var descartesJS = (function(descartesJS) {
       this.select();      
       this.focus();
     });
-    self.select.addEventListener("click", function(evt) {
+    self.select.addEventListener("mouse", function(evt) {
       this.focus();
     });
   }
@@ -13767,13 +14327,16 @@ var descartesJS = (function(descartesJS) {
     //
     self.evaluator.setFunction(self.id + ".play", function() {
       self.audio.play();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".pause", function() {
       self.audio.pause();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".stop", function() {
       self.audio.pause();
       self.audio.currentTime = 0.0;
+      return 0;
     });
     self.audio.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
@@ -13932,13 +14495,16 @@ var descartesJS = (function(descartesJS) {
     //
     self.evaluator.setFunction(self.id + ".play", function() {
       self.video.play();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".pause", function() {
       self.video.pause();
+      return 0;
     });
     self.evaluator.setFunction(self.id + ".stop", function() {
       self.video.pause();
       self.video.currentTime = 0.0;
+      return 0;
     });
     self.video.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.video.currentTime);
@@ -14343,7 +14909,7 @@ var descartesJS = (function(descartesJS) {
     // build the contraint
     if (this.constraintExpr) {
       this.constraint = parser.parse(this.constraintExpr);
-      
+
       if (this.constraint.type == "(expr)") {
         this.constraint = parser.parse(this.constraintExpr.substring(1, this.constraintExpr.length-1));
       }
@@ -14351,7 +14917,19 @@ var descartesJS = (function(descartesJS) {
       if (this.constraint.type == "compOperator") {
         var left = this.constraint.childs[0];
         var right = this.constraint.childs[1];
-        this.newt = new descartesJS.R2Newton(this.evaluator, this.constraint);
+
+        if ( (left.type == "identifier") && (left.value == "y") && (!right.contains("y")) ) {
+          this.evalConstraint = this.evalConstraintX;
+          this.constraint = right;
+        }
+        else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
+          this.evalConstraint = this.evalConstraintY;
+          this.constraint = right;
+        }
+        else {
+          this.newt = new descartesJS.R2Newton(this.evaluator, this.constraint);
+        }
+
       } else {
         this.constraint = null;
       }
@@ -14461,6 +15039,7 @@ var descartesJS = (function(descartesJS) {
     // update the position
     this.x = evaluator.getVariable(this.xString);
     this.y = evaluator.getVariable(this.yString);
+
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
@@ -14496,7 +15075,7 @@ var descartesJS = (function(descartesJS) {
       if (!this.image.ready) {
         ctx.beginPath();
         ctx.arc(x, y, parseInt(this.width/2), 0, PI2, false);
-    
+
         ctx.fillStyle = this.colorInt.getColor();
         ctx.fill();
       
@@ -14550,7 +15129,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Eval the constraint and change the position
    */
-  descartesJS.GraphicControl.prototype.evalConstraint = function(x, y) {
+  descartesJS.GraphicControl.prototype.evalConstraint = function() {
     constraintPosition.set(this.x, this.y);
 
     cpos = this.newt.findZero(constraintPosition);
@@ -14558,6 +15137,36 @@ var descartesJS = (function(descartesJS) {
     this.y = cpos.y;
     this.evaluator.setVariable(this.xString, this.x);
     this.evaluator.setVariable(this.yString, this.y);
+  }
+
+  /**
+   * Eval the constraint and change the position
+   */
+  descartesJS.GraphicControl.prototype.evalConstraintX = function() {
+    var tmpX = this.evaluator.getVariable("x");
+
+    this.evaluator.setVariable("x", this.x);
+    this.y = this.evaluator.evalExpression( this.constraint );
+
+    this.evaluator.setVariable(this.xString, this.x);
+    this.evaluator.setVariable(this.yString, this.y);
+
+    this.evaluator.setVariable("x", tmpX);
+  }
+
+  /**
+   * Eval the constraint and change the position
+   */
+  descartesJS.GraphicControl.prototype.evalConstraintY = function() {
+    var tmpY = this.evaluator.getVariable("y");
+
+    this.evaluator.setVariable("y", this.y);
+    this.x = this.evaluator.evalExpression( this.constraint );
+
+    this.evaluator.setVariable(this.xString, this.x);
+    this.evaluator.setVariable(this.yString, this.y);
+
+    this.evaluator.setVariable("y", tmpY);
   }
 
   /**
@@ -14779,14 +15388,14 @@ var descartesJS = (function(descartesJS) {
       
       ////////////////////////////////////////////////////////////////////////////
       // if (self.constraint) {
-        // tmpX = self.space.getRelativeX(self.posX);
-        // tmpY = self.space.getRelativeY(self.posY);
+      //   tmpX = self.space.getRelativeX(self.posX);
+      //   tmpY = self.space.getRelativeY(self.posY);
         
-        // cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
-        // self.x = cpos.x;
-        // self.y = cpos.y;
-        // self.evaluator.setVariable(self.xString, self.x);
-        // self.evaluator.setVariable(self.yString, self.y);
+      //   cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
+      //   self.x = cpos.x;
+      //   self.y = cpos.y;
+      //   self.evaluator.setVariable(self.xString, self.x);
+      //   self.evaluator.setVariable(self.yString, self.y);
       // }
       // ////////////////////////////////////////////////////////////////////////////
       // else {
@@ -14803,8 +15412,7 @@ var descartesJS = (function(descartesJS) {
       if (Date.now() - lastTime > 10) {
         // update the controls
         self.parent.updateControls();
-
-        self.parent.update();      
+        self.parent.update();
 
         lastTime = Date.now();
       }
@@ -15067,7 +15675,12 @@ var descartesJS = (function(descartesJS, babel) {
         case("axes"):
         // color of the coordinate text of the mouse
         case("text"):
-          spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
+          if (values_i_1 != "") {
+            spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
+          }
+          else {
+            spaceObj[babelValue] = "";
+          }
           break;
 
         // text of the X axis
@@ -15170,7 +15783,9 @@ var descartesJS = (function(descartesJS, babel) {
           
         // drawif condition
         case("drawif"):
-          spaceObj["drawif"] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            spaceObj["drawif"] = this.parser.parse(values_i_1);
+          }
           break;
           
         // scale
@@ -15327,7 +15942,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("max"):
         // control graphic size
         case("size"):
-          controlObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            controlObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;
           
         // control graphic constraint
@@ -15514,183 +16131,198 @@ var descartesJS = (function(descartesJS, babel) {
 
       babelValue = babel[values_i_0];
 
-      switch(babelValue) {        
+      if (values_i_1 != "") {
+        switch(babelValue) {        
 
-        // type
-        case("type"):
-        // text alignment
-        case("align"):
-          graphicObj[babelValue] = babel[values_i_1];
-          break;
+          // type
+          case("type"):
+          // text alignment
+          case("align"):
+            graphicObj[babelValue] = babel[values_i_1];
+            break;
 
-        // condition to draw the graphic in the background
-        case("background"):
-        // type of coordinates
-        case("abs_coord"):
-        // visible condition
-        case("visible"):
-        // editable condition
-        case("editable"):
-        // condition to use fixed notation in the text
-        case("fixed"):
-        // arc condition to use vectors
-        case("vectors"):
-          graphicObj[babelValue] = (babel[values_i_1] === "true");
-          break;
+          // condition to draw the graphic in the background
+          case("background"):
+          // type of coordinates
+          case("abs_coord"):
+          // visible condition
+          case("visible"):
+          // editable condition
+          case("editable"):
+          // condition to use fixed notation in the text
+          case("fixed"):
+          // arc condition to use vectors
+          case("vectors"):
+            graphicObj[babelValue] = (babel[values_i_1] === "true");
+            break;
 
-        // color
-        case("color"):
-        // fill color
-        case("fill"):
-        // equation fill+ color
-        case("fillP"):
-        // equation fill- color
-        case("fillM"):
-        // arrow color
-        case("arrow"):
-        // trace
-        case("trace"):
-          // patch for catala
-          if (babel[values_i_1] === "false") {
-            graphicObj[babelValue] = "";
-          }
-          else {
-            graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-          }
-          break;
+          // color
+          case("color"):
+          // fill color
+          case("fill"):
+          // equation fill+ color
+          case("fillP"):
+          // equation fill- color
+          case("fillM"):
+          // arrow color
+          case("arrow"):
+          // trace
+          case("trace"):
+            // patch for catala
+            if (babel[values_i_1] === "false") {
+              graphicObj[babelValue] = "";
+            }
+            else {
+              graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+            }
+            break;
 
-        // family parameter
-        case("family"):
-        // parameter of a curve
-        case("parameter"):
-        // information
-        case("info"):
-        // text font
-        case("font"):
-        // macro name
-        case("name"):
-          graphicObj[babelValue] = values_i_1;
-          break;
+          // family parameter
+          case("family"):
+          // parameter of a curve
+          case("parameter"):
+          // information
+          case("info"):
+          // text font
+          case("font"):
+          // macro name
+          case("name"):
+          // arc init angle
+          case("init"):
+          // arc end angle
+          case("end"):
+            graphicObj[babelValue] = values_i_1;
+            break;
 
-        // drawif condition
-        case("drawif"):
-        // width
-        case("width"):
-        // number of decimals of the text in the graphic
-        case("decimals"):
-        // size
-        case("size"):
-        // arrow spear size
-        case("spear"):
-        // arc center
-        case("center"):
-        // arc radius
-        case("radius"):
-        // arc init angle
-        case("init"):
-        // arc end angle
-        case("end"):
-        // image opacity
-        case("opacity"):
-        // image and macro rotation
-        case("inirot"):
-        // macro initial position
-        case("inipos"):
-        // range
-        case("range"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
-          break;
+          // drawif condition
+          case("drawif"):
+          // width
+          case("width"):
+          // number of decimals of the text in the graphic
+          case("decimals"):
+          // size
+          case("size"):
+          // arrow spear size
+          case("spear"):
+          // arc center
+          case("center"):
+          // arc radius
+          case("radius"):
+          // image opacity
+          case("opacity"):
+          // image and macro rotation
+          case("inirot"):
+          // macro initial position
+          case("inipos"):
+          // range
+          case("range"):
+            if (values_i_1 != "") {
+              graphicObj[babelValue] = this.parser.parse(values_i_1);
+            }
+            break;
 
-        // space identifier
-        case("space"):
-          graphicObj["spaceID"] = values_i_1;
-          break;
+          // space identifier
+          case("space"):
+            graphicObj["spaceID"] = values_i_1;
+            break;
 
-        // expression
-        case("expresion"):
-          if (graphicObj.type != "macro") {
-            graphicObj["expresion"] = this.parser.parse(values_i_1);
-            graphicObj["expresionString"] = values_i_1;
-          } else {
-            graphicObj["expresion"] = values_i_1;
-          }
-          break;
+          // expression
+          case("expresion"):
+            if (values_i_1 != "") {
+              if (graphicObj.type != "macro") {
+                graphicObj["expresion"] = this.parser.parse(values_i_1);
+                graphicObj["expresionString"] = values_i_1;
+              } else {
+                graphicObj["expresion"] = values_i_1;
+              }
+            }
+            break;
+                      
+          // text
+          case("text"):
+            graphicObj["text"] = this.parseText(values_i_1);
+            break;
+            
+          // file name
+          case("file"):
+            var fileTmp = values_i_1.replace(/&squot;/g, "'");
+            if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
+              fileTmp = fileTmp.substring(1, fileTmp.length-1);
+            }
+            // explicit image file name
+            if (fileTmp.match(regExpImage)) {
+              fileTmp = "'" + fileTmp + "'";
+            }
+            graphicObj["file"] = this.parser.parse(fileTmp);
+            break;
+            
+          // color border
+          case("border"):
+            if ( (values_i_1 != "") && (babel[values_i_1] != "false") ) {
+              graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+            }
+            break;
+            
+          // any variable missing
+          default:
+            if (graphicObj["family"] != undefined) {
+              if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
+
+                switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
+                  
+                  // find the interval variable of a family
+                  case("interval"):
+                    if (values_i_1 != "") {
+                      graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                    }
+                    break;
                     
-        // text
-        case("text"):
-          graphicObj["text"] = this.parseText(values_i_1);
-          break;
-          
-        // file name
-        case("file"):
-          var fileTmp = values_i_1.replace(/&squot;/g, "'");
-          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
-            fileTmp = fileTmp.substring(1, fileTmp.length-1);
-          }
-          // explicit image file name
-          if (fileTmp.match(regExpImage)) {
-            fileTmp = "'" + fileTmp + "'";
-          }
-          graphicObj["file"] = this.parser.parse(fileTmp);
-          break;
-          
-        // color border
-        case("border"):
-          if (babel[values_i_1] != "false") {
-            graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-          }
-          break;
-          
-        // any variable missing
-        default:
-          if (graphicObj["family"] != undefined) {
-            if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
-              
-              switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
-                
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
-                  break;
+                  // find the number of steps in the family
+                  case("steps"):
+                    if (values_i_1 != "") {
+                      graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                }
+                break;
               }
-              break;
             }
-          }
 
-          if (graphicObj["parameter"] != undefined) {
+            if (graphicObj["parameter"] != undefined) {
 
-            if (values_i_0.match(graphicObj["parameter"] + ".")) {
+              if (values_i_0.match(graphicObj["parameter"] + ".")) {
 
-              // default parameter in a macro
-              if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
-                graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+                // default parameter in a macro
+                if (graphicObj["parameter"] !== values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length)) {
+                  graphicObj["parameter"] = values_i_0.substring(0, values_i_0.indexOf(graphicObj["parameter"]) +graphicObj["parameter"].length);
+                }
+
+                switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
+
+                  // find the interval variable of a parameter
+                  case("interval"):
+                    if (values_i_1 != "") {
+                      graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                    
+                  // find the number of steps in the parameter
+                  case("steps"):
+                    if (values_i_1 != "") {
+                      graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
+                    }
+                    break;
+                }
+                break;
               }
-
-              switch (babel[values_i_0.substring(graphicObj["parameter"].length +1)]) {
-
-                // find the interval variable of a family
-                case("interval"):
-                  graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
-                  break;
-                  
-                // find the number of steps in the family
-                case("steps"):
-                  graphicObj["parameter_steps"] = this.parser.parse(values_i_1);
-                  break;
-              }
-              break;
             }
-          }
 
-          console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
-          break;
-      }
-    }
+            console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+            break;
+        }
+      } // end switch
+
+    } // end if
 
     // MACRO //
     // when absolute coordinates are used
@@ -15750,6 +16382,10 @@ var descartesJS = (function(descartesJS, babel) {
 
       case("fill"):
         return new descartesJS.Fill(this.parent, graphicObj);
+        break;
+
+      case("generic"):
+        return new descartesJS.Generic(this.parent, graphicObj);
         break;
 
       default:
@@ -15848,7 +16484,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("inipos"):
         // end position
         case("endpos"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            graphicObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;          
 
         // family parameter
@@ -15928,7 +16566,9 @@ var descartesJS = (function(descartesJS, babel) {
         case("inipos"):
         // end position
         case("endpos"):
-          graphicObj[babelValue] = this.parser.parse(values_i_1);
+          if (values_i_1 != "") {
+            graphicObj[babelValue] = this.parser.parse(values_i_1);
+          }
           break;          
 
         // family parameter
@@ -15989,12 +16629,16 @@ var descartesJS = (function(descartesJS, babel) {
 
               // family interval
               if (babel[values_i_0.substring(graphicObj["family"].length+1)] === "interval") {
-                graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                if (values_i_1 != "") {
+                  graphicObj["family_interval"] = this.parser.parse(values_i_1);
+                }
                 break;
               }
               // family steps
               else {
-                graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                if (values_i_1 != "") {
+                  graphicObj["family_steps"] = this.parser.parse(values_i_1);
+                }
                 break;
               }
             }
@@ -16116,7 +16760,7 @@ var descartesJS = (function(descartesJS, babel) {
           break;
 
         // editable condition
-      	case("editable"):
+        case("editable"):
         // constant condition
         case("constant"):
         // vector condition
@@ -16154,6 +16798,25 @@ var descartesJS = (function(descartesJS, babel) {
           auxiliarObj[babelValue] = babel[values_i_1];
           break;
 
+        //////////////////////////////
+        // new objects definitions //
+        // type
+        case("type"):
+          auxiliarObj[babelValue] = babel[values_i_1];
+          break;
+
+        // x
+        case("x"):
+        // y
+        case("y"):
+        // width
+        case("width"):
+        // height
+        case("height"):
+          auxiliarObj[babelValue] = this.parser.parse(values_i_1);
+          break;
+        //////////////////////////////
+
         // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");
@@ -16168,6 +16831,13 @@ var descartesJS = (function(descartesJS, babel) {
           
           console.log("----- attributo de auxiliar no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
           break;
+      }
+    }
+
+    if (auxiliarObj.type) {
+      if (auxiliarObj.type == "rectangle") {
+        this.parent.auxiliaries.push(new descartesJS.Rectangle(this.parent, auxiliarObj));
+        return;
       }
     }
 
@@ -16239,12 +16909,10 @@ var descartesJS = (function(descartesJS, babel) {
     else {
       // function
       if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
-        // var auxF = new descartesJS.Function(this.parent, auxiliarObj);
         new descartesJS.Function(this.parent, auxiliarObj);
       } 
       // variable
       else {
-      	// var auxV = new descartesJS.Variable(this.parent, auxiliarObj);
         new descartesJS.Variable(this.parent, auxiliarObj);
       }
       return;
@@ -16559,7 +17227,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Removes single quotes in the value and divided into an array of parameters name and value pairs
    * @param {String} values the string to divided
-   * @return {Array<Array<Strin>>} return the array of name and value pairs
+   * @return {Array<Array<String>>} return the array of name and value pairs
    */
   descartesJS.LessonParser.prototype.split = function(values) {
     if (typeof(values) != "string") {
@@ -16658,6 +17326,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Object} return a rtf text or a simple text
    */
   descartesJS.LessonParser.prototype.parseText = function(text) {
+    text = text || "";
     // is a RTF text
     if (text.match(/^\{\\rtf1/)) {
       return this.RTFparser.parse(text.substring(10));
@@ -16826,8 +17495,17 @@ var descartesJS = (function(descartesJS) {
           }
 
           // if the name of the variable is the name of a matrix, for matrix operations
-          if ((variableValue == undefined) && (getMatrix || evaluator.matrices[this.value])) {            
-            variableValue = evaluator.matrices[this.value];
+          // if ((variableValue == undefined) && (getMatrix || evaluator.matrices[this.value])) {
+          //   variableValue = evaluator.matrices[this.value];
+          // }
+
+          if (variableValue == undefined) {
+            if (getMatrix || evaluator.matrices[this.value]) {
+              variableValue = evaluator.matrices[this.value];
+            }
+            else if (evaluator.vectors[this.value]) {
+              variableValue = evaluator.vectors[this.value];
+            }
           }
 
           return (variableValue !== undefined) ? variableValue : 0; 
@@ -16899,14 +17577,10 @@ var descartesJS = (function(descartesJS) {
     
     // operator
     else if (this.type === "operator") {
-      var op1;
-      var op2;
-      var result;
-
       if (this.value === "+") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator, true);
-          op2 = this.childs[1].evaluate(evaluator, true);
+          var op1 = this.childs[0].evaluate(evaluator, true);
+          var op2 = this.childs[1].evaluate(evaluator, true);
 
           // numeric or string operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
@@ -16920,8 +17594,8 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "-") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator, true);
-          op2 = this.childs[1].evaluate(evaluator, true);
+          var op1 = this.childs[0].evaluate(evaluator, true);
+          var op2 = this.childs[1].evaluate(evaluator, true);
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
@@ -16935,8 +17609,8 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "*") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator, true);
-          op2 = this.childs[1].evaluate(evaluator, true);
+          var op1 = this.childs[0].evaluate(evaluator, true);
+          var op2 = this.childs[1].evaluate(evaluator, true);
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
@@ -16950,8 +17624,8 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "/") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator, true);
-          op2 = this.childs[1].evaluate(evaluator, true);
+          var op1 = this.childs[0].evaluate(evaluator, true);
+          var op2 = this.childs[1].evaluate(evaluator, true);
 
           // numeric operation
           if ((op1.type !== "matrix") || (op2.type !== "matrix")) {
@@ -16965,8 +17639,8 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "%") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator);
-          op2 = this.childs[1].evaluate(evaluator);
+          var op1 = this.childs[0].evaluate(evaluator);
+          var op2 = this.childs[1].evaluate(evaluator);
           return op1 - mathFloor(op1/op2)*op2;
         }
       }
@@ -17013,11 +17687,9 @@ var descartesJS = (function(descartesJS) {
     
     // boolean operator
     else if (this.type === "boolOperator") {
-      var op1;
-
       if (this.value === "&") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           if (op1) {
             return (this.childs[1].evaluate(evaluator)) ? 1 : 0;
           }
@@ -17029,7 +17701,7 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "|") {
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           if (op1) {
             return 1;
           }
@@ -17041,7 +17713,7 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "!") { 
         this.evaluate = function(evaluator) {
-          op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
+          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
           return !op1+0; 
         }
       }
@@ -17049,10 +17721,8 @@ var descartesJS = (function(descartesJS) {
     
     // conditional
     else if (this.type === "conditional") {
-      var op1;
-
       this.evaluate = function(evaluator) {
-        op1 = this.childs[0].evaluate(evaluator);
+        var op1 = this.childs[0].evaluate(evaluator);
 
         if (op1 > 0) {
           return this.childs[1].evaluate(evaluator);
@@ -17086,12 +17756,10 @@ var descartesJS = (function(descartesJS) {
     
     // expression of the type (x,y) or [x,y]
     else if ( (this.type === "(expr)") || (this.type === "[expr]") ) {
-      var l;
-      var result;
-      var tmpRes;
       this.evaluate = function(evaluator) {
-        l = this.childs.length;
-        result = [];
+        var l = this.childs.length;
+        var result = [];
+        var tmpRes;
 
         if ( (l === 1) && (this.childs[0].childs.length === 1) && (this.type === "(expr)") ) {
           result = this.childs[0].childs[0].evaluate(evaluator);
@@ -17657,9 +18325,21 @@ var descartesJS = (function(descartesJS) {
     this.matrices = {};
     this.variables = {};
     this.functions = {};
+    this.definitions = {};
     
     this.registerDefaultValues();
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   */
+  descartesJS.Parser.prototype.setDefinition = function(name, value) {
+    this.definitions[name] = value;
+  }
+  descartesJS.Parser.prototype.getDefinition = function(name) {
+    return this.definitions[name];
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Set the value to a variable
@@ -18759,7 +19439,6 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
 
-
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -18783,7 +19462,20 @@ var descartesJS = (function(descartesJS) {
     this.functions = this.parser.functions;
     this.vectors   = this.parser.vectors;
     this.matrices  = this.parser.matrices;
+
+    this.definitions = this.parser.definitions;
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   */
+  descartesJS.Evaluator.prototype.setDefinition = function(name, value) {
+    this.definitions[name] = value;
+  }
+  descartesJS.Evaluator.prototype.getDefinition = function(name) {
+    return this.definitions[name];
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   /**
    * Set the value to a variable
@@ -21654,7 +22346,12 @@ var descartesJS = (function(descartesJS) {
    * Add a graphic to the list of graphics of the space
    * @param {Graphic} gra is the graphic to add
    */
-  descartesJS.Space.prototype.addGraph = function(gra) {
+  descartesJS.Space.prototype.addGraph = function(gra, is3D) {
+    // add only graphs with the type of the space
+    if ( ((this.type == "R2") && is3D) || (this.type == "R3" && !is3D) ) {
+      return;
+    }
+
     if ((gra.background) && (this.type !== "R3")) {
       this.backgroundGraphics.push(gra);
     }
@@ -21757,8 +22454,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space.prototype.getCursorPosition = function(evt) {
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: pos.x - this.offsetLeft, 
-             y: pos.y - this.offsetTop 
+    return { x: (pos.x) - this.offsetLeft, 
+             y: (pos.y) - this.offsetTop 
            };
   }
   
@@ -21791,12 +22488,12 @@ var descartesJS = (function(descartesJS) {
 
     // create the principal container
     self.container = document.createElement("div");
-    self.container.setAttribute("id", "_DescartesExternalRegion_");
+    // self.container.setAttribute("id", "_DescartesExternalRegion_");
     // self.container.setAttribute("class", "DescartesSpaceExternalContainer");
-    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: 0px 0px 25px 5px #000; overflow-y: scroll; overflow-x: hidden; position: absolute; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
+    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: #000 0px 0px 25px 5px; overflow-y: scroll; overflow-x: hidden; position: fixed; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
 
     self.moveManipulator = document.createElement("div");
-    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
+    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "px; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
     self.moveManipulator.innerHTML = "Descartes";
     self.container.appendChild(self.moveManipulator);
 
@@ -21811,7 +22508,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.SpaceExternal.prototype.init = function() {
     document.body.appendChild(this.container);
 
-    self = this;
+    var self = this;
     var parser = self.parent.evaluator.parser;
     var fontSizeDefaultButtons = "15";
     var text;
@@ -22064,6 +22761,8 @@ var descartesJS = (function(descartesJS) {
 
   var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
+
+  var elapsedTime = 10;
 
   var self;
 
@@ -22336,7 +23035,7 @@ var descartesJS = (function(descartesJS) {
         ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "center") {
+      else if (this.bg_display === "imgcenter") {
         ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -22451,7 +23150,8 @@ var descartesJS = (function(descartesJS) {
 
     // draw the graphic controls
     for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
-      this.graphicsCtr[i].update();
+      // checar si no ocurren problemas
+      // this.graphicsCtr[i].update();
       this.graphicsCtr[i].draw();
     }
 
@@ -22566,8 +23266,14 @@ var descartesJS = (function(descartesJS) {
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
 
+    self.clickPosForZoom = null;
+    self.clickPosForZoomNew = null;
+
+    // self.clickPosForContext = null;
+    // self.clickPosForContextNew = null;
+
     // prevent the context menu display
-    self.canvas.oncontextmenu = function () { return false; };
+    self.canvas.oncontextmenu = function (evt) { return false; };
 
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de touch (iOS, android)
@@ -22593,6 +23299,11 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
       self.evaluator.setVariable(self.mclicizquierdoString, 0);
+
+//
+      // self.clickPosForContext = (self.getCursorPosition(evt)).y;
+      // self.clickPosForContextNew = self.clickPosForContext;
+//
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
@@ -22623,8 +23334,14 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
-      window.removeEventListener("touchmove", onMouseMove, false);
-      window.removeEventListener("touchend", onTouchEnd, false);
+        // self.clickPosForContext = (self.getCursorPosition(evt)).y;
+        // // show the external space
+        // if (self.clickPosForContext == self.clickPosForContextNew) {
+        //   self.parent.externalSpace.show();
+        // }
+
+      window.removeEventListener("touchmove", onMouseMove);
+      window.removeEventListener("touchend", onTouchEnd);
 
       evt.preventDefault();
 
@@ -22671,11 +23388,11 @@ var descartesJS = (function(descartesJS) {
         // if not fixed add a zoom manager
         if (!self.fixed) {
           self.tempScale = self.scale;
+
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
-      
-      if (self.whichButton === "L") {
+      else if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);
@@ -22686,7 +23403,7 @@ var descartesJS = (function(descartesJS) {
         window.addEventListener("mouseup", onMouseUp);
       }
     }
-    
+
     /**
      * 
      * @param {Event} evt 
@@ -22705,7 +23422,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
       if (self.whichButton === "R") {
-        window.removeEventListener("mousemove", onMouseMoveZoom, false);
+        window.removeEventListener("mousemove", onMouseMoveZoom);
 
         // show the external space
         if (self.clickPosForZoom == self.clickPosForZoomNew) {
@@ -22713,8 +23430,8 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      window.removeEventListener("mousemove", onMouseMove, false);
-      window.removeEventListener("mouseup", onMouseUp, false);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
       
       self.parent.update();
     }
@@ -22725,17 +23442,17 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onSensitiveToMouseMovements(evt) {
-      self.posAnte = self.getCursorPosition(evt);
-      self.mouse_x = self.getRelativeX(self.posAnte.x);
-      self.mouse_y = self.getRelativeY(self.posAnte.y);
-      self.evaluator.setVariable(self.mxString, self.mouse_x);
-      self.evaluator.setVariable(self.myString, self.mouse_y);
-
-      self.evaluator.setVariable(self.mclickedString, 0);
-      self.evaluator.setVariable(self.mclicizquierdoString, 0);
-
       // limit the number of updates in the lesson
-      if (Date.now() - lastTime > 10) {
+      if (Date.now() - lastTime > elapsedTime) {
+        self.posAnte = self.getCursorPosition(evt);
+        self.mouse_x = self.getRelativeX(self.posAnte.x);
+        self.mouse_y = self.getRelativeY(self.posAnte.y);
+        self.evaluator.setVariable(self.mxString, self.mouse_x);
+        self.evaluator.setVariable(self.myString, self.mouse_y);
+
+        self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+
         self.parent.update();
         lastTime = Date.now();
       }
@@ -22765,7 +23482,7 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
 
       // if the space is not fixed, then change the origin coordinates
-      if (!self.fixed) {
+      if ((!self.fixed) && (Date.now() - lastTime > elapsedTime)) {
         self.posNext = self.getCursorPosition(evt);
         disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
                  y: MathFloor(self.posAnte.y-self.posNext.y) };
@@ -23111,7 +23828,7 @@ var descartesJS = (function(descartesJS) {
         this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "center") {
+      else if (this.bg_display === "imgcenter") {
         this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -23154,7 +23871,6 @@ var descartesJS = (function(descartesJS) {
 
     // // draw the primitives
     if (this.render === "painter") {
-      // this.drawPainter2(primitives);
       this.drawPainter(primitives);
     }
     else {
@@ -23172,12 +23888,18 @@ var descartesJS = (function(descartesJS) {
 
   var tmpPrimitive;
 
+  /**
+   *
+   */
   descartesJS.renderNode = function(v) {
     this.value = v;
     this.back = null;
     this.front = null;
   }
 
+  /**
+   *
+   */
   descartesJS.renderNode.prototype.inOrder = function() {
     var list = [];
     if (this.back) {
@@ -23191,6 +23913,9 @@ var descartesJS = (function(descartesJS) {
     return list;
   }
 
+  /**
+   *
+   */
   descartesJS.Space3D.prototype.buildTree = function(primitives) {
     if (primitives.length === 0) {
       return null;
@@ -23199,7 +23924,8 @@ var descartesJS = (function(descartesJS) {
     var front_or_back;
     var backList = [];
     var frontList = [];
-    tmpPrimitive = primitives.shift();
+    // tmpPrimitive = primitives.shift();
+    tmpPrimitive = primitives.pop();
 
     for (var i=0, l=primitives.length; i<l; i++) {
       front_or_back = null;
@@ -23303,10 +24029,14 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.drawPainter = function(primitives) {
-    var renderTree = this.buildTree(primitives).inOrder();
+    var renderTree = this.buildTree(primitives);
 
-    for(var i=0; i<renderTree.length; i++) {
-      renderTree[i].draw(this.ctx, this);
+    if (renderTree) {
+      renderTree = renderTree.inOrder();
+
+      for(var i=0; i<renderTree.length; i++) {
+        renderTree[i].draw(this.ctx, this);
+      }
     }
   }
 
@@ -23327,7 +24057,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(2) );
   }
 
 //********************************************************************************************************************
@@ -23397,6 +24127,13 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.computeColor = function(color, primitive, metal) {
+    if (color.match("rgba")) {
+      color = descartesJS.RGBAToHexColor(color);
+    }
+    else if (color.match("#")) {
+      color = new descartesJS.Color(color.substring(1));
+    }
+
     toEye = descartesJS.subtract3D(this.eye, primitive.average);
     aveDistanceToEye = descartesJS.norm3D(toEye);
     unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
@@ -23817,7 +24554,7 @@ var descartesJS = (function(descartesJS) {
         else if (this.bg_display == "patch") {
           styleString += "background-image: url(" + this.imageSrc + ");";
         }
-        else if (this.bg_display == "center") {
+        else if (this.bg_display == "imgcenter") {
           styleString += "background-image: url(" + this.imageSrc + "); background-repeat:no-repeat; background-position: center center;";
         }
       }
@@ -24063,9 +24800,10 @@ var descartesJS = (function(descartesJS) {
 
     if (this.drawIfValue) {
       if (firstTime) {
-        this.x = Math.Infinity;
-        this.y = Math.Infinity;
-      }      
+        this.x = Infinity;
+        this.y = Infinity;
+      }
+
       changeX = (this.x !== (evaluator.evalExpression(this.xExpr) + this.displaceRegionWest));
       changeY = (this.y !== (evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
       this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
@@ -24073,8 +24811,8 @@ var descartesJS = (function(descartesJS) {
 
       // if the position change
       if ((changeX) || (changeY)) {
-        this.MyIFrame.style.left = this.x + "px";
-        this.MyIFrame.style.top = this.y + "px";
+        this.container.style.left = this.x + "px";
+        this.container.style.top = this.y + "px";
       }
 
       file = evaluator.evalExpression(this.file);
@@ -24101,6 +24839,4345 @@ var descartesJS = (function(descartesJS) {
 
   }
   
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var language;
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorGenericPanel = function(editor) {
+  	this.editor = editor;
+  	this.parent = editor.parent;
+
+  	language = this.parent.language;
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.findObjectByName = function(valArray, name) {
+    for (var i=0, l=valArray.length; i<l; i++) {
+      if (valArray[i].name == name) {
+        return valArray[i];
+      }
+    }
+    return null;
+    // return {name: name, value: null};
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.newLabelAndInput = function(obj, panel) {
+    var container = document.createElement("div");
+    container.setAttribute("class", "DescartesLabelAndElementContainer");
+    container.obj = obj;
+
+    var label = newLabel(obj.name);
+    // label.setAttribute("for", "Descartes_textfield_"+text);
+
+    var input = newInput(obj.value);
+    // input.setAttribute("id", "Descartes_textfield_"+text);
+
+    container.appendChild(label);
+    container.appendChild(input);
+    panel.appendChild(container);
+
+    container.addEventListener("change", storeValue);
+
+    return container;
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.newLabelAndMenu = function(obj, panel, options) {
+    var container = document.createElement("div");
+    container.setAttribute("class", "DescartesLabelAndElementContainer");
+    container.obj = obj;
+
+    var label = newLabel(obj.name);
+    // label.setAttribute("for", "Descartes_menu_"+text);
+
+    var select = document.createElement("select");
+    // select.setAttribute("id", "Descartes_menu_"+text);
+
+    for (var i=0,l=options.length; i<l; i++) {
+      select.innerHTML += "<option value='" + options[i] + "'> " + options[i] + "</option>\n";
+    }
+    select.value = obj.value;
+
+    container.appendChild(label);
+    container.appendChild(select);
+    panel.appendChild(container);
+
+    container.addEventListener("change", storeValue);
+
+    return container;
+  }  
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.newLabelAndCheckbox = function(obj, panel) {
+    var container = document.createElement("div");
+    container.setAttribute("class", "DescartesLabelAndElementContainer");
+    container.obj = obj;
+
+    var label = newLabel(obj.name);
+    // label.setAttribute("for", "Descartes_checkbox_"+text);
+
+    var checkbox = newInput(obj.value, "checkbox");
+    // checkbox.setAttribute("id", "Descartes_checkbox_"+text);
+    checkbox.checked = (obj.value == "true") ? true : false;
+
+    container.appendChild(label);
+    container.appendChild(checkbox);
+    panel.appendChild(container);
+
+    container.addEventListener("change", storeValue);
+
+    return container;
+  }    
+
+  /**
+   *
+   */
+  function newLabel(text) {
+    var label = document.createElement("label");
+    label.setAttribute("style", "text-align:right; padding:5px; -webkit-touch-callout:none; -webkit-user-select:none; -khtml-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;");
+    label.innerHTML = babel.translate(language, text);
+    return label;
+  }
+
+  /**
+   *
+   */
+  function newInput(value, type) {
+    var input = document.createElement("input");
+    input.value = value;
+    if (type) {
+      input.setAttribute("type", type);
+    }
+    return input;    
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.newFieldSet = function(panel, text) {
+    var fieldset = document.createElement("fieldset");
+    var fieldSetLegend = document.createElement("legend");
+    fieldSetLegend.innerHTML = text;
+    fieldset.appendChild(fieldSetLegend);
+    
+    panel.appendChild(fieldset);
+
+    return fieldset;
+  }
+
+  /**
+   *
+   */
+  function storeValue(evt) {
+    var input = this.querySelector("input") || this.querySelector("select");
+    var value = input.value;
+    if (input.getAttribute("type") == "checkbox") {
+      value = input.checked.toString();
+    }
+
+    this.obj.value = value;
+// console.log(this.obj)
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.setValue = function(domobj, obj) {
+    domobj.obj = obj;
+    var input = domobj.querySelector("input") || domobj.querySelector("select");
+
+    if (input) {
+      // checkbox
+      if (input.getAttribute("type") == "checkbox") {
+        input.checked = (obj.value == "true") ? true : false;
+      }
+      // text field
+      else {
+        input.value = obj.value;
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.fillAttributes = function(space) {
+    var c;
+
+    for (var i=0, l=space.length; i<l; i++) {
+      c = this.attributes[space[i].name];
+      if (c) {
+        this.setValue(c, space[i]);
+      }
+    }
+  }
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.hideAllAttributes = function() {
+    for (var att in this.attributes) {
+      descartesJS.hideHTML( this.attributes[att] );
+    }
+  }
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.showAttributes = function(space) {
+    for (var i=0, l=space.length; i<l; i++) {
+      if (this.attributes[space[i].name]) {
+        descartesJS.showHTML( this.attributes[space[i].name] );
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.toNameValueArray = function(objArray) {
+    var tmpArray = [];
+    for (var prop in objArray) {
+      tmpArray.push( { name: prop, value: objArray[prop] } )
+    }
+    return tmpArray;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *************************************************************************************************************************************************
+   */
+  descartesJS.EditorGenericPanel.prototype.createPanel2 = function(isNotFirstTime) {
+    var displaceIndex = (this.useDisplaceIndex) ? this.editor.definitionPanel.params.length : 0;
+
+    if (!isNotFirstTime) {
+      for (var i=0, l=this.params.length; i<l; i++) {
+        this.buildobj(this.params[i]);
+      }
+
+      this.ulContainer = document.createElement("ul");
+      this.editor.listContainer.appendChild(this.ulContainer);      
+    }
+
+    var lessonParser = this.parent.lessonParser;
+    var liElement;
+    var span;
+    var editSpan;
+    var name;
+    var prop;
+    var family;
+    var param_i;
+
+    if (this.params.length == 0) {
+      this.ulContainer.style.display = "none";
+    }
+    else {
+      this.ulContainer.style.display = null;
+    }
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      liElement = document.createElement("li");
+      liElement.setAttribute("data-index", i);
+      param_i = this.params[i].obj;
+      name = this.params[i].name;
+
+      span = document.createElement("span");
+      span.innerHTML = '<div class="Descartes_param_name">' + '&lt;param name="' + this.prefix + (((i+displaceIndex+1)<10) ? "0" : "") + (i+displaceIndex+1) + '" value="<br></div>';
+      liElement.appendChild(span);
+
+      for (var ii=0, ll=param_i.length; ii<ll; ii++) {
+        prop = param_i[ii];
+        prop.value = prop.value.replace(/</g, "&lt;");
+
+        if ( (prop.name == "family_interval") || (prop.name == "family_steps") ) { 
+          family = this.params[i].paramObj.family;
+          span = document.createElement("span");
+          span.setAttribute("class", "family");
+          span.innerHTML = family + ((family != "") ? "." : "") + ((prop.name == "family_interval") ? babel.toLanguage("interval") : babel.toLanguage("steps")) + "='";
+          liElement.appendChild(span);
+
+          editSpan = document.createElement("span");
+          editSpan.setAttribute("class", "DescartesSpanValue");
+          editSpan.setAttribute("contenteditable", "true");
+          editSpan.setAttribute("autocapitalize", "off");
+          editSpan.innerHTML = babel.toLanguage(prop.value);
+          liElement.appendChild(editSpan);
+
+          span = document.createElement("span");
+          span.innerHTML = "'" + ((ii<ll-1)?" ":"");
+          liElement.appendChild(span);
+        }
+        else if ( (prop.name == "parameter_interval") || (prop.name == "parameter_steps") ) {
+          parameter = this.params[i].paramObj.parameter;
+          span = document.createElement("span");
+          span.setAttribute("class", "parameter");
+          span.innerHTML = parameter + ((parameter != "") ? "." : "") + ((prop.name == "parameter_interval") ? babel.toLanguage("interval") : babel.toLanguage("steps")) + "='";
+          liElement.appendChild(span);
+
+          editSpan = document.createElement("span");
+          editSpan.setAttribute("class", "DescartesSpanValue");
+          editSpan.setAttribute("contenteditable", "true");
+          editSpan.setAttribute("autocapitalize", "off");
+          editSpan.innerHTML = babel.toLanguage(prop.value);
+          liElement.appendChild(editSpan);
+
+          span = document.createElement("span");
+          span.innerHTML = "'" + ((ii<ll-1)?" ":"");
+          liElement.appendChild(span);          
+        }
+        else {
+          if (!this.dontShowList[prop.name]) { 
+            span = document.createElement("span");
+            span.innerHTML = babel.toLanguage(prop.name) + "='";
+            liElement.appendChild(span);
+
+            editSpan = document.createElement("span");
+            editSpan.setAttribute("class", "DescartesSpanValue");
+            editSpan.setAttribute("contenteditable", "true");
+            editSpan.setAttribute("autocapitalize", "off");
+            editSpan.innerHTML = babel.toLanguage(prop.value);
+            liElement.appendChild(editSpan);
+
+            span = document.createElement("span");
+            span.innerHTML = "'" + ((ii<ll-1)?" ":"");
+            liElement.appendChild(span);
+          }
+        }
+
+        //
+        if (prop.name == "family") {
+          editSpan.addEventListener("input", function(evt) {
+            var familyRelated = this.parentNode.querySelectorAll(".family");
+            var text;
+
+            for (var i=0, l=familyRelated.length; i<l; i++) {
+              text = familyRelated[i].innerHTML;
+
+              if (text.match("intervalo")) {
+                familyRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "intervalo='";
+              }
+              else {
+                familyRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "pasos='";
+              }   
+            }
+          });
+        }
+
+        //
+        if (prop.name == "parameter") {
+          editSpan.addEventListener("input", function(evt) {
+            var parameterRelated = this.parentNode.querySelectorAll(".parameter");
+            var text;
+
+            for (var i=0, l=parameterRelated.length; i<l; i++) {
+              text = parameterRelated[i].innerHTML;
+
+              if (text.match("intervalo")) {
+                parameterRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "intervalo='";
+              }
+              else {
+                parameterRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "pasos='";
+              }   
+            }
+          });
+        }        
+
+      }
+
+      span = document.createElement("span");
+      span.innerHTML = '<br>"&gt;';
+      liElement.appendChild(span);
+
+      this.ulContainer.appendChild(liElement);      
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.add = function(type) {
+    var newParam = { name: "_" };
+
+    newParam.paramObj = this.newParamObject(type);
+    newParam.obj = this.toNameValueArray(newParam.paramObj);
+
+    this.params.push(newParam);
+    this.ulContainer.innerHTML = "";
+    this.createPanel2(true);
+
+    //
+    if (this.notifyProgram) {
+      this.editor.programPanel.renumerate();
+    }
+
+    var tmp = this.ulContainer.querySelectorAll("li");
+    tmp[this.params.length-1].className += " DescartesElementSelected";
+    return tmp[this.params.length-1];
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.remove = function(index) {
+    this.params.splice(index, 1);
+    this.ulContainer.innerHTML = "";
+    this.createPanel2(true);
+
+    //
+    if (this.notifyProgram) {
+      this.editor.programPanel.renumerate();
+    }    
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.clone = function(index) {
+    var oldParam = this.params[index];
+    var newParam = { name: "_", paramObj: {} };
+
+    for (var prop in oldParam.paramObj) {
+      newParam.paramObj[prop] = oldParam.paramObj[prop];
+    }
+
+    newParam.obj = this.toNameValueArray(newParam.paramObj);
+
+    this.params.push(newParam);
+    this.ulContainer.innerHTML = "";
+    this.createPanel2(true);
+
+    //
+    if (this.notifyProgram) {
+      this.editor.programPanel.renumerate();
+    }
+
+    var tmp = this.ulContainer.querySelectorAll("li");
+    tmp[this.params.length-1].className += " DescartesElementSelected";
+    return tmp[this.params.length-1];    
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.moveUp = function(index) {
+    if (index > 0) {
+      var tmpParam = this.params[index-1];
+      this.params[index-1] = this.params[index];
+      this.params[index] = tmpParam;
+      this.ulContainer.innerHTML = "";
+      this.createPanel2(true);
+
+      var tmp = this.ulContainer.querySelectorAll("li");
+      tmp[index-1].className += " DescartesElementSelected";
+      return tmp[index-1];
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.moveDown = function(index) {
+    if (index < this.params.length-1) {
+      var tmpParam = this.params[index+1];
+      this.params[index+1] = this.params[index];
+      this.params[index] = tmpParam;
+      this.ulContainer.innerHTML = "";
+      this.createPanel2(true);
+
+      var tmp = this.ulContainer.querySelectorAll("li");
+      tmp[index+1].className += " DescartesElementSelected";
+      return tmp[index+1];
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.renumerate = function() {
+    var displaceIndex = this.editor.definitionPanel.params.length;
+    var tmp = this.ulContainer.querySelectorAll("li");
+    for (var i=0, l=tmp.length; i<l; i++) {
+      tmp[i].firstChild.innerHTML = '&lt;param name="' + this.prefix + (i+displaceIndex+1) + '" value="';
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGenericPanel.prototype.getContent = function() {
+    var text = "";
+    var ulList = this.ulContainer.querySelectorAll("li");
+    var param_i;
+
+    var spanList;
+
+    for (var i=0,l=ulList.length; i<l; i++) {
+      spanList = ulList[i].querySelectorAll("span");
+
+      for (var j=0, k=spanList.length; j<k; j++) {
+        if (spanList[j].className == "DescartesSpanValue") {
+          text += spanList[j].textContent.replace(/'/g, "&squot;");
+        }
+        else {
+          text += spanList[j].textContent;
+        }
+      }
+
+      text += "\n";
+    }
+
+    return text.replace(/intervalo=''/g, "").replace(/pasos=''/g, "");
+  }
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   *
+   */
+  descartesJS.hideHTML = function(obj) {
+    if ((obj) && (obj.style)) {
+      obj.style.display = "none";
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.showHTML = function(obj) {
+    if ((obj) && (obj.style)) {
+      obj.style.display = "";
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.hideMultipleHTML = function(objlist) {
+    for (var i=0, l=objlist.length; i<l; i++) {
+      descartesJS.hideHTML(objlist[i]);
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.showMultipleHTML = function(objlist) {
+    for (var i=0, l=objlist.length; i<l; i++) {
+      descartesJS.showHTML(objlist[i]);
+    }
+  }  
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorConfigPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+  	this.params = editor.sceneParams;
+    this.config = editor.configAttributes;
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorConfigPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorConfigPanel.prototype.createPanel = function() {
+    var tmp;
+
+    var parentPanel = document.getElementById("tab_1");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+    
+    this.parameters = [];
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // docBase
+    tmp = this.findObjectByName(this.params, "docBase");
+    if (tmp.value == window.location.href) { tmp.value = "_default_"; };
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "docBase"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // decimal symbol
+    this.parameters.push(  this.newLabelAndMenu(this.findObjectByName(this.params, "decimal_symbol"), panel, [".", ","])  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // antialias
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "antialias"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // language
+    this.parameters.push(  this.newLabelAndMenu(this.findObjectByName(this.params, "language"), panel, ["english", "espa\u00F1ol", "catal\u00E0", "euskera", "fran\u00E7ais", "galego", "portugu\u00EAs", "valenci\u00E0"])  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // buttons
+    var tmpButtons = this.parent.lessonParser.split(this.findObjectByName(this.params, "Buttons").value)
+    var tmpButtonsArray = [];
+    for (var i=0, l=tmpButtons.length; i<l; i++) {
+      tmpButtonsArray.push( { name: babel[tmpButtons[i][0]] || tmpButtons[i][0], 
+                              value: babel[tmpButtons[i][1]] || tmpButtons[i][1]
+                            } );
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fieldset
+    var buttonsFieldSet = this.newFieldSet(panel, "buttons");
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // about button
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "about"), buttonsFieldSet)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // config button
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "config"), buttonsFieldSet)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // init button
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "init"), buttonsFieldSet)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // clear button
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "clear"), buttonsFieldSet)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // widthEast
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "widthEast"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // widthWest
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "widthWest"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // height
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "height"), panel)  );
+  }
+
+  /**
+   *************************************************************************************************************************************************
+   */
+  descartesJS.EditorConfigPanel.prototype.createPanel2 = function() {
+    this.ulContainer = document.createElement("ul");
+    this.editor.listContainer.appendChild(this.ulContainer);
+
+    var lessonParser = this.parent.lessonParser;
+    var liElement;
+    var span;
+    var name;
+    var value;
+
+    var _tmpW = _tmpH = null;
+
+    // applet header
+    liElement = document.createElement("li");
+    span = document.createElement("span");
+    span.innerHTML = "&lt;ajs ";
+    liElement.appendChild(span);
+
+    for (var i=0, l=this.config.length; i<l; i++) {
+      name = this.config[i].name;
+      value = this.config[i].value;    
+
+      if (name == "width") {
+        _tmpW = value;
+      }
+      if (name == "height") {
+        _tmpH = value;
+      }
+
+      span = document.createElement("span");
+      span.innerHTML = name + '="';
+      liElement.appendChild(span);
+
+      span = document.createElement("span");
+      span.setAttribute("class", "DescartesSpanValue");
+      span.setAttribute("contenteditable", "true");
+      span.setAttribute("autocapitalize", "off");
+      span.innerHTML = value;
+      liElement.appendChild(span);
+
+      span = document.createElement("span");
+      span.innerHTML = '" ';
+      liElement.appendChild(span);
+    }
+
+    span = document.createElement("span");
+    span.innerHTML = "&gt;";
+    liElement.appendChild(span);
+
+    this.ulContainer.appendChild(liElement);
+    //////////
+
+    //
+    for (var i=0, l=this.params.length; i<l; i++) {
+      liElement = document.createElement("li");
+      name = this.params[i].name;
+      value = this.params[i].value;
+
+      if ((name == "size") && (_tmpW != null) && (_tmpH != null)) {
+        value = _tmpW +"x"+ _tmpH;
+      }
+
+      if (babel[this.params[i].name] != "Buttons") {
+        span = document.createElement("span");
+        span.innerHTML = '&lt;param name="' + babel.toLanguage(name) + '" value="';
+        liElement.appendChild(span);
+
+        span = document.createElement("span");
+        span.setAttribute("class", "DescartesSpanValue");
+        span.setAttribute("contenteditable", "true");
+        span.setAttribute("autocapitalize", "off");
+        span.innerHTML = babel.toLanguage(value);
+        liElement.appendChild(span);
+
+        span = document.createElement("span");
+        span.innerHTML = '"&gt;';
+        liElement.appendChild(span);
+      }
+      else {
+        span = document.createElement("span");
+        span.innerHTML = '&lt;param name="' + babel.toLanguage(name) + '" value="';
+        liElement.appendChild(span);
+
+        var splitValues = lessonParser.split(value);
+        for (var s_i=0, s_l=splitValues.length; s_i<s_l; s_i++) {
+          name = babel[splitValues[s_i][0]] || splitValues[s_i][0];
+          value = babel[splitValues[s_i][1]] || splitValues[s_i][1];
+
+          span = document.createElement("span");
+          span.innerHTML = babel.toLanguage(name) + "='";
+          liElement.appendChild(span);
+
+          span = document.createElement("span");
+          span.setAttribute("class", "DescartesSpanValue");
+          span.setAttribute("contenteditable", "true");
+          span.setAttribute("autocapitalize", "off");
+          span.innerHTML = babel.toLanguage(value);
+          liElement.appendChild(span);
+
+          span = document.createElement("span");
+          span.innerHTML = "'" + ((s_i < s_l-1) ? " " : "");
+          liElement.appendChild(span);
+        }
+
+        span = document.createElement("span");
+        span.innerHTML = '">';
+        liElement.appendChild(span);
+      }
+
+      this.ulContainer.appendChild(liElement);
+    }
+
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorSpacePanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.spaceParams;
+    this.prefix = "E_";
+    this.dontShowList = {};
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorSpacePanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorSpacePanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_2");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    //
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorSpacePanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var tmpValue;
+    var type = "R2";
+
+    // find the type of the space
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "type") {
+        type = paramsObj_i[1];
+        break;
+      }
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorSpacePanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.id + "  (space" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var space = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(space);
+      self.fillAttributes(space);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorSpacePanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // id
+    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fieldset
+    // var sizeFieldSet = descartesJS.newFieldSet(this.configRightSubPanel, "position and dimension");
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // x
+    this.attributes.x = this.newLabelAndInput({name: "x", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // y
+    this.attributes.y = this.newLabelAndInput({name: "y", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // width
+    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // height
+    this.attributes.height = this.newLabelAndInput({name: "height", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // drawif
+    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // R2 and R3
+    // fixed
+    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // R2 and R3
+    // scale
+    this.attributes.scale = this.newLabelAndInput({name: "scale", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // R2 and R3
+    // O.x
+    this.attributes["O.x"] = this.newLabelAndInput({name: "O.x", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // R2 and R3
+    // O.y
+    this.attributes["O.y"] = this.newLabelAndInput({name: "O.y", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // image
+    this.attributes.image = this.newLabelAndInput({name: "image", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // bg_display
+    this.attributes.bg_display = this.newLabelAndMenu({name: "bg_display", value: "topleft"}, this.configRightSubPanel, ["topleft", "stretch", "patch", "center"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // background
+    this.attributes.background = this.newLabelAndInput({name: "background", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only HTMLIFrame
+    // file
+    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2
+    // net
+    this.attributes.net = this.newLabelAndInput({name: "net", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2
+    // net10
+    this.attributes.net10 = this.newLabelAndInput({name: "net10", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2
+    // axes
+    this.attributes.axes = this.newLabelAndInput({name: "axes", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2
+    // text
+    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2
+    // numbers
+    this.attributes.numbers = this.newLabelAndCheckbox({name: "numbers", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2    
+    // x_axes
+    this.attributes.x_axis = this.newLabelAndInput({name: "x_axis", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R2    
+    // y_axes
+    this.attributes.y_axis = this.newLabelAndInput({name: "y_axis", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R3
+    // render
+    this.attributes.render = this.newLabelAndMenu({name: "render", value: "sort"}, this.configRightSubPanel, ["sort", "painter"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // only R3
+    // split
+    this.attributes.split = this.newLabelAndCheckbox({name: "split", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // R2 and R3
+    // sensitive_to_mouse_movements
+    this.attributes.sensitive_to_mouse_movements = this.newLabelAndCheckbox({name: "sensitive_to_mouse_movements", value: "false"}, this.configRightSubPanel);
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorSpacePanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+
+    // if the type is R2
+    if (type == "R2") {
+      tmpObj = { type:       "R2",
+                 id:         "E0",
+                 x:          "0",
+                 y:          "0",
+                 width:      "100%", 
+                 height:     "100%",
+                 drawif:     "1",
+                 fixed:      "false",
+                 scale:      "48",
+                 "O.x":      "0",
+                 "O.y":      "0",
+                 image:      "",
+                 bg_display: "topleft",
+                 background: "f0f8fa",
+                 net:        "b8c4c8",
+                 net10:      "889498",
+                 axes:       "405860",
+                 text:       "405860",
+                 numbers:    "false",
+                 x_axis:     "",
+                 y_axis:     "",
+                 sensitive_to_mouse_movements: "false"
+      };
+    }
+    // if the type is R3
+    else if (type == "R3") {
+      tmpObj = { type:       "R3",
+                 id:         "E0",
+                 x:          "0",
+                 y:          "0",
+                 width:      "100%", 
+                 height:     "100%",
+                 drawif:     "1",
+                 fixed:      "false",
+                 scale:      "48",
+                 "O.x":      "0",
+                 "O.y":      "0",
+                 image:      "",
+                 bg_display: "topleft",
+                 background: "000000",
+                 render:     "order",
+                 split:      "false",
+                 sensitive_to_mouse_movements: "false"
+      };
+    }
+    // if the type is HTMLIframe
+    else {
+      tmpObj = { type:       "HTMLIFrame",
+                 id:         "E0",
+                 x:          "0",
+                 y:          "0",
+                 width:      "100%", 
+                 height:     "100%",
+                 drawif:     "1",
+                 image:      "",
+                 bg_display: "topleft",
+                 background: "f0f8fa",
+                 file:       ""
+      };
+    }
+
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorControlPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.ctrsParams;
+
+    this.prefix = "C_";
+    this.dontShowList = {};
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorControlPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorControlPanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_3");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    // 
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorControlPanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var finalControl = [];
+    var tmpValue;
+    var type = "spinner";
+
+    // find the type of the control
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "type") {
+        type = babel[ paramsObj_i[1] ];
+        break;
+      }
+    }
+
+    if (type == "numeric") {
+      type = "spinner";
+      for (var i=0, l=paramsObj.length; i<l; i++) {
+        paramsObj_i = paramsObj[i];
+
+        if (babel[paramsObj_i[0]] == "gui") {
+          type = babel[ paramsObj_i[1] ];
+          break;
+        }
+      }
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorControlPanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var control = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(control);
+      self.fillAttributes(control);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorControlPanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // id
+    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // gui
+    this.attributes.gui = this.newLabelAndMenu({name: "gui", value: "spinner"}, this.configRightSubPanel, ["spinner", "textfield", "menu", "scrollbar", "button"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // region
+    this.attributes.region = this.newLabelAndMenu({name: "region", value: "south"}, this.configRightSubPanel, ["south", "north", "east", "west", "external", "interior", "scenario"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // params
+    this.attributes.params = this.newLabelAndInput({name: "params", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // name
+    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // expresion
+    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // value
+    this.attributes.value = this.newLabelAndInput({name: "value", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // incr
+    this.attributes.incr = this.newLabelAndInput({name: "incr", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // min
+    this.attributes.min = this.newLabelAndInput({name: "min", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // max
+    this.attributes.max = this.newLabelAndInput({name: "max", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // discrete
+    this.attributes.discrete = this.newLabelAndCheckbox({name: "discrete", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // decimals
+    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fixed
+    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // exponentialif
+    this.attributes.exponentialif = this.newLabelAndInput({name: "exponentialif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // visible
+    this.attributes.visible = this.newLabelAndInput({name: "visible", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // action
+    this.attributes.action = this.newLabelAndMenu({name: "action", value: ""}, this.configRightSubPanel, ["", "calculate", "init", "clear", "animate", "openURL", "openScene", "playAudio"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // parameter
+    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // drawif
+    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // activeif
+    this.attributes.activeif = this.newLabelAndInput({name: "activeif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // onlyText
+    this.attributes.onlyText = this.newLabelAndCheckbox({name: "onlyText", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // options
+    this.attributes.options = this.newLabelAndInput({name: "options", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // color
+    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // colorInt
+    this.attributes.activeif = this.newLabelAndInput({name: "colorInt", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // bold
+    this.attributes.bold = this.newLabelAndCheckbox({name: "bold", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // italics
+    this.attributes.italics = this.newLabelAndCheckbox({name: "italics", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // underlined
+    this.attributes.underlined = this.newLabelAndCheckbox({name: "underlined", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // font_size
+    this.attributes.font_size = this.newLabelAndInput({name: "font_size", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // image
+    this.attributes.image = this.newLabelAndInput({name: "image", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // size
+    this.attributes.size = this.newLabelAndInput({name: "size", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // constraint
+    this.attributes.constraint = this.newLabelAndInput({name: "constraint", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // text
+    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // file
+    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorControlPanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+
+    // if the type is spinner
+    if (type == "spinner") {
+      tmpObj = { id:         "n1",
+                 type:       "numeric",
+                 gui:        "spinner",
+                 region:     "south",
+                 space:      "E0",
+                 name:       "n1",
+                 expresion:  "(0,0,100,23)",
+                 value:      "0",
+                 incr:       "0.1",
+                 min:        "",
+                 max:        "",
+                 discrete:   "false",
+                 decimals:   "2",
+                 fixed:      "true",
+                 exponentialif: "",
+                 visible:    "true",
+                 action:     "",
+                 parameter:  "",
+                 drawif:     "",
+                 activeif:   ""
+                 // evaluate:   "false",
+                 // answer:     "",
+                 // weight:     ""
+      };
+    }
+    // if the type is textfield
+    else if (type == "textfield") {
+      tmpObj = { id:         "n1",
+                 type:       "numeric",
+                 gui:        "textfield",
+                 onlyText:   "false",
+                 region:     "south",
+                 space:      "E0",
+                 name:       "n1",
+                 expresion:  "(0,0,100,23)",
+                 value:      "0",
+                 incr:       "0.1",
+                 min:        "",
+                 max:        "",
+                 discrete:   "false",
+                 decimals:   "2",
+                 fixed:      "true",
+                 exponentialif: "",
+                 visible:    "true",
+                 action:     "",
+                 parameter:  "",
+                 drawif:     "",
+                 activeif:   "",
+                 evaluate:   "false",
+                 answer:     ""
+                 // weight:     ""
+      };
+    }
+    // if the type is menu
+    else if (type == "menu") {
+      tmpObj = { id:         "n1",
+                 type:       "numeric",
+                 gui:        "menu",
+                 region:     "south",
+                 space:      "E0",
+                 name:       "n1",
+                 expresion:  "(0,0,100,23)",
+                 value:      "0",
+                 decimals:   "2",
+                 fixed:      "true",
+                 exponentialif: "",
+                 visible:    "true",
+                 options:    "",
+                 action:     "",
+                 parameter:  "",
+                 drawif:     "",
+                 activeif:   ""
+                 // evaluate:   "false",
+                 // answer:     "",
+                 // weight:     ""
+      };
+    }
+    // if the type is scrollbar
+    else if (type == "scrollbar") {
+      tmpObj = { id:         "n1",
+                 type:       "numeric",
+                 gui:        "scrollbar",
+                 region:     "south",
+                 space:      "E0",
+                 name:       "n1",
+                 expresion:  "(0,0,100,23)",
+                 value:      "0",
+                 incr:       "0.1",
+                 min:        "0",
+                 max:        "100",
+                 discrete:   "false",
+                 decimals:   "2",
+                 fixed:      "true",
+                 exponentialif: "",
+                 visible:    "true",
+                 action:     "",
+                 parameter:  "",
+                 drawif:     "",
+                 activeif:   ""
+                 // evaluate:   "false",
+                 // answer:     "",
+                 // weight:     ""
+      };
+    }
+    // if the type is button
+    else if (type == "button") {
+      tmpObj = { id:         "n1",
+                 gui:        "button",
+                 type:       "numeric",
+                 region:     "south",
+                 space:      "E0",
+                 name:       "n1",
+                 expresion:  "(0,0,100,23)",
+                 value:      "0",
+                 visible:    "true",
+                 color:      "222222",
+                 colorInt:   "f0f8ff",
+                 bold:       "false",
+                 italics:    "false",
+                 underlined: "false",
+                 font_size:  "12",
+                 image:      "",
+                 action:     "",
+                 parameter:  "",
+                 drawif:     "",
+                 activeif:   ""
+      };
+    }
+    // if the type is graphic
+    else if (type == "graphic") {
+      tmpObj = { id:         "g1",
+                 type:       "graphic",
+                 space:      "E0",
+                 color:      "222222",
+                 colorInt:   "f0f8ff",
+                 size:       "4",
+                 expresion:  "(0,0)",
+                 constraint: "",
+                 image:      "",
+                 drawif:     "",
+                 activeif:   ""
+      };           
+    }
+    // if the type is text
+    else if (type == "text") {
+      tmpObj = { id:         "t1",
+                 type:       "text",
+                 space:      "E0",
+                 expresion:  "(0,0)",
+                 text:       "",
+                 answer:     "",
+                 drawif:     "",
+                 activeif:   ""
+      };
+    }
+    // if the type is audio
+    else if (type == "audio") {
+      tmpObj = { id:         "a1",
+                 type:       "audio",
+                 space:      "E0",
+                 expresion:  "(0,0)",
+                 drawif:     "",
+                 file:       ""
+      };
+    }
+    // if the type is video
+    else {
+      tmpObj = { id:         "v1",
+                 type:       "video",
+                 space:      "E0",
+                 expresion:  "(0,0)",
+                 drawif:     "",
+                 file:       ""
+      };
+    }
+
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorDefinitionPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.defParams;
+
+    this.prefix = "A_";
+    this.dontShowList = { type: true };
+    this.notifyProgram = true;
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorDefinitionPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorDefinitionPanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_4");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    // 
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorDefinitionPanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var finalDefinition = [];
+    var tmpValue;
+    var type = "variable";
+    var hasArray = false;
+    var hasMatrix = false;
+    var hasParenthesis = false;
+
+    // find the type of the definition
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "array") {
+        hasArray = true;
+      }
+      if (babel[paramsObj_i[0]] == "matrix") {
+        hasMatrix = true;
+      }
+      if (paramsObj_i[1].match(/\)$/)) {
+        hasParenthesis = true;
+      }
+    }
+
+    if (hasMatrix) {
+      type = "matrix";
+    }
+    else if (hasArray) {
+      type = "array";
+    }
+    else if (hasParenthesis) {
+      type = "function";
+    }
+    else {
+      type = "variable";
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorDefinitionPanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var definition = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(definition);
+      self.fillAttributes(definition);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorDefinitionPanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // id
+    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // expresion
+    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // algorithm
+    this.attributes.algorithm = this.newLabelAndCheckbox({name: "algorithm", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // range
+    this.attributes.range = this.newLabelAndInput({name: "range", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // local
+    this.attributes.local = this.newLabelAndInput({name: "local", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // init
+    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // doExpr
+    this.attributes.doExpr = this.newLabelAndInput({name: "doExpr", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // whileExpr
+    this.attributes.whileExpr = this.newLabelAndInput({name: "whileExpr", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // evaluate
+    this.attributes.evaluate = this.newLabelAndMenu({name: "evaluate", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "always"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // file
+    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // columns
+    this.attributes.columns = this.newLabelAndInput({name: "columns", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // rows
+    this.attributes.rows = this.newLabelAndInput({name: "rows", value: ""}, this.configRightSubPanel);
+
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorDefinitionPanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+
+    // if the type is variable
+    if (type == "variable") {
+      tmpObj = { id:        "v1",
+                 expresion: "0", 
+                 type:      "variable"
+      };
+    }
+    // if the type is function
+    else if (type == "function") {
+      tmpObj = { id:        "f(x)",
+                 algorithm: "false",
+                 expresion: "x",
+                 range:     "",
+                 local:     "",
+                 init:      "",
+                 doExpr:    "",
+                 whileExpr: "",
+                 type:      "function"
+      };
+    }
+    // if the type is array
+    else if (type == "array") {
+      tmpObj = { id:        "V1",
+                 array:     "true",
+                 evaluate:  "onlyOnce",
+                 size:      "3",
+                 expresion: "V3[0]=0;V3[1]=0;V3[2]=0",
+                 file:      "",
+                 type:      "array"
+      };
+    }
+    // if the type is matrix
+    else {
+      tmpObj = { id:        "M1",
+                 matrix:    "true",
+                 evaluate:  "onlyOnce",
+                 columns:   "3",
+                 rows:      "3",
+                 expresion: "M4[0,0]=0;M4[1,0]=0;M4[2,0]=0;M4[0,1]=0;M4[1,1]=0;M4[2,1]=0;M4[0,2]=0;M4[1,2]=0;M4[2,2]=0;", 
+                 type:      "matrix"
+      };
+    }
+   
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorProgramPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.progParams;
+
+    this.prefix = "A_";
+    this.dontShowList = { type: true };
+    this.useDisplaceIndex = true;
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorProgramPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorProgramPanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_5");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    // 
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorProgramPanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var tmpValue;
+    var type = "constant";
+
+    // find the type of the control
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "constant") {
+        type = "constant";
+      }
+      if (babel[paramsObj_i[0]] == "event") {
+        type = "event";
+      }
+      if (babel[paramsObj_i[0]] == "algorithm") {
+        type = "algorithm";
+      }
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorProgramPanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var program = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(program);
+      self.fillAttributes(program);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorProgramPanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // id
+    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // expresion
+    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // condition
+    this.attributes.condition = this.newLabelAndInput({name: "condition", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // action
+    this.attributes.action = this.newLabelAndMenu({name: "action", value: ""}, this.configRightSubPanel, ["", "calculate", "init", "clear", "animate", "openURL", "openScene", "playAudio"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // parameter
+    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // execution
+    this.attributes.execution = this.newLabelAndMenu({name: "execution", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "alternate", "always"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // algorithm
+    this.attributes.algorithm = this.newLabelAndCheckbox({name: "algorithm", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // evaluate
+    this.attributes.evaluate = this.newLabelAndMenu({name: "evaluate", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "always"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // init
+    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // doExpr
+    this.attributes.doExpr = this.newLabelAndInput({name: "doExpr", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // whileExpr
+    this.attributes.whileExpr = this.newLabelAndInput({name: "whileExpr", value: ""}, this.configRightSubPanel);
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorProgramPanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+    
+    // if the type is constant
+    if (type == "constant") {
+      tmpObj = { id:        "c1",
+                 expresion: "0",
+                 evaluate:  "onlyOnce", 
+                 constant:  "true",
+                 type:      "constant"
+      };
+    }
+    // if the type is event
+    else if (type == "event") {
+      tmpObj = { id:        "e1",
+                 "event":   "true",
+                  condition: "",
+                  action:    "",
+                  parameter: "",
+                  execution: "",
+                  type:      "event"
+      };
+    }
+    // if the type is algorithm
+    else {
+      tmpObj = { id:        "A1",
+                 algorithm: "true",
+                 evaluate:  "onlyOnce",
+                 init:      "",
+                 doExpr:    "",
+                 whileExpr: "", 
+                 type:      "algorithm"
+      };
+    }
+
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorGraphicPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.graphParams;
+
+    this.prefix = "G_";
+    this.dontShowList = { useFamily: true };
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorGraphicPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphicPanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_6");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    // 
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphicPanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var tmpValue;
+    var type = "equation";
+
+    // find the type of the graphic
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "type") {
+        type = babel[ paramsObj_i[1] ];
+        break;
+      }
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    var family = "";
+    var parameter = "t";
+
+    // find the family and the parameter name
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = paramsObj_i[1];
+
+      // family
+      if (babel[paramsObj_i[0]] == "family") {
+        family = tmpValue;
+      }
+
+      // parameter
+      if (babel[paramsObj_i[0]] == "parameter") {
+        parameter = tmpValue;
+      }
+    }
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1] || "";
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      // checkbox for family
+      if (babel[paramsObj_i[0]] == "family") {
+        tmpObj.useFamily = "true";
+      }
+      // family interval and steps
+      if ((family != "") && (babel[paramsObj_i[0].substring(family.length + 1)])) {
+        if (paramsObj_i[0].substring(0, family.length) == family) {
+          if (babel[paramsObj_i[0].substring(family.length + 1)] == "interval") {
+            tmpObj.family_interval = tmpValue;
+            continue;
+          }
+          if (babel[paramsObj_i[0].substring(family.length + 1)] == "steps") {
+            tmpObj.family_steps = tmpValue;
+            continue;
+          }          
+        }
+      }
+
+      // parameter interval and steps
+      if ((parameter != "") && (babel[paramsObj_i[0].substring(parameter.length + 1)])) {
+        if (paramsObj_i[0].substring(0, parameter.length) == parameter) {
+          if (babel[paramsObj_i[0].substring(parameter.length + 1)] == "interval") {
+            tmpObj.parameter_interval = tmpValue;
+            continue;
+          }
+          if (babel[paramsObj_i[0].substring(parameter.length + 1)] == "steps") {
+            tmpObj.parameter_steps = tmpValue;
+            continue;
+          }          
+        }
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphicPanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var definition = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(definition);
+      self.fillAttributes(definition);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphicPanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // id
+    // this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // space
+    this.attributes.space = this.newLabelAndInput({name: "space", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // background
+    this.attributes.background = this.newLabelAndCheckbox({name: "background", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // color
+    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // drawif
+    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // abs_coord
+    this.attributes.abs_coord = this.newLabelAndCheckbox({name: "abs_coord", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // expresion
+    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // trace
+    this.attributes.trace = this.newLabelAndCheckbox({name: "trace", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // parameter
+    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // parameter_interval
+    this.attributes.parameter_interval = this.newLabelAndInput({name: "parameter_interval", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // parameter_steps
+    this.attributes.parameter_steps = this.newLabelAndInput({name: "parameter_steps", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // useFamily
+    this.attributes.useFamily = this.newLabelAndCheckbox({name: "useFamily", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family
+    this.attributes.family = this.newLabelAndInput({name: "family", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family_interval
+    this.attributes.family_interval = this.newLabelAndInput({name: "family_interval", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family_steps
+    this.attributes.family_steps = this.newLabelAndInput({name: "family_steps", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fillP
+    this.attributes.fillP = this.newLabelAndInput({name: "fillP", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fillM
+    this.attributes.fillM = this.newLabelAndInput({name: "fillM", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // width
+    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // visible
+    this.attributes.visible = this.newLabelAndCheckbox({name: "visible", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // editable
+    this.attributes.editable = this.newLabelAndCheckbox({name: "editable", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fill
+    this.attributes.fill = this.newLabelAndInput({name: "fill", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // size
+    this.attributes.size = this.newLabelAndInput({name: "size", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // range
+    this.attributes.range = this.newLabelAndInput({name: "range", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // text
+    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // decimals
+    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fixed
+    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // spear
+    this.attributes.spear = this.newLabelAndInput({name: "spear", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // arrow
+    this.attributes.arrow = this.newLabelAndInput({name: "arrow", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // center
+    this.attributes.center = this.newLabelAndInput({name: "center", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // radius
+    this.attributes.radius = this.newLabelAndInput({name: "radius", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // init
+    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // end
+    this.attributes.end = this.newLabelAndInput({name: "end", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // vectors
+    this.attributes.vectors = this.newLabelAndCheckbox({name: "vectors", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // border
+    this.attributes.border = this.newLabelAndInput({name: "border", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // file
+    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // opacity
+    this.attributes.opacity = this.newLabelAndInput({name: "opacity", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // inirot
+    this.attributes.inirot = this.newLabelAndInput({name: "inirot", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // inipos
+    this.attributes.inipos = this.newLabelAndInput({name: "inipos", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // name
+    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // info
+    this.attributes.info = this.newLabelAndInput({name: "info", value: ""}, this.configRightSubPanel);
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorGraphicPanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+    
+    // if the type is equation
+    if (type == "equation") {
+      tmpObj = { space:           "E0",
+                 type:            "equation",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "y=x",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 fillP:           "",
+                 fillM:           "",
+                 width:           "1",
+                 visible:         "false",
+                 editable:        "false",
+                 info:            ""
+      };
+    }
+    // if the type is curve
+    else if (type == "curve") {
+      tmpObj = { space:           "E0",
+                 type:            "curve",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(t,t)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 parameter:       "t",
+                 parameter_interval: "[0,1]",
+                 parameter_steps: "8",
+                 fill:            "",
+                 width:           "1",
+                 visible:         "false",
+                 editable:        "false",
+                 info:            ""
+      };
+    }
+    // if the type is sequence
+    else if (type == "sequence") {
+      tmpObj = { space:           "E0",
+                 type:            "sequence",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(n,1/n)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 size:            "2",
+                 visible:         "false",
+                 editable:        "false",
+                 range:           "[1,100]",
+                 info:            ""
+      };
+    }
+    // if the type is point
+    else if (type == "point") {
+      tmpObj = { space:           "E0",
+                 type:            "point",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 size:            "2",
+                 font:            "Monospaced,PLAIN,15",
+                 info:            ""
+      };
+    }
+    // if the type is segment
+    else if (type == "segment") {
+      tmpObj = { space:           "E0",
+                 type:            "segment",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)(1,1)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 size:            "2",
+                 width:           "1",
+                 font:            "Monospaced,PLAIN,15",
+                 info:            ""
+      };
+    }
+    // if the type is arrow
+    else if (type == "arrow") {
+      tmpObj = { space:           "E0",
+                 type:            "arrow",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)(1,1)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 width:           "5",
+                 size:            "",
+                 spear:           "8",
+                 arrow:           "ee0022",
+                 font:            "Monospaced,PLAIN,15",
+                 info:            ""
+      };
+    }
+    // if the type is polygon
+    else if (type == "polygon") {
+      tmpObj = { space:           "E0",
+                 type:            "polygon",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)(1,1)(2,-1)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 fill:            "",
+                 width:           "1",
+                 info:            ""
+      };
+    }
+    // if the type is arc
+    else if (type == "arc") {
+      tmpObj = { space:           "E0",
+                 type:            "arc",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 center:          "(0,0)",
+                 radius:          "1",
+                 init:            "0",
+                 end:             "90",
+                 vectors:         "false",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 fill:            "",
+                 width:           "1",
+                 font:            "Monospaced,PLAIN,15",
+                 info:            ""
+      };
+    }
+    // if the type is fill
+    else if (type == "fill") {
+      tmpObj = { space:           "E0",
+                 type:            "fill",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 info:            ""
+      };
+    }
+    // if the type is text
+    else if (type == "text") {
+      tmpObj = { space:           "E0",
+                 type:            "text",
+                 background:      "false",
+                 color:           "20303a",
+                 drawif:          "",
+                 expresion:       "[20,20]",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 width:           "1",
+                 border:          "",
+                 font:            "Monospaced,PLAIN,15",
+                 info:            ""
+      };
+    }
+    // if the type is image
+    else if (type == "image") {
+      tmpObj = { space:           "E0",
+                 type:            "image",
+                 background:      "false",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 expresion:       "(0,0)",
+                 trace:           "false",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 file:            "",
+                 inirot:          "0",
+                 opacity:         "0",
+                 info:            ""
+      };
+    }
+    // if the type is macro
+    else {
+      tmpObj = { space:           "E0",
+                 type:            "macro",
+                 background:      "false",
+                 drawif:          "",
+                 abs_coord:       "false",
+                 name:            "mac1",
+                 expresion:       "",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "0",
+                 inipos:          "[0,0]",
+                 info:            ""
+      };
+    }
+
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorGraphic3DPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    this.params = editor.graph3DParams;
+
+    this.prefix = "S_";
+    this.dontShowList = { useFamily: true };
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorGraphic3DPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphic3DPanel.prototype.createPanel = function() {
+    var parentPanel = document.getElementById("tab_7");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+
+    this.leftPanel = document.createElement("div");
+    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
+    var innerLeftPanel = document.createElement("div");
+    this.leftPanel.appendChild(innerLeftPanel);
+    panel.appendChild(this.leftPanel);
+
+    this.rightPanel = document.createElement("div");
+    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
+    panel.appendChild(this.rightPanel);
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      this.buildobj(this.params[i]);
+    }
+
+    // 
+    this.configLeftPanel(innerLeftPanel);
+    this.configRightPanel(this.rightPanel);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphic3DPanel.prototype.buildobj = function(paramObj) {
+    var paramsObj = paramObj.value;
+    var paramsObj_i;
+    var tmpObj;
+    var tmpValue;
+    var type = "point";
+
+    // find the type of the graphic
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+
+      if (babel[paramsObj_i[0]] == "type") {
+        type = babel[ paramsObj_i[1] ];
+        break;
+      }
+    }
+
+    tmpObj = this.newParamObject(type);
+
+    var family = "";
+
+    // find the family
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = paramsObj_i[1];
+
+      // family
+      if (babel[paramsObj_i[0]] == "family") {
+        family = tmpValue;
+      }
+    }
+
+    // copy the parameters
+    for (var i=0, l=paramsObj.length; i<l; i++) {
+      paramsObj_i = paramsObj[i];
+      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1] || "";
+
+      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
+        tmpValue = tmpValue.substring(1);
+      }
+
+      // checkbox for family
+      if (babel[paramsObj_i[0]] == "family") {
+        tmpObj.useFamily = "true";        
+      }
+      // family interval and steps
+      if ((family != "") && (babel[paramsObj_i[0].substring(family.length + 1)])) {
+        if (paramsObj_i[0].substring(0, family.length) == family) {
+          if (babel[paramsObj_i[0].substring(family.length + 1)] == "interval") {
+            tmpObj.family_interval = tmpValue;
+            continue;
+          }
+          if (babel[paramsObj_i[0].substring(family.length + 1)] == "steps") {
+            tmpObj.family_steps = tmpValue;
+            continue;
+          }          
+        }
+      }
+
+      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
+    }
+
+    paramObj.paramObj = tmpObj;
+    paramObj.obj = this.toNameValueArray(tmpObj);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphic3DPanel.prototype.configLeftPanel = function(panel) {
+    var self = this;
+    var list = document.createElement("ul");
+
+    var sublist;
+
+    for (var i=0, l=this.params.length; i<l; i++) {
+      var sublist = document.createElement("li");
+
+      sublist.innerHTML = this.params[i].paramObj.name + "  (" + this.params[i].paramObj.type + ")";
+      sublist.obj = this.params[i].obj;
+      sublist.paramObj = this.params[i].paramObj;
+
+      sublist.addEventListener("click", itemSelected);
+
+      list.appendChild(sublist);
+    }
+
+    function itemSelected(evt) {
+      var type = this.paramObj.type;
+      var Graphic3D = this.obj;
+
+      self.hideAllAttributes();
+      self.showAttributes(Graphic3D);
+      self.fillAttributes(Graphic3D);
+      descartesJS.showHTML(self.configRightSubPanel);
+    }
+
+    panel.appendChild(list);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorGraphic3DPanel.prototype.configRightPanel = function(panel) {
+    this.configRightSubPanel = document.createElement("div");
+    panel.appendChild(this.configRightSubPanel);
+
+    this.attributes = {};
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // name
+    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // space
+    this.attributes.space = this.newLabelAndInput({name: "space", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // background
+    this.attributes.background = this.newLabelAndCheckbox({name: "background", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // color
+    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // backcolor
+    this.attributes.backcolor = this.newLabelAndInput({name: "backcolor", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // drawif
+    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // expresion
+    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // useFamily
+    this.attributes.useFamily = this.newLabelAndCheckbox({name: "useFamily", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family
+    this.attributes.family = this.newLabelAndInput({name: "family", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family_interval
+    this.attributes.family_interval = this.newLabelAndInput({name: "family_interval", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // family_steps
+    this.attributes.family_steps = this.newLabelAndInput({name: "family_steps", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // inirot
+    this.attributes.inirot = this.newLabelAndInput({name: "inirot", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // inipos
+    this.attributes.inipos = this.newLabelAndInput({name: "inipos", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // endrot
+    this.attributes.endrot = this.newLabelAndInput({name: "endrot", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // endpos
+    this.attributes.endpos = this.newLabelAndInput({name: "endpos", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // split
+    this.attributes.split = this.newLabelAndCheckbox({name: "split", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // edges
+    this.attributes.edges = this.newLabelAndCheckbox({name: "edges", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // model
+    this.attributes.model = this.newLabelAndMenu({name: "model", value: "metal"}, this.configRightSubPanel, ["color", "light", "metal", "wire"]);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // text
+    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // decimals
+    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // fixed
+    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // width
+    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // length
+    this.attributes.length = this.newLabelAndInput({name: "length", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // height
+    this.attributes.height = this.newLabelAndInput({name: "height", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Nu
+    this.attributes.Nu = this.newLabelAndInput({name: "Nu", value: ""}, this.configRightSubPanel);
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Nv
+    this.attributes.Nv = this.newLabelAndInput({name: "Nv", value: ""}, this.configRightSubPanel);
+
+    descartesJS.hideHTML(this.configRightSubPanel);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /**
+   *
+   */
+  descartesJS.EditorGraphic3DPanel.prototype.newParamObject = function(type) {
+    var tmpObj;
+
+    // if the type is point
+    if (type == "point") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "point",
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "(0,0,0)",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true",
+                 width:           "1"
+      };
+
+    }
+    // if the type is segment, polygon, curve
+    else if ( (type == "segment") || (type == "polygon") || (type == "curve") ) {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            type,
+                 background:      "false",
+                 color:           "eeffaa",
+                 drawif:          "",
+                 expresion:       "",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 width:           "1",
+                 Nu:              "7"
+      };
+
+      if (type == "segment") {
+        tmpObj.expresion = "(0,0,0)(1,1,1)";
+      }
+      else if (type == "polygon") {
+        tmpObj.expresion = "(0,0,0)(1,0,0)(1,1,0)(1,1,1)";
+      }
+      else {
+        tmpObj.expresion = "x=cos(4*pi*u) y=sen(4*pi*u) z=2*u-1";
+      }
+    }
+    // if the type is triangle
+    else if ( (type == "triangle") || (type == "face") ) {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            type,
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal"
+      };
+
+      if (type == "triangle") {
+        tmpObj.expresion = "(1,0,0)(0,1,0)(0,0,1)";
+      }
+      else {
+        tmpObj.expresion = "(0,0)(0,1)(1,1)";
+      }      
+    }
+    // if the type is polireg
+    else if (type == "polireg") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "polireg",
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "Polireg",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 width:           "2",
+                 length:          "2",
+                 Nu:              "7"
+      };
+    }
+    // if the type is surface
+    else if (type == "surface") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "surface",
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "x=2*u-1 y=2*v-1 z=x^2-y^2",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 Nu:              "7",
+                 Nv:              "7"
+      };
+    }
+    // if the type is text
+    else if (type == "text") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "face",
+                 background:      "false",
+                 color:           "eeffaa",
+                 drawif:          "",
+                 expresion:       "[20,20]",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 text:            "",
+                 decimals:        "2",
+                 fixed:           "true"
+      };
+    }
+    // if the type is box
+    else if (type == "box") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "box",
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "Paralelep\u00edpedo",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 width:           "2",
+                 length:          "2",
+                 height:          "2"
+      };
+    }
+    // if the type is cube, tetrahedron, octahedron, dodecahedron, icosahedron
+    else if ( (type == "cube") || (type == "tetrahedron") || (type == "octahedron") || (type == "dodecahedron") || (type == "icosahedron") ) {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            type,
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 width:           "2"
+      };
+
+      if (type == "cube") {
+        tmpObj.expresion = "Cubo";
+      }
+      else if (type == "tetrahedron") {
+        tmpObj.expresion = "Tetraedro";
+      }
+      else if (type == "octahedron") {
+        tmpObj.expresion = "Octaedro";
+      }
+      else if (type == "dodecahedron") {
+        tmpObj.expresion = "Dodecaedro";
+      }
+      else {
+        tmpObj.expresion = "Icosaedro";
+      }
+
+    }
+    // if the type is sphere
+    else if (type == "sphere") {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "sphere",
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "Esfera",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 width:           "2",
+                 Nu:              "7",
+                 Nv:              "7"
+      };
+    }
+    // if the type is ellipsoid, cone, cylinder
+    else if ( (type == "ellipsoid") || (type == "cone") || (type == "cylinder") ) {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            type,
+                 background:      "false",
+                 color:           "eeffaa",
+                 backcolor:       "6090a0",
+                 drawif:          "",
+                 expresion:       "",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)",
+                 split:           "false",
+                 edges:           "false",
+                 model:           "metal",
+                 width:           "2",
+                 length:          "2",
+                 height:          "2",
+                 Nu:              "7",
+                 Nv:              "7"
+      };
+
+      if (type == "ellipsoid") {
+        tmpObj.expresion = "Elipsoide";
+      }
+      else if (type == "cone") {
+        tmpObj.expresion = "Cono";
+      }
+      else {
+        tmpObj.expresion = "Cilindro";
+      }
+    }
+    // if the type is macro
+    else {
+      tmpObj = { name:            "",
+                 space:           "E0",
+                 type:            "macro",
+                 background:      "false",
+                 drawif:          "",
+                 expresion:       "mi_macro",
+                 useFamily:       "false",
+                 family:          "",
+                 family_interval: "",
+                 family_steps:    "",
+                 inirot:          "(0,0,0)",
+                 inipos:          "(0,0,0)",
+                 endrot:          "(0,0,0)",
+                 endpos:          "(0,0,0)"
+      };
+    }
+
+    return tmpObj;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.EditorAnimationPanel = function(editor) {
+    // call the parent constructor
+    descartesJS.EditorGenericPanel.call(this, editor);
+
+    if (editor.animParams.length <= 0) {
+      this.hasAnimation = false;
+      this.params = [ 
+                          { name: "Animation", value: "false" }, 
+                          { name: "delay", value: "1000" }, 
+                          { name: "controls", value: "false" }, 
+                          { name: "auto", value: "false" }, 
+                          { name: "loop", value: "false" }, 
+                          { name: "init", value: "" }, 
+                          { name: "doExpr", value: "" }, 
+                          { name: "whileExpr", value: "" }
+                        ];
+    }
+    else {
+      this.hasAnimation = true;
+      var tmpAnim = editor.animParams[0].value;
+      var tmpAnimArray = [{ name: "Animation", value: "true" }];
+      for (var i=0, l=tmpAnim.length; i<l; i++) {
+        tmpAnimArray.push( { name: babel[tmpAnim[i][0]] || tmpAnim[i][0], 
+                             value: babel[tmpAnim[i][1]] || tmpAnim[i][1]
+                            } );
+      }
+
+      this.params = tmpAnimArray;
+    }
+
+    // this.createPanel();
+    this.createPanel2();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // create an inheritance of EditorGenericPanel
+  ////////////////////////////////////////////////////////////////////////////////////
+  descartesJS.extend(descartesJS.EditorAnimationPanel, descartesJS.EditorGenericPanel);
+
+  /**
+   *
+   */
+  descartesJS.EditorAnimationPanel.prototype.createPanel = function() {
+    var tmp;
+
+    var parentPanel = document.getElementById("tab_8");
+    var panel = document.createElement("div");
+    panel.setAttribute("class", "DescartesConfigPanel");
+    parentPanel.appendChild(panel);
+    
+    this.parameters = [];
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Animation
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "Animation"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // delay
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "delay"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // controls
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "controls"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // auto
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "auto"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // loop
+    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "loop"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // init
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "init"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // doExpr
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "doExpr"), panel)  );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // whileExpr
+    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "whileExpr"), panel)  );
+
+  }
+
+
+  /**
+   *************************************************************************************************************************************************
+   */
+  descartesJS.EditorAnimationPanel.prototype.createPanel2 = function(isNotFirstTime) {
+    if (!isNotFirstTime) {
+      this.ulContainer = document.createElement("ul");
+      this.editor.listContainer.appendChild(this.ulContainer);      
+    }
+
+    var lessonParser = this.parent.lessonParser;
+    var liElement;
+    var span;
+    var name;
+    var prop;
+    var family;
+    var parameter;
+
+    //
+    if (this.hasAnimation) {
+      this.ulContainer.style.display = null;
+
+      liElement = document.createElement("li");
+      span = document.createElement("span");
+      span.innerHTML = '&lt;param name="' + babel.toLanguage("Animation") + '" value="';
+      liElement.appendChild(span);
+
+      for (var i=0, l=this.params.length; i<l; i++) {
+        name = babel[this.params[i].name] || this.params[i].name;
+        value = babel[this.params[i].value] || this.params[i].value;
+        value = value.replace(/</g, "&lt;");
+  
+        if (name != "Animation") {
+          span = document.createElement("span");
+          span.innerHTML = babel.toLanguage(name) + "='";
+          liElement.appendChild(span);
+
+          span = document.createElement("span");
+          span.setAttribute("class", "DescartesSpanValue");
+          span.setAttribute("contenteditable", "true");
+          span.innerHTML = babel.toLanguage(value);
+          liElement.appendChild(span);
+
+          span = document.createElement("span");
+          span.innerHTML = "'" + ((i < l-1) ? " " : "");
+          liElement.appendChild(span);
+        }
+      }
+
+      span = document.createElement("span");
+      span.innerHTML = '"&gt;';
+      liElement.appendChild(span);
+
+      this.ulContainer.appendChild(liElement);
+    }
+    else {
+      this.ulContainer.style.display = "none";
+    }
+  }  
+
+  /**
+   *
+   */
+  descartesJS.EditorAnimationPanel.prototype.add = function() {
+    if (!this.hasAnimation) {
+      this.hasAnimation = true;
+      this.ulContainer.innerHTML = "";
+      this.createPanel2(true);
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorAnimationPanel.prototype.remove = function() {
+    this.hasAnimation = false;
+    this.ulContainer.innerHTML = "";
+    this.createPanel2(true);
+  }
+
+  /**
+   *
+   */
+  descartesJS.EditorAnimationPanel.prototype.getContent = function() {
+    if (this.hasAnimation) {
+      return this.ulContainer.textContent;
+    }
+    return "";
+  }  
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+
+  var optionText = ["Espacio 2D", "Espacio 3D", "Espacio HTMLIFrame", 
+                    "Pulsador", "Campo de texto", "Men\u00FA", "Barra", "Bot\u00F3n", "Control gr\u00E1fico", "Control de texto", "Audio", "Video", 
+                    "Variable", "Funci\u00F3n", "Vector", "Matriz", 
+                    "Constante", "Evento", "Algoritmo", 
+                    "Ecuaci\u00F3n", "Curva", "Sucesi\u00F3n", "Punto", "Segmento", "Flecha", "Pol\u00EDgono", "Arco", "Relleno", "Texto", "Image", "Macro 2D", 
+                    "Punto 3D", "Segmento 3D", "Pol\u00EDgono 3D", "Curva 3D", "Tri\u00E1ngulo", "Cara", "Pol\u00EDgono regular 3D", "Superficie", "Texto 3D", "Cubo", "Paralelep\u00edpedo", "Tetraedro", "Octaedro", "Dodecaedro", "Icosaedro", "Esfera", "Elipsoide", "Cono", "Cilindro", "Macro 3D", 
+                    "Animaci\u00F3n"
+                    ];
+
+  var optionType = ["R2", "R3", "HTMLIFrame", 
+                    "spinner", "textfield", "menu", "scrollbar", "button", "graphic", "text", "audio", "video",
+                    "variable", "function", "array", "matrix",
+                    "constant", "event", "algorithm",
+                    "equation", "curve", "sequence", "point", "segment", "arrow", "polygon", "arc", "fill", "text", "image", "macro",
+                    "point", "segment", "polygon", "curve", "triangle", "face", "polireg", "surface", "text", "cube", "box", "tetrahedron", "octahedron", "dodecahedron", "icosahedron", "sphere", "ellipsoid", "cone", "cylinder", "macro",
+                    "animation"
+                    ];
+
+
+  /**
+   * 
+   * @constructor 
+   * @param 
+   */
+  descartesJS.Editor = function(parent) {
+    this.parent = parent;
+
+    this.container = document.createElement("div");
+    this.container.setAttribute("class", "DescartesEditorContainer");
+    document.body.appendChild(this.container);
+
+    this.readConfiguration();
+
+    // this.configDescartesTabs();
+    this.hide();
+
+    this.configDescartesParamList();
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.show = function() {
+    this.container.style.display = "block";
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.hide = function() {
+    this.container.style.display = "none";
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.readConfiguration = function() {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.documentClone = document.createElement("document");
+    this.documentClone.innerHTML = document.documentElement.innerHTML;
+
+    var metas = this.documentClone.querySelectorAll("meta,#StyleDescartesApps,#StyleDescartesApps2,base,.DescartesEditorContainer");
+    for (var i=0, l=metas.length; i<l; i++) {
+      metas[i].parentNode.removeChild(metas[i]);
+    }
+
+    // replace the applet in the document with a DescartesPlaceholder node
+    var desApplets = document.querySelectorAll("applet,ajs");
+    var desAppletIndex;
+    for (var i=0, l=desApplets.length; i<l; i++) {
+      if (desApplets[i] == this.parent.applet) {
+        desAppletIndex = i;
+        break;
+      }
+    }
+
+    desApplets = this.documentClone.querySelectorAll("applet,ajs");
+    this.appletClone = desApplets[desAppletIndex];
+    desApplets[desAppletIndex].parentNode.replaceChild(document.createElement("DescartesPlaceholder"), desApplets[desAppletIndex]);
+
+    var delNode = this.appletClone.querySelector("param");
+    delNode.parentNode.removeChild(delNode);
+
+    this.script_docBase = this.appletClone.querySelector("script");
+    if (this.script_docBase) {
+     this.script_docBase.parentNode.removeChild(this.script_docBase);
+    }
+
+    // console.log(this.appletClone);
+    // console.log(this.parent.applet);
+    // console.log(this.documentClone.innerHTML)
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    var lessonParser = this.parent.lessonParser;
+
+    var attributes = this.parent.applet.attributes;
+    this.configAttributes = [];
+
+    for (var i=0, l=attributes.length; i<l; i++) {
+      this.configAttributes.push( { name: attributes[i].name,
+                                    value: attributes[i].value
+                                    } );
+    }
+
+    var children = this.parent.children;
+    // var children = this.appletClone.children;
+
+    this.sceneParams = [];
+    this.spaceParams = [];
+    this.ctrsParams = [];
+    this.auxParams = [];
+    this.defParams = [];
+    this.progParams = [];
+    this.graphParams = [];
+    this.graph3DParams = [];
+    this.animParams = [];
+    var tmpname = "";
+    var tmpvalue = "";
+
+    for (var i=0, l=children.length; i<l; i++) {
+      tmpname = children[i].getAttribute("name");
+      tmpvalue = lessonParser.split( children[i].getAttribute("value") );
+
+      if (tmpname) {
+        if (tmpname.match("E_")) {
+          this.spaceParams.push( { name: tmpname, 
+                                   value: tmpvalue
+                                 } );
+        }
+        else if (tmpname.match("C_")) {
+          this.ctrsParams.push( { name: tmpname, 
+                                  value: tmpvalue
+                                } );
+        }
+        else if (tmpname.match("A_")) {
+          this.auxParams.push( { name: tmpname, 
+                                 value: tmpvalue
+                               } );
+        }
+        else if (tmpname.match("G_")) {
+          this.graphParams.push( { name: tmpname, 
+                                   value: tmpvalue
+                                 } );
+        }
+        else if (tmpname.match("S_")) {
+          this.graph3DParams.push( { name: tmpname, 
+                                     value: tmpvalue
+                                   } );
+        }
+        else if (babel[tmpname] == "Animation") {
+          this.animParams.push( { name: tmpname, 
+                                  value: tmpvalue
+                                } );
+        }
+        else {
+          this.sceneParams.push( { name: babel[tmpname] || tmpname, 
+                                   value: babel[children[i].getAttribute("value")] || children[i].getAttribute("value")
+                                 } );
+        }
+      }
+    }
+
+    var auxParams_i_value;
+    var tmpvalue;
+    var hasAlgorithm;
+    var hasParenthesis;
+    var hasConstant;
+    var hasEvent;
+
+    for (var i=0,l=this.auxParams.length; i<l; i++) {
+      auxParams_i_value = this.auxParams[i].value;
+      hasAlgorithm = hasParenthesis = hasConstant = hasEvent = false;
+
+      for (var j=0, k=auxParams_i_value.length; j<k; j++) {
+        tmpvalue = babel[auxParams_i_value[j][0]];
+
+        if (tmpvalue == "id") {
+          if (auxParams_i_value[j][1].match(/\)$/)) {
+            hasParenthesis = true;
+          }
+        }
+        if (tmpvalue == "algorithm") {
+          hasAlgorithm = true;
+        }
+        if (tmpvalue == "event") {
+          hasEvent = true;
+        }
+        if (tmpvalue == "constant") {
+          hasConstant = true;
+        }
+      }
+      if ((hasAlgorithm && !hasParenthesis) || hasConstant || hasEvent) {
+        this.progParams.push(this.auxParams[i]);
+      }
+      else {
+        this.defParams.push(this.auxParams[i]);
+      }
+    }
+
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.configDescartesTabs = function() {
+    this.DescartesTabsContainer = document.createElement("div");
+    this.DescartesTabsContainer.setAttribute("class", "DescartesEditorTabContainer");
+
+    this.DescartesTabsContainer.innerHTML = 
+    "<div class='DescartesTabs'>\n" +
+      "<ul>\n" +
+        "<li id='tabHeader_1'>Configuraci&oacute;n</li>\n" +
+        "<li id='tabHeader_2'>Espacios</li>\n" +
+        "<li id='tabHeader_3'>Controles</li>\n" +
+        "<li id='tabHeader_4'>Definiciones</li>\n" +
+        "<li id='tabHeader_5'>Programa</li>\n" +
+        "<li id='tabHeader_6'>Gr&aacute;ficos</li>\n" +
+        "<li id='tabHeader_7'>Gr&aacute;ficos 3D</li>\n" +
+        "<li id='tabHeader_8'>Animaci&oacute;n</li>\n" +
+      "</ul>\n" +
+    "</div>\n" +
+
+    "<div class='DescartesTabscontent'>\n" +
+      "<div class='DescartesTabPage' id='tab_1'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_2'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_3'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_4'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_5'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_6'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_7'></div>\n" +
+      "<div class='DescartesTabPage' id='tab_8'></div>\n" +
+    "</div>\n" +
+
+    "<div class='DescartesButtonsPlace'>\n" +
+      "<input id='Descartes_OKButton' class='DescartesEditorButton' type='submit' value='Aceptar' />\n" +
+      "<input id='Descartes_CancelButton' class='DescartesEditorButton' type='submit' value='Cancelar' />\n" +
+    "</div>\n";
+
+    var navitem = this.DescartesTabsContainer.querySelector(".DescartesTabs ul li");
+    var ident = navitem.id.split("_")[1];
+    navitem.parentNode.setAttribute("data-current", ident);
+    navitem.setAttribute("class","tabActiveHeader");
+
+    var pages = this.DescartesTabsContainer.querySelectorAll(".DescartesTabPage");
+    for (var i = 1; i < pages.length; i++) {
+      pages[i].style.display = "none";
+    }
+
+    var DescartesTabs = this.DescartesTabsContainer.querySelectorAll(".DescartesTabs ul li");
+    for (var i = 0; i < DescartesTabs.length; i++) {
+      DescartesTabs[i].addEventListener("click", displayPage);
+    }
+
+    /**
+     *
+     */
+    function displayPage() {
+      var current = this.parentNode.getAttribute("data-current");
+
+      document.getElementById("tabHeader_" + current).removeAttribute("class");
+      document.getElementById("tab_" + current).style.display = "none";
+
+      var ident = this.id.split("_")[1];
+
+      this.setAttribute("class", "tabActiveHeader");
+      document.getElementById("tab_" + ident).style.display = "block";
+      this.parentNode.setAttribute("data-current", ident);
+    }
+
+    this.container.appendChild(this.DescartesTabsContainer);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the config panel
+    this.configPanel = new descartesJS.EditorConfigPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the space panel
+    this.spacePanel = new descartesJS.EditorSpacePanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the control panel
+    this.controlPanel = new descartesJS.EditorControlPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the definition panel
+    this.definitionPanel = new descartesJS.EditorDefinitionPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the program panel
+    this.programPanel = new descartesJS.EditorProgramPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the graphic panel
+    this.graphicPanel = new descartesJS.EditorGraphicPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the graphic3D panel
+    this.graphic3DPanel = new descartesJS.EditorGraphic3DPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the animation panel
+    this.animationPanel = new descartesJS.EditorAnimationPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    var self = this;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    document.getElementById("Descartes_OKButton").addEventListener("click", function(evt) {
+      evt.preventDefault();
+      this.blur();
+      self.hide();
+      console.log("ok");
+    });
+    document.getElementById("Descartes_CancelButton").addEventListener("click", function(evt) {
+      evt.preventDefault();
+      this.blur();
+      self.hide();
+      console.log("cancel");
+    });
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  }
+
+  /**
+   *************************************************************************************************************************************************
+   */
+  descartesJS.Editor.prototype.configDescartesParamList = function() {
+    this.configToolbar();
+
+    this.configListContainer();
+
+    this.configFooter();
+
+    this.configAddPanel();
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.configToolbar = function() {
+    var self = this;
+    var toolbarArea = document.createElement("div");
+    toolbarArea.setAttribute("class", "DescartesToolbarPlace");
+
+    var btnAdd    = this.newButton("Agregar");
+    var btnRemove = this.newButton("Remover");
+    var btnClone  = this.newButton("Duplicar");
+    var btnUp     = this.newButton("Subir");
+    var btnDonw   = this.newButton("Bajar");
+
+    toolbarArea.appendChild(btnAdd);
+    toolbarArea.appendChild(btnRemove);
+    toolbarArea.appendChild(btnClone);
+    toolbarArea.appendChild(btnUp);
+    toolbarArea.appendChild(btnDonw);
+
+    this.container.appendChild(toolbarArea);
+
+    if (descartesJS.hasTouchSupport) {
+      btnAdd.addEventListener("touchend", showFun);
+      btnRemove.addEventListener("touchend", removeFun);
+      btnClone.addEventListener("touchend", cloneFun);
+      btnUp.addEventListener("touchend", upFun);
+      btnDonw.addEventListener("touchend", downFun);
+    }
+    else {
+      btnAdd.addEventListener("click", showFun);
+      btnRemove.addEventListener("click", removeFun);
+      btnClone.addEventListener("click", cloneFun);
+      btnUp.addEventListener("click", upFun);
+      btnDonw.addEventListener("click", downFun);
+    }
+
+    function showFun(evt) {
+      self.showAddPanel();
+    }
+
+    function removeFun(evt) {
+      self.removeAttribute();
+    }
+
+    function cloneFun(evt) {
+      self.cloneAttribute();
+    }
+
+    function upFun(evt) {
+      self.moveUpAttribute();
+    }
+
+    function downFun(evt) {
+      self.moveDownAttribute();
+    }
+  }  
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.configListContainer = function() {
+    var self = this;
+
+    this.listContainer = document.createElement("div");
+    this.listContainer.setAttribute("class", "DescarteslistContainer");
+    this.container.appendChild(this.listContainer);
+
+    var appletHeader = document.createElement("div");
+    appletHeader.setAttribute("class", "DescartesExtraInfo");
+    appletHeader.innerHTML = "&lt;script type='text/javascript' src='http://arquimedes.matem.unam.mx/Descartes5/lib/descartes-min.js'&gt;&lt;/script&gt;";
+    this.listContainer.appendChild(appletHeader);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // build the config panel
+    this.configPanel = new descartesJS.EditorConfigPanel(this);
+
+    // build the space panel
+    this.spacePanel = new descartesJS.EditorSpacePanel(this);
+
+    // build the control panel
+    this.controlPanel = new descartesJS.EditorControlPanel(this);
+
+    // build the definition panel
+    this.definitionPanel = new descartesJS.EditorDefinitionPanel(this);
+
+    // build the program panel
+    this.programPanel = new descartesJS.EditorProgramPanel(this);
+
+    // build the graphic panel
+    this.graphicPanel = new descartesJS.EditorGraphicPanel(this);
+
+    // build the graphic3D panel
+    this.graphic3DPanel = new descartesJS.EditorGraphic3DPanel(this);
+
+    // build the animation panel
+    this.animationPanel = new descartesJS.EditorAnimationPanel(this);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    var appletFooter = document.createElement("div");
+    appletFooter.setAttribute("class", "DescartesExtraInfo");
+    appletFooter.innerHTML = "&lt;/ajs&gt;"
+    this.listContainer.appendChild(appletFooter);
+
+    //
+    this.wichParamSelected = null;
+    if (descartesJS.hasTouchSupport) {
+      this.listContainer.addEventListener("touchend", listContainerFun);
+    } 
+    else {
+      this.listContainer.addEventListener("click", listContainerFun);
+    }
+
+    function listContainerFun(evt) {
+      var actualLi = null;
+
+      if (evt.target.tagName.toLowerCase() == "li") {
+        actualLi = evt.target;
+      }
+      else if (evt.target.parentNode.tagName.toLowerCase() == "li") {
+        actualLi = evt.target.parentNode;
+      }
+
+      if (actualLi) {
+        if (self.wichParamSelected) {
+          self.wichParamSelected.className = self.wichParamSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
+        }
+        self.wichParamSelected = actualLi;
+        actualLi.className += " DescartesElementSelected";
+      }
+    }
+
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.configFooter = function() {
+    var self = this;
+    var buttonArea = document.createElement("div");
+    buttonArea.setAttribute("class", "DescartesButtonsPlace");
+
+    var btnOk = this.newButton("Aceptar");
+    var btnCancel = this.newButton("Cancelar");
+    buttonArea.appendChild(btnOk);
+    buttonArea.appendChild(btnCancel);
+
+    this.container.appendChild(buttonArea);
+
+    if (descartesJS.hasTouchSupport) {
+      btnCancel.addEventListener("touchend", hidenFun);
+      btnOk.addEventListener("touchend", okFun);
+    }
+    else {
+      btnCancel.addEventListener("click", hidenFun);
+      btnOk.addEventListener("click", okFun);
+    }
+
+    function okFun(evt) {
+      evt.preventDefault();
+      this.blur();
+
+      var textContent = self.configPanel.getContent() + self.spacePanel.getContent() + self.controlPanel.getContent() + self.definitionPanel.getContent() + self.programPanel.getContent() + self.graphicPanel.getContent() + self.graphic3DPanel.getContent() + self.animationPanel.getContent();
+
+      var newAppletContent = document.createElement("ajs");
+      var attributes = self.parent.applet.attributes;
+
+      var tmpTextContent = textContent.split("\n");
+      var tmpAttributes = tmpTextContent[0];
+
+      newAppletContent.innerHTML = tmpAttributes;
+      newAppletContent = newAppletContent.firstChild;
+
+      tmpTextContent[0] = "";
+
+      newAppletContent.innerHTML = tmpTextContent.join("\n");
+
+      self.parent.applet.parentNode.replaceChild(newAppletContent, self.parent.applet);
+      self.parent.applet = newAppletContent;
+      self.parent.children = newAppletContent.getElementsByTagName("param");
+
+      self.parent.width = parseFloat( newAppletContent.getAttribute("width") );
+      self.parent.height = parseFloat( newAppletContent.getAttribute("height") );
+
+      self.hide();      
+      self.parent.init();
+    }
+
+    function hidenFun(evt) {
+      evt.preventDefault();
+      this.blur();
+      self.hide();
+    }
+
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.configAddPanel = function() {
+    var self = this;
+
+    this.addPanelContainer = document.createElement("div");
+    this.addPanelContainer.setAttribute("class", "DescartesEditorContainer");
+    this.addPanelContainer.style.background = "rgba(20,20,20,.75)";
+    this.container.appendChild(this.addPanelContainer);
+
+    var addPanel = document.createElement("div");
+    addPanel.setAttribute("class", "DescarteslistContainer DescartesAddPanel");
+    this.addPanelContainer.appendChild(addPanel);
+
+    var listOptionsToAdd = document.createElement("ul");
+    addPanel.appendChild(listOptionsToAdd);
+
+    var elementOption;
+    for (var i=0, l=optionText.length; i<l; i++) {
+      elementOption = document.createElement("li");
+      elementOption.setAttribute("style", "-webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer;");
+      elementOption.setAttribute("data-index", i);
+      elementOption.innerHTML = optionText[i];
+
+      listOptionsToAdd.appendChild(elementOption);
+    }
+
+    //
+    this.addOptionValue = -1;
+    this.previousAddSelected = null;
+    if (descartesJS.hasTouchSupport) {
+      listOptionsToAdd.addEventListener("touchend", listOptionsFun);
+    }
+    else {
+      listOptionsToAdd.addEventListener("click", listOptionsFun);
+    }
+
+    /**
+     *
+     */
+    function listOptionsFun(evt) {
+      if (self.previousAddSelected) {
+        self.previousAddSelected.className = self.previousAddSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
+      }
+      self.previousAddSelected = evt.target;
+      evt.target.className += " DescartesElementSelected";
+      self.addOptionValue = evt.target.getAttribute("data-index");
+    }
+
+    //
+    var buttonArea = document.createElement("div");
+    buttonArea.setAttribute("class", "DescartesButtonsPlace");
+    var btnOk = this.newButton("Aceptar");
+    var btnCancel = this.newButton("Cancelar");
+    buttonArea.appendChild(btnOk);
+    buttonArea.appendChild(btnCancel);
+
+    this.addPanelContainer.appendChild(buttonArea);
+
+    if (descartesJS.hasTouchSupport) {
+      btnOk.addEventListener("touchend", okFun);
+      btnCancel.addEventListener("touchend", hideFun);
+    }
+    else {
+      btnOk.addEventListener("click", okFun);
+      btnCancel.addEventListener("click", hideFun);
+    }
+
+    function okFun(evt) {
+      evt.preventDefault();
+      this.blur();
+      self.hideAddPanel();
+      self.addAttribute();
+    }
+
+    function hideFun(evt) {
+      evt.preventDefault();
+      this.blur();
+      self.hideAddPanel(); 
+    }
+
+    this.hideAddPanel();
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.addAttribute = function() {
+    var index = parseInt(this.addOptionValue);
+
+    if (index >= 0) {
+      if (this.wichParamSelected) {
+        this.wichParamSelected.className = this.wichParamSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
+      }
+
+      // spaces
+      if ( (index >= 0) && (index < 3) ) {
+        this.wichParamSelected = this.spacePanel.add(optionType[index]);
+      }
+      // controls
+      else if ( (index >= 3) && (index < 12) ) {
+        this.wichParamSelected = this.controlPanel.add(optionType[index]);
+      }
+      // definitions
+      else if ( (index >= 12) && (index < 16) ) {
+        this.wichParamSelected = this.definitionPanel.add(optionType[index]);
+      }
+      // programs
+      else if ( (index >= 16) && (index < 19) ) {
+        this.wichParamSelected = this.programPanel.add(optionType[index]);
+      }
+      // graphics
+      else if ( (index >= 19) && (index < 31) ) {
+        this.wichParamSelected = this.graphicPanel.add(optionType[index]);
+      }
+      else if ( (index >= 31) && (index < optionType.length-1) ) {
+        this.wichParamSelected = this.graphic3DPanel.add(optionType[index]);
+      }
+      else {
+        this.animationPanel.add();
+      }
+
+    }
+
+    if (this.wichParamSelected) {
+      this.listContainer.scrollTop = this.wichParamSelected.offsetTop;
+    }
+
+    this.addOptionValue = -1;
+    if (this.previousAddSelected) {
+      this.previousAddSelected.className = this.previousAddSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.removeAttribute = function() {
+    var parent;
+    if (this.wichParamSelected) {
+      parent = this.wichParamSelected.parentNode;
+
+      //
+      if (parent == this.configPanel.ulContainer) {
+        return;
+      }
+      // else 
+      else if (parent == this.spacePanel.ulContainer) {
+        this.spacePanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.controlPanel.ulContainer) {
+        this.controlPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.definitionPanel.ulContainer) {
+        this.definitionPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.programPanel.ulContainer) {
+        this.programPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.graphicPanel.ulContainer) {
+        this.graphicPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.graphic3DPanel.ulContainer) {
+        this.graphic3DPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else {
+        this.animationPanel.remove();
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.cloneAttribute = function() {
+    var parent;
+    if (this.wichParamSelected) {
+      parent = this.wichParamSelected.parentNode;
+
+      //
+      // if (parent == this.configPanel.ulContainer) {
+
+      // }
+      // else 
+      if (parent == this.spacePanel.ulContainer) {
+        this.wichParamSelected = this.spacePanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.controlPanel.ulContainer) {
+        this.wichParamSelected = this.controlPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.definitionPanel.ulContainer) {
+        this.wichParamSelected = this.definitionPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.programPanel.ulContainer) {
+        this.wichParamSelected = this.programPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.graphicPanel.ulContainer) {
+        this.wichParamSelected = this.graphicPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+      else if (parent == this.graphic3DPanel.ulContainer) {
+        this.wichParamSelected = this.graphic3DPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.moveUpAttribute = function() {
+    var parent;
+    if (this.wichParamSelected) {
+      parent = this.wichParamSelected.parentNode;
+
+      //
+      // if (parent == this.configPanel.ulContainer) {
+
+      // }
+      // else 
+      if (parent == this.spacePanel.ulContainer) {
+        this.wichParamSelected = this.spacePanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.controlPanel.ulContainer) {
+        this.wichParamSelected = this.controlPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.definitionPanel.ulContainer) {
+        this.wichParamSelected = this.definitionPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.programPanel.ulContainer) {
+        this.wichParamSelected = this.programPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.graphicPanel.ulContainer) {
+        this.wichParamSelected = this.graphicPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.graphic3DPanel.ulContainer) {
+        this.wichParamSelected = this.graphic3DPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.moveDownAttribute = function() {
+    var parent;
+    if (this.wichParamSelected) {
+      parent = this.wichParamSelected.parentNode;
+
+      //
+      // if (parent == this.configPanel.ulContainer) {
+
+      // }
+      // else 
+      if (parent == this.spacePanel.ulContainer) {
+        this.wichParamSelected = this.spacePanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.controlPanel.ulContainer) {
+        this.wichParamSelected = this.controlPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.definitionPanel.ulContainer) {
+        this.wichParamSelected = this.definitionPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.programPanel.ulContainer) {
+        this.wichParamSelected = this.programPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.graphicPanel.ulContainer) {
+        this.wichParamSelected = this.graphicPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+      else if (parent == this.graphic3DPanel.ulContainer) {
+        this.wichParamSelected = this.graphic3DPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
+      }
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.newButton = function(val) {
+    var btn = document.createElement("input");
+    btn.setAttribute("class", "DescartesEditorButton");
+    btn.setAttribute("type", "submit");
+    btn.setAttribute("value", val);
+    return btn;
+  }
+
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.showAddPanel = function() {
+    this.addPanelContainer.style.display = "block";
+    this.addPanelContainer.firstChild.style.left = (parseInt(window.innerWidth)-350)/2 +"px";
+  }
+  /**
+   *
+   */
+  descartesJS.Editor.prototype.hideAddPanel = function() {
+    this.addPanelContainer.style.display = "none";
+  }
+
   return descartesJS;
 })(descartesJS || {});/**
  * @author Joel Espinosa Longi
@@ -24571,7 +29648,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.applet = applet;
-    
     // this.externalVariables = {};
 
     /**
@@ -24602,6 +29678,13 @@ var descartesJS = (function(descartesJS) {
      */
     this.decimal_symbol = ".";
     this.decimal_symbol_regexp = new RegExp("\\" + this.decimal_symbol, "g");
+
+    /**
+     * language of the lesson
+     * type {String}
+     * @private
+     */
+    this.language = "espa\u00F1ol";
 
     /**
      * parameters of the applet
@@ -24722,6 +29805,16 @@ var descartesJS = (function(descartesJS) {
       if (children_i.name == "image_loader") {
         this.image_loader = children_i.value;
       }
+
+      // // set the docBase for the elements in the resources
+      if (children_i.name == "docBase") {
+        this.docBase = children_i.value;
+        var base = document.createElement("base");
+        base.setAttribute("id", "descartesJS_base");
+        base.setAttribute("href", this.docBase);
+        document.head.appendChild(base);
+      }
+
     }
 
     // configure an arquimedes lesson
@@ -24782,7 +29875,7 @@ var descartesJS = (function(descartesJS) {
      * type {Space}
      * @private
      */
-    this.specialSpace = {container: document.createElement("div"), controls: []};
+    // this.specialSpace = {container: document.createElement("div"), controls: []};
     
     /**
      * region to show text fields for editable content
@@ -24790,6 +29883,13 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.editableRegion = {container: document.createElement("div"), textFields: []};
+
+    /**
+     *
+     */
+    if (descartesJS.Editor) {
+      this.editor = new descartesJS.Editor(this);
+    }
         
     /**
      * array to store the lesson controls 
@@ -24866,6 +29966,8 @@ var descartesJS = (function(descartesJS) {
     this.loader.setAttribute("class", "DescartesLoader");
     this.loader.setAttribute("style", "width:" + this.width + "px; height:" + this.height + "px; z-index:1000;");
 
+    // this.adjustDimensions();
+
     // if is the first time in execute the interpretation
     if (this.firstRun) {
       this.descartesLoader = new descartesJS.DescartesLoader(this);
@@ -24894,6 +29996,11 @@ var descartesJS = (function(descartesJS) {
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
       
+      // find the language of the lesson
+      if (babel[children_i.name] == "language") {
+        this.language = children_i.value;
+      }
+
       // find the parameters for the pleca
       if (children_i.name == "pleca") {
         var divPleca = lessonParser.parsePleca(children_i.value, this.width);
@@ -25040,7 +30147,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=tmp3DGraphics.length; i<l; i++) {
       tmpGraph = lessonParser.parse3DGraphic(tmp3DGraphics[i]);
       if (tmpGraph) {
-        tmpGraph.space.addGraph(tmpGraph);
+        tmpGraph.space.addGraph(tmpGraph, true);
       }
     }
 
@@ -25140,6 +30247,44 @@ var descartesJS = (function(descartesJS) {
 
     descartesJS.onResize();      
   }
+
+  /**
+   *
+   */
+  descartesJS.DescartesApp.prototype.adjustDimensions = function() {
+    console.log("jiodjsaoidjaosi")
+    var appletsAJS_i = this;
+    var init_w;
+    var w;
+    var percent;
+
+    if ((appletsAJS_i.init_w == undefined) || (appletsAJS_i.init_h == undefined)) {
+      appletsAJS_i.init_w = parseInt( appletsAJS_i.container.style.width );
+      appletsAJS_i.init_h = parseInt( appletsAJS_i.container.style.height );
+    }
+
+    w = parseInt(appletsAJS_i.parentContainer.offsetWidth);
+    init_w = appletsAJS_i.init_w;
+    percent = w/init_w;
+
+    if (init_w > w) {
+      if (appletsAJS_i.parentContainer != document.body) {
+        appletsAJS_i.parentContainer.style.height = appletsAJS_i.init_h*percent + "px";
+      }
+      appletsAJS_i.percent = percent;
+      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "scale(" +percent+ ")";
+      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "top left";
+    }
+    else {
+      if (appletsAJS_i.parentContainer != document.body) {
+        appletsAJS_i.parentContainer.style.height = "auto";
+      }
+      appletsAJS_i.percent = 1;
+
+      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "";
+      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "";
+    }
+  }
   
   /**
    * Configure the regions
@@ -25206,6 +30351,9 @@ var descartesJS = (function(descartesJS) {
       if (buttonsConfig.about) {
         displaceButton = aboutWidth;
         northRegionWidht -= displaceButton;
+      }
+      else {
+        aboutWidth = 0;
       }
       // show the configuration button
       if (buttonsConfig.config) {
@@ -25277,6 +30425,9 @@ var descartesJS = (function(descartesJS) {
       if (buttonsConfig.init) {
         displaceButton = initWidth;
         southRegionWidht -= displaceButton;
+      }
+      else {
+        initWidth = 0;
       }
       // show the clear button
       if (buttonsConfig.clear) {
@@ -26167,14 +31318,25 @@ var descartesJS = (function(descartesJS) {
   descartesJS.receiveMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
       var data = evt.data;
-      
+
       if (!data) {
         return;
       }
 
       // set a value to a variable
       if (data.type === "set") {
-        descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
+
+        if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
+          descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
+        }
+        else {
+          if ((data.value) && (data.value.rows != undefined)) {
+            descartesJS.apps[0].evaluator.matrices[data.name] = data.value;
+          }
+          else {
+            descartesJS.apps[0].evaluator.vectors[data.name] = data.value;
+          }
+        }        
       }
 
       // // get the value of a variable

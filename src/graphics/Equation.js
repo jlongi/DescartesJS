@@ -717,7 +717,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
   descartesJS.Equation.prototype.drawAuxFun = function(ctx, fill, stroke) {
     savex = this.evaluator.parser.getVariable("x");
     savey = this.evaluator.parser.getVariable("y");
-
+    descartesJS.rangeOK = 1;
+    
     var X = "x";
     var Y = "y";
 
@@ -727,7 +728,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
     }
 
     var F = 000000;
-    var cond = (this.drawif) ;
+    var cond = (this.drawif);
     var width = this.evaluator.evalExpression(this.width);
 
     var defa = false;

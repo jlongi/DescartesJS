@@ -26,12 +26,12 @@ var descartesJS = (function(descartesJS) {
 
     // create the principal container
     self.container = document.createElement("div");
-    self.container.setAttribute("id", "_DescartesExternalRegion_");
+    // self.container.setAttribute("id", "_DescartesExternalRegion_");
     // self.container.setAttribute("class", "DescartesSpaceExternalContainer");
-    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: 0px 0px 25px 5px #000; overflow-y: scroll; overflow-x: hidden; position: absolute; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
+    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: #000 0px 0px 25px 5px; overflow-y: scroll; overflow-x: hidden; position: fixed; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
 
     self.moveManipulator = document.createElement("div");
-    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
+    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "px; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
     self.moveManipulator.innerHTML = "Descartes";
     self.container.appendChild(self.moveManipulator);
 
@@ -46,7 +46,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.SpaceExternal.prototype.init = function() {
     document.body.appendChild(this.container);
 
-    self = this;
+    var self = this;
     var parser = self.parent.evaluator.parser;
     var fontSizeDefaultButtons = "15";
     var text;

@@ -6,24 +6,31 @@
 var babel = (function(babel) {
   if (babel.loadLib) { return babel; }
  
+// ñ -> \u00F1
+// á -> \u00E1
+// é -> \u00E9
+// í -> \u00ED
+// ó -> \u00F3
+// ú -> \u00FA
+
 //  babel["espa\u00F1ol"] = babel["english"] = babel["catal\u00E0"] = babel["euskera"] = babel["fran\u00E7ais"] = babel["galego"] = babel["portugu\u00EAs"] = babel["valenci\u00E0"] = "";
   babel["falso"] = babel["false"] = babel["fals"] = babel["gezurra"] = babel["faux"] = babel["fals"] = "false";
   babel["verdadero"] = babel["true"] = babel["veritable"] = babel["egia"] = babel["vrai"] = babel["verdadeiro"] = babel["veritable"] = "true";
   babel["no"] = babel["ez"] = babel["non"] = babel["n\u00E3o"] = "false";
   babel["s\u00ED"] = babel["yes"] = babel["bai"] = babel["oui"] = babel["si"] = babel["sim "] = "true";
-  babel["negro"] = babel["black"] = babel["negre"] = babel["beltza"] = babel["noir"] = babel["preto"] = "#000000";
-  babel["maxenta"] = babel["magenta"] = "#ff00ff";
-  babel["azul"] = babel["blue"] = babel["blau"] = babel["urdina"] = babel["bleu"] = "#0000ff";
-  babel["turquesa"] = babel["cyan"] = babel["turkesa"] = babel["turquoise"] = "#00ffff";
-  babel["verde"] = babel["green"] = babel["verd"] = babel["berdea"] = babel["vert"] = "#00ff00";
-  babel["amarillo"] = babel["yellow"] = babel["groc"] = babel["horia"] = babel["jaune"] = babel["amarelo"] = "#ffff00";
-  babel["naranja"] = babel["orange"] = babel["taronja"] = babel["laranja"] = babel["laranxa"] = "#ffc800";
-  babel["rojo"] = babel["red"] = babel["vermell"] = babel["gorria"] = babel["rouge"] = babel["vermello"] = babel["vermelho"] = "#ff0000";
-  babel["pink"] = babel["rosa"] = babel["arrosa"] = babel["rose"] = "#ffafaf";
-  babel["grisObscuro"] = babel["darkGray"] = babel["grisFosc"] = babel["gris iluna"] = babel["grisObscur"] = babel["grisEscuro"] = babel["cinzaEscuro"] = "#404040";
-  babel["gris"] = babel["gray"] = babel["grisa"] = babel["cinza"] = "#808080";
-  babel["grisClaro"] = babel["lightGray"] = babel["grisClar"] = babel["gris argia"] = babel["grisClair"] = babel["cinzaClaro"] = "#c0c0c0";
-  babel["blanco"] = babel["white"] = babel["blanc"] = babel["zuria"] = babel["branco"] = "#ffffff";
+  babel["negro"] = babel["black"] = babel["negre"] = babel["beltza"] = babel["noir"] = babel["preto"] = babel["#000000"] = "#000000";
+  babel["maxenta"] = babel["magenta"] = babel["#ff00ff"] = "#ff00ff";
+  babel["azul"] = babel["blue"] = babel["blau"] = babel["urdina"] = babel["bleu"] = babel["#0000ff"] = "#0000ff";
+  babel["turquesa"] = babel["cyan"] = babel["turkesa"] = babel["turquoise"] = babel["#00ffff"] = "#00ffff";
+  babel["verde"] = babel["green"] = babel["verd"] = babel["berdea"] = babel["vert"] = babel["#00ff00"] = "#00ff00";
+  babel["amarillo"] = babel["yellow"] = babel["groc"] = babel["horia"] = babel["jaune"] = babel["amarelo"] = babel["#ffff00"] = "#ffff00";
+  babel["naranja"] = babel["orange"] = babel["taronja"] = babel["laranja"] = babel["laranxa"] = babel["#ffc800"] = "#ffc800";
+  babel["rojo"] = babel["red"] = babel["vermell"] = babel["gorria"] = babel["rouge"] = babel["vermello"] = babel["vermelho"] = babel["#ff0000"] = "#ff0000";
+  babel["pink"] = babel["rosa"] = babel["arrosa"] = babel["rose"] = babel["#ffafaf"] = "#ffafaf";
+  babel["grisObscuro"] = babel["darkGray"] = babel["grisFosc"] = babel["gris iluna"] = babel["grisObscur"] = babel["grisEscuro"] = babel["cinzaEscuro"] = babel["#404040"] = "#404040";
+  babel["gris"] = babel["gray"] = babel["grisa"] = babel["cinza"] = babel["#808080"] = "#808080";
+  babel["grisClaro"] = babel["lightGray"] = babel["grisClar"] = babel["gris argia"] = babel["grisClair"] = babel["cinzaClaro"] = babel["#c0c0c0"] = "#c0c0c0";
+  babel["blanco"] = babel["white"] = babel["blanc"] = babel["zuria"] = babel["branco"] = babel["#ffffff"] = "#ffffff";
   babel["escala"] = babel["scale"] = babel["eskala"] = babel["\u00E9chelle"] = "scale";
 //  babel["Se puede copiar este texto y pegarlo en una p\u00E1gina Web."] = babel["You may copy this text and paste it on a Web page."] = babel["Podeu copiar aquest text i enganxar-lo en una p\u00E0gina web."] = babel["Testu hau kopia dezakezu eta web orri batean itsasi."] = babel["Vous pouvez copier ce texte et l'accrocher en une page web."] = babel["Pode copiar este texto e pegalo nunha p\u00E1xina Web."] = babel["Voc\u00EA pode copiar este texto e col\u00E1-lo em uma p\u00E1gina WEB."] = babel["Podeu copiar aquest text i enganxar-lo en una p\u00E0gina web."] = "";
   babel["nombre"] = babel["name"] = babel["nom"] = babel["izena"] = babel["nome"] = "name";
@@ -32,7 +39,7 @@ var babel = (function(babel) {
   babel["rastro"] = babel["trace"] = babel["rastre"] = babel["arrastoa"] = "trace";
 //   babel["control"] = babel["control"] = babel["control"] = babel["kontrola"] = babel["contr\u00F4le"] = babel["control"] = babel["controle"] = babel["control"] = "";
   babel["fondo"] = babel["background"] = babel["fons"] = babel["hondoa"] = babel["fond"] = babel["fundo"] = "background";
-  babel["colour"] = babel["color"] = babel["kolorea"] = babel["couleur"] = babel["cor"] = "color";
+
   babel["par\u00E1metro"] = babel["parameter"] = babel["parametroa"] = babel["par\u00E2metro"] = babel["par\u00E0metre"] = "parameter";
   babel["sucesi\u00F3n"] = babel["sequence"] = babel["successi\u00F3"] = babel["segida"] = babel["succession"] = babel["seq\u00FC\u00EAncia"] = "sequence";
   babel["tama\u00F1o"] = babel["size"] = babel["neurria"] = babel["taille"] = babel["tamanho"] = babel["grand\u00E0ria"] = "size";
@@ -46,15 +53,15 @@ var babel = (function(babel) {
   //////////////////////////////
   babel["cr\u00E9ditos"] = babel["about"] = babel["cr\u00E8dits"] = babel["kreditoak"] = babel["cr\u00E9dits"] = babel["sobre"] = "about";
   babel["config"] = babel["konfig"] = babel["configura\u00E7\u00E3o"] = "config";
-  babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
+  // babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
   babel["limpiar"] = babel["clear"] = babel["neteja"] = babel["ezabatu"] = babel["nettoye"] = babel["limpar"] = "clear";
   //////////////////////////////
   babel["incr"] = babel["gehi"] = babel["incremento"] = "incr";
   babel["min"] = babel["inf"] = "min";
   babel["max"] = babel["sup"] = babel["m\u00E1x"] = "max";
   babel["relleno"] = babel["fill"] = babel["ple"] = babel["betea"] = babel["plein"] = babel["recheo"] = babel["preencher"] = "fill";
-  babel["relleno+"] = babel["fill+"] = babel["ple+"] = babel["betea+"] = babel["plein+"] = babel["recheo+"] = babel["preencher+"] = "fillP";
-  babel["relleno-"] = babel["fill-"] = babel["ple-"] = babel["betea-"] = babel["plein-"] = babel["recheo-"] = babel["preencher-"] = "fillM";
+  babel["relleno+"] = babel["fill+"] = babel["ple+"] = babel["betea+"] = babel["plein+"] = babel["recheo+"] = babel["preencher+"] = babel["fillP"] = "fillP";
+  babel["relleno-"] = babel["fill-"] = babel["ple-"] = babel["betea-"] = babel["plein-"] = babel["recheo-"] = babel["preencher-"] = babel["fillM"] = "fillM";
   babel["flecha"] = babel["arrow"] = babel["fletxa"] = babel["gezia"] = babel["fl\u00E8che"] = babel["frecha"] = babel["seta"] = "arrow";
   babel["ancho"] = babel["width"] = babel["ample"] = babel["zabalera"] = babel["large"] = babel["largura"] = "width";
   babel["punta"] = babel["spear"] = babel["muturra"] = babel["pointe"] = babel["ponta"] = "spear";
@@ -78,8 +85,8 @@ var babel = (function(babel) {
   babel["arco"] = babel["arc"] = babel["arku"] = "arc";
   babel["pol\u00EDgono"] = babel["polygon"] = babel["pol\u00EDgon"] = babel["poligono"] = babel["polygone"] = "polygon";
   babel["imagen"] = babel["image"] = babel["imatge"] = babel["irudi"] = babel["imaxe"] = babel["imagem"] = "image";
-  babel["Versi\u00F3n"] = babel["Version"] = babel["Versi\u00F3"] = babel["Vers\u00E3o"] = "version";
-  babel["Idioma"] = babel["Language"] = babel["Hizkuntza"] = babel["Langue"] = "language";
+  babel["Versi\u00F3n"] = babel["Version"] = babel["Versi\u00F3"] = babel["Vers\u00E3o"] = babel["version"] = "version";
+  babel["Idioma"] = babel["Language"] = babel["Hizkuntza"] = babel["Langue"] = babel["language"] = "language";
 //  babel["Espacio"] = babel["Space"] = babel["Espai"] = babel["Espazioa"] = babel["Espace"] = babel["Espazo"] = babel["Espa\u00E7o"] = babel["Espai"] = "";
   babel["O.x"] = "O.x";
   babel["O.y"] = "O.y";
@@ -107,36 +114,36 @@ var babel = (function(babel) {
 //  babel["rehacer"] = babel["redo"] = babel["ref\u00E9s"] = babel["berregin"] = babel["refaire"] = babel["refacer"] = babel["refazer"] = babel["ref\u00E9s"] = "";
   babel["num\u00E9rico"] = babel["numeric"] = babel["num\u00E8ric"] = babel["zenbakizko"] = babel["num\u00E9rique"] = "numeric";
   babel["gr\u00E1fico"] = babel["graphic"] = babel["gr\u00E0fic"] = babel["grafiko"] = babel["graphique"] = "graphic";
-  babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
+// babel["texto"] = babel["text"] = babel["testu"] = babel["texte"] = "text";
 //  babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = babel["pos"] = "";
   babel["inicio"] = babel["init"] = babel["inici"] = babel["hasiera"] = babel["commencement"] = babel["in\u00EDcio"] = "init";
-  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = "doExpr";
-  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = "whileExpr";
+  babel["hacer"] = babel["do"] = babel["fer"] = babel["egin"] = babel["faire"] = babel["facer"] = babel["fazer"] = babel["doExpr"] = "doExpr";
+  babel["mientras"] = babel["while"] = babel["mentre"] = babel["bitartean"] = babel["tandis que"] = babel["mentres"] = babel["enquanto"] = babel["whileExpr"] = "whileExpr";
   babel["evaluar"] = babel["evaluate"] = babel["avalua"] = babel["ebaluatu"] = babel["\u00E9valuer"] = babel["avaliar"] = "evaluate";
   babel["variable"] = babel["aldagaia"] = babel["vari\u00E1vel"] = "variable";
   babel["funci\u00F3n"] = babel["function"] = babel["funci\u00F3"] = babel["funtzio"] = babel["fonction"] = babel["fun\u00E7\u00E3o"] = "function";
   babel["algoritmo"] = babel["algorithm"] = babel["algorisme"] = babel["algorithme"] = "algorithm";
   babel["vector"] = babel["array"] = babel["bektore"] = babel["vecteur"] = babel["matriz"] = "array";
 //  babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = babel["zoom"] = "";
-  babel["dibujar-si"] = babel["draw-if"] = babel["marraztu-baldin"] = babel["dessiner-si"] = babel["debuxar-se"] = babel["desenhar-se"] = babel["dibuixa-si"] = "drawif";
+  babel["dibujar-si"] = babel["draw-if"] = babel["marraztu-baldin"] = babel["dessiner-si"] = babel["debuxar-se"] = babel["desenhar-se"] = babel["dibuixa-si"] = babel["drawif"] = "drawif";
   babel["dominio"] = babel["range"] = babel["domini"] = babel["izate-eremua"] = babel["domain"] = babel["dom\u00EDnio"] = "range";
   babel["pausa"] = babel["delay"] = babel["eten"] = "delay";
 //  babel["detener"] = babel["stop"] = babel["atura"] = babel["geldiarazi"] = babel["arr\u00EAter"] = babel["deter"] = babel["parar"] = babel["atura"] = "";
-  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = "x_axis";
-  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = "y_axis";
+  babel["eje-x"] = babel["x-axis"] = babel["eix-x"] = babel["x-ardatza"] = babel["axe-x"] = babel["eixe-x"] = babel["eixo-x"] = babel["x_axis"] = "x_axis";
+  babel["eje-y"] = babel["y-axis"] = babel["eix-y"] = babel["y-ardatza"] = babel["axe-y"] = babel["eixe-y"] = babel["eixo-y"] = babel["y_axis"] = "y_axis";
   babel["n\u00FAmeros"] = babel["numbers"] = babel["nombres"] = babel["zenbakiak"] = "numbers";
-  babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = "exponentialif";
+  babel["exponencial-si"] = babel["exponential-if"] = babel["esponentzial-baldin"] = babel["exponentiel-si"] = babel["exponencial-se"] = babel["exponentialif"] = "exponentialif";
   babel["familia"] = babel["family"] = babel["fam\u00EDlia"] = babel["famille"] = "family";
   babel["intervalo"] = babel["interval"] = babel["tarte"] = babel["intervalle"] = "interval";
   babel["pasos"] = babel["steps"] = babel["passos"] = babel["pausoak"] = babel["pas"] = "steps";
   babel["centro"] = babel["center"] = babel["centre"] = babel["zentro"] = "center";
   babel["radio"] = babel["radius"] = babel["radi"] = babel["erradio"] = babel["rayon"] = babel["raio"] = "radius";
   babel["fin"] = babel["end"] = babel["fi"] = babel["bukaera"] = babel["fim"] = "end";
-  babel["una-sola-vez"] = babel["only-once"] = babel["una-sola-vegada"] = babel["behin-bakarrik"] = babel["une-seule-fois"] = babel["unha-soa-vez"] = babel["apenas-uma-vez"] = "onlyOnce";
+  babel["una-sola-vez"] = babel["only-once"] = babel["una-sola-vegada"] = babel["behin-bakarrik"] = babel["une-seule-fois"] = babel["unha-soa-vez"] = babel["apenas-uma-vez"] = babel["onlyOnce"] = "onlyOnce";
   babel["siempre"] = babel["always"] = babel["sempre"] = babel["beti"] = babel["toujours"] = "always";
 //  babel["copiar"] = babel["copy"] = babel["copia"] = babel["kopiatu"] = babel["copier"] = babel["copiar"] = babel["copiar"] = babel["copia"] = "";
 //  babel["pegar"] = babel["paste"] = babel["enganxa"] = babel["itsatsi"] = babel["accrocher"] = babel["pegar"] = babel["colar"] = babel["enganxa"] = "";
-  babel["color-int"] = babel["int-colour"] = babel["barruko-kolore"] = babel["couleur-int"] = babel["cor-int"] = "colorInt";
+  babel["color-int"] = babel["int-colour"] = babel["barruko-kolore"] = babel["couleur-int"] = babel["cor-int"] = babel["colorInt"] = "colorInt";
   babel["repetir"] = babel["loop"] = babel["repeteix"] = babel["errepikatu"] = babel["r\u00E9p\u00E9ter"] = "loop";
   babel["controles"] = babel["controls"] = babel["kontrolak"] = babel["contr\u00F4les"] = babel["controis"] = "controls";
 //  babel["c\u00F3digo"] = babel["<applet>"] = babel["</*applet*/>"] = babel["<applet>"] = babel["<applet>"] = babel["c\u00F3digo"] = babel["<applet>"] = babel["<applet>"] = "";
@@ -150,7 +157,7 @@ var babel = (function(babel) {
   babel["espacio"] = babel["space"] = babel["espai"] = babel["espazio"] = babel["espace"] = babel["espazo"] = babel["espa\u00E7o"] = "space";
   babel["Nu"] = "Nu";
   babel["Nv"] = "Nv";
-  babel["ancho"] = babel["depth"] = babel["amplada"] = babel["zabalera"] = babel["largeur"] = babel["ancho"] = babel["profundidade"] = babel["amplada"] = "width";
+  babel["ancho"] = babel["depth"] = babel["amplada"] = babel["zabalera"] = babel["largeur"] = babel["ancho"] = babel["profundidade"] = babel["amplada"] = babel["width"] = "width";
   babel["largo"] = babel["length"] = babel["llargada"] = babel["luzera"] = babel["longueur"] = babel["longo"] = babel["comprimento"] = babel["llargada"] = "length";
   babel["alto"] = babel["height"] = babel["al\u00E7ada"] = babel["altu"] = babel["hauteur"] = babel["alto"] = babel["altura"] = babel["al\u00E7ada"] = "height";
   babel["color_reverso"] = babel["backcolor"] = babel["color_revers"] = babel["atzealde kolorea"] = babel["couleur_revers"] = babel["cor_reverso"] = babel["cor_de_fundo"] = "backcolor";
@@ -174,7 +181,7 @@ var babel = (function(babel) {
   babel["macro"] = babel["makro"] = "macro";
   babel["id"] = "id";
   babel["modelo"] = babel["model"] = babel["eredu"] = babel["mod\u00E8le"] = "model";
-  babel["color"] = babel["kolore"] = babel["couleur"] = babel["cor"] = "color";
+  babel["color"] = babel["kolore"] = babel["couleur"] = babel["cor"] = babel["colour"] = babel["kolorea"] = "color";
 
   babel["luz"] = babel["light"] = babel["llum"] = babel["argia"] = babel["lumi\u00E8re"] = "light";
   babel["metal"] = babel["metall"] = babel["m\u00E9tal"] = "metal";
@@ -184,13 +191,13 @@ var babel = (function(babel) {
   babel["despliegue"] = babel["render"] = babel["desplegament"] = babel["zabaltze"] = babel["d\u00E8ploiement"] = babel["despregamento"] = babel["processar"] = "render";
   babel["orden"] = babel["sort"] = babel["ordre"] = babel["ordena"] = babel["orde"] = babel["ordenar"] = "sort";
   babel["pintor"] = babel["painter"] = babel["margolari"] = babel["peintre"] = "painter";
-  babel["trazado de rayos"] = babel["ray trace"] = babel["tra\u00E7at de raigs"] = babel["izpi trazadura"] = babel["trace de rayons"] = babel["trazado de raios"] = babel["tra\u00E7ado de raios"] = "raytrace";
-  babel["imagen"] = babel["bg_image"] = babel["imatge"] = babel["irudia"] = babel["imaxe"] = babel["imagem_de_fundo"] = "image";
+  babel["trazado de rayos"] = babel["ray trace"] = babel["tra\u00E7at de raigs"] = babel["izpi trazadura"] = babel["trace de rayons"] = babel["trazado de raios"] = babel["tra\u00E7ado de raios"] = babel["raytrace"] = "raytrace";
+  babel["imagen"] = babel["bg_image"] = babel["imatge"] = babel["irudia"] = babel["imaxe"] = babel["imagem_de_fundo"] = babel["image"] = "image";
   babel["despl_imagen"] = babel["bg_display"] = babel["despl_imatge"] = babel["irudi desplazamendu"] = babel["despl_image"] = babel["despr_imaxe"] = babel["apresenta\u00E7\u00E3o_de_imagem"] = "bg_display";
   babel["arr-izq"] = babel["topleft"] = babel["dalt-esq"] = babel["goi-ezk"] = babel["au-dessus-gau"] = babel["arr-esq"] = babel["acima-esquerda"] = "topleft";
   babel["expand."] = babel["stretch"] = babel["hedatu"] = babel["expandir "] = "stretch";
   babel["mosaico"] = babel["patch"] = babel["mosaic"] = babel["mosaiko"] = babel["mosa\u00EFque"] = "patch";
-  babel["centrada"] = babel["center"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "center";
+  babel["centrada"] = babel["center"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "imgcenter";
   babel["archivo"] = babel["file"] = babel["fitxer"] = babel["artxibo"] = babel["fichier"] = babel["arquivo"] = "file";
 //   babel["loc"] = babel["loc"] = babel["lloc"] = babel["lok"] = babel["lieu"] = babel["loc"] = babel["loc"] = babel["lloc"] = "";
 //   babel["rot"] = babel["rot"] = babel["gir"] = babel["rot"] = babel["tour"] = babel["rot"] = babel["rot"] = babel["gir"] = "";
@@ -198,12 +205,12 @@ var babel = (function(babel) {
   babel["tipo_de_macro"] = babel["macro_type"] = babel["tipus_de_macro"] = babel["makro_mota"] = babel["type_de_macro"] = babel["tipo_de_macro"] = babel["tipo_de_macro"] = babel["tipus_de_macro"] = "macro_type";
 //   babel["Poniendo este texto en un archivo <nombre> en el subdirectorio macros/g2d/ se crea la macro <nombre>"] = babel["Puting this text in a file <name> in subdirectory macros/g2d/ creates the macro <name>"] = babel["Posant aquest text en un fitxer <nom> en el subdirectori macros/g2d/ es crea la macro <nom>"] = babel["Artxibo batean testu hau jarriz <izena> macros/g2d/ izeneko azpidirektorioan"] = babel["En mettant ce texte dans un fichier <nom> dans le sous-r\u00E9pertoire macros/g2d/ la macro <nom> est cr\u00E9e "] = babel["Po\u00F1endo este texto nun arquivo <nombre> no subdirectorio macros/g2d/ cr\u00E9ase a macro <nombre>"] = babel["Colocando este texto num arquivo <nome> no subdiret\u00F3rio macros/g2d/ voc\u00EA criar\u00E1 a macro <nome>"] = babel["Posant aquest text en un fitxer <nom> en el subdirectori macros/g2d/ es crea la macro <nom>"] = "";
 //   babel["codigo HTML"] = babel["HTML encoding"] = babel["codi HTML"] = babel[" <izena>duen makroa sortzen da"] = babel["code HTML"] = babel["c\u00F3digo HTML"] = babel["codigo HTML"] = babel["codi HTML"] = "";
-  babel["filas_norte"] = babel["rows_north"] = babel["files_nord"] = babel["HTML kodea"] = babel["files_nord"] = babel["filas_norte"] = babel["linhas_norte"] = babel["files_nord"] = "rowsNorth";
-  babel["filas_sur"] = babel["rows_south"] = babel["files_sud"] = babel["ipar_lerro"] = babel["files_sud"] = babel["filas_sur"] = babel["linhas_sul"] = babel["files_sud"] = "rowsSouth";
-  babel["ancho_este"] = babel["width_east"] = babel["ample_est"] = babel["hego_lerro"] = babel["ample_est"] = babel["ancho_leste"] = babel["largura_leste"] = babel["ample_est"] = "widthEast";
-  babel["ancho_oeste"] = babel["width_west"] = babel["ample_oest"] = babel["ekialde_zabalera"] = babel["ample_ouest"] = babel["ancho_oeste"] = babel["largura_oeste"] = babel["ample_oest"] = "widthWest";
+  babel["filas_norte"] = babel["rows_north"] = babel["files_nord"] = babel["HTML kodea"] = babel["files_nord"] = babel["filas_norte"] = babel["linhas_norte"] = babel["files_nord"] = babel["rowsNorth"] = "rowsNorth";
+  babel["filas_sur"] = babel["rows_south"] = babel["files_sud"] = babel["ipar_lerro"] = babel["files_sud"] = babel["filas_sur"] = babel["linhas_sul"] = babel["files_sud"] = babel["rowsSouth"] = "rowsSouth";
+  babel["ancho_este"] = babel["width_east"] = babel["ample_est"] = babel["hego_lerro"] = babel["ample_est"] = babel["ancho_leste"] = babel["largura_leste"] = babel["ample_est"] = babel["widthEast"] = "widthEast";
+  babel["ancho_oeste"] = babel["width_west"] = babel["ample_oest"] = babel["ekialde_zabalera"] = babel["ample_ouest"] = babel["ancho_oeste"] = babel["largura_oeste"] = babel["ample_oest"] = babel["widthWest"] = "widthWest";
   babel["fijo"] = babel["fixed"] = babel["fix"] = babel["hegoalde_zabalera"] = babel["fixe"] = babel["fixo"] = "fixed";
-  babel["Reiniciar Animaci\u00F3n"] = babel["Init Animation"] = babel["Reinicia Animaci\u00F3"] = babel["finko"] = babel["Recommencer l'Animation"] = babel["Reiniciar Anima\u00E7\u00E3o"] = "initAnimation";
+  babel["Reiniciar Animaci\u00F3n"] = babel["Init Animation"] = babel["Reinicia Animaci\u00F3"] = babel["finko"] = babel["Recommencer l'Animation"] = babel["Reiniciar Anima\u00E7\u00E3o"] = babel["initAnimation"] = "initAnimation";
 //   babel["emergente"] = babel["pop"] = babel["emergent"] = babel["Animazioa bberrabiatu"] = babel["\u00E9mergent"] = babel["emerxente"] = babel["pop"] = babel["emergent"] = "";
 //   babel[" "] = babel[" "] = babel[" "] = babel["azaleratzaile"] = babel[" "] = babel["00:"] = babel["  "] = babel[" "] = "";
 //   babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = babel["="] = "";
@@ -223,8 +230,8 @@ var babel = (function(babel) {
   babel["condici\u00F3n"] = babel["condition"] = babel["condici\u00F3"] = babel["baldintza"] = babel["condi\u00E7\u00E3o"] = "condition";
   babel["acci\u00F3n"] = babel["action"] = babel["acci\u00F3"] = babel["ekintza"] = babel["a\u00E7\u00E3o"] = "action";
   babel["evento"] = babel["event"] = babel["esdeveniment"] = babel["gertaera"] = babel["\u00E9v\u00E9nement"] = "event";
-  babel["abrir URL"] = babel["open URL"] = babel["obre URL"] = babel["URL zabaldu"] = babel["ouvrir URL"] = "openURL";
-  babel["abrir Escena"] = babel["open Scene"] = babel["obre Escena"] = babel["eszena zabaldu"] = babel["ouvrir Escena"] = babel["abrir Cena"] = "openScene";
+  babel["abrir URL"] = babel["open URL"] = babel["obre URL"] = babel["URL zabaldu"] = babel["ouvrir URL"] = babel["openURL"] = "openURL";
+  babel["abrir Escena"] = babel["open Scene"] = babel["obre Escena"] = babel["eszena zabaldu"] = babel["ouvrir Escena"] = babel["abrir Cena"] = babel["openScene"] = "openScene";
   babel["bot\u00F3n"] = babel["button"] = babel["bot\u00F3"] = babel["botoi"] = babel["bouton"] = babel["bot\u00E3o"] = "button";
   babel["mensaje"] = babel["message"] = babel["mezua"] = babel["mensaxe"] = babel["mensagem"] = babel["missatge"] = "message";
   babel["alternar"] = babel["alternate"] = babel["alterna"] = babel["txandakatu"] = babel["alterner"] = "alternate";
@@ -276,19 +283,19 @@ var babel = (function(babel) {
 //   babel["arr_izq"] = babel["top_left"] = babel["dalt_esq"] = babel["goi_ezk"] = babel["au-dessus_gauche"] = babel["arr_esq"] = babel["acima_esquerda"] = babel["dalt_esq"] = "";
 //   babel["arriba"] = babel["top_center"] = babel["dalt"] = babel["goian"] = babel["au-dessus"] = babel["arriba"] = babel["acima_centro"] = babel["dalt"] = "";
 //   babel["arr_der"] = babel["top_right"] = babel["dalt_dreta"] = babel["goi_eskuin"] = babel["au-dessus_droite"] = babel["arr_der"] = babel["acima_direita"] = babel["dalt_dreta"] = "";
-  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = "x";
+  babel["izquierda"] = babel["left"] = babel["esquerra"] = babel["eskerrean"] = babel["gauche"] = babel["esquerda"] = babel["esquerda"] = babel["esquerra"] = babel["x"] = "x";
   babel["derecha"] = babel["right"] = babel["dreta"] = babel["eskuinan"] = babel["droite"] = babel["dereita"] = babel["direita"] = babel["dreta"] = "right";
 //   babel["ab_izq"] = babel["bottom_left"] = babel["avall_esq"] = babel["Behe_ezk"] = babel["en bas_gauche"] = babel["ab_esq"] = babel["abaixo_esquerda"] = babel["avall_esq"] = "";
 //   babel["abajo"] = babel["bottom"] = babel["avall"] = babel["behean"] = babel["en bas"] = babel["abaixo"] = babel["abaixo"] = babel["avall"] = "";
 //   babel["ab_der"] = babel["bottom_right"] = babel["avall_dreta"] = babel["behe_eskuin"] = babel["en bas_droite"] = babel["ab_der"] = babel["abaixo_direita"] = babel["avall_dreta"] = "";
 //   babel["img"] = babel["img"] = babel["img"] = babel["irud"] = babel["img"] = babel["img"] = babel["img"] = babel["img"] = "";
   babel["sensible_a_los_movimientos_del_rat\u00F3n"] = babel["sensitive_to_mouse_movements"] = babel["sensible_als_moviments_del_ratol\u00ED"] = babel["xagu mugimenduarekiko sentikorra"] = babel["sensible_aux_mouvements_du_souris"] = babel["sensible_aos_movementos_do_rato"] = babel["sens\u00EDvel_aos_movimentos_do_mouse"] = "sensitive_to_mouse_movements";
-  babel["reproducir"] = babel["play"] = babel["reprodueix"] = babel["erreproduzitu"] = babel["reproduire"] = babel["reproduzir"] = "playAudio";
+  babel["reproducir"] = babel["play"] = babel["reprodueix"] = babel["erreproduzitu"] = babel["reproduire"] = babel["reproduzir"] = babel["playAudio"] = "playAudio";
 //   babel["infoind"] = babel["indinfo"] = babel["infoind"] = babel["baninf"] = babel["infoind"] = babel["infoind"] = babel["infoind"] = babel["infoind"] = "";
 //   babel["infoest"] = babel["statinfo"] = babel["infoest"] = babel["estinf"] = babel["infoest"] = babel["infoest"] = babel["infoest"] = babel["infoest"] = "";
-  babel["activo-si"] = babel["active-if"] = babel["actiu-si"] = babel["altiboa-baldin"] = babel["actif-si"] = babel["activo-se"] = babel["ativo-se"] = "activeif";
-  babel["rotfin"] = babel["finrot"] = babel["bukrot"] = "endrot";
-  babel["posfin"] = babel["finpos"] = babel["bukpos"] = "endpos";
+  babel["activo-si"] = babel["active-if"] = babel["actiu-si"] = babel["altiboa-baldin"] = babel["actif-si"] = babel["activo-se"] = babel["ativo-se"] = babel["activeif"] = "activeif";
+  babel["rotfin"] = babel["finrot"] = babel["bukrot"] = babel["endrot"] = "endrot";
+  babel["posfin"] = babel["finpos"] = babel["bukpos"] = babel["endpos"] = "endpos";
   babel["editable"] = babel["editagarria"] = babel["edit\u00E1vel"] = "editable";
 //   babel["camposMixtos"] = babel["mixedTF"] = babel["CampsMixtes"] = babel["esparruMistoa"] = babel["ChampsMixtes"] = babel["camposMixtos"] = babel["camposMixtos"] = babel["CampsMixtes"] = "";
 //   babel["sonido"] = babel["sound"] = babel["so"] = babel["soinu"] = babel["son"] = babel["son"] = babel["som"] = babel["so"] = "";
@@ -302,7 +309,7 @@ var babel = (function(babel) {
 //   babel["D"] = babel["D"] = babel["D3"] = babel["D"] = babel["D3"] = babel["D"] = babel["D3"] = babel["D"] = "";
   babel["vectores"] = babel["bektoreak"] = babel["vecteurs"] = babel["vetores"] = babel["vectors"] = "vectors";
 //   babel["fuente tipo"] = babel["font type"] = babel["font tipus"] = babel["iturri mota"] = babel["source type"] = babel["fonte tipo"] = babel["tipo de fonte"] = babel["font tipus"] = "";
-  babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = "font_size";
+  babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = babel["font_size"] = "font_size";
 //   babel["SansSerif"] = "SansSerif";
 //   babel["Serif"] = "Serif";
 //   babel["Monoespaciada"] = babel["Monospaced"] = babel["Monoespazada"] = "Monospaced";
@@ -326,18 +333,17 @@ var babel = (function(babel) {
   babel["matriz"] = babel["matrix"] = babel["matriu"] = babel["matrice"] = "matrix";
   babel["filas"] = babel["rows"] = babel["files"] = "rows";
   babel["columnas"] = babel["columns"] = babel["colonnes"] = "columns";
-  babel["solo_texto"] = babel["only_text"] = babel["seulement_texte"] = babel["s\u00F3_texto"] = babel["tan_sols_texte"] = "onlyText";
-  babel["evaluar"] = babel["evaluate"] = "evaluate";
+  babel["solo_texto"] = babel["only_text"] = babel["seulement_texte"] = babel["s\u00F3_texto"] = babel["tan_sols_texte"] = babel["onlyText"] = "onlyText";
+  // babel["evaluar"] = babel["evaluate"] = "evaluate";
   babel["respuesta"] = babel["answer"] = "answer";
-//   babel["peso"] = babel["weight"] = babel["pes"] = babel["peso"] = babel["peso"] = babel["peso"] = babel["peso"] = babel["pes"] = "";
+  babel["peso"] = babel["weight"] = babel["pes"] = "weight";
   babel["decimal_symbol"] = babel["signo decimal"] = babel["decimal symbol"] = "decimal_symbol";
   babel["info"] = "info";
 //   babel["No se encuentra"] = babel["Not Found"] = babel["No es troba"] = babel["Ez da aurkitzen"] = babel["Il ne se trouve pas"] = babel["Non se atopa"] = babel["N\u00E3o Encontrado"] = babel["No es troba"] = "";
   
   ////////////////////////
   //  new options added
-//   babel["borde"] = babel["border"] = babel["contour"] = "border";
-  babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = "border";
+  babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = babel["border"] = "border";
   babel["video"] = babel["vid\u00e9o"] = "video";
   babel["audio"] = babel["\u00e0udio"] = "audio"; 
   babel["autoplay"] = "autoplay";
@@ -347,9 +353,212 @@ var babel = (function(babel) {
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
   babel["malla"] = babel["mesh"] = "mesh";
   babel["local"] = babel["Local"] = "local";
+
+  babel["rectangle"] = babel["rect\u00E1ngulo"] = "rectangle";
+  babel["generic"] = babel["generico"] = "generic";
   ////////////////////////
   
   babel.loadLib = true;
+
+  babel["GUI_espa\u00F1ol"] = { decimal_symbol: "Simbolo decimal",
+                                 language: "Lenguaje",
+                                 about: "Cr\u00E9ditos",
+                                 config: "Configuraci\u00F3n",
+                                 init: "Inicio",
+                                 clear: "Limpiar"
+                               };
+  babel["GUI_english"] = {};
+  babel["GUI_catal\u00E0"] = {};
+  babel["GUI_euskera"] = {};
+  babel["GUI_fran\u00E7ais"] = {};
+  babel["GUI_galego"] = {};
+  babel["GUI_portugu\u00EAs"] = {};
+  babel["GUI_valenci\u00E0"] = {};
+
+  /**
+   *
+   */
+  babel.translate = function(language, word) {
+    var tmp = babel["GUI_"+language][word];
+    // if (tmp) {
+      // return tmp;
+    // }
+    return word.charAt(0).toUpperCase() + word.substring(1);
+  }
+
+
+  babel["LANG_espa\u00F1ol"] = { "true": "s\u00ED",
+                                 "false": "no",
+                                 decimal_symbol: "signo decimal",
+                                 version: "Versi\u00F3n",
+                                 language: "Idioma",
+                                 Buttons: "Botones",
+                                 about: "cr\u00E9ditos",
+                                 // config: "config",
+                                 init: "inicio",
+                                 clear: "limpiar",
+                                 widthEast: "ancho_este",
+                                 widthWest: "ancho_oeste",
+
+                                 type: "tipo",
+                                 width: "ancho",
+                                 height: "alto",
+                                 drawif: "dibujar-si",
+                                 exponentialif: "exponencial-si",
+                                 activeif: "activo-si",
+                                 fixed: "fijo",
+                                 scale: "escala",
+                                 image: "imagen",
+                                 bg_display: "despl_imagen",
+                                 background: "fondo",
+                                 file: "archivo",
+                                 topleft: "arr-izq",
+                                 stretch: "expand.",
+                                 patch: "mosaico",
+                                 imgcenter: "centrada",
+                                 center: "centro",
+                                 net: "red",
+                                 net10: "red10",
+                                 axes: "ejes",
+                                 text: "texto",
+                                 numbers: "n\u00FAmeros",
+                                 x_axis: "eje-x",
+                                 y_axis: "eje-y",
+                                 sensitive_to_mouse_movements: "sensible_a_los_movimientos_del_rat\u00F3n",
+                                 render: "despliegue",
+                                 sort: "orden",
+                                 painter: "pintor",
+                                 split: "cortar",
+                                 raytrace: "trazado de rayos",
+
+                                 numeric: "num\u00E9rico",
+                                 region: "regi\u00F3n",
+                                 north: "norte",
+                                 south: "sur",
+                                 east: "este",
+                                 west: "oeste",
+                                 external: "exterior",
+                                 expresion: "expresi\u00F3n",
+                                 space: "espacio",
+                                 name: "nombre",
+                                 value: "valor",
+                                 incr: "incremento",
+                                 // min: "min",
+                                 // max: "max",
+                                 gui: "interfaz",
+                                 spinner: "pulsador",
+                                 textfield: "campo de texto",
+                                 menu: "men\u00FA",
+                                 scrollbar: "barra",
+                                 options: "opciones",
+                                 button: "bot\u00F3n",
+                                 graphic: "gr\u00E1fico",
+                                 discrete: "discreto",
+                                 decimals: "decimales",
+                                 visible: "visible",
+                                 action: "acci\u00F3n",
+                                 playAudio: "reproducir",
+                                 parameter: "par\u00E1metro",
+                                 interior: "interior",
+                                 condition: "condici\u00F3n",
+                                 action: "acci\u00F3n",
+                                 "event": "evento",
+                                 openURL: "abrir URL",
+                                 openScene: "abrir Escena",
+                                 message: "mensaje",
+                                 alternate: "alternar",
+                                 execution: "ejecuci\u00F3n",
+                                 calculate: "calcular",
+                                 onlyText: "solo_texto",
+                                 msg_pos: "pos_mensajes",
+                                 color: "color",
+                                 colorInt: "color-int",
+                                 bold: "negrita",
+                                 italics: "cursiva",
+                                 underlined: "subrayada",
+                                 font_size: "fuente puntos",
+                                 size: "tama\u00F1o",
+                                 constraint: "constricci\u00F3n",
+                                 answer: "respuesta",
+                                 weight: "peso",
+
+                                 // variable: "variable",
+                                 "function": "funci\u00F3n",
+                                 algorithm: "algoritmo",
+                                 array: "vector",
+                                 doExpr: "hacer",
+                                 whileExpr: "mientras",
+                                 evaluate: "evaluar",
+                                 range: "dominio",
+                                 onlyOnce: "una-sola-vez",
+                                 always: "siempre",
+                                 matrix: "matriz",
+                                 rows: "filas",
+                                 columns: "columnas",
+                                 constant: "constante",
+                                 
+                                 equation: "ecuaci\u00F3n",
+                                 curve: "curva",
+                                 sequence: "sucesi\u00F3n",
+                                 text: "texto",
+                                 point: "punto",
+                                 segment: "segmento",
+                                 arc: "arco",
+                                 polygon: "pol\u00EDgono",
+                                 image: "imagen",
+                                 abs_coord: "coord_abs",
+                                 trace: "rastro",
+                                 family: "familia",
+                                 interval: "intervalo",
+                                 steps: "pasos",
+                                 fillP: "relleno+",
+                                 fillM: "relleno-",
+                                 fill: "relleno",
+                                 spear: "punta",
+                                 arrow: "flecha",
+                                 radius: "radio",
+                                 end: "fin",
+                                 vectors: "vectores", 
+                                 opacity: "opacidad",
+
+                                 backcolor: "color_reverso",
+                                 triangle: "tri\u00E1ngulo",
+                                 face: "cara",
+                                 // polireg: "polireg",
+                                 surface: "superficie",
+                                 cube: "cubo",
+                                 box: "paralelep\u00edpedo",
+                                 cone: "cono",
+                                 cylinder: "cilindro",
+                                 sphere: "esfera",
+                                 tetrahedron: "tetraedro",
+                                 octahedron: "octaedro", 
+                                 dodecahedron: "dodecaedro",
+                                 icosahedron: "icosaedro",
+                                 ellipsoid: "elipsoide",
+                                 model: "modelo",
+                                 // color: "color",
+                                 light: "luz",
+                                 metal: "metal",
+                                 wire: "alambre",
+                                 edges: "aristas",
+                                 length: "largo",
+
+                                 Animation: "Animaci\u00F3n",
+                                 delay: "pausa",
+                                 controls: "controles",
+                                 // auto: "auto",
+                                 loop: "repetir"
+                              };
+
+  /**
+   *
+   */
+  babel.toLanguage = function(word, language) {
+    language = language || "espa\u00F1ol";
+    var tmp = babel["LANG_"+language][word];
+    return tmp || word;
+  }
 
   return babel;
 })(babel || {});
