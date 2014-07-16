@@ -328,7 +328,7 @@ var descartesJS = (function(descartesJS) {
         this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "center") {
+      else if (this.bg_display === "imgcenter") {
         this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -424,7 +424,8 @@ var descartesJS = (function(descartesJS) {
     var front_or_back;
     var backList = [];
     var frontList = [];
-    tmpPrimitive = primitives.shift();
+    // tmpPrimitive = primitives.shift();
+    tmpPrimitive = primitives.pop();
 
     for (var i=0, l=primitives.length; i<l; i++) {
       front_or_back = null;
@@ -529,13 +530,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space3D.prototype.drawPainter = function(primitives) {
     var renderTree = this.buildTree(primitives);
+
     if (renderTree) {
       renderTree = renderTree.inOrder();
 
       for(var i=0; i<renderTree.length; i++) {
         renderTree[i].draw(this.ctx, this);
       }
-      
     }
   }
 
@@ -556,7 +557,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).toFixed(8) );
   }
 
 //********************************************************************************************************************

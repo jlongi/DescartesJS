@@ -47,8 +47,10 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a variable
    * @param {String} name the name of the variable to get the value
    */
-  descartesJS.Parser.prototype.getVariable = function(name) {
-    // this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
+  descartesJS.Parser.prototype.getVariable = function(name, firstTime) {
+    if (firstTime) {
+      this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
+    }
     return this.variables[name];
   }
 
@@ -189,7 +191,7 @@ var descartesJS = (function(descartesJS) {
         // the identifier is a variable
         else {
           // this.getVariable(prefix + tokens_i_value);
-          this.getVariable(tokens_i_value);
+          this.getVariable(tokens_i_value, true);
         } 
       }
       ////////////////////////////////////////////////////////////////////////////////

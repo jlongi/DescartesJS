@@ -22,6 +22,15 @@ var descartesJS = (function(descartesJS) {
   var hasTouchSupport;
   var delay = 2000;
 
+  var _image_pos_x;
+  var _image_pos_y;
+  var _text_pos_x;
+  var _text_pos_y;
+
+  var _i_h;
+  var _font_h;
+  var newButtonCondition;
+
   var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   /**
@@ -87,7 +96,12 @@ var descartesJS = (function(descartesJS) {
       this.imageSrc  = "";
     }
 
-    this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+    if (this.imageSrc.charAt(0) == '[') {
+      this.imageSrc = this.parser.parse(this.imageSrc);
+    }
+    else {
+      this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+    }
     
     // if the button has an image then load it and try to load the over and down images
     var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
@@ -223,16 +237,38 @@ var descartesJS = (function(descartesJS) {
       despY = 1;
     }
 
+    _text_pos_x = MathFloor(this.w/2 + despX)-.5;
+    _text_pos_y = MathFloor(this.h/2 + despY)-.5;
+
+    //////////////////////////////////////////////////////////
+    // text at the bottom
+    if (image) {
+      _i_h = image.height || 100000000;
+      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px Arial").h;
+      newButtonCondition = (name != "") ? (((this.h-_i_h-_font_h-2) >=0 ) ? true : false) : false;
+
+      _image_pos_x = parseInt((this.w-image.width)/2)+despX;
+      _image_pos_y = (newButtonCondition) ? (parseInt((this.h -_font_h -image.height +2)/2)) : (parseInt((this.h-image.height)/2)+despY);
+
+      if (newButtonCondition) {
+        _text_pos_y = parseInt(this.h - _font_h/2 -2);
+
+        ctx.fillStyle = this.colorInt.getColor();
+        ctx.fillRect(0, 0, this.w, this.h);
+      }
+    }
+    //////////////////////////////////////////////////////////
+
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
         // check if is a gif image
         if ( (this.image.src).match(gifPattern) ) {
           this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
-          this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
-          ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+          ctx.drawImage(image, _image_pos_x, _image_pos_y);
         }
       }
     }
@@ -254,20 +290,20 @@ var descartesJS = (function(descartesJS) {
     if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
-        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+        this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       }
       else {
-        ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        ctx.drawImage(this.imageOver, _image_pos_x, _image_pos_y);
       }
     }
 
     if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
-        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+        this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       }
       else {
-        ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        ctx.drawImage(this.imageDown, _image_pos_x, _image_pos_y);
       }
     }
     else if ((this.buttonClick) && (!image)) {
@@ -282,17 +318,17 @@ var descartesJS = (function(descartesJS) {
     ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    
+
     // text border
     if (this.colorInt.getColor() != this.color.getColor()) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
-      ctx.strokeText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
+      ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
 
     // write the button name
-    ctx.fillText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
+    ctx.fillText(name, _text_pos_x, _text_pos_y);
 
     // draw the under line
     if (this.underlined) {
@@ -302,8 +338,10 @@ var descartesJS = (function(descartesJS) {
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
-      ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      // ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      // ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      ctx.moveTo( parseInt((this.w-txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
+      ctx.lineTo( parseInt((this.w+txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.stroke();
     }
      

@@ -6,8 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var delta = 0.000000000001;
-  var epsilon = 0.000001;
+  var delta = 0.000001;
 
   var evaluator;
   var FV;
@@ -17,6 +16,8 @@ var descartesJS = (function(descartesJS) {
   var newQ;
   var savex;
   var savey;
+
+  var _unitNormal;
 
 
   /**
@@ -43,13 +44,15 @@ var descartesJS = (function(descartesJS) {
         this.sign = "igual"; 
       }
       
-      // a restriction of the form "something = somethingElse" is converted to "someting - somethingElse = 0"
+      // a constraint of the form "something = somethingElse" is converted to "someting - somethingElse = 0"
       this.constraint = this.constraint.equalToMinus();
       // evaluates onlye the left size, because the right size is 0
       this.constraint = this.constraint.childs[0];
     }
 
-    newQ = new descartesJS.R2(0, 0);    
+    newQ = new descartesJS.R2(0, 0);
+    q = new descartesJS.R2(0, 0);
+    _unitNormal = new descartesJS.R2(0, 0);
   }
   
   /**
@@ -57,7 +60,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.R2Newton.prototype.getUnitNormal = function() {
     this.normal.normalize();
-    return this.normal.copy();
+    
+    return _unitNormal.set(this.normal.x, this.normal.y);
   }
   
   /**
@@ -66,6 +70,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2Newton.prototype.gradient = function(q0) {
     evaluator = this.evaluator;
     
+    newQ.x = 0;
+    newQ.y = 0;
+
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
 
@@ -98,10 +105,12 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  descartesJS.R2Newton.prototype.findZero = function(q0) {
+  descartesJS.R2Newton.prototype.findZero = function(q0, dist, is_graphic_control) {
     evaluator = this.evaluator;
     
-    q = q0.copy();
+    // q = q0.copy();
+    q.x = q0.x;
+    q.y = q0.y;
     
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
@@ -121,7 +130,8 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", savex);
     evaluator.setVariable("y", savey);
 
-    for (var i=0; i<256; i++) {
+    for (var i=0; i<16; i++) {
+    // for (var i=0; i<256; i++) {
       xa = q.x;
       ya = q.y;
 
@@ -134,17 +144,21 @@ var descartesJS = (function(descartesJS) {
       q.x = xa+this.normal.x; 
       q.y = ya+this.normal.y;
       
-      if (this.normal.norm() < epsilon) {
+      if (this.normal.norm() < dist) {
         if ((this.normal.x === 0) && (this.normal.y === 0)) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
-
         return q;
       }
     }
-    
-    return q;
+
+    if (is_graphic_control) {
+      return q;
+    }
+    else {
+      return null;
+    }
   }
 
   return descartesJS;

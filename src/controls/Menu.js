@@ -170,7 +170,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the menu
    */
-  descartesJS.Menu.prototype.init = function() {
+  descartesJS.Menu.prototype.init = function(noupdate) {
     evaluator = this.evaluator;
 
     var name = evaluator.evalExpression(this.name).toString();
@@ -183,7 +183,7 @@ var descartesJS = (function(descartesJS) {
     var indMinTFw = 0;
     var minTFw = 0;
     var mow;
-    this.value = evaluator.evalExpression(this.valueExpr);
+    this.value = (noupdate) ? this.value : evaluator.evalExpression(this.valueExpr);
     this.indexValue = this.getIndex(this.value);
 
     // find the widest choice to set the menu width
@@ -286,6 +286,7 @@ var descartesJS = (function(descartesJS) {
 
       // update the value of the menu
       this.value = evaluator.getVariable(this.id);
+
       if (isNaN(this.value)) {
         this.value = 0;
       }

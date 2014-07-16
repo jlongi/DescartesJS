@@ -100,15 +100,15 @@ var descartesJS = (function(descartesJS) {
 
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "liberation_serifregular, 'Times New Roman', Times, serif";
+      fontCanvas += "descartesJS_serif, 'Times New Roman', Times, serif";
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "liberation_sansregular, Arial, Helvetica, Sans-serif";
+      fontCanvas += "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
     }
     // monospace font
     else {
-      fontCanvas += "liberation_monoregular, 'Courier New', Courier, Monospace";
+      fontCanvas += "descartesJS_monospace, 'Courier New', Courier, Monospace";
     }
 
     return fontCanvas;
@@ -208,64 +208,72 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.toFixed = function(decimals) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
-      // }
-      decimals = (decimals) ? decimals : 0;
-      decimals = (decimals<0) ? 0 : parseInt(decimals);
+      // }      
 
-      strNum = this.toString();
-      indexOfE = strNum.indexOf("e");
-
-      if (indexOfE !== -1) {
-        exponentialNotationSplit = strNum.split("e");
-        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
-        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
-
-        moveDotTo = parseInt(exponentialNotationSplit[1]);
-        indexOfDot = exponentialNumber.indexOf(".");
-
-        if (indexOfDot+moveDotTo < 0) {
-          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
-          strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
-        }
-        else {
-          exponentialNumber = exponentialNumber.replace(".", "");
-          strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
-        }
+      // if the browser support more than 20 decimals use the browser function otherwise use a custom implementation
+      try {
+        return this.originalToFixed(decimals);
       }
+      catch(e) {
+        decimals = (decimals) ? decimals : 0;
+        decimals = (decimals<0) ? 0 : parseInt(decimals);
 
-      indexOfDot = strNum.indexOf(".");
-      extraZero = "";
+        strNum = this.toString();
+        indexOfE = strNum.indexOf("e");
 
-      // is a float number
-      if (indexOfDot === -1) {
-        if (decimals > 0) {
-          extraZero = ".";
+        if (indexOfE !== -1) {
+          exponentialNotationSplit = strNum.split("e");
+          exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
+          exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
+
+          moveDotTo = parseInt(exponentialNotationSplit[1]);
+          indexOfDot = exponentialNumber.indexOf(".");
+
+          if (indexOfDot+moveDotTo < 0) {
+            indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
+            strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          }
+          else {
+            exponentialNumber = exponentialNumber.replace(".", "");
+            strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          }
         }
 
-        extraZero += (new Array(decimals+1)).join("0");
+        indexOfDot = strNum.indexOf(".");
+        extraZero = "";
 
-        strNum = strNum + extraZero;
-      }
-      else {
-        diff = strNum.length - indexOfDot - 1;
+        // is a float number
+        if (indexOfDot === -1) {
+          if (decimals > 0) {
+            extraZero = ".";
+          }
 
-        if (diff >= decimals) {
-          if (decimals <= 11) {
-            strNum = parseFloat(strNum).originalToFixed(decimals);
-          }
-          
-          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
-        }
-        else {
-          for (var i=0, l=decimals-diff; i<l; i++) {
-            extraZero += "0";
-          }
+          extraZero += (new Array(decimals+1)).join("0");
 
           strNum = strNum + extraZero;
         }
-      }
+        else {
+          diff = strNum.length - indexOfDot - 1;
 
-      return strNum;
+          if (diff >= decimals) {
+            if (decimals <= 11) {
+              strNum = parseFloat(strNum).originalToFixed(decimals);
+            }
+            
+            strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+          }
+          else {
+            for (var i=0, l=decimals-diff; i<l; i++) {
+              extraZero += "0";
+            }
+
+            strNum = strNum + extraZero;
+          }
+        }
+
+        return strNum;
+      }
+      // end catch
     }
   }
   

@@ -312,7 +312,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.evalConstraint = function() {
     constraintPosition.set(this.x, this.y);
 
-    cpos = this.newt.findZero(constraintPosition);
+    cpos = this.newt.findZero(constraintPosition, 1/this.space.scale, true);
     this.x = cpos.x;
     this.y = cpos.y;
     this.evaluator.setVariable(this.xString, this.x);

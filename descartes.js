@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2014-05-17
+ * 2014-07-15
  */
 
 /**
@@ -671,15 +671,15 @@ var descartesJS = (function(descartesJS) {
 
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "liberation_serifregular, 'Times New Roman', Times, serif";
+      fontCanvas += "descartesJS_serif, 'Times New Roman', Times, serif";
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "liberation_sansregular, Arial, Helvetica, Sans-serif";
+      fontCanvas += "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
     }
     // monospace font
     else {
-      fontCanvas += "liberation_monoregular, 'Courier New', Courier, Monospace";
+      fontCanvas += "descartesJS_monospace, 'Courier New', Courier, Monospace";
     }
 
     return fontCanvas;
@@ -779,64 +779,72 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.toFixed = function(decimals) {
       // if (decimals <= 20) {
       //   return this.originalToFixed(decimals);
-      // }
-      decimals = (decimals) ? decimals : 0;
-      decimals = (decimals<0) ? 0 : parseInt(decimals);
+      // }      
 
-      strNum = this.toString();
-      indexOfE = strNum.indexOf("e");
-
-      if (indexOfE !== -1) {
-        exponentialNotationSplit = strNum.split("e");
-        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
-        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
-
-        moveDotTo = parseInt(exponentialNotationSplit[1]);
-        indexOfDot = exponentialNumber.indexOf(".");
-
-        if (indexOfDot+moveDotTo < 0) {
-          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
-          strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
-        }
-        else {
-          exponentialNumber = exponentialNumber.replace(".", "");
-          strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
-        }
+      // if the browser support more than 20 decimals use the browser function otherwise use a custom implementation
+      try {
+        return this.originalToFixed(decimals);
       }
+      catch(e) {
+        decimals = (decimals) ? decimals : 0;
+        decimals = (decimals<0) ? 0 : parseInt(decimals);
 
-      indexOfDot = strNum.indexOf(".");
-      extraZero = "";
+        strNum = this.toString();
+        indexOfE = strNum.indexOf("e");
 
-      // is a float number
-      if (indexOfDot === -1) {
-        if (decimals > 0) {
-          extraZero = ".";
+        if (indexOfE !== -1) {
+          exponentialNotationSplit = strNum.split("e");
+          exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
+          exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
+
+          moveDotTo = parseInt(exponentialNotationSplit[1]);
+          indexOfDot = exponentialNumber.indexOf(".");
+
+          if (indexOfDot+moveDotTo < 0) {
+            indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
+            strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          }
+          else {
+            exponentialNumber = exponentialNumber.replace(".", "");
+            strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          }
         }
 
-        extraZero += (new Array(decimals+1)).join("0");
+        indexOfDot = strNum.indexOf(".");
+        extraZero = "";
 
-        strNum = strNum + extraZero;
-      }
-      else {
-        diff = strNum.length - indexOfDot - 1;
+        // is a float number
+        if (indexOfDot === -1) {
+          if (decimals > 0) {
+            extraZero = ".";
+          }
 
-        if (diff >= decimals) {
-          if (decimals <= 11) {
-            strNum = parseFloat(strNum).originalToFixed(decimals);
-          }
-          
-          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
-        }
-        else {
-          for (var i=0, l=decimals-diff; i<l; i++) {
-            extraZero += "0";
-          }
+          extraZero += (new Array(decimals+1)).join("0");
 
           strNum = strNum + extraZero;
         }
-      }
+        else {
+          diff = strNum.length - indexOfDot - 1;
 
-      return strNum;
+          if (diff >= decimals) {
+            if (decimals <= 11) {
+              strNum = parseFloat(strNum).originalToFixed(decimals);
+            }
+            
+            strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+          }
+          else {
+            for (var i=0, l=decimals-diff; i<l; i++) {
+              extraZero += "0";
+            }
+
+            strNum = strNum + extraZero;
+          }
+        }
+
+        return strNum;
+      }
+      // end catch
     }
   }
   
@@ -4309,8 +4317,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  var PI2 = Math.PI*2;
-  var netsz = 8;
+
 
   var b;
 
@@ -4362,6 +4369,8 @@ var descartesJS = (function(descartesJS) {
   var saveX;
   var Xr;
   var auxv;
+
+descartesJS._debug_vez = 0;
   
   /**
    * A Descartes equation
@@ -4393,9 +4402,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
-    // generate a stroke pattern
-    this.generateStroke();
 
     // parse the expression and build a newton evaluator
     this.parseExpression();
@@ -4455,34 +4461,10 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Generate an image corresponding to the stroke of the equation
-   */
-  descartesJS.Equation.prototype.generateStroke = function() {
-    this.auxCanvas = document.createElement("canvas");
-    this.oldWwidth = parseInt(this.evaluator.evalExpression(this.width));
-    this.width_2 = parseInt(this.oldWwidth/2) || 1;
-    this.auxCanvas.setAttribute("width", this.oldWwidth);
-    this.auxCanvas.setAttribute("height", this.oldWwidth);
-    this.auxCtx = this.auxCanvas.getContext("2d");
-
-    this.auxCtx.fillStyle = this.color.getColor();
-
-    // this.auxCtx.beginPath();
-    // this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
-    // this.auxCtx.fill();
-    this.auxCtx.fillRect(0, 0, this.oldWwidth, this.oldWwidth);
-  }
-  
-  var tmpOldWidth;
-  /**
    * Update the equation
    */
   descartesJS.Equation.prototype.update = function() {
-    tmpOldWidth = parseInt(this.evaluator.evalExpression(this.width));
-
-    if (tmpOldWidth !== this.oldWwidth) {
-      this.generateStroke();
-    }
+    // this.oldWidth = parseInt(this.evaluator.evalExpression(this.width));
   }
   
   /**
@@ -4551,15 +4533,25 @@ var descartesJS = (function(descartesJS) {
    * @param {String} stroke the stroke color of the equation
    */
   descartesJS.Equation.prototype.drawAux = function(ctx, fill, stroke) {
-    ctx.lineWidth = 1;
+    //
+    if ( this.evaluator.evalExpression(this.drawif) <= 0 ) {
+      return;
+    }
+
+    var Qxa;
+    var Qya;
+    var secondVisit;
+    var Qsx;
+    var Qsy;
+
     evaluator = this.evaluator;
     parser = evaluator.parser;
     space = this.space;
-    
     width = evaluator.evalExpression(this.width);
-    ctx.fillStyle = stroke.getColor();
-    ctx.translate(-parseInt(width/2), -parseInt(width/2));
-    // width = MathFloor(width)/2;
+
+    // ctx.fillStyle = stroke.getColor();
+    ctx.strokeStyle = this.color.getColor();
+    ctx.lineWidth = width;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
@@ -4567,12 +4559,10 @@ var descartesJS = (function(descartesJS) {
     w = space.w;
     h = space.h;
     
-    // dx = parseInt(w/netsz);
     dx = w/9;
     if (dx<3) {
       dx=3;
     }
-    // dy = parseInt(h/netsz);
     dy = h/7;
     if (dy<3) {
       dy=3;
@@ -4585,41 +4575,52 @@ var descartesJS = (function(descartesJS) {
     t.set(0, 0);
 
     var np = 8;
-    var dist = 0.1;
+    var dist = 0.25;
     var ds = np;
     if (!this.abs_coord) {
-      var scale = space.scale;
-      dist = dist/scale;
-      ds = ds/scale;
+      dist = dist/space.scale;
+      ds = ds/space.scale;
     }
+
+    // init the canvas path
+    ctx.beginPath();
 
     for (j=parseInt(dy/2); j<h; j+=dy) {
       for (i=parseInt(dx/2); i<w; i+=dx) {
         if (this.abs_coord) {
           q_ij.set(i, j);
-          q = this.newt.findZero(q_ij);
+          q = this.newt.findZero(q_ij, dist);
+          if (q == null) {
+            continue;
+          }
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           Q.set(q.x, q.y);
-        } else {
+        } 
+        else {
           q_ij.set(space.getRelativeX(i), space.getRelativeY(j));
-          q = this.newt.findZero(q_ij);
+          q = this.newt.findZero(q_ij, dist);
+          if (q == null) {
+            continue;
+          }
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
         }
-        
+
         Qx = Q.ix();
         Qy = Q.iy();
 
-        if (Qx<0 || Qx>=w || Qy<0 || Qy>=h || b[Qx + Qy*space.w]) {
-          continue; // zero detected
+        if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+          if (b[Qx + Qy*space.w]) {
+            continue; // zero already detected
+          }
+          b[Qx + Qy*space.w] = true;
         }
 
-        b[Qx + Qy*space.w] = true;
-
-        if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-          ctx.drawImage(this.auxCanvas, Qx, Qy);
+        if (descartesJS.rangeOK) {
+          ctx.moveTo(Qx, Qy);
+          ctx.lineTo(Qx, Qy);
         }
 
         q0.x = q.x;
@@ -4666,21 +4667,14 @@ var descartesJS = (function(descartesJS) {
             zeroVisited = 0;
           }
           
-          if (this.abs_coord) {
-            // advance along t aprox one pixel
-            q.x+=t.x; 
-            q.y+=t.y; 
-            // q.x += ds*t.x;
-            // q.y += ds*t.y;
-          } else {
-            // advance along t aprox one pixel
-            q.x+=t.x/space.scale;
-            q.y+=t.y/space.scale; 
-            // q.x += ds*t.x/space.scale;
-            // q.y += ds*t.y/space.scale;
+          q.x+=ds*t.x; 
+          q.y+=ds*t.y;
+
+          q = this.newt.findZero(q, dist);
+          if (q == null) {
+            continue;
           }
-          
-          q = this.newt.findZero(q);
+
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           
@@ -4688,7 +4682,7 @@ var descartesJS = (function(descartesJS) {
           t.y = q.y-qb.y;
           t.normalize(); // update Unit Tangent Vector
           
-          if (t.x==0 && t.y==0) {
+          if ((t.x==0) && (t.y==0)) {
             break; /* Zero tangent vector */
           }
           
@@ -4704,57 +4698,51 @@ var descartesJS = (function(descartesJS) {
           Px = parseInt(Q.ix());
           Py = parseInt(Q.iy());
           
-          if (Px!=Qx || Py!=Qy) {
-            var Qxa = Qx;
-            var Qya = Qy;
+          if ((Px!=Qx) || (Py!=Qy)) {
+            Qxa = Qx;
+            Qya = Qy;
             Qx = Px;
             Qy = Py;
             
             if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
               zeroVisited = 0;
 
-              var secondVisit = b[Qx + Qy*space.w];
+              secondVisit = b[Qx + Qy*space.w];
 
               b[Qx + Qy*space.w] = true;
               for (var s=1; s<np; s++) {
-                var Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
-                var Qsy = Qya + Math.round((Qy-Qya)*s/np);
+                Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
+                Qsy = Qya + Math.round((Qy-Qya)*s/np);
                 if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
                   b[Qsx + Qsy*space.w] = true;
                 }
               }
 
-              if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+              if (descartesJS.rangeOK) {
+                ctx.moveTo(Qxa, Qya);
+                ctx.lineTo(Qx, Qy);
               }
 
               if (secondVisit) {
                 break;
               }
-              
-              // if (b[Qx + Qy*space.w]) {
-              //   break;
-              // } 
-              // else {
-              //   b[Qx + Qy*space.w] = true;
-              //   if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-              //     ctx.drawImage(this.auxCanvas, Qx, Qy);
-              //   }
-              // }
-            } else {
+            }
+            else {
               changeSide = true; 
               side++; /* Zero out of bounds */
             }
-          } else if ( ++zeroVisited > 4 ) {
+          }
+          else if ( ++zeroVisited > 4 ) {
             changeSide = true; 
             side++; /* Stationary Zero */
           }
         }
       }
     }
-
+    
+    ctx.stroke();
     // reset the translation
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
 /**
@@ -7811,6 +7799,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx, space) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
+    ctx.lineWidth = 1;
 
     // set the path to draw
     ctx.beginPath();
@@ -7828,7 +7817,9 @@ var descartesJS = (function(descartesJS) {
       else {
         ctx.fillStyle = this.frontColor;
       }
-
+      ctx.strokeStyle = ctx.fillStyle;
+      
+      ctx.stroke();
       ctx.fill();
     }
     // light and metal render
@@ -7839,18 +7830,21 @@ var descartesJS = (function(descartesJS) {
       else {
         ctx.fillStyle = space.computeColor(this.frontColor, this, (this.model === "metal"));
       }
+      ctx.strokeStyle = ctx.fillStyle;
+      
+      ctx.stroke();
       ctx.fill();
     }
     // wireframe render
     else if (this.model === "wire") {
-      ctx.lineWidth = 1.25;
+      ctx.lineWidth = 1.5;
       ctx.strokeStyle = this.frontColor;
       ctx.stroke();
     }
 
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
-      ctx.lineWidth = 1;
+      // ctx.lineWidth = 1;
       ctx.strokeStyle = "#808080"
       ctx.stroke();
     }
@@ -10222,6 +10216,7 @@ var descartesJS = (function(descartesJS) {
   var MathCos = Math.cos;
   var MathSin = Math.sin;
   var MathAbs = Math.abs;
+  var MathRound = Math.round;
   var aux;
   var q;
   var p;
@@ -10257,6 +10252,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2.prototype.set = function(x, y) {
     this.x = x || 0;
     this.y = y || 0;
+    return this;
   }
 
   descartesJS.R2.prototype.copy = function() {
@@ -10264,11 +10260,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.R2.prototype.ix = function() {
-    return Math.round(MathMax(MathMin(this.x, 32000), -32000));
+    return MathRound(MathMax(MathMin(this.x, 32000), -32000));
   }
 
   descartesJS.R2.prototype.iy = function() {
-    return Math.round(MathMax(MathMin(this.y, 32000), -32000));
+    return MathRound(MathMax(MathMin(this.y, 32000), -32000));
   }
 
   descartesJS.R2.prototype.equals = function(p) {
@@ -10438,8 +10434,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var delta = 0.000000000001;
-  var epsilon = 0.000001;
+  var delta = 0.000001;
 
   var evaluator;
   var FV;
@@ -10449,6 +10444,8 @@ var descartesJS = (function(descartesJS) {
   var newQ;
   var savex;
   var savey;
+
+  var _unitNormal;
 
 
   /**
@@ -10475,13 +10472,15 @@ var descartesJS = (function(descartesJS) {
         this.sign = "igual"; 
       }
       
-      // a restriction of the form "something = somethingElse" is converted to "someting - somethingElse = 0"
+      // a constraint of the form "something = somethingElse" is converted to "someting - somethingElse = 0"
       this.constraint = this.constraint.equalToMinus();
       // evaluates onlye the left size, because the right size is 0
       this.constraint = this.constraint.childs[0];
     }
 
-    newQ = new descartesJS.R2(0, 0);    
+    newQ = new descartesJS.R2(0, 0);
+    q = new descartesJS.R2(0, 0);
+    _unitNormal = new descartesJS.R2(0, 0);
   }
   
   /**
@@ -10489,7 +10488,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.R2Newton.prototype.getUnitNormal = function() {
     this.normal.normalize();
-    return this.normal.copy();
+    
+    return _unitNormal.set(this.normal.x, this.normal.y);
   }
   
   /**
@@ -10498,6 +10498,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2Newton.prototype.gradient = function(q0) {
     evaluator = this.evaluator;
     
+    newQ.x = 0;
+    newQ.y = 0;
+
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
 
@@ -10530,10 +10533,12 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  descartesJS.R2Newton.prototype.findZero = function(q0) {
+  descartesJS.R2Newton.prototype.findZero = function(q0, dist, is_graphic_control) {
     evaluator = this.evaluator;
     
-    q = q0.copy();
+    // q = q0.copy();
+    q.x = q0.x;
+    q.y = q0.y;
     
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
@@ -10553,7 +10558,8 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", savex);
     evaluator.setVariable("y", savey);
 
-    for (var i=0; i<256; i++) {
+    for (var i=0; i<16; i++) {
+    // for (var i=0; i<256; i++) {
       xa = q.x;
       ya = q.y;
 
@@ -10566,17 +10572,21 @@ var descartesJS = (function(descartesJS) {
       q.x = xa+this.normal.x; 
       q.y = ya+this.normal.y;
       
-      if (this.normal.norm() < epsilon) {
+      if (this.normal.norm() < dist) {
         if ((this.normal.x === 0) && (this.normal.y === 0)) {
           this.normal.x = q.x-q0.x;
           this.normal.y = q.y-q0.y;
         }
-
         return q;
       }
     }
-    
-    return q;
+
+    if (is_graphic_control) {
+      return q;
+    }
+    else {
+      return null;
+    }
   }
 
   return descartesJS;
@@ -11142,7 +11152,7 @@ var descartesJS = (function(descartesJS) {
 
     // if has some change, then init the control and redraw it
     if ((changeW) || (changeH) || (changeX) || (changeY)) {
-      this.init();
+      this.init(true);
       this.draw();
     }
   }
@@ -11350,6 +11360,15 @@ var descartesJS = (function(descartesJS) {
   var hasTouchSupport;
   var delay = 2000;
 
+  var _image_pos_x;
+  var _image_pos_y;
+  var _text_pos_x;
+  var _text_pos_y;
+
+  var _i_h;
+  var _font_h;
+  var newButtonCondition;
+
   var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   /**
@@ -11415,7 +11434,12 @@ var descartesJS = (function(descartesJS) {
       this.imageSrc  = "";
     }
 
-    this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+    if (this.imageSrc.charAt(0) == '[') {
+      this.imageSrc = this.parser.parse(this.imageSrc);
+    }
+    else {
+      this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+    }
     
     // if the button has an image then load it and try to load the over and down images
     var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
@@ -11551,16 +11575,38 @@ var descartesJS = (function(descartesJS) {
       despY = 1;
     }
 
+    _text_pos_x = MathFloor(this.w/2 + despX)-.5;
+    _text_pos_y = MathFloor(this.h/2 + despY)-.5;
+
+    //////////////////////////////////////////////////////////
+    // text at the bottom
+    if (image) {
+      _i_h = image.height || 100000000;
+      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px Arial").h;
+      newButtonCondition = (name != "") ? (((this.h-_i_h-_font_h-2) >=0 ) ? true : false) : false;
+
+      _image_pos_x = parseInt((this.w-image.width)/2)+despX;
+      _image_pos_y = (newButtonCondition) ? (parseInt((this.h -_font_h -image.height +2)/2)) : (parseInt((this.h-image.height)/2)+despY);
+
+      if (newButtonCondition) {
+        _text_pos_y = parseInt(this.h - _font_h/2 -2);
+
+        ctx.fillStyle = this.colorInt.getColor();
+        ctx.fillRect(0, 0, this.w, this.h);
+      }
+    }
+    //////////////////////////////////////////////////////////
+
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
         // check if is a gif image
         if ( (this.image.src).match(gifPattern) ) {
           this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
-          this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
-          ctx.drawImage(image, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+          ctx.drawImage(image, _image_pos_x, _image_pos_y);
         }
       }
     }
@@ -11582,20 +11628,20 @@ var descartesJS = (function(descartesJS) {
     if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
-        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+        this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       }
       else {
-        ctx.drawImage(this.imageOver, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        ctx.drawImage(this.imageOver, _image_pos_x, _image_pos_y);
       }
     }
 
     if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
       if ( (this.image.src).match(gifPattern) ) {
         this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
-        this.canvas.style.backgroundPosition = (parseInt((this.w-image.width)/2)+despX) + "px " + (parseInt((this.h-image.height)/2)+despY) + "px";
+        this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       }
       else {
-        ctx.drawImage(this.imageDown, parseInt((this.w-image.width)/2)+despX, parseInt((this.h-image.height)/2)+despY);
+        ctx.drawImage(this.imageDown, _image_pos_x, _image_pos_y);
       }
     }
     else if ((this.buttonClick) && (!image)) {
@@ -11610,17 +11656,17 @@ var descartesJS = (function(descartesJS) {
     ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    
+
     // text border
     if (this.colorInt.getColor() != this.color.getColor()) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
-      ctx.strokeText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
+      ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
 
     // write the button name
-    ctx.fillText(name, MathFloor(this.w/2 + despX)+.5, MathFloor(this.h/2 + despY)+.5);
+    ctx.fillText(name, _text_pos_x, _text_pos_y);
 
     // draw the under line
     if (this.underlined) {
@@ -11630,8 +11676,10 @@ var descartesJS = (function(descartesJS) {
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
-      ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      // ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      // ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
+      ctx.moveTo( parseInt((this.w-txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
+      ctx.lineTo( parseInt((this.w+txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.stroke();
     }
      
@@ -11837,6 +11885,10 @@ var descartesJS = (function(descartesJS) {
     // tabular index
     this.tabindex = ++this.parent.tabindex;
 
+    if (this.name == "_._") {
+      this.name = "";
+    }
+
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -11954,7 +12006,9 @@ var descartesJS = (function(descartesJS) {
     this.canvas.setAttribute("style", "position: absolute; left: " + labelWidth + "px; top: 0px;");
     this.ctx = this.canvas.getContext("2d");
     
+    this.divUp.setAttribute("class", "up");
     this.divUp.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: 0px;");
+    this.divDown.setAttribute("class", "down");
     this.divDown.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: " + this.h/2 + "px;");
 
     this.field.setAttribute("type", "text");
@@ -11963,6 +12017,9 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
+    if (!this.visible) {
+      this.field.style.display = "none";
+    }
 
     this.label.setAttribute("class", "DescartesSpinnerLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
@@ -12477,9 +12534,11 @@ var descartesJS = (function(descartesJS) {
         this.valueExpr = this.evaluator.parser.parse( "'" + this.valueExprString + "'" );
       }
 
+      /**
+       * validate value for a only text control
+       */
       this.validateValue = function(value) {
-        // value = value.replace(evaluator.parent.decimal_symbol, ".");
-
+        value = value.toString();
         if ( (value == "''") || (value == "'") ) {
           return "";
         }
@@ -12984,7 +13043,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the menu
    */
-  descartesJS.Menu.prototype.init = function() {
+  descartesJS.Menu.prototype.init = function(noupdate) {
     evaluator = this.evaluator;
 
     var name = evaluator.evalExpression(this.name).toString();
@@ -12997,7 +13056,7 @@ var descartesJS = (function(descartesJS) {
     var indMinTFw = 0;
     var minTFw = 0;
     var mow;
-    this.value = evaluator.evalExpression(this.valueExpr);
+    this.value = (noupdate) ? this.value : evaluator.evalExpression(this.valueExpr);
     this.indexValue = this.getIndex(this.value);
 
     // find the widest choice to set the menu width
@@ -13100,6 +13159,7 @@ var descartesJS = (function(descartesJS) {
 
       // update the value of the menu
       this.value = evaluator.getVariable(this.id);
+
       if (isNaN(this.value)) {
         this.value = 0;
       }
@@ -15132,7 +15192,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.evalConstraint = function() {
     constraintPosition.set(this.x, this.y);
 
-    cpos = this.newt.findZero(constraintPosition);
+    cpos = this.newt.findZero(constraintPosition, 1/this.space.scale, true);
     this.x = cpos.x;
     this.y = cpos.y;
     this.evaluator.setVariable(this.xString, this.x);
@@ -18354,8 +18414,10 @@ var descartesJS = (function(descartesJS) {
    * Get the value to a variable
    * @param {String} name the name of the variable to get the value
    */
-  descartesJS.Parser.prototype.getVariable = function(name) {
-    // this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
+  descartesJS.Parser.prototype.getVariable = function(name, firstTime) {
+    if (firstTime) {
+      this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
+    }
     return this.variables[name];
   }
 
@@ -18496,7 +18558,7 @@ var descartesJS = (function(descartesJS) {
         // the identifier is a variable
         else {
           // this.getVariable(prefix + tokens_i_value);
-          this.getVariable(tokens_i_value);
+          this.getVariable(tokens_i_value, true);
         } 
       }
       ////////////////////////////////////////////////////////////////////////////////
@@ -23828,7 +23890,7 @@ var descartesJS = (function(descartesJS) {
         this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (this.bg_display === "imgcenter") {
+      else if (this.bg_display === "center") {
         this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
@@ -23924,8 +23986,7 @@ var descartesJS = (function(descartesJS) {
     var front_or_back;
     var backList = [];
     var frontList = [];
-    // tmpPrimitive = primitives.shift();
-    tmpPrimitive = primitives.pop();
+    tmpPrimitive = primitives.shift();
 
     for (var i=0, l=primitives.length; i<l; i++) {
       front_or_back = null;
@@ -24030,13 +24091,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space3D.prototype.drawPainter = function(primitives) {
     var renderTree = this.buildTree(primitives);
-
     if (renderTree) {
       renderTree = renderTree.inOrder();
 
       for(var i=0; i<renderTree.length; i++) {
         renderTree[i].draw(this.ctx, this);
       }
+      
     }
   }
 
@@ -24057,7 +24118,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.inPlane2 = function(p1, n, p) {
-    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(2) );
+    return parseFloat( (n.x*(p.x - p1.x) + n.y*(p.y - p1.y) + n.z*(p.z - p1.z)).originalToFixed(8) );
   }
 
 //********************************************************************************************************************
@@ -26236,7 +26297,7 @@ var descartesJS = (function(descartesJS) {
                  gui:        "spinner",
                  region:     "south",
                  space:      "E0",
-                 name:       "n1",
+                 name:       "",
                  expresion:  "(0,0,100,23)",
                  value:      "0",
                  incr:       "0.1",
@@ -26264,7 +26325,7 @@ var descartesJS = (function(descartesJS) {
                  onlyText:   "false",
                  region:     "south",
                  space:      "E0",
-                 name:       "n1",
+                 name:       "",
                  expresion:  "(0,0,100,23)",
                  value:      "0",
                  incr:       "0.1",
@@ -26291,7 +26352,7 @@ var descartesJS = (function(descartesJS) {
                  gui:        "menu",
                  region:     "south",
                  space:      "E0",
-                 name:       "n1",
+                 name:       "",
                  expresion:  "(0,0,100,23)",
                  value:      "0",
                  decimals:   "2",
@@ -26315,7 +26376,7 @@ var descartesJS = (function(descartesJS) {
                  gui:        "scrollbar",
                  region:     "south",
                  space:      "E0",
-                 name:       "n1",
+                 name:       "",
                  expresion:  "(0,0,100,23)",
                  value:      "0",
                  incr:       "0.1",
@@ -26342,7 +26403,7 @@ var descartesJS = (function(descartesJS) {
                  type:       "numeric",
                  region:     "south",
                  space:      "E0",
-                 name:       "n1",
+                 name:       "",
                  expresion:  "(0,0,100,23)",
                  value:      "0",
                  visible:    "true",
@@ -29640,7 +29701,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
-    this.animation = {playing : false};
+    this.animation = { playing:false, stop:function(){} };
 
     /**
      * applet code
@@ -29755,6 +29816,9 @@ var descartesJS = (function(descartesJS) {
    * Init the variables needed for parsing and create the descartes lesson
    */
   descartesJS.DescartesApp.prototype.init = function() {
+  	// stop the animation
+  	this.stop();
+
     /**
      * evaluator and parser of expressions
      * type {Evaluator}
@@ -30229,6 +30293,8 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
+
+    
   }
 
   /**
@@ -30252,7 +30318,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.DescartesApp.prototype.adjustDimensions = function() {
-    console.log("jiodjsaoidjaosi")
     var appletsAJS_i = this;
     var init_w;
     var w;
@@ -30602,7 +30667,13 @@ var descartesJS = (function(descartesJS) {
     this.updateAuxiliaries();
     this.updateControls();
     this.updateEvents();
+    this.updateControls();
     this.updateSpaces();
+  	
+    // this.updateAuxiliaries();
+    // this.updateControls();
+    // this.updateEvents();
+    // this.updateSpaces();
 
     // send the cache vars to the htmliframes
     // this.sendCacheVars();
@@ -30766,56 +30837,6 @@ var descartesJS = (function(descartesJS) {
         var lastIndexOfDot = name.lastIndexOf(".");
         lastIndexOfDot = (lastIndexOfDot === -1) ? name.lenght : lastIndexOfDot;
         var namename = name.substring(0, lastIndexOfDot);
-
-        // var mediaElement = new Audio();
-        // mediaElement.setAttribute("preload", "auto");
-
-        // var onCanPlayThrough = function() {
-        //   this.ready = 1;
-        // }
-        
-        // var onError = function() {
-        //   console.log("El archivo '" + name + "' no puede ser reproducido");
-        //   this.errorload = 1;
-        // }
-
-        // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-        // mediaElement.addEventListener('load', onCanPlayThrough);
-        // mediaElement.addEventListener('error', onError);
-
-        // var source;
-        // // mp3
-        // if (mediaElement.canPlayType("audio/mpeg")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".mp3");
-        //   source.setAttribute("type", "audio/mpeg");
-        //   mediaElement.appendChild(source);
-        // }
-        // // ogg, oga
-        // if (mediaElement.canPlayType("audio/ogg")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".ogg");
-        //   source.setAttribute("type", "audio/ogg");
-        //   mediaElement.appendChild(source);
-
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".oga");
-        //   source.setAttribute("type", "audio/ogg");
-        //   mediaElement.appendChild(source);
-        // }
-        // // wav
-        // if (mediaElement.canPlayType("audio/wav")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".wav");
-        //   source.setAttribute("type", "audio/wav");
-        //   mediaElement.appendChild(source);
-        // }
-
-        // mediaElement.load();
-        // mediaElement.play();
-        // mediaElement.pause();
-
-        // audios[name] = mediaElement;
         
         audios[name] = new Audio(name);
         
@@ -30838,7 +30859,6 @@ var descartesJS = (function(descartesJS) {
         }
         audios[name].addEventListener('error', onError);
               
-  //       audios[name].load();
         audios[name].play();
         setTimeout( function(){ audios[name].pause(); }, 15);
         
@@ -31384,6 +31404,14 @@ var descartesJS = (function(descartesJS) {
     
     // register the message evt, to handle the messages between frames
     window.addEventListener("message", descartesJS.receiveMessage);
+
+    // add event listener to transitions of spaces
+    var trasitionEvents = ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"];
+    for (var i=0,l=trasitionEvents.length; i<l; i++) {
+      window.addEventListener(trasitionEvents[i], function(evt) {
+        descartesJS.onResize(evt);
+      });
+    }
   }
 
   return descartesJS;

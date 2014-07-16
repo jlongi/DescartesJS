@@ -39,6 +39,10 @@ var descartesJS = (function(descartesJS) {
     // tabular index
     this.tabindex = ++this.parent.tabindex;
 
+    if (this.name == "_._") {
+      this.name = "";
+    }
+
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -156,7 +160,9 @@ var descartesJS = (function(descartesJS) {
     this.canvas.setAttribute("style", "position: absolute; left: " + labelWidth + "px; top: 0px;");
     this.ctx = this.canvas.getContext("2d");
     
+    this.divUp.setAttribute("class", "up");
     this.divUp.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: 0px;");
+    this.divDown.setAttribute("class", "down");
     this.divDown.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: " + this.h/2 + "px;");
 
     this.field.setAttribute("type", "text");
@@ -165,6 +171,9 @@ var descartesJS = (function(descartesJS) {
     this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
+    if (!this.visible) {
+      this.field.style.display = "none";
+    }
 
     this.label.setAttribute("class", "DescartesSpinnerLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");

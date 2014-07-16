@@ -160,6 +160,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx, space) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
+    ctx.lineWidth = 1;
 
     // set the path to draw
     ctx.beginPath();
@@ -177,7 +178,9 @@ var descartesJS = (function(descartesJS) {
       else {
         ctx.fillStyle = this.frontColor;
       }
-
+      ctx.strokeStyle = ctx.fillStyle;
+      
+      ctx.stroke();
       ctx.fill();
     }
     // light and metal render
@@ -188,18 +191,21 @@ var descartesJS = (function(descartesJS) {
       else {
         ctx.fillStyle = space.computeColor(this.frontColor, this, (this.model === "metal"));
       }
+      ctx.strokeStyle = ctx.fillStyle;
+      
+      ctx.stroke();
       ctx.fill();
     }
     // wireframe render
     else if (this.model === "wire") {
-      ctx.lineWidth = 1.25;
+      ctx.lineWidth = 1.5;
       ctx.strokeStyle = this.frontColor;
       ctx.stroke();
     }
 
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
-      ctx.lineWidth = 1;
+      // ctx.lineWidth = 1;
       ctx.strokeStyle = "#808080"
       ctx.stroke();
     }

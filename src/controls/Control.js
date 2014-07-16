@@ -499,7 +499,7 @@ var descartesJS = (function(descartesJS) {
 
     // if has some change, then init the control and redraw it
     if ((changeW) || (changeH) || (changeX) || (changeY)) {
-      this.init();
+      this.init(true);
       this.draw();
     }
   }

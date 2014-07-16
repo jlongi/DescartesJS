@@ -18,7 +18,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
-    this.animation = {playing : false};
+    this.animation = { playing:false, stop:function(){} };
 
     /**
      * applet code
@@ -133,6 +133,9 @@ var descartesJS = (function(descartesJS) {
    * Init the variables needed for parsing and create the descartes lesson
    */
   descartesJS.DescartesApp.prototype.init = function() {
+  	// stop the animation
+  	this.stop();
+
     /**
      * evaluator and parser of expressions
      * type {Evaluator}
@@ -607,6 +610,8 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
+
+    
   }
 
   /**
@@ -630,7 +635,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.DescartesApp.prototype.adjustDimensions = function() {
-    console.log("jiodjsaoidjaosi")
     var appletsAJS_i = this;
     var init_w;
     var w;
@@ -980,7 +984,13 @@ var descartesJS = (function(descartesJS) {
     this.updateAuxiliaries();
     this.updateControls();
     this.updateEvents();
+    this.updateControls();
     this.updateSpaces();
+  	
+    // this.updateAuxiliaries();
+    // this.updateControls();
+    // this.updateEvents();
+    // this.updateSpaces();
 
     // send the cache vars to the htmliframes
     // this.sendCacheVars();
@@ -1144,56 +1154,6 @@ var descartesJS = (function(descartesJS) {
         var lastIndexOfDot = name.lastIndexOf(".");
         lastIndexOfDot = (lastIndexOfDot === -1) ? name.lenght : lastIndexOfDot;
         var namename = name.substring(0, lastIndexOfDot);
-
-        // var mediaElement = new Audio();
-        // mediaElement.setAttribute("preload", "auto");
-
-        // var onCanPlayThrough = function() {
-        //   this.ready = 1;
-        // }
-        
-        // var onError = function() {
-        //   console.log("El archivo '" + name + "' no puede ser reproducido");
-        //   this.errorload = 1;
-        // }
-
-        // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-        // mediaElement.addEventListener('load', onCanPlayThrough);
-        // mediaElement.addEventListener('error', onError);
-
-        // var source;
-        // // mp3
-        // if (mediaElement.canPlayType("audio/mpeg")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".mp3");
-        //   source.setAttribute("type", "audio/mpeg");
-        //   mediaElement.appendChild(source);
-        // }
-        // // ogg, oga
-        // if (mediaElement.canPlayType("audio/ogg")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".ogg");
-        //   source.setAttribute("type", "audio/ogg");
-        //   mediaElement.appendChild(source);
-
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".oga");
-        //   source.setAttribute("type", "audio/ogg");
-        //   mediaElement.appendChild(source);
-        // }
-        // // wav
-        // if (mediaElement.canPlayType("audio/wav")) {
-        //   source = document.createElement("source");
-        //   source.setAttribute("src", filename + ".wav");
-        //   source.setAttribute("type", "audio/wav");
-        //   mediaElement.appendChild(source);
-        // }
-
-        // mediaElement.load();
-        // mediaElement.play();
-        // mediaElement.pause();
-
-        // audios[name] = mediaElement;
         
         audios[name] = new Audio(name);
         
@@ -1216,7 +1176,6 @@ var descartesJS = (function(descartesJS) {
         }
         audios[name].addEventListener('error', onError);
               
-  //       audios[name].load();
         audios[name].play();
         setTimeout( function(){ audios[name].pause(); }, 15);
         

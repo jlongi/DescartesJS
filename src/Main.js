@@ -271,6 +271,14 @@ var descartesJS = (function(descartesJS) {
     
     // register the message evt, to handle the messages between frames
     window.addEventListener("message", descartesJS.receiveMessage);
+
+    // add event listener to transitions of spaces
+    var trasitionEvents = ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"];
+    for (var i=0,l=trasitionEvents.length; i<l; i++) {
+      window.addEventListener(trasitionEvents[i], function(evt) {
+        descartesJS.onResize(evt);
+      });
+    }
   }
 
   return descartesJS;

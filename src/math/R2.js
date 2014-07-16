@@ -12,6 +12,7 @@ var descartesJS = (function(descartesJS) {
   var MathCos = Math.cos;
   var MathSin = Math.sin;
   var MathAbs = Math.abs;
+  var MathRound = Math.round;
   var aux;
   var q;
   var p;
@@ -47,6 +48,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2.prototype.set = function(x, y) {
     this.x = x || 0;
     this.y = y || 0;
+    return this;
   }
 
   descartesJS.R2.prototype.copy = function() {
@@ -54,11 +56,11 @@ var descartesJS = (function(descartesJS) {
   }
   
   descartesJS.R2.prototype.ix = function() {
-    return Math.round(MathMax(MathMin(this.x, 32000), -32000));
+    return MathRound(MathMax(MathMin(this.x, 32000), -32000));
   }
 
   descartesJS.R2.prototype.iy = function() {
-    return Math.round(MathMax(MathMin(this.y, 32000), -32000));
+    return MathRound(MathMax(MathMin(this.y, 32000), -32000));
   }
 
   descartesJS.R2.prototype.equals = function(p) {

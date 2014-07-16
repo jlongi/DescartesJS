@@ -7,8 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  var PI2 = Math.PI*2;
-  var netsz = 8;
+
 
   var b;
 
@@ -60,6 +59,8 @@ var descartesJS = (function(descartesJS) {
   var saveX;
   var Xr;
   var auxv;
+
+descartesJS._debug_vez = 0;
   
   /**
    * A Descartes equation
@@ -91,9 +92,6 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
-    // generate a stroke pattern
-    this.generateStroke();
 
     // parse the expression and build a newton evaluator
     this.parseExpression();
@@ -153,34 +151,10 @@ var descartesJS = (function(descartesJS) {
   }
   
   /**
-   * Generate an image corresponding to the stroke of the equation
-   */
-  descartesJS.Equation.prototype.generateStroke = function() {
-    this.auxCanvas = document.createElement("canvas");
-    this.oldWwidth = parseInt(this.evaluator.evalExpression(this.width));
-    this.width_2 = parseInt(this.oldWwidth/2) || 1;
-    this.auxCanvas.setAttribute("width", this.oldWwidth);
-    this.auxCanvas.setAttribute("height", this.oldWwidth);
-    this.auxCtx = this.auxCanvas.getContext("2d");
-
-    this.auxCtx.fillStyle = this.color.getColor();
-
-    // this.auxCtx.beginPath();
-    // this.auxCtx.arc(this.width_2, this.width_2, this.width_2, 0, Math.PI*2, false);
-    // this.auxCtx.fill();
-    this.auxCtx.fillRect(0, 0, this.oldWwidth, this.oldWwidth);
-  }
-  
-  var tmpOldWidth;
-  /**
    * Update the equation
    */
   descartesJS.Equation.prototype.update = function() {
-    tmpOldWidth = parseInt(this.evaluator.evalExpression(this.width));
-
-    if (tmpOldWidth !== this.oldWwidth) {
-      this.generateStroke();
-    }
+    // this.oldWidth = parseInt(this.evaluator.evalExpression(this.width));
   }
   
   /**
@@ -249,15 +223,25 @@ var descartesJS = (function(descartesJS) {
    * @param {String} stroke the stroke color of the equation
    */
   descartesJS.Equation.prototype.drawAux = function(ctx, fill, stroke) {
-    ctx.lineWidth = 1;
+    //
+    if ( this.evaluator.evalExpression(this.drawif) <= 0 ) {
+      return;
+    }
+
+    var Qxa;
+    var Qya;
+    var secondVisit;
+    var Qsx;
+    var Qsy;
+
     evaluator = this.evaluator;
     parser = evaluator.parser;
     space = this.space;
-    
     width = evaluator.evalExpression(this.width);
-    ctx.fillStyle = stroke.getColor();
-    ctx.translate(-parseInt(width/2), -parseInt(width/2));
-    // width = MathFloor(width)/2;
+
+    // ctx.fillStyle = stroke.getColor();
+    ctx.strokeStyle = this.color.getColor();
+    ctx.lineWidth = width;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
@@ -265,12 +249,10 @@ var descartesJS = (function(descartesJS) {
     w = space.w;
     h = space.h;
     
-    // dx = parseInt(w/netsz);
     dx = w/9;
     if (dx<3) {
       dx=3;
     }
-    // dy = parseInt(h/netsz);
     dy = h/7;
     if (dy<3) {
       dy=3;
@@ -283,41 +265,52 @@ var descartesJS = (function(descartesJS) {
     t.set(0, 0);
 
     var np = 8;
-    var dist = 0.1;
+    var dist = 0.25;
     var ds = np;
     if (!this.abs_coord) {
-      var scale = space.scale;
-      dist = dist/scale;
-      ds = ds/scale;
+      dist = dist/space.scale;
+      ds = ds/space.scale;
     }
+
+    // init the canvas path
+    ctx.beginPath();
 
     for (j=parseInt(dy/2); j<h; j+=dy) {
       for (i=parseInt(dx/2); i<w; i+=dx) {
         if (this.abs_coord) {
           q_ij.set(i, j);
-          q = this.newt.findZero(q_ij);
+          q = this.newt.findZero(q_ij, dist);
+          if (q == null) {
+            continue;
+          }
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           Q.set(q.x, q.y);
-        } else {
+        } 
+        else {
           q_ij.set(space.getRelativeX(i), space.getRelativeY(j));
-          q = this.newt.findZero(q_ij);
+          q = this.newt.findZero(q_ij, dist);
+          if (q == null) {
+            continue;
+          }
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           Q.set(space.getAbsoluteX(q.x), space.getAbsoluteY(q.y));
         }
-        
+
         Qx = Q.ix();
         Qy = Q.iy();
 
-        if (Qx<0 || Qx>=w || Qy<0 || Qy>=h || b[Qx + Qy*space.w]) {
-          continue; // zero detected
+        if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+          if (b[Qx + Qy*space.w]) {
+            continue; // zero already detected
+          }
+          b[Qx + Qy*space.w] = true;
         }
 
-        b[Qx + Qy*space.w] = true;
-
-        if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-          ctx.drawImage(this.auxCanvas, Qx, Qy);
+        if (descartesJS.rangeOK) {
+          ctx.moveTo(Qx, Qy);
+          ctx.lineTo(Qx, Qy);
         }
 
         q0.x = q.x;
@@ -364,21 +357,14 @@ var descartesJS = (function(descartesJS) {
             zeroVisited = 0;
           }
           
-          if (this.abs_coord) {
-            // advance along t aprox one pixel
-            q.x+=t.x; 
-            q.y+=t.y; 
-            // q.x += ds*t.x;
-            // q.y += ds*t.y;
-          } else {
-            // advance along t aprox one pixel
-            q.x+=t.x/space.scale;
-            q.y+=t.y/space.scale; 
-            // q.x += ds*t.x/space.scale;
-            // q.y += ds*t.y/space.scale;
+          q.x+=ds*t.x; 
+          q.y+=ds*t.y;
+
+          q = this.newt.findZero(q, dist);
+          if (q == null) {
+            continue;
           }
-          
-          q = this.newt.findZero(q);
+
           evaluator.setVariable("x", q.x);
           evaluator.setVariable("y", q.y);
           
@@ -386,7 +372,7 @@ var descartesJS = (function(descartesJS) {
           t.y = q.y-qb.y;
           t.normalize(); // update Unit Tangent Vector
           
-          if (t.x==0 && t.y==0) {
+          if ((t.x==0) && (t.y==0)) {
             break; /* Zero tangent vector */
           }
           
@@ -402,57 +388,51 @@ var descartesJS = (function(descartesJS) {
           Px = parseInt(Q.ix());
           Py = parseInt(Q.iy());
           
-          if (Px!=Qx || Py!=Qy) {
-            var Qxa = Qx;
-            var Qya = Qy;
+          if ((Px!=Qx) || (Py!=Qy)) {
+            Qxa = Qx;
+            Qya = Qy;
             Qx = Px;
             Qy = Py;
             
             if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
               zeroVisited = 0;
 
-              var secondVisit = b[Qx + Qy*space.w];
+              secondVisit = b[Qx + Qy*space.w];
 
               b[Qx + Qy*space.w] = true;
               for (var s=1; s<np; s++) {
-                var Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
-                var Qsy = Qya + Math.round((Qy-Qya)*s/np);
+                Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
+                Qsy = Qya + Math.round((Qy-Qya)*s/np);
                 if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
                   b[Qsx + Qsy*space.w] = true;
                 }
               }
 
-              if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-                  ctx.drawImage(this.auxCanvas, Qx, Qy);
+              if (descartesJS.rangeOK) {
+                ctx.moveTo(Qxa, Qya);
+                ctx.lineTo(Qx, Qy);
               }
 
               if (secondVisit) {
                 break;
               }
-              
-              // if (b[Qx + Qy*space.w]) {
-              //   break;
-              // } 
-              // else {
-              //   b[Qx + Qy*space.w] = true;
-              //   if ((descartesJS.rangeOK) && (evaluator.evalExpression(this.drawif))) {
-              //     ctx.drawImage(this.auxCanvas, Qx, Qy);
-              //   }
-              // }
-            } else {
+            }
+            else {
               changeSide = true; 
               side++; /* Zero out of bounds */
             }
-          } else if ( ++zeroVisited > 4 ) {
+          }
+          else if ( ++zeroVisited > 4 ) {
             changeSide = true; 
             side++; /* Stationary Zero */
           }
         }
       }
     }
-
+    
+    ctx.stroke();
     // reset the translation
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
 /**

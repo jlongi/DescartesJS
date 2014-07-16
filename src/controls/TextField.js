@@ -93,9 +93,11 @@ var descartesJS = (function(descartesJS) {
         this.valueExpr = this.evaluator.parser.parse( "'" + this.valueExprString + "'" );
       }
 
+      /**
+       * validate value for a only text control
+       */
       this.validateValue = function(value) {
-        // value = value.replace(evaluator.parent.decimal_symbol, ".");
-
+        value = value.toString();
         if ( (value == "''") || (value == "'") ) {
           return "";
         }
