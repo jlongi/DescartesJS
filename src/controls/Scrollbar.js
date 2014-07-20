@@ -251,6 +251,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     self.containerControl.setAttribute("class", "DescartesScrollbarContainer");
+    self.containerControl.setAttribute("id", self.id);    
     self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
     
     self.canvas.setAttribute("width", self.w+"px");
@@ -258,12 +259,12 @@ var descartesJS = (function(descartesJS) {
     self.canvas.setAttribute("style", "position: absolute; left: 0px; top: 0px;");    
     self.ctx = self.canvas.getContext("2d");
   
-    self.divUp.setAttribute("class", "DescartesCatcher");
+    self.divUp.setAttribute("class", "DescartesCatcher up");
     self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
-    self.divDown.setAttribute("class", "DescartesCatcher");
+    self.divDown.setAttribute("class", "DescartesCatcher down");
     self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
     
-    self.scrollManipulator.setAttribute("class", "DescartesCatcher");
+    self.scrollManipulator.setAttribute("class", "DescartesCatcher manipulator");
     self.scrollManipulator.setAttribute("style", "width : " + self.scrollManipulatorW + "px; height : " + self.scrollManipulatorH + "px;");
     self.scrollManipulator.style.top = ((self.orientation === verticalScrollbar) ? self.scrollManipulatorLimInf : 0) + "px";
     self.scrollManipulator.style.left = ((self.orientation === verticalScrollbar) ? 0 : self.scrollManipulatorLimInf) + "px";

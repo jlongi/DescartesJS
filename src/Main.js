@@ -171,6 +171,10 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
+    var div = document.createElement("div");
+    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span>';
+    document.body.appendChild(div);
+
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
 
@@ -196,6 +200,8 @@ var descartesJS = (function(descartesJS) {
 
       showApplets();
     }
+    
+    document.body.removeChild(div);
   }
   
   /**

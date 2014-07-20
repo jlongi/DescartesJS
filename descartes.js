@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2014-07-15
+ * 2014-07-19
  */
 
 /**
@@ -603,19 +603,25 @@ var descartesJS = (function(descartesJS) {
    * @param {Object} parent is the objecto to extends
    */
   descartesJS.extend = function(child, parent) {
-    // all browsers except IE
-    if (child.prototype.__proto__) {
-      child.prototype.__proto__ = parent.prototype;
+    // updated method
+    if (typeof Object.create == "function") {
+      child.prototype = Object.create(parent.prototype);      
     }
-    // IE
-    else { 
-      // copy all the functions of the parent
-      for( var i in parent.prototype ) { 
-        if (parent.prototype.hasOwnProperty(i)) {
-          child.prototype[i] = parent.prototype[i];
+    // old method
+    else {
+      if (child.prototype.__proto__) {
+        child.prototype.__proto__ = parent.prototype;
+      }
+      else { 
+        // copy all the functions of the parent
+        for( var i in parent.prototype ) { 
+          if (parent.prototype.hasOwnProperty(i)) {
+            child.prototype[i] = parent.prototype[i];
+          }
         }
       }
     }
+
     // add the uber (super) property to execute functions of the parent
     child.prototype.uber = parent.prototype;
   }
@@ -777,10 +783,6 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      // if (decimals <= 20) {
-      //   return this.originalToFixed(decimals);
-      // }      
-
       // if the browser support more than 20 decimals use the browser function otherwise use a custom implementation
       try {
         return this.originalToFixed(decimals);
@@ -941,61 +943,269 @@ var descartesJS = (function(descartesJS) {
     return Math.round( descartesJS.ctx.measureText(text).width );
   }
 
-  // auxiliary values to calculate the metrics
-  var text = document.createElement("span");
-  text.appendChild( document.createTextNode("\u00C1p") );
-  var block = document.createElement("div");
-  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px; margin: 0; padding: 0;");
-  var div = document.createElement("div");
-  div.setAttribute("style", "margin: 0; padding: 0;");
-  div.appendChild(text);
-  div.appendChild(block);
   var metricCache = {};
 
-  /**
-   * Get the metrics of a font
-   * @param {String} font the Descartes font to obtain the metric
-   * @return {Object} return an object containing the metric of the font (ascent, descent, h)
-   */
+  var _aux_canvas = document.createElement("canvas");
+  var _aux_ctx;
+  var _font_size;
+  var _canvas_size;
+  var _baselineOffset;
+  var _imageData;
+  var _data;
+  var _top;
+  var _bottom;
+
   descartesJS.getFontMetrics = function(font) {
     if (metricCache[font]) {
       return metricCache[font];
     }
 
-    text.setAttribute("style", "font: " + font + "; margin: 0px; padding: 0px;");
+    _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
+    _canvas_size = _font_size * 2;
+    _aux_canvas.setAttribute("width", _canvas_size);
+    _aux_canvas.setAttribute("height", _canvas_size);
+    _aux_ctx = _aux_canvas.getContext("2d");
+    _baselineOffset = Math.floor( _canvas_size/2 );
 
-    document.body.appendChild(div);
+    _aux_ctx.save();
+    _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
 
-    var result = { ascent: 0, descent: 0, h: 0, baseline: 0 };
+    _aux_ctx.font = font;
+    _aux_ctx.fillStyle = "#ff0000";
+    _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
 
-    if (div.getBoundingClientRect) {
-      block.style.verticalAlign = "baseline";
-      result.ascent = block.offsetTop - text.offsetTop;
-      result.h = text.getBoundingClientRect().height || 0;
-      result.descent = result.h - result.ascent;
-      result.baseline = result.ascent;
+    _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
+    _data = _imageData.data;
+
+    _top = 0;
+    _bottom = 0;    
+
+    // top
+    for (var i=0, l=_data.length; i<l; i+=4) {
+      if (_data[i] == 255) {
+        _top = Math.floor(i/(_canvas_size*4));
+        break;
+      }
     }
-    else {
-      block.style.verticalAlign = "baseline";
-      result.ascent = block.offsetTop - text.offsetTop;
-      
-      block.style.verticalAlign = "bottom";
-      result.h = block.offsetTop - text.offsetTop;
-      
-      result.descent = result.h - result.ascent;
-      
-      result.baseline = result.ascent;
+
+    // bottom
+    for (var i=_data.length-40; i>=0; i-=4) {
+      if (_data[i] == 255) {
+        _bottom = Math.floor(i/(_canvas_size*4));
+        break;
+      }
     }
 
-    result.ascent   = parseInt(result.ascent);
-    result.descent  = parseInt(result.descent);
-    result.h        = parseInt(result.h);
-    result.baseline = parseInt(result.baseline);
+    var sansserif = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=8) {
+        sansserif[i] = 3;
+      }
+      else if (i<=16) {
+        sansserif[i] = 4;
+      }
+      else if (i<=20) {
+        sansserif[i] = 5;
+      }
+      else if (i==24) {
+        sansserif[i] = 7
+      }
+      else if (i<=25) {
+        sansserif[i] = 6;
+      }
+      else if (i<=29) {
+        sansserif[i] = 7;
+      }
+      else if (i<=34) {
+        sansserif[i] = 8;
+      }
+      else if (i<=36) {
+        sansserif[i] = 9;
+      }
+      else if (i<=40) {
+        sansserif[i] = 10;
+      }
+      else if (i<=48) {
+        sansserif[i] = 11;
+      }
+      else if (i<=52) {
+        sansserif[i] = 13;
+      }
+      else if (i<=60) {
+        sansserif[i] = 14;
+      }
+      else if (i<=64) {
+        sansserif[i] = 15;
+      }
+      else if (i<=68) {
+        sansserif[i] = 16;
+      }
+      else if (i<=76) {
+        sansserif[i] = 17;
+      }
+      else if (i<=80) {
+        sansserif[i] = 18;
+      }
+      else {
+        sansserif[i] = 20;
+      }
+    }
 
-    document.body.removeChild(div);
+    var serif = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=9) {
+        serif[i] = 4;
+      }
+      else if (i==10) {
+        serif[i] = 3;
+      }
+      else if (i<=14) {
+        serif[i] = 4;
+      }
+      else if (i<=18) {
+        serif[i] = 5;
+      }
+      else if (i<=22) {
+        serif[i] = 6;
+      }
+      else if (i<=26) {
+        serif[i] = 7;
+      }
+      else if (i<=30) {
+        serif[i] = 8;
+      }
+      else if (i<=34) {
+        serif[i] = 9;
+      }
+      else if (i<=38) {
+        serif[i] = 10;
+      }
+      else if (i<=40) {
+        serif[i] = 12;
+      }
+      else if (i<=44) {
+        serif[i] = 12;
+      }
+      else if (i<=48) {
+        serif[i] = 13;
+      }
+      else if (i<=52) {
+        serif[i] = 15;
+      }
+      else if (i<=60) {
+        serif[i] = 15;
+      }
+      else if (i<=64) {
+        serif[i] = 17;
+      }
+      else if (i<=68) {
+        serif[i] = 17;
+      }
+      else if (i<=72) {
+        serif[i] = 18;
+      }
+      else if (i<=76) {
+        serif[i] = 19;
+      }
+      else if (i<=80) {
+        serif[i] = 20;
+      }
+      else {
+        serif[i] = 21;
+      }
+    }
+
+    var monospace = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=8) {
+        monospace[i] = 3;
+      }
+      else if (i<=10) {
+        monospace[i] = 4;
+      }
+      else if (i<=12) {
+        monospace[i] = 5;
+      }
+      else if (i==14) {
+        monospace[i] = 7;
+      }
+      else if (i<=16) {
+        monospace[i] = 6;
+      }
+      else if (i<=20) {
+        monospace[i] = 7;
+      }
+      else if (i<=22) {
+        monospace[i] = 8;
+      }
+      else if (i<=27) {
+        monospace[i] = 9;
+      }
+      else if (i<=30) {
+        monospace[i] = 10;
+      }
+      else if (i==36) {
+        monospace[i] = 12;
+      }
+      else if (i<=38) {
+        monospace[i] = 11;
+      }
+      else if (i<=40) {
+        monospace[i] = 12;
+      }
+      else if (i<=48) {
+        monospace[i] = 14;
+      }
+      else if (i<=52) {
+        monospace[i] = 17;
+      }
+      else if (i<=56) {
+        monospace[i] = 18;
+      }
+      else if (i<=60) {
+        monospace[i] = 19;
+      }
+      else if (i==64) {
+        monospace[i] = 22;
+      }
+      else if (i<=68) {
+        monospace[i] = 21;
+      }
+      else if (i<=72) {
+        monospace[i] = 22;
+      }
+      else if (i<=76) {
+        monospace[i] = 23;
+      }
+      else if (i<=80) {
+        monospace[i] = 24;
+      }
+      else {
+        monospace[i] = 25;
+      }
+    }
+
+
+    if (font.match("sansserif")) {
+      _bottom = _baselineOffset + sansserif[_font_size];
+    }
+    else if (font.match("serif")) {
+      _bottom = _baselineOffset + serif[_font_size];
+    }
+    else if (font.match("monospace")) {
+      _bottom = _baselineOffset + monospace[_font_size];
+    }
+
+    var result = { ascent: (_baselineOffset - _top), 
+                   descent: (_bottom - _baselineOffset), 
+                   h: (_bottom - _top), 
+                   baseline: (_baselineOffset - _top)
+                 };
+
+    _aux_ctx.restore();
 
     metricCache[font] = result;
-    
+
     return result;
   }
 
@@ -1023,28 +1233,6 @@ var descartesJS = (function(descartesJS) {
       height = 9;
     }
     return height;
-
-    // if (height <= 14) {
-    //   return 8; 
-    // }
-
-    // if ((height > 14) && (height <= 16)) {
-    //   return 9;
-    // }
-
-    // if ((height > 16) && (height <= 19)) {
-    //   return 10;
-    // }
-
-    // if ((height > 19) && (height <= 22)) {
-    //   return 11;
-    // }
-
-    // if (height > 22) {
-    //   return parseInt(height - 11);
-    // }
-
-    // return MathFloor(height - (height*.25));
   }
 
   /**
@@ -1936,11 +2124,11 @@ var descartesJS = (function(descartesJS) {
     document.head.appendChild(cssNode); 
 
     cssNode.innerHTML = 
-                        // "body{ }\n" +
+                        // "body{ text-rendering:geometricPrecision; }\n" +
                         // "canvas{ image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" + 
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoader{ background-color :#efefef; position:absolute; overflow:hidden; -box-shadow:0px 0px 0px #888; background-image:linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-o-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-moz-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-webkit-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); background-image:-ms-linear-gradient(bottom, #bbb 0%, #efefef 50%, #bbb 100%); top:0px; left:0px; }\n" +
+                        "div.DescartesLoader{ background-color :#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
@@ -4147,7 +4335,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
-      text.draw(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
+      text.draw(ctx, x, y+1, decimals, fixed, align, displaceY, fill.getColor());
       
       return;
     }
@@ -8575,20 +8763,40 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    tmpExpr = this.expresion.split("=");
+    tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").split("=");
     tmpExpr2 = tmpExpr[0];
     tmpExpr3 = [];
 
-    for (var i=1; i<tmpExpr.length; i++) {
-      tmpExpr2 += "=";
+    var newTmpExpr = [];
+    var tmpindex;
 
+    for (var i=0, l=tmpExpr.length; i<l; i++) {
       lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
 
-      tmpExpr2 += (lastIndexOfSpace !== -1) ? tmpExpr[i].substring(0, lastIndexOfSpace) : tmpExpr[i];
-     
-      tmpExpr3.push( this.evaluator.parser.parse(tmpExpr2, true) );
+      if (lastIndexOfSpace !== -1) {
+        newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
+        newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
+      }
+      else {
+        newTmpExpr.push(tmpExpr[i]);
+      }
+    }
 
-      tmpExpr2 = tmpExpr[i].substring(lastIndexOfSpace+1);
+    var newTmpExpr2 = [];
+    for (var i=0, l=newTmpExpr.length; i<l; i++) {
+      if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
+        newTmpExpr2.push( newTmpExpr[i] );
+        newTmpExpr2.push("");
+      }
+      else {
+        tmpindex = newTmpExpr2.length-1;
+        newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
+      } 
+    }
+
+    for (var i=0; i<3; i++) {
+      tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
+      tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
     }
 
     return tmpExpr3;
@@ -13574,6 +13782,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     self.containerControl.setAttribute("class", "DescartesScrollbarContainer");
+    self.containerControl.setAttribute("id", self.id);    
     self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
     
     self.canvas.setAttribute("width", self.w+"px");
@@ -13581,12 +13790,12 @@ var descartesJS = (function(descartesJS) {
     self.canvas.setAttribute("style", "position: absolute; left: 0px; top: 0px;");    
     self.ctx = self.canvas.getContext("2d");
   
-    self.divUp.setAttribute("class", "DescartesCatcher");
+    self.divUp.setAttribute("class", "DescartesCatcher up");
     self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
-    self.divDown.setAttribute("class", "DescartesCatcher");
+    self.divDown.setAttribute("class", "DescartesCatcher down");
     self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
     
-    self.scrollManipulator.setAttribute("class", "DescartesCatcher");
+    self.scrollManipulator.setAttribute("class", "DescartesCatcher manipulator");
     self.scrollManipulator.setAttribute("style", "width : " + self.scrollManipulatorW + "px; height : " + self.scrollManipulatorH + "px;");
     self.scrollManipulator.style.top = ((self.orientation === verticalScrollbar) ? self.scrollManipulatorLimInf : 0) + "px";
     self.scrollManipulator.style.left = ((self.orientation === verticalScrollbar) ? 0 : self.scrollManipulatorLimInf) + "px";
@@ -21817,6 +22026,16 @@ var descartesJS = (function(descartesJS) {
    * @return {String} return the string representation of the style
    */
   descartesJS.FontStyle.prototype.toString = function() {
+    if (this.fontType.toLowerCase() == "arial") {
+      this.fontType = "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
+    }
+    else if (this.fontType.toLowerCase().match("times")) {
+      this.fontType = "descartesJS_serif, 'Times New Roman', Times, serif";
+    }
+    else {
+      this.fontType = "descartesJS_monospace, 'Courier New', Courier, Monospace";
+    }
+
     return (this.textBold + " " + this.textItalic + " " + this.fontSize + "px " + this.fontType).trim();
   }
   
@@ -29283,8 +29502,7 @@ var descartesJS = (function(descartesJS) {
 
     descartesApp.loader.appendChild(this.loaderBar);
     
-    // this.barWidth = Math.floor(descartesApp.loader.width/10);
-    this.barWidth = Math.floor(80);
+    this.barWidth = 80;
     this.barHeight = Math.floor(descartesApp.loader.height/70);
     
     var self = this;
@@ -29304,8 +29522,6 @@ var descartesJS = (function(descartesJS) {
     var audios = this.audios;
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
-    // var regExpVector = /vector|array|bektore|vecteur|matriz/g;
-    // var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
     // if arquimedes then add the license image
     if (this.arquimedes) {
@@ -29404,14 +29620,6 @@ var descartesJS = (function(descartesJS) {
           this.initAudio(audioFilename[j]);
         }
       }
-
-      // // check if the children has a vector that loads a file
-      // vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
-      //
-      // // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
-      // if (vec) {
-      //   this.lessonParser.parseAuxiliar(children[i].value);
-      // }      
     }
         
     // count how many images
@@ -29430,6 +29638,7 @@ var descartesJS = (function(descartesJS) {
 
     var self = this;
     var total = this.images.length + this.audios.length;
+    this.sep = (2*(this.barWidth-2))/total;
     
     /**
      * Function that checks if all the media are loaded
@@ -29437,7 +29646,7 @@ var descartesJS = (function(descartesJS) {
     var checkLoader = function() {
       // contador para determinar cuantas imagenes se han cargado
       self.readys = 0;
-      
+
       // how many images are loaded
       for (var propName in images) {
         if (images.hasOwnProperty(propName)) {
@@ -29476,63 +29685,6 @@ var descartesJS = (function(descartesJS) {
    * @param {String} file the filename of the new audio
    */
   descartesJS.DescartesLoader.prototype.initAudio = function(file) {
-    // var audios = this.audios;
-
-    // var lastIndexOfDot = file.lastIndexOf(".");
-    // lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
-    // var filename = file.substring(0, lastIndexOfDot);
-
-    // var mediaElement = new Audio();
-    // mediaElement.setAttribute("preload", "auto");
-
-    // var onCanPlayThrough = function() {
-    //   this.ready = 1;
-    // }
-    
-    // var onError = function() {
-    //   console.log("El archivo '" + file + "' no puede ser reproducido");
-    //   this.errorload = 1;
-    // }
-
-    // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-    // mediaElement.addEventListener('load', onCanPlayThrough);
-    // mediaElement.addEventListener('error', onError);
-
-    // var source;
-    // // mp3
-    // if (mediaElement.canPlayType("audio/mpeg")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".mp3");
-    //   source.setAttribute("type", "audio/mpeg");
-    //   mediaElement.appendChild(source);
-    // }
-    // // ogg, oga
-    // if (mediaElement.canPlayType("audio/ogg")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".ogg");
-    //   source.setAttribute("type", "audio/ogg");
-    //   mediaElement.appendChild(source);
-
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".oga");
-    //   source.setAttribute("type", "audio/ogg");
-    //   mediaElement.appendChild(source);
-    // }
-    // // wav
-    // if (mediaElement.canPlayType("audio/wav")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".wav");
-    //   source.setAttribute("type", "audio/wav");
-    //   mediaElement.appendChild(source);
-    // }
-
-    // mediaElement.load();
-    // mediaElement.play();
-    // mediaElement.pause();
-
-    // audios[file] = mediaElement;
-
-
     var audios = this.audios;
     
     audios[file] = new Audio(file);
@@ -29572,8 +29724,6 @@ var descartesJS = (function(descartesJS) {
 
   var barWidth;
   var barHeight;
-  var howMany;
-  var sep;
   /**
    * Draw the loader bar
    * @param {CanvasContextRendering2D} ctx the context render where to draw
@@ -29581,29 +29731,19 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} h the height of the canvas
    */
   descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx, w, h) {
-    // // scale = 2;
-    // if (w < h) {
-    //   scale = (w/(120*3));
-    // }
-    // else {
-    //   scale = (h/(65*3));
-    // }
     barWidth = this.barWidth;
     barHeight = this.barHeight;
-    howMany = this.images.length + this.audios.length;
-    sep = (2*(barWidth-2))/howMany;
-    
+
     ctx.translate(w/2, (h-(65*scale))/2 +90*scale);
-    // ctx.translate(w/2, h-25*scale);
     ctx.scale(scale, scale);
 
     ctx.strokeRect(-barWidth, -barHeight, 2*barWidth, barHeight);
     
-    ctx.fillStyle = "gray";
+    ctx.fillStyle = "#888";
     ctx.fillRect(-barWidth+2, -barHeight+2, 2*(barWidth-2), barHeight-4);
     
-    ctx.fillStyle = "#1f375d";
-    ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*sep, barHeight-4);
+    ctx.fillStyle = "#1f358d";
+    ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*this.sep, barHeight-4);
 
     // reset the transformation
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -29623,8 +29763,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.save();
     
-    ctx.strokeStyle = "#1f375d";
-    ctx.fillStyle = "#1f375d";
+    ctx.strokeStyle = ctx.fillStyle = "#1f358d";
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
 
@@ -29650,29 +29789,19 @@ var descartesJS = (function(descartesJS) {
 
     ctx.beginPath();
     ctx.moveTo(1,63); ctx.lineTo(1,64);
-
     ctx.moveTo(5,62); ctx.lineTo(5,64);
-
     ctx.moveTo(9,61); ctx.lineTo(9,64);
-
     ctx.moveTo(13,60); ctx.lineTo(13,64);
-
     ctx.moveTo(17,58); ctx.lineTo(17,64);
-
     ctx.moveTo(21,56); ctx.lineTo(21,64);
-
     ctx.moveTo(25,53); ctx.lineTo(25,64);
-
     ctx.moveTo(29,50); ctx.lineTo(29,64);
-
     ctx.moveTo(33,46); ctx.lineTo(33,64);
-
     ctx.moveTo(37,41); ctx.lineTo(37,64);
-
     ctx.moveTo(41,32); ctx.lineTo(41,64);
     ctx.stroke();
 
-    ctx.font = "20px Arial, Helvetica, 'Droid Sans', Sans-serif";
+    ctx.font = "20px descartesJS_sansserif, Arial, Helvetica, Sans-serif";
     ctx.fillText("escartes", 45, 33);
     ctx.fillText("JS", 98, 64);
     ctx.restore();
@@ -30006,7 +30135,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 0;
+    this.numberOfIframes = 1;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
@@ -31304,6 +31433,10 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
+    var div = document.createElement("div");
+    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span>';
+    document.body.appendChild(div);
+
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
 
@@ -31329,6 +31462,8 @@ var descartesJS = (function(descartesJS) {
 
       showApplets();
     }
+    
+    document.body.removeChild(div);
   }
   
   /**

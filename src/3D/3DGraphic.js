@@ -426,20 +426,40 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    tmpExpr = this.expresion.split("=");
+    tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").split("=");
     tmpExpr2 = tmpExpr[0];
     tmpExpr3 = [];
 
-    for (var i=1; i<tmpExpr.length; i++) {
-      tmpExpr2 += "=";
+    var newTmpExpr = [];
+    var tmpindex;
 
+    for (var i=0, l=tmpExpr.length; i<l; i++) {
       lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
 
-      tmpExpr2 += (lastIndexOfSpace !== -1) ? tmpExpr[i].substring(0, lastIndexOfSpace) : tmpExpr[i];
-     
-      tmpExpr3.push( this.evaluator.parser.parse(tmpExpr2, true) );
+      if (lastIndexOfSpace !== -1) {
+        newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
+        newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
+      }
+      else {
+        newTmpExpr.push(tmpExpr[i]);
+      }
+    }
 
-      tmpExpr2 = tmpExpr[i].substring(lastIndexOfSpace+1);
+    var newTmpExpr2 = [];
+    for (var i=0, l=newTmpExpr.length; i<l; i++) {
+      if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
+        newTmpExpr2.push( newTmpExpr[i] );
+        newTmpExpr2.push("");
+      }
+      else {
+        tmpindex = newTmpExpr2.length-1;
+        newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
+      } 
+    }
+
+    for (var i=0; i<3; i++) {
+      tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
+      tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
     }
 
     return tmpExpr3;

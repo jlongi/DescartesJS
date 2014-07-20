@@ -41,8 +41,7 @@ var descartesJS = (function(descartesJS) {
 
     descartesApp.loader.appendChild(this.loaderBar);
     
-    // this.barWidth = Math.floor(descartesApp.loader.width/10);
-    this.barWidth = Math.floor(80);
+    this.barWidth = 80;
     this.barHeight = Math.floor(descartesApp.loader.height/70);
     
     var self = this;
@@ -62,8 +61,6 @@ var descartesJS = (function(descartesJS) {
     var audios = this.audios;
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
-    // var regExpVector = /vector|array|bektore|vecteur|matriz/g;
-    // var regExpFile = /archivo|file|fitxer|artxibo|fichier|arquivo/g;
 
     // if arquimedes then add the license image
     if (this.arquimedes) {
@@ -162,14 +159,6 @@ var descartesJS = (function(descartesJS) {
           this.initAudio(audioFilename[j]);
         }
       }
-
-      // // check if the children has a vector that loads a file
-      // vec = (children[i].value).match(regExpVector) && (children[i].value).match(regExpFile);
-      //
-      // // if vec has a match then create the vector for the preload of images. Note: this vectors is created 2 times
-      // if (vec) {
-      //   this.lessonParser.parseAuxiliar(children[i].value);
-      // }      
     }
         
     // count how many images
@@ -188,6 +177,7 @@ var descartesJS = (function(descartesJS) {
 
     var self = this;
     var total = this.images.length + this.audios.length;
+    this.sep = (2*(this.barWidth-2))/total;
     
     /**
      * Function that checks if all the media are loaded
@@ -195,7 +185,7 @@ var descartesJS = (function(descartesJS) {
     var checkLoader = function() {
       // contador para determinar cuantas imagenes se han cargado
       self.readys = 0;
-      
+
       // how many images are loaded
       for (var propName in images) {
         if (images.hasOwnProperty(propName)) {
@@ -234,63 +224,6 @@ var descartesJS = (function(descartesJS) {
    * @param {String} file the filename of the new audio
    */
   descartesJS.DescartesLoader.prototype.initAudio = function(file) {
-    // var audios = this.audios;
-
-    // var lastIndexOfDot = file.lastIndexOf(".");
-    // lastIndexOfDot = (lastIndexOfDot === -1) ? file.lenght : lastIndexOfDot;
-    // var filename = file.substring(0, lastIndexOfDot);
-
-    // var mediaElement = new Audio();
-    // mediaElement.setAttribute("preload", "auto");
-
-    // var onCanPlayThrough = function() {
-    //   this.ready = 1;
-    // }
-    
-    // var onError = function() {
-    //   console.log("El archivo '" + file + "' no puede ser reproducido");
-    //   this.errorload = 1;
-    // }
-
-    // mediaElement.addEventListener('canplaythrough', onCanPlayThrough);
-    // mediaElement.addEventListener('load', onCanPlayThrough);
-    // mediaElement.addEventListener('error', onError);
-
-    // var source;
-    // // mp3
-    // if (mediaElement.canPlayType("audio/mpeg")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".mp3");
-    //   source.setAttribute("type", "audio/mpeg");
-    //   mediaElement.appendChild(source);
-    // }
-    // // ogg, oga
-    // if (mediaElement.canPlayType("audio/ogg")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".ogg");
-    //   source.setAttribute("type", "audio/ogg");
-    //   mediaElement.appendChild(source);
-
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".oga");
-    //   source.setAttribute("type", "audio/ogg");
-    //   mediaElement.appendChild(source);
-    // }
-    // // wav
-    // if (mediaElement.canPlayType("audio/wav")) {
-    //   source = document.createElement("source");
-    //   source.setAttribute("src", filename + ".wav");
-    //   source.setAttribute("type", "audio/wav");
-    //   mediaElement.appendChild(source);
-    // }
-
-    // mediaElement.load();
-    // mediaElement.play();
-    // mediaElement.pause();
-
-    // audios[file] = mediaElement;
-
-
     var audios = this.audios;
     
     audios[file] = new Audio(file);
@@ -330,8 +263,6 @@ var descartesJS = (function(descartesJS) {
 
   var barWidth;
   var barHeight;
-  var howMany;
-  var sep;
   /**
    * Draw the loader bar
    * @param {CanvasContextRendering2D} ctx the context render where to draw
@@ -339,29 +270,19 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} h the height of the canvas
    */
   descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx, w, h) {
-    // // scale = 2;
-    // if (w < h) {
-    //   scale = (w/(120*3));
-    // }
-    // else {
-    //   scale = (h/(65*3));
-    // }
     barWidth = this.barWidth;
     barHeight = this.barHeight;
-    howMany = this.images.length + this.audios.length;
-    sep = (2*(barWidth-2))/howMany;
-    
+
     ctx.translate(w/2, (h-(65*scale))/2 +90*scale);
-    // ctx.translate(w/2, h-25*scale);
     ctx.scale(scale, scale);
 
     ctx.strokeRect(-barWidth, -barHeight, 2*barWidth, barHeight);
     
-    ctx.fillStyle = "gray";
+    ctx.fillStyle = "#888";
     ctx.fillRect(-barWidth+2, -barHeight+2, 2*(barWidth-2), barHeight-4);
     
-    ctx.fillStyle = "#1f375d";
-    ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*sep, barHeight-4);
+    ctx.fillStyle = "#1f358d";
+    ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*this.sep, barHeight-4);
 
     // reset the transformation
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -381,8 +302,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.save();
     
-    ctx.strokeStyle = "#1f375d";
-    ctx.fillStyle = "#1f375d";
+    ctx.strokeStyle = ctx.fillStyle = "#1f358d";
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
 
@@ -408,29 +328,19 @@ var descartesJS = (function(descartesJS) {
 
     ctx.beginPath();
     ctx.moveTo(1,63); ctx.lineTo(1,64);
-
     ctx.moveTo(5,62); ctx.lineTo(5,64);
-
     ctx.moveTo(9,61); ctx.lineTo(9,64);
-
     ctx.moveTo(13,60); ctx.lineTo(13,64);
-
     ctx.moveTo(17,58); ctx.lineTo(17,64);
-
     ctx.moveTo(21,56); ctx.lineTo(21,64);
-
     ctx.moveTo(25,53); ctx.lineTo(25,64);
-
     ctx.moveTo(29,50); ctx.lineTo(29,64);
-
     ctx.moveTo(33,46); ctx.lineTo(33,64);
-
     ctx.moveTo(37,41); ctx.lineTo(37,64);
-
     ctx.moveTo(41,32); ctx.lineTo(41,64);
     ctx.stroke();
 
-    ctx.font = "20px Arial, Helvetica, 'Droid Sans', Sans-serif";
+    ctx.font = "20px descartesJS_sansserif, Arial, Helvetica, Sans-serif";
     ctx.fillText("escartes", 45, 33);
     ctx.fillText("JS", 98, 64);
     ctx.restore();

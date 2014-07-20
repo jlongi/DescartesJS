@@ -323,7 +323,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 0;
+    this.numberOfIframes = 1;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {

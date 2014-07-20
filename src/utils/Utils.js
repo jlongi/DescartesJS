@@ -32,19 +32,25 @@ var descartesJS = (function(descartesJS) {
    * @param {Object} parent is the objecto to extends
    */
   descartesJS.extend = function(child, parent) {
-    // all browsers except IE
-    if (child.prototype.__proto__) {
-      child.prototype.__proto__ = parent.prototype;
+    // updated method
+    if (typeof Object.create == "function") {
+      child.prototype = Object.create(parent.prototype);      
     }
-    // IE
-    else { 
-      // copy all the functions of the parent
-      for( var i in parent.prototype ) { 
-        if (parent.prototype.hasOwnProperty(i)) {
-          child.prototype[i] = parent.prototype[i];
+    // old method
+    else {
+      if (child.prototype.__proto__) {
+        child.prototype.__proto__ = parent.prototype;
+      }
+      else { 
+        // copy all the functions of the parent
+        for( var i in parent.prototype ) { 
+          if (parent.prototype.hasOwnProperty(i)) {
+            child.prototype[i] = parent.prototype[i];
+          }
         }
       }
     }
+
     // add the uber (super) property to execute functions of the parent
     child.prototype.uber = parent.prototype;
   }
@@ -206,10 +212,6 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.originalToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      // if (decimals <= 20) {
-      //   return this.originalToFixed(decimals);
-      // }      
-
       // if the browser support more than 20 decimals use the browser function otherwise use a custom implementation
       try {
         return this.originalToFixed(decimals);
@@ -370,61 +372,269 @@ var descartesJS = (function(descartesJS) {
     return Math.round( descartesJS.ctx.measureText(text).width );
   }
 
-  // auxiliary values to calculate the metrics
-  var text = document.createElement("span");
-  text.appendChild( document.createTextNode("\u00C1p") );
-  var block = document.createElement("div");
-  block.setAttribute("style", "display: inline-block; w: 1px; h: 0px; margin: 0; padding: 0;");
-  var div = document.createElement("div");
-  div.setAttribute("style", "margin: 0; padding: 0;");
-  div.appendChild(text);
-  div.appendChild(block);
   var metricCache = {};
 
-  /**
-   * Get the metrics of a font
-   * @param {String} font the Descartes font to obtain the metric
-   * @return {Object} return an object containing the metric of the font (ascent, descent, h)
-   */
+  var _aux_canvas = document.createElement("canvas");
+  var _aux_ctx;
+  var _font_size;
+  var _canvas_size;
+  var _baselineOffset;
+  var _imageData;
+  var _data;
+  var _top;
+  var _bottom;
+
   descartesJS.getFontMetrics = function(font) {
     if (metricCache[font]) {
       return metricCache[font];
     }
 
-    text.setAttribute("style", "font: " + font + "; margin: 0px; padding: 0px;");
+    _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
+    _canvas_size = _font_size * 2;
+    _aux_canvas.setAttribute("width", _canvas_size);
+    _aux_canvas.setAttribute("height", _canvas_size);
+    _aux_ctx = _aux_canvas.getContext("2d");
+    _baselineOffset = Math.floor( _canvas_size/2 );
 
-    document.body.appendChild(div);
+    _aux_ctx.save();
+    _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
 
-    var result = { ascent: 0, descent: 0, h: 0, baseline: 0 };
+    _aux_ctx.font = font;
+    _aux_ctx.fillStyle = "#ff0000";
+    _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
 
-    if (div.getBoundingClientRect) {
-      block.style.verticalAlign = "baseline";
-      result.ascent = block.offsetTop - text.offsetTop;
-      result.h = text.getBoundingClientRect().height || 0;
-      result.descent = result.h - result.ascent;
-      result.baseline = result.ascent;
+    _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
+    _data = _imageData.data;
+
+    _top = 0;
+    _bottom = 0;    
+
+    // top
+    for (var i=0, l=_data.length; i<l; i+=4) {
+      if (_data[i] == 255) {
+        _top = Math.floor(i/(_canvas_size*4));
+        break;
+      }
     }
-    else {
-      block.style.verticalAlign = "baseline";
-      result.ascent = block.offsetTop - text.offsetTop;
-      
-      block.style.verticalAlign = "bottom";
-      result.h = block.offsetTop - text.offsetTop;
-      
-      result.descent = result.h - result.ascent;
-      
-      result.baseline = result.ascent;
+
+    // bottom
+    for (var i=_data.length-40; i>=0; i-=4) {
+      if (_data[i] == 255) {
+        _bottom = Math.floor(i/(_canvas_size*4));
+        break;
+      }
     }
 
-    result.ascent   = parseInt(result.ascent);
-    result.descent  = parseInt(result.descent);
-    result.h        = parseInt(result.h);
-    result.baseline = parseInt(result.baseline);
+    var sansserif = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=8) {
+        sansserif[i] = 3;
+      }
+      else if (i<=16) {
+        sansserif[i] = 4;
+      }
+      else if (i<=20) {
+        sansserif[i] = 5;
+      }
+      else if (i==24) {
+        sansserif[i] = 7
+      }
+      else if (i<=25) {
+        sansserif[i] = 6;
+      }
+      else if (i<=29) {
+        sansserif[i] = 7;
+      }
+      else if (i<=34) {
+        sansserif[i] = 8;
+      }
+      else if (i<=36) {
+        sansserif[i] = 9;
+      }
+      else if (i<=40) {
+        sansserif[i] = 10;
+      }
+      else if (i<=48) {
+        sansserif[i] = 11;
+      }
+      else if (i<=52) {
+        sansserif[i] = 13;
+      }
+      else if (i<=60) {
+        sansserif[i] = 14;
+      }
+      else if (i<=64) {
+        sansserif[i] = 15;
+      }
+      else if (i<=68) {
+        sansserif[i] = 16;
+      }
+      else if (i<=76) {
+        sansserif[i] = 17;
+      }
+      else if (i<=80) {
+        sansserif[i] = 18;
+      }
+      else {
+        sansserif[i] = 20;
+      }
+    }
 
-    document.body.removeChild(div);
+    var serif = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=9) {
+        serif[i] = 4;
+      }
+      else if (i==10) {
+        serif[i] = 3;
+      }
+      else if (i<=14) {
+        serif[i] = 4;
+      }
+      else if (i<=18) {
+        serif[i] = 5;
+      }
+      else if (i<=22) {
+        serif[i] = 6;
+      }
+      else if (i<=26) {
+        serif[i] = 7;
+      }
+      else if (i<=30) {
+        serif[i] = 8;
+      }
+      else if (i<=34) {
+        serif[i] = 9;
+      }
+      else if (i<=38) {
+        serif[i] = 10;
+      }
+      else if (i<=40) {
+        serif[i] = 12;
+      }
+      else if (i<=44) {
+        serif[i] = 12;
+      }
+      else if (i<=48) {
+        serif[i] = 13;
+      }
+      else if (i<=52) {
+        serif[i] = 15;
+      }
+      else if (i<=60) {
+        serif[i] = 15;
+      }
+      else if (i<=64) {
+        serif[i] = 17;
+      }
+      else if (i<=68) {
+        serif[i] = 17;
+      }
+      else if (i<=72) {
+        serif[i] = 18;
+      }
+      else if (i<=76) {
+        serif[i] = 19;
+      }
+      else if (i<=80) {
+        serif[i] = 20;
+      }
+      else {
+        serif[i] = 21;
+      }
+    }
+
+    var monospace = [];
+    for(var i=0,l=100; i<l; i++) {
+      if (i<=8) {
+        monospace[i] = 3;
+      }
+      else if (i<=10) {
+        monospace[i] = 4;
+      }
+      else if (i<=12) {
+        monospace[i] = 5;
+      }
+      else if (i==14) {
+        monospace[i] = 7;
+      }
+      else if (i<=16) {
+        monospace[i] = 6;
+      }
+      else if (i<=20) {
+        monospace[i] = 7;
+      }
+      else if (i<=22) {
+        monospace[i] = 8;
+      }
+      else if (i<=27) {
+        monospace[i] = 9;
+      }
+      else if (i<=30) {
+        monospace[i] = 10;
+      }
+      else if (i==36) {
+        monospace[i] = 12;
+      }
+      else if (i<=38) {
+        monospace[i] = 11;
+      }
+      else if (i<=40) {
+        monospace[i] = 12;
+      }
+      else if (i<=48) {
+        monospace[i] = 14;
+      }
+      else if (i<=52) {
+        monospace[i] = 17;
+      }
+      else if (i<=56) {
+        monospace[i] = 18;
+      }
+      else if (i<=60) {
+        monospace[i] = 19;
+      }
+      else if (i==64) {
+        monospace[i] = 22;
+      }
+      else if (i<=68) {
+        monospace[i] = 21;
+      }
+      else if (i<=72) {
+        monospace[i] = 22;
+      }
+      else if (i<=76) {
+        monospace[i] = 23;
+      }
+      else if (i<=80) {
+        monospace[i] = 24;
+      }
+      else {
+        monospace[i] = 25;
+      }
+    }
+
+
+    if (font.match("sansserif")) {
+      _bottom = _baselineOffset + sansserif[_font_size];
+    }
+    else if (font.match("serif")) {
+      _bottom = _baselineOffset + serif[_font_size];
+    }
+    else if (font.match("monospace")) {
+      _bottom = _baselineOffset + monospace[_font_size];
+    }
+
+    var result = { ascent: (_baselineOffset - _top), 
+                   descent: (_bottom - _baselineOffset), 
+                   h: (_bottom - _top), 
+                   baseline: (_baselineOffset - _top)
+                 };
+
+    _aux_ctx.restore();
 
     metricCache[font] = result;
-    
+
     return result;
   }
 
@@ -452,28 +662,6 @@ var descartesJS = (function(descartesJS) {
       height = 9;
     }
     return height;
-
-    // if (height <= 14) {
-    //   return 8; 
-    // }
-
-    // if ((height > 14) && (height <= 16)) {
-    //   return 9;
-    // }
-
-    // if ((height > 16) && (height <= 19)) {
-    //   return 10;
-    // }
-
-    // if ((height > 19) && (height <= 22)) {
-    //   return 11;
-    // }
-
-    // if (height > 22) {
-    //   return parseInt(height - 11);
-    // }
-
-    // return MathFloor(height - (height*.25));
   }
 
   /**

@@ -597,6 +597,16 @@ var descartesJS = (function(descartesJS) {
    * @return {String} return the string representation of the style
    */
   descartesJS.FontStyle.prototype.toString = function() {
+    if (this.fontType.toLowerCase() == "arial") {
+      this.fontType = "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
+    }
+    else if (this.fontType.toLowerCase().match("times")) {
+      this.fontType = "descartesJS_serif, 'Times New Roman', Times, serif";
+    }
+    else {
+      this.fontType = "descartesJS_monospace, 'Courier New', Courier, Monospace";
+    }
+
     return (this.textBold + " " + this.textItalic + " " + this.fontSize + "px " + this.fontType).trim();
   }
   
