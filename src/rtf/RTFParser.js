@@ -154,7 +154,7 @@ var descartesJS = (function(descartesJS) {
       }
       // init italic text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "i")) {
-        styleStackTop.textItalic = "italic";
+        styleStackTop.textItalic = "oblique";
         continue;
       }
       // end italic text
@@ -598,13 +598,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.FontStyle.prototype.toString = function() {
     if (this.fontType.toLowerCase() == "arial") {
-      this.fontType = "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
+      this.fontType = "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
     }
     else if (this.fontType.toLowerCase().match("times")) {
-      this.fontType = "descartesJS_serif, 'Times New Roman', Times, serif";
+      this.fontType = "descartesJS_serif,'Times New Roman',Times,serif";
     }
-    else {
-      this.fontType = "descartesJS_monospace, 'Courier New', Courier, Monospace";
+    else if (this.fontType.toLowerCase().match("courier")) {
+      this.fontType = "descartesJS_monospace,'Courier New',Courier,Monospace";
     }
 
     return (this.textBold + " " + this.textItalic + " " + this.fontSize + "px " + this.fontType).trim();
@@ -630,10 +630,10 @@ var descartesJS = (function(descartesJS) {
       cssRule += "font-style: normal; font-weight: bold; ";
     }
     if (!this.textBold && this.textItalic) {
-      cssRule += "font-style: italic; font-weight: normal; ";
+      cssRule += "font-style: oblique; font-weight: normal; ";
     }
     if (this.textBold && this.textItalic) {
-      cssRule += "font-style: italic; font-weight: bold; ";
+      cssRule += "font-style: oblique; font-weight: bold; ";
     }
     if (!this.textBold && !this.textItalic) {
       cssRule += "font-style: normal; font-weight: normal; ";

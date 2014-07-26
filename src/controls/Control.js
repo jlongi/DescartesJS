@@ -586,7 +586,6 @@ var descartesJS = (function(descartesJS) {
     
     for (var i=0; i<h; i++) {
       di = MathFloor(i-(35*h)/100);
-      // di = Math.floor(i-(40*h)/100);
       this.linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
     }
   }

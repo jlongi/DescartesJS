@@ -49,7 +49,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Parser.prototype.getVariable = function(name, firstTime) {
     if (firstTime) {
-      this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : 0;
+      this.variables[name] = (this.variables[name] !== undefined) ? this.variables[name] : undefined;
     }
     return this.variables[name];
   }
@@ -190,7 +190,6 @@ var descartesJS = (function(descartesJS) {
         }
         // the identifier is a variable
         else {
-          // this.getVariable(prefix + tokens_i_value);
           this.getVariable(tokens_i_value, true);
         } 
       }
@@ -420,7 +419,6 @@ var descartesJS = (function(descartesJS) {
       ////////////////////////////////////////////////////////////////////////////////
       if ((tokens_i_type === numberType) || (tokens_i_type === stringType) || (tokens_i_type === identifierType)) {
         if (tokens_i_type === identifierType) {
-          // node = new descartesJS.Node(tokens_i_type, prefix + tokens_i_value);
           node = new descartesJS.Node(tokens_i_type, tokens_i_value);
         }
         else {

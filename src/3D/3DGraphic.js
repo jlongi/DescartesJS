@@ -426,7 +426,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").split("=");
+    tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim().split("=");
     tmpExpr2 = tmpExpr[0];
     tmpExpr3 = [];
 

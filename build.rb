@@ -38,8 +38,8 @@ files = [ "Babel.js",
           "auxiliaries/Algorithm.js",
           "auxiliaries/Event.js",
 
-            "objectDefinitions/GenericDefinition.js",
-            "objectDefinitions/Rectangle.js",
+            # "objectDefinitions/GenericDefinition.js",
+            # "objectDefinitions/Rectangle.js",
 
           "graphics/Graphic.js",
           "graphics/SimpleText.js",

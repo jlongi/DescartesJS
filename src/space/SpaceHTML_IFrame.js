@@ -10,6 +10,7 @@ var descartesJS = (function(descartesJS) {
   var changeX;
   var changeY;
   var file;
+  var self;
 
   /**
    * Descartes IFrame space
@@ -139,7 +140,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
-    this.container.style.display = (this.drawIfValue)? "block" : "none";
+    this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
 
     if (this.drawIfValue) {
       if (firstTime) {

@@ -616,13 +616,13 @@ var descartesJS = (function(descartesJS) {
 
 
     if (font.match("sansserif")) {
-      _bottom = _baselineOffset + sansserif[_font_size];
+      _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
     }
     else if (font.match("serif")) {
-      _bottom = _baselineOffset + serif[_font_size];
+      _bottom = _baselineOffset + serif[parseInt(_font_size)];
     }
     else if (font.match("monospace")) {
-      _bottom = _baselineOffset + monospace[_font_size];
+      _bottom = _baselineOffset + monospace[parseInt(_font_size)];
     }
 
     var result = { ascent: (_baselineOffset - _top), 

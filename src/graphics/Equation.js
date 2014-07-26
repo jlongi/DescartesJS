@@ -707,7 +707,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       Y = "x";
     }
 
-    var F = 000000;
+    // var F = 000000;
+    var F = 0;
     var cond = (this.drawif);
     var width = this.evaluator.evalExpression(this.width);
 

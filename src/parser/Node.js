@@ -156,7 +156,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           // if the name of the variable is the name of a matrix, for matrix operations
-          // if ((variableValue == undefined) && (getMatrix || evaluator.matrices[this.value])) {
+          // if ((getMatrix) && (evaluator.matrices[this.value])) {
           //   variableValue = evaluator.matrices[this.value];
           // }
 
