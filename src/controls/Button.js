@@ -100,14 +100,15 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.imageSrc.charAt(0) == '[') {
-      this.imageSrc = this.parser.parse(this.imageSrc);
+      this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
     }
     else {
       this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
     }
-    
+
     // if the button has an image then load it and try to load the over and down images
-    var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
+    var imageSrc = this.evaluator.evalExpression(this.imageSrc).toString().trim();
+
     if (imageSrc != "") {
       var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
       var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
@@ -130,8 +131,11 @@ var descartesJS = (function(descartesJS) {
       // the image is not empty
       else {
         this.image = this.parent.getImage(imageSrc);
-        this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
-        this.imageDown = this.parent.getImage(prefix + "_down" + sufix);
+        // if the name is empty, do not try to get over and down images
+        if (prefix) {
+          this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
+          this.imageDown = this.parent.getImage(prefix + "_down" + sufix);
+        }
       }
     }
 
@@ -142,10 +146,15 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas and the rendering context
     this.canvas = document.createElement("canvas");
-    this.canvas.setAttribute("width", this.w+"px");
-    this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px;");
+    this.canvas.width  = this.w *descartesJS._ratio;
+    this.canvas.height = this.h *descartesJS._ratio;
+    // this.canvas.setAttribute("width", this.w+"px");
+    // this.canvas.setAttribute("height", this.h+"px");
+    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
     this.ctx = this.canvas.getContext("2d");
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.mozImageSmoothingEnabled = false;
+    this.ctx.webkitImageSmoothingEnabled = false;
 
     this.container.appendChild(this.canvas);
 
@@ -197,9 +206,11 @@ container = this.container;
     // canvas.setAttribute("height", this.h+"px");
     // canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
+    canvas.width  = this.w *descartesJS._ratio;
+    canvas.height = this.h *descartesJS._ratio;
+    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
+
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
-    canvas.setAttribute("width", this.w+"px");
-    canvas.setAttribute("height", this.h+"px");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -208,7 +219,9 @@ container = this.container;
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    canvas.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+    container.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+
+container.setAttribute("data-color", this.colorInt.getColor());
   }
   
   /**
@@ -225,16 +238,16 @@ container = this.container;
 
     // hide or show the button control
     if (this.drawIfValue) {
-      canvas.style.display = "block";
+      container.style.display = "block";
       this.draw();
     } else {
-      canvas.style.display = "none";
-      // this.buttonClick = false;
+      container.style.display = "none";
+      this.buttonClick = false;
     }
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    container.setAttribute("data-active", ((this.activeIfValue)?"true":"false"));
+    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
 
@@ -250,6 +263,9 @@ container = this.container;
     evaluator = this.evaluator;
     ctx = this.ctx;
 
+    ctx.save();
+    ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
+
     font_size = evaluator.evalExpression(this.font_size);
     name = evaluator.evalExpression(this.name);
 
@@ -257,7 +273,15 @@ container.setAttribute("data-name", name);
 
     imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
-    
+
+var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+
+var imageOverSrc = prefix + "_over" + sufix;
+var imageDownSrc = prefix + "_down" + sufix;
+var imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+
     ctx.clearRect(0, 0, this.w, this.h);
 
     // text displace when the button is pressed
@@ -275,7 +299,7 @@ container.setAttribute("data-name", name);
     // text at the bottom
     if (image) {
       _i_h = image.height || 100000000;
-      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px Arial").h;
+      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px descartesJS_sansserif, Arial, Helvetica, Sans-serif").h;
       newButtonCondition = (name != "") ? (((this.h-_i_h-_font_h-2) >=0 ) ? true : false) : false;
 
       _image_pos_x = parseInt((this.w-image.width)/2)+despX;
@@ -295,11 +319,11 @@ container.style.backgroundColor = this.colorInt.getColor();
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-container.style.backgroundImage = "url(" + this.image.src + ")";
+container.style.backgroundImage = "url('" + imageSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // // check if is a gif image
         // if ( (this.image.src).match(gifPattern) ) {
-        //   this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
+        //   this.canvas.style.backgroundImage = "url('" + this.image.src + "')";
         //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // }
         // else {
@@ -311,28 +335,26 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     else {
 container.style.backgroundColor = this.colorInt.getColor();
 
-ctx.fillStyle = this.linearGradient;
-ctx.fillRect(0, 0, this.w, this.h);
       // ctx.fillStyle = this.colorInt.getColor();
       // ctx.fillRect(0, 0, this.w, this.h);
 
-      // if (!this.buttonClick) {
-      //   descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
-      //   descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
-      //   descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
-      // }
+      if (!this.buttonClick) {
+        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
+        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
+        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+      }
       
-      // ctx.fillStyle = this.linearGradient;
-      // ctx.fillRect(0, 0, this.w, this.h);
+      ctx.fillStyle = this.linearGradient;
+      ctx.fillRect(0, 0, this.w, this.h);
     }
-    
+
     // over image
-    if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
-container.style.backgroundImage = "url(" + this.imageOver.src + ")";
+    if ( (this.activeIfValue) && (imageOver !== this.emptyImage) && (imageOver.ready) && (this.over) ) {
+container.style.backgroundImage = "url('" + imageOverSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
 
       // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
+      //   this.canvas.style.backgroundImage = "url('" + this.imageOver.src + "')";
       //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       // }
       // else {
@@ -341,12 +363,12 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     }
 
     // down image
-    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
-container.style.backgroundImage = "url(" + this.imageDown.src + ")";
+    if ( (this.activeIfValue) && (imageDown !== this.emptyImage) && (imageDown.ready) && (this.buttonClick) ) {
+container.style.backgroundImage = "url('" + imageDownSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
 
       // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
+      //   this.canvas.style.backgroundImage = "url('" + this.imageDown.src + "')";
       //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       // }
       // else {
@@ -367,7 +389,7 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     ctx.textBaseline = "middle";
 
     // text border
-    if (this.drawTextBorder()) {
+    if ( (!image) && (this.drawTextBorder()) ) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
@@ -400,17 +422,19 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       // ctx.fillRect(0, 0, this.w, this.h);
       // ctx.globalCompositeOperation = "source-over";
     }
+
+    ctx.restore();
   }
 
   /**
    *
    */
   descartesJS.Button.prototype.drawTextBorder = function() {
-    // compute the correct components
+    // compute the color components
     this.colorInt.getColor();
     this.color.getColor();
 
-    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
+    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) < 0.5);
   }  
   
   /**
@@ -429,7 +453,7 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     var timer;
 
     // prevent the context menu display
-    self.container.oncontextmenu = function () { return false; };
+    self.canvas.oncontextmenu = function () { return false; };
 
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -454,11 +478,11 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     this.over = false;
     
     if (hasTouchSupport) {
-      this.container.addEventListener("touchstart", onMouseDown);
+      this.canvas.addEventListener("touchstart", onMouseDown);
     } else {
-      this.container.addEventListener("mousedown", onMouseDown);
-      this.container.addEventListener("mouseover", onMouseOver);
-      this.container.addEventListener("mouseout", onMouseOut);
+      this.canvas.addEventListener("mousedown", onMouseDown);
+      this.canvas.addEventListener("mouseover", onMouseOver);
+      this.canvas.addEventListener("mouseout", onMouseOut);
     }
     
     /**
@@ -513,6 +537,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     function onMouseUp(evt) {
       // remove the focus of the controls
       document.body.focus();
+
+      evt.preventDefault();
+      evt.stopPropagation();
       
       if ((self.activeIfValue) || (self.buttonClick)) {
         self.buttonClick = false;
@@ -522,9 +549,6 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.buttonPressed();
         }
         
-        evt.preventDefault();
-        evt.stopPropagation();
-
         if (hasTouchSupport) {
           self.canvas.removeEventListener("touchend", onMouseUp);
         } 
@@ -540,6 +564,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      * @private
      */
     function onMouseOver(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       self.over = true;
       self.draw();
     }
@@ -550,6 +577,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      * @private
      */
     function onMouseOut(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       self.over = false;
       self.buttonClick = false;
       self.draw();

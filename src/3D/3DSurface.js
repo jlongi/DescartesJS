@@ -65,9 +65,9 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     // store the u and v parameter values
-    tempParamV = evaluator.getVariable("x");
-    tempParamV = evaluator.getVariable("y");
-    tempParamV = evaluator.getVariable("z");
+    tempParamX = evaluator.getVariable("x");
+    tempParamY = evaluator.getVariable("y");
+    tempParamZ = evaluator.getVariable("z");
     tempParamU = evaluator.getVariable("u");
     tempParamV = evaluator.getVariable("v");
 

@@ -356,7 +356,7 @@ var descartesJS = (function(descartesJS) {
         
     if (this.border) {
       ctx.strokeStyle = this.border.getColor();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
     }
     
     verticalDisplace = this.fontSize*1.2 || 0;
@@ -366,6 +366,7 @@ var descartesJS = (function(descartesJS) {
 
       if (this.border) {
         ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
         ctx.strokeText(theText, x, y+(verticalDisplace*i));
       }
       ctx.fillText(theText, x, y+(verticalDisplace*i));

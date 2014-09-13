@@ -686,7 +686,7 @@ var descartesJS = (function(descartesJS) {
     
     // register the default funtions
     this.functions["sqr"]   = function(x) { return (x*x) };
-    this.functions["sqrt"]  = this.functions["raíz"] = Math.sqrt;
+    this.functions["sqrt"]  = this.functions["ra\u00EDz"] = Math.sqrt;
     this.functions["exp"]   = Math.exp;
     this.functions["log"]   = Math.log;
     this.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
@@ -718,6 +718,45 @@ var descartesJS = (function(descartesJS) {
     this.functions["_Trace_"] = function(x) { console.log(x); };
     this.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
     ////////////////////////////////////////
+
+
+    ////////////////////////////////////////
+    // new string function
+    this.functions["_charAt_"] = this.functions["_letraEn_"] = function(str, n) {
+      str = str.toString();
+      return str.charAt(n);
+    };
+    this.functions["_substring_"] = this.functions["_subcadena_"] = function(str, i, j) {
+      str = str.toString();
+      i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
+      j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
+
+      if ( (i >= 0) && (j >= 0) ) {
+        return str.substring(i, j);
+      }
+      else {
+        if ( (i < 0) && (j >= 0) ) {
+          return str.substring(j);
+        }
+        else if ( (j < 0) && (i >= 0)) {
+          return str.substring(i);
+        }
+        else {
+          return "";
+        }
+      }
+    };
+    this.functions["_length_"] = this.functions["_longitud_"] = function(str) {
+      str = str.toString();
+      return str.length;
+    };
+    this.functions["_indexOf_"] = this.functions["_\u00EDndiceDe_"] = function(str, w) {
+      str = str.toString();
+      w = w.toString();
+      return str.indexOf(w);
+    };
+    ////////////////////////////////////////
+
 
     // function for the dialog
     this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
@@ -893,16 +932,23 @@ var descartesJS = (function(descartesJS) {
 
     var anchor = document.createElement("a");
     var blob;
+    var lastDownload = null;
     /**
      *
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data.replace(/\\n/g, "\n").replace(/\\q/g, "'")], {type: "text/plain"});
+      blob = new Blob(["\ufeff", data.replace(/\\n/g, "\n").replace(/\\q/g, "'").replace(/\\r/g, "")], {type:"text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
-      anchor.click();
+      if (lastDownload == null) {
+        anchor.click();
+        lastDownload = true;
+        setTimeout(function() { 
+          lastDownload = null;
+        }, 500);
+      }
 
       document.body.removeChild(anchor);
 
@@ -938,7 +984,6 @@ var descartesJS = (function(descartesJS) {
         reader.readAsText(files[0]);
       }
     }
-
     input.addEventListener("change", onHandleFileSelect);
 
     /**
@@ -953,13 +998,13 @@ var descartesJS = (function(descartesJS) {
       return 0;
     }
 
-    /**
-     *
-     */
-    this.functions["_SaveState_"] = function() {
-      this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
-      return 0;
-    }
+    // /**
+    //  *
+    //  */
+    // this.functions["_SaveState_"] = function() {
+    //   this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
+    //   return 0;
+    // }
 
     var files2;
     var reader2;
@@ -1019,14 +1064,14 @@ var descartesJS = (function(descartesJS) {
     input2.removeEventListener("change", onHandleFileSelect2);
     input2.addEventListener("change", onHandleFileSelect2);
 
-    /**
-     *
-     */
-    this.functions["_OpenState_"] = function() {
-      input2.click(); 
+    // /**
+    //  *
+    //  */
+    // this.functions["_OpenState_"] = function() {
+    //   input2.click(); 
 
-      return 0;
-    }
+    //   return 0;
+    // }
 
     /**
      *
@@ -1049,7 +1094,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
+    this.functions["_AnchoDeCadena_"] = this.functions["_strWidth_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
     /**
@@ -1096,11 +1141,24 @@ var descartesJS = (function(descartesJS) {
       if (M) {
         strM = "<" + Mstr + ">\\n";
 
-        for (var i=0,l=M.rows; i<l; i++) {
-          for (var j=0,k=M.cols; j<k; j++) {
-            strM += M[i][j] + ((j<k-1)?" " + String.fromCharCode("166") + " ":"")
+        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
+        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          for (var j=0; j<k; j++) {
+            _val = M[i][j];
+
+            if (_val !== undefined) {
+              if (typeof(_val) == "string") {
+                _val = "'" + _val + "'";
+              }
+
+              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
+            }
           }
-          strM += "\\n";
+          // remove the last pipe is any
+          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
 
         strM += "</" + Mstr + ">";
@@ -1131,6 +1189,7 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
+// console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});

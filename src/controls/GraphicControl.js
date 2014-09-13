@@ -174,7 +174,10 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.xString, this.x);
     evaluator.setVariable(this.yString, this.y);
 
-    var radioTouch = 70;
+    var radioTouch = 48;
+    var radioTouchImage = 32;
+
+    this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); z-index: " + this.zIndex + ";");
 
     // if the control has an image name
     if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
@@ -183,8 +186,10 @@ var descartesJS = (function(descartesJS) {
       this.width = this.image.width;
       this.height = this.image.height;
     
-      this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
-      this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+      // this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
+      // this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+      this._w = Math.max(this.width, radioTouchImage);
+      this._h = Math.max(this.height, radioTouchImage);
     } 
     else {
       this.width = (evaluator.evalExpression(this.size)*2);
@@ -192,9 +197,14 @@ var descartesJS = (function(descartesJS) {
       
       this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
       this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+
+      // make the button round
+      this.mouseCacher.style.borderRadius = parseInt( Math.min(this._w, this._h)/2 ) + "px";
     }
 
-    this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); width: " +this._w+ "px; height: " +this._h+ "px; z-index: " + this.zIndex + ";");
+    // this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); width: " +this._w+ "px; height: " +this._h+ "px; z-index: " + this.zIndex + ";");
+    this.mouseCacher.style.width = this._w + "px";
+    this.mouseCacher.style.height = this._h + "px";
     this.mouseCacher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 

@@ -283,6 +283,8 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
       if (this.graphics[i]) {
+        ctx.save();
+        
         if (this.graphics[i].abs_coord) {
           ctx.translate(this.iniPosX, this.iniPosY);
         } 
@@ -293,7 +295,8 @@ var descartesJS = (function(descartesJS, babel) {
         this.graphics[i].draw();
 
         // reset the transformations
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        // ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.restore();
       }
     }
   }

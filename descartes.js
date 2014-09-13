@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2014-07-26
+ * 2014-09-13
  */
 
 /**
@@ -577,6 +577,698 @@ var babel = (function(babel) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
+  /**
+   * Converts a Descartes font string, to a canvas font string
+   * @param {String} fontStr the Descartes font string
+   * @return {String} the canvas font string
+   */
+  descartesJS.convertFont = function(fontStr) {
+    if (fontStr == "") {
+      return fontStr;
+    }
+
+    fontTokens = fontStr.split(",");
+    fontCanvas = "";
+
+    // bold text
+    if (fontTokens[1].toLowerCase() == "bold") {
+      fontCanvas += "Bold ";
+    } 
+    // italic text
+    else if ( (fontTokens[1].toLowerCase() == "italic") || (fontTokens[1].toLowerCase() == "italics")) {
+      fontCanvas += "Italic ";
+    }
+    // bold and italic text
+    else if (fontTokens[1].toLowerCase() == "bold+italic") {
+      fontCanvas += "Italic Bold ";
+    }
+
+    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
+    
+    // the font size
+    fontCanvas += fontTokens[2] + "px ";
+
+    // serif font
+    if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
+      fontCanvas += "descartesJS_serif,Times,'Times New Roman', serif";
+    }
+    // sans serif font
+    else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
+      fontCanvas += "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+    }
+    // monospace font
+    else {
+      fontCanvas += "descartesJS_monospace,Courier,'Courier New',Monospace";
+    }
+
+    return fontCanvas;
+  }
+
+  /**
+   * Get the width in pixels of a text 
+   * @param {String} text the text to measured
+   * @param {String} font the font of the text
+   * @return {Number} return the width of the text in pixels
+   */
+  descartesJS.getTextWidth = function(text, font) {
+    descartesJS.ctx.font = font;
+    return Math.round( descartesJS.ctx.measureText(text).width );
+  }
+
+
+  /**
+   * Get the font size give the height of an element
+   * @param {Number} the height of an element
+   * @return {Number} return the best font size of the text that fits in the element
+   */
+  descartesJS.getFieldFontSize = function(height) {
+    height = Math.min(50, height);
+
+    if (height >= 24) {
+      height = Math.floor(height/2+2-height/16);
+    } 
+    else if (height >= 20) {
+      height = 12;
+    } 
+    else if (height >= 17) {
+      height = 11;
+    } 
+    else if (height >= 15) {
+      height = 10;
+    } 
+    else {
+      height = 9;
+    }
+    return height;
+  }
+
+  /**
+   * Object that have the metric values of diferent type fonts
+   */
+  var font_metric = {
+    // sans serif
+    ss_5: { a: 5, d: 3 },
+    ss_6: { a: 5, d: 3 },
+    ss_7: { a: 6, d: 3 },
+    ss_8: { a: 7, d: 3 },
+    ss_9: { a: 9, d: 4 },
+    ss_10: { a: 10, d: 4 },
+    ss_11: { a: 11, d: 4 },
+    ss_12: { a: 12, d: 4 },
+    ss_13: { a: 13, d: 4 },
+    ss_14: { a: 13, d: 4 },
+    ss_15: { a: 14, d: 4 },
+    ss_16: { a: 15, d: 4 },
+    ss_17: { a: 15, d: 5 },
+    ss_18: { a: 16, d: 5 },
+    ss_19: { a: 18, d: 5 },
+    ss_20: { a: 19, d: 5 },
+    ss_21: { a: 19, d: 6 },
+    ss_22: { a: 20, d: 6 },
+    ss_23: { a: 21, d: 6 },
+    ss_24: { a: 21, d: 7 },
+    ss_25: { a: 23, d: 6 },
+    ss_26: { a: 25, d: 7 },
+    ss_27: { a: 26, d: 7 },
+    ss_28: { a: 26, d: 7 },
+    ss_29: { a: 27, d: 7 },
+    ss_30: { a: 28, d: 8 },
+    ss_31: { a: 28, d: 8 },
+    ss_32: { a: 29, d: 8 },
+    ss_33: { a: 31, d: 8 },
+    ss_34: { a: 32, d: 8 },
+    ss_35: { a: 32, d: 9 },
+    ss_36: { a: 33, d: 9 },
+    ss_37: { a: 34, d: 10 },
+    ss_38: { a: 34, d: 10 },
+    ss_39: { a: 35, d: 10 },
+    ss_40: { a: 36, d: 10 },
+    ss_41: { a: 38, d: 11 },
+    ss_42: { a: 38, d: 11 },
+    ss_43: { a: 39, d: 11 },
+    ss_44: { a: 40, d: 11 },
+    ss_45: { a: 40, d: 11 },
+    ss_46: { a: 42, d: 11 },
+    ss_47: { a: 43, d: 11 },
+    ss_48: { a: 45, d: 11 },
+    ss_49: { a: 45, d: 13 },
+    ss_50: { a: 46, d: 13 },
+    ss_51: { a: 47, d: 13 },
+    ss_52: { a: 48, d: 13 },
+    ss_53: { a: 48, d: 14 },
+    ss_54: { a: 49, d: 14 },
+    ss_55: { a: 51, d: 14 },
+    ss_56: { a: 52, d: 14 },
+    ss_57: { a: 52, d: 14 },
+    ss_58: { a: 53, d: 14 },
+    ss_59: { a: 53, d: 14 },
+    ss_60: { a: 54, d: 14 },
+    ss_61: { a: 55, d: 15 },
+    ss_62: { a: 56, d: 15 },
+    ss_63: { a: 57, d: 15 },
+    ss_64: { a: 58, d: 15 },
+    ss_65: { a: 59, d: 16 },
+    ss_66: { a: 60, d: 16 },
+    ss_67: { a: 60, d: 16 },
+    ss_68: { a: 61, d: 16 },
+    ss_69: { a: 62, d: 17 },
+    ss_70: { a: 63, d: 17 },
+    ss_71: { a: 64, d: 17 },
+    ss_72: { a: 65, d: 17 },
+    ss_73: { a: 66, d: 17 },
+    ss_74: { a: 66, d: 17 },
+    ss_75: { a: 67, d: 17 },
+    ss_76: { a: 68, d: 17 },
+    ss_77: { a: 70, d: 18 },
+    ss_78: { a: 70, d: 18 },
+    ss_79: { a: 71, d: 18 },
+    ss_80: { a: 72, d: 18 },
+    ss_81: { a: 73, d: 20 },
+    ss_82: { a: 73, d: 20 },
+    ss_83: { a: 74, d: 20 },
+    ss_84: { a: 75, d: 20 },
+    ss_85: { a: 77, d: 20 },
+    ss_86: { a: 77, d: 20 },
+    ss_87: { a: 78, d: 20 },
+    ss_88: { a: 79, d: 20 },
+    ss_89: { a: 80, d: 20 },
+    ss_90: { a: 80, d: 20 },
+    ss_91: { a: 81, d: 20 },
+    ss_92: { a: 83, d: 20 },
+    ss_93: { a: 84, d: 20 },
+    ss_94: { a: 84, d: 20 },
+    ss_95: { a: 85, d: 20 },
+    ss_96: { a: 86, d: 20 },
+    ss_97: { a: 87, d: 20 },
+    ss_98: { a: 87, d: 20 },
+    ss_99: { a: 89, d: 20 },
+
+
+    // serif
+    s_5: { a: 4, d: 4 },
+    s_6: { a: 5, d: 4 },
+    s_7: { a: 6, d: 4 },
+    s_8: { a: 7, d: 4 },
+    s_9: { a: 9, d: 4 },
+    s_10: { a: 10, d: 3 },
+    s_11: { a: 11, d: 4 },
+    s_12: { a: 12, d: 4 },
+    s_13: { a: 12, d: 4 },
+    s_14: { a: 13, d: 4 },
+    s_15: { a: 13, d: 5 },
+    s_16: { a: 15, d: 5 },
+    s_17: { a: 15, d: 5 },
+    s_18: { a: 16, d: 5 },
+    s_19: { a: 16, d: 6 },
+    s_20: { a: 17, d: 6 },
+    s_21: { a: 18, d: 6 },
+    s_22: { a: 20, d: 6 },
+    s_23: { a: 20, d: 7 },
+    s_24: { a: 21, d: 7 },
+    s_25: { a: 23, d: 7 },
+    s_26: { a: 23, d: 7 },
+    s_27: { a: 24, d: 8 },
+    s_28: { a: 26, d: 8 },
+    s_29: { a: 26, d: 8 },
+    s_30: { a: 27, d: 8 },
+    s_31: { a: 28, d: 9 },
+    s_32: { a: 28, d: 9 },
+    s_33: { a: 29, d: 9 },
+    s_34: { a: 31, d: 9 },
+    s_35: { a: 32, d: 10 },
+    s_36: { a: 32, d: 10 },
+    s_37: { a: 33, d: 10 },
+    s_38: { a: 34, d: 10 },
+    s_39: { a: 34, d: 12 },
+    s_40: { a: 35, d: 12 },
+    s_41: { a: 37, d: 12 },
+    s_42: { a: 38, d: 12 },
+    s_43: { a: 39, d: 12 },
+    s_44: { a: 40, d: 12 },
+    s_45: { a: 41, d: 13 },
+    s_46: { a: 41, d: 13 },
+    s_47: { a: 42, d: 13 },
+    s_48: { a: 43, d: 13 },
+    s_49: { a: 44, d: 15 },
+    s_50: { a: 45, d: 15 },
+    s_51: { a: 45, d: 15 },
+    s_52: { a: 46, d: 15 },
+    s_53: { a: 48, d: 15 },
+    s_54: { a: 48, d: 15 },
+    s_55: { a: 49, d: 15 },
+    s_56: { a: 50, d: 15 },
+    s_57: { a: 51, d: 15 },
+    s_58: { a: 52, d: 15 },
+    s_59: { a: 53, d: 15 },
+    s_60: { a: 54, d: 15 },
+    s_61: { a: 54, d: 17 },
+    s_62: { a: 55, d: 17 },
+    s_63: { a: 56, d: 17 },
+    s_64: { a: 57, d: 17 },
+    s_65: { a: 58, d: 17 },
+    s_66: { a: 59, d: 17 },
+    s_67: { a: 60, d: 17 },
+    s_68: { a: 61, d: 17 },
+    s_69: { a: 61, d: 18 },
+    s_70: { a: 62, d: 18 },
+    s_71: { a: 63, d: 18 },
+    s_72: { a: 64, d: 18 },
+    s_73: { a: 65, d: 19 },
+    s_74: { a: 66, d: 19 },
+    s_75: { a: 67, d: 19 },
+    s_76: { a: 67, d: 19 },
+    s_77: { a: 68, d: 20 },
+    s_78: { a: 70, d: 20 },
+    s_79: { a: 71, d: 20 },
+    s_80: { a: 71, d: 20 },
+    s_81: { a: 72, d: 21 },
+    s_82: { a: 73, d: 21 },
+    s_83: { a: 73, d: 21 },
+    s_84: { a: 75, d: 21 },
+    s_85: { a: 76, d: 21 },
+    s_86: { a: 77, d: 21 },
+    s_87: { a: 77, d: 21 },
+    s_88: { a: 78, d: 21 },
+    s_89: { a: 79, d: 21 },
+    s_90: { a: 81, d: 21 },
+    s_91: { a: 81, d: 21 },
+    s_92: { a: 82, d: 21 },
+    s_93: { a: 83, d: 21 },
+    s_94: { a: 83, d: 21 },
+    s_95: { a: 84, d: 21 },
+    s_96: { a: 86, d: 21 },
+    s_97: { a: 87, d: 21 },
+    s_98: { a: 87, d: 21 },
+    s_99: { a: 88, d: 21 },
+
+    // monospace
+    m_5: { a: 4, d: 3 },
+    m_6: { a: 5, d: 3 },
+    m_7: { a: 6, d: 3 },
+    m_8: { a: 6, d: 3 },
+    m_9: { a: 9, d: 4 },
+    m_10: { a: 9, d: 4 },
+    m_11: { a: 10, d: 5 },
+    m_12: { a: 11, d: 5 },
+    m_13: { a: 11, d: 6 },
+    m_14: { a: 11, d: 7 },
+    m_15: { a: 12, d: 6 },
+    m_16: { a: 13, d: 6 },
+    m_17: { a: 14, d: 7 },
+    m_18: { a: 14, d: 7 },
+    m_19: { a: 15, d: 7 },
+    m_20: { a: 16, d: 7 },
+    m_21: { a: 16, d: 8 },
+    m_22: { a: 17, d: 8 },
+    m_23: { a: 17, d: 9 },
+    m_24: { a: 19, d: 9 },
+    m_25: { a: 21, d: 9 },
+    m_26: { a: 21, d: 9 },
+    m_27: { a: 22, d: 9 },
+    m_28: { a: 22, d: 10 },
+    m_29: { a: 23, d: 10 },
+    m_30: { a: 24, d: 10 },
+    m_31: { a: 25, d: 11 },
+    m_32: { a: 26, d: 11 },
+    m_33: { a: 26, d: 11 },
+    m_34: { a: 27, d: 11 },
+    m_35: { a: 28, d: 11 },
+    m_36: { a: 28, d: 12 },
+    m_37: { a: 28, d: 11 },
+    m_38: { a: 30, d: 11 },
+    m_39: { a: 31, d: 12 },
+    m_40: { a: 31, d: 12 },
+    m_41: { a: 32, d: 14 },
+    m_42: { a: 32, d: 14 },
+    m_43: { a: 33, d: 14 },
+    m_44: { a: 34, d: 14 },
+    m_45: { a: 35, d: 14 },
+    m_46: { a: 36, d: 14 },
+    m_47: { a: 37, d: 14 },
+    m_48: { a: 37, d: 14 },
+    m_49: { a: 38, d: 17 },
+    m_50: { a: 38, d: 17 },
+    m_51: { a: 39, d: 17 },
+    m_52: { a: 41, d: 17 },
+    m_53: { a: 41, d: 18 },
+    m_54: { a: 42, d: 18 },
+    m_55: { a: 43, d: 18 },
+    m_56: { a: 43, d: 18 },
+    m_57: { a: 44, d: 19 },
+    m_58: { a: 46, d: 19 },
+    m_59: { a: 46, d: 19 },
+    m_60: { a: 47, d: 19 },
+    m_61: { a: 47, d: 21 },
+    m_62: { a: 48, d: 21 },
+    m_63: { a: 49, d: 21 },
+    m_64: { a: 49, d: 22 },
+    m_65: { a: 51, d: 21 },
+    m_66: { a: 52, d: 21 },
+    m_67: { a: 52, d: 21 },
+    m_68: { a: 53, d: 21 },
+    m_69: { a: 53, d: 22 },
+    m_70: { a: 54, d: 22 },
+    m_71: { a: 55, d: 22 },
+    m_72: { a: 56, d: 22 },
+    m_73: { a: 57, d: 23 },
+    m_74: { a: 58, d: 23 },
+    m_75: { a: 58, d: 23 },
+    m_76: { a: 59, d: 23 },
+    m_77: { a: 59, d: 24 },
+    m_78: { a: 60, d: 24 },
+    m_79: { a: 62, d: 24 },
+    m_80: { a: 62, d: 24 },
+    m_81: { a: 63, d: 25 },
+    m_82: { a: 64, d: 25 },
+    m_83: { a: 64, d: 25 },
+    m_84: { a: 65, d: 25 },
+    m_85: { a: 65, d: 25 },
+    m_86: { a: 67, d: 25 },
+    m_87: { a: 68, d: 25 },
+    m_88: { a: 68, d: 25 },
+    m_89: { a: 69, d: 25 },
+    m_90: { a: 70, d: 25 },
+    m_91: { a: 70, d: 25 },
+    m_92: { a: 71, d: 25 },
+    m_93: { a: 72, d: 25 },
+    m_94: { a: 73, d: 25 },
+    m_95: { a: 74, d: 25 },
+    m_96: { a: 74, d: 25 },
+    m_97: { a: 75, d: 25 },
+    m_98: { a: 76, d: 25 },
+    m_99: { a: 77, d: 25 }
+  }
+
+  var metricCache = {};
+
+  var _aux_canvas = document.createElement("canvas");
+  var _aux_ctx;
+  var _font_size;
+  var _canvas_size;
+  var _baselineOffset;
+  var _imageData;
+  var _data;
+  var _top;
+  var _bottom;
+
+  /**
+   *
+   */
+  descartesJS.getFontMetrics = function(font) {
+    if (metricCache[font]) {
+      return metricCache[font];
+    }
+
+    _font_size = parseInt( font.match(/(\d+\.*)+px/)[0] );
+    var _font_prefix;
+    if (font.match("sansserif")) {
+      _font_prefix = "ss_";
+    }
+    else if (font.match("serif")) {
+      _font_prefix = "s_";
+    }
+    else if (font.match("monospace")) {
+      _font_prefix = "m_";
+    }
+
+    var _f_metric = font_metric[_font_prefix + _font_size];
+
+    var result = { ascent:   _f_metric.a, 
+                   descent:  _f_metric.d,
+                   h:        _f_metric.a + _f_metric.d, 
+                   baseline: _f_metric.a
+                 };
+
+    metricCache[font] = result;
+
+    return result;
+
+    // if (metricCache[font]) {
+    //   return metricCache[font];
+    // }
+
+    // _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
+    // _canvas_size = _font_size * 2;
+
+    // _aux_canvas.width  = _canvas_size * descartesJS._ratio;
+    // _aux_canvas.height = _canvas_size * descartesJS._ratio;
+    // _aux_canvas.style.width  = _canvas_size + "px";
+    // _aux_canvas.style.height = _canvas_size + "px";
+    // _aux_ctx = _aux_canvas.getContext("2d");
+    // _aux_ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
+
+    // _baselineOffset = Math.floor( _canvas_size/2 );
+
+    // _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
+
+    // _aux_ctx.font = font;
+    // _aux_ctx.fillStyle = "#ff0000";
+    // _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
+
+    // _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
+    // _data = _imageData.data;
+
+    // _top = 0;
+    // _bottom = 0;    
+
+    // // top
+    // for (var i=0, l=_data.length; i<l; i+=4) {
+    //   if ( (_data[i] === 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
+    //     _top = Math.floor(i/(_canvas_size*4));
+    //     break;
+    //   }
+    // }
+
+    // // bottom
+    // for (var i=_data.length-40; i>=0; i-=4) {
+    //   if ( (_data[i] == 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
+    //     _bottom = Math.floor(i/(_canvas_size*4));
+    //     break;
+    //   }
+    // }
+
+    // var sansserif = [];
+    // for(var i=0,l=100; i<l; i++) {
+    //   if (i<=8) {
+    //     sansserif[i] = 3;
+    //   }
+    //   else if (i<=16) {
+    //     sansserif[i] = 4;
+    //   }
+    //   else if (i<=20) {
+    //     sansserif[i] = 5;
+    //   }
+    //   else if (i==24) {
+    //     sansserif[i] = 7
+    //   }
+    //   else if (i<=25) {
+    //     sansserif[i] = 6;
+    //   }
+    //   else if (i<=29) {
+    //     sansserif[i] = 7;
+    //   }
+    //   else if (i<=34) {
+    //     sansserif[i] = 8;
+    //   }
+    //   else if (i<=36) {
+    //     sansserif[i] = 9;
+    //   }
+    //   else if (i<=40) {
+    //     sansserif[i] = 10;
+    //   }
+    //   else if (i<=48) {
+    //     sansserif[i] = 11;
+    //   }
+    //   else if (i<=52) {
+    //     sansserif[i] = 13;
+    //   }
+    //   else if (i<=60) {
+    //     sansserif[i] = 14;
+    //   }
+    //   else if (i<=64) {
+    //     sansserif[i] = 15;
+    //   }
+    //   else if (i<=68) {
+    //     sansserif[i] = 16;
+    //   }
+    //   else if (i<=76) {
+    //     sansserif[i] = 17;
+    //   }
+    //   else if (i<=80) {
+    //     sansserif[i] = 18;
+    //   }
+    //   else {
+    //     sansserif[i] = 20;
+    //   }
+    // }
+
+    // var serif = [];
+    // for(var i=0,l=100; i<l; i++) {
+    //   if (i<=9) {
+    //     serif[i] = 4;
+    //   }
+    //   else if (i==10) {
+    //     serif[i] = 3;
+    //   }
+    //   else if (i<=14) {
+    //     serif[i] = 4;
+    //   }
+    //   else if (i<=18) {
+    //     serif[i] = 5;
+    //   }
+    //   else if (i<=22) {
+    //     serif[i] = 6;
+    //   }
+    //   else if (i<=26) {
+    //     serif[i] = 7;
+    //   }
+    //   else if (i<=30) {
+    //     serif[i] = 8;
+    //   }
+    //   else if (i<=34) {
+    //     serif[i] = 9;
+    //   }
+    //   else if (i<=38) {
+    //     serif[i] = 10;
+    //   }
+    //   else if (i<=40) {
+    //     serif[i] = 12;
+    //   }
+    //   else if (i<=44) {
+    //     serif[i] = 12;
+    //   }
+    //   else if (i<=48) {
+    //     serif[i] = 13;
+    //   }
+    //   else if (i<=52) {
+    //     serif[i] = 15;
+    //   }
+    //   else if (i<=60) {
+    //     serif[i] = 15;
+    //   }
+    //   else if (i<=64) {
+    //     serif[i] = 17;
+    //   }
+    //   else if (i<=68) {
+    //     serif[i] = 17;
+    //   }
+    //   else if (i<=72) {
+    //     serif[i] = 18;
+    //   }
+    //   else if (i<=76) {
+    //     serif[i] = 19;
+    //   }
+    //   else if (i<=80) {
+    //     serif[i] = 20;
+    //   }
+    //   else {
+    //     serif[i] = 21;
+    //   }
+    // }
+
+    // var monospace = [];
+    // for(var i=0,l=100; i<l; i++) {
+    //   if (i<=8) {
+    //     monospace[i] = 3;
+    //   }
+    //   else if (i<=10) {
+    //     monospace[i] = 4;
+    //   }
+    //   else if (i<=12) {
+    //     monospace[i] = 5;
+    //   }
+    //   else if (i==14) {
+    //     monospace[i] = 7;
+    //   }
+    //   else if (i<=16) {
+    //     monospace[i] = 6;
+    //   }
+    //   else if (i<=20) {
+    //     monospace[i] = 7;
+    //   }
+    //   else if (i<=22) {
+    //     monospace[i] = 8;
+    //   }
+    //   else if (i<=27) {
+    //     monospace[i] = 9;
+    //   }
+    //   else if (i<=30) {
+    //     monospace[i] = 10;
+    //   }
+    //   else if (i==36) {
+    //     monospace[i] = 12;
+    //   }
+    //   else if (i<=38) {
+    //     monospace[i] = 11;
+    //   }
+    //   else if (i<=40) {
+    //     monospace[i] = 12;
+    //   }
+    //   else if (i<=48) {
+    //     monospace[i] = 14;
+    //   }
+    //   else if (i<=52) {
+    //     monospace[i] = 17;
+    //   }
+    //   else if (i<=56) {
+    //     monospace[i] = 18;
+    //   }
+    //   else if (i<=60) {
+    //     monospace[i] = 19;
+    //   }
+    //   else if (i==64) {
+    //     monospace[i] = 22;
+    //   }
+    //   else if (i<=68) {
+    //     monospace[i] = 21;
+    //   }
+    //   else if (i<=72) {
+    //     monospace[i] = 22;
+    //   }
+    //   else if (i<=76) {
+    //     monospace[i] = 23;
+    //   }
+    //   else if (i<=80) {
+    //     monospace[i] = 24;
+    //   }
+    //   else {
+    //     monospace[i] = 25;
+    //   }
+    // }
+
+
+    // if (font.match("sansserif")) {
+    //   _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
+    // }
+    // else if (font.match("serif")) {
+    //   _bottom = _baselineOffset + serif[parseInt(_font_size)];
+    // }
+    // else if (font.match("monospace")) {
+    //   _bottom = _baselineOffset + monospace[parseInt(_font_size)];
+    // }
+
+    // var result = { ascent: (_baselineOffset - _top), 
+    //                descent: (_bottom - _baselineOffset), 
+    //                h: (_bottom - _top), 
+    //                baseline: (_baselineOffset - _top)
+    //              };
+
+    // _aux_ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // metricCache[font] = result;
+
+    // return result;
+  }
+
+  return descartesJS;
+})(descartesJS || {});/**
+ * @author Joel Espinosa Longi
+ * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
+ */
+
+var descartesJS = (function(descartesJS) {
+  if (descartesJS.loadLib) { return descartesJS; }
+  
   var PI2 = Math.PI*2;
   var trecientosSesentaEntreDosPi = 360/PI2;
   var dosPiEntreTrecientosSesenta = PI2/360;
@@ -649,47 +1341,47 @@ var descartesJS = (function(descartesJS) {
    * @param {String} fontStr the Descartes font string
    * @return {String} the canvas font string
    */
-  descartesJS.convertFont = function(fontStr) {
-    if (fontStr == "") {
-      return fontStr;
-    }
+  // descartesJS.convertFont = function(fontStr) {
+  //   if (fontStr == "") {
+  //     return fontStr;
+  //   }
 
-    fontTokens = fontStr.split(",");
-    fontCanvas = "";
+  //   fontTokens = fontStr.split(",");
+  //   fontCanvas = "";
 
-    // bold text
-    if (fontTokens[1].toLowerCase() == "bold") {
-      fontCanvas += "Bold ";
-    } 
-    // italic text
-    else if ( (fontTokens[1].toLowerCase() == "italic") || (fontTokens[1].toLowerCase() == "italics")) {
-      fontCanvas += "Italic ";
-    }
-    // bold and italic text
-    else if (fontTokens[1].toLowerCase() == "bold+italic") {
-      fontCanvas += "Italic Bold ";
-    }
+  //   // bold text
+  //   if (fontTokens[1].toLowerCase() == "bold") {
+  //     fontCanvas += "Bold ";
+  //   } 
+  //   // italic text
+  //   else if ( (fontTokens[1].toLowerCase() == "italic") || (fontTokens[1].toLowerCase() == "italics")) {
+  //     fontCanvas += "Italic ";
+  //   }
+  //   // bold and italic text
+  //   else if (fontTokens[1].toLowerCase() == "bold+italic") {
+  //     fontCanvas += "Italic Bold ";
+  //   }
 
-    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
+  //   fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
     
-    // the font size
-    fontCanvas += fontTokens[2] + "px ";
+  //   // the font size
+  //   fontCanvas += fontTokens[2] + "px ";
 
-    // serif font
-    if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "descartesJS_serif, 'Times New Roman', Times, serif";
-    }
-    // sans serif font
-    else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "descartesJS_sansserif, Arial, Helvetica, Sans-serif";
-    }
-    // monospace font
-    else {
-      fontCanvas += "descartesJS_monospace, 'Courier New', Courier, Monospace";
-    }
+  //   // serif font
+  //   if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
+  //     fontCanvas += "descartesJS_serif,Times,'Times New Roman', serif";
+  //   }
+  //   // sans serif font
+  //   else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
+  //     fontCanvas += "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+  //   }
+  //   // monospace font
+  //   else {
+  //     fontCanvas += "descartesJS_monospace,Courier,'Courier New',Monospace";
+  //   }
 
-    return fontCanvas;
-  }
+  //   return fontCanvas;
+  // }
 
   /**
    * Function for draw the spinner control, that draws a line
@@ -755,6 +1447,15 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasCanvasSupport) {
       // render context used to measuere text
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
+
+descartesJS.devicePixelRatio = window.devicePixelRatio || 1;
+descartesJS.backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
+                                descartesJS.ctx.mozBackingStorePixelRatio ||
+                                descartesJS.ctx.msBackingStorePixelRatio ||
+                                descartesJS.ctx.oBackingStorePixelRatio ||
+                                descartesJS.ctx.backingStorePixelRatio || 1;
+descartesJS._ratio = descartesJS.devicePixelRatio / descartesJS.backingStoreRatio;
+descartesJS._ratio = 1;
     }
 
     setNewToFixed();
@@ -938,302 +1639,311 @@ var descartesJS = (function(descartesJS) {
    * @param {String} font the font of the text
    * @return {Number} return the width of the text in pixels
    */
-  descartesJS.getTextWidth = function(text, font) {
-    descartesJS.ctx.font = font;
-    return Math.round( descartesJS.ctx.measureText(text).width );
-  }
+  // descartesJS.getTextWidth = function(text, font) {
+  //   descartesJS.ctx.font = font;
+  //   return Math.round( descartesJS.ctx.measureText(text).width );
+  // }
 
-  var metricCache = {};
+  // var metricCache = {};
 
-  var _aux_canvas = document.createElement("canvas");
-  var _aux_ctx;
-  var _font_size;
-  var _canvas_size;
-  var _baselineOffset;
-  var _imageData;
-  var _data;
-  var _top;
-  var _bottom;
+  // var _aux_canvas = document.createElement("canvas");
+  // var _aux_ctx;
+  // var _font_size;
+  // var _canvas_size;
+  // var _baselineOffset;
+  // var _imageData;
+  // var _data;
+  // var _top;
+  // var _bottom;
 
-  descartesJS.getFontMetrics = function(font) {
-    if (metricCache[font]) {
-      return metricCache[font];
-    }
+  // descartesJS.getFontMetrics = function(font) {
+  //   if (metricCache[font]) {
+  //     return metricCache[font];
+  //   }
 
-    _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
-    _canvas_size = _font_size * 2;
-    _aux_canvas.setAttribute("width", _canvas_size);
-    _aux_canvas.setAttribute("height", _canvas_size);
-    _aux_ctx = _aux_canvas.getContext("2d");
-    _baselineOffset = Math.floor( _canvas_size/2 );
+  //   _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
+  //   _canvas_size = _font_size * 2;
 
-    _aux_ctx.save();
-    _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
+  //   _aux_canvas.width  = _canvas_size * descartesJS._ratio;
+  //   _aux_canvas.height = _canvas_size * descartesJS._ratio;
+  //   _aux_canvas.style.width  = _canvas_size + "px";
+  //   _aux_canvas.style.height = _canvas_size + "px";
+  //   _aux_ctx = _aux_canvas.getContext("2d");
+  //   _aux_ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
 
-    _aux_ctx.font = font;
-    _aux_ctx.fillStyle = "#ff0000";
-    _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
+  //   // _aux_canvas.setAttribute("width", _canvas_size);
+  //   // _aux_canvas.setAttribute("height", _canvas_size);
+  //   // _aux_ctx = _aux_canvas.getContext("2d");
+  //   _baselineOffset = Math.floor( _canvas_size/2 );
 
-    _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
-    _data = _imageData.data;
+  //   // _aux_ctx.save();
+  //   _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
 
-    _top = 0;
-    _bottom = 0;    
+  //   _aux_ctx.font = font;
+  //   _aux_ctx.fillStyle = "#ff0000";
+  //   _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
 
-    // top
-    for (var i=0, l=_data.length; i<l; i+=4) {
-      if (_data[i] == 255) {
-        _top = Math.floor(i/(_canvas_size*4));
-        break;
-      }
-    }
+  //   _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
+  //   _data = _imageData.data;
 
-    // bottom
-    for (var i=_data.length-40; i>=0; i-=4) {
-      if (_data[i] == 255) {
-        _bottom = Math.floor(i/(_canvas_size*4));
-        break;
-      }
-    }
+  //   _top = 0;
+  //   _bottom = 0;    
 
-    var sansserif = [];
-    for(var i=0,l=100; i<l; i++) {
-      if (i<=8) {
-        sansserif[i] = 3;
-      }
-      else if (i<=16) {
-        sansserif[i] = 4;
-      }
-      else if (i<=20) {
-        sansserif[i] = 5;
-      }
-      else if (i==24) {
-        sansserif[i] = 7
-      }
-      else if (i<=25) {
-        sansserif[i] = 6;
-      }
-      else if (i<=29) {
-        sansserif[i] = 7;
-      }
-      else if (i<=34) {
-        sansserif[i] = 8;
-      }
-      else if (i<=36) {
-        sansserif[i] = 9;
-      }
-      else if (i<=40) {
-        sansserif[i] = 10;
-      }
-      else if (i<=48) {
-        sansserif[i] = 11;
-      }
-      else if (i<=52) {
-        sansserif[i] = 13;
-      }
-      else if (i<=60) {
-        sansserif[i] = 14;
-      }
-      else if (i<=64) {
-        sansserif[i] = 15;
-      }
-      else if (i<=68) {
-        sansserif[i] = 16;
-      }
-      else if (i<=76) {
-        sansserif[i] = 17;
-      }
-      else if (i<=80) {
-        sansserif[i] = 18;
-      }
-      else {
-        sansserif[i] = 20;
-      }
-    }
+  //   // top
+  //   for (var i=0, l=_data.length; i<l; i+=4) {
+  //     if ( (_data[i] === 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
+  //       _top = Math.floor(i/(_canvas_size*4));
+  //       break;
+  //     }
+  //   }
 
-    var serif = [];
-    for(var i=0,l=100; i<l; i++) {
-      if (i<=9) {
-        serif[i] = 4;
-      }
-      else if (i==10) {
-        serif[i] = 3;
-      }
-      else if (i<=14) {
-        serif[i] = 4;
-      }
-      else if (i<=18) {
-        serif[i] = 5;
-      }
-      else if (i<=22) {
-        serif[i] = 6;
-      }
-      else if (i<=26) {
-        serif[i] = 7;
-      }
-      else if (i<=30) {
-        serif[i] = 8;
-      }
-      else if (i<=34) {
-        serif[i] = 9;
-      }
-      else if (i<=38) {
-        serif[i] = 10;
-      }
-      else if (i<=40) {
-        serif[i] = 12;
-      }
-      else if (i<=44) {
-        serif[i] = 12;
-      }
-      else if (i<=48) {
-        serif[i] = 13;
-      }
-      else if (i<=52) {
-        serif[i] = 15;
-      }
-      else if (i<=60) {
-        serif[i] = 15;
-      }
-      else if (i<=64) {
-        serif[i] = 17;
-      }
-      else if (i<=68) {
-        serif[i] = 17;
-      }
-      else if (i<=72) {
-        serif[i] = 18;
-      }
-      else if (i<=76) {
-        serif[i] = 19;
-      }
-      else if (i<=80) {
-        serif[i] = 20;
-      }
-      else {
-        serif[i] = 21;
-      }
-    }
+  //   // bottom
+  //   for (var i=_data.length-40; i>=0; i-=4) {
+  //     if ( (_data[i] == 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
+  //       _bottom = Math.floor(i/(_canvas_size*4));
+  //       break;
+  //     }
+  //   }
 
-    var monospace = [];
-    for(var i=0,l=100; i<l; i++) {
-      if (i<=8) {
-        monospace[i] = 3;
-      }
-      else if (i<=10) {
-        monospace[i] = 4;
-      }
-      else if (i<=12) {
-        monospace[i] = 5;
-      }
-      else if (i==14) {
-        monospace[i] = 7;
-      }
-      else if (i<=16) {
-        monospace[i] = 6;
-      }
-      else if (i<=20) {
-        monospace[i] = 7;
-      }
-      else if (i<=22) {
-        monospace[i] = 8;
-      }
-      else if (i<=27) {
-        monospace[i] = 9;
-      }
-      else if (i<=30) {
-        monospace[i] = 10;
-      }
-      else if (i==36) {
-        monospace[i] = 12;
-      }
-      else if (i<=38) {
-        monospace[i] = 11;
-      }
-      else if (i<=40) {
-        monospace[i] = 12;
-      }
-      else if (i<=48) {
-        monospace[i] = 14;
-      }
-      else if (i<=52) {
-        monospace[i] = 17;
-      }
-      else if (i<=56) {
-        monospace[i] = 18;
-      }
-      else if (i<=60) {
-        monospace[i] = 19;
-      }
-      else if (i==64) {
-        monospace[i] = 22;
-      }
-      else if (i<=68) {
-        monospace[i] = 21;
-      }
-      else if (i<=72) {
-        monospace[i] = 22;
-      }
-      else if (i<=76) {
-        monospace[i] = 23;
-      }
-      else if (i<=80) {
-        monospace[i] = 24;
-      }
-      else {
-        monospace[i] = 25;
-      }
-    }
+  //   var sansserif = [];
+  //   for(var i=0,l=100; i<l; i++) {
+  //     if (i<=8) {
+  //       sansserif[i] = 3;
+  //     }
+  //     else if (i<=16) {
+  //       sansserif[i] = 4;
+  //     }
+  //     else if (i<=20) {
+  //       sansserif[i] = 5;
+  //     }
+  //     else if (i==24) {
+  //       sansserif[i] = 7
+  //     }
+  //     else if (i<=25) {
+  //       sansserif[i] = 6;
+  //     }
+  //     else if (i<=29) {
+  //       sansserif[i] = 7;
+  //     }
+  //     else if (i<=34) {
+  //       sansserif[i] = 8;
+  //     }
+  //     else if (i<=36) {
+  //       sansserif[i] = 9;
+  //     }
+  //     else if (i<=40) {
+  //       sansserif[i] = 10;
+  //     }
+  //     else if (i<=48) {
+  //       sansserif[i] = 11;
+  //     }
+  //     else if (i<=52) {
+  //       sansserif[i] = 13;
+  //     }
+  //     else if (i<=60) {
+  //       sansserif[i] = 14;
+  //     }
+  //     else if (i<=64) {
+  //       sansserif[i] = 15;
+  //     }
+  //     else if (i<=68) {
+  //       sansserif[i] = 16;
+  //     }
+  //     else if (i<=76) {
+  //       sansserif[i] = 17;
+  //     }
+  //     else if (i<=80) {
+  //       sansserif[i] = 18;
+  //     }
+  //     else {
+  //       sansserif[i] = 20;
+  //     }
+  //   }
+
+  //   var serif = [];
+  //   for(var i=0,l=100; i<l; i++) {
+  //     if (i<=9) {
+  //       serif[i] = 4;
+  //     }
+  //     else if (i==10) {
+  //       serif[i] = 3;
+  //     }
+  //     else if (i<=14) {
+  //       serif[i] = 4;
+  //     }
+  //     else if (i<=18) {
+  //       serif[i] = 5;
+  //     }
+  //     else if (i<=22) {
+  //       serif[i] = 6;
+  //     }
+  //     else if (i<=26) {
+  //       serif[i] = 7;
+  //     }
+  //     else if (i<=30) {
+  //       serif[i] = 8;
+  //     }
+  //     else if (i<=34) {
+  //       serif[i] = 9;
+  //     }
+  //     else if (i<=38) {
+  //       serif[i] = 10;
+  //     }
+  //     else if (i<=40) {
+  //       serif[i] = 12;
+  //     }
+  //     else if (i<=44) {
+  //       serif[i] = 12;
+  //     }
+  //     else if (i<=48) {
+  //       serif[i] = 13;
+  //     }
+  //     else if (i<=52) {
+  //       serif[i] = 15;
+  //     }
+  //     else if (i<=60) {
+  //       serif[i] = 15;
+  //     }
+  //     else if (i<=64) {
+  //       serif[i] = 17;
+  //     }
+  //     else if (i<=68) {
+  //       serif[i] = 17;
+  //     }
+  //     else if (i<=72) {
+  //       serif[i] = 18;
+  //     }
+  //     else if (i<=76) {
+  //       serif[i] = 19;
+  //     }
+  //     else if (i<=80) {
+  //       serif[i] = 20;
+  //     }
+  //     else {
+  //       serif[i] = 21;
+  //     }
+  //   }
+
+  //   var monospace = [];
+  //   for(var i=0,l=100; i<l; i++) {
+  //     if (i<=8) {
+  //       monospace[i] = 3;
+  //     }
+  //     else if (i<=10) {
+  //       monospace[i] = 4;
+  //     }
+  //     else if (i<=12) {
+  //       monospace[i] = 5;
+  //     }
+  //     else if (i==14) {
+  //       monospace[i] = 7;
+  //     }
+  //     else if (i<=16) {
+  //       monospace[i] = 6;
+  //     }
+  //     else if (i<=20) {
+  //       monospace[i] = 7;
+  //     }
+  //     else if (i<=22) {
+  //       monospace[i] = 8;
+  //     }
+  //     else if (i<=27) {
+  //       monospace[i] = 9;
+  //     }
+  //     else if (i<=30) {
+  //       monospace[i] = 10;
+  //     }
+  //     else if (i==36) {
+  //       monospace[i] = 12;
+  //     }
+  //     else if (i<=38) {
+  //       monospace[i] = 11;
+  //     }
+  //     else if (i<=40) {
+  //       monospace[i] = 12;
+  //     }
+  //     else if (i<=48) {
+  //       monospace[i] = 14;
+  //     }
+  //     else if (i<=52) {
+  //       monospace[i] = 17;
+  //     }
+  //     else if (i<=56) {
+  //       monospace[i] = 18;
+  //     }
+  //     else if (i<=60) {
+  //       monospace[i] = 19;
+  //     }
+  //     else if (i==64) {
+  //       monospace[i] = 22;
+  //     }
+  //     else if (i<=68) {
+  //       monospace[i] = 21;
+  //     }
+  //     else if (i<=72) {
+  //       monospace[i] = 22;
+  //     }
+  //     else if (i<=76) {
+  //       monospace[i] = 23;
+  //     }
+  //     else if (i<=80) {
+  //       monospace[i] = 24;
+  //     }
+  //     else {
+  //       monospace[i] = 25;
+  //     }
+  //   }
 
 
-    if (font.match("sansserif")) {
-      _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
-    }
-    else if (font.match("serif")) {
-      _bottom = _baselineOffset + serif[parseInt(_font_size)];
-    }
-    else if (font.match("monospace")) {
-      _bottom = _baselineOffset + monospace[parseInt(_font_size)];
-    }
+  //   if (font.match("sansserif")) {
+  //     _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
+  //   }
+  //   else if (font.match("serif")) {
+  //     _bottom = _baselineOffset + serif[parseInt(_font_size)];
+  //   }
+  //   else if (font.match("monospace")) {
+  //     _bottom = _baselineOffset + monospace[parseInt(_font_size)];
+  //   }
 
-    var result = { ascent: (_baselineOffset - _top), 
-                   descent: (_bottom - _baselineOffset), 
-                   h: (_bottom - _top), 
-                   baseline: (_baselineOffset - _top)
-                 };
+  //   var result = { ascent: (_baselineOffset - _top), 
+  //                  descent: (_bottom - _baselineOffset), 
+  //                  h: (_bottom - _top), 
+  //                  baseline: (_baselineOffset - _top)
+  //                };
 
-    _aux_ctx.restore();
+  //   // _aux_ctx.restore();
+  //   _aux_ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    metricCache[font] = result;
+  //   metricCache[font] = result;
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  /**
-   * Get the font size give the height of an element
-   * @param {Number} the height of an element
-   * @return {Number} return the best font size of the text that fits in the element
-   */
-  descartesJS.getFieldFontSize = function(height) {
-    height = Math.min(50, height);
+  // /**
+  //  * Get the font size give the height of an element
+  //  * @param {Number} the height of an element
+  //  * @return {Number} return the best font size of the text that fits in the element
+  //  */
+  // descartesJS.getFieldFontSize = function(height) {
+  //   height = Math.min(50, height);
 
-    if (height >= 24) {
-      height = Math.floor(height/2+2-height/16);
-    } 
-    else if (height >= 20) {
-      height = 12;
-    } 
-    else if (height >= 17) {
-      height = 11;
-    } 
-    else if (height >= 15) {
-      height = 10;
-    } 
-    else {
-      height = 9;
-    }
-    return height;
-  }
+  //   if (height >= 24) {
+  //     height = Math.floor(height/2+2-height/16);
+  //   } 
+  //   else if (height >= 20) {
+  //     height = 12;
+  //   } 
+  //   else if (height >= 17) {
+  //     height = 11;
+  //   } 
+  //   else if (height >= 15) {
+  //     height = 10;
+  //   } 
+  //   else {
+  //     height = 9;
+  //   }
+  //   return height;
+  // }
 
   /**
    * Get a screenshot of the lesson
@@ -2127,7 +2837,7 @@ var descartesJS = (function(descartesJS) {
                         // "body{ }\n" +
                         // "html{ box-sizing: border-box; }\n" +
                         // "*, *:before, *:after { box-sizing: inherit; }\n" +
-                        "canvas { image-rendering:optimizeSpeed; image-rendering:crisp-edges; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" +
+                        // "canvas { image-rendering:optimizeSpeed; image-rendering:crisp-edges; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" +
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoader{ background-color :#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
@@ -2740,7 +3450,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.OpenURL = function(parent, parameter) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
-    
+
     this.parameter = parameter;
     this.target = "_blank";
     
@@ -4233,7 +4943,7 @@ var descartesJS = (function(descartesJS) {
         
     if (this.border) {
       ctx.strokeStyle = this.border.getColor();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
     }
     
     verticalDisplace = this.fontSize*1.2 || 0;
@@ -4243,6 +4953,7 @@ var descartesJS = (function(descartesJS) {
 
       if (this.border) {
         ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
         ctx.strokeText(theText, x, y+(verticalDisplace*i));
       }
       ctx.fillText(theText, x, y+(verticalDisplace*i));
@@ -6946,6 +7657,8 @@ var descartesJS = (function(descartesJS) {
       coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
       rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
 
+      ctx.save();
+
       ctx.translate(coordX+despX, coordY+despY);
       ctx.rotate(rotation);
       ctx.scale(this.scaleX, this.scaleY);
@@ -6957,8 +7670,9 @@ var descartesJS = (function(descartesJS) {
       ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
 
       // reset the transformations
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      ctx.globalAlpha = 1;
+      ctx.restore();
+      // ctx.setTransform(1, 0, 0, 1, 0, 0)
+      // ctx.globalAlpha = 1;
     }
   }
   
@@ -7391,6 +8105,8 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.Macro.prototype.drawAux = function(ctx) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
       if (this.graphics[i]) {
+        ctx.save();
+        
         if (this.graphics[i].abs_coord) {
           ctx.translate(this.iniPosX, this.iniPosY);
         } 
@@ -7401,7 +8117,8 @@ var descartesJS = (function(descartesJS, babel) {
         this.graphics[i].draw();
 
         // reset the transformations
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        // ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.restore();
       }
     }
   }
@@ -8641,43 +9358,100 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim().split("=");
-    tmpExpr2 = tmpExpr[0];
     tmpExpr3 = [];
+var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
+var tmpEmprArr = [];
+var statusIgnore = 0;
+var statusEqual = 1;
+var statusId = 2;
+var status = statusIgnore;
+var charAt;
+var lastIndex = tmpEmpr.length;
 
-    var newTmpExpr = [];
-    var tmpindex;
 
-    for (var i=0, l=tmpExpr.length; i<l; i++) {
-      lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
+for (var i=tmpEmpr.length-1; i>-1; i--) {
+  charAt = tmpEmpr.charAt(i)
 
-      if (lastIndexOfSpace !== -1) {
-        newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
-        newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
-      }
-      else {
-        newTmpExpr.push(tmpExpr[i]);
-      }
+  if (status == statusIgnore) {
+    if (charAt != "=") {
+      continue;
     }
-
-    var newTmpExpr2 = [];
-    for (var i=0, l=newTmpExpr.length; i<l; i++) {
-      if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
-        newTmpExpr2.push( newTmpExpr[i] );
-        newTmpExpr2.push("");
-      }
-      else {
-        tmpindex = newTmpExpr2.length-1;
-        newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
-      } 
+    else {
+      status = statusEqual;
+      continue; 
     }
+  }
 
-    for (var i=0; i<3; i++) {
-      tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
-      tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
+  if (status == statusEqual) {
+    if (charAt == " ") {
+      continue;
     }
+    else if ( (charAt == "<") || (charAt == ">") ) {
+      status = statusIgnore;
+      continue;
+    }
+    else {
+      status = statusId;
+      continue;
+    }
+  }
 
-    return tmpExpr3;
+  if (status == statusId) {
+    if (charAt == " ") {
+      tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
+      lastIndex = i;
+      status = statusIgnore;
+      continue;
+    }
+  }
+}
+
+tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
+
+for(var i=0, l=tmpEmprArr.length; i<l; i++) {
+  tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
+}
+
+
+return tmpExpr3;
+
+    // tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim().split("=");
+    // tmpExpr2 = tmpExpr[0];
+    // tmpExpr3 = [];
+
+    // var newTmpExpr = [];
+    // var tmpindex;
+
+    // for (var i=0, l=tmpExpr.length; i<l; i++) {
+    //   lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
+
+    //   if (lastIndexOfSpace !== -1) {
+    //     newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
+    //     newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
+    //   }
+    //   else {
+    //     newTmpExpr.push(tmpExpr[i]);
+    //   }
+    // }
+
+    // var newTmpExpr2 = [];
+    // for (var i=0, l=newTmpExpr.length; i<l; i++) {
+    //   if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
+    //     newTmpExpr2.push( newTmpExpr[i] );
+    //     newTmpExpr2.push("");
+    //   }
+    //   else {
+    //     tmpindex = newTmpExpr2.length-1;
+    //     newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
+    //   } 
+    // }
+
+    // for (var i=0; i<3; i++) {
+    //   tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
+    //   tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
+    // }
+
+    // return tmpExpr3;
   }
 
   var tmpPrimitives;
@@ -8918,9 +9692,9 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     // store the u and v parameter values
-    tempParamV = evaluator.getVariable("x");
-    tempParamV = evaluator.getVariable("y");
-    tempParamV = evaluator.getVariable("z");
+    tempParamX = evaluator.getVariable("x");
+    tempParamY = evaluator.getVariable("y");
+    tempParamZ = evaluator.getVariable("z");
     tempParamU = evaluator.getVariable("u");
     tempParamV = evaluator.getVariable("v");
 
@@ -11523,14 +12297,15 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.imageSrc.charAt(0) == '[') {
-      this.imageSrc = this.parser.parse(this.imageSrc);
+      this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
     }
     else {
       this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
     }
-    
+
     // if the button has an image then load it and try to load the over and down images
-    var imageSrc = this.evaluator.evalExpression(this.imageSrc).trim();
+    var imageSrc = this.evaluator.evalExpression(this.imageSrc).toString().trim();
+
     if (imageSrc != "") {
       var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
       var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
@@ -11553,8 +12328,11 @@ var descartesJS = (function(descartesJS) {
       // the image is not empty
       else {
         this.image = this.parent.getImage(imageSrc);
-        this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
-        this.imageDown = this.parent.getImage(prefix + "_down" + sufix);
+        // if the name is empty, do not try to get over and down images
+        if (prefix) {
+          this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
+          this.imageDown = this.parent.getImage(prefix + "_down" + sufix);
+        }
       }
     }
 
@@ -11565,10 +12343,15 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas and the rendering context
     this.canvas = document.createElement("canvas");
-    this.canvas.setAttribute("width", this.w+"px");
-    this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px;");
+    this.canvas.width  = this.w *descartesJS._ratio;
+    this.canvas.height = this.h *descartesJS._ratio;
+    // this.canvas.setAttribute("width", this.w+"px");
+    // this.canvas.setAttribute("height", this.h+"px");
+    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
     this.ctx = this.canvas.getContext("2d");
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.mozImageSmoothingEnabled = false;
+    this.ctx.webkitImageSmoothingEnabled = false;
 
     this.container.appendChild(this.canvas);
 
@@ -11620,9 +12403,11 @@ container = this.container;
     // canvas.setAttribute("height", this.h+"px");
     // canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
+    canvas.width  = this.w *descartesJS._ratio;
+    canvas.height = this.h *descartesJS._ratio;
+    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
+
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
-    canvas.setAttribute("width", this.w+"px");
-    canvas.setAttribute("height", this.h+"px");
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
@@ -11631,7 +12416,9 @@ container = this.container;
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    canvas.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+    container.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+
+container.setAttribute("data-color", this.colorInt.getColor());
   }
   
   /**
@@ -11648,16 +12435,16 @@ container = this.container;
 
     // hide or show the button control
     if (this.drawIfValue) {
-      canvas.style.display = "block";
+      container.style.display = "block";
       this.draw();
     } else {
-      canvas.style.display = "none";
-      // this.buttonClick = false;
+      container.style.display = "none";
+      this.buttonClick = false;
     }
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    container.setAttribute("data-active", ((this.activeIfValue)?"true":"false"));
+    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
 
@@ -11673,6 +12460,9 @@ container = this.container;
     evaluator = this.evaluator;
     ctx = this.ctx;
 
+    ctx.save();
+    ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
+
     font_size = evaluator.evalExpression(this.font_size);
     name = evaluator.evalExpression(this.name);
 
@@ -11680,7 +12470,15 @@ container.setAttribute("data-name", name);
 
     imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
-    
+
+var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+
+var imageOverSrc = prefix + "_over" + sufix;
+var imageDownSrc = prefix + "_down" + sufix;
+var imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+
     ctx.clearRect(0, 0, this.w, this.h);
 
     // text displace when the button is pressed
@@ -11698,7 +12496,7 @@ container.setAttribute("data-name", name);
     // text at the bottom
     if (image) {
       _i_h = image.height || 100000000;
-      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px Arial").h;
+      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px descartesJS_sansserif, Arial, Helvetica, Sans-serif").h;
       newButtonCondition = (name != "") ? (((this.h-_i_h-_font_h-2) >=0 ) ? true : false) : false;
 
       _image_pos_x = parseInt((this.w-image.width)/2)+despX;
@@ -11718,11 +12516,11 @@ container.style.backgroundColor = this.colorInt.getColor();
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-container.style.backgroundImage = "url(" + this.image.src + ")";
+container.style.backgroundImage = "url('" + imageSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // // check if is a gif image
         // if ( (this.image.src).match(gifPattern) ) {
-        //   this.canvas.style.backgroundImage = "url(" + this.image.src + ")";
+        //   this.canvas.style.backgroundImage = "url('" + this.image.src + "')";
         //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // }
         // else {
@@ -11734,28 +12532,26 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     else {
 container.style.backgroundColor = this.colorInt.getColor();
 
-ctx.fillStyle = this.linearGradient;
-ctx.fillRect(0, 0, this.w, this.h);
       // ctx.fillStyle = this.colorInt.getColor();
       // ctx.fillRect(0, 0, this.w, this.h);
 
-      // if (!this.buttonClick) {
-      //   descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
-      //   descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
-      //   descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
-      // }
+      if (!this.buttonClick) {
+        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
+        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
+        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+      }
       
-      // ctx.fillStyle = this.linearGradient;
-      // ctx.fillRect(0, 0, this.w, this.h);
+      ctx.fillStyle = this.linearGradient;
+      ctx.fillRect(0, 0, this.w, this.h);
     }
-    
+
     // over image
-    if ( (this.activeIfValue) && (this.imageOver.src != "") && (this.imageOver.ready) && (this.over) ) {
-container.style.backgroundImage = "url(" + this.imageOver.src + ")";
+    if ( (this.activeIfValue) && (imageOver !== this.emptyImage) && (imageOver.ready) && (this.over) ) {
+container.style.backgroundImage = "url('" + imageOverSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
 
       // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url(" + this.imageOver.src + ")";
+      //   this.canvas.style.backgroundImage = "url('" + this.imageOver.src + "')";
       //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       // }
       // else {
@@ -11764,12 +12560,12 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     }
 
     // down image
-    if ( (this.activeIfValue) && (this.imageDown.src != "") && (this.imageDown.ready) && (this.buttonClick) ) {
-container.style.backgroundImage = "url(" + this.imageDown.src + ")";
+    if ( (this.activeIfValue) && (imageDown !== this.emptyImage) && (imageDown.ready) && (this.buttonClick) ) {
+container.style.backgroundImage = "url('" + imageDownSrc + "')";
 container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
 
       // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url(" + this.imageDown.src + ")";
+      //   this.canvas.style.backgroundImage = "url('" + this.imageDown.src + "')";
       //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
       // }
       // else {
@@ -11790,7 +12586,7 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     ctx.textBaseline = "middle";
 
     // text border
-    if (this.drawTextBorder()) {
+    if ( (!image) && (this.drawTextBorder()) ) {
       ctx.lineJoin = "round";
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
@@ -11823,17 +12619,19 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       // ctx.fillRect(0, 0, this.w, this.h);
       // ctx.globalCompositeOperation = "source-over";
     }
+
+    ctx.restore();
   }
 
   /**
    *
    */
   descartesJS.Button.prototype.drawTextBorder = function() {
-    // compute the correct components
+    // compute the color components
     this.colorInt.getColor();
     this.color.getColor();
 
-    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
+    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) < 0.5);
   }  
   
   /**
@@ -11852,7 +12650,7 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     var timer;
 
     // prevent the context menu display
-    self.container.oncontextmenu = function () { return false; };
+    self.canvas.oncontextmenu = function () { return false; };
 
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -11877,11 +12675,11 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     this.over = false;
     
     if (hasTouchSupport) {
-      this.container.addEventListener("touchstart", onMouseDown);
+      this.canvas.addEventListener("touchstart", onMouseDown);
     } else {
-      this.container.addEventListener("mousedown", onMouseDown);
-      this.container.addEventListener("mouseover", onMouseOver);
-      this.container.addEventListener("mouseout", onMouseOut);
+      this.canvas.addEventListener("mousedown", onMouseDown);
+      this.canvas.addEventListener("mouseover", onMouseOver);
+      this.canvas.addEventListener("mouseout", onMouseOut);
     }
     
     /**
@@ -11936,6 +12734,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
     function onMouseUp(evt) {
       // remove the focus of the controls
       document.body.focus();
+
+      evt.preventDefault();
+      evt.stopPropagation();
       
       if ((self.activeIfValue) || (self.buttonClick)) {
         self.buttonClick = false;
@@ -11945,9 +12746,6 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.buttonPressed();
         }
         
-        evt.preventDefault();
-        evt.stopPropagation();
-
         if (hasTouchSupport) {
           self.canvas.removeEventListener("touchend", onMouseUp);
         } 
@@ -11963,6 +12761,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      * @private
      */
     function onMouseOver(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       self.over = true;
       self.draw();
     }
@@ -11973,6 +12774,9 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      * @private
      */
     function onMouseOut(evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+
       self.over = false;
       self.buttonClick = false;
       self.draw();
@@ -12323,8 +13127,8 @@ var descartesJS = (function(descartesJS) {
       if (value.toString().match("e")) {
         value = parseFloat(value).toFixed(20);
       }
-    } 
-    value = value.toString();
+    }
+    value = (value != undefined) ? value.toString() : "0";
 
     var tmp = value.replace(this.parent.decimal_symbol, ".");
     if (tmp == parseFloat(tmp)) {
@@ -12628,7 +13432,7 @@ var descartesJS = (function(descartesJS) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
     else {
-      this.name = this.parser.parse("'" + this.name + "'");
+      this.name = this.parser.parse("'" + this.name.trim() + "'");
     }
     
     if (this.valueExprString === undefined) {
@@ -12648,6 +13452,8 @@ var descartesJS = (function(descartesJS) {
     
     // tabular index
     this.tabindex = ++this.parent.tabindex;
+
+    this.regExpDecimalSymbol = new RegExp("\\" + this.parent.decimal_symbol, "g");
 
     // if the answer exist
     if (this.answer) {
@@ -12861,7 +13667,7 @@ var descartesJS = (function(descartesJS) {
 
     evaluator = this.evaluator;
 
-    var tmp = value.toString().replace(this.parent.decimal_symbol, ".");
+    var tmp = value.toString().replace(this.regExpDecimalSymbol, ".", "g");
     if (tmp == parseFloat(tmp)) {
       resultValue = parseFloat(tmp);
     }
@@ -15197,7 +16003,10 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.xString, this.x);
     evaluator.setVariable(this.yString, this.y);
 
-    var radioTouch = 70;
+    var radioTouch = 48;
+    var radioTouchImage = 32;
+
+    this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); z-index: " + this.zIndex + ";");
 
     // if the control has an image name
     if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
@@ -15206,8 +16015,10 @@ var descartesJS = (function(descartesJS) {
       this.width = this.image.width;
       this.height = this.image.height;
     
-      this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
-      this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+      // this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
+      // this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+      this._w = Math.max(this.width, radioTouchImage);
+      this._h = Math.max(this.height, radioTouchImage);
     } 
     else {
       this.width = (evaluator.evalExpression(this.size)*2);
@@ -15215,9 +16026,14 @@ var descartesJS = (function(descartesJS) {
       
       this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
       this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+
+      // make the button round
+      this.mouseCacher.style.borderRadius = parseInt( Math.min(this._w, this._h)/2 ) + "px";
     }
 
-    this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); width: " +this._w+ "px; height: " +this._h+ "px; z-index: " + this.zIndex + ";");
+    // this.mouseCacher.setAttribute("style", "cursor: pointer; background-color: rgba(255, 255, 255, 0); width: " +this._w+ "px; height: " +this._h+ "px; z-index: " + this.zIndex + ";");
+    this.mouseCacher.style.width = this._w + "px";
+    this.mouseCacher.style.height = this._h + "px";
     this.mouseCacher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
     this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
@@ -17693,7 +18509,7 @@ var descartesJS = (function(descartesJS) {
           variableValue = evaluator.variables[this.value];
 
           // the variable has an auxiliar variable value
-          if (typeof(variableValue) === "object") {
+          if ((typeof(variableValue) === "object") && (variableValue.length == undefined)) {
             return variableValue.evaluate(evaluator);
           }
 
@@ -18259,7 +19075,7 @@ var descartesJS = (function(descartesJS) {
   var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
   var asignRegExp = /^=/;
   var conditionalRegExp = /^[\?\:]/;
-  var operatorRegExp = /^[\+\-\*\/\%\^]/;
+  var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
   var squareBracketRegExp = /^\[|^\]/;
   var parenthesesRegExp = /^\(|^\)/;
   var separatorRegExp = /^,/;
@@ -18353,6 +19169,14 @@ var descartesJS = (function(descartesJS) {
         count++;
         continue;
       }
+
+      // operator
+      val = str.match(operatorRegExp);
+      if (val) {
+        val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
+        addToken("operator", val[0], val[0].length);
+        continue;
+      }
       
       // identifier
       val = str.match(identifierRegExp);
@@ -18410,13 +19234,6 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
     
-      // operator
-      val = str.match(operatorRegExp);
-      if (val) {
-        addToken("operator", val[0], val[0].length);
-        continue;
-      }
-
       // square brackets
       val = str.match(squareBracketRegExp);
       if (val) {
@@ -19196,7 +20013,7 @@ var descartesJS = (function(descartesJS) {
     
     // register the default funtions
     this.functions["sqr"]   = function(x) { return (x*x) };
-    this.functions["sqrt"]  = this.functions["raíz"] = Math.sqrt;
+    this.functions["sqrt"]  = this.functions["ra\u00EDz"] = Math.sqrt;
     this.functions["exp"]   = Math.exp;
     this.functions["log"]   = Math.log;
     this.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
@@ -19228,6 +20045,45 @@ var descartesJS = (function(descartesJS) {
     this.functions["_Trace_"] = function(x) { console.log(x); };
     this.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
     ////////////////////////////////////////
+
+
+    ////////////////////////////////////////
+    // new string function
+    this.functions["_charAt_"] = this.functions["_letraEn_"] = function(str, n) {
+      str = str.toString();
+      return str.charAt(n);
+    };
+    this.functions["_substring_"] = this.functions["_subcadena_"] = function(str, i, j) {
+      str = str.toString();
+      i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
+      j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
+
+      if ( (i >= 0) && (j >= 0) ) {
+        return str.substring(i, j);
+      }
+      else {
+        if ( (i < 0) && (j >= 0) ) {
+          return str.substring(j);
+        }
+        else if ( (j < 0) && (i >= 0)) {
+          return str.substring(i);
+        }
+        else {
+          return "";
+        }
+      }
+    };
+    this.functions["_length_"] = this.functions["_longitud_"] = function(str) {
+      str = str.toString();
+      return str.length;
+    };
+    this.functions["_indexOf_"] = this.functions["_\u00EDndiceDe_"] = function(str, w) {
+      str = str.toString();
+      w = w.toString();
+      return str.indexOf(w);
+    };
+    ////////////////////////////////////////
+
 
     // function for the dialog
     this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
@@ -19403,16 +20259,23 @@ var descartesJS = (function(descartesJS) {
 
     var anchor = document.createElement("a");
     var blob;
+    var lastDownload = null;
     /**
      *
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob([data.replace(/\\n/g, "\n").replace(/\\q/g, "'")], {type: "text/plain"});
+      blob = new Blob(["\ufeff", data.replace(/\\n/g, "\n").replace(/\\q/g, "'").replace(/\\r/g, "")], {type:"text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
-      anchor.click();
+      if (lastDownload == null) {
+        anchor.click();
+        lastDownload = true;
+        setTimeout(function() { 
+          lastDownload = null;
+        }, 500);
+      }
 
       document.body.removeChild(anchor);
 
@@ -19448,7 +20311,6 @@ var descartesJS = (function(descartesJS) {
         reader.readAsText(files[0]);
       }
     }
-
     input.addEventListener("change", onHandleFileSelect);
 
     /**
@@ -19463,13 +20325,13 @@ var descartesJS = (function(descartesJS) {
       return 0;
     }
 
-    /**
-     *
-     */
-    this.functions["_SaveState_"] = function() {
-      this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
-      return 0;
-    }
+    // /**
+    //  *
+    //  */
+    // this.functions["_SaveState_"] = function() {
+    //   this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
+    //   return 0;
+    // }
 
     var files2;
     var reader2;
@@ -19529,14 +20391,14 @@ var descartesJS = (function(descartesJS) {
     input2.removeEventListener("change", onHandleFileSelect2);
     input2.addEventListener("change", onHandleFileSelect2);
 
-    /**
-     *
-     */
-    this.functions["_OpenState_"] = function() {
-      input2.click(); 
+    // /**
+    //  *
+    //  */
+    // this.functions["_OpenState_"] = function() {
+    //   input2.click(); 
 
-      return 0;
-    }
+    //   return 0;
+    // }
 
     /**
      *
@@ -19559,7 +20421,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_AnchoDeCadena_"] = function(str, font, style, size) {
+    this.functions["_AnchoDeCadena_"] = this.functions["_strWidth_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
     /**
@@ -19606,11 +20468,24 @@ var descartesJS = (function(descartesJS) {
       if (M) {
         strM = "<" + Mstr + ">\\n";
 
-        for (var i=0,l=M.rows; i<l; i++) {
-          for (var j=0,k=M.cols; j<k; j++) {
-            strM += M[i][j] + ((j<k-1)?" " + String.fromCharCode("166") + " ":"")
+        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
+        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          for (var j=0; j<k; j++) {
+            _val = M[i][j];
+
+            if (_val !== undefined) {
+              if (typeof(_val) == "string") {
+                _val = "'" + _val + "'";
+              }
+
+              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
+            }
           }
-          strM += "\\n";
+          // remove the last pipe is any
+          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
 
         strM += "</" + Mstr + ">";
@@ -19641,6 +20516,7 @@ function myMapFun(x) {
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
+// console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -20038,10 +20914,12 @@ var descartesJS = (function(descartesJS) {
       this.clickCacher = document.createElement("div");
       this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; cursor: pointer;");
 
+      var action = new descartesJS.OpenURL(this.evaluator.parent, this.URL);
+
       var _self = this;
       this.clickCacher.addEventListener("click", function(evt) {
         _self.click = true;
-        window.open(_self.URL, _self.URL);
+        action.actionExec();
       })
     }
 
@@ -20478,16 +21356,16 @@ var descartesJS = (function(descartesJS) {
     
     else if (this.nodeType == "componentNumCtrl") {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var metrics = descartesJS.getFontMetrics(this.styleString);
+
       this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
 
-      var tmpH = this.componentNumCtrl.h || 0;
+      this.baseline = metrics.baseline-2;
+      this.descent = metrics.descent-2;
+      this.ascent = metrics.ascent+2;
       
-      this.baseline = Math.round(3*tmpH/5);
-      this.descent = Math.round(2*tmpH/5);
-      this.ascent = this.baseline;
-
-      this.h = tmpH;
-      this.w = this.componentNumCtrl.w;
+      this.h = this.componentNumCtrl.h || 1;
+      this.w = this.componentNumCtrl.w || 1;
     }
     
     else if (this.nodeType == "componentSpace") {
@@ -20501,7 +21379,7 @@ var descartesJS = (function(descartesJS) {
       this.h = 0;
       this.w = this.componentSpace.w;
     }
-        
+
     else {
       console.log("Element i=unknown", this.nodeType);
     }
@@ -21809,7 +22687,7 @@ var descartesJS = (function(descartesJS) {
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "hyperlink", tmpStyle);
         newNode.URL = ((tokens[i].value).split("|"))[1];
-        
+
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
          
@@ -23027,11 +23905,16 @@ var descartesJS = (function(descartesJS) {
 
     self = this;
     
+    self._ratio = ((self.w*descartesJS._ratio * self.h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+
     // create the canvas
     self.backgroundCanvas = document.createElement("canvas");
     self.backgroundCanvas.setAttribute("id", self.id + "_background");
-    self.backgroundCanvas.setAttribute("width", self.w + "px");
-    self.backgroundCanvas.setAttribute("height", self.h + "px");
+    self.backgroundCanvas.width  = self.w *self._ratio;
+    self.backgroundCanvas.height = self.h *self._ratio;
+    self.backgroundCanvas.style.width  = self.w + "px";
+    self.backgroundCanvas.style.height = self.h + "px";
+
     self.backgroundCtx = self.backgroundCanvas.getContext("2d");
     self.backgroundCtx.imageSmoothingEnabled = false;
     self.backgroundCtx.mozImageSmoothingEnabled = false;
@@ -23039,10 +23922,10 @@ var descartesJS = (function(descartesJS) {
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
-    self.canvas.setAttribute("width", self.w + "px");
-    self.canvas.setAttribute("height", self.h + "px");
+    self.canvas.width  = self.w *self._ratio;
+    self.canvas.height = self.h *self._ratio;
     self.canvas.setAttribute("class", "DescartesSpace2DCanvas");
-    self.canvas.setAttribute("style", "z-index: " + self.zIndex + ";");
+    self.canvas.setAttribute("style", "z-index: " + self.zIndex + "; width:" + self.w + "px; height:" + self.h + "px;");
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
     self.ctx.mozImageSmoothingEnabled = false;
@@ -23119,9 +24002,12 @@ var descartesJS = (function(descartesJS) {
     self.click = 0;
 
     // register the mouse and touch events
-    // if (self.id !== "descartesJS_scenario") {
+    if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
-    // }
+    }
+    else {
+      self.canvas.oncontextmenu = function (evt) { return false; };
+    }
 
   }
   
@@ -23141,10 +24027,15 @@ var descartesJS = (function(descartesJS) {
 
     // update the size of the canvas if has some regions
     if (self.canvas) {
-      self.backgroundCanvas.setAttribute("width", self.w + "px");
-      self.backgroundCanvas.setAttribute("height", self.h + "px");
-      self.canvas.setAttribute("width", self.w + "px");
-      self.canvas.setAttribute("height", self.h + "px");
+      self.backgroundCanvas.width  = self.w *self._ratio;
+      self.backgroundCanvas.height = self.h *self._ratio;
+      self.backgroundCanvas.style.width  = self.w + "px";
+      self.backgroundCanvas.style.height = self.h + "px";
+
+      self.canvas.width  = self.w *self._ratio;
+      self.canvas.height = self.h *self._ratio;
+      self.canvas.style.width  = self.w + "px";
+      self.canvas.style.height = self.h + "px";
     };
 
     // find the offset of the container
@@ -23180,7 +24071,8 @@ var descartesJS = (function(descartesJS) {
                          (self.drawBefore !== self.drawIfValue) ||
                          (self.Ox !== evaluator.getVariable(self.OxString)) ||
                          (self.Oy !== evaluator.getVariable(self.OyString)) ||
-                         (self.scale !== evaluator.getVariable(self.scaleString));
+                         (self.scale !== evaluator.getVariable(self.scaleString)) ||
+                         (self.backColor !== self.background.getColor());
 
       self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
       self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
@@ -23213,9 +24105,13 @@ var descartesJS = (function(descartesJS) {
       self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
 
       if (self.spaceChange) {
+        self.backgroundCtx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
         self.drawBackground();
+        self.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
       }
+      self.ctx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
       self.draw();
+      self.ctx.setTransform(1, 0, 0, 1, 0, 0);
     } 
     // hide the space
     else {
@@ -23233,7 +24129,10 @@ var descartesJS = (function(descartesJS) {
 
     // draw the background color
     ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-    ctx.fillStyle = this.background.getColor();
+
+    this.backColor = this.background.getColor();
+    ctx.fillStyle = this.backColor;
+
     ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
     // draw the background image if any
@@ -23617,6 +24516,11 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    // when the window lose focus remove make a mouse up
+    window.addEventListener("blur", function(evt) {
+      onMouseUp(evt);
+    });
+
     /**
      * 
      * @param {Event} evt 
@@ -23708,6 +24612,24 @@ var descartesJS = (function(descartesJS) {
 
       onSensitiveToMouseMovements(evt);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // try to remove the mouse up and move events
+    var visibilityChange; 
+    if (typeof document.hidden !== "undefined") {
+      visibilityChange = "visibilitychange";
+    } else if (typeof document.mozHidden !== "undefined") {
+      visibilityChange = "mozvisibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+      visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+      visibilityChange = "webkitvisibilitychange";
+    }
+    document.addEventListener(visibilityChange, function(evt) {
+      onMouseUp(evt);
+    });
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   }
     
   return descartesJS;
@@ -25009,7 +25931,12 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
-    this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+    if (descartesJS.isIOS) {
+      this.container.style.display = (this.drawIfValue) ? "block" : "none";
+    }
+    else {
+      this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+    }
 
     if (this.drawIfValue) {
       if (firstTime) {
@@ -25061,4345 +25988,6 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var language;
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorGenericPanel = function(editor) {
-  	this.editor = editor;
-  	this.parent = editor.parent;
-
-  	language = this.parent.language;
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.findObjectByName = function(valArray, name) {
-    for (var i=0, l=valArray.length; i<l; i++) {
-      if (valArray[i].name == name) {
-        return valArray[i];
-      }
-    }
-    return null;
-    // return {name: name, value: null};
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.newLabelAndInput = function(obj, panel) {
-    var container = document.createElement("div");
-    container.setAttribute("class", "DescartesLabelAndElementContainer");
-    container.obj = obj;
-
-    var label = newLabel(obj.name);
-    // label.setAttribute("for", "Descartes_textfield_"+text);
-
-    var input = newInput(obj.value);
-    // input.setAttribute("id", "Descartes_textfield_"+text);
-
-    container.appendChild(label);
-    container.appendChild(input);
-    panel.appendChild(container);
-
-    container.addEventListener("change", storeValue);
-
-    return container;
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.newLabelAndMenu = function(obj, panel, options) {
-    var container = document.createElement("div");
-    container.setAttribute("class", "DescartesLabelAndElementContainer");
-    container.obj = obj;
-
-    var label = newLabel(obj.name);
-    // label.setAttribute("for", "Descartes_menu_"+text);
-
-    var select = document.createElement("select");
-    // select.setAttribute("id", "Descartes_menu_"+text);
-
-    for (var i=0,l=options.length; i<l; i++) {
-      select.innerHTML += "<option value='" + options[i] + "'> " + options[i] + "</option>\n";
-    }
-    select.value = obj.value;
-
-    container.appendChild(label);
-    container.appendChild(select);
-    panel.appendChild(container);
-
-    container.addEventListener("change", storeValue);
-
-    return container;
-  }  
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.newLabelAndCheckbox = function(obj, panel) {
-    var container = document.createElement("div");
-    container.setAttribute("class", "DescartesLabelAndElementContainer");
-    container.obj = obj;
-
-    var label = newLabel(obj.name);
-    // label.setAttribute("for", "Descartes_checkbox_"+text);
-
-    var checkbox = newInput(obj.value, "checkbox");
-    // checkbox.setAttribute("id", "Descartes_checkbox_"+text);
-    checkbox.checked = (obj.value == "true") ? true : false;
-
-    container.appendChild(label);
-    container.appendChild(checkbox);
-    panel.appendChild(container);
-
-    container.addEventListener("change", storeValue);
-
-    return container;
-  }    
-
-  /**
-   *
-   */
-  function newLabel(text) {
-    var label = document.createElement("label");
-    label.setAttribute("style", "text-align:right; padding:5px; -webkit-touch-callout:none; -webkit-user-select:none; -khtml-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;");
-    label.innerHTML = babel.translate(language, text);
-    return label;
-  }
-
-  /**
-   *
-   */
-  function newInput(value, type) {
-    var input = document.createElement("input");
-    input.value = value;
-    if (type) {
-      input.setAttribute("type", type);
-    }
-    return input;    
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.newFieldSet = function(panel, text) {
-    var fieldset = document.createElement("fieldset");
-    var fieldSetLegend = document.createElement("legend");
-    fieldSetLegend.innerHTML = text;
-    fieldset.appendChild(fieldSetLegend);
-    
-    panel.appendChild(fieldset);
-
-    return fieldset;
-  }
-
-  /**
-   *
-   */
-  function storeValue(evt) {
-    var input = this.querySelector("input") || this.querySelector("select");
-    var value = input.value;
-    if (input.getAttribute("type") == "checkbox") {
-      value = input.checked.toString();
-    }
-
-    this.obj.value = value;
-// console.log(this.obj)
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.setValue = function(domobj, obj) {
-    domobj.obj = obj;
-    var input = domobj.querySelector("input") || domobj.querySelector("select");
-
-    if (input) {
-      // checkbox
-      if (input.getAttribute("type") == "checkbox") {
-        input.checked = (obj.value == "true") ? true : false;
-      }
-      // text field
-      else {
-        input.value = obj.value;
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.fillAttributes = function(space) {
-    var c;
-
-    for (var i=0, l=space.length; i<l; i++) {
-      c = this.attributes[space[i].name];
-      if (c) {
-        this.setValue(c, space[i]);
-      }
-    }
-  }
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.hideAllAttributes = function() {
-    for (var att in this.attributes) {
-      descartesJS.hideHTML( this.attributes[att] );
-    }
-  }
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.showAttributes = function(space) {
-    for (var i=0, l=space.length; i<l; i++) {
-      if (this.attributes[space[i].name]) {
-        descartesJS.showHTML( this.attributes[space[i].name] );
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.toNameValueArray = function(objArray) {
-    var tmpArray = [];
-    for (var prop in objArray) {
-      tmpArray.push( { name: prop, value: objArray[prop] } )
-    }
-    return tmpArray;
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *************************************************************************************************************************************************
-   */
-  descartesJS.EditorGenericPanel.prototype.createPanel2 = function(isNotFirstTime) {
-    var displaceIndex = (this.useDisplaceIndex) ? this.editor.definitionPanel.params.length : 0;
-
-    if (!isNotFirstTime) {
-      for (var i=0, l=this.params.length; i<l; i++) {
-        this.buildobj(this.params[i]);
-      }
-
-      this.ulContainer = document.createElement("ul");
-      this.editor.listContainer.appendChild(this.ulContainer);      
-    }
-
-    var lessonParser = this.parent.lessonParser;
-    var liElement;
-    var span;
-    var editSpan;
-    var name;
-    var prop;
-    var family;
-    var param_i;
-
-    if (this.params.length == 0) {
-      this.ulContainer.style.display = "none";
-    }
-    else {
-      this.ulContainer.style.display = null;
-    }
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      liElement = document.createElement("li");
-      liElement.setAttribute("data-index", i);
-      param_i = this.params[i].obj;
-      name = this.params[i].name;
-
-      span = document.createElement("span");
-      span.innerHTML = '<div class="Descartes_param_name">' + '&lt;param name="' + this.prefix + (((i+displaceIndex+1)<10) ? "0" : "") + (i+displaceIndex+1) + '" value="<br></div>';
-      liElement.appendChild(span);
-
-      for (var ii=0, ll=param_i.length; ii<ll; ii++) {
-        prop = param_i[ii];
-        prop.value = prop.value.replace(/</g, "&lt;");
-
-        if ( (prop.name == "family_interval") || (prop.name == "family_steps") ) { 
-          family = this.params[i].paramObj.family;
-          span = document.createElement("span");
-          span.setAttribute("class", "family");
-          span.innerHTML = family + ((family != "") ? "." : "") + ((prop.name == "family_interval") ? babel.toLanguage("interval") : babel.toLanguage("steps")) + "='";
-          liElement.appendChild(span);
-
-          editSpan = document.createElement("span");
-          editSpan.setAttribute("class", "DescartesSpanValue");
-          editSpan.setAttribute("contenteditable", "true");
-          editSpan.setAttribute("autocapitalize", "off");
-          editSpan.innerHTML = babel.toLanguage(prop.value);
-          liElement.appendChild(editSpan);
-
-          span = document.createElement("span");
-          span.innerHTML = "'" + ((ii<ll-1)?" ":"");
-          liElement.appendChild(span);
-        }
-        else if ( (prop.name == "parameter_interval") || (prop.name == "parameter_steps") ) {
-          parameter = this.params[i].paramObj.parameter;
-          span = document.createElement("span");
-          span.setAttribute("class", "parameter");
-          span.innerHTML = parameter + ((parameter != "") ? "." : "") + ((prop.name == "parameter_interval") ? babel.toLanguage("interval") : babel.toLanguage("steps")) + "='";
-          liElement.appendChild(span);
-
-          editSpan = document.createElement("span");
-          editSpan.setAttribute("class", "DescartesSpanValue");
-          editSpan.setAttribute("contenteditable", "true");
-          editSpan.setAttribute("autocapitalize", "off");
-          editSpan.innerHTML = babel.toLanguage(prop.value);
-          liElement.appendChild(editSpan);
-
-          span = document.createElement("span");
-          span.innerHTML = "'" + ((ii<ll-1)?" ":"");
-          liElement.appendChild(span);          
-        }
-        else {
-          if (!this.dontShowList[prop.name]) { 
-            span = document.createElement("span");
-            span.innerHTML = babel.toLanguage(prop.name) + "='";
-            liElement.appendChild(span);
-
-            editSpan = document.createElement("span");
-            editSpan.setAttribute("class", "DescartesSpanValue");
-            editSpan.setAttribute("contenteditable", "true");
-            editSpan.setAttribute("autocapitalize", "off");
-            editSpan.innerHTML = babel.toLanguage(prop.value);
-            liElement.appendChild(editSpan);
-
-            span = document.createElement("span");
-            span.innerHTML = "'" + ((ii<ll-1)?" ":"");
-            liElement.appendChild(span);
-          }
-        }
-
-        //
-        if (prop.name == "family") {
-          editSpan.addEventListener("input", function(evt) {
-            var familyRelated = this.parentNode.querySelectorAll(".family");
-            var text;
-
-            for (var i=0, l=familyRelated.length; i<l; i++) {
-              text = familyRelated[i].innerHTML;
-
-              if (text.match("intervalo")) {
-                familyRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "intervalo='";
-              }
-              else {
-                familyRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "pasos='";
-              }   
-            }
-          });
-        }
-
-        //
-        if (prop.name == "parameter") {
-          editSpan.addEventListener("input", function(evt) {
-            var parameterRelated = this.parentNode.querySelectorAll(".parameter");
-            var text;
-
-            for (var i=0, l=parameterRelated.length; i<l; i++) {
-              text = parameterRelated[i].innerHTML;
-
-              if (text.match("intervalo")) {
-                parameterRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "intervalo='";
-              }
-              else {
-                parameterRelated[i].innerHTML = this.textContent + ((this.textContent != "") ? "." : "") + "pasos='";
-              }   
-            }
-          });
-        }        
-
-      }
-
-      span = document.createElement("span");
-      span.innerHTML = '<br>"&gt;';
-      liElement.appendChild(span);
-
-      this.ulContainer.appendChild(liElement);      
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.add = function(type) {
-    var newParam = { name: "_" };
-
-    newParam.paramObj = this.newParamObject(type);
-    newParam.obj = this.toNameValueArray(newParam.paramObj);
-
-    this.params.push(newParam);
-    this.ulContainer.innerHTML = "";
-    this.createPanel2(true);
-
-    //
-    if (this.notifyProgram) {
-      this.editor.programPanel.renumerate();
-    }
-
-    var tmp = this.ulContainer.querySelectorAll("li");
-    tmp[this.params.length-1].className += " DescartesElementSelected";
-    return tmp[this.params.length-1];
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.remove = function(index) {
-    this.params.splice(index, 1);
-    this.ulContainer.innerHTML = "";
-    this.createPanel2(true);
-
-    //
-    if (this.notifyProgram) {
-      this.editor.programPanel.renumerate();
-    }    
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.clone = function(index) {
-    var oldParam = this.params[index];
-    var newParam = { name: "_", paramObj: {} };
-
-    for (var prop in oldParam.paramObj) {
-      newParam.paramObj[prop] = oldParam.paramObj[prop];
-    }
-
-    newParam.obj = this.toNameValueArray(newParam.paramObj);
-
-    this.params.push(newParam);
-    this.ulContainer.innerHTML = "";
-    this.createPanel2(true);
-
-    //
-    if (this.notifyProgram) {
-      this.editor.programPanel.renumerate();
-    }
-
-    var tmp = this.ulContainer.querySelectorAll("li");
-    tmp[this.params.length-1].className += " DescartesElementSelected";
-    return tmp[this.params.length-1];    
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.moveUp = function(index) {
-    if (index > 0) {
-      var tmpParam = this.params[index-1];
-      this.params[index-1] = this.params[index];
-      this.params[index] = tmpParam;
-      this.ulContainer.innerHTML = "";
-      this.createPanel2(true);
-
-      var tmp = this.ulContainer.querySelectorAll("li");
-      tmp[index-1].className += " DescartesElementSelected";
-      return tmp[index-1];
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.moveDown = function(index) {
-    if (index < this.params.length-1) {
-      var tmpParam = this.params[index+1];
-      this.params[index+1] = this.params[index];
-      this.params[index] = tmpParam;
-      this.ulContainer.innerHTML = "";
-      this.createPanel2(true);
-
-      var tmp = this.ulContainer.querySelectorAll("li");
-      tmp[index+1].className += " DescartesElementSelected";
-      return tmp[index+1];
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.renumerate = function() {
-    var displaceIndex = this.editor.definitionPanel.params.length;
-    var tmp = this.ulContainer.querySelectorAll("li");
-    for (var i=0, l=tmp.length; i<l; i++) {
-      tmp[i].firstChild.innerHTML = '&lt;param name="' + this.prefix + (i+displaceIndex+1) + '" value="';
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGenericPanel.prototype.getContent = function() {
-    var text = "";
-    var ulList = this.ulContainer.querySelectorAll("li");
-    var param_i;
-
-    var spanList;
-
-    for (var i=0,l=ulList.length; i<l; i++) {
-      spanList = ulList[i].querySelectorAll("span");
-
-      for (var j=0, k=spanList.length; j<k; j++) {
-        if (spanList[j].className == "DescartesSpanValue") {
-          text += spanList[j].textContent.replace(/'/g, "&squot;");
-        }
-        else {
-          text += spanList[j].textContent;
-        }
-      }
-
-      text += "\n";
-    }
-
-    return text.replace(/intervalo=''/g, "").replace(/pasos=''/g, "");
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   *
-   */
-  descartesJS.hideHTML = function(obj) {
-    if ((obj) && (obj.style)) {
-      obj.style.display = "none";
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.showHTML = function(obj) {
-    if ((obj) && (obj.style)) {
-      obj.style.display = "";
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.hideMultipleHTML = function(objlist) {
-    for (var i=0, l=objlist.length; i<l; i++) {
-      descartesJS.hideHTML(objlist[i]);
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.showMultipleHTML = function(objlist) {
-    for (var i=0, l=objlist.length; i<l; i++) {
-      descartesJS.showHTML(objlist[i]);
-    }
-  }  
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorConfigPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-  	this.params = editor.sceneParams;
-    this.config = editor.configAttributes;
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorConfigPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorConfigPanel.prototype.createPanel = function() {
-    var tmp;
-
-    var parentPanel = document.getElementById("tab_1");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-    
-    this.parameters = [];
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // docBase
-    tmp = this.findObjectByName(this.params, "docBase");
-    if (tmp.value == window.location.href) { tmp.value = "_default_"; };
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "docBase"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // decimal symbol
-    this.parameters.push(  this.newLabelAndMenu(this.findObjectByName(this.params, "decimal_symbol"), panel, [".", ","])  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // antialias
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "antialias"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // language
-    this.parameters.push(  this.newLabelAndMenu(this.findObjectByName(this.params, "language"), panel, ["english", "espa\u00F1ol", "catal\u00E0", "euskera", "fran\u00E7ais", "galego", "portugu\u00EAs", "valenci\u00E0"])  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // buttons
-    var tmpButtons = this.parent.lessonParser.split(this.findObjectByName(this.params, "Buttons").value)
-    var tmpButtonsArray = [];
-    for (var i=0, l=tmpButtons.length; i<l; i++) {
-      tmpButtonsArray.push( { name: babel[tmpButtons[i][0]] || tmpButtons[i][0], 
-                              value: babel[tmpButtons[i][1]] || tmpButtons[i][1]
-                            } );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fieldset
-    var buttonsFieldSet = this.newFieldSet(panel, "buttons");
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // about button
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "about"), buttonsFieldSet)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // config button
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "config"), buttonsFieldSet)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // init button
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "init"), buttonsFieldSet)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // clear button
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(tmpButtonsArray, "clear"), buttonsFieldSet)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // widthEast
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "widthEast"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // widthWest
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "widthWest"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // height
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(tmpButtonsArray, "height"), panel)  );
-  }
-
-  /**
-   *************************************************************************************************************************************************
-   */
-  descartesJS.EditorConfigPanel.prototype.createPanel2 = function() {
-    this.ulContainer = document.createElement("ul");
-    this.editor.listContainer.appendChild(this.ulContainer);
-
-    var lessonParser = this.parent.lessonParser;
-    var liElement;
-    var span;
-    var name;
-    var value;
-
-    var _tmpW = _tmpH = null;
-
-    // applet header
-    liElement = document.createElement("li");
-    span = document.createElement("span");
-    span.innerHTML = "&lt;ajs ";
-    liElement.appendChild(span);
-
-    for (var i=0, l=this.config.length; i<l; i++) {
-      name = this.config[i].name;
-      value = this.config[i].value;    
-
-      if (name == "width") {
-        _tmpW = value;
-      }
-      if (name == "height") {
-        _tmpH = value;
-      }
-
-      span = document.createElement("span");
-      span.innerHTML = name + '="';
-      liElement.appendChild(span);
-
-      span = document.createElement("span");
-      span.setAttribute("class", "DescartesSpanValue");
-      span.setAttribute("contenteditable", "true");
-      span.setAttribute("autocapitalize", "off");
-      span.innerHTML = value;
-      liElement.appendChild(span);
-
-      span = document.createElement("span");
-      span.innerHTML = '" ';
-      liElement.appendChild(span);
-    }
-
-    span = document.createElement("span");
-    span.innerHTML = "&gt;";
-    liElement.appendChild(span);
-
-    this.ulContainer.appendChild(liElement);
-    //////////
-
-    //
-    for (var i=0, l=this.params.length; i<l; i++) {
-      liElement = document.createElement("li");
-      name = this.params[i].name;
-      value = this.params[i].value;
-
-      if ((name == "size") && (_tmpW != null) && (_tmpH != null)) {
-        value = _tmpW +"x"+ _tmpH;
-      }
-
-      if (babel[this.params[i].name] != "Buttons") {
-        span = document.createElement("span");
-        span.innerHTML = '&lt;param name="' + babel.toLanguage(name) + '" value="';
-        liElement.appendChild(span);
-
-        span = document.createElement("span");
-        span.setAttribute("class", "DescartesSpanValue");
-        span.setAttribute("contenteditable", "true");
-        span.setAttribute("autocapitalize", "off");
-        span.innerHTML = babel.toLanguage(value);
-        liElement.appendChild(span);
-
-        span = document.createElement("span");
-        span.innerHTML = '"&gt;';
-        liElement.appendChild(span);
-      }
-      else {
-        span = document.createElement("span");
-        span.innerHTML = '&lt;param name="' + babel.toLanguage(name) + '" value="';
-        liElement.appendChild(span);
-
-        var splitValues = lessonParser.split(value);
-        for (var s_i=0, s_l=splitValues.length; s_i<s_l; s_i++) {
-          name = babel[splitValues[s_i][0]] || splitValues[s_i][0];
-          value = babel[splitValues[s_i][1]] || splitValues[s_i][1];
-
-          span = document.createElement("span");
-          span.innerHTML = babel.toLanguage(name) + "='";
-          liElement.appendChild(span);
-
-          span = document.createElement("span");
-          span.setAttribute("class", "DescartesSpanValue");
-          span.setAttribute("contenteditable", "true");
-          span.setAttribute("autocapitalize", "off");
-          span.innerHTML = babel.toLanguage(value);
-          liElement.appendChild(span);
-
-          span = document.createElement("span");
-          span.innerHTML = "'" + ((s_i < s_l-1) ? " " : "");
-          liElement.appendChild(span);
-        }
-
-        span = document.createElement("span");
-        span.innerHTML = '">';
-        liElement.appendChild(span);
-      }
-
-      this.ulContainer.appendChild(liElement);
-    }
-
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorSpacePanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.spaceParams;
-    this.prefix = "E_";
-    this.dontShowList = {};
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorSpacePanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorSpacePanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_2");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    //
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorSpacePanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var tmpValue;
-    var type = "R2";
-
-    // find the type of the space
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "type") {
-        type = paramsObj_i[1];
-        break;
-      }
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorSpacePanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.id + "  (space" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var space = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(space);
-      self.fillAttributes(space);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorSpacePanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // id
-    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fieldset
-    // var sizeFieldSet = descartesJS.newFieldSet(this.configRightSubPanel, "position and dimension");
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // x
-    this.attributes.x = this.newLabelAndInput({name: "x", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // y
-    this.attributes.y = this.newLabelAndInput({name: "y", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // width
-    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // height
-    this.attributes.height = this.newLabelAndInput({name: "height", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // drawif
-    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // R2 and R3
-    // fixed
-    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // R2 and R3
-    // scale
-    this.attributes.scale = this.newLabelAndInput({name: "scale", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // R2 and R3
-    // O.x
-    this.attributes["O.x"] = this.newLabelAndInput({name: "O.x", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // R2 and R3
-    // O.y
-    this.attributes["O.y"] = this.newLabelAndInput({name: "O.y", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // image
-    this.attributes.image = this.newLabelAndInput({name: "image", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // bg_display
-    this.attributes.bg_display = this.newLabelAndMenu({name: "bg_display", value: "topleft"}, this.configRightSubPanel, ["topleft", "stretch", "patch", "center"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // background
-    this.attributes.background = this.newLabelAndInput({name: "background", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only HTMLIFrame
-    // file
-    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2
-    // net
-    this.attributes.net = this.newLabelAndInput({name: "net", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2
-    // net10
-    this.attributes.net10 = this.newLabelAndInput({name: "net10", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2
-    // axes
-    this.attributes.axes = this.newLabelAndInput({name: "axes", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2
-    // text
-    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2
-    // numbers
-    this.attributes.numbers = this.newLabelAndCheckbox({name: "numbers", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2    
-    // x_axes
-    this.attributes.x_axis = this.newLabelAndInput({name: "x_axis", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R2    
-    // y_axes
-    this.attributes.y_axis = this.newLabelAndInput({name: "y_axis", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R3
-    // render
-    this.attributes.render = this.newLabelAndMenu({name: "render", value: "sort"}, this.configRightSubPanel, ["sort", "painter"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // only R3
-    // split
-    this.attributes.split = this.newLabelAndCheckbox({name: "split", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // R2 and R3
-    // sensitive_to_mouse_movements
-    this.attributes.sensitive_to_mouse_movements = this.newLabelAndCheckbox({name: "sensitive_to_mouse_movements", value: "false"}, this.configRightSubPanel);
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorSpacePanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-
-    // if the type is R2
-    if (type == "R2") {
-      tmpObj = { type:       "R2",
-                 id:         "E0",
-                 x:          "0",
-                 y:          "0",
-                 width:      "100%", 
-                 height:     "100%",
-                 drawif:     "1",
-                 fixed:      "false",
-                 scale:      "48",
-                 "O.x":      "0",
-                 "O.y":      "0",
-                 image:      "",
-                 bg_display: "topleft",
-                 background: "f0f8fa",
-                 net:        "b8c4c8",
-                 net10:      "889498",
-                 axes:       "405860",
-                 text:       "405860",
-                 numbers:    "false",
-                 x_axis:     "",
-                 y_axis:     "",
-                 sensitive_to_mouse_movements: "false"
-      };
-    }
-    // if the type is R3
-    else if (type == "R3") {
-      tmpObj = { type:       "R3",
-                 id:         "E0",
-                 x:          "0",
-                 y:          "0",
-                 width:      "100%", 
-                 height:     "100%",
-                 drawif:     "1",
-                 fixed:      "false",
-                 scale:      "48",
-                 "O.x":      "0",
-                 "O.y":      "0",
-                 image:      "",
-                 bg_display: "topleft",
-                 background: "000000",
-                 render:     "order",
-                 split:      "false",
-                 sensitive_to_mouse_movements: "false"
-      };
-    }
-    // if the type is HTMLIframe
-    else {
-      tmpObj = { type:       "HTMLIFrame",
-                 id:         "E0",
-                 x:          "0",
-                 y:          "0",
-                 width:      "100%", 
-                 height:     "100%",
-                 drawif:     "1",
-                 image:      "",
-                 bg_display: "topleft",
-                 background: "f0f8fa",
-                 file:       ""
-      };
-    }
-
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorControlPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.ctrsParams;
-
-    this.prefix = "C_";
-    this.dontShowList = {};
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorControlPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorControlPanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_3");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    // 
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorControlPanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var finalControl = [];
-    var tmpValue;
-    var type = "spinner";
-
-    // find the type of the control
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "type") {
-        type = babel[ paramsObj_i[1] ];
-        break;
-      }
-    }
-
-    if (type == "numeric") {
-      type = "spinner";
-      for (var i=0, l=paramsObj.length; i<l; i++) {
-        paramsObj_i = paramsObj[i];
-
-        if (babel[paramsObj_i[0]] == "gui") {
-          type = babel[ paramsObj_i[1] ];
-          break;
-        }
-      }
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorControlPanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var control = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(control);
-      self.fillAttributes(control);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorControlPanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // id
-    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // gui
-    this.attributes.gui = this.newLabelAndMenu({name: "gui", value: "spinner"}, this.configRightSubPanel, ["spinner", "textfield", "menu", "scrollbar", "button"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // region
-    this.attributes.region = this.newLabelAndMenu({name: "region", value: "south"}, this.configRightSubPanel, ["south", "north", "east", "west", "external", "interior", "scenario"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // params
-    this.attributes.params = this.newLabelAndInput({name: "params", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // name
-    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // expresion
-    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // value
-    this.attributes.value = this.newLabelAndInput({name: "value", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // incr
-    this.attributes.incr = this.newLabelAndInput({name: "incr", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // min
-    this.attributes.min = this.newLabelAndInput({name: "min", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // max
-    this.attributes.max = this.newLabelAndInput({name: "max", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // discrete
-    this.attributes.discrete = this.newLabelAndCheckbox({name: "discrete", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // decimals
-    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fixed
-    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // exponentialif
-    this.attributes.exponentialif = this.newLabelAndInput({name: "exponentialif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // visible
-    this.attributes.visible = this.newLabelAndInput({name: "visible", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // action
-    this.attributes.action = this.newLabelAndMenu({name: "action", value: ""}, this.configRightSubPanel, ["", "calculate", "init", "clear", "animate", "openURL", "openScene", "playAudio"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // parameter
-    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // drawif
-    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // activeif
-    this.attributes.activeif = this.newLabelAndInput({name: "activeif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // onlyText
-    this.attributes.onlyText = this.newLabelAndCheckbox({name: "onlyText", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // options
-    this.attributes.options = this.newLabelAndInput({name: "options", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // color
-    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // colorInt
-    this.attributes.activeif = this.newLabelAndInput({name: "colorInt", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // bold
-    this.attributes.bold = this.newLabelAndCheckbox({name: "bold", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // italics
-    this.attributes.italics = this.newLabelAndCheckbox({name: "italics", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // underlined
-    this.attributes.underlined = this.newLabelAndCheckbox({name: "underlined", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // font_size
-    this.attributes.font_size = this.newLabelAndInput({name: "font_size", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // image
-    this.attributes.image = this.newLabelAndInput({name: "image", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // size
-    this.attributes.size = this.newLabelAndInput({name: "size", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // constraint
-    this.attributes.constraint = this.newLabelAndInput({name: "constraint", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // text
-    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // file
-    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorControlPanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-
-    // if the type is spinner
-    if (type == "spinner") {
-      tmpObj = { id:         "n1",
-                 type:       "numeric",
-                 gui:        "spinner",
-                 region:     "south",
-                 space:      "E0",
-                 name:       "",
-                 expresion:  "(0,0,100,23)",
-                 value:      "0",
-                 incr:       "0.1",
-                 min:        "",
-                 max:        "",
-                 discrete:   "false",
-                 decimals:   "2",
-                 fixed:      "true",
-                 exponentialif: "",
-                 visible:    "true",
-                 action:     "",
-                 parameter:  "",
-                 drawif:     "",
-                 activeif:   ""
-                 // evaluate:   "false",
-                 // answer:     "",
-                 // weight:     ""
-      };
-    }
-    // if the type is textfield
-    else if (type == "textfield") {
-      tmpObj = { id:         "n1",
-                 type:       "numeric",
-                 gui:        "textfield",
-                 onlyText:   "false",
-                 region:     "south",
-                 space:      "E0",
-                 name:       "",
-                 expresion:  "(0,0,100,23)",
-                 value:      "0",
-                 incr:       "0.1",
-                 min:        "",
-                 max:        "",
-                 discrete:   "false",
-                 decimals:   "2",
-                 fixed:      "true",
-                 exponentialif: "",
-                 visible:    "true",
-                 action:     "",
-                 parameter:  "",
-                 drawif:     "",
-                 activeif:   "",
-                 evaluate:   "false",
-                 answer:     ""
-                 // weight:     ""
-      };
-    }
-    // if the type is menu
-    else if (type == "menu") {
-      tmpObj = { id:         "n1",
-                 type:       "numeric",
-                 gui:        "menu",
-                 region:     "south",
-                 space:      "E0",
-                 name:       "",
-                 expresion:  "(0,0,100,23)",
-                 value:      "0",
-                 decimals:   "2",
-                 fixed:      "true",
-                 exponentialif: "",
-                 visible:    "true",
-                 options:    "",
-                 action:     "",
-                 parameter:  "",
-                 drawif:     "",
-                 activeif:   ""
-                 // evaluate:   "false",
-                 // answer:     "",
-                 // weight:     ""
-      };
-    }
-    // if the type is scrollbar
-    else if (type == "scrollbar") {
-      tmpObj = { id:         "n1",
-                 type:       "numeric",
-                 gui:        "scrollbar",
-                 region:     "south",
-                 space:      "E0",
-                 name:       "",
-                 expresion:  "(0,0,100,23)",
-                 value:      "0",
-                 incr:       "0.1",
-                 min:        "0",
-                 max:        "100",
-                 discrete:   "false",
-                 decimals:   "2",
-                 fixed:      "true",
-                 exponentialif: "",
-                 visible:    "true",
-                 action:     "",
-                 parameter:  "",
-                 drawif:     "",
-                 activeif:   ""
-                 // evaluate:   "false",
-                 // answer:     "",
-                 // weight:     ""
-      };
-    }
-    // if the type is button
-    else if (type == "button") {
-      tmpObj = { id:         "n1",
-                 gui:        "button",
-                 type:       "numeric",
-                 region:     "south",
-                 space:      "E0",
-                 name:       "",
-                 expresion:  "(0,0,100,23)",
-                 value:      "0",
-                 visible:    "true",
-                 color:      "222222",
-                 colorInt:   "f0f8ff",
-                 bold:       "false",
-                 italics:    "false",
-                 underlined: "false",
-                 font_size:  "12",
-                 image:      "",
-                 action:     "",
-                 parameter:  "",
-                 drawif:     "",
-                 activeif:   ""
-      };
-    }
-    // if the type is graphic
-    else if (type == "graphic") {
-      tmpObj = { id:         "g1",
-                 type:       "graphic",
-                 space:      "E0",
-                 color:      "222222",
-                 colorInt:   "f0f8ff",
-                 size:       "4",
-                 expresion:  "(0,0)",
-                 constraint: "",
-                 image:      "",
-                 drawif:     "",
-                 activeif:   ""
-      };           
-    }
-    // if the type is text
-    else if (type == "text") {
-      tmpObj = { id:         "t1",
-                 type:       "text",
-                 space:      "E0",
-                 expresion:  "(0,0)",
-                 text:       "",
-                 answer:     "",
-                 drawif:     "",
-                 activeif:   ""
-      };
-    }
-    // if the type is audio
-    else if (type == "audio") {
-      tmpObj = { id:         "a1",
-                 type:       "audio",
-                 space:      "E0",
-                 expresion:  "(0,0)",
-                 drawif:     "",
-                 file:       ""
-      };
-    }
-    // if the type is video
-    else {
-      tmpObj = { id:         "v1",
-                 type:       "video",
-                 space:      "E0",
-                 expresion:  "(0,0)",
-                 drawif:     "",
-                 file:       ""
-      };
-    }
-
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorDefinitionPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.defParams;
-
-    this.prefix = "A_";
-    this.dontShowList = { type: true };
-    this.notifyProgram = true;
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorDefinitionPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorDefinitionPanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_4");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    // 
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorDefinitionPanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var finalDefinition = [];
-    var tmpValue;
-    var type = "variable";
-    var hasArray = false;
-    var hasMatrix = false;
-    var hasParenthesis = false;
-
-    // find the type of the definition
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "array") {
-        hasArray = true;
-      }
-      if (babel[paramsObj_i[0]] == "matrix") {
-        hasMatrix = true;
-      }
-      if (paramsObj_i[1].match(/\)$/)) {
-        hasParenthesis = true;
-      }
-    }
-
-    if (hasMatrix) {
-      type = "matrix";
-    }
-    else if (hasArray) {
-      type = "array";
-    }
-    else if (hasParenthesis) {
-      type = "function";
-    }
-    else {
-      type = "variable";
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorDefinitionPanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var definition = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(definition);
-      self.fillAttributes(definition);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorDefinitionPanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // id
-    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // expresion
-    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // algorithm
-    this.attributes.algorithm = this.newLabelAndCheckbox({name: "algorithm", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // range
-    this.attributes.range = this.newLabelAndInput({name: "range", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // local
-    this.attributes.local = this.newLabelAndInput({name: "local", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // init
-    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // doExpr
-    this.attributes.doExpr = this.newLabelAndInput({name: "doExpr", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // whileExpr
-    this.attributes.whileExpr = this.newLabelAndInput({name: "whileExpr", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // evaluate
-    this.attributes.evaluate = this.newLabelAndMenu({name: "evaluate", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "always"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // file
-    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // columns
-    this.attributes.columns = this.newLabelAndInput({name: "columns", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // rows
-    this.attributes.rows = this.newLabelAndInput({name: "rows", value: ""}, this.configRightSubPanel);
-
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorDefinitionPanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-
-    // if the type is variable
-    if (type == "variable") {
-      tmpObj = { id:        "v1",
-                 expresion: "0", 
-                 type:      "variable"
-      };
-    }
-    // if the type is function
-    else if (type == "function") {
-      tmpObj = { id:        "f(x)",
-                 algorithm: "false",
-                 expresion: "x",
-                 range:     "",
-                 local:     "",
-                 init:      "",
-                 doExpr:    "",
-                 whileExpr: "",
-                 type:      "function"
-      };
-    }
-    // if the type is array
-    else if (type == "array") {
-      tmpObj = { id:        "V1",
-                 array:     "true",
-                 evaluate:  "onlyOnce",
-                 size:      "3",
-                 expresion: "V3[0]=0;V3[1]=0;V3[2]=0",
-                 file:      "",
-                 type:      "array"
-      };
-    }
-    // if the type is matrix
-    else {
-      tmpObj = { id:        "M1",
-                 matrix:    "true",
-                 evaluate:  "onlyOnce",
-                 columns:   "3",
-                 rows:      "3",
-                 expresion: "M4[0,0]=0;M4[1,0]=0;M4[2,0]=0;M4[0,1]=0;M4[1,1]=0;M4[2,1]=0;M4[0,2]=0;M4[1,2]=0;M4[2,2]=0;", 
-                 type:      "matrix"
-      };
-    }
-   
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorProgramPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.progParams;
-
-    this.prefix = "A_";
-    this.dontShowList = { type: true };
-    this.useDisplaceIndex = true;
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorProgramPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorProgramPanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_5");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    // 
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorProgramPanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var tmpValue;
-    var type = "constant";
-
-    // find the type of the control
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "constant") {
-        type = "constant";
-      }
-      if (babel[paramsObj_i[0]] == "event") {
-        type = "event";
-      }
-      if (babel[paramsObj_i[0]] == "algorithm") {
-        type = "algorithm";
-      }
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1];
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorProgramPanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var program = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(program);
-      self.fillAttributes(program);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorProgramPanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // id
-    this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // expresion
-    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // condition
-    this.attributes.condition = this.newLabelAndInput({name: "condition", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // action
-    this.attributes.action = this.newLabelAndMenu({name: "action", value: ""}, this.configRightSubPanel, ["", "calculate", "init", "clear", "animate", "openURL", "openScene", "playAudio"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // parameter
-    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // execution
-    this.attributes.execution = this.newLabelAndMenu({name: "execution", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "alternate", "always"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // algorithm
-    this.attributes.algorithm = this.newLabelAndCheckbox({name: "algorithm", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // evaluate
-    this.attributes.evaluate = this.newLabelAndMenu({name: "evaluate", value: "onlyOnce"}, this.configRightSubPanel, ["onlyOnce", "always"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // init
-    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // doExpr
-    this.attributes.doExpr = this.newLabelAndInput({name: "doExpr", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // whileExpr
-    this.attributes.whileExpr = this.newLabelAndInput({name: "whileExpr", value: ""}, this.configRightSubPanel);
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorProgramPanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-    
-    // if the type is constant
-    if (type == "constant") {
-      tmpObj = { id:        "c1",
-                 expresion: "0",
-                 evaluate:  "onlyOnce", 
-                 constant:  "true",
-                 type:      "constant"
-      };
-    }
-    // if the type is event
-    else if (type == "event") {
-      tmpObj = { id:        "e1",
-                 "event":   "true",
-                  condition: "",
-                  action:    "",
-                  parameter: "",
-                  execution: "",
-                  type:      "event"
-      };
-    }
-    // if the type is algorithm
-    else {
-      tmpObj = { id:        "A1",
-                 algorithm: "true",
-                 evaluate:  "onlyOnce",
-                 init:      "",
-                 doExpr:    "",
-                 whileExpr: "", 
-                 type:      "algorithm"
-      };
-    }
-
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorGraphicPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.graphParams;
-
-    this.prefix = "G_";
-    this.dontShowList = { useFamily: true };
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorGraphicPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphicPanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_6");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    // 
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphicPanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var tmpValue;
-    var type = "equation";
-
-    // find the type of the graphic
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "type") {
-        type = babel[ paramsObj_i[1] ];
-        break;
-      }
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    var family = "";
-    var parameter = "t";
-
-    // find the family and the parameter name
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = paramsObj_i[1];
-
-      // family
-      if (babel[paramsObj_i[0]] == "family") {
-        family = tmpValue;
-      }
-
-      // parameter
-      if (babel[paramsObj_i[0]] == "parameter") {
-        parameter = tmpValue;
-      }
-    }
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1] || "";
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      // checkbox for family
-      if (babel[paramsObj_i[0]] == "family") {
-        tmpObj.useFamily = "true";
-      }
-      // family interval and steps
-      if ((family != "") && (babel[paramsObj_i[0].substring(family.length + 1)])) {
-        if (paramsObj_i[0].substring(0, family.length) == family) {
-          if (babel[paramsObj_i[0].substring(family.length + 1)] == "interval") {
-            tmpObj.family_interval = tmpValue;
-            continue;
-          }
-          if (babel[paramsObj_i[0].substring(family.length + 1)] == "steps") {
-            tmpObj.family_steps = tmpValue;
-            continue;
-          }          
-        }
-      }
-
-      // parameter interval and steps
-      if ((parameter != "") && (babel[paramsObj_i[0].substring(parameter.length + 1)])) {
-        if (paramsObj_i[0].substring(0, parameter.length) == parameter) {
-          if (babel[paramsObj_i[0].substring(parameter.length + 1)] == "interval") {
-            tmpObj.parameter_interval = tmpValue;
-            continue;
-          }
-          if (babel[paramsObj_i[0].substring(parameter.length + 1)] == "steps") {
-            tmpObj.parameter_steps = tmpValue;
-            continue;
-          }          
-        }
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphicPanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.id + "  (" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var definition = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(definition);
-      self.fillAttributes(definition);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphicPanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // id
-    // this.attributes.id = this.newLabelAndInput({name: "id", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // space
-    this.attributes.space = this.newLabelAndInput({name: "space", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // background
-    this.attributes.background = this.newLabelAndCheckbox({name: "background", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // color
-    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // drawif
-    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // abs_coord
-    this.attributes.abs_coord = this.newLabelAndCheckbox({name: "abs_coord", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // expresion
-    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // trace
-    this.attributes.trace = this.newLabelAndCheckbox({name: "trace", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // parameter
-    this.attributes.parameter = this.newLabelAndInput({name: "parameter", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // parameter_interval
-    this.attributes.parameter_interval = this.newLabelAndInput({name: "parameter_interval", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // parameter_steps
-    this.attributes.parameter_steps = this.newLabelAndInput({name: "parameter_steps", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // useFamily
-    this.attributes.useFamily = this.newLabelAndCheckbox({name: "useFamily", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family
-    this.attributes.family = this.newLabelAndInput({name: "family", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family_interval
-    this.attributes.family_interval = this.newLabelAndInput({name: "family_interval", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family_steps
-    this.attributes.family_steps = this.newLabelAndInput({name: "family_steps", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fillP
-    this.attributes.fillP = this.newLabelAndInput({name: "fillP", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fillM
-    this.attributes.fillM = this.newLabelAndInput({name: "fillM", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // width
-    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // visible
-    this.attributes.visible = this.newLabelAndCheckbox({name: "visible", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // editable
-    this.attributes.editable = this.newLabelAndCheckbox({name: "editable", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fill
-    this.attributes.fill = this.newLabelAndInput({name: "fill", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // size
-    this.attributes.size = this.newLabelAndInput({name: "size", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // range
-    this.attributes.range = this.newLabelAndInput({name: "range", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // text
-    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // decimals
-    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fixed
-    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // spear
-    this.attributes.spear = this.newLabelAndInput({name: "spear", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // arrow
-    this.attributes.arrow = this.newLabelAndInput({name: "arrow", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // center
-    this.attributes.center = this.newLabelAndInput({name: "center", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // radius
-    this.attributes.radius = this.newLabelAndInput({name: "radius", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // init
-    this.attributes.init = this.newLabelAndInput({name: "init", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // end
-    this.attributes.end = this.newLabelAndInput({name: "end", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // vectors
-    this.attributes.vectors = this.newLabelAndCheckbox({name: "vectors", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // border
-    this.attributes.border = this.newLabelAndInput({name: "border", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // file
-    this.attributes.file = this.newLabelAndInput({name: "file", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // opacity
-    this.attributes.opacity = this.newLabelAndInput({name: "opacity", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // inirot
-    this.attributes.inirot = this.newLabelAndInput({name: "inirot", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // inipos
-    this.attributes.inipos = this.newLabelAndInput({name: "inipos", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // name
-    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // info
-    this.attributes.info = this.newLabelAndInput({name: "info", value: ""}, this.configRightSubPanel);
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorGraphicPanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-    
-    // if the type is equation
-    if (type == "equation") {
-      tmpObj = { space:           "E0",
-                 type:            "equation",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "y=x",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 fillP:           "",
-                 fillM:           "",
-                 width:           "1",
-                 visible:         "false",
-                 editable:        "false",
-                 info:            ""
-      };
-    }
-    // if the type is curve
-    else if (type == "curve") {
-      tmpObj = { space:           "E0",
-                 type:            "curve",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(t,t)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 parameter:       "t",
-                 parameter_interval: "[0,1]",
-                 parameter_steps: "8",
-                 fill:            "",
-                 width:           "1",
-                 visible:         "false",
-                 editable:        "false",
-                 info:            ""
-      };
-    }
-    // if the type is sequence
-    else if (type == "sequence") {
-      tmpObj = { space:           "E0",
-                 type:            "sequence",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(n,1/n)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 size:            "2",
-                 visible:         "false",
-                 editable:        "false",
-                 range:           "[1,100]",
-                 info:            ""
-      };
-    }
-    // if the type is point
-    else if (type == "point") {
-      tmpObj = { space:           "E0",
-                 type:            "point",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 size:            "2",
-                 font:            "Monospaced,PLAIN,15",
-                 info:            ""
-      };
-    }
-    // if the type is segment
-    else if (type == "segment") {
-      tmpObj = { space:           "E0",
-                 type:            "segment",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)(1,1)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 size:            "2",
-                 width:           "1",
-                 font:            "Monospaced,PLAIN,15",
-                 info:            ""
-      };
-    }
-    // if the type is arrow
-    else if (type == "arrow") {
-      tmpObj = { space:           "E0",
-                 type:            "arrow",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)(1,1)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 width:           "5",
-                 size:            "",
-                 spear:           "8",
-                 arrow:           "ee0022",
-                 font:            "Monospaced,PLAIN,15",
-                 info:            ""
-      };
-    }
-    // if the type is polygon
-    else if (type == "polygon") {
-      tmpObj = { space:           "E0",
-                 type:            "polygon",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)(1,1)(2,-1)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 fill:            "",
-                 width:           "1",
-                 info:            ""
-      };
-    }
-    // if the type is arc
-    else if (type == "arc") {
-      tmpObj = { space:           "E0",
-                 type:            "arc",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 center:          "(0,0)",
-                 radius:          "1",
-                 init:            "0",
-                 end:             "90",
-                 vectors:         "false",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 fill:            "",
-                 width:           "1",
-                 font:            "Monospaced,PLAIN,15",
-                 info:            ""
-      };
-    }
-    // if the type is fill
-    else if (type == "fill") {
-      tmpObj = { space:           "E0",
-                 type:            "fill",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 info:            ""
-      };
-    }
-    // if the type is text
-    else if (type == "text") {
-      tmpObj = { space:           "E0",
-                 type:            "text",
-                 background:      "false",
-                 color:           "20303a",
-                 drawif:          "",
-                 expresion:       "[20,20]",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 width:           "1",
-                 border:          "",
-                 font:            "Monospaced,PLAIN,15",
-                 info:            ""
-      };
-    }
-    // if the type is image
-    else if (type == "image") {
-      tmpObj = { space:           "E0",
-                 type:            "image",
-                 background:      "false",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 expresion:       "(0,0)",
-                 trace:           "false",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 file:            "",
-                 inirot:          "0",
-                 opacity:         "0",
-                 info:            ""
-      };
-    }
-    // if the type is macro
-    else {
-      tmpObj = { space:           "E0",
-                 type:            "macro",
-                 background:      "false",
-                 drawif:          "",
-                 abs_coord:       "false",
-                 name:            "mac1",
-                 expresion:       "",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "0",
-                 inipos:          "[0,0]",
-                 info:            ""
-      };
-    }
-
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorGraphic3DPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    this.params = editor.graph3DParams;
-
-    this.prefix = "S_";
-    this.dontShowList = { useFamily: true };
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorGraphic3DPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphic3DPanel.prototype.createPanel = function() {
-    var parentPanel = document.getElementById("tab_7");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-
-    this.leftPanel = document.createElement("div");
-    this.leftPanel.setAttribute("class", "DescartesLeftPanelClass");
-    var innerLeftPanel = document.createElement("div");
-    this.leftPanel.appendChild(innerLeftPanel);
-    panel.appendChild(this.leftPanel);
-
-    this.rightPanel = document.createElement("div");
-    this.rightPanel.setAttribute("class", "DescartesRightPanelClass");
-    panel.appendChild(this.rightPanel);
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      this.buildobj(this.params[i]);
-    }
-
-    // 
-    this.configLeftPanel(innerLeftPanel);
-    this.configRightPanel(this.rightPanel);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphic3DPanel.prototype.buildobj = function(paramObj) {
-    var paramsObj = paramObj.value;
-    var paramsObj_i;
-    var tmpObj;
-    var tmpValue;
-    var type = "point";
-
-    // find the type of the graphic
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-
-      if (babel[paramsObj_i[0]] == "type") {
-        type = babel[ paramsObj_i[1] ];
-        break;
-      }
-    }
-
-    tmpObj = this.newParamObject(type);
-
-    var family = "";
-
-    // find the family
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = paramsObj_i[1];
-
-      // family
-      if (babel[paramsObj_i[0]] == "family") {
-        family = tmpValue;
-      }
-    }
-
-    // copy the parameters
-    for (var i=0, l=paramsObj.length; i<l; i++) {
-      paramsObj_i = paramsObj[i];
-      tmpValue = babel[paramsObj_i[1]] || paramsObj_i[1] || "";
-
-      if ( (tmpValue.charAt(0) == "#") && (tmpValue.length == 7) ) {
-        tmpValue = tmpValue.substring(1);
-      }
-
-      // checkbox for family
-      if (babel[paramsObj_i[0]] == "family") {
-        tmpObj.useFamily = "true";        
-      }
-      // family interval and steps
-      if ((family != "") && (babel[paramsObj_i[0].substring(family.length + 1)])) {
-        if (paramsObj_i[0].substring(0, family.length) == family) {
-          if (babel[paramsObj_i[0].substring(family.length + 1)] == "interval") {
-            tmpObj.family_interval = tmpValue;
-            continue;
-          }
-          if (babel[paramsObj_i[0].substring(family.length + 1)] == "steps") {
-            tmpObj.family_steps = tmpValue;
-            continue;
-          }          
-        }
-      }
-
-      tmpObj[babel[paramsObj_i[0]]] = tmpValue;
-    }
-
-    paramObj.paramObj = tmpObj;
-    paramObj.obj = this.toNameValueArray(tmpObj);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphic3DPanel.prototype.configLeftPanel = function(panel) {
-    var self = this;
-    var list = document.createElement("ul");
-
-    var sublist;
-
-    for (var i=0, l=this.params.length; i<l; i++) {
-      var sublist = document.createElement("li");
-
-      sublist.innerHTML = this.params[i].paramObj.name + "  (" + this.params[i].paramObj.type + ")";
-      sublist.obj = this.params[i].obj;
-      sublist.paramObj = this.params[i].paramObj;
-
-      sublist.addEventListener("click", itemSelected);
-
-      list.appendChild(sublist);
-    }
-
-    function itemSelected(evt) {
-      var type = this.paramObj.type;
-      var Graphic3D = this.obj;
-
-      self.hideAllAttributes();
-      self.showAttributes(Graphic3D);
-      self.fillAttributes(Graphic3D);
-      descartesJS.showHTML(self.configRightSubPanel);
-    }
-
-    panel.appendChild(list);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorGraphic3DPanel.prototype.configRightPanel = function(panel) {
-    this.configRightSubPanel = document.createElement("div");
-    panel.appendChild(this.configRightSubPanel);
-
-    this.attributes = {};
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // name
-    this.attributes.name = this.newLabelAndInput({name: "name", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // space
-    this.attributes.space = this.newLabelAndInput({name: "space", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // background
-    this.attributes.background = this.newLabelAndCheckbox({name: "background", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // color
-    this.attributes.color = this.newLabelAndInput({name: "color", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // backcolor
-    this.attributes.backcolor = this.newLabelAndInput({name: "backcolor", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // drawif
-    this.attributes.drawif = this.newLabelAndInput({name: "drawif", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // expresion
-    this.attributes.expresion = this.newLabelAndInput({name: "expresion", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // useFamily
-    this.attributes.useFamily = this.newLabelAndCheckbox({name: "useFamily", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family
-    this.attributes.family = this.newLabelAndInput({name: "family", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family_interval
-    this.attributes.family_interval = this.newLabelAndInput({name: "family_interval", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // family_steps
-    this.attributes.family_steps = this.newLabelAndInput({name: "family_steps", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // inirot
-    this.attributes.inirot = this.newLabelAndInput({name: "inirot", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // inipos
-    this.attributes.inipos = this.newLabelAndInput({name: "inipos", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // endrot
-    this.attributes.endrot = this.newLabelAndInput({name: "endrot", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // endpos
-    this.attributes.endpos = this.newLabelAndInput({name: "endpos", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // split
-    this.attributes.split = this.newLabelAndCheckbox({name: "split", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // edges
-    this.attributes.edges = this.newLabelAndCheckbox({name: "edges", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // model
-    this.attributes.model = this.newLabelAndMenu({name: "model", value: "metal"}, this.configRightSubPanel, ["color", "light", "metal", "wire"]);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // text
-    this.attributes.text = this.newLabelAndInput({name: "text", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // decimals
-    this.attributes.decimals = this.newLabelAndInput({name: "decimals", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // fixed
-    this.attributes.fixed = this.newLabelAndCheckbox({name: "fixed", value: "false"}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // width
-    this.attributes.width = this.newLabelAndInput({name: "width", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // length
-    this.attributes.length = this.newLabelAndInput({name: "length", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // height
-    this.attributes.height = this.newLabelAndInput({name: "height", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Nu
-    this.attributes.Nu = this.newLabelAndInput({name: "Nu", value: ""}, this.configRightSubPanel);
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Nv
-    this.attributes.Nv = this.newLabelAndInput({name: "Nv", value: ""}, this.configRightSubPanel);
-
-    descartesJS.hideHTML(this.configRightSubPanel);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /**
-   *
-   */
-  descartesJS.EditorGraphic3DPanel.prototype.newParamObject = function(type) {
-    var tmpObj;
-
-    // if the type is point
-    if (type == "point") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "point",
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "(0,0,0)",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true",
-                 width:           "1"
-      };
-
-    }
-    // if the type is segment, polygon, curve
-    else if ( (type == "segment") || (type == "polygon") || (type == "curve") ) {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            type,
-                 background:      "false",
-                 color:           "eeffaa",
-                 drawif:          "",
-                 expresion:       "",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 width:           "1",
-                 Nu:              "7"
-      };
-
-      if (type == "segment") {
-        tmpObj.expresion = "(0,0,0)(1,1,1)";
-      }
-      else if (type == "polygon") {
-        tmpObj.expresion = "(0,0,0)(1,0,0)(1,1,0)(1,1,1)";
-      }
-      else {
-        tmpObj.expresion = "x=cos(4*pi*u) y=sen(4*pi*u) z=2*u-1";
-      }
-    }
-    // if the type is triangle
-    else if ( (type == "triangle") || (type == "face") ) {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            type,
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal"
-      };
-
-      if (type == "triangle") {
-        tmpObj.expresion = "(1,0,0)(0,1,0)(0,0,1)";
-      }
-      else {
-        tmpObj.expresion = "(0,0)(0,1)(1,1)";
-      }      
-    }
-    // if the type is polireg
-    else if (type == "polireg") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "polireg",
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "Polireg",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 width:           "2",
-                 length:          "2",
-                 Nu:              "7"
-      };
-    }
-    // if the type is surface
-    else if (type == "surface") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "surface",
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "x=2*u-1 y=2*v-1 z=x^2-y^2",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 Nu:              "7",
-                 Nv:              "7"
-      };
-    }
-    // if the type is text
-    else if (type == "text") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "face",
-                 background:      "false",
-                 color:           "eeffaa",
-                 drawif:          "",
-                 expresion:       "[20,20]",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 text:            "",
-                 decimals:        "2",
-                 fixed:           "true"
-      };
-    }
-    // if the type is box
-    else if (type == "box") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "box",
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "Paralelep\u00edpedo",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 width:           "2",
-                 length:          "2",
-                 height:          "2"
-      };
-    }
-    // if the type is cube, tetrahedron, octahedron, dodecahedron, icosahedron
-    else if ( (type == "cube") || (type == "tetrahedron") || (type == "octahedron") || (type == "dodecahedron") || (type == "icosahedron") ) {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            type,
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 width:           "2"
-      };
-
-      if (type == "cube") {
-        tmpObj.expresion = "Cubo";
-      }
-      else if (type == "tetrahedron") {
-        tmpObj.expresion = "Tetraedro";
-      }
-      else if (type == "octahedron") {
-        tmpObj.expresion = "Octaedro";
-      }
-      else if (type == "dodecahedron") {
-        tmpObj.expresion = "Dodecaedro";
-      }
-      else {
-        tmpObj.expresion = "Icosaedro";
-      }
-
-    }
-    // if the type is sphere
-    else if (type == "sphere") {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "sphere",
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "Esfera",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 width:           "2",
-                 Nu:              "7",
-                 Nv:              "7"
-      };
-    }
-    // if the type is ellipsoid, cone, cylinder
-    else if ( (type == "ellipsoid") || (type == "cone") || (type == "cylinder") ) {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            type,
-                 background:      "false",
-                 color:           "eeffaa",
-                 backcolor:       "6090a0",
-                 drawif:          "",
-                 expresion:       "",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)",
-                 split:           "false",
-                 edges:           "false",
-                 model:           "metal",
-                 width:           "2",
-                 length:          "2",
-                 height:          "2",
-                 Nu:              "7",
-                 Nv:              "7"
-      };
-
-      if (type == "ellipsoid") {
-        tmpObj.expresion = "Elipsoide";
-      }
-      else if (type == "cone") {
-        tmpObj.expresion = "Cono";
-      }
-      else {
-        tmpObj.expresion = "Cilindro";
-      }
-    }
-    // if the type is macro
-    else {
-      tmpObj = { name:            "",
-                 space:           "E0",
-                 type:            "macro",
-                 background:      "false",
-                 drawif:          "",
-                 expresion:       "mi_macro",
-                 useFamily:       "false",
-                 family:          "",
-                 family_interval: "",
-                 family_steps:    "",
-                 inirot:          "(0,0,0)",
-                 inipos:          "(0,0,0)",
-                 endrot:          "(0,0,0)",
-                 endpos:          "(0,0,0)"
-      };
-    }
-
-    return tmpObj;
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.EditorAnimationPanel = function(editor) {
-    // call the parent constructor
-    descartesJS.EditorGenericPanel.call(this, editor);
-
-    if (editor.animParams.length <= 0) {
-      this.hasAnimation = false;
-      this.params = [ 
-                          { name: "Animation", value: "false" }, 
-                          { name: "delay", value: "1000" }, 
-                          { name: "controls", value: "false" }, 
-                          { name: "auto", value: "false" }, 
-                          { name: "loop", value: "false" }, 
-                          { name: "init", value: "" }, 
-                          { name: "doExpr", value: "" }, 
-                          { name: "whileExpr", value: "" }
-                        ];
-    }
-    else {
-      this.hasAnimation = true;
-      var tmpAnim = editor.animParams[0].value;
-      var tmpAnimArray = [{ name: "Animation", value: "true" }];
-      for (var i=0, l=tmpAnim.length; i<l; i++) {
-        tmpAnimArray.push( { name: babel[tmpAnim[i][0]] || tmpAnim[i][0], 
-                             value: babel[tmpAnim[i][1]] || tmpAnim[i][1]
-                            } );
-      }
-
-      this.params = tmpAnimArray;
-    }
-
-    // this.createPanel();
-    this.createPanel2();
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of EditorGenericPanel
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.EditorAnimationPanel, descartesJS.EditorGenericPanel);
-
-  /**
-   *
-   */
-  descartesJS.EditorAnimationPanel.prototype.createPanel = function() {
-    var tmp;
-
-    var parentPanel = document.getElementById("tab_8");
-    var panel = document.createElement("div");
-    panel.setAttribute("class", "DescartesConfigPanel");
-    parentPanel.appendChild(panel);
-    
-    this.parameters = [];
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Animation
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "Animation"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // delay
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "delay"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // controls
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "controls"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // auto
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "auto"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // loop
-    this.parameters.push(  this.newLabelAndCheckbox(this.findObjectByName(this.params, "loop"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // init
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "init"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // doExpr
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "doExpr"), panel)  );
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // whileExpr
-    this.parameters.push(  this.newLabelAndInput(this.findObjectByName(this.params, "whileExpr"), panel)  );
-
-  }
-
-
-  /**
-   *************************************************************************************************************************************************
-   */
-  descartesJS.EditorAnimationPanel.prototype.createPanel2 = function(isNotFirstTime) {
-    if (!isNotFirstTime) {
-      this.ulContainer = document.createElement("ul");
-      this.editor.listContainer.appendChild(this.ulContainer);      
-    }
-
-    var lessonParser = this.parent.lessonParser;
-    var liElement;
-    var span;
-    var name;
-    var prop;
-    var family;
-    var parameter;
-
-    //
-    if (this.hasAnimation) {
-      this.ulContainer.style.display = null;
-
-      liElement = document.createElement("li");
-      span = document.createElement("span");
-      span.innerHTML = '&lt;param name="' + babel.toLanguage("Animation") + '" value="';
-      liElement.appendChild(span);
-
-      for (var i=0, l=this.params.length; i<l; i++) {
-        name = babel[this.params[i].name] || this.params[i].name;
-        value = babel[this.params[i].value] || this.params[i].value;
-        value = value.replace(/</g, "&lt;");
-  
-        if (name != "Animation") {
-          span = document.createElement("span");
-          span.innerHTML = babel.toLanguage(name) + "='";
-          liElement.appendChild(span);
-
-          span = document.createElement("span");
-          span.setAttribute("class", "DescartesSpanValue");
-          span.setAttribute("contenteditable", "true");
-          span.innerHTML = babel.toLanguage(value);
-          liElement.appendChild(span);
-
-          span = document.createElement("span");
-          span.innerHTML = "'" + ((i < l-1) ? " " : "");
-          liElement.appendChild(span);
-        }
-      }
-
-      span = document.createElement("span");
-      span.innerHTML = '"&gt;';
-      liElement.appendChild(span);
-
-      this.ulContainer.appendChild(liElement);
-    }
-    else {
-      this.ulContainer.style.display = "none";
-    }
-  }  
-
-  /**
-   *
-   */
-  descartesJS.EditorAnimationPanel.prototype.add = function() {
-    if (!this.hasAnimation) {
-      this.hasAnimation = true;
-      this.ulContainer.innerHTML = "";
-      this.createPanel2(true);
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorAnimationPanel.prototype.remove = function() {
-    this.hasAnimation = false;
-    this.ulContainer.innerHTML = "";
-    this.createPanel2(true);
-  }
-
-  /**
-   *
-   */
-  descartesJS.EditorAnimationPanel.prototype.getContent = function() {
-    if (this.hasAnimation) {
-      return this.ulContainer.textContent;
-    }
-    return "";
-  }  
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
-  var optionText = ["Espacio 2D", "Espacio 3D", "Espacio HTMLIFrame", 
-                    "Pulsador", "Campo de texto", "Men\u00FA", "Barra", "Bot\u00F3n", "Control gr\u00E1fico", "Control de texto", "Audio", "Video", 
-                    "Variable", "Funci\u00F3n", "Vector", "Matriz", 
-                    "Constante", "Evento", "Algoritmo", 
-                    "Ecuaci\u00F3n", "Curva", "Sucesi\u00F3n", "Punto", "Segmento", "Flecha", "Pol\u00EDgono", "Arco", "Relleno", "Texto", "Image", "Macro 2D", 
-                    "Punto 3D", "Segmento 3D", "Pol\u00EDgono 3D", "Curva 3D", "Tri\u00E1ngulo", "Cara", "Pol\u00EDgono regular 3D", "Superficie", "Texto 3D", "Cubo", "Paralelep\u00edpedo", "Tetraedro", "Octaedro", "Dodecaedro", "Icosaedro", "Esfera", "Elipsoide", "Cono", "Cilindro", "Macro 3D", 
-                    "Animaci\u00F3n"
-                    ];
-
-  var optionType = ["R2", "R3", "HTMLIFrame", 
-                    "spinner", "textfield", "menu", "scrollbar", "button", "graphic", "text", "audio", "video",
-                    "variable", "function", "array", "matrix",
-                    "constant", "event", "algorithm",
-                    "equation", "curve", "sequence", "point", "segment", "arrow", "polygon", "arc", "fill", "text", "image", "macro",
-                    "point", "segment", "polygon", "curve", "triangle", "face", "polireg", "surface", "text", "cube", "box", "tetrahedron", "octahedron", "dodecahedron", "icosahedron", "sphere", "ellipsoid", "cone", "cylinder", "macro",
-                    "animation"
-                    ];
-
-
-  /**
-   * 
-   * @constructor 
-   * @param 
-   */
-  descartesJS.Editor = function(parent) {
-    this.parent = parent;
-
-    this.container = document.createElement("div");
-    this.container.setAttribute("class", "DescartesEditorContainer");
-    document.body.appendChild(this.container);
-
-    this.readConfiguration();
-
-    // this.configDescartesTabs();
-    this.hide();
-
-    this.configDescartesParamList();
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.show = function() {
-    this.container.style.display = "block";
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.hide = function() {
-    this.container.style.display = "none";
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.readConfiguration = function() {
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    this.documentClone = document.createElement("document");
-    this.documentClone.innerHTML = document.documentElement.innerHTML;
-
-    var metas = this.documentClone.querySelectorAll("meta,#StyleDescartesApps,#StyleDescartesApps2,base,.DescartesEditorContainer");
-    for (var i=0, l=metas.length; i<l; i++) {
-      metas[i].parentNode.removeChild(metas[i]);
-    }
-
-    // replace the applet in the document with a DescartesPlaceholder node
-    var desApplets = document.querySelectorAll("applet,ajs");
-    var desAppletIndex;
-    for (var i=0, l=desApplets.length; i<l; i++) {
-      if (desApplets[i] == this.parent.applet) {
-        desAppletIndex = i;
-        break;
-      }
-    }
-
-    desApplets = this.documentClone.querySelectorAll("applet,ajs");
-    this.appletClone = desApplets[desAppletIndex];
-    desApplets[desAppletIndex].parentNode.replaceChild(document.createElement("DescartesPlaceholder"), desApplets[desAppletIndex]);
-
-    var delNode = this.appletClone.querySelector("param");
-    delNode.parentNode.removeChild(delNode);
-
-    this.script_docBase = this.appletClone.querySelector("script");
-    if (this.script_docBase) {
-     this.script_docBase.parentNode.removeChild(this.script_docBase);
-    }
-
-    // console.log(this.appletClone);
-    // console.log(this.parent.applet);
-    // console.log(this.documentClone.innerHTML)
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    var lessonParser = this.parent.lessonParser;
-
-    var attributes = this.parent.applet.attributes;
-    this.configAttributes = [];
-
-    for (var i=0, l=attributes.length; i<l; i++) {
-      this.configAttributes.push( { name: attributes[i].name,
-                                    value: attributes[i].value
-                                    } );
-    }
-
-    var children = this.parent.children;
-    // var children = this.appletClone.children;
-
-    this.sceneParams = [];
-    this.spaceParams = [];
-    this.ctrsParams = [];
-    this.auxParams = [];
-    this.defParams = [];
-    this.progParams = [];
-    this.graphParams = [];
-    this.graph3DParams = [];
-    this.animParams = [];
-    var tmpname = "";
-    var tmpvalue = "";
-
-    for (var i=0, l=children.length; i<l; i++) {
-      tmpname = children[i].getAttribute("name");
-      tmpvalue = lessonParser.split( children[i].getAttribute("value") );
-
-      if (tmpname) {
-        if (tmpname.match("E_")) {
-          this.spaceParams.push( { name: tmpname, 
-                                   value: tmpvalue
-                                 } );
-        }
-        else if (tmpname.match("C_")) {
-          this.ctrsParams.push( { name: tmpname, 
-                                  value: tmpvalue
-                                } );
-        }
-        else if (tmpname.match("A_")) {
-          this.auxParams.push( { name: tmpname, 
-                                 value: tmpvalue
-                               } );
-        }
-        else if (tmpname.match("G_")) {
-          this.graphParams.push( { name: tmpname, 
-                                   value: tmpvalue
-                                 } );
-        }
-        else if (tmpname.match("S_")) {
-          this.graph3DParams.push( { name: tmpname, 
-                                     value: tmpvalue
-                                   } );
-        }
-        else if (babel[tmpname] == "Animation") {
-          this.animParams.push( { name: tmpname, 
-                                  value: tmpvalue
-                                } );
-        }
-        else {
-          this.sceneParams.push( { name: babel[tmpname] || tmpname, 
-                                   value: babel[children[i].getAttribute("value")] || children[i].getAttribute("value")
-                                 } );
-        }
-      }
-    }
-
-    var auxParams_i_value;
-    var tmpvalue;
-    var hasAlgorithm;
-    var hasParenthesis;
-    var hasConstant;
-    var hasEvent;
-
-    for (var i=0,l=this.auxParams.length; i<l; i++) {
-      auxParams_i_value = this.auxParams[i].value;
-      hasAlgorithm = hasParenthesis = hasConstant = hasEvent = false;
-
-      for (var j=0, k=auxParams_i_value.length; j<k; j++) {
-        tmpvalue = babel[auxParams_i_value[j][0]];
-
-        if (tmpvalue == "id") {
-          if (auxParams_i_value[j][1].match(/\)$/)) {
-            hasParenthesis = true;
-          }
-        }
-        if (tmpvalue == "algorithm") {
-          hasAlgorithm = true;
-        }
-        if (tmpvalue == "event") {
-          hasEvent = true;
-        }
-        if (tmpvalue == "constant") {
-          hasConstant = true;
-        }
-      }
-      if ((hasAlgorithm && !hasParenthesis) || hasConstant || hasEvent) {
-        this.progParams.push(this.auxParams[i]);
-      }
-      else {
-        this.defParams.push(this.auxParams[i]);
-      }
-    }
-
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.configDescartesTabs = function() {
-    this.DescartesTabsContainer = document.createElement("div");
-    this.DescartesTabsContainer.setAttribute("class", "DescartesEditorTabContainer");
-
-    this.DescartesTabsContainer.innerHTML = 
-    "<div class='DescartesTabs'>\n" +
-      "<ul>\n" +
-        "<li id='tabHeader_1'>Configuraci&oacute;n</li>\n" +
-        "<li id='tabHeader_2'>Espacios</li>\n" +
-        "<li id='tabHeader_3'>Controles</li>\n" +
-        "<li id='tabHeader_4'>Definiciones</li>\n" +
-        "<li id='tabHeader_5'>Programa</li>\n" +
-        "<li id='tabHeader_6'>Gr&aacute;ficos</li>\n" +
-        "<li id='tabHeader_7'>Gr&aacute;ficos 3D</li>\n" +
-        "<li id='tabHeader_8'>Animaci&oacute;n</li>\n" +
-      "</ul>\n" +
-    "</div>\n" +
-
-    "<div class='DescartesTabscontent'>\n" +
-      "<div class='DescartesTabPage' id='tab_1'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_2'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_3'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_4'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_5'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_6'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_7'></div>\n" +
-      "<div class='DescartesTabPage' id='tab_8'></div>\n" +
-    "</div>\n" +
-
-    "<div class='DescartesButtonsPlace'>\n" +
-      "<input id='Descartes_OKButton' class='DescartesEditorButton' type='submit' value='Aceptar' />\n" +
-      "<input id='Descartes_CancelButton' class='DescartesEditorButton' type='submit' value='Cancelar' />\n" +
-    "</div>\n";
-
-    var navitem = this.DescartesTabsContainer.querySelector(".DescartesTabs ul li");
-    var ident = navitem.id.split("_")[1];
-    navitem.parentNode.setAttribute("data-current", ident);
-    navitem.setAttribute("class","tabActiveHeader");
-
-    var pages = this.DescartesTabsContainer.querySelectorAll(".DescartesTabPage");
-    for (var i = 1; i < pages.length; i++) {
-      pages[i].style.display = "none";
-    }
-
-    var DescartesTabs = this.DescartesTabsContainer.querySelectorAll(".DescartesTabs ul li");
-    for (var i = 0; i < DescartesTabs.length; i++) {
-      DescartesTabs[i].addEventListener("click", displayPage);
-    }
-
-    /**
-     *
-     */
-    function displayPage() {
-      var current = this.parentNode.getAttribute("data-current");
-
-      document.getElementById("tabHeader_" + current).removeAttribute("class");
-      document.getElementById("tab_" + current).style.display = "none";
-
-      var ident = this.id.split("_")[1];
-
-      this.setAttribute("class", "tabActiveHeader");
-      document.getElementById("tab_" + ident).style.display = "block";
-      this.parentNode.setAttribute("data-current", ident);
-    }
-
-    this.container.appendChild(this.DescartesTabsContainer);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the config panel
-    this.configPanel = new descartesJS.EditorConfigPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the space panel
-    this.spacePanel = new descartesJS.EditorSpacePanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the control panel
-    this.controlPanel = new descartesJS.EditorControlPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the definition panel
-    this.definitionPanel = new descartesJS.EditorDefinitionPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the program panel
-    this.programPanel = new descartesJS.EditorProgramPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the graphic panel
-    this.graphicPanel = new descartesJS.EditorGraphicPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the graphic3D panel
-    this.graphic3DPanel = new descartesJS.EditorGraphic3DPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the animation panel
-    this.animationPanel = new descartesJS.EditorAnimationPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    var self = this;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    document.getElementById("Descartes_OKButton").addEventListener("click", function(evt) {
-      evt.preventDefault();
-      this.blur();
-      self.hide();
-      console.log("ok");
-    });
-    document.getElementById("Descartes_CancelButton").addEventListener("click", function(evt) {
-      evt.preventDefault();
-      this.blur();
-      self.hide();
-      console.log("cancel");
-    });
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  }
-
-  /**
-   *************************************************************************************************************************************************
-   */
-  descartesJS.Editor.prototype.configDescartesParamList = function() {
-    this.configToolbar();
-
-    this.configListContainer();
-
-    this.configFooter();
-
-    this.configAddPanel();
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.configToolbar = function() {
-    var self = this;
-    var toolbarArea = document.createElement("div");
-    toolbarArea.setAttribute("class", "DescartesToolbarPlace");
-
-    var btnAdd    = this.newButton("Agregar");
-    var btnRemove = this.newButton("Remover");
-    var btnClone  = this.newButton("Duplicar");
-    var btnUp     = this.newButton("Subir");
-    var btnDonw   = this.newButton("Bajar");
-
-    toolbarArea.appendChild(btnAdd);
-    toolbarArea.appendChild(btnRemove);
-    toolbarArea.appendChild(btnClone);
-    toolbarArea.appendChild(btnUp);
-    toolbarArea.appendChild(btnDonw);
-
-    this.container.appendChild(toolbarArea);
-
-    if (descartesJS.hasTouchSupport) {
-      btnAdd.addEventListener("touchend", showFun);
-      btnRemove.addEventListener("touchend", removeFun);
-      btnClone.addEventListener("touchend", cloneFun);
-      btnUp.addEventListener("touchend", upFun);
-      btnDonw.addEventListener("touchend", downFun);
-    }
-    else {
-      btnAdd.addEventListener("click", showFun);
-      btnRemove.addEventListener("click", removeFun);
-      btnClone.addEventListener("click", cloneFun);
-      btnUp.addEventListener("click", upFun);
-      btnDonw.addEventListener("click", downFun);
-    }
-
-    function showFun(evt) {
-      self.showAddPanel();
-    }
-
-    function removeFun(evt) {
-      self.removeAttribute();
-    }
-
-    function cloneFun(evt) {
-      self.cloneAttribute();
-    }
-
-    function upFun(evt) {
-      self.moveUpAttribute();
-    }
-
-    function downFun(evt) {
-      self.moveDownAttribute();
-    }
-  }  
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.configListContainer = function() {
-    var self = this;
-
-    this.listContainer = document.createElement("div");
-    this.listContainer.setAttribute("class", "DescarteslistContainer");
-    this.container.appendChild(this.listContainer);
-
-    var appletHeader = document.createElement("div");
-    appletHeader.setAttribute("class", "DescartesExtraInfo");
-    appletHeader.innerHTML = "&lt;script type='text/javascript' src='http://arquimedes.matem.unam.mx/Descartes5/lib/descartes-min.js'&gt;&lt;/script&gt;";
-    this.listContainer.appendChild(appletHeader);
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // build the config panel
-    this.configPanel = new descartesJS.EditorConfigPanel(this);
-
-    // build the space panel
-    this.spacePanel = new descartesJS.EditorSpacePanel(this);
-
-    // build the control panel
-    this.controlPanel = new descartesJS.EditorControlPanel(this);
-
-    // build the definition panel
-    this.definitionPanel = new descartesJS.EditorDefinitionPanel(this);
-
-    // build the program panel
-    this.programPanel = new descartesJS.EditorProgramPanel(this);
-
-    // build the graphic panel
-    this.graphicPanel = new descartesJS.EditorGraphicPanel(this);
-
-    // build the graphic3D panel
-    this.graphic3DPanel = new descartesJS.EditorGraphic3DPanel(this);
-
-    // build the animation panel
-    this.animationPanel = new descartesJS.EditorAnimationPanel(this);
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    var appletFooter = document.createElement("div");
-    appletFooter.setAttribute("class", "DescartesExtraInfo");
-    appletFooter.innerHTML = "&lt;/ajs&gt;"
-    this.listContainer.appendChild(appletFooter);
-
-    //
-    this.wichParamSelected = null;
-    if (descartesJS.hasTouchSupport) {
-      this.listContainer.addEventListener("touchend", listContainerFun);
-    } 
-    else {
-      this.listContainer.addEventListener("click", listContainerFun);
-    }
-
-    function listContainerFun(evt) {
-      var actualLi = null;
-
-      if (evt.target.tagName.toLowerCase() == "li") {
-        actualLi = evt.target;
-      }
-      else if (evt.target.parentNode.tagName.toLowerCase() == "li") {
-        actualLi = evt.target.parentNode;
-      }
-
-      if (actualLi) {
-        if (self.wichParamSelected) {
-          self.wichParamSelected.className = self.wichParamSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
-        }
-        self.wichParamSelected = actualLi;
-        actualLi.className += " DescartesElementSelected";
-      }
-    }
-
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.configFooter = function() {
-    var self = this;
-    var buttonArea = document.createElement("div");
-    buttonArea.setAttribute("class", "DescartesButtonsPlace");
-
-    var btnOk = this.newButton("Aceptar");
-    var btnCancel = this.newButton("Cancelar");
-    buttonArea.appendChild(btnOk);
-    buttonArea.appendChild(btnCancel);
-
-    this.container.appendChild(buttonArea);
-
-    if (descartesJS.hasTouchSupport) {
-      btnCancel.addEventListener("touchend", hidenFun);
-      btnOk.addEventListener("touchend", okFun);
-    }
-    else {
-      btnCancel.addEventListener("click", hidenFun);
-      btnOk.addEventListener("click", okFun);
-    }
-
-    function okFun(evt) {
-      evt.preventDefault();
-      this.blur();
-
-      var textContent = self.configPanel.getContent() + self.spacePanel.getContent() + self.controlPanel.getContent() + self.definitionPanel.getContent() + self.programPanel.getContent() + self.graphicPanel.getContent() + self.graphic3DPanel.getContent() + self.animationPanel.getContent();
-
-      var newAppletContent = document.createElement("ajs");
-      var attributes = self.parent.applet.attributes;
-
-      var tmpTextContent = textContent.split("\n");
-      var tmpAttributes = tmpTextContent[0];
-
-      newAppletContent.innerHTML = tmpAttributes;
-      newAppletContent = newAppletContent.firstChild;
-
-      tmpTextContent[0] = "";
-
-      newAppletContent.innerHTML = tmpTextContent.join("\n");
-
-      self.parent.applet.parentNode.replaceChild(newAppletContent, self.parent.applet);
-      self.parent.applet = newAppletContent;
-      self.parent.children = newAppletContent.getElementsByTagName("param");
-
-      self.parent.width = parseFloat( newAppletContent.getAttribute("width") );
-      self.parent.height = parseFloat( newAppletContent.getAttribute("height") );
-
-      self.hide();      
-      self.parent.init();
-    }
-
-    function hidenFun(evt) {
-      evt.preventDefault();
-      this.blur();
-      self.hide();
-    }
-
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.configAddPanel = function() {
-    var self = this;
-
-    this.addPanelContainer = document.createElement("div");
-    this.addPanelContainer.setAttribute("class", "DescartesEditorContainer");
-    this.addPanelContainer.style.background = "rgba(20,20,20,.75)";
-    this.container.appendChild(this.addPanelContainer);
-
-    var addPanel = document.createElement("div");
-    addPanel.setAttribute("class", "DescarteslistContainer DescartesAddPanel");
-    this.addPanelContainer.appendChild(addPanel);
-
-    var listOptionsToAdd = document.createElement("ul");
-    addPanel.appendChild(listOptionsToAdd);
-
-    var elementOption;
-    for (var i=0, l=optionText.length; i<l; i++) {
-      elementOption = document.createElement("li");
-      elementOption.setAttribute("style", "-webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer;");
-      elementOption.setAttribute("data-index", i);
-      elementOption.innerHTML = optionText[i];
-
-      listOptionsToAdd.appendChild(elementOption);
-    }
-
-    //
-    this.addOptionValue = -1;
-    this.previousAddSelected = null;
-    if (descartesJS.hasTouchSupport) {
-      listOptionsToAdd.addEventListener("touchend", listOptionsFun);
-    }
-    else {
-      listOptionsToAdd.addEventListener("click", listOptionsFun);
-    }
-
-    /**
-     *
-     */
-    function listOptionsFun(evt) {
-      if (self.previousAddSelected) {
-        self.previousAddSelected.className = self.previousAddSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
-      }
-      self.previousAddSelected = evt.target;
-      evt.target.className += " DescartesElementSelected";
-      self.addOptionValue = evt.target.getAttribute("data-index");
-    }
-
-    //
-    var buttonArea = document.createElement("div");
-    buttonArea.setAttribute("class", "DescartesButtonsPlace");
-    var btnOk = this.newButton("Aceptar");
-    var btnCancel = this.newButton("Cancelar");
-    buttonArea.appendChild(btnOk);
-    buttonArea.appendChild(btnCancel);
-
-    this.addPanelContainer.appendChild(buttonArea);
-
-    if (descartesJS.hasTouchSupport) {
-      btnOk.addEventListener("touchend", okFun);
-      btnCancel.addEventListener("touchend", hideFun);
-    }
-    else {
-      btnOk.addEventListener("click", okFun);
-      btnCancel.addEventListener("click", hideFun);
-    }
-
-    function okFun(evt) {
-      evt.preventDefault();
-      this.blur();
-      self.hideAddPanel();
-      self.addAttribute();
-    }
-
-    function hideFun(evt) {
-      evt.preventDefault();
-      this.blur();
-      self.hideAddPanel(); 
-    }
-
-    this.hideAddPanel();
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.addAttribute = function() {
-    var index = parseInt(this.addOptionValue);
-
-    if (index >= 0) {
-      if (this.wichParamSelected) {
-        this.wichParamSelected.className = this.wichParamSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
-      }
-
-      // spaces
-      if ( (index >= 0) && (index < 3) ) {
-        this.wichParamSelected = this.spacePanel.add(optionType[index]);
-      }
-      // controls
-      else if ( (index >= 3) && (index < 12) ) {
-        this.wichParamSelected = this.controlPanel.add(optionType[index]);
-      }
-      // definitions
-      else if ( (index >= 12) && (index < 16) ) {
-        this.wichParamSelected = this.definitionPanel.add(optionType[index]);
-      }
-      // programs
-      else if ( (index >= 16) && (index < 19) ) {
-        this.wichParamSelected = this.programPanel.add(optionType[index]);
-      }
-      // graphics
-      else if ( (index >= 19) && (index < 31) ) {
-        this.wichParamSelected = this.graphicPanel.add(optionType[index]);
-      }
-      else if ( (index >= 31) && (index < optionType.length-1) ) {
-        this.wichParamSelected = this.graphic3DPanel.add(optionType[index]);
-      }
-      else {
-        this.animationPanel.add();
-      }
-
-    }
-
-    if (this.wichParamSelected) {
-      this.listContainer.scrollTop = this.wichParamSelected.offsetTop;
-    }
-
-    this.addOptionValue = -1;
-    if (this.previousAddSelected) {
-      this.previousAddSelected.className = this.previousAddSelected.className.replace( /(?:^|\s)DescartesElementSelected(?!\S)/g , "");
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.removeAttribute = function() {
-    var parent;
-    if (this.wichParamSelected) {
-      parent = this.wichParamSelected.parentNode;
-
-      //
-      if (parent == this.configPanel.ulContainer) {
-        return;
-      }
-      // else 
-      else if (parent == this.spacePanel.ulContainer) {
-        this.spacePanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.controlPanel.ulContainer) {
-        this.controlPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.definitionPanel.ulContainer) {
-        this.definitionPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.programPanel.ulContainer) {
-        this.programPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.graphicPanel.ulContainer) {
-        this.graphicPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.graphic3DPanel.ulContainer) {
-        this.graphic3DPanel.remove(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else {
-        this.animationPanel.remove();
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.cloneAttribute = function() {
-    var parent;
-    if (this.wichParamSelected) {
-      parent = this.wichParamSelected.parentNode;
-
-      //
-      // if (parent == this.configPanel.ulContainer) {
-
-      // }
-      // else 
-      if (parent == this.spacePanel.ulContainer) {
-        this.wichParamSelected = this.spacePanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.controlPanel.ulContainer) {
-        this.wichParamSelected = this.controlPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.definitionPanel.ulContainer) {
-        this.wichParamSelected = this.definitionPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.programPanel.ulContainer) {
-        this.wichParamSelected = this.programPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.graphicPanel.ulContainer) {
-        this.wichParamSelected = this.graphicPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-      else if (parent == this.graphic3DPanel.ulContainer) {
-        this.wichParamSelected = this.graphic3DPanel.clone(parseInt(this.wichParamSelected.getAttribute("data-index")));
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.moveUpAttribute = function() {
-    var parent;
-    if (this.wichParamSelected) {
-      parent = this.wichParamSelected.parentNode;
-
-      //
-      // if (parent == this.configPanel.ulContainer) {
-
-      // }
-      // else 
-      if (parent == this.spacePanel.ulContainer) {
-        this.wichParamSelected = this.spacePanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.controlPanel.ulContainer) {
-        this.wichParamSelected = this.controlPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.definitionPanel.ulContainer) {
-        this.wichParamSelected = this.definitionPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.programPanel.ulContainer) {
-        this.wichParamSelected = this.programPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.graphicPanel.ulContainer) {
-        this.wichParamSelected = this.graphicPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.graphic3DPanel.ulContainer) {
-        this.wichParamSelected = this.graphic3DPanel.moveUp(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-    }
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.moveDownAttribute = function() {
-    var parent;
-    if (this.wichParamSelected) {
-      parent = this.wichParamSelected.parentNode;
-
-      //
-      // if (parent == this.configPanel.ulContainer) {
-
-      // }
-      // else 
-      if (parent == this.spacePanel.ulContainer) {
-        this.wichParamSelected = this.spacePanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.controlPanel.ulContainer) {
-        this.wichParamSelected = this.controlPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.definitionPanel.ulContainer) {
-        this.wichParamSelected = this.definitionPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.programPanel.ulContainer) {
-        this.wichParamSelected = this.programPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.graphicPanel.ulContainer) {
-        this.wichParamSelected = this.graphicPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-      else if (parent == this.graphic3DPanel.ulContainer) {
-        this.wichParamSelected = this.graphic3DPanel.moveDown(parseInt(this.wichParamSelected.getAttribute("data-index"))) || this.wichParamSelected;
-      }
-    }
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.newButton = function(val) {
-    var btn = document.createElement("input");
-    btn.setAttribute("class", "DescartesEditorButton");
-    btn.setAttribute("type", "submit");
-    btn.setAttribute("value", val);
-    return btn;
-  }
-
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.showAddPanel = function() {
-    this.addPanelContainer.style.display = "block";
-    this.addPanelContainer.firstChild.style.left = (parseInt(window.innerWidth)-350)/2 +"px";
-  }
-  /**
-   *
-   */
-  descartesJS.Editor.prototype.hideAddPanel = function() {
-    this.addPanelContainer.style.display = "none";
-  }
-
-  return descartesJS;
-})(descartesJS || {});/**
- * @author Joel Espinosa Longi
- * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
- */
-
-var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
-
   var scale;
 
   /**
@@ -29416,14 +26004,14 @@ var descartesJS = (function(descartesJS) {
     this.audios.length = descartesApp.audios.length;
     this.arquimedes = descartesApp.arquimedes;
     this.descartesApp = descartesApp;
-
+    
     var imageURL = (descartesApp.image_loader) ? descartesApp.image_loader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height);
 
     this.imageLoader = document.createElement("div");
     this.imageLoader.width = descartesApp.width;
     this.imageLoader.height = descartesApp.height;
     this.imageLoader.setAttribute("class", "DescartesLoaderImage")
-    this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
+    this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); background-size:cover; width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
     descartesApp.loader.appendChild(this.imageLoader);
     
     this.loaderBar = document.createElement("canvas");
@@ -29690,11 +26278,18 @@ var descartesJS = (function(descartesJS) {
    */
   var drawDescartesLogo = function(w, h) {
     var canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
+    var ratio = ((w*descartesJS._ratio * h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+
+    canvas.width  = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width  = w + "px";
+    canvas.style.height = h + "px";
+
     var ctx = canvas.getContext("2d");
 
     ctx.save();
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     
     ctx.strokeStyle = ctx.fillStyle = "#1f358d";
     ctx.lineCap = "round";
@@ -29816,10 +26411,11 @@ var descartesJS = (function(descartesJS) {
      */
     this.children = applet.getElementsByTagName("param");
 
+    // se the license attribute
     descartesJS.creativeCommonsLicense = true;
     for (var i=0,l=this.children.length; i<l; i++) {
-      if (this.children[i].name == "CreativeCommonsLicense") {
-        descartesJS.creativeCommonsLicense = (this.children[i].value == "no") ? false : true;
+      if (this.children[i].name === "CreativeCommonsLicense") {
+        descartesJS.creativeCommonsLicense = (this.children[i].value === "no") ? false : true;
       }
     }
 
@@ -29878,7 +26474,7 @@ var descartesJS = (function(descartesJS) {
    * Init the variables needed for parsing and create the descartes lesson
    */
   descartesJS.DescartesApp.prototype.init = function() {
-  	// stop the animation
+  	// stop the animation, if the action init executes maybe the animation is playing
   	this.stop();
 
     /**
@@ -29918,7 +26514,7 @@ var descartesJS = (function(descartesJS) {
     
       // get the rtf height
       if (children_i.name == "rtf_height") {
-        heightRTF = parseInt(children_i.value);
+        heightRTF = parseInt(children_i.value) || this.height;
       }
 
       // get the buttons height
@@ -30310,7 +26906,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
     }
     else {
       this.finishInit();
@@ -31466,6 +28062,11 @@ var descartesJS = (function(descartesJS) {
   // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
+
+    // var editorScript = document.createElement("script");
+    // editorScript.setAttribute("type", "text/javascript");
+    // editorScript.setAttribute("src", "http://arquimedes.matem.unam.mx/Descartes5/lib/descartes_editor-min.js");
+    // document.head.appendChild(editorScript);
 
     // register the onload evt
     window.addEventListener("load", onLoad);

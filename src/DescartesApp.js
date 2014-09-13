@@ -71,10 +71,11 @@ var descartesJS = (function(descartesJS) {
      */
     this.children = applet.getElementsByTagName("param");
 
+    // se the license attribute
     descartesJS.creativeCommonsLicense = true;
     for (var i=0,l=this.children.length; i<l; i++) {
-      if (this.children[i].name == "CreativeCommonsLicense") {
-        descartesJS.creativeCommonsLicense = (this.children[i].value == "no") ? false : true;
+      if (this.children[i].name === "CreativeCommonsLicense") {
+        descartesJS.creativeCommonsLicense = (this.children[i].value === "no") ? false : true;
       }
     }
 
@@ -133,7 +134,7 @@ var descartesJS = (function(descartesJS) {
    * Init the variables needed for parsing and create the descartes lesson
    */
   descartesJS.DescartesApp.prototype.init = function() {
-  	// stop the animation
+  	// stop the animation, if the action init executes maybe the animation is playing
   	this.stop();
 
     /**
@@ -173,7 +174,7 @@ var descartesJS = (function(descartesJS) {
     
       // get the rtf height
       if (children_i.name == "rtf_height") {
-        heightRTF = parseInt(children_i.value);
+        heightRTF = parseInt(children_i.value) || this.height;
       }
 
       // get the buttons height
@@ -565,7 +566,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
     }
     else {
       this.finishInit();

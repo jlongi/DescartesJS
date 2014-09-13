@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
   var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
   var asignRegExp = /^=/;
   var conditionalRegExp = /^[\?\:]/;
-  var operatorRegExp = /^[\+\-\*\/\%\^]/;
+  var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
   var squareBracketRegExp = /^\[|^\]/;
   var parenthesesRegExp = /^\(|^\)/;
   var separatorRegExp = /^,/;
@@ -117,6 +117,14 @@ var descartesJS = (function(descartesJS) {
         count++;
         continue;
       }
+
+      // operator
+      val = str.match(operatorRegExp);
+      if (val) {
+        val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
+        addToken("operator", val[0], val[0].length);
+        continue;
+      }
       
       // identifier
       val = str.match(identifierRegExp);
@@ -174,13 +182,6 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
     
-      // operator
-      val = str.match(operatorRegExp);
-      if (val) {
-        addToken("operator", val[0], val[0].length);
-        continue;
-      }
-
       // square brackets
       val = str.match(squareBracketRegExp);
       if (val) {

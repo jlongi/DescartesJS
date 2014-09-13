@@ -272,6 +272,11 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
+    // var editorScript = document.createElement("script");
+    // editorScript.setAttribute("type", "text/javascript");
+    // editorScript.setAttribute("src", "http://arquimedes.matem.unam.mx/Descartes5/lib/descartes_editor-min.js");
+    // document.head.appendChild(editorScript);
+
     // register the onload evt
     window.addEventListener("load", onLoad);
     

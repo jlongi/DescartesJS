@@ -151,7 +151,7 @@ var descartesJS = (function(descartesJS) {
           variableValue = evaluator.variables[this.value];
 
           // the variable has an auxiliar variable value
-          if (typeof(variableValue) === "object") {
+          if ((typeof(variableValue) === "object") && (variableValue.length == undefined)) {
             return variableValue.evaluate(evaluator);
           }
 

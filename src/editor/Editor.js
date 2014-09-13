@@ -4,7 +4,7 @@
  */
 
 var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
+  // if (descartesJS.loadLib) { return descartesJS; }
 
   var optionText = ["Espacio 2D", "Espacio 3D", "Espacio HTMLIFrame", 
                     "Pulsador", "Campo de texto", "Men\u00FA", "Barra", "Bot\u00F3n", "Control gr\u00E1fico", "Control de texto", "Audio", "Video", 

@@ -448,7 +448,7 @@ var descartesJS = (function(descartesJS) {
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "hyperlink", tmpStyle);
         newNode.URL = ((tokens[i].value).split("|"))[1];
-        
+
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
          

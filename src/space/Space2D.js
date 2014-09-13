@@ -67,11 +67,16 @@ var descartesJS = (function(descartesJS) {
 
     self = this;
     
+    self._ratio = ((self.w*descartesJS._ratio * self.h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+
     // create the canvas
     self.backgroundCanvas = document.createElement("canvas");
     self.backgroundCanvas.setAttribute("id", self.id + "_background");
-    self.backgroundCanvas.setAttribute("width", self.w + "px");
-    self.backgroundCanvas.setAttribute("height", self.h + "px");
+    self.backgroundCanvas.width  = self.w *self._ratio;
+    self.backgroundCanvas.height = self.h *self._ratio;
+    self.backgroundCanvas.style.width  = self.w + "px";
+    self.backgroundCanvas.style.height = self.h + "px";
+
     self.backgroundCtx = self.backgroundCanvas.getContext("2d");
     self.backgroundCtx.imageSmoothingEnabled = false;
     self.backgroundCtx.mozImageSmoothingEnabled = false;
@@ -79,10 +84,10 @@ var descartesJS = (function(descartesJS) {
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
-    self.canvas.setAttribute("width", self.w + "px");
-    self.canvas.setAttribute("height", self.h + "px");
+    self.canvas.width  = self.w *self._ratio;
+    self.canvas.height = self.h *self._ratio;
     self.canvas.setAttribute("class", "DescartesSpace2DCanvas");
-    self.canvas.setAttribute("style", "z-index: " + self.zIndex + ";");
+    self.canvas.setAttribute("style", "z-index: " + self.zIndex + "; width:" + self.w + "px; height:" + self.h + "px;");
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
     self.ctx.mozImageSmoothingEnabled = false;
@@ -159,9 +164,12 @@ var descartesJS = (function(descartesJS) {
     self.click = 0;
 
     // register the mouse and touch events
-    // if (self.id !== "descartesJS_scenario") {
+    if (self.id !== "descartesJS_scenario") {
       self.registerMouseAndTouchEvents();
-    // }
+    }
+    else {
+      self.canvas.oncontextmenu = function (evt) { return false; };
+    }
 
   }
   
@@ -181,10 +189,15 @@ var descartesJS = (function(descartesJS) {
 
     // update the size of the canvas if has some regions
     if (self.canvas) {
-      self.backgroundCanvas.setAttribute("width", self.w + "px");
-      self.backgroundCanvas.setAttribute("height", self.h + "px");
-      self.canvas.setAttribute("width", self.w + "px");
-      self.canvas.setAttribute("height", self.h + "px");
+      self.backgroundCanvas.width  = self.w *self._ratio;
+      self.backgroundCanvas.height = self.h *self._ratio;
+      self.backgroundCanvas.style.width  = self.w + "px";
+      self.backgroundCanvas.style.height = self.h + "px";
+
+      self.canvas.width  = self.w *self._ratio;
+      self.canvas.height = self.h *self._ratio;
+      self.canvas.style.width  = self.w + "px";
+      self.canvas.style.height = self.h + "px";
     };
 
     // find the offset of the container
@@ -220,7 +233,8 @@ var descartesJS = (function(descartesJS) {
                          (self.drawBefore !== self.drawIfValue) ||
                          (self.Ox !== evaluator.getVariable(self.OxString)) ||
                          (self.Oy !== evaluator.getVariable(self.OyString)) ||
-                         (self.scale !== evaluator.getVariable(self.scaleString));
+                         (self.scale !== evaluator.getVariable(self.scaleString)) ||
+                         (self.backColor !== self.background.getColor());
 
       self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
       self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
@@ -253,9 +267,13 @@ var descartesJS = (function(descartesJS) {
       self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
 
       if (self.spaceChange) {
+        self.backgroundCtx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
         self.drawBackground();
+        self.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
       }
+      self.ctx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
       self.draw();
+      self.ctx.setTransform(1, 0, 0, 1, 0, 0);
     } 
     // hide the space
     else {
@@ -273,7 +291,10 @@ var descartesJS = (function(descartesJS) {
 
     // draw the background color
     ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
-    ctx.fillStyle = this.background.getColor();
+
+    this.backColor = this.background.getColor();
+    ctx.fillStyle = this.backColor;
+
     ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
 
     // draw the background image if any
@@ -657,6 +678,11 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    // when the window lose focus remove make a mouse up
+    window.addEventListener("blur", function(evt) {
+      onMouseUp(evt);
+    });
+
     /**
      * 
      * @param {Event} evt 
@@ -748,6 +774,24 @@ var descartesJS = (function(descartesJS) {
 
       onSensitiveToMouseMovements(evt);
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // try to remove the mouse up and move events
+    var visibilityChange; 
+    if (typeof document.hidden !== "undefined") {
+      visibilityChange = "visibilitychange";
+    } else if (typeof document.mozHidden !== "undefined") {
+      visibilityChange = "mozvisibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+      visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+      visibilityChange = "webkitvisibilitychange";
+    }
+    document.addEventListener(visibilityChange, function(evt) {
+      onMouseUp(evt);
+    });
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   }
     
   return descartesJS;

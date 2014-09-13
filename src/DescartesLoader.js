@@ -22,14 +22,14 @@ var descartesJS = (function(descartesJS) {
     this.audios.length = descartesApp.audios.length;
     this.arquimedes = descartesApp.arquimedes;
     this.descartesApp = descartesApp;
-
+    
     var imageURL = (descartesApp.image_loader) ? descartesApp.image_loader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height);
 
     this.imageLoader = document.createElement("div");
     this.imageLoader.width = descartesApp.width;
     this.imageLoader.height = descartesApp.height;
     this.imageLoader.setAttribute("class", "DescartesLoaderImage")
-    this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
+    this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); background-size:cover; width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
     descartesApp.loader.appendChild(this.imageLoader);
     
     this.loaderBar = document.createElement("canvas");
@@ -296,11 +296,18 @@ var descartesJS = (function(descartesJS) {
    */
   var drawDescartesLogo = function(w, h) {
     var canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
+    var ratio = ((w*descartesJS._ratio * h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+
+    canvas.width  = w * ratio;
+    canvas.height = h * ratio;
+    canvas.style.width  = w + "px";
+    canvas.style.height = h + "px";
+
     var ctx = canvas.getContext("2d");
 
     ctx.save();
+
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     
     ctx.strokeStyle = ctx.fillStyle = "#1f358d";
     ctx.lineCap = "round";

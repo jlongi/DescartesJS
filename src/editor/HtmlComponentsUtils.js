@@ -4,7 +4,7 @@
  */
 
 var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib) { return descartesJS; }
+  // if (descartesJS.loadLib) { return descartesJS; }
 
   /**
    *

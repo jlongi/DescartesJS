@@ -335,8 +335,8 @@ var descartesJS = (function(descartesJS) {
       if (value.toString().match("e")) {
         value = parseFloat(value).toFixed(20);
       }
-    } 
-    value = value.toString();
+    }
+    value = (value != undefined) ? value.toString() : "0";
 
     var tmp = value.replace(this.parent.decimal_symbol, ".");
     if (tmp == parseFloat(tmp)) {

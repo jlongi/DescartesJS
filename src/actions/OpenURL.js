@@ -15,7 +15,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.OpenURL = function(parent, parameter) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
-    
+
     this.parameter = parameter;
     this.target = "_blank";
     

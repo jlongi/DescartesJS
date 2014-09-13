@@ -140,7 +140,12 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
-    this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+    if (descartesJS.isIOS) {
+      this.container.style.display = (this.drawIfValue) ? "block" : "none";
+    }
+    else {
+      this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+    }
 
     if (this.drawIfValue) {
       if (firstTime) {

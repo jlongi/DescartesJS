@@ -45,7 +45,7 @@ var descartesJS = (function(descartesJS) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
     else {
-      this.name = this.parser.parse("'" + this.name + "'");
+      this.name = this.parser.parse("'" + this.name.trim() + "'");
     }
     
     if (this.valueExprString === undefined) {
@@ -65,6 +65,8 @@ var descartesJS = (function(descartesJS) {
     
     // tabular index
     this.tabindex = ++this.parent.tabindex;
+
+    this.regExpDecimalSymbol = new RegExp("\\" + this.parent.decimal_symbol, "g");
 
     // if the answer exist
     if (this.answer) {
@@ -278,7 +280,7 @@ var descartesJS = (function(descartesJS) {
 
     evaluator = this.evaluator;
 
-    var tmp = value.toString().replace(this.parent.decimal_symbol, ".");
+    var tmp = value.toString().replace(this.regExpDecimalSymbol, ".", "g");
     if (tmp == parseFloat(tmp)) {
       resultValue = parseFloat(tmp);
     }

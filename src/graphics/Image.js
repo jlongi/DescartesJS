@@ -143,6 +143,8 @@ var descartesJS = (function(descartesJS) {
       coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
       rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
 
+      ctx.save();
+
       ctx.translate(coordX+despX, coordY+despY);
       ctx.rotate(rotation);
       ctx.scale(this.scaleX, this.scaleY);
@@ -154,8 +156,9 @@ var descartesJS = (function(descartesJS) {
       ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
 
       // reset the transformations
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      ctx.globalAlpha = 1;
+      ctx.restore();
+      // ctx.setTransform(1, 0, 0, 1, 0, 0)
+      // ctx.globalAlpha = 1;
     }
   }
   

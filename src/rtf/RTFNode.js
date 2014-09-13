@@ -268,10 +268,12 @@ var descartesJS = (function(descartesJS) {
       this.clickCacher = document.createElement("div");
       this.clickCacher.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; cursor: pointer;");
 
+      var action = new descartesJS.OpenURL(this.evaluator.parent, this.URL);
+
       var _self = this;
       this.clickCacher.addEventListener("click", function(evt) {
         _self.click = true;
-        window.open(_self.URL, _self.URL);
+        action.actionExec();
       })
     }
 
@@ -708,16 +710,16 @@ var descartesJS = (function(descartesJS) {
     
     else if (this.nodeType == "componentNumCtrl") {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
+      var metrics = descartesJS.getFontMetrics(this.styleString);
+
       this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
 
-      var tmpH = this.componentNumCtrl.h || 0;
+      this.baseline = metrics.baseline-2;
+      this.descent = metrics.descent-2;
+      this.ascent = metrics.ascent+2;
       
-      this.baseline = Math.round(3*tmpH/5);
-      this.descent = Math.round(2*tmpH/5);
-      this.ascent = this.baseline;
-
-      this.h = tmpH;
-      this.w = this.componentNumCtrl.w;
+      this.h = this.componentNumCtrl.h || 1;
+      this.w = this.componentNumCtrl.w || 1;
     }
     
     else if (this.nodeType == "componentSpace") {
@@ -731,7 +733,7 @@ var descartesJS = (function(descartesJS) {
       this.h = 0;
       this.w = this.componentSpace.w;
     }
-        
+
     else {
       console.log("Element i=unknown", this.nodeType);
     }
