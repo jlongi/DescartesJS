@@ -18,7 +18,7 @@ var descartesJS = (function(descartesJS) {
 
     this.parameter = parameter;
     this.target = "_blank";
-    
+
     var indexOfTarget = this.parameter.indexOf("target");
     
     if (indexOfTarget != -1) {
@@ -29,13 +29,14 @@ var descartesJS = (function(descartesJS) {
     
     // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
-      // this.javascript = true;
-
       // replace the &squot; with '
-      this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
-      
+      // this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
+      this.parameter = new descartesJS.SimpleText(parent, (this.parameter.substring(11)).replace(/&squot;/g, "'"));
+
+      var self = this;
       this.actionExec = function() {
-        eval(this.parameter);
+        // eval(this.parameter);
+        eval(self.parameter.toString());
       }
     }
     // if the paramater is a file name

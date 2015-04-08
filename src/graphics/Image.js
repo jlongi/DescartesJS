@@ -44,6 +44,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.inirot = parent.evaluator.parser.parse("0");    
 
+    this.pattern = false;
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
     
@@ -82,27 +84,33 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
     
-    if (expr[0].length == 4) {
+    // configuration of the form (x,y,ew,eh)
+    if (expr[0].length >= 4) {
       this.centered = true;
       this.scaleX = expr[0][2];
       if (this.scaleX == 0) {
-        this.scaleX = .00001;
+        this.scaleX = 0.00001;
       }
       this.scaleY = expr[0][3];
       if (this.scaleY == 0) {
-        this.scaleY = .00001;
+        this.scaleY = 0.00001;
+      }
+
+      if (expr[0][4]) {
+        this.pattern = (expr[0][4] == 1) ? true : false;
       }
     }      
       
+    // configuration of the form (x,y)(ew,eh)
     if ((expr[1]) && (expr[1].length == 2)) {
       this.centered = true;
       this.scaleX = expr[1][0];
       if (this.scaleX == 0) {
-        this.scaleX = .00001;
+        this.scaleX = 0.00001;
       }
       this.scaleY = expr[1][1];      
       if (this.scaleY == 0) {
-        this.scaleY = .00001;
+        this.scaleY = 0.00001;
       }
     }
     
@@ -137,23 +145,33 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
-      despX = (this.centered) ? 0 : this.img.width/2;
-      despY = (this.centered) ? 0 : this.img.height/2;
+      despX = (this.centered) ? 0 : mathRound(this.img.width/2);
+      despY = (this.centered) ? 0 : mathRound(this.img.height/2);
       coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
       coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
       rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
 
       ctx.save();
-
       ctx.translate(coordX+despX, coordY+despY);
       ctx.rotate(rotation);
-      ctx.scale(this.scaleX, this.scaleY);
 
       if (this.opacity) {
         ctx.globalAlpha = evaluator.evalExpression(this.opacity);
       }
 
-      ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
+      // stretch image
+      if (!this.pattern) {
+        ctx.scale(this.scaleX, this.scaleY);
+        // ctx.drawImage(this.img, -mathRound(this.img.width/2), -mathRound(this.img.height/2));
+        ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
+      }
+      // repeat image
+      else {
+        ctx.fillStyle = ctx.createPattern(this.img, "repeat");
+        // ctx.translate(-mathRound(this.img.width/2)*this.scaleX, -mathRound(this.img.height/2)*this.scaleY);
+        ctx.drawImage(this.img, (-this.img.width/2)*this.scaleX, (-this.img.height/2)*this.scaleY);
+        ctx.fillRect(0, 0, this.img.width*this.scaleX, this.img.height*this.scaleY);
+      }
 
       // reset the transformations
       ctx.restore();

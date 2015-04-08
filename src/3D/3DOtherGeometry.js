@@ -36,6 +36,12 @@ var descartesJS = (function(descartesJS) {
   var tempValue;
   var tempFace;
 
+  var i;
+  var l;
+  var j;
+  var k;
+
+
   /**
    * A Descartes 3D face
    * @constructor 
@@ -111,11 +117,12 @@ var descartesJS = (function(descartesJS) {
 
     this.updateMVMatrix();
 
+    // construct the vertices
     this.buildGeometry(evaluator.evalExpression(this.width), evaluator.evalExpression(this.height), evaluator.evalExpression(this.length), evaluator.evalExpression(this.Nu), evaluator.evalExpression(this.Nv));
 
-    for (var i=0, l=this.faces.length; i<l; i++) {
+    for (i=0, l=this.faces.length; i<l; i++) {
       v = [];
-      for (var j=0, k=this.faces[i].length; j<k; j++) {
+      for (j=0, k=this.faces[i].length; j<k; j++) {
         v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
       }
 
@@ -128,7 +135,6 @@ var descartesJS = (function(descartesJS) {
                                                          },
                             this.space ));
     }
-
   }
 
   /**
@@ -160,9 +166,6 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width,  length, -height, 1), //6
                       new vec4D(-width, -length, -height, 1)  //7
                ];
-    // this.vertices = [ { x:  width, y:  length, z: height, 1 },
-    //                   { x:  width, y: -length, z: height, 1 },
-    // ]
 
     this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
 
@@ -257,7 +260,7 @@ var descartesJS = (function(descartesJS) {
 
     // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
     tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-MathPI/6);
-    for (var i=0, l=this.vertices.length; i<l; i++) {
+    for (i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
 
@@ -301,7 +304,7 @@ var descartesJS = (function(descartesJS) {
 
     // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
     tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-1.029);
-    for (var i=0, l=this.vertices.length; i<l; i++) {
+    for (i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
 
@@ -330,9 +333,9 @@ var descartesJS = (function(descartesJS) {
     
     this.vertices = [new vec4D(0, 0, height, 1)];
 
-    for (var i=1; i<Nu; i++) {
+    for (i=1; i<Nu; i++) {
       phi = (i*MathPI)/Nu;
-      for (var j=0; j<Nv; j++) {
+      for (j=0; j<Nv; j++) {
         theta = (j*Math2PI)/Nv;
 
         x = width  * MathSin(phi) * MathCos(theta);
@@ -346,13 +349,13 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
     // upper part
-    for (var i=0; i<Nv; i++) {
+    for (i=0; i<Nv; i++) {
       this.faces.push([0, ((i+1)%Nv)+1, (i%Nv)+1]);
     }
 
     // center part
-    for (var i=1; i<Nu-1; i++) {
-      for (var j=0; j<Nv; j++) {
+    for (i=1; i<Nu-1; i++) {
+      for (j=0; j<Nv; j++) {
         this.faces.push([ j+1 +(i-1)*Nv, 
                          (j+1)%Nv +1 +(i-1)*Nv, 
                          (j+1)%Nv +1 +i*Nv,
@@ -362,7 +365,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // lower part
-    for (var i=0; i<Nv; i++) {
+    for (i=0; i<Nv; i++) {
       this.faces.push([this.vertices.length-1, this.vertices.length-1-Nv +i, this.vertices.length-1-Nv +((i+1)%Nv)]);
     }
 
@@ -384,8 +387,8 @@ var descartesJS = (function(descartesJS) {
 
     this.vertices = [];
 
-    for (var i=0; i<Nv; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv; i++) {
+      for (j=0; j<Nu; j++) {
         x = width  * (Nv-i)/Nv * MathCos(j*Math2PI/Nu);
         y = length * (Nv-i)/Nv * MathSin(j*Math2PI/Nu);
         z = height -i*2*height/Nv;
@@ -397,8 +400,8 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
 
-    for (var i=0; i<Nv-1; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv-1; i++) {
+      for (j=0; j<Nu; j++) {
         this.faces.push( [j +i*Nu, 
                           (j+1)%Nu +i*Nu,
                           (j+1)%Nu +(i+1)*Nu,
@@ -409,7 +412,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // punta
-    for (var i=0; i<Nu; i++) {
+    for (i=0; i<Nu; i++) {
       this.faces.push([this.vertices.length-1, this.vertices.length-1 -Nu +i, this.vertices.length-1 -Nu +(i+1)%Nu]);
     }
 
@@ -431,8 +434,8 @@ var descartesJS = (function(descartesJS) {
 
     this.vertices = [];
 
-    for (var i=0; i<Nv+1; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv+1; i++) {
+      for (j=0; j<Nu; j++) {
         x = width  * MathCos(j*Math2PI/Nu);
         y = length * MathSin(j*Math2PI/Nu);
         z = height -i*2*height/Nv;
@@ -443,8 +446,8 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
 
-    for (var i=0; i<Nv; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv; i++) {
+      for (j=0; j<Nu; j++) {
         this.faces.push( [j +i*Nu, 
                           (j+1)%Nu +i*Nu, 
                           (j+1)%Nu +(i+1)*Nu,
@@ -467,7 +470,7 @@ var descartesJS = (function(descartesJS) {
     function toInt(x) { return parseInt(x); };
     function toFloat(x) { return parseFloat(x); };
 
-    for (var i=0, l=this.fileData.length; i<l; i++) {
+    for (i=0, l=this.fileData.length; i<l; i++) {
       currentLine = this.fileData[i];
       
       if (currentLine.match(/^V\(/)) {

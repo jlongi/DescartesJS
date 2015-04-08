@@ -573,11 +573,19 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object with the cursor position
    */
   descartesJS.Space.prototype.getCursorPosition = function(evt) {
+    this.findOffset();
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: (pos.x) - this.offsetLeft, 
-             y: (pos.y) - this.offsetTop 
+    return { x: (pos.x) - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft), 
+             y: (pos.y) - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop)
            };
+
+    // return { x: (pos.x) - (document.body.scrollLeft + this.offsetLeft), 
+    //          y: (pos.y) - (document.body.scrollTop  + this.offsetTop)
+    //        };
+    // return { x: (pos.x) - this.offsetLeft, 
+    //          y: (pos.y) - this.offsetTop 
+    //        };
   }
   
   return descartesJS;

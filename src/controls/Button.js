@@ -36,6 +36,20 @@ var descartesJS = (function(descartesJS) {
 
   var container;
 
+  var checkOver;
+  var checkClick;
+  var checkActive;
+  var checkDrawIf;
+  var checkName;
+  var checkImageSrc;
+
+  var prefix;
+  var sufix;
+  var imageOverSrc;
+  var imageDownSrc;
+  var imageOver;
+  var imageDown;
+
   /**
    * Descartes button control
    * @constructor 
@@ -86,11 +100,86 @@ var descartesJS = (function(descartesJS) {
       this.name = this.parser.parse("'" + this.name + "'");
     }
 
+    var tmpParam;
+    if (this.imageSrc.trim().match("^_STYLE_")) {
+      this.customStyle = true;
+      this.canvasStyle = [ ];
+      this.containerStyle = [];
+
+      tmpParam = this.imageSrc.trim().substring(8).split("|");
+      var tempo;
+      for (var i=0, l=tmpParam.length; i<l; i++) {
+        tempo = tmpParam[i];
+        if (tempo.match("border=")) {
+          this.canvasStyle.push( { type: "border-style", value: "solid" } );
+          this.canvasStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
+        }
+        if (tempo.match("borderRadius=")) {
+          this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+          this.containerStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+        }
+        if (tempo.match("borderColor=")) {
+          this.canvasStyle.push( { type: "border-color", value: "#" + tempo.substring(12).trim() } );
+        }
+        if (tempo.match("overColor=")) {
+          this.containerStyle.overColor = "#" + tempo.substring(10).trim();
+        }
+        if (tempo.match("downColor=")) {
+          this.containerStyle.downColor = "#" + tempo.substring(10).trim();
+        }
+        if (tempo.match("font=")) {
+          this.containerStyle.font = tempo.substring(5).trim().toLowerCase();
+        }
+        if (tempo.match("inactiveColor=")) {
+          this.containerStyle.inactiveColor = "#" + tempo.substring(14).trim();
+        }
+        if (tempo.match("inactiveColorBorder=")) {
+          this.containerStyle.inactiveColorBorder = "#" + tempo.substring(20).trim();
+        }
+        if (tempo.match("shadowTextBlur=")) {
+          this.containerStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
+        }
+        if (tempo.match("shadowTextOffsetX=")) {
+          this.containerStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
+        }
+        if (tempo.match("shadowTextOffsetY=")) {
+          this.containerStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
+        }
+        if (tempo.match("shadowTextColor=")) {
+          this.containerStyle.shadowTextColor = "#" + tempo.substring(16).trim();
+        }
+        if (tempo.match("shadowBoxBlur=")) {
+          this.containerStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
+        }
+        if (tempo.match("shadowBoxOffsetX=")) {
+          this.containerStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
+        }
+        if (tempo.match("shadowBoxOffsetY=")) {
+          this.containerStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
+        }
+        if (tempo.match("shadowBoxColor=")) {
+          this.containerStyle.shadowBoxColor = "#" + tempo.substring(15).trim();
+        }
+        if (tempo.match("shadowInsetBoxBlur=")) {
+          this.containerStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
+        }
+        if (tempo.match("shadowInsetBoxOffsetX=")) {
+          this.containerStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
+        }
+        if (tempo.match("shadowInsetBoxOffsetY=")) {
+          this.containerStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
+        }
+        if (tempo.match("shadowInsetBoxColor=")) {
+          this.containerStyle.shadowInsetBoxColor = "#" + tempo.substring(20).trim();
+        }
+      }
+      this.imageSrc = "vacio.gif";
+    }
+
     // color expression of the form _COLORES_ffffff_000000_P_22 specified in the image field
     // the first color is the background color
     // the second color is the text color
-    // the last number ir the font size
-    var tmpParam;
+    // the last number is the font size
     if (this.imageSrc.match("_COLORES_")) {
       tmpParam       = this.imageSrc.split("_");
       this.colorInt  = new descartesJS.Color(tmpParam[2]);
@@ -150,7 +239,7 @@ var descartesJS = (function(descartesJS) {
     this.canvas.height = this.h *descartesJS._ratio;
     // this.canvas.setAttribute("width", this.w+"px");
     // this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
+    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     this.ctx = this.canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.mozImageSmoothingEnabled = false;
@@ -159,21 +248,6 @@ var descartesJS = (function(descartesJS) {
     this.container.appendChild(this.canvas);
 
     this.addControlContainer(this.container);
-
-    // // create the canvas and the rendering context
-    // this.canvas = document.createElement("canvas");
-    // this.canvas.setAttribute("class", "DescartesButton");
-    // this.canvas.setAttribute("id", this.id);
-    // this.canvas.setAttribute("width", this.w+"px");
-    // this.canvas.setAttribute("height", this.h+"px");
-    // this.canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-
-    // this.ctx = this.canvas.getContext("2d");
-    // this.ctx.imageSmoothingEnabled = false;
-    // this.ctx.mozImageSmoothingEnabled = false;
-    // this.ctx.webkitImageSmoothingEnabled = false;
-
-    // this.addControlContainer(this.canvas);
 
     // register the mouse and touch events
     this.registerMouseAndTouchEvents();
@@ -190,10 +264,11 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the button
    */
-  descartesJS.Button.prototype.init = function() {
+  descartesJS.Button.prototype.init = function(force) {
     evaluator = this.evaluator;
-container = this.container;
+    container = this.container;
     canvas = this.canvas;
+    ctx = this.ctx;
     expr = evaluator.evalExpression(this.expresion);
     this.x = expr[0][0];
     this.y = expr[0][1];
@@ -201,27 +276,78 @@ container = this.container;
       this.w = parseInt(expr[0][2]);
       this.h = parseInt(expr[0][3]);
     }
-    
-    // canvas.setAttribute("width", this.w+"px");
-    // canvas.setAttribute("height", this.h+"px");
-    // canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
+    //
     canvas.width  = this.w *descartesJS._ratio;
     canvas.height = this.h *descartesJS._ratio;
-    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
-
+    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
+    //
+
+    //
+    if (this.canvasStyle) {
+      for (var i=0, l=this.canvasStyle.length; i<l; i++) {
+        canvas.style[this.canvasStyle[i].type] = this.canvasStyle[i].value;
+      }
+    }
+    if (this.containerStyle) {
+      for (var i=0, l=this.containerStyle.length; i<l; i++) {
+        container.style[this.containerStyle[i].type] = this.containerStyle[i].value;
+      }
+
+      if (this.containerStyle.shadowBoxColor) {
+        var hShadow = this.containerStyle.shadowBoxOffsetX || 0;
+        var wShadow = this.containerStyle.shadowBoxOffsetY || 2;
+        var blur = this.containerStyle.shadowBoxBlur || 2;
+        var spread = 1;
+        container.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowBoxColor;
+      }
+      if (this.containerStyle.shadowInsetBoxColor) {
+        var hShadow = this.containerStyle.shadowInsetBoxOffsetX || 0;
+        var wShadow = this.containerStyle.shadowInsetBoxOffsetY || -2;
+        var blur = this.containerStyle.shadowInsetBoxBlur || 1;
+        var spread = 1;
+        canvas.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowInsetBoxColor + " inset";
+      }
+      if (this.containerStyle.shadowTextColor) {
+        ctx.shadowBlur = this.containerStyle.shadowTextBlur || 1;
+        ctx.shadowOffsetX = this.containerStyle.shadowTextOffsetX || 0;
+        ctx.shadowOffsetY = this.containerStyle.shadowTextOffsetY || 2;
+        ctx.shadowColor = this.containerStyle.shadowTextColor;
+      }
+    }
+    //
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
     }
+    this.fs_evaluated = evaluator.evalExpression(this.font_size);
 
     // create the background gradient
     this.createGradient(this.w, this.h);
 
     container.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
 
-container.setAttribute("data-color", this.colorInt.getColor());
+    ////
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineJoin = "round";
+    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+    
+    if (this.customStyle) {
+      if (this.containerStyle.font == "serif") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_serif,Times,'Times New Roman', serif";
+      }
+      else if (this.containerStyle.font == "monospace") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_monospace,Courier,'Courier New',Monospace";
+      }
+      else if (this.containerStyle.font == "icons") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_icons,Arial,Helvetica,Sans-serif";
+      }
+    }
+    // container.setAttribute("data-color", this.colorInt.getColor());
+
+    this.draw(force);
   }
   
   /**
@@ -247,9 +373,7 @@ container.setAttribute("data-color", this.colorInt.getColor());
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
-
-    // canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
+    // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // update the position and size
     this.updatePositionAndSize();
@@ -258,29 +382,52 @@ container.setAttribute("data-color", this.colorInt.getColor());
   /**
    * Draw the button
    */
-  descartesJS.Button.prototype.draw = function() {
+  descartesJS.Button.prototype.draw = function(force) {
     container = this.container;
     evaluator = this.evaluator;
+    canvas = this.canvas;
     ctx = this.ctx;
+
+    name = evaluator.evalExpression(this.name);
+    imageSrc = evaluator.evalExpression(this.imageSrc) + "";
+
+    // if ((!force) && (this.customStyle)) {
+    if (!force) {
+      checkOver = (this.over === this.oldOver);
+      checkClick = (this.buttonClick === this.oldButtonClick);
+      checkActive = (this.activeIfValue === this.oldActiveIfValue);
+      checkDrawIf = (this.drawIfValue === this.oldDrawIfValue);
+      checkName = (name === this.oldName);
+      checkImageSrc = (imageSrc === this.oldImageSrc);
+
+      this.oldOver = this.over;
+      this.oldButtonClick = this.buttonClick;
+      this.oldActiveIfValue = this.activeIfValue;
+      this.oldDrawIfValue = this.drawIfValue;
+      this.oldName = name;
+      this.oldImageSrc = imageSrc;
+
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc) {
+        return;
+      };
+    }
 
     ctx.save();
     ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
 
-    font_size = evaluator.evalExpression(this.font_size);
-    name = evaluator.evalExpression(this.name);
+    font_size = this.fs_evaluated; 
 
-container.setAttribute("data-name", name);
+    // container.setAttribute("data-name", name);
 
-    imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
 
-var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+    prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+    sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
-var imageOverSrc = prefix + "_over" + sufix;
-var imageDownSrc = prefix + "_down" + sufix;
-var imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
-var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+    imageOverSrc = prefix + "_over" + sufix;
+    imageDownSrc = prefix + "_down" + sufix;
+    imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+    imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
 
     ctx.clearRect(0, 0, this.w, this.h);
 
@@ -308,97 +455,123 @@ var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getIm
       if (newButtonCondition) {
         _text_pos_y = parseInt(this.h - _font_h/2 -2);
 
-container.style.backgroundColor = this.colorInt.getColor();
+        container.style.backgroundColor = this.colorInt.getColor();
 
-        // ctx.fillStyle = this.colorInt.getColor();
-        // ctx.fillRect(0, 0, this.w, this.h);
+        ctx.strokeStyle = this.color.getColor();
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0.5,0.5);
+        ctx.lineTo(this.w-0.5,0.5);
+        ctx.lineTo(this.w-0.5,this.h-0.5);
+        ctx.lineTo(0.5,this.h-0.5);
+        ctx.closePath();
+        ctx.stroke();
       }
     }
-    //////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-container.style.backgroundImage = "url('" + imageSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-        // // check if is a gif image
-        // if ( (this.image.src).match(gifPattern) ) {
-        //   this.canvas.style.backgroundImage = "url('" + this.image.src + "')";
-        //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-        // }
-        // else {
-        //   ctx.drawImage(image, _image_pos_x, _image_pos_y);
-        // }
+        // container.style.backgroundImage = "url('" + imageSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        // check if is a gif image
+        if ( imageSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(image, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.emptyImage) && (this.customStyle)) {
+        container.style.backgroundColor = this.colorInt.getColor();
       }
     }
     // the image is not ready or the button do not have a image
     else {
-container.style.backgroundColor = this.colorInt.getColor();
-
-      // ctx.fillStyle = this.colorInt.getColor();
-      // ctx.fillRect(0, 0, this.w, this.h);
+      container.style.backgroundColor = this.colorInt.getColor();
 
       if (!this.buttonClick) {
-        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
-        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
-        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+        // descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
+        // descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
+        // descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
+        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
+        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
       }
       
       ctx.fillStyle = this.linearGradient;
       ctx.fillRect(0, 0, this.w, this.h);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // over image
-    if ( (this.activeIfValue) && (imageOver !== this.emptyImage) && (imageOver.ready) && (this.over) ) {
-container.style.backgroundImage = "url('" + imageOverSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-
-      // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url('" + this.imageOver.src + "')";
-      //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-      // }
-      // else {
-      //   ctx.drawImage(this.imageOver, _image_pos_x, _image_pos_y);
-      // }
+    if (this.activeIfValue) {
+      if ( (imageOver !== this.emptyImage) && (this.over) && (imageOver.ready) && (imageOver.complete) ) {
+        // container.style.backgroundImage = "url('" + imageOverSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        if ( imageOverSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageOverSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(imageOver, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.customStyle) && (this.containerStyle.overColor) && (this.over)) {
+        container.style.backgroundColor = this.containerStyle.overColor;
+      }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // down image
-    if ( (this.activeIfValue) && (imageDown !== this.emptyImage) && (imageDown.ready) && (this.buttonClick) ) {
-container.style.backgroundImage = "url('" + imageDownSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-
-      // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url('" + this.imageDown.src + "')";
-      //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-      // }
-      // else {
-      //   ctx.drawImage(this.imageDown, _image_pos_x, _image_pos_y);
-      // }
+    if (this.activeIfValue) {
+      if ( (imageDown !== this.emptyImage) && (this.buttonClick) && (imageDown.ready) && (imageDown.complete) ) {
+        // container.style.backgroundImage = "url('" + imageDownSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        if ( imageDownSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageDownSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(imageDown, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.customStyle) && (this.containerStyle.downColor) && (this.buttonClick)) {
+        container.style.backgroundColor = this.containerStyle.downColor;
+      }
     }
     else if ((this.buttonClick) && (!image)) {
-      // descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
-      // descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
-
-      ctx.fillStyle = "rgba(0, 0, 0,"+(0x18/255)+")";
+      ctx.fillStyle = "rgba(0,0,0,0.09)";
       ctx.fillRect(0, 0, this.w, this.h);
     }
-      
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////
     ctx.fillStyle = this.color.getColor();
-    ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+
+    if (this.customStyle) {
+      if (this.containerStyle.shadowTextColor) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.containerStyle.shadowTextColor;
+        ctx.strokeText(name, _text_pos_x, _text_pos_y);
+      }
+    }
 
     // text border
-    if ( (!image) && (this.drawTextBorder()) ) {
-      ctx.lineJoin = "round";
+    if ( (!newButtonCondition) && (!this.containerStyle) && (this.drawTextBorder()) ) {
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
       ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // write the button name
     ctx.fillText(name, _text_pos_x, _text_pos_y);
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // draw the under line
     if (this.underlined) {
       txtW = ctx.measureText(name).width;
@@ -407,34 +580,39 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      // ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
-      // ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
       ctx.moveTo( parseInt((this.w-txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.lineTo( parseInt((this.w+txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.stroke();
     }
-     
+
+    ////////////////////////////////////////////////////////////////////////////////////////     
     if (!this.activeIfValue) {
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
-      ctx.fillRect(0, 0, this.w, this.h);      
-      // ctx.globalCompositeOperation = "destination-in";
-      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
-      // ctx.fillRect(0, 0, this.w, this.h);
-      // ctx.globalCompositeOperation = "source-over";
+      if ((this.customStyle) && (this.containerStyle.inactiveColor)) {
+        container.style.backgroundColor = this.containerStyle.inactiveColor;
+      }
+      else {
+        // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+        ctx.fillStyle = "rgba(240,240,240,0.6)";
+        ctx.fillRect(0, 0, this.w, this.h);
+      }
     }
 
     ctx.restore();
+
+    // for the screenshot
+    this._image_pos_x = _image_pos_x;
+    this._image_pos_y = _image_pos_y;    
   }
 
   /**
    *
    */
   descartesJS.Button.prototype.drawTextBorder = function() {
-    // compute the color components
+    // compute the correct components
     this.colorInt.getColor();
     this.color.getColor();
 
-    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) < 0.5);
+    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
   }  
   
   /**
@@ -468,10 +646,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       if ((self.buttonClick) && (self.drawIfValue) && (self.activeIfValue)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 100;
-        timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
+        timer = setTimeout(function() { repeat(delayTime, fun, false); }, delayTime);
       }
-
-
     }
 
     this.buttonClick = false;
@@ -492,7 +668,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      */
     function onMouseDown(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      // document.body.focus();
+      this.focus();
 
       evt.preventDefault();
       evt.stopPropagation();
@@ -509,11 +686,10 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.buttonClick = true;
           
           self.draw();
-          
-          // se registra el valor de la variable
-          self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
 
           if (self.action == "calculate") {
+            // se registra el valor de la variable
+            self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
             repeat(delay, self.buttonPressed, true);
           }
           
@@ -536,7 +712,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      // document.body.focus();
+      this.focus();
 
       evt.preventDefault();
       evt.stopPropagation();
@@ -544,8 +721,10 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       if ((self.activeIfValue) || (self.buttonClick)) {
         self.buttonClick = false;
         self.draw();
-        
+
         if (self.action != "calculate") {
+          // se registra el valor de la variable
+          self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
           self.buttonPressed();
         }
         
@@ -556,6 +735,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.canvas.removeEventListener("mouseup", onMouseUp);
         }
       }
+      // espero que no haya errores
+      self.parent.update();
     }
     
     /**
@@ -585,11 +766,35 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       self.draw();
     }
 
+    /**
+     *
+     */
+    document.addEventListener("visibilitychange", function(evt) {
+      self.buttonClick = false;
+    });
 
   }
 
   descartesJS.Button.prototype.getScreenshot = function() {
-    return this.canvas;
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.w;
+    canvas.height = this.h;
+    ctx = canvas.getContext("2d");
+
+    imageSrc = evaluator.evalExpression(this.imageSrc);
+    image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+
+    if ((image) && (image.ready)) {
+      ctx.drawImage(image, this._image_pos_x, this._image_pos_y);
+    }
+    else {
+      ctx.fillStyle = this.colorInt.getColor();
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
+
+    ctx.drawImage(this.canvas, 0, 0);
+
+    return canvas;
   }
 
   return descartesJS;

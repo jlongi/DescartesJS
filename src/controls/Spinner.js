@@ -118,7 +118,7 @@ var descartesJS = (function(descartesJS) {
     this.fieldFontSize = (this.parent.version !== 2) ? descartesJS.getFieldFontSize(this.h) : 10;
 
     // extra space added to the name
-    var extraSpace = (this.parent.version !== 2) ? "" : "_____";
+    var extraSpace = (this.parent.version !== 2) ? "__" : "_____";
     
     var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px Arial");
 
@@ -554,7 +554,7 @@ var descartesJS = (function(descartesJS) {
       self.up = false;
       clearInterval(timer);
       self.draw();
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       this.divUp.addEventListener("touchend", onMouseUp_UpButton);
@@ -573,7 +573,7 @@ var descartesJS = (function(descartesJS) {
       self.down = false;
       clearInterval(timer);
       self.draw();
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       this.divDown.addEventListener("touchend", onMouseUp_DownButton);
@@ -583,7 +583,17 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("mouseup", onMouseUp_DownButton);
     }
 
-    /*
+    /**
+     *
+     */
+    document.addEventListener("visibilitychange", function(evt) {
+      self.up = false;
+      self.down = false;
+      clearInterval(timer);
+      self.draw();
+    });
+
+    /**
      * Prevent an error with the focus of a text field
      */
     self.field.addEventListener("click", function(evt) {

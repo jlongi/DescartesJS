@@ -33,7 +33,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         if (++this.iterations > 100000) {
-          console.log("se ha excedido el límite de 100000 repeticiones en el algoritmo", this.id);
+          console.log("se ha excedido el límite de 100000 repeticiones en el algoritmo << " + self.name + " >>");
           return 0;
         }
       }

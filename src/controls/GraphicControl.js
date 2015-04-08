@@ -365,15 +365,25 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.drawText = function(x, y) {
     ctx = this.ctx;
     evaluator = this.evaluator;
-    
-    ctx.fillStyle = this.color.getColor();
-    ctx.font = this.font;
-    ctx.textBaseline = "alphabetic";
 
-    ctx.fillText(evaluator.evalExpression(this.text[0], evaluator.evalExpression(this.decimals), this.fixed), 
-                 parseInt(x+1+this.width/2), 
-                 parseInt(y-1-this.height/2)
-                );
+    // simpleText
+    if (this.text.type == "simpleText") {
+      ctx.fillStyle = this.color.getColor();
+      ctx.font = this.font;
+      ctx.textBaseline = "alphabetic";
+
+      ctx.fillText(this.text.toString(evaluator.evalExpression(this.decimals), this.fixed), 
+                   parseInt(x+1+this.width/2), 
+                   parseInt(y-1-this.height/2)
+                  );
+    }
+    // rtfNode
+    else {
+      ctx.fillStyle = this.color.getColor();
+      ctx.strokeStyle = this.color.getColor();
+      ctx.textBaseline = "alphabetic";
+      this.text.draw(ctx, parseInt(x+1+this.width/2), parseInt(y-1-this.height/2), this.decimals, this.fixed, "start", true, this.color.getColor());
+    }
   }
 
   /**
@@ -411,7 +421,9 @@ var descartesJS = (function(descartesJS) {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
     this.evaluator.setVariable(this.activeString, 0);
-  }  
+    this.evaluator.setVariable(this.mclickedString, 0);
+    this.evaluator.setVariable(this.mclicizquierdoString, 0);
+  }
   
   /**
    * Register the mouse and touch events
@@ -462,11 +474,7 @@ var descartesJS = (function(descartesJS) {
           self.evaluator.setVariable(self.mclicizquierdoString, 0);
           
           self.posAnte = self.getCursorPosition(evt);
-// console.log(self.posAnte, self.space.getRelativeX(self.space.getCursorPosition(evt).x), self.space.getRelativeY(self.space.getCursorPosition(evt).y));
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
-
-          // self.evaluator.setVariable(self.mxString, self.x);
-          // self.evaluator.setVariable(self.myString, self.y);
 
           self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x));
           self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y));
@@ -526,11 +534,12 @@ var descartesJS = (function(descartesJS) {
       document.body.focus();
 
       evt.preventDefault();
+      evt.stopPropagation();
       self.touchId = null;
 
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
-
+      
       if ((self.activeIfValue) || (self.active)) {
         self.click = false;
 
@@ -541,17 +550,26 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("mouseup", onMouseUp, false);
           window.removeEventListener("mousemove", onMouseMove, false);
         }
+
+        posNew = self.getCursorPosition(evt);
+
+        self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
+        self.posY = self.prePos.y - (self.posAnte.y - posNew.y);
         
-        // self.evaluator.setVariable(self.mxString, self.x);
-        // self.evaluator.setVariable(self.myString, self.y);
-        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.x);
-        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.y);
+        self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
+        self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
+        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(posNew.x));
+        self.evaluator.setVariable(self.myString, self.space.getRelativeY(posNew.y));
 
         self.parent.update();
-        
+
         self.mouseCacher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
         self.mouseCacher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
       }
+
+      // deactivate control
+      self.parent.deactivateGraphiControls();
+      // self.deactivate();
     }
     
     var posNew;
@@ -576,27 +594,13 @@ var descartesJS = (function(descartesJS) {
       self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
       self.posY = self.prePos.y - (self.posAnte.y - posNew.y);
       
-      ////////////////////////////////////////////////////////////////////////////
-      // if (self.constraint) {
-      //   tmpX = self.space.getRelativeX(self.posX);
-      //   tmpY = self.space.getRelativeY(self.posY);
-        
-      //   cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
-      //   self.x = cpos.x;
-      //   self.y = cpos.y;
-      //   self.evaluator.setVariable(self.xString, self.x);
-      //   self.evaluator.setVariable(self.yString, self.y);
-      // }
-      // ////////////////////////////////////////////////////////////////////////////
-      // else {
-        self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
-        self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
-        // self.evaluator.setVariable(self.mxString, self.x);
-        // self.evaluator.setVariable(self.myString, self.y);
-        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.space.getRelativeX(self.posX));
-        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.space.getRelativeY(self.posY));
+      self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
+      self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
+      self.evaluator.setVariable(self.mxString, self.space.getRelativeX(posNew.x));
+      self.evaluator.setVariable(self.myString, self.space.getRelativeY(posNew.y));
 
-      // }
+      // self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.space.getRelativeX(self.posX));
+      // self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.space.getRelativeY(self.posY));
 
       // limit the number of updates in the lesson
       if (Date.now() - lastTime > 10) {
@@ -683,9 +687,15 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    return { x: mouseX - (this.space.container.offsetLeft + this.space.container.parentNode.offsetLeft), 
-             y: mouseY - (this.space.container.offsetTop + this.space.container.parentNode.offsetTop)
+
+    return { x: mouseX - (this.space.offsetLeft + document.body.scrollLeft),
+             y: mouseY - (this.space.offsetTop + document.body.scrollTop) 
            };
+
+
+    // return { x: mouseX - (this.space.container.offsetLeft + this.space.container.parentNode.offsetLeft), 
+    //          y: mouseY - (this.space.container.offsetTop + this.space.container.parentNode.offsetTop)
+    //        };
   }
 
   return descartesJS;

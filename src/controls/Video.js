@@ -116,6 +116,10 @@ var descartesJS = (function(descartesJS) {
       self.video.currentTime = 0.0;
       return 0;
     });
+    self.evaluator.setFunction(self.id + ".currentTime", function(time) {
+      self.video.currentTime = parseFloat(time);
+      return 0;
+    });
     self.video.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.video.currentTime);
     });

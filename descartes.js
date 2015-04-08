@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2014-09-13
+ * 2015-03-27
  */
 
 /**
@@ -1287,6 +1287,8 @@ var descartesJS = (function(descartesJS) {
   var mouseX;
   var mouseY;
 
+  var desp;
+
   descartesJS.rangeOK = 1;
   
   /**
@@ -1335,53 +1337,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.degToRad = function(d) {
     return d*dosPiEntreTrecientosSesenta;
   }
-  
-  /**
-   * Converts a Descartes font string, to a canvas font string
-   * @param {String} fontStr the Descartes font string
-   * @return {String} the canvas font string
-   */
-  // descartesJS.convertFont = function(fontStr) {
-  //   if (fontStr == "") {
-  //     return fontStr;
-  //   }
-
-  //   fontTokens = fontStr.split(",");
-  //   fontCanvas = "";
-
-  //   // bold text
-  //   if (fontTokens[1].toLowerCase() == "bold") {
-  //     fontCanvas += "Bold ";
-  //   } 
-  //   // italic text
-  //   else if ( (fontTokens[1].toLowerCase() == "italic") || (fontTokens[1].toLowerCase() == "italics")) {
-  //     fontCanvas += "Italic ";
-  //   }
-  //   // bold and italic text
-  //   else if (fontTokens[1].toLowerCase() == "bold+italic") {
-  //     fontCanvas += "Italic Bold ";
-  //   }
-
-  //   fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
-    
-  //   // the font size
-  //   fontCanvas += fontTokens[2] + "px ";
-
-  //   // serif font
-  //   if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-  //     fontCanvas += "descartesJS_serif,Times,'Times New Roman', serif";
-  //   }
-  //   // sans serif font
-  //   else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-  //     fontCanvas += "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
-  //   }
-  //   // monospace font
-  //   else {
-  //     fontCanvas += "descartesJS_monospace,Courier,'Courier New',Monospace";
-  //   }
-
-  //   return fontCanvas;
-  // }
 
   /**
    * Function for draw the spinner control, that draws a line
@@ -1396,7 +1351,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.drawLine = function(ctx, x1, y1, x2, y2, strokeStyle, lineWidth) {
     ctx.lineWidth = lineWidth || 1;
     ctx.strokeStyle = strokeStyle || "black";
-    var desp = (ctx.lineWidth%2) ? .5 : 0;
+    desp = (ctx.lineWidth%2) ? .5 : 0;
     
     ctx.beginPath();
     ctx.moveTo(MathFloor(x1)+desp, MathFloor(y1)+desp);
@@ -1448,14 +1403,15 @@ var descartesJS = (function(descartesJS) {
       // render context used to measuere text
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
 
-descartesJS.devicePixelRatio = window.devicePixelRatio || 1;
-descartesJS.backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
-                                descartesJS.ctx.mozBackingStorePixelRatio ||
-                                descartesJS.ctx.msBackingStorePixelRatio ||
-                                descartesJS.ctx.oBackingStorePixelRatio ||
-                                descartesJS.ctx.backingStorePixelRatio || 1;
-descartesJS._ratio = descartesJS.devicePixelRatio / descartesJS.backingStoreRatio;
-descartesJS._ratio = 1;
+// descartesJS.devicePixelRatio = window.devicePixelRatio || 1;
+// descartesJS.backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
+//                                 descartesJS.ctx.mozBackingStorePixelRatio ||
+//                                 descartesJS.ctx.msBackingStorePixelRatio ||
+//                                 descartesJS.ctx.oBackingStorePixelRatio ||
+//                                 descartesJS.ctx.backingStorePixelRatio || 1;
+// descartesJS._ratio = descartesJS.devicePixelRatio / descartesJS.backingStoreRatio;
+
+      descartesJS._ratio = descartesJS.devicePixelRatio = descartesJS.backingStoreRatio = 1;
     }
 
     setNewToFixed();
@@ -1634,318 +1590,6 @@ descartesJS._ratio = 1;
   }
   
   /**
-   * Get the width in pixels of a text 
-   * @param {String} text the text to measured
-   * @param {String} font the font of the text
-   * @return {Number} return the width of the text in pixels
-   */
-  // descartesJS.getTextWidth = function(text, font) {
-  //   descartesJS.ctx.font = font;
-  //   return Math.round( descartesJS.ctx.measureText(text).width );
-  // }
-
-  // var metricCache = {};
-
-  // var _aux_canvas = document.createElement("canvas");
-  // var _aux_ctx;
-  // var _font_size;
-  // var _canvas_size;
-  // var _baselineOffset;
-  // var _imageData;
-  // var _data;
-  // var _top;
-  // var _bottom;
-
-  // descartesJS.getFontMetrics = function(font) {
-  //   if (metricCache[font]) {
-  //     return metricCache[font];
-  //   }
-
-  //   _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
-  //   _canvas_size = _font_size * 2;
-
-  //   _aux_canvas.width  = _canvas_size * descartesJS._ratio;
-  //   _aux_canvas.height = _canvas_size * descartesJS._ratio;
-  //   _aux_canvas.style.width  = _canvas_size + "px";
-  //   _aux_canvas.style.height = _canvas_size + "px";
-  //   _aux_ctx = _aux_canvas.getContext("2d");
-  //   _aux_ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
-
-  //   // _aux_canvas.setAttribute("width", _canvas_size);
-  //   // _aux_canvas.setAttribute("height", _canvas_size);
-  //   // _aux_ctx = _aux_canvas.getContext("2d");
-  //   _baselineOffset = Math.floor( _canvas_size/2 );
-
-  //   // _aux_ctx.save();
-  //   _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
-
-  //   _aux_ctx.font = font;
-  //   _aux_ctx.fillStyle = "#ff0000";
-  //   _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
-
-  //   _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
-  //   _data = _imageData.data;
-
-  //   _top = 0;
-  //   _bottom = 0;    
-
-  //   // top
-  //   for (var i=0, l=_data.length; i<l; i+=4) {
-  //     if ( (_data[i] === 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
-  //       _top = Math.floor(i/(_canvas_size*4));
-  //       break;
-  //     }
-  //   }
-
-  //   // bottom
-  //   for (var i=_data.length-40; i>=0; i-=4) {
-  //     if ( (_data[i] == 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
-  //       _bottom = Math.floor(i/(_canvas_size*4));
-  //       break;
-  //     }
-  //   }
-
-  //   var sansserif = [];
-  //   for(var i=0,l=100; i<l; i++) {
-  //     if (i<=8) {
-  //       sansserif[i] = 3;
-  //     }
-  //     else if (i<=16) {
-  //       sansserif[i] = 4;
-  //     }
-  //     else if (i<=20) {
-  //       sansserif[i] = 5;
-  //     }
-  //     else if (i==24) {
-  //       sansserif[i] = 7
-  //     }
-  //     else if (i<=25) {
-  //       sansserif[i] = 6;
-  //     }
-  //     else if (i<=29) {
-  //       sansserif[i] = 7;
-  //     }
-  //     else if (i<=34) {
-  //       sansserif[i] = 8;
-  //     }
-  //     else if (i<=36) {
-  //       sansserif[i] = 9;
-  //     }
-  //     else if (i<=40) {
-  //       sansserif[i] = 10;
-  //     }
-  //     else if (i<=48) {
-  //       sansserif[i] = 11;
-  //     }
-  //     else if (i<=52) {
-  //       sansserif[i] = 13;
-  //     }
-  //     else if (i<=60) {
-  //       sansserif[i] = 14;
-  //     }
-  //     else if (i<=64) {
-  //       sansserif[i] = 15;
-  //     }
-  //     else if (i<=68) {
-  //       sansserif[i] = 16;
-  //     }
-  //     else if (i<=76) {
-  //       sansserif[i] = 17;
-  //     }
-  //     else if (i<=80) {
-  //       sansserif[i] = 18;
-  //     }
-  //     else {
-  //       sansserif[i] = 20;
-  //     }
-  //   }
-
-  //   var serif = [];
-  //   for(var i=0,l=100; i<l; i++) {
-  //     if (i<=9) {
-  //       serif[i] = 4;
-  //     }
-  //     else if (i==10) {
-  //       serif[i] = 3;
-  //     }
-  //     else if (i<=14) {
-  //       serif[i] = 4;
-  //     }
-  //     else if (i<=18) {
-  //       serif[i] = 5;
-  //     }
-  //     else if (i<=22) {
-  //       serif[i] = 6;
-  //     }
-  //     else if (i<=26) {
-  //       serif[i] = 7;
-  //     }
-  //     else if (i<=30) {
-  //       serif[i] = 8;
-  //     }
-  //     else if (i<=34) {
-  //       serif[i] = 9;
-  //     }
-  //     else if (i<=38) {
-  //       serif[i] = 10;
-  //     }
-  //     else if (i<=40) {
-  //       serif[i] = 12;
-  //     }
-  //     else if (i<=44) {
-  //       serif[i] = 12;
-  //     }
-  //     else if (i<=48) {
-  //       serif[i] = 13;
-  //     }
-  //     else if (i<=52) {
-  //       serif[i] = 15;
-  //     }
-  //     else if (i<=60) {
-  //       serif[i] = 15;
-  //     }
-  //     else if (i<=64) {
-  //       serif[i] = 17;
-  //     }
-  //     else if (i<=68) {
-  //       serif[i] = 17;
-  //     }
-  //     else if (i<=72) {
-  //       serif[i] = 18;
-  //     }
-  //     else if (i<=76) {
-  //       serif[i] = 19;
-  //     }
-  //     else if (i<=80) {
-  //       serif[i] = 20;
-  //     }
-  //     else {
-  //       serif[i] = 21;
-  //     }
-  //   }
-
-  //   var monospace = [];
-  //   for(var i=0,l=100; i<l; i++) {
-  //     if (i<=8) {
-  //       monospace[i] = 3;
-  //     }
-  //     else if (i<=10) {
-  //       monospace[i] = 4;
-  //     }
-  //     else if (i<=12) {
-  //       monospace[i] = 5;
-  //     }
-  //     else if (i==14) {
-  //       monospace[i] = 7;
-  //     }
-  //     else if (i<=16) {
-  //       monospace[i] = 6;
-  //     }
-  //     else if (i<=20) {
-  //       monospace[i] = 7;
-  //     }
-  //     else if (i<=22) {
-  //       monospace[i] = 8;
-  //     }
-  //     else if (i<=27) {
-  //       monospace[i] = 9;
-  //     }
-  //     else if (i<=30) {
-  //       monospace[i] = 10;
-  //     }
-  //     else if (i==36) {
-  //       monospace[i] = 12;
-  //     }
-  //     else if (i<=38) {
-  //       monospace[i] = 11;
-  //     }
-  //     else if (i<=40) {
-  //       monospace[i] = 12;
-  //     }
-  //     else if (i<=48) {
-  //       monospace[i] = 14;
-  //     }
-  //     else if (i<=52) {
-  //       monospace[i] = 17;
-  //     }
-  //     else if (i<=56) {
-  //       monospace[i] = 18;
-  //     }
-  //     else if (i<=60) {
-  //       monospace[i] = 19;
-  //     }
-  //     else if (i==64) {
-  //       monospace[i] = 22;
-  //     }
-  //     else if (i<=68) {
-  //       monospace[i] = 21;
-  //     }
-  //     else if (i<=72) {
-  //       monospace[i] = 22;
-  //     }
-  //     else if (i<=76) {
-  //       monospace[i] = 23;
-  //     }
-  //     else if (i<=80) {
-  //       monospace[i] = 24;
-  //     }
-  //     else {
-  //       monospace[i] = 25;
-  //     }
-  //   }
-
-
-  //   if (font.match("sansserif")) {
-  //     _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
-  //   }
-  //   else if (font.match("serif")) {
-  //     _bottom = _baselineOffset + serif[parseInt(_font_size)];
-  //   }
-  //   else if (font.match("monospace")) {
-  //     _bottom = _baselineOffset + monospace[parseInt(_font_size)];
-  //   }
-
-  //   var result = { ascent: (_baselineOffset - _top), 
-  //                  descent: (_bottom - _baselineOffset), 
-  //                  h: (_bottom - _top), 
-  //                  baseline: (_baselineOffset - _top)
-  //                };
-
-  //   // _aux_ctx.restore();
-  //   _aux_ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-  //   metricCache[font] = result;
-
-  //   return result;
-  // }
-
-  // /**
-  //  * Get the font size give the height of an element
-  //  * @param {Number} the height of an element
-  //  * @return {Number} return the best font size of the text that fits in the element
-  //  */
-  // descartesJS.getFieldFontSize = function(height) {
-  //   height = Math.min(50, height);
-
-  //   if (height >= 24) {
-  //     height = Math.floor(height/2+2-height/16);
-  //   } 
-  //   else if (height >= 20) {
-  //     height = 12;
-  //   } 
-  //   else if (height >= 17) {
-  //     height = 11;
-  //   } 
-  //   else if (height >= 15) {
-  //     height = 10;
-  //   } 
-  //   else {
-  //     height = 9;
-  //   }
-  //   return height;
-  // }
-
-  /**
    * Get a screenshot of the lesson
    * @return {Image} return a screenshot image of the lesson
    */
@@ -2071,9 +1715,9 @@ descartesJS._ratio = 1;
   var htmlCreative = "<p>\n" +
   "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
   "por sus autores como\n" +
-  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><nobr>Creative Commons</nobr></a>\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/4.0/'><nobr>Creative Commons</nobr></a>\n" +
   "<br>\n" +
-  "<a href='http://creativecommons.org/licenses/by-nc-sa/2.5/es/'><img src='http://i.creativecommons.org/l/by-nc-sa/3.0/es/88x31.png'></a>\n" +
+  "<a href='http://creativecommons.org/licenses/by-nc-sa/4.0/'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>\n" +
   "</p>";
 
   var htmlFinal = "</body> </html>";
@@ -2183,6 +1827,8 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.addExternalFileContent = function(filename, data) {
+// console.log(filename)
+// console.log(data)
     descartesJS._externalFilesContent[filename] = data;
   }
 
@@ -2788,7 +2434,9 @@ var descartesJS = (function(descartesJS) {
     meta.setAttribute("name", "viewport");
     meta.setAttribute("content", "width=device-width, initial-scale=1.0, user-scalable=yes");
     // add the metadata to the head of the document
-    head.appendChild(meta);
+    if (!document.querySelector("meta[name=viewport]")) {
+      head.appendChild(meta);
+    }
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-capable");
@@ -2798,7 +2446,7 @@ var descartesJS = (function(descartesJS) {
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
-    meta.setAttribute("content", "black-translucent");
+    meta.setAttribute("content", "black");
     // add the metadata to the head of the document
     head.appendChild(meta);
 
@@ -3158,6 +2806,8 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var MathMax = Math.max;
+
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
   window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
@@ -3188,6 +2838,8 @@ var descartesJS = (function(descartesJS) {
     this.auto = (values.auto == undefined) ? true : values.auto;
     this.controls = values.controls;
 
+    this.pause = false;
+
     // parse the init expression
     this.init = algorithmAuxiliary.splitInstructions(parser, values.init);
 
@@ -3208,19 +2860,18 @@ var descartesJS = (function(descartesJS) {
       for (i=0; i<l; i++) {
         evaluator.evalExpression(self.doExpr[i]);
       }
-
       self.parent.update();
 
       if ( (self.playing) && ((evaluator.evalExpression(self.whileExpr) > 0) || (self.loop)) ) {
         delay = evaluator.evalExpression(self.delay);
 
         if (!window.requestAnimationFrame) {
-          self.timer = setTimeout(self.animationExec, ((delay < 10) ? 10 : delay));
+          self.timer = setTimeout(self.animationExec, MathMax(delay, 10));
         }
-
       } 
       else {
         self.stop();
+        self.pause = false;
         self.parent.update();
       }
     }
@@ -3239,9 +2890,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Animation.prototype.play = function() {
     var self = this;
     if (!this.playing) {
-      this.reinit();
+      if (!this.pause) {
+        this.reinit();
+      }
     
       this.playing = true;
+      this.pause = false;
       delay = this.parent.evaluator.evalExpression(this.delay);
 
       if (window.requestAnimationFrame) {
@@ -3250,11 +2904,11 @@ var descartesJS = (function(descartesJS) {
         });
       } 
       else {
-        this.timer = setTimeout(this.animationExec, ((delay < 10) ? 10 : delay));
+        this.timer = setTimeout(this.animationExec, MathMax(delay, 10));
       }
-    } 
-    
+    }
     else {
+      this.pause = true;
       this.stop();
     }
   }
@@ -3292,8 +2946,7 @@ var descartesJS = (function(descartesJS) {
       self.start = timestamp;
     }
 
-    delay = self.parent.evaluator.evalExpression(self.delay);
-    delay = (delay < 10) ? 10 : delay;
+    delay = MathMax(self.parent.evaluator.evalExpression(self.delay), 10);
 
     // if ( ((timestamp - self.start) > delay) && (self.parent.evaluator.evalExpression(self.whileExpr) > 0) ) {
     if ((timestamp - self.start) > delay) {
@@ -3453,7 +3106,7 @@ var descartesJS = (function(descartesJS) {
 
     this.parameter = parameter;
     this.target = "_blank";
-    
+
     var indexOfTarget = this.parameter.indexOf("target");
     
     if (indexOfTarget != -1) {
@@ -3464,13 +3117,14 @@ var descartesJS = (function(descartesJS) {
     
     // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
-      // this.javascript = true;
-
       // replace the &squot; with '
-      this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
-      
+      // this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
+      this.parameter = new descartesJS.SimpleText(parent, (this.parameter.substring(11)).replace(/&squot;/g, "'"));
+
+      var self = this;
       this.actionExec = function() {
-        eval(this.parameter);
+        // eval(this.parameter);
+        eval(self.parameter.toString());
       }
     }
     // if the paramater is a file name
@@ -3610,7 +3264,6 @@ var descartesJS = (function(descartesJS) {
    * Execute the action
    */
   descartesJS.About.prototype.execute = function() {
-console.log("about")
     if (this.urlAbout) {
       var codeWindow = window.open(this.urlAbout, "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
     }
@@ -4195,7 +3848,7 @@ var descartesJS = (function(descartesJS) {
       // if the file has no content or could not be read
       if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
         response = [];
-        this.size = 0;
+        this.size = parser.parse( "0" );
       }
       // if the file has content and could be read
       else {
@@ -4223,12 +3876,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     var vectInit = [];
-    for (var i=0, l=evaluator.evalExpression(this.size); i<l; i++) {
+    vectInit._size_ = evaluator.evalExpression(this.size);
+    for (var i=0, l=this._size_; i<l; i++) {
       vectInit.push(0);
     }
     evaluator.vectors[this.id] = vectInit;
 
-    evaluator.setVariable(this.id + ".long", evaluator.evalExpression(this.size));
+    evaluator.setVariable(this.id + ".long", vectInit._size_);
 
     for(var i=0, l=newExpression.length; i<l; i++) {
       evaluator.evalExpression(newExpression[i]);
@@ -4397,7 +4051,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           if (++this.iterations > 100000) {
-            console.log("se ha excedido el límite de 100000 repeticiones en la función", this.id);
+            console.log("se ha excedido el límite de 100000 repeticiones en la función << " + self.name + " >>");
             return 0;
           }
         }
@@ -4468,7 +4122,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         if (++this.iterations > 100000) {
-          console.log("se ha excedido el límite de 100000 repeticiones en el algoritmo", this.id);
+          console.log("se ha excedido el límite de 100000 repeticiones en el algoritmo << " + self.name + " >>");
           return 0;
         }
       }
@@ -4513,6 +4167,7 @@ var descartesJS = (function(descartesJS) {
     
     var evaluator = this.evaluator;
     
+    delete(this.evaluate);
     this.condition = evaluator.parser.parse(this.condition);
     this.lastEvaluation = false;
 
@@ -4521,7 +4176,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is onlyOnce
     if (this.execution == "onlyOnce") {
       this.eventExec = function() {
-        if ((evaluator.evalExpression(this.condition) > 0) && (!this.lastEvaluation)) {
+        if ((this.evaluator.evalExpression(this.condition) > 0) && (!this.lastEvaluation)) {
           this.lastEvaluation = true;
           this.action.execute();
         }
@@ -4531,7 +4186,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is alternate
     if (this.execution == "alternate") {
       this.eventExec = function() {
-        var cond = (evaluator.evalExpression(this.condition) > 0);
+        var cond = (this.evaluator.evalExpression(this.condition) > 0);
         //////////////////////////////////////////////////////////////////
         // DESCARTES 3
         if (this.parent.version == 3) {
@@ -4564,7 +4219,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is always
     if (this.execution == "always") {
       this.eventExec = function() {
-        if (evaluator.evalExpression(this.condition) > 0) {
+        if (this.evaluator.evalExpression(this.condition) > 0) {
           this.action.execute();
         }
       }
@@ -5239,9 +4894,7 @@ descartesJS._debug_vez = 0;
   /**
    * Update the equation
    */
-  descartesJS.Equation.prototype.update = function() {
-    // this.oldWidth = parseInt(this.evaluator.evalExpression(this.width));
-  }
+  descartesJS.Equation.prototype.update = function() { }
   
   /**
    * Draw the equation (special case of the draw defined in Graphic)
@@ -5332,8 +4985,11 @@ descartesJS._debug_vez = 0;
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
     
-    w = space.w;
-    h = space.h;
+    // w = space.w;
+    // h = space.h;
+    w = space.w +24;
+    h = space.h +24;
+
     
     dx = w/9;
     if (dx<3) {
@@ -5387,11 +5043,14 @@ descartesJS._debug_vez = 0;
         Qx = Q.ix();
         Qy = Q.iy();
 
-        if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
-          if (b[Qx + Qy*space.w]) {
+        // if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+        if ((Qx>=-12) && (Qx<w+24) && (Qy>=-12) && (Qy<h+24)) {
+          // if (b[Qx + Qy*space.w]) {
+          if (b[Qx+12 + (Qy+12)*space.w]) {
             continue; // zero already detected
           }
-          b[Qx + Qy*space.w] = true;
+          // b[Qx + Qy*space.w] = true;
+          b[Qx+12 + (Qy+12)*space.w] = true;
         }
 
         if (descartesJS.rangeOK) {
@@ -5480,17 +5139,21 @@ descartesJS._debug_vez = 0;
             Qx = Px;
             Qy = Py;
             
-            if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+            // if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+            if ((Qx>=-12) && (Qx<w+24) && (Qy>=-12) && (Qy<h+24)) {
               zeroVisited = 0;
 
-              secondVisit = b[Qx + Qy*space.w];
+              // secondVisit = b[Qx + Qy*space.w];
+              secondVisit = b[Qx+12 + (Qy+12)*space.w];
 
-              b[Qx + Qy*space.w] = true;
+              // b[Qx + Qy*space.w] = true;
+              b[Qx+12 + (Qy+12)*space.w] = true;
               for (var s=1; s<np; s++) {
                 Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
                 Qsy = Qya + Math.round((Qy-Qya)*s/np);
                 if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
-                  b[Qsx + Qsy*space.w] = true;
+                  // b[Qsx + Qsy*space.w] = true;
+                  b[Qsx+12 + (Qsy+12)*space.w] = true;
                 }
               }
 
@@ -5578,7 +5241,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
   var Dx = 0;
   var vv = v;
 
-  while (Math.abs(dxx)>1E-12) {
+  while (Math.abs(dxx)>1E-15) {
     var xa = this.evaluator.getVariable(X);
     var x = this.evaluator.getVariable(X) + dxx;
 
@@ -5586,7 +5249,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
 
     var ok = true;
 
-    // try {
+    try {
       var vva = vv;
       vv = this.evaluator.evalExpression(this.funExpr);
       this.evaluator.setVariable(Y, vv);
@@ -5608,10 +5271,10 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
       else {
         ok = false;
       }
-    // } 
-    // catch (e) {
-    //   ok = false;
-    // }
+    } 
+    catch (e) {
+      ok = false;
+    }
 
     if (ok) {
       Dx += dxx;
@@ -5627,6 +5290,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
   return new descartesJS.R2(Dx/Math.abs(dx),vv);
 }
 
+
 /**
  * 
  */
@@ -5636,12 +5300,12 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
   var Dx = 0;
   var vv = v;
 
-  while (Math.abs(dxx)>1E-12) {
+  while (Math.abs(dxx)>1E-15) {
     this.evaluator.setVariable(this.evaluator.getVariable(X) +dxx);
     var ok = true;
 
     if (this.evaluator.evalExpression(cond) > 0) {
-      // try {
+      try {
         var vva = vv;
         vv = this.evaluator.evalExpression(this.funExpr);
         
@@ -5650,10 +5314,10 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
         if (this.evaluator.evalExpression(cond) <= 0) {
           ok = false;
         }
-      // }
-      // catch (e) {
-      //   ok = false;
-      // }
+      }
+      catch (e) {
+        ok = false;
+      }
     }
     else {
       ok = false;
@@ -5673,18 +5337,18 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
     Dx = dx;
     vv = v;
 
-    while (Math.abs(dxx)>1E-12) {
+    while (Math.abs(dxx)>1E-15) {
       this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
 
       var ok = true;
 
       if (this.evaluator.evalExpression(cond) > 0) {
-        // try {
+        try {
           vv = this.evaluator.evalExpression(this.funExpr);
-        // }
-        // catch (e) {
-        //   ok = false;
-        // }
+        }
+        catch (e) {
+          ok = false;
+        }
       }
       else {
         ok = false;
@@ -5709,15 +5373,18 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
  * 
  */
 descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, minmax) {
+    if (isNaN(vb) || isNaN(va) || isNaN(minmax.y) || isNaN(minmax.x)) {
+      return 2;
+    }
     if (a >= b) {
       return 2;
     }
     var saveX = this.evaluator.getVariable(X);
     var disc=0;
 
-    // try {
-      if ( (Math.abs(b-a) < 1E-12) || 
-           ( (Math.abs(b-a) < 1E-8) && (Math.abs(vb-va) > Math.abs(e)) ) 
+    try {
+      if ( (Math.abs(b-a) < 1E-15) || 
+           ( (Math.abs(b-a) < 1E-12) && (Math.abs(vb-va) > Math.abs(e)) ) 
          ) {
         this.evaluator.setVariable(X, saveX);
         return 1;
@@ -5729,7 +5396,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       var auxv = this.evaluator.evalExpression(this.funExpr);
 
       if (Math.abs(vb-va)>e) {  // detectar saltos
-        var epsilon = 0.000001;
+        var epsilon = 1E-12;
         this.evaluator.setVariable(X, a-epsilon);
         var _v = this.evaluator.evalExpression(this.funExpr);
         var _D = (va-_v)/epsilon;
@@ -5737,21 +5404,23 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
         this.evaluator.setVariable(X, b+epsilon);
         var v_ = this.evaluator.evalExpression(this.funExpr);
         var D_ = (v_-vb)/epsilon;
-
         var Dj = (vb-va)/(b-a);
 
         if ( (Math.abs(D_) < 10) || 
              (Math.abs(_D) < 10)
            ) { 
-          if ((D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
-            if (8*Math.abs(D_) < Math.abs(Dj)) {
+          if ( (D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
+            if (4*Math.abs(D_) < Math.abs(Dj)) {
               this.evaluator.setVariable(X, saveX);
               return 2;
             }
           }
         }
       }
-      if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
+      if (isNaN(minmax.x) || isNaN(minmax.y) || (isNaN(auxv))){
+        return 2;
+      }
+      else if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
         this.evaluator.setVariable(X, ab2);
         minmax.x = Math.min(va, auxv);
         minmax.y = Math.max(va, auxv);
@@ -5764,10 +5433,10 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
         disc = Math.max(s1, s2);
       }
-    // } 
-    // catch (exc) {
-    //   disc = 1;
-    // }
+    } 
+    catch (exc) {
+      disc = 1;
+    }
 
     this.evaluator.setVariable(X, saveX)
 
@@ -5817,8 +5486,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       dx = 1;
     }
 
-    var condWhile = (this.of_y) ? this.space.h : this.space.w;
-    while (x < condWhile) {
+    var condWhile = (this.of_y) ? this.space.h+2 : this.space.w+2;
+    while (x <= condWhile) {
       var def = true;
       var sing = 0;
       this.evaluator.setVariable(X, Xr);
@@ -5859,6 +5528,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillM.getColor();
                   ctx.beginPath();
+                  // Line(g[i],width,x,y0+1,x,y,of_y);
                   if (this.of_y) {
                     ctx.moveTo(y0+1, this.space.h-x+.5);
                     ctx.lineTo(y, this.space.h-x+.5);
@@ -5867,6 +5537,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                     ctx.moveTo(x+.5, y0+1);
                     ctx.lineTo(x+.5, y);
                   }
+
                   ctx.stroke();
                 }
                 if ((this.fillP) && (y<y0)) {
@@ -5888,6 +5559,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 ctx.strokeStyle = this.color.getColor();
 
                 ctx.beginPath();
+                // Line(g[i],width,xa,nya,x,y,of_y);
                 if (this.of_y) {
                   ctx.moveTo(nya+.5, this.space.h-xa);
                   ctx.lineTo(y+.5, this.space.h-x);
@@ -5902,7 +5574,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
               else if (sing === 1) {
                 this.evaluator.setVariable(X, Xr-dx);
                 var pn = this.extrapolate(cond, X, Y, F, va, dx);
-                y = this.YY(width, pn.y, this.abs_coord);
+                y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
 
                 this.evaluator.setVariable(X, Xr);
                 var pa = this.extrapolate(cond, X, Y, F, v, -dx);
@@ -5911,15 +5583,32 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
              }
               // sing === 2
               else {
-                y = this.YY(width, v, this.abs_coord);
+                y = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
               }
             }
             // defa === false; extrapolate forward
             else {
               var pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
 
-              ya = this.YY(width, pa.y, this.abs_coord);
-              y = this.YY(width, v, this.abs_coord);
+              ya = (this.of_y)?this.XX(width, pa.y, this.abs_coord):this.YY(width, pa.y, this.abs_coord);
+              y  = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
+
+              //
+              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
+              ctx.lineWidth = width;
+              ctx.strokeStyle = this.color.getColor();
+              ctx.beginPath();
+
+              if (this.of_y) {
+                ctx.moveTo(ya, this.space.h-(x+Math.round(pa.x))+.5);
+                ctx.lineTo(y,  this.space.h-x+.5);
+              }
+              else {
+                ctx.moveTo(x+Math.round(pa.x), ya);
+                ctx.lineTo(x, y);
+              }
+              ctx.stroke();
+              //
             }
 
             va = v;
@@ -5934,7 +5623,23 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
             this.evaluator.setVariable(Y, va);
 
             var pn = this.extrapolate(cond, X, Y, F, va, dx);
-            y = this.YY(width, pn.y, this.abs_coord);
+            y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
+
+            //
+            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+            ctx.lineWidth = width;
+            ctx.strokeStyle = this.color.getColor();
+            ctx.beginPath();
+            if (this.of_y) {
+              ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
+              ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
+            }
+            else {
+              ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
+              ctx.lineTo((xa+Math.round(pn.x))+.5, y);
+            }
+            ctx.stroke();
+            //
 
             this.evaluator.setVariable(X, Xr);
           }
@@ -6160,7 +5865,8 @@ var descartesJS = (function(descartesJS) {
         
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
-      ctx.fill();
+      ctx.fill("evenodd");
+      // ctx.fill();
     }
     ctx.stroke();
     
@@ -7069,7 +6775,6 @@ var descartesJS = (function(descartesJS) {
       this.end = this.end.substring(1);
     }
 
-
     this.initExpr = parent.evaluator.parser.parse(this.init);
     this.endExpr = parent.evaluator.parser.parse(this.end);
   }
@@ -7117,7 +6822,6 @@ var descartesJS = (function(descartesJS) {
       u2 = initVal[0][1];
       v1 = endVal[0][0];
       v2 = endVal[0][1];
-
 
       // arc expressed with points in the space
       if (!this.vectors) {
@@ -7180,21 +6884,28 @@ var descartesJS = (function(descartesJS) {
         angulo2 = 2*Math.PI-angulo2;
       }
 
-      // always choose the angles in order from lowest to highest
-      tmpAngulo1 = Math.min(angulo1, angulo2);
-      tmpAngulo2 = Math.max(angulo1, angulo2);
-      angulo1 = tmpAngulo1;
-      angulo2 = tmpAngulo2;
-
-      // if the internal angle if greater than PI and the angle is in absolute coordinates
-      if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
-        angulo1 = tmpAngulo2;
+      if (this.initFlag) {
+        tmpAngulo1 = angulo1;
+        angulo1 = angulo2;
         angulo2 = tmpAngulo1;
       }
-      // if the internal angle if less than PI and the angle is in relative coordinates
-      if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
-        angulo1 = tmpAngulo2;
-        angulo2 = tmpAngulo1;
+      else {
+        // always choose the angles in order from lowest to highest
+        tmpAngulo1 = Math.min(angulo1, angulo2);
+        tmpAngulo2 = Math.max(angulo1, angulo2);
+        angulo1 = tmpAngulo1;
+        angulo2 = tmpAngulo2;
+
+        // if the internal angle if greater than PI and the angle is in absolute coordinates
+        if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
+          angulo1 = tmpAngulo2;
+          angulo2 = tmpAngulo1;
+        }
+        // if the internal angle if less than PI and the angle is in relative coordinates
+        if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
+          angulo1 = tmpAngulo2;
+          angulo2 = tmpAngulo1;
+        }
       }
 
       this.iniAng = angulo1;
@@ -7558,6 +7269,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.inirot = parent.evaluator.parser.parse("0");    
 
+    this.pattern = false;
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
     
@@ -7596,27 +7309,33 @@ var descartesJS = (function(descartesJS) {
       this.exprY = tmpRotY;
     }
     
-    if (expr[0].length == 4) {
+    // configuration of the form (x,y,ew,eh)
+    if (expr[0].length >= 4) {
       this.centered = true;
       this.scaleX = expr[0][2];
       if (this.scaleX == 0) {
-        this.scaleX = .00001;
+        this.scaleX = 0.00001;
       }
       this.scaleY = expr[0][3];
       if (this.scaleY == 0) {
-        this.scaleY = .00001;
+        this.scaleY = 0.00001;
+      }
+
+      if (expr[0][4]) {
+        this.pattern = (expr[0][4] == 1) ? true : false;
       }
     }      
       
+    // configuration of the form (x,y)(ew,eh)
     if ((expr[1]) && (expr[1].length == 2)) {
       this.centered = true;
       this.scaleX = expr[1][0];
       if (this.scaleX == 0) {
-        this.scaleX = .00001;
+        this.scaleX = 0.00001;
       }
       this.scaleY = expr[1][1];      
       if (this.scaleY == 0) {
-        this.scaleY = .00001;
+        this.scaleY = 0.00001;
       }
     }
     
@@ -7651,23 +7370,33 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
-      despX = (this.centered) ? 0 : this.img.width/2;
-      despY = (this.centered) ? 0 : this.img.height/2;
+      despX = (this.centered) ? 0 : mathRound(this.img.width/2);
+      despY = (this.centered) ? 0 : mathRound(this.img.height/2);
       coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
       coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
       rotation = descartesJS.degToRad(-evaluator.evalExpression(this.inirot));
 
       ctx.save();
-
       ctx.translate(coordX+despX, coordY+despY);
       ctx.rotate(rotation);
-      ctx.scale(this.scaleX, this.scaleY);
 
       if (this.opacity) {
         ctx.globalAlpha = evaluator.evalExpression(this.opacity);
       }
 
-      ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
+      // stretch image
+      if (!this.pattern) {
+        ctx.scale(this.scaleX, this.scaleY);
+        // ctx.drawImage(this.img, -mathRound(this.img.width/2), -mathRound(this.img.height/2));
+        ctx.drawImage(this.img, -this.img.width/2, -this.img.height/2);
+      }
+      // repeat image
+      else {
+        ctx.fillStyle = ctx.createPattern(this.img, "repeat");
+        // ctx.translate(-mathRound(this.img.width/2)*this.scaleX, -mathRound(this.img.height/2)*this.scaleY);
+        ctx.drawImage(this.img, (-this.img.width/2)*this.scaleX, (-this.img.height/2)*this.scaleY);
+        ctx.fillRect(0, 0, this.img.width*this.scaleX, this.img.height*this.scaleY);
+      }
 
       // reset the transformations
       ctx.restore();
@@ -7809,7 +7538,7 @@ var descartesJS = (function(descartesJS) {
     imageData.data[index+0] = color.r;
     imageData.data[index+1] = color.g;
     imageData.data[index+2] = color.b;
-    imageData.data[index+3] = 255 - color.a;
+    imageData.data[index+3] = color.a*255;
   }
 
   /**
@@ -7828,7 +7557,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
+  var reservedIdentifiers = "-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -7968,7 +7697,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
-               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "border") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
@@ -8030,7 +7759,7 @@ var descartesJS = (function(descartesJS, babel) {
             var tmpTokensArray = respText[j][1].replace(/\&squot;/g, "'").split(";");
 
             for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
-              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI]);
+              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
 
               for (var t=0, lt=tmpTokens.length; t<lt; t++) {
                 if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
@@ -8043,7 +7772,7 @@ var descartesJS = (function(descartesJS, babel) {
 
             respText[j][1] = tmpTokensArray.join(";");
           }
-        
+
         }
 
       }
@@ -9296,10 +9025,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
-    if (this.macroChildren) {
-      v = this.applyMacroTransform(v)
-    }
-
     if (this.inirotEuler) {
       tmpVertex = this.inirotM.multiplyVector4(v);
     }
@@ -9322,8 +9047,13 @@ var descartesJS = (function(descartesJS) {
 
     tmpVertex = this.endposM.multiplyVector4(tmpVertex);
 
+    // make the rotation of the macro
+    if (this.macroChildren) {
+      tmpVertex = this.applyMacroTransform(tmpVertex);
+    }
+
     return tmpVertex;
-   }
+  }
 
   /** 
    *
@@ -9335,7 +9065,7 @@ var descartesJS = (function(descartesJS) {
     else {
       tmpVertex = this.macro_inirotM_X.multiplyVector4(v);
       tmpVertex = this.macro_inirotM_Y.multiplyVector4(tmpVertex);
-      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);      
+      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);
     }
 
     tmpVertex = this.macro_iniposM.multiplyVector4(tmpVertex);
@@ -9359,99 +9089,61 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
     tmpExpr3 = [];
-var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
-var tmpEmprArr = [];
-var statusIgnore = 0;
-var statusEqual = 1;
-var statusId = 2;
-var status = statusIgnore;
-var charAt;
-var lastIndex = tmpEmpr.length;
+    var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
+    var tmpEmprArr = [];
+    var statusIgnore = 0;
+    var statusEqual = 1;
+    var statusId = 2;
+    var status = statusIgnore;
+    var charAt;
+    var lastIndex = tmpEmpr.length;
 
 
-for (var i=tmpEmpr.length-1; i>-1; i--) {
-  charAt = tmpEmpr.charAt(i)
+    for (var i=tmpEmpr.length-1; i>-1; i--) {
+      charAt = tmpEmpr.charAt(i)
 
-  if (status == statusIgnore) {
-    if (charAt != "=") {
-      continue;
+      if (status == statusIgnore) {
+        if (charAt != "=") {
+          continue;
+        }
+        else {
+          status = statusEqual;
+          continue; 
+        }
+      }
+
+      if (status == statusEqual) {
+        if (charAt == " ") {
+          continue;
+        }
+        else if ( (charAt == "<") || (charAt == ">") ) {
+          status = statusIgnore;
+          continue;
+        }
+        else {
+          status = statusId;
+          continue;
+        }
+      }
+
+      if (status == statusId) {
+        if (charAt == " ") {
+          tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
+          lastIndex = i;
+          status = statusIgnore;
+          continue;
+        }
+      }
     }
-    else {
-      status = statusEqual;
-      continue; 
+
+    tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
+
+    for(var i=0, l=tmpEmprArr.length; i<l; i++) {
+      tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
     }
-  }
-
-  if (status == statusEqual) {
-    if (charAt == " ") {
-      continue;
-    }
-    else if ( (charAt == "<") || (charAt == ">") ) {
-      status = statusIgnore;
-      continue;
-    }
-    else {
-      status = statusId;
-      continue;
-    }
-  }
-
-  if (status == statusId) {
-    if (charAt == " ") {
-      tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
-      lastIndex = i;
-      status = statusIgnore;
-      continue;
-    }
-  }
-}
-
-tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
-
-for(var i=0, l=tmpEmprArr.length; i<l; i++) {
-  tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
-}
 
 
-return tmpExpr3;
-
-    // tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim().split("=");
-    // tmpExpr2 = tmpExpr[0];
-    // tmpExpr3 = [];
-
-    // var newTmpExpr = [];
-    // var tmpindex;
-
-    // for (var i=0, l=tmpExpr.length; i<l; i++) {
-    //   lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
-
-    //   if (lastIndexOfSpace !== -1) {
-    //     newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
-    //     newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
-    //   }
-    //   else {
-    //     newTmpExpr.push(tmpExpr[i]);
-    //   }
-    // }
-
-    // var newTmpExpr2 = [];
-    // for (var i=0, l=newTmpExpr.length; i<l; i++) {
-    //   if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
-    //     newTmpExpr2.push( newTmpExpr[i] );
-    //     newTmpExpr2.push("");
-    //   }
-    //   else {
-    //     tmpindex = newTmpExpr2.length-1;
-    //     newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
-    //   } 
-    // }
-
-    // for (var i=0; i<3; i++) {
-    //   tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
-    //   tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
-    // }
-
-    // return tmpExpr3;
+    return tmpExpr3;
   }
 
   var tmpPrimitives;
@@ -9644,6 +9336,11 @@ var descartesJS = (function(descartesJS) {
   var vertices;
   var v;
 
+  var ui;
+  var vi;
+  var ii;
+  var ll;
+
   /**
    * A Descartes 3D surface
    * @constructor 
@@ -9706,14 +9403,14 @@ var descartesJS = (function(descartesJS) {
     // array to store the computed vertices 
     vertices = [];
 
-    for (var ui=0; ui<=Nu; ui++) {
+    for (ui=0; ui<=Nu; ui++) {
       evaluator.setVariable("u", ui/Nu);
 
-      for (var vi=0; vi<=Nv; vi++) {
+      for (vi=0; vi<=Nv; vi++) {
         evaluator.setVariable("v", vi/Nv);
 
         // eval all the subterms in the expression
-        for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
+        for (ii=0, ll=this.expresion.length; ii<ll; ii++) {
           evaluator.evalExpression(this.expresion[ii]);
         }
 
@@ -9721,8 +9418,8 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    for (var ui=0; ui<Nu; ui++) {
-      for (var vi=0; vi<Nv; vi++) {
+    for (ui=0; ui<Nu; ui++) {
+      for (vi=0; vi<Nv; vi++) {
         v = [];
         v.push(vertices[vi + ui*Nv + ui]);        // 0
         v.push(vertices[vi+1 + ui*Nv + ui]);      // 1
@@ -10251,7 +9948,6 @@ var descartesJS = (function(descartesJS, babel) {
     this.endrotM_Z = new descartesJS.Matrix4x4();
     this.endposM   = new descartesJS.Matrix4x4();
 
-
     this.graphics = [];
     
     var lessonParser = parent.lessonParser;
@@ -10477,22 +10173,20 @@ var descartesJS = (function(descartesJS, babel) {
       thisGraphics_i = this.graphics[i];
 
       thisGraphics_i.macro_inirotEuler = this.inirotEuler;
-      thisGraphics_i.macro_inirotM = this.inirotM;
-      thisGraphics_i.macro_inirotM_X = this.inirotM_X;
-      thisGraphics_i.macro_inirotM_Y = this.inirotM_Y;
-      thisGraphics_i.macro_inirotM_Z = this.inirotM_Z;
-
+      thisGraphics_i.macro_inirotM     = this.inirotM;
+      thisGraphics_i.macro_inirotM_X   = this.inirotM_X;
+      thisGraphics_i.macro_inirotM_Y   = this.inirotM_Y;
+      thisGraphics_i.macro_inirotM_Z   = this.inirotM_Z;
       thisGraphics_i.macro_iniposM = this.iniposM;
 
       thisGraphics_i.macro_endrotEuler = this.endrotEuler;
-      thisGraphics_i.macro_endrotM = this.endrotM;
-      thisGraphics_i.macro_endrotM_X = this.endrotM_X;
-      thisGraphics_i.macro_endrotM_Y = this.endrotM_Y;
-      thisGraphics_i.macro_endrotM_Z = this.endrotM_Z;
-
+      thisGraphics_i.macro_endrotM     = this.endrotM;
+      thisGraphics_i.macro_endrotM_X   = this.endrotM_X;
+      thisGraphics_i.macro_endrotM_Y   = this.endrotM_Y;
+      thisGraphics_i.macro_endrotM_Z   = this.endrotM_Z;
       thisGraphics_i.macro_endposM = this.endposM;
 
-      thisGraphics_i.update();      
+      thisGraphics_i.update();
     }
 
     // split the primitives if needed
@@ -10597,6 +10291,12 @@ var descartesJS = (function(descartesJS) {
   var tempValue;
   var tempFace;
 
+  var i;
+  var l;
+  var j;
+  var k;
+
+
   /**
    * A Descartes 3D face
    * @constructor 
@@ -10672,11 +10372,12 @@ var descartesJS = (function(descartesJS) {
 
     this.updateMVMatrix();
 
+    // construct the vertices
     this.buildGeometry(evaluator.evalExpression(this.width), evaluator.evalExpression(this.height), evaluator.evalExpression(this.length), evaluator.evalExpression(this.Nu), evaluator.evalExpression(this.Nv));
 
-    for (var i=0, l=this.faces.length; i<l; i++) {
+    for (i=0, l=this.faces.length; i<l; i++) {
       v = [];
-      for (var j=0, k=this.faces[i].length; j<k; j++) {
+      for (j=0, k=this.faces[i].length; j<k; j++) {
         v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
       }
 
@@ -10689,7 +10390,6 @@ var descartesJS = (function(descartesJS) {
                                                          },
                             this.space ));
     }
-
   }
 
   /**
@@ -10721,9 +10421,6 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width,  length, -height, 1), //6
                       new vec4D(-width, -length, -height, 1)  //7
                ];
-    // this.vertices = [ { x:  width, y:  length, z: height, 1 },
-    //                   { x:  width, y: -length, z: height, 1 },
-    // ]
 
     this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
 
@@ -10818,7 +10515,7 @@ var descartesJS = (function(descartesJS) {
 
     // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
     tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-MathPI/6);
-    for (var i=0, l=this.vertices.length; i<l; i++) {
+    for (i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
 
@@ -10862,7 +10559,7 @@ var descartesJS = (function(descartesJS) {
 
     // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
     tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-1.029);
-    for (var i=0, l=this.vertices.length; i<l; i++) {
+    for (i=0, l=this.vertices.length; i<l; i++) {
       this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
     }
 
@@ -10891,9 +10588,9 @@ var descartesJS = (function(descartesJS) {
     
     this.vertices = [new vec4D(0, 0, height, 1)];
 
-    for (var i=1; i<Nu; i++) {
+    for (i=1; i<Nu; i++) {
       phi = (i*MathPI)/Nu;
-      for (var j=0; j<Nv; j++) {
+      for (j=0; j<Nv; j++) {
         theta = (j*Math2PI)/Nv;
 
         x = width  * MathSin(phi) * MathCos(theta);
@@ -10907,13 +10604,13 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
     // upper part
-    for (var i=0; i<Nv; i++) {
+    for (i=0; i<Nv; i++) {
       this.faces.push([0, ((i+1)%Nv)+1, (i%Nv)+1]);
     }
 
     // center part
-    for (var i=1; i<Nu-1; i++) {
-      for (var j=0; j<Nv; j++) {
+    for (i=1; i<Nu-1; i++) {
+      for (j=0; j<Nv; j++) {
         this.faces.push([ j+1 +(i-1)*Nv, 
                          (j+1)%Nv +1 +(i-1)*Nv, 
                          (j+1)%Nv +1 +i*Nv,
@@ -10923,7 +10620,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // lower part
-    for (var i=0; i<Nv; i++) {
+    for (i=0; i<Nv; i++) {
       this.faces.push([this.vertices.length-1, this.vertices.length-1-Nv +i, this.vertices.length-1-Nv +((i+1)%Nv)]);
     }
 
@@ -10945,8 +10642,8 @@ var descartesJS = (function(descartesJS) {
 
     this.vertices = [];
 
-    for (var i=0; i<Nv; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv; i++) {
+      for (j=0; j<Nu; j++) {
         x = width  * (Nv-i)/Nv * MathCos(j*Math2PI/Nu);
         y = length * (Nv-i)/Nv * MathSin(j*Math2PI/Nu);
         z = height -i*2*height/Nv;
@@ -10958,8 +10655,8 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
 
-    for (var i=0; i<Nv-1; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv-1; i++) {
+      for (j=0; j<Nu; j++) {
         this.faces.push( [j +i*Nu, 
                           (j+1)%Nu +i*Nu,
                           (j+1)%Nu +(i+1)*Nu,
@@ -10970,7 +10667,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // punta
-    for (var i=0; i<Nu; i++) {
+    for (i=0; i<Nu; i++) {
       this.faces.push([this.vertices.length-1, this.vertices.length-1 -Nu +i, this.vertices.length-1 -Nu +(i+1)%Nu]);
     }
 
@@ -10992,8 +10689,8 @@ var descartesJS = (function(descartesJS) {
 
     this.vertices = [];
 
-    for (var i=0; i<Nv+1; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv+1; i++) {
+      for (j=0; j<Nu; j++) {
         x = width  * MathCos(j*Math2PI/Nu);
         y = length * MathSin(j*Math2PI/Nu);
         z = height -i*2*height/Nv;
@@ -11004,8 +10701,8 @@ var descartesJS = (function(descartesJS) {
 
     this.faces = [];
 
-    for (var i=0; i<Nv; i++) {
-      for (var j=0; j<Nu; j++) {
+    for (i=0; i<Nv; i++) {
+      for (j=0; j<Nu; j++) {
         this.faces.push( [j +i*Nu, 
                           (j+1)%Nu +i*Nu, 
                           (j+1)%Nu +(i+1)*Nu,
@@ -11028,7 +10725,7 @@ var descartesJS = (function(descartesJS) {
     function toInt(x) { return parseInt(x); };
     function toFloat(x) { return parseFloat(x); };
 
-    for (var i=0, l=this.fileData.length; i<l; i++) {
+    for (i=0, l=this.fileData.length; i<l; i++) {
       currentLine = this.fileData[i];
       
       if (currentLine.match(/^V\(/)) {
@@ -12079,7 +11776,7 @@ var descartesJS = (function(descartesJS) {
     this.actionExec.execute();
 
     // update again the controls
-    // this.parent.updateControls();
+    this.parent.updateControls();
 
     // if the action is animate then do not update the scene
     if (this.action !== "animate") {
@@ -12233,6 +11930,20 @@ var descartesJS = (function(descartesJS) {
 
   var container;
 
+  var checkOver;
+  var checkClick;
+  var checkActive;
+  var checkDrawIf;
+  var checkName;
+  var checkImageSrc;
+
+  var prefix;
+  var sufix;
+  var imageOverSrc;
+  var imageDownSrc;
+  var imageOver;
+  var imageDown;
+
   /**
    * Descartes button control
    * @constructor 
@@ -12283,11 +11994,86 @@ var descartesJS = (function(descartesJS) {
       this.name = this.parser.parse("'" + this.name + "'");
     }
 
+    var tmpParam;
+    if (this.imageSrc.trim().match("^_STYLE_")) {
+      this.customStyle = true;
+      this.canvasStyle = [ ];
+      this.containerStyle = [];
+
+      tmpParam = this.imageSrc.trim().substring(8).split("|");
+      var tempo;
+      for (var i=0, l=tmpParam.length; i<l; i++) {
+        tempo = tmpParam[i];
+        if (tempo.match("border=")) {
+          this.canvasStyle.push( { type: "border-style", value: "solid" } );
+          this.canvasStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
+        }
+        if (tempo.match("borderRadius=")) {
+          this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+          this.containerStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+        }
+        if (tempo.match("borderColor=")) {
+          this.canvasStyle.push( { type: "border-color", value: "#" + tempo.substring(12).trim() } );
+        }
+        if (tempo.match("overColor=")) {
+          this.containerStyle.overColor = "#" + tempo.substring(10).trim();
+        }
+        if (tempo.match("downColor=")) {
+          this.containerStyle.downColor = "#" + tempo.substring(10).trim();
+        }
+        if (tempo.match("font=")) {
+          this.containerStyle.font = tempo.substring(5).trim().toLowerCase();
+        }
+        if (tempo.match("inactiveColor=")) {
+          this.containerStyle.inactiveColor = "#" + tempo.substring(14).trim();
+        }
+        if (tempo.match("inactiveColorBorder=")) {
+          this.containerStyle.inactiveColorBorder = "#" + tempo.substring(20).trim();
+        }
+        if (tempo.match("shadowTextBlur=")) {
+          this.containerStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
+        }
+        if (tempo.match("shadowTextOffsetX=")) {
+          this.containerStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
+        }
+        if (tempo.match("shadowTextOffsetY=")) {
+          this.containerStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
+        }
+        if (tempo.match("shadowTextColor=")) {
+          this.containerStyle.shadowTextColor = "#" + tempo.substring(16).trim();
+        }
+        if (tempo.match("shadowBoxBlur=")) {
+          this.containerStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
+        }
+        if (tempo.match("shadowBoxOffsetX=")) {
+          this.containerStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
+        }
+        if (tempo.match("shadowBoxOffsetY=")) {
+          this.containerStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
+        }
+        if (tempo.match("shadowBoxColor=")) {
+          this.containerStyle.shadowBoxColor = "#" + tempo.substring(15).trim();
+        }
+        if (tempo.match("shadowInsetBoxBlur=")) {
+          this.containerStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
+        }
+        if (tempo.match("shadowInsetBoxOffsetX=")) {
+          this.containerStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
+        }
+        if (tempo.match("shadowInsetBoxOffsetY=")) {
+          this.containerStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
+        }
+        if (tempo.match("shadowInsetBoxColor=")) {
+          this.containerStyle.shadowInsetBoxColor = "#" + tempo.substring(20).trim();
+        }
+      }
+      this.imageSrc = "vacio.gif";
+    }
+
     // color expression of the form _COLORES_ffffff_000000_P_22 specified in the image field
     // the first color is the background color
     // the second color is the text color
-    // the last number ir the font size
-    var tmpParam;
+    // the last number is the font size
     if (this.imageSrc.match("_COLORES_")) {
       tmpParam       = this.imageSrc.split("_");
       this.colorInt  = new descartesJS.Color(tmpParam[2]);
@@ -12347,7 +12133,7 @@ var descartesJS = (function(descartesJS) {
     this.canvas.height = this.h *descartesJS._ratio;
     // this.canvas.setAttribute("width", this.w+"px");
     // this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
+    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     this.ctx = this.canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.mozImageSmoothingEnabled = false;
@@ -12356,21 +12142,6 @@ var descartesJS = (function(descartesJS) {
     this.container.appendChild(this.canvas);
 
     this.addControlContainer(this.container);
-
-    // // create the canvas and the rendering context
-    // this.canvas = document.createElement("canvas");
-    // this.canvas.setAttribute("class", "DescartesButton");
-    // this.canvas.setAttribute("id", this.id);
-    // this.canvas.setAttribute("width", this.w+"px");
-    // this.canvas.setAttribute("height", this.h+"px");
-    // this.canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-
-    // this.ctx = this.canvas.getContext("2d");
-    // this.ctx.imageSmoothingEnabled = false;
-    // this.ctx.mozImageSmoothingEnabled = false;
-    // this.ctx.webkitImageSmoothingEnabled = false;
-
-    // this.addControlContainer(this.canvas);
 
     // register the mouse and touch events
     this.registerMouseAndTouchEvents();
@@ -12387,10 +12158,11 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the button
    */
-  descartesJS.Button.prototype.init = function() {
+  descartesJS.Button.prototype.init = function(force) {
     evaluator = this.evaluator;
-container = this.container;
+    container = this.container;
     canvas = this.canvas;
+    ctx = this.ctx;
     expr = evaluator.evalExpression(this.expresion);
     this.x = expr[0][0];
     this.y = expr[0][1];
@@ -12398,27 +12170,78 @@ container = this.container;
       this.w = parseInt(expr[0][2]);
       this.h = parseInt(expr[0][3]);
     }
-    
-    // canvas.setAttribute("width", this.w+"px");
-    // canvas.setAttribute("height", this.h+"px");
-    // canvas.setAttribute("style", "left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; display: block; background-repeat: no-repeat;");
 
+    //
     canvas.width  = this.w *descartesJS._ratio;
     canvas.height = this.h *descartesJS._ratio;
-    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px;");
-
+    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
+    //
+
+    //
+    if (this.canvasStyle) {
+      for (var i=0, l=this.canvasStyle.length; i<l; i++) {
+        canvas.style[this.canvasStyle[i].type] = this.canvasStyle[i].value;
+      }
+    }
+    if (this.containerStyle) {
+      for (var i=0, l=this.containerStyle.length; i<l; i++) {
+        container.style[this.containerStyle[i].type] = this.containerStyle[i].value;
+      }
+
+      if (this.containerStyle.shadowBoxColor) {
+        var hShadow = this.containerStyle.shadowBoxOffsetX || 0;
+        var wShadow = this.containerStyle.shadowBoxOffsetY || 2;
+        var blur = this.containerStyle.shadowBoxBlur || 2;
+        var spread = 1;
+        container.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowBoxColor;
+      }
+      if (this.containerStyle.shadowInsetBoxColor) {
+        var hShadow = this.containerStyle.shadowInsetBoxOffsetX || 0;
+        var wShadow = this.containerStyle.shadowInsetBoxOffsetY || -2;
+        var blur = this.containerStyle.shadowInsetBoxBlur || 1;
+        var spread = 1;
+        canvas.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowInsetBoxColor + " inset";
+      }
+      if (this.containerStyle.shadowTextColor) {
+        ctx.shadowBlur = this.containerStyle.shadowTextBlur || 1;
+        ctx.shadowOffsetX = this.containerStyle.shadowTextOffsetX || 0;
+        ctx.shadowOffsetY = this.containerStyle.shadowTextOffsetY || 2;
+        ctx.shadowColor = this.containerStyle.shadowTextColor;
+      }
+    }
+    //
 
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
     }
+    this.fs_evaluated = evaluator.evalExpression(this.font_size);
 
     // create the background gradient
     this.createGradient(this.w, this.h);
 
     container.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
 
-container.setAttribute("data-color", this.colorInt.getColor());
+    ////
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineJoin = "round";
+    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+    
+    if (this.customStyle) {
+      if (this.containerStyle.font == "serif") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_serif,Times,'Times New Roman', serif";
+      }
+      else if (this.containerStyle.font == "monospace") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_monospace,Courier,'Courier New',Monospace";
+      }
+      else if (this.containerStyle.font == "icons") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_icons,Arial,Helvetica,Sans-serif";
+      }
+    }
+    // container.setAttribute("data-color", this.colorInt.getColor());
+
+    this.draw(force);
   }
   
   /**
@@ -12444,9 +12267,7 @@ container.setAttribute("data-color", this.colorInt.getColor());
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
-
-    // canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
+    // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // update the position and size
     this.updatePositionAndSize();
@@ -12455,29 +12276,52 @@ container.setAttribute("data-color", this.colorInt.getColor());
   /**
    * Draw the button
    */
-  descartesJS.Button.prototype.draw = function() {
+  descartesJS.Button.prototype.draw = function(force) {
     container = this.container;
     evaluator = this.evaluator;
+    canvas = this.canvas;
     ctx = this.ctx;
+
+    name = evaluator.evalExpression(this.name);
+    imageSrc = evaluator.evalExpression(this.imageSrc) + "";
+
+    // if ((!force) && (this.customStyle)) {
+    if (!force) {
+      checkOver = (this.over === this.oldOver);
+      checkClick = (this.buttonClick === this.oldButtonClick);
+      checkActive = (this.activeIfValue === this.oldActiveIfValue);
+      checkDrawIf = (this.drawIfValue === this.oldDrawIfValue);
+      checkName = (name === this.oldName);
+      checkImageSrc = (imageSrc === this.oldImageSrc);
+
+      this.oldOver = this.over;
+      this.oldButtonClick = this.buttonClick;
+      this.oldActiveIfValue = this.activeIfValue;
+      this.oldDrawIfValue = this.drawIfValue;
+      this.oldName = name;
+      this.oldImageSrc = imageSrc;
+
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc) {
+        return;
+      };
+    }
 
     ctx.save();
     ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
 
-    font_size = evaluator.evalExpression(this.font_size);
-    name = evaluator.evalExpression(this.name);
+    font_size = this.fs_evaluated; 
 
-container.setAttribute("data-name", name);
+    // container.setAttribute("data-name", name);
 
-    imageSrc = evaluator.evalExpression(this.imageSrc);
     image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
 
-var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+    prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+    sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
-var imageOverSrc = prefix + "_over" + sufix;
-var imageDownSrc = prefix + "_down" + sufix;
-var imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
-var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+    imageOverSrc = prefix + "_over" + sufix;
+    imageDownSrc = prefix + "_down" + sufix;
+    imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+    imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
 
     ctx.clearRect(0, 0, this.w, this.h);
 
@@ -12505,97 +12349,123 @@ var imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getIm
       if (newButtonCondition) {
         _text_pos_y = parseInt(this.h - _font_h/2 -2);
 
-container.style.backgroundColor = this.colorInt.getColor();
+        container.style.backgroundColor = this.colorInt.getColor();
 
-        // ctx.fillStyle = this.colorInt.getColor();
-        // ctx.fillRect(0, 0, this.w, this.h);
+        ctx.strokeStyle = this.color.getColor();
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0.5,0.5);
+        ctx.lineTo(this.w-0.5,0.5);
+        ctx.lineTo(this.w-0.5,this.h-0.5);
+        ctx.lineTo(0.5,this.h-0.5);
+        ctx.closePath();
+        ctx.stroke();
       }
     }
-    //////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-container.style.backgroundImage = "url('" + imageSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-        // // check if is a gif image
-        // if ( (this.image.src).match(gifPattern) ) {
-        //   this.canvas.style.backgroundImage = "url('" + this.image.src + "')";
-        //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-        // }
-        // else {
-        //   ctx.drawImage(image, _image_pos_x, _image_pos_y);
-        // }
+        // container.style.backgroundImage = "url('" + imageSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        // check if is a gif image
+        if ( imageSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(image, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.emptyImage) && (this.customStyle)) {
+        container.style.backgroundColor = this.colorInt.getColor();
       }
     }
     // the image is not ready or the button do not have a image
     else {
-container.style.backgroundColor = this.colorInt.getColor();
-
-      // ctx.fillStyle = this.colorInt.getColor();
-      // ctx.fillRect(0, 0, this.w, this.h);
+      container.style.backgroundColor = this.colorInt.getColor();
 
       if (!this.buttonClick) {
-        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
-        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
-        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+        // descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
+        // descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
+        // descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
+        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
+        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
+        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
       }
       
       ctx.fillStyle = this.linearGradient;
       ctx.fillRect(0, 0, this.w, this.h);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // over image
-    if ( (this.activeIfValue) && (imageOver !== this.emptyImage) && (imageOver.ready) && (this.over) ) {
-container.style.backgroundImage = "url('" + imageOverSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-
-      // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url('" + this.imageOver.src + "')";
-      //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-      // }
-      // else {
-      //   ctx.drawImage(this.imageOver, _image_pos_x, _image_pos_y);
-      // }
+    if (this.activeIfValue) {
+      if ( (imageOver !== this.emptyImage) && (this.over) && (imageOver.ready) && (imageOver.complete) ) {
+        // container.style.backgroundImage = "url('" + imageOverSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        if ( imageOverSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageOverSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(imageOver, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.customStyle) && (this.containerStyle.overColor) && (this.over)) {
+        container.style.backgroundColor = this.containerStyle.overColor;
+      }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // down image
-    if ( (this.activeIfValue) && (imageDown !== this.emptyImage) && (imageDown.ready) && (this.buttonClick) ) {
-container.style.backgroundImage = "url('" + imageDownSrc + "')";
-container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-
-      // if ( (this.image.src).match(gifPattern) ) {
-      //   this.canvas.style.backgroundImage = "url('" + this.imageDown.src + "')";
-      //   this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-      // }
-      // else {
-      //   ctx.drawImage(this.imageDown, _image_pos_x, _image_pos_y);
-      // }
+    if (this.activeIfValue) {
+      if ( (imageDown !== this.emptyImage) && (this.buttonClick) && (imageDown.ready) && (imageDown.complete) ) {
+        // container.style.backgroundImage = "url('" + imageDownSrc + "')";
+        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        if ( imageDownSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundImage = "url('" + imageDownSrc + "')";
+          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+        }
+        else {
+          ctx.drawImage(imageDown, _image_pos_x, _image_pos_y);
+        }
+      }
+      else if ((this.customStyle) && (this.containerStyle.downColor) && (this.buttonClick)) {
+        container.style.backgroundColor = this.containerStyle.downColor;
+      }
     }
     else if ((this.buttonClick) && (!image)) {
-      // descartesJS.drawLine(ctx, 0, 0, 0, this.h-2, "gray");
-      // descartesJS.drawLine(ctx, 0, 0, this.w-1, 0, "gray"); 
-
-      ctx.fillStyle = "rgba(0, 0, 0,"+(0x18/255)+")";
+      ctx.fillStyle = "rgba(0,0,0,0.09)";
       ctx.fillRect(0, 0, this.w, this.h);
     }
-      
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////////////
     ctx.fillStyle = this.color.getColor();
-    ctx.font = this.italics + " " + this.bold + " " + font_size + "px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+
+    if (this.customStyle) {
+      if (this.containerStyle.shadowTextColor) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.containerStyle.shadowTextColor;
+        ctx.strokeText(name, _text_pos_x, _text_pos_y);
+      }
+    }
 
     // text border
-    if ( (!image) && (this.drawTextBorder()) ) {
-      ctx.lineJoin = "round";
+    if ( (!newButtonCondition) && (!this.containerStyle) && (this.drawTextBorder()) ) {
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
       ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // write the button name
     ctx.fillText(name, _text_pos_x, _text_pos_y);
 
+    ////////////////////////////////////////////////////////////////////////////////////////
     // draw the under line
     if (this.underlined) {
       txtW = ctx.measureText(name).width;
@@ -12604,34 +12474,39 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      // ctx.moveTo( parseInt((this.w-txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
-      // ctx.lineTo( parseInt((this.w+txtW)/2) + despX, MathFloor((this.h + font_size)/2) + MathFloor(font_size/5) - 1.5 + despY );
       ctx.moveTo( parseInt((this.w-txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.lineTo( parseInt((this.w+txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.stroke();
     }
-     
+
+    ////////////////////////////////////////////////////////////////////////////////////////     
     if (!this.activeIfValue) {
-      ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
-      ctx.fillRect(0, 0, this.w, this.h);      
-      // ctx.globalCompositeOperation = "destination-in";
-      // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0x66/255) + ")";
-      // ctx.fillRect(0, 0, this.w, this.h);
-      // ctx.globalCompositeOperation = "source-over";
+      if ((this.customStyle) && (this.containerStyle.inactiveColor)) {
+        container.style.backgroundColor = this.containerStyle.inactiveColor;
+      }
+      else {
+        // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
+        ctx.fillStyle = "rgba(240,240,240,0.6)";
+        ctx.fillRect(0, 0, this.w, this.h);
+      }
     }
 
     ctx.restore();
+
+    // for the screenshot
+    this._image_pos_x = _image_pos_x;
+    this._image_pos_y = _image_pos_y;    
   }
 
   /**
    *
    */
   descartesJS.Button.prototype.drawTextBorder = function() {
-    // compute the color components
+    // compute the correct components
     this.colorInt.getColor();
     this.color.getColor();
 
-    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) < 0.5);
+    return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
   }  
   
   /**
@@ -12665,10 +12540,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       if ((self.buttonClick) && (self.drawIfValue) && (self.activeIfValue)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 100;
-        timer = setTimeout(function() { repeat(delayTime, fun); }, delayTime);
+        timer = setTimeout(function() { repeat(delayTime, fun, false); }, delayTime);
       }
-
-
     }
 
     this.buttonClick = false;
@@ -12689,7 +12562,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      */
     function onMouseDown(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      // document.body.focus();
+      this.focus();
 
       evt.preventDefault();
       evt.stopPropagation();
@@ -12706,11 +12580,10 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.buttonClick = true;
           
           self.draw();
-          
-          // se registra el valor de la variable
-          self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
 
           if (self.action == "calculate") {
+            // se registra el valor de la variable
+            self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
             repeat(delay, self.buttonPressed, true);
           }
           
@@ -12733,7 +12606,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      // document.body.focus();
+      this.focus();
 
       evt.preventDefault();
       evt.stopPropagation();
@@ -12741,8 +12615,10 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       if ((self.activeIfValue) || (self.buttonClick)) {
         self.buttonClick = false;
         self.draw();
-        
+
         if (self.action != "calculate") {
+          // se registra el valor de la variable
+          self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
           self.buttonPressed();
         }
         
@@ -12753,6 +12629,8 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
           self.canvas.removeEventListener("mouseup", onMouseUp);
         }
       }
+      // espero que no haya errores
+      self.parent.update();
     }
     
     /**
@@ -12782,11 +12660,35 @@ container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "
       self.draw();
     }
 
+    /**
+     *
+     */
+    document.addEventListener("visibilitychange", function(evt) {
+      self.buttonClick = false;
+    });
 
   }
 
   descartesJS.Button.prototype.getScreenshot = function() {
-    return this.canvas;
+    var canvas = document.createElement("canvas");
+    canvas.width  = this.w;
+    canvas.height = this.h;
+    ctx = canvas.getContext("2d");
+
+    imageSrc = evaluator.evalExpression(this.imageSrc);
+    image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+
+    if ((image) && (image.ready)) {
+      ctx.drawImage(image, this._image_pos_x, this._image_pos_y);
+    }
+    else {
+      ctx.fillStyle = this.colorInt.getColor();
+      ctx.fillRect(0, 0, this.w, this.h);
+    }
+
+    ctx.drawImage(this.canvas, 0, 0);
+
+    return canvas;
   }
 
   return descartesJS;
@@ -12910,7 +12812,7 @@ var descartesJS = (function(descartesJS) {
     this.fieldFontSize = (this.parent.version !== 2) ? descartesJS.getFieldFontSize(this.h) : 10;
 
     // extra space added to the name
-    var extraSpace = (this.parent.version !== 2) ? "" : "_____";
+    var extraSpace = (this.parent.version !== 2) ? "__" : "_____";
     
     var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px Arial");
 
@@ -13346,7 +13248,7 @@ var descartesJS = (function(descartesJS) {
       self.up = false;
       clearInterval(timer);
       self.draw();
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       this.divUp.addEventListener("touchend", onMouseUp_UpButton);
@@ -13365,7 +13267,7 @@ var descartesJS = (function(descartesJS) {
       self.down = false;
       clearInterval(timer);
       self.draw();
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       this.divDown.addEventListener("touchend", onMouseUp_DownButton);
@@ -13375,7 +13277,17 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("mouseup", onMouseUp_DownButton);
     }
 
-    /*
+    /**
+     *
+     */
+    document.addEventListener("visibilitychange", function(evt) {
+      self.up = false;
+      self.down = false;
+      clearInterval(timer);
+      self.draw();
+    });
+
+    /**
      * Prevent an error with the focus of a text field
      */
     self.field.addEventListener("click", function(evt) {
@@ -13790,7 +13702,9 @@ var descartesJS = (function(descartesJS) {
      */
     function onBlur_textField(evt) {
       // self.update();
-      self.changeValue(self.field.value, true);
+      if (self.evaluator.evalExpression(self.drawIf)) {
+        self.changeValue(self.field.value, true);
+      }
     }
     this.field.addEventListener("blur", onBlur_textField);
         
@@ -14095,9 +14009,6 @@ var descartesJS = (function(descartesJS) {
       this.containerControl.style.display = "none";
     }
 
-    // update the position and size
-    this.updatePositionAndSize();
-
     if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
       this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
@@ -14119,7 +14030,10 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.ok = (this.value == this.answer) ? 1 : 0;
-    this.evaluator.setVariable(this.id+".ok", this.ok);    
+    this.evaluator.setVariable(this.id+".ok", this.ok);
+
+    // update the position and size
+    this.updatePositionAndSize();
   }
 
   /**
@@ -14260,12 +14174,12 @@ var descartesJS = (function(descartesJS) {
      * Prevent an error with the focus of a text field
      */
     self.field.addEventListener("click", function(evt) {
-      this.select();      
+      // this.select();
       this.focus();
     });
-    self.select.addEventListener("mouse", function(evt) {
-      this.focus();
-    });
+    // self.select.addEventListener("mouse", function(evt) {
+    //   this.focus();
+    // });
   }
 
   return descartesJS;
@@ -14983,7 +14897,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_Canvas(evt) {
       self.canvasClick = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_Canvas);
@@ -15038,7 +14952,7 @@ var descartesJS = (function(descartesJS) {
         self.initPos = self.getCursorPosition(evt);
 
         window.addEventListener("touchend", onTouchEnd_scrollManipulator);
-        window.addEventListener("touchmove", onToucheMove_scrollManipulator);
+        window.addEventListener("touchmove", onMouseMove_scrollManipulator);
         
         evt.preventDefault();
       }    
@@ -15203,7 +15117,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_UpButton(evt) {
       self.up = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
       self.draw();
     }
     if (hasTouchSupport) {
@@ -15220,7 +15134,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_DownButton(evt) {
       self.down = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
       self.draw();
     }
     if (hasTouchSupport) {
@@ -15345,6 +15259,10 @@ var descartesJS = (function(descartesJS) {
     self.evaluator.setFunction(self.id + ".stop", function() {
       self.audio.pause();
       self.audio.currentTime = 0.0;
+      return 0;
+    });
+    self.evaluator.setFunction(self.id + ".currentTime", function(time) {
+      self.audio.currentTime = parseFloat(time);
       return 0;
     });
     self.audio.addEventListener("timeupdate", function(evt) {
@@ -15513,6 +15431,10 @@ var descartesJS = (function(descartesJS) {
     self.evaluator.setFunction(self.id + ".stop", function() {
       self.video.pause();
       self.video.currentTime = 0.0;
+      return 0;
+    });
+    self.evaluator.setFunction(self.id + ".currentTime", function(time) {
+      self.video.currentTime = parseFloat(time);
       return 0;
     });
     self.video.addEventListener("timeupdate", function(evt) {
@@ -16194,15 +16116,25 @@ var descartesJS = (function(descartesJS) {
   descartesJS.GraphicControl.prototype.drawText = function(x, y) {
     ctx = this.ctx;
     evaluator = this.evaluator;
-    
-    ctx.fillStyle = this.color.getColor();
-    ctx.font = this.font;
-    ctx.textBaseline = "alphabetic";
 
-    ctx.fillText(evaluator.evalExpression(this.text[0], evaluator.evalExpression(this.decimals), this.fixed), 
-                 parseInt(x+1+this.width/2), 
-                 parseInt(y-1-this.height/2)
-                );
+    // simpleText
+    if (this.text.type == "simpleText") {
+      ctx.fillStyle = this.color.getColor();
+      ctx.font = this.font;
+      ctx.textBaseline = "alphabetic";
+
+      ctx.fillText(this.text.toString(evaluator.evalExpression(this.decimals), this.fixed), 
+                   parseInt(x+1+this.width/2), 
+                   parseInt(y-1-this.height/2)
+                  );
+    }
+    // rtfNode
+    else {
+      ctx.fillStyle = this.color.getColor();
+      ctx.strokeStyle = this.color.getColor();
+      ctx.textBaseline = "alphabetic";
+      this.text.draw(ctx, parseInt(x+1+this.width/2), parseInt(y-1-this.height/2), this.decimals, this.fixed, "start", true, this.color.getColor());
+    }
   }
 
   /**
@@ -16240,7 +16172,9 @@ var descartesJS = (function(descartesJS) {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
     this.evaluator.setVariable(this.activeString, 0);
-  }  
+    this.evaluator.setVariable(this.mclickedString, 0);
+    this.evaluator.setVariable(this.mclicizquierdoString, 0);
+  }
   
   /**
    * Register the mouse and touch events
@@ -16291,11 +16225,7 @@ var descartesJS = (function(descartesJS) {
           self.evaluator.setVariable(self.mclicizquierdoString, 0);
           
           self.posAnte = self.getCursorPosition(evt);
-// console.log(self.posAnte, self.space.getRelativeX(self.space.getCursorPosition(evt).x), self.space.getRelativeY(self.space.getCursorPosition(evt).y));
           self.prePos = { x : self.space.getAbsoluteX(self.x), y : self.space.getAbsoluteY(self.y) };
-
-          // self.evaluator.setVariable(self.mxString, self.x);
-          // self.evaluator.setVariable(self.myString, self.y);
 
           self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x));
           self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y));
@@ -16355,11 +16285,12 @@ var descartesJS = (function(descartesJS) {
       document.body.focus();
 
       evt.preventDefault();
+      evt.stopPropagation();
       self.touchId = null;
 
       self.evaluator.setVariable(self.mclickedString, 1);
       self.evaluator.setVariable(self.mclicizquierdoString, 1);
-
+      
       if ((self.activeIfValue) || (self.active)) {
         self.click = false;
 
@@ -16370,17 +16301,26 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("mouseup", onMouseUp, false);
           window.removeEventListener("mousemove", onMouseMove, false);
         }
+
+        posNew = self.getCursorPosition(evt);
+
+        self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
+        self.posY = self.prePos.y - (self.posAnte.y - posNew.y);
         
-        // self.evaluator.setVariable(self.mxString, self.x);
-        // self.evaluator.setVariable(self.myString, self.y);
-        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.x);
-        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.y);
+        self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
+        self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
+        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(posNew.x));
+        self.evaluator.setVariable(self.myString, self.space.getRelativeY(posNew.y));
 
         self.parent.update();
-        
+
         self.mouseCacher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
         self.mouseCacher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
       }
+
+      // deactivate control
+      self.parent.deactivateGraphiControls();
+      // self.deactivate();
     }
     
     var posNew;
@@ -16405,27 +16345,13 @@ var descartesJS = (function(descartesJS) {
       self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
       self.posY = self.prePos.y - (self.posAnte.y - posNew.y);
       
-      ////////////////////////////////////////////////////////////////////////////
-      // if (self.constraint) {
-      //   tmpX = self.space.getRelativeX(self.posX);
-      //   tmpY = self.space.getRelativeY(self.posY);
-        
-      //   cpos = self.newt.findZero(new descartesJS.R2(tmpX, tmpY));
-      //   self.x = cpos.x;
-      //   self.y = cpos.y;
-      //   self.evaluator.setVariable(self.xString, self.x);
-      //   self.evaluator.setVariable(self.yString, self.y);
-      // }
-      // ////////////////////////////////////////////////////////////////////////////
-      // else {
-        self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
-        self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
-        // self.evaluator.setVariable(self.mxString, self.x);
-        // self.evaluator.setVariable(self.myString, self.y);
-        self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.space.getRelativeX(self.posX));
-        self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.space.getRelativeY(self.posY));
+      self.evaluator.setVariable(self.xString, self.space.getRelativeX(self.posX));
+      self.evaluator.setVariable(self.yString, self.space.getRelativeY(self.posY));
+      self.evaluator.setVariable(self.mxString, self.space.getRelativeX(posNew.x));
+      self.evaluator.setVariable(self.myString, self.space.getRelativeY(posNew.y));
 
-      // }
+      // self.evaluator.setVariable(self.mxString, self.space.getRelativeX(self.posAnte.x)+self.space.getRelativeX(self.posX));
+      // self.evaluator.setVariable(self.myString, self.space.getRelativeY(self.posAnte.y)+self.space.getRelativeY(self.posY));
 
       // limit the number of updates in the lesson
       if (Date.now() - lastTime > 10) {
@@ -16512,9 +16438,15 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    return { x: mouseX - (this.space.container.offsetLeft + this.space.container.parentNode.offsetLeft), 
-             y: mouseY - (this.space.container.offsetTop + this.space.container.parentNode.offsetTop)
+
+    return { x: mouseX - (this.space.offsetLeft + document.body.scrollLeft),
+             y: mouseY - (this.space.offsetTop + document.body.scrollTop) 
            };
+
+
+    // return { x: mouseX - (this.space.container.offsetLeft + this.space.container.parentNode.offsetLeft), 
+    //          y: mouseY - (this.space.container.offsetTop + this.space.container.parentNode.offsetTop)
+    //        };
   }
 
   return descartesJS;
@@ -16758,7 +16690,7 @@ var descartesJS = (function(descartesJS, babel) {
           
         // width
         case("width"):
-          temp = values_i_1;
+          temp = values_i_1.trim();
 
           // if specified with a percentage use the parent container's width to get the value in pixels
           if (temp[temp.length-1] === "%") {
@@ -16768,19 +16700,20 @@ var descartesJS = (function(descartesJS, babel) {
           // if not specified with a percentage get the numerical value of the width
           else {
             temp = parseFloat(values_i_1);
-            
+
             // whether to convert the value to a number the values ​​are different, then the width becomes the width of the parent container
             if (temp != values_i_1) {
               temp = this.parent.container.width; // default value
+              spaceObj["_w_"] = values_i_1.trim();
             }
           }
-          
+
           spaceObj["w"] = temp;
           break;
           
         // height
         case("height"):
-          temp = values_i_1;
+          temp = values_i_1.trim();
 
           // if specified with a percentage use the parent container's height to get the value in pixels
           if (temp[temp.length-1] === "%") {
@@ -16794,6 +16727,7 @@ var descartesJS = (function(descartesJS, babel) {
             // whether to convert the value to a number the values ​​are different, then the height becomes the height of the parent container
             if (temp != values_i_1) {
               temp = this.parent.container.height; // default value
+              spaceObj["_h_"] = values_i_1.trim()
             }
           }
           
@@ -17051,6 +16985,7 @@ var descartesJS = (function(descartesJS, babel) {
           for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
             tmpText[ii] = this.parser.parse(tmpText[ii], false);
           }
+
           controlObj["text"] = tmpText;
           break;
           
@@ -17725,7 +17660,7 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       default:
-        console.log(graphicObj.type);
+        // console.log(graphicObj.type);
         break;
     }
   }
@@ -17853,16 +17788,8 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    if (auxiliarObj.type) {
-      if (auxiliarObj.type == "rectangle") {
-        this.parent.auxiliaries.push(new descartesJS.Rectangle(this.parent, auxiliarObj));
-        return;
-      }
-    }
-
     // sequence
     if (auxiliarObj.sequence) {
-      // var auxS = new descartesJS.AuxSequence(this.parent, auxiliarObj);
       var auxS = new descartesJS.Function(this.parent, auxiliarObj);
       return;
     }
@@ -17881,13 +17808,10 @@ var descartesJS = (function(descartesJS, babel) {
 
     // algorithm
     else if ((auxiliarObj.algorithm) && (auxiliarObj.evaluate)) {
-      // only once evaluation
       var auxA = new descartesJS.Algorithm(this.parent, auxiliarObj);
       
-      // always evaluation
-//       if (auxiliarObj.evaluate === "always") {
-        this.parent.auxiliaries.push(auxA);
-//       }
+      this.parent.auxiliaries.push(auxA);
+
       return;
     }
     
@@ -17917,9 +17841,6 @@ var descartesJS = (function(descartesJS, babel) {
     
     // event
     else if ((auxiliarObj.event) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
-      // var auxE = new descartesJS.Event(this.parent, auxiliarObj);
-      // this.parent.events.push(auxE);
-
       this.parent.events.push( new descartesJS.Event(this.parent, auxiliarObj) );
 
       return;
@@ -18186,7 +18107,7 @@ var descartesJS = (function(descartesJS, babel) {
     } 
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 12px; padding-bottom: 12px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
     }
     
     // creates the container for the title and the content is added
@@ -18571,23 +18492,31 @@ var descartesJS = (function(descartesJS) {
     // function
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
+      var _asign;
 
       this.evaluate = function(evaluator) {
         argu = [];
         for (var i=0, l=this.childs[0].childs.length; i<l; i++) {
           argu[i] = this.childs[0].childs[i].evaluate(evaluator);
         }
-      
+
+        // _Eval_
         if (this.value === "_Eval_") {
-          argu[0] = (argu.length > 0) ? argu[0].toString() : '';
+          // argu[0] = (argu.length > 0) ? argu[0].toString() : '';
+          // evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
+          evalArgument = (argu.length > 0) ? argu[0] : 0;
 
-          evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
-
-          if (evalCache[evalArgument] == undefined) {
-            evalCache[evalArgument] = evaluator.parser.parse(evalArgument);
+          if (typeof(evalArgument) == "number") {
+            return "NaN";
           }
+          else {
+            if (evalCache[evalArgument] == undefined) {
+              _asign = (evalArgument.match(/:=/g)) ? true : false;
+              evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
+            }
 
-          return evaluator.evalExpression( evalCache[evalArgument] );
+            return evaluator.evalExpression( evalCache[evalArgument] ) || 0;
+          }
         }
 
         return evaluator.functions[this.value].apply(evaluator, argu);
@@ -19069,11 +18998,11 @@ var descartesJS = (function(descartesJS) {
   var lastTokenType;
 
   var whiteSpaceRegExp = /^\s+/;
-  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B]+[a-zA-Z_0-9\u00C0-\u021B]*([.]*[0-9a-zA-Z_\u00C0-\u021B]+[0-9]*)*/;
+  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[a-zA-Z_0-9\u00C0-\u021B\u0391-\u03C9]*([.]*[0-9a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[0-9]*)*/;
   var numberRegExp = /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/;
   var compOperatorRegExp = /^==|^!=|^<=|^<|^>=|^>|^#/;
   var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
-  var asignRegExp = /^=/;
+  var asignRegExp = /^=|^:=/;
   var conditionalRegExp = /^[\?\:]/;
   var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
   var squareBracketRegExp = /^\[|^\]/;
@@ -19155,7 +19084,7 @@ var descartesJS = (function(descartesJS) {
             return;
           }
         }
-        
+
         val = str.substring(1, inc);
         addToken("string", val, val.length+2);
         continue;
@@ -19517,6 +19446,15 @@ var descartesJS = (function(descartesJS) {
         }
         // the identifier is a variable
         else {
+          var scrollable = tokens_i_value.match(/(\w*)\.mouse_x/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_y/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_pressed/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_clicked/) || 
+                           tokens_i_value.match(/(\w*)\.clic_izquierdo/);
+          if (scrollable) {
+            this.variables[scrollable[1] + ".DESCARTESJS_no_fixed"] = 1;
+          }
+
           this.getVariable(tokens_i_value, true);
         } 
       }
@@ -19686,7 +19624,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // find the correspondign open parentheses
-          while (lastNode && lastNode.parent && (lastNode.value != "(")) {
+          while (lastNode && lastNode.parent && ((lastNode.value != "(")  || ((lastNode.value == "(") && (lastNode.type != parenthesesType)))) {
             lastNode = lastNode.parent;
           }
           
@@ -19719,7 +19657,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // find the correspondign square brackets
-          while (lastNode && lastNode.parent && (lastNode.value != "[")) {
+          while (lastNode && lastNode.parent && ((lastNode.value != "[")  || ((lastNode.value == "[") && (lastNode.type != squareBracketType)))) {
             lastNode = lastNode.parent;
           }
           
@@ -19885,7 +19823,7 @@ var descartesJS = (function(descartesJS) {
             openConditional--;
             
             // find the correspondign signo ? correspondiente
-            while (lastNode && lastNode.parent && (lastNode.value != "?")) {
+            while (lastNode && lastNode.parent && ((lastNode.value != "?")  || ((lastNode.value == "?") && (lastNode.type != conditionalType)))) {
               lastNode = lastNode.parent;
             }
             // if can find the ?
@@ -19973,6 +19911,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Parser.prototype.getPrecedence = function(op) {
     switch(op){
       case "=":  return 1;
+      case ":=": return 1;
       case "(":  return 2;
       case "[":  return 2;
       case "?":  return 2;
@@ -19999,62 +19938,105 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * Register the default variables and functions of Descartes
    */
   descartesJS.Parser.prototype.registerDefaultValues = function() {
     var decimals = 1000000000000000;
-    // register the default variables
-    this.variables["rnd"] = Math.random;
-    this.variables["pi"] = descartesJS.returnValue(Math.PI);
-    this.variables["e"] = descartesJS.returnValue(Math.E);
-    this.variables["Infinity"] = Infinity;
-    this.variables["-Infinity"] = -Infinity;
-    
-    // register the default funtions
-    this.functions["sqr"]   = function(x) { return (x*x) };
-    this.functions["sqrt"]  = this.functions["ra\u00EDz"] = Math.sqrt;
-    this.functions["exp"]   = Math.exp;
-    this.functions["log"]   = Math.log;
-    this.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
-    this.functions["abs"]   = Math.abs;
-    this.functions["ent"]   = Math.floor; //function(x) { return Math.floor( parseInt(x*decimals)/decimals ); };
-    this.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
-    this.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
-    this.functions["sin"]   = this.functions["sen"] = Math.sin;
-    this.functions["cos"]   = Math.cos;
-    this.functions["tan"]   = Math.tan;
-    this.functions["cot"]   = function(x) { return 1/Math.tan(x); };
-    this.functions["sec"]   = function(x) { return 1/Math.cos(x); };
-    this.functions["csc"]   = function(x) { return 1/Math.sin(x); };
-    this.functions["sinh"]  = this.functions["senh"] = function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
-    this.functions["cosh"]  = function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
-    this.functions["tanh"]  = function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
-    this.functions["coth"]  = function(x) { return 1/this.functions.tanh(x); };
-    this.functions["sech"]  = function(x) { return 1/this.functions.cosh(x); };
-    this.functions["csch"]  = function(x) { return 1/this.functions.sinh(x); };
-    this.functions["asin"]  = this.functions["asen"] = Math.asin;
-    this.functions["acos"]  = Math.acos;
-    this.functions["atan"]  = Math.atan;
-    this.functions["min"]   = Math.min;
-    this.functions["max"]   = Math.max;
-    this.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
-
-    // new internal functions
     var self = this;
-    this.functions["_Trace_"] = function(x) { console.log(x); };
-    this.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
-    ////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // register the default variables
+    self.variables["rnd"] = Math.random;
+    self.variables["pi"] = self.variables["\u03C0"] = descartesJS.returnValue(Math.PI);
+    self.variables["e"] = descartesJS.returnValue(Math.E);
+    self.variables["Infinity"] = Infinity;
+    self.variables["-Infinity"] = -Infinity;
+    self.variables["isTouch"] = self.variables["esT\u00E1ctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // register the default funtions
+    self.functions["sqr"]   = function(x) { return (x*x) };
+    self.functions["sqrt"]  = self.functions["ra\u00EDz"] = Math.sqrt;
+    self.functions["exp"]   = Math.exp;
+    self.functions["log"]   = Math.log;
+    self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
+    self.functions["abs"]   = Math.abs;
+    self.functions["ent"]   = Math.floor;
+    self.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
+    self.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
+    self.functions["sin"]   = self.functions["sen"] = Math.sin;
+    self.functions["cos"]   = Math.cos;
+    self.functions["tan"]   = Math.tan;
+    self.functions["cot"]   = function(x) { return 1/Math.tan(x); };
+    self.functions["sec"]   = function(x) { return 1/Math.cos(x); };
+    self.functions["csc"]   = function(x) { return 1/Math.sin(x); };
+    self.functions["sinh"]  = self.functions["senh"] = function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
+    self.functions["cosh"]  = function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
+    self.functions["tanh"]  = function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
+    self.functions["coth"]  = function(x) { return 1/self.functions.tanh(x); };
+    self.functions["sech"]  = function(x) { return 1/self.functions.cosh(x); };
+    self.functions["csch"]  = function(x) { return 1/self.functions.sinh(x); };
+    self.functions["asin"]  = self.functions["asen"] = Math.asin;
+    self.functions["acos"]  = Math.acos;
+    self.functions["atan"]  = Math.atan;
+    self.functions["min"]   = Math.min;
+    self.functions["max"]   = Math.max;
+    self.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
+    self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.log.apply(console, arguments); return 0; }; //function(x) { console.log(x); return 0; };
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // function for the dialog
+    self.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
+    self.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
+    self.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
-    ////////////////////////////////////////
-    // new string function
-    this.functions["_charAt_"] = this.functions["_letraEn_"] = function(str, n) {
-      str = str.toString();
+    // if the lesson is inside a iframe then register the comunication functions with the parent
+    if (window.parent !== window) {
+
+      // function to set a variable value to the parent
+      self.functions["parent.set"] = function(varName, value) {
+        window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
+        return 0;
+      }
+      
+      // function to update the parent
+      self.functions["parent.update"] = function() {
+        window.parent.postMessage({ type: "update" }, '*');
+        return 0;
+      }
+
+      // function to execute a function in the parent
+      self.functions["parent.exec"] = function(functionName, functionParameters) {
+        window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
+        return 0;
+      }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     *
+     */
+    self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
+      return parseFloat(num).toFixed(parseInt(dec));
+    };
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // new string functions
+    /**
+     *
+     */
+    self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
+      str = (str || "").toString();
+      n = (isNaN(parseInt(n))) ? 0 : parseInt(n);
       return str.charAt(n);
     };
-    this.functions["_substring_"] = this.functions["_subcadena_"] = function(str, i, j) {
-      str = str.toString();
+    /**
+     *
+     */
+    self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
+      str = (str || "").toString();
       i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
       j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
 
@@ -20073,66 +20055,248 @@ var descartesJS = (function(descartesJS) {
         }
       }
     };
-    this.functions["_length_"] = this.functions["_longitud_"] = function(str) {
-      str = str.toString();
+    /**
+     *
+     */
+    self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
+      str = (str || "").toString();
       return str.length;
     };
-    this.functions["_indexOf_"] = this.functions["_\u00EDndiceDe_"] = function(str, w) {
-      str = str.toString();
-      w = w.toString();
-      return str.indexOf(w);
+    /**
+     *
+     */
+    self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
+      str  = (str || "").toString();
+      word = (word || "").toString();
+      return str.indexOf(word);
     };
-    ////////////////////////////////////////
 
-
-    // function for the dialog
-    this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
-    this.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
-
-    // if the lesson is inside a iframe then register the comunication functions with the parent
-    if (window.parent !== window) {
-
-      // function to set a variable value to the parent
-      this.functions["parent.set"] = function(varName, value) {
-        window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
-        return 0;
-      }
-      
-      // function to update the parent
-      this.functions["parent.update"] = function() {
-        window.parent.postMessage({ type: "update" }, '*');
-        return 0;
-      }
-
-      // function to execute a function in the parent
-      this.functions["parent.exec"] = function(functionName, functionParameters) {
-        window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
-        return 0;
-      }
-    }
-
-    ////////////////////////////////////////
-    // new funcionaity //
-    this.functions["_GetValues_"] = function(file, name) {
-      var response;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // read external values
+    /**
+     *
+     */
+    this.functions["_Load_"] = function(file) {
+      var response = "";
       if (file) {
         var fileElement = document.getElementById(file);
+        response = ((fileElement) && (fileElement.type == "descartes/archivo")) ? fileElement.text : descartesJS.openExternalFile(file);
+      }
+      return response || "";
+    }
+    /**
+     *
+     */
+    this.functions["_GetValues_"] = function(file, name) {
+      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
 
-        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
+      return this.functions._ExecBlock_(response, name);
+    };
+    /**
+     *
+     */
+    this.functions["_GetMatrix_"] = function(file, name) {
+      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
+
+      return this.functions._StrToMatrix_(response, name);
+    };
+    /**
+     *
+     */
+    this.functions["_MatrixToStr_"] = function(Mstr) {
+      var M = this.matrices[Mstr];
+      if (M) {
+        var strM = "<" + Mstr + ">\\n";
+
+        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
+        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          for (var j=0; j<k; j++) {
+            _val = M[i][j];
+
+            if (_val !== undefined) {
+              if (typeof(_val) == "string") {
+                _val = "'" + _val + "'";
+              }
+
+              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
+            }
+          }
+          // remove the last pipe is any
+          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
-        else {
-          response = descartesJS.openExternalFile(file);
-        }
+
+        strM += "</" + Mstr + ">";
+
+        return strM;
       }
       else {
-        return;
+        return "";
       }
-
-      var initialIndex = -1;
-      var finalIndex = -1;
+    }
+    /**
+     *
+     */
+    this.functions["_StrToMatrix_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      values.type = "matrix";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
+            }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
+          }
+        }
+
+        self.matrices[name] = values;
+        self.setVariable(name + ".filas", values[0].length);
+        self.setVariable(name + ".columnas", values.length);
+      }
+
+      return 'OK';
+    }
+    /**
+     *
+     */
+    this.functions["_GetVector_"] = function(file, name) {
+      var response = this.functions._Load_(file);
+      return this.functions._StrToVector_(response, name);
+    }
+    /**
+     *
+     */
+    this.functions["_VectorToStr_"] = function(Vstr) {
+      var V = this.vectors[Vstr];
+
+      if (V) {
+        var strV = "<" + Vstr + ">\\n";
+
+        var l = this.getVariable(Vstr + ".long_usada") || V._size_ || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          _val = V[i];
+
+          if (_val !== undefined) {
+            // if (typeof(_val) == "string") {
+            //   _val = "'" + _val + "'";
+            // }
+
+            if (typeof(_val) == "number") {
+              _val = parseFloat(_val);
+            }
+
+            strV += _val + "\\n";
+          }
+          else {
+            strV += 0 + "\\n";
+          }
+        }
+
+        strV += "</" + Vstr + ">";
+
+        return strV;
+      }
+      else {
+        return "";
+      }
+    }
+    /**
+     *
+     */
+    this.functions["_StrToVector_"] = function(response, name) {
+      var values = [];
+      var storeValues = false;
+      values.type = "vector";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            // tmpValue = response[i].trim().split("<" + name + ">");
+
+            // if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+            //   values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
+            // }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            // tmpValue = response[i].trim().split("</" + name + ">");
+
+            // if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+            //   values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
+            // }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push( myMapFun(response[i]) );
+          }
+        }
+
+        values._size_ = values.length;
+        self.vectors[name] = values;
+        self.setVariable(name + ".long", values.length);
+        self.setVariable(name + ".long_usada", values.length);
+      }
+
+      return "OK";
+    }
+    /**
+     *
+     */
+    this.functions["_ExecStr_"] = function(response) {
+      return this.functions._ExecBlock_(response, "");
+    }
+    /**
+     *
+     */
+    this.functions["_ExecBlock_"] = function(response, name) {
+      var values = [];
+      var storeValues = (name == "");
       var tmpValue;
 
       if (response) {
@@ -20189,75 +20353,11 @@ var descartesJS = (function(descartesJS) {
       }
 
       return 0;
-    };
+    }
 
-    this.functions["_GetMatrix_"] = function(file, name) {
-      var response;
-      if (file) {
-        var fileElement = document.getElementById(file);
-
-        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
-        }
-        else {
-          response = descartesJS.openExternalFile(file);
-        }
-      }
-      else {
-        return;
-      }
-      
-      var initialIndex = -1;
-      var finalIndex = -1;
-      var values = [];
-      var storeValues = false;
-      values.type = "matrix";
-
-      var tmpValue;
-
-      if (response) {
-        response = response.replace(/\r/g, "").split("\n");
-
-        for (var i=0, l=response.length; i<l; i++) {
-          // initial position of the values
-          if (response[i].match("<" + name + ">")) {
-            tmpValue = response[i].trim().split("<" + name + ">");
-
-            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
-              values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
-            }
-
-            storeValues = true;
-            continue;
-          }
-
-          // final position of the values
-          if (response[i].match("</" + name + ">")) {
-            tmpValue = response[i].trim().split("</" + name + ">");
-
-            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
-              values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
-            }
-
-            storeValues = false;
-            continue;
-          }
-
-          // add elementes in between
-          if (storeValues) {
-            values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
-          }
-        }
-
-        self.matrices[name] = values;
-        self.setVariable(name + ".filas", values[0].length);
-        self.setVariable(name + ".columnas", values.length);
-      }
-
-      return 0;
-    };
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     var anchor = document.createElement("a");
+    anchor.setAttribute("target", "_blank");
     var blob;
     var lastDownload = null;
     /**
@@ -20274,7 +20374,7 @@ var descartesJS = (function(descartesJS) {
         lastDownload = true;
         setTimeout(function() { 
           lastDownload = null;
-        }, 500);
+        }, 1000);
       }
 
       document.body.removeChild(anchor);
@@ -20308,6 +20408,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       if (files.length >0) {
+        // no deberia, pero parece que los archivos estan en ISO-8859-1
+        // reader.readAsText(files[0], "ISO-8859-1");
         reader.readAsText(files[0]);
       }
     }
@@ -20391,132 +20493,61 @@ var descartesJS = (function(descartesJS) {
     input2.removeEventListener("change", onHandleFileSelect2);
     input2.addEventListener("change", onHandleFileSelect2);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // time and date functions
+    this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
+    this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
+    this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
+    this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
+    this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
+    this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
+
     // /**
     //  *
     //  */
     // this.functions["_OpenState_"] = function() {
     //   input2.click(); 
-
     //   return 0;
     // }
-
-    /**
-     *
-     */
-    this.functions["_Rojo_"] = function(c) {
-      return (new descartesJS.Color(c).r)/255;
-    }
-    /**
-     *
-     */
-    this.functions["_Verde_"] = function(c) {
-      return (new descartesJS.Color(c).g)/255;
-    }
-    /**
-     *
-     */
-    this.functions["_Azul_"] = function(c) {
-      return (new descartesJS.Color(c).b)/255;
-    }
     /**
      *
      */
     this.functions["_AnchoDeCadena_"] = this.functions["_strWidth_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
-    /**
-     *
-     */
-    this.functions["_GetDay_"] = function() {
-      return (new Date()).getDate();
-    }
-    /**
-     *
-     */
-    this.functions["_GetMonth_"] = function() {
-      return (new Date()).getMonth() +1;
-    }
-    /**
-     *
-     */
-    this.functions["_GetYear_"] = function() {
-      return (new Date()).getFullYear();
-    }
-    /**
-     *
-     */
-    this.functions["_GetHours_"] = function() {
-      return (new Date()).getHours();
-    }
-    /**
-     *
-     */
-    this.functions["_GetMinutes_"] = function() {
-      return (new Date()).getMinutes();
-    }
-    /**
-     *
-     */
-    this.functions["_GetSeconds_"] = function() {
-      return (new Date()).getSeconds();
-    }
-    /**
-     *
-     */
-    this.functions["_MatrixToStr_"] = function(Mstr) {
-      var M = this.matrices[Mstr];
-      if (M) {
-        strM = "<" + Mstr + ">\\n";
 
-        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
-        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
-        var _val;
+    this.functions["_Rojo_"]  = this.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
+    this.functions["_Verde_"] = this.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
+    this.functions["_Azul_"]  = this.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
 
-        for (var i=0; i<l; i++) {
-          for (var j=0; j<k; j++) {
-            _val = M[i][j];
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (_val !== undefined) {
-              if (typeof(_val) == "string") {
-                _val = "'" + _val + "'";
-              }
-
-              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
-            }
-          }
-          // remove the last pipe is any
-          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
-        }
-
-        strM += "</" + Mstr + ">";
-
-        return strM;
-      }
-      else {
-        return "";
-      }
-    }
-    ////////////////////////////////////////
   }  
 
-/**
- *
- */
-function myMapFun(x) {
-  if (isNaN(parseFloat(x))) {
-    // .replace(/^\s|\s$/g, "") remove the initial white space
-    return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+  /**
+   *
+   */
+  function myMapFun(x) {
+    if (isNaN(parseFloat(x))) {
+      // .replace(/^\s|\s$/g, "") remove the initial white space
+      return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+    }
+    else {
+      return parseFloat(x);
+    }
   }
-  else {
-    return parseFloat(x);
-  }
-}
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
 // console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
+// console.log(((new descartesJS.Parser).parse("literal3=b=1?nombre1+&squot;(&squot;:(b=2?nombre2+&squot;(&squot;:nombre3+&squot;(&squot;)", true)).toString());
+// console.log(((new descartesJS.Parser).parse("bla:=1+1", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -20928,7 +20959,7 @@ var descartesJS = (function(descartesJS) {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
 
       var metric = descartesJS.getFontMetrics(this.styleString);
 
@@ -20941,7 +20972,7 @@ var descartesJS = (function(descartesJS) {
         this.w = this.spaceWidth*1.5;
       }
       
-      var tmpAscent = prevh/2 - prevDescent + this.h;
+      var tmpAscent = prevHeight/2 - prevDescent + this.h;
       this.superIndexPos = tmpAscent - this.ascent;
       
       this.ascent = tmpAscent;
@@ -20955,7 +20986,7 @@ var descartesJS = (function(descartesJS) {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
       
       var metric = descartesJS.getFontMetrics(this.styleString);
 
@@ -20989,7 +21020,7 @@ var descartesJS = (function(descartesJS) {
 
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
 
       if (num.h < 0) {
         num.h = metric.h;
@@ -21002,7 +21033,7 @@ var descartesJS = (function(descartesJS) {
       
       this.h = num.h + den.h -1;
 
-      this.ascent = num.h + Math.round( prevh/2 )-prevDescent;
+      this.ascent = num.h + Math.round( prevHeight/2 )-prevDescent;
       this.descent = this.h - this.ascent;
       this.baseline = this.ascent;
 
@@ -21076,7 +21107,7 @@ var descartesJS = (function(descartesJS) {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
       
       var from = this.children[0];
       var to   = this.children[1];
@@ -21135,7 +21166,7 @@ var descartesJS = (function(descartesJS) {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
       
       var from = this.children[0];
       var to   = this.children[1];
@@ -21195,7 +21226,7 @@ var descartesJS = (function(descartesJS) {
       this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
       
       var from = this.children[0];
       var to   = this.children[1];
@@ -21257,26 +21288,25 @@ var descartesJS = (function(descartesJS) {
 
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
-      
-      var maxAscenderh = metric.ascent;
-      var maxDescenderh = metric.descent;
-      var maxHeigth = metric.h;
+      var prevHeight = previousMetric.h;
+      var maxAscenderHeight = metric.ascent;
+      var maxDescenderHeight = metric.descent;
+      var maxHeight = metric.h;
       var maxWidth = this.spaceWidth;
 
-      var childh;
+      var childHeight;
       var childWidth;
 
       for (var i=0, l=this.children.length; i<l; i++) {
         this.children[i].getBlockMetric();
 
-        childh = this.children[i].h;
+        childHeight = this.children[i].h;
         childWidth = this.children[i].w;
         
-        if (maxHeigth < childh) {
-          maxHeigth = childh;
-          maxAscenderh = this.children[i].ascent;
-          maxDescenderh = this.children[i].descent;
+        if (maxHeight < childHeight) {
+          maxHeight = childHeight;
+          maxAscenderHeight = this.children[i].ascent;
+          maxDescenderHeight = this.children[i].descent;
         }
         
         if (maxWidth < childWidth) {
@@ -21285,13 +21315,15 @@ var descartesJS = (function(descartesJS) {
       }
       
       this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childh = maxHeigth;
-      this.childAscent = maxAscenderh;
-      this.childDescent = maxDescenderh;
+      this.childHeight = maxHeight;
+      this.childAscent = maxAscenderHeight;
+      this.childDescent = maxDescenderHeight;
       
-      this.h = this.rows * maxHeigth;
-      this.ascent = this.h/2 + prevDescent;
-      this.descent = this.h - this.ascent;
+      this.h = this.rows * maxHeight;
+      // this.ascent = this.h/2 + prevDescent;
+      // this.descent = this.h - this.ascent;
+      this.ascent = this.h/2;
+      this.descent = this.h/2;
       this.w = this.columns * this.childWidth +this.spaceWidth;
     }
     
@@ -21303,26 +21335,26 @@ var descartesJS = (function(descartesJS) {
       
       var prevAscent = previousMetric.ascent;
       var prevDescent = previousMetric.descent;
-      var prevh = previousMetric.h;
+      var prevHeight = previousMetric.h;
       
-      var maxAscenderh = metric.ascent;
-      var maxDescenderh = metric.descent;
-      var maxHeigth = metric.h;
+      var maxAscenderHeight = metric.ascent;
+      var maxDescenderHeight = metric.descent;
+      var maxHeight = metric.h;
       var maxWidth = this.spaceWidth;
 
-      var childh;
+      var childHeight;
       var childWidth;
 
       for (var i=0, l=this.children.length; i<l; i++) {
         this.children[i].getBlockMetric();
         
-        childh = this.children[i].h;
+        childHeight = this.children[i].h;
         childWidth = this.children[i].w;
         
-        if (maxHeigth < childh) {
-          maxHeigth = childh;
-          maxAscenderh = this.children[i].ascent;
-          maxDescenderh = this.children[i].descent;
+        if (maxHeight < childHeight) {
+          maxHeight = childHeight;
+          maxAscenderHeight = this.children[i].ascent;
+          maxDescenderHeight = this.children[i].descent;
         }
         
         if (maxWidth < childWidth) {
@@ -21331,11 +21363,11 @@ var descartesJS = (function(descartesJS) {
       }
       
       this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childh = maxHeigth;
-      this.childAscent = maxAscenderh;
-      this.childDescent = maxDescenderh;
+      this.childHeight = maxHeight;
+      this.childAscent = maxAscenderHeight;
+      this.childDescent = maxDescenderHeight;
       
-      this.h = this.parts * maxHeigth;
+      this.h = this.parts * maxHeight;
       this.ascent = this.h/2 + prevDescent;
       this.descent = this.h - this.ascent;
       this.w = maxWidth +this.spaceWidth/2;
@@ -21391,11 +21423,11 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.getBlockMetric = function() {
     this.w = 0;
-    var maxDescenderh = -1;
-    var maxAscenderh = -1;
-    var childh;
+    var maxDescenderHeight = -1;
+    var maxAscenderHeight = -1;
+    var childHeight;
     var children_i;
-    
+
     // loops throught all the children of a text line to determine which is the width and the height
     for (var i=0, l=this.children.length; i<l; i++) {
       children_i = this.children[i];
@@ -21409,17 +21441,17 @@ var descartesJS = (function(descartesJS) {
       // update the previous metric
       updatePreviousMetric(childAscent, childDescent, children_i.h);
 
-      if (maxAscenderh < childAscent) {
-        maxAscenderh = childAscent;
+      if (maxAscenderHeight < childAscent) {
+        maxAscenderHeight = childAscent;
       }
 
-      if (maxDescenderh < childDescent) {
-        maxDescenderh = childDescent;
+      if (maxDescenderHeight < childDescent) {
+        maxDescenderHeight = childDescent;
       }      
     }
 
-    this.ascent = maxAscenderh;
-    this.descent = maxDescenderh;
+    this.ascent = maxAscenderHeight;
+    this.descent = maxDescenderHeight;
     this.baseline = this.ascent;
     this.h = this.ascent + this.descent;
   }
@@ -21880,7 +21912,7 @@ var descartesJS = (function(descartesJS) {
       columnIndex = i%this.columns;
       rowIndex = Math.floor(i/this.columns);
             
-      this.children[i].draw(ctx, 2*this.spaceWidth + x + columnIndex*this.childWidth, y-this.ascent+this.childAscent + rowIndex*this.childh);
+      this.children[i].draw(ctx, 2*this.spaceWidth + x + columnIndex*this.childWidth, y-this.ascent+this.childAscent + rowIndex*this.childHeight);
     }
     
     ctx.lineWidth = 1;
@@ -21909,7 +21941,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + 3*this.spaceWidth, y-this.ascent+this.childAscent + (i%this.parts)*this.childh);
+      this.children[i].draw(ctx, x + 3*this.spaceWidth, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
     }
 
     ctx.lineWidth = 1;
@@ -22071,6 +22103,7 @@ var descartesJS = (function(descartesJS) {
   var lastTokenType;
   var tmpMatch;
   var tmpText;
+  var spaceFlag;
 
   /**
    * A rtf tokenizer
@@ -22175,8 +22208,12 @@ var descartesJS = (function(descartesJS) {
 
           // if the controlWord has a space 
           if (nextChar === " ") {
-            pos++
+            pos++;
             nextChar = input.charAt(pos+1);
+            spaceFlag = true;
+          }
+          else {
+            spaceFlag = false;
           }
 
           // controlWord of the form \'##
@@ -22206,9 +22243,9 @@ var descartesJS = (function(descartesJS) {
             }
             // generic controlWord
             else {
-              // scaped characters
-              if ((tokenValue === "{") || (tokenValue === "}")) {
-                tokens.push({ type: "text", value: tokenValue });
+              // escaped characters
+              if ((tokenValue === "{") || (tokenValue === "}") || (currentChar == "\\")) {
+                tokens.push({ type: "text", value: tokenValue +((spaceFlag)?" ":"") });
                 lastTokenType = "text";
               }
               else {
@@ -22219,6 +22256,12 @@ var descartesJS = (function(descartesJS) {
               tokenValue = "";
             }
           }
+        }
+        // escaped characters
+        else if ((currentChar == "{") || (currentChar == "}") || (currentChar == "\\")) {
+          insideControlWord = false;
+          tokens.push({ type: "text", value: currentChar });
+          lastTokenType = "text";
         }
         else {
           tokenValue += currentChar;
@@ -23543,11 +23586,19 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return an object with the cursor position
    */
   descartesJS.Space.prototype.getCursorPosition = function(evt) {
+    this.findOffset();
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: (pos.x) - this.offsetLeft, 
-             y: (pos.y) - this.offsetTop 
+    return { x: (pos.x) - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft), 
+             y: (pos.y) - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop)
            };
+
+    // return { x: (pos.x) - (document.body.scrollLeft + this.offsetLeft), 
+    //          y: (pos.y) - (document.body.scrollTop  + this.offsetTop)
+    //        };
+    // return { x: (pos.x) - this.offsetLeft, 
+    //          y: (pos.y) - this.offsetTop 
+    //        };
   }
   
   return descartesJS;
@@ -23926,6 +23977,8 @@ var descartesJS = (function(descartesJS) {
     self.canvas.height = self.h *self._ratio;
     self.canvas.setAttribute("class", "DescartesSpace2DCanvas");
     self.canvas.setAttribute("style", "z-index: " + self.zIndex + "; width:" + self.w + "px; height:" + self.h + "px;");
+    // self.canvas.setAttribute("tabindex", 100);
+
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
     self.ctx.mozImageSmoothingEnabled = false;
@@ -23985,6 +24038,8 @@ var descartesJS = (function(descartesJS) {
       self.mpressedString = self.id + ".mouse_pressed";
       self.mclickedString = self.id + ".mouse_clicked";
       self.mclicizquierdoString = self.id + ".clic_izquierdo";
+      self.kpressedString = self.id + ".key_pressed";
+      self.kvalueString   = self.id + ".key_value";
     }
     else {
       self.OxString    = "Ox";
@@ -23997,6 +24052,8 @@ var descartesJS = (function(descartesJS) {
       self.mpressedString = "mouse_pressed";
       self.mclickedString = "mouse_clicked";
       self.mclicizquierdoString = "clic_izquierdo";
+      self.kpressedString = "key_pressed";
+      self.kvalueString   = "key_value";
     }
 
     self.click = 0;
@@ -24368,12 +24425,13 @@ var descartesJS = (function(descartesJS) {
       }
     }
   }
-  
+
   /**
    * Register the mouse and touch events
    */
   descartesJS.Space2D.prototype.registerMouseAndTouchEvents = function() {
     var lastTime = 0;
+    var lastTime1 = 0;
     
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
@@ -24405,17 +24463,17 @@ var descartesJS = (function(descartesJS) {
       // remove the focus of the controls
       document.body.focus();
 
+      // try to preserve the slide gesture in the tablets
+      if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
+        return;
+      }
+
       self.parent.clearClick();
 
       self.click = 1;
       self.evaluator.setVariable(self.mpressedString, 1);
       self.evaluator.setVariable(self.mclickedString, 0);
       self.evaluator.setVariable(self.mclicizquierdoString, 0);
-
-//
-      // self.clickPosForContext = (self.getCursorPosition(evt)).y;
-      // self.clickPosForContextNew = self.clickPosForContext;
-//
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
@@ -24425,11 +24483,8 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("touchmove", onMouseMove);
       window.addEventListener("touchend", onTouchEnd);
 
-      // try to preserv the slide gesture in the tablets
-      // if ((!self.fixed) || (self.sensitive_to_mouse_movements)) {
       evt.stopPropagation();
       evt.preventDefault();
-      // }
     }
     
     /**
@@ -24440,6 +24495,11 @@ var descartesJS = (function(descartesJS) {
     function onTouchEnd(evt) {
       // remove the focus of the controls
       document.body.focus();
+
+      // try to preserve the slide gesture in the tablets
+      if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
+        return;
+      }
 
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
@@ -24455,6 +24515,7 @@ var descartesJS = (function(descartesJS) {
       window.removeEventListener("touchmove", onMouseMove);
       window.removeEventListener("touchend", onTouchEnd);
 
+      evt.stopPropagation();
       evt.preventDefault();
 
       self.parent.update();      
@@ -24478,6 +24539,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       // remove the focus of the controls
       document.body.focus();
+      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -24506,6 +24568,8 @@ var descartesJS = (function(descartesJS) {
       }
       else if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
+        // self.evaluator.setVariable(self.mclickedString, 0);
+        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
@@ -24529,10 +24593,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp(evt) {
       // remove the focus of the controls
       document.body.focus();
+      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
-
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -24549,6 +24613,9 @@ var descartesJS = (function(descartesJS) {
 
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+
+      // deactivate control
+      self.parent.deactivateGraphiControls();
       
       self.parent.update();
     }
@@ -24560,19 +24627,19 @@ var descartesJS = (function(descartesJS) {
      */
     function onSensitiveToMouseMovements(evt) {
       // limit the number of updates in the lesson
-      if (Date.now() - lastTime > elapsedTime) {
+      // if (Date.now() - lastTime > elapsedTime) {
         self.posAnte = self.getCursorPosition(evt);
         self.mouse_x = self.getRelativeX(self.posAnte.x);
         self.mouse_y = self.getRelativeY(self.posAnte.y);
         self.evaluator.setVariable(self.mxString, self.mouse_x);
         self.evaluator.setVariable(self.myString, self.mouse_y);
 
-        self.evaluator.setVariable(self.mclickedString, 0);
-        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+        // self.evaluator.setVariable(self.mclickedString, 0);
+        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
         self.parent.update();
-        lastTime = Date.now();
-      }
+        // lastTime = Date.now();
+      // }
     }
     
     /**
@@ -24599,7 +24666,8 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
 
       // if the space is not fixed, then change the origin coordinates
-      if ((!self.fixed) && (Date.now() - lastTime > elapsedTime)) {
+      // if ((!self.fixed) && (Date.now() - lastTime1 > elapsedTime)) {
+      if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
         disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
                  y: MathFloor(self.posAnte.y-self.posNext.y) };
@@ -24613,22 +24681,9 @@ var descartesJS = (function(descartesJS) {
       onSensitiveToMouseMovements(evt);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // try to remove the mouse up and move events
-    var visibilityChange; 
-    if (typeof document.hidden !== "undefined") {
-      visibilityChange = "visibilitychange";
-    } else if (typeof document.mozHidden !== "undefined") {
-      visibilityChange = "mozvisibilitychange";
-    } else if (typeof document.msHidden !== "undefined") {
-      visibilityChange = "msvisibilitychange";
-    } else if (typeof document.webkitHidden !== "undefined") {
-      visibilityChange = "webkitvisibilitychange";
-    }
-    document.addEventListener(visibilityChange, function(evt) {
+    document.addEventListener("visibilitychange", function(evt) {
       onMouseUp(evt);
     });
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }
     
@@ -25815,10 +25870,30 @@ var descartesJS = (function(descartesJS) {
 
     var evaluator = this.parent.evaluator;
 
-    // PATCH
+    //
+    if (this._w_ != undefined) {
+      var tmpW = evaluator.parser.parse(this._w_);
+      if (tmpW.type != "number") {
+        this._w_ = tmpW;
+      }
+      else {
+        this._w_ = undefined;
+      }
+    }
+    //
+    if (this._h_ != undefined) {
+      var tmpH = evaluator.parser.parse(this._h_);
+      if (tmpH.type != "number") {
+        this._h_ = tmpH;
+      }
+      else {
+        this._h_ = undefined;
+      }
+    }
+    //
+
     // if the web browser is firefox then a problem ocurrs with a none visible iframe
-    var isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
-    // PATCH
+    this.isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
 
     this.file = (this.file) ? this.file.trim() : "";
 
@@ -25842,25 +25917,17 @@ var descartesJS = (function(descartesJS) {
     if (this.oldFile != 0) {
       this.MyIFrame.setAttribute("src", this.oldFile);
     }
-    this.MyIFrame.setAttribute("id", this.id);
     this.MyIFrame.setAttribute("marginheight", 0);
     this.MyIFrame.setAttribute("marginwidth", 0);
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
-    // this.MyIFrame.setAttribute("style", "overflow: hidden; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    // this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
     this.container = document.createElement("div");
-    // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    if (descartesJS.isIOS) {
-      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-    }
-    else {
-      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
-    }
-    
+    this.container.setAttribute("id", this.id);
+
+    var strStyle = (descartesJS.isIOS) ? "overflow: scroll; -webkit-overflow-scrolling: touch; overflow-scrolling: touch; " : "";
+    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
     this.container.appendChild(this.MyIFrame);
 
     // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
@@ -25892,6 +25959,16 @@ var descartesJS = (function(descartesJS) {
         return 0;
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
+
+      //
+      self.ImReady = !self.isFirefox;
+      if (!self.isFirefox) {
+        self.container.style.visibility = "visible";
+        self.container.style.opacity = "1";
+        self.container.style.zIndex = self.zIndex;
+        self.container.style.display = (self.drawIfValue) ? "block" : "none";
+      }
+      self.MyIFrame.style.visibility = "visible";
     }
 
     this.update = this.iframeUpdate;
@@ -25931,11 +26008,14 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
-    if (descartesJS.isIOS) {
+
+    if (this.ImReady) {
       this.container.style.display = (this.drawIfValue) ? "block" : "none";
     }
     else {
-      this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+      this.container.style.visibility = (this.drawIfValue) ? "visible" : "hidden";
+      this.container.style.opacity = (this.drawIfValue) ? "1" : "0";
+      this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
     }
 
     if (this.drawIfValue) {
@@ -25949,6 +26029,23 @@ var descartesJS = (function(descartesJS) {
       this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
       this.y = (changeY) ? evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
 
+      if (this._w_ != undefined) {
+        var new_w = evaluator.evalExpression(this._w_);
+        if (this.w !== new_w) {
+          this.container.style.width = new_w + "px";
+          this.MyIFrame.style.width  = new_w + "px";
+          this.w = new_w;
+        }
+      }
+      if (this._h_ != undefined) {
+        var new_h = evaluator.evalExpression(this._h_);
+        if (this.h !== new_h) {
+          this.container.style.height = new_h + "px";
+          this.MyIFrame.style.height  = new_h + "px";
+          this.h = new_h;
+        }
+      }
+
       // if the position change
       if ((changeX) || (changeY)) {
         this.container.style.left = this.x + "px";
@@ -25957,6 +26054,17 @@ var descartesJS = (function(descartesJS) {
 
       file = evaluator.evalExpression(this.file);
       if (file !== this.oldFile) {
+        //
+        this.ImReady = false;
+        if (!this.isFirefox) {
+          this.container.style.display = "block";
+          this.container.style.visibility = (this.drawIfValue) ? "visible" : "hidden";
+          this.container.style.opacity = (this.drawIfValue) ? "1" : "0";
+          this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
+        }
+        //
+
+        this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
         this.MyIFrame.setAttribute("src", file);
       }
@@ -25989,6 +26097,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var scale;
+  var barWidth;
+  var barHeight;
 
   /**
    * Descartes loader
@@ -26012,6 +26122,7 @@ var descartesJS = (function(descartesJS) {
     this.imageLoader.height = descartesApp.height;
     this.imageLoader.setAttribute("class", "DescartesLoaderImage")
     this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); background-size:cover; width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
+    
     descartesApp.loader.appendChild(this.imageLoader);
     
     this.loaderBar = document.createElement("canvas");
@@ -26082,7 +26193,6 @@ var descartesJS = (function(descartesJS) {
           if ((macroElement) && (macroElement.type == "descartes/macro")) {
             response = macroElement.text;
           }
-
           // the macro is in an external file
           else {
             response = descartesJS.openExternalFile(filename);
@@ -26096,9 +26206,8 @@ var descartesJS = (function(descartesJS) {
 
         if (response) {
           imageFilename = response.match(regExpImage);
-
           if (imageFilename) {
-            for (var j, il=imageFilename.length; j<il; j++) {
+            for (j=0, il=imageFilename.length; j<il; j++) {
               imageTmp = imageFilename[j];
 
               // if the filename is not VACIO.GIF or vacio.gif
@@ -26236,15 +26345,15 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasTouchSupport) {
       audios[file].load();
       audios[file].play();
-      setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
+      setTimeout( function(){ 
+        // console.log("detenido"); 
+        audios[file].pause(); 
+      }, 20);
       audios[file].ready = 1;
     } else {
       audios[file].load();
     }
   }
-
-  var barWidth;
-  var barHeight;
   /**
    * Draw the loader bar
    * @param {CanvasContextRendering2D} ctx the context render where to draw
@@ -26348,7 +26457,7 @@ var descartesJS = (function(descartesJS) {
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
                  "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
@@ -26528,6 +26637,11 @@ var descartesJS = (function(descartesJS) {
         this.image_loader = children_i.value;
       }
 
+      // get image cover space
+      if (children_i.name == "expand") {
+        this.expand = children_i.value;
+      }
+
       // // set the docBase for the elements in the resources
       if (children_i.name == "docBase") {
         this.docBase = children_i.value;
@@ -26537,6 +26651,27 @@ var descartesJS = (function(descartesJS) {
         document.head.appendChild(base);
       }
 
+    }
+
+    // cover space
+    if (this.expand) {
+      if (this.expand == "cover") {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+      }
+      // else if (this.expand == "adjust") {
+      //   var meta = document.createElement("meta");
+      //   meta.setAttribute("name", "viewport");
+      //   if ( this.arquimedes ||
+      //        ( (parseFloat(window.innerWidth)/parseFloat(this.width)) <= (parseFloat(window.innerHeight)/parseFloat(this.height)) )
+      //      ) {
+      //     meta.setAttribute("content", "width=" + this.width);
+      //   }
+      //   else {
+      //     meta.setAttribute("content", "height=" + this.height);
+      //   }
+      //   document.head.appendChild(meta);
+      // }
     }
 
     // configure an arquimedes lesson
@@ -26664,7 +26799,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 1;
+    this.numberOfIframes = 0;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
@@ -26687,6 +26822,11 @@ var descartesJS = (function(descartesJS) {
     this.loader.height = this.height;
     this.loader.setAttribute("class", "DescartesLoader");
     this.loader.setAttribute("style", "width:" + this.width + "px; height:" + this.height + "px; z-index:1000;");
+
+    // if hava an image, the background is transparent
+    if (this.image_loader) {
+      this.loader.style.backgroundColor = "rgba(0,0,0,0)";
+    }
 
     // this.adjustDimensions();
 
@@ -26906,7 +27046,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
     }
     else {
       this.finishInit();
@@ -26920,6 +27060,7 @@ var descartesJS = (function(descartesJS) {
    * Finish the interpretation
    */
   descartesJS.DescartesApp.prototype.finishInit = function() {
+    this.evaluator.setVariable("decimalSymbol", this.decimal_symbol);
     this.update();
 
     // hide the loader
@@ -26940,7 +27081,7 @@ var descartesJS = (function(descartesJS) {
       this.parentContainer.style.padding = "0px";
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
-      window.parent.postMessage({ type: "ready" }, '*');
+      window.parent.postMessage({ type: "ready", value: window.location.href }, '*');
 
       descartesJS.onResize();
     }
@@ -26951,8 +27092,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
-
-    
   }
 
   /**
@@ -27327,7 +27466,7 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
-  	
+
     // this.updateAuxiliaries();
     // this.updateControls();
     // this.updateEvents();
@@ -27431,8 +27570,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.reinitAnimation = function() {
     if (this.animation) {
-      // this.animation.reinit();
-      this.animation.play();
+      this.animation.reinit();
+      // this.animation.play();
     }
   }
 
@@ -27470,7 +27609,7 @@ var descartesJS = (function(descartesJS) {
       else {
         images[name] = new Image();
         images[name].addEventListener('load', function() { this.ready = 1; });
-        images[name].addEventListener('error', function() { this.errorload = 1; });
+        images[name].addEventListener('error', function() { this.ready = 0; this.errorload = 1; });
         images[name].src = name;
 
         return images[name];
@@ -27963,7 +28102,7 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span>';
+    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span><span style="font:12px descartesJS_extra;visibility:hidden;">_</span>';
     document.body.appendChild(div);
 
     // get the features for interpreting descartes applets
@@ -27979,19 +28118,17 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 2 pixel to remove the address bar when page is done loading in mobile
-      window.scrollTo(0, 2);      
+      // window.scrollTo(0, 2);
+      window.scrollTo(0, 0);
 
-      document.body.setAttribute("tabIndex", 1000000);
+      // document.body.setAttribute("tabIndex", 1000000);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {
-      // prompt a message to install chrome frame
-      // when the installation is ready reload the webpage
-      // document.location.reload()
-
       showApplets();
     }
-    
+
+    // setTimeout(function(){ document.body.removeChild(div); }, 1000);
     document.body.removeChild(div);
   }
   
@@ -28022,11 +28159,6 @@ var descartesJS = (function(descartesJS) {
           }
         }        
       }
-
-      // // get the value of a variable
-      // if (data.type === "get") {
-      //   descartesJS.apps[0].registerCacheVar(data.name);
-      // }
       
       // update the scene
       else if (data.type === "update") {
@@ -28036,12 +28168,15 @@ var descartesJS = (function(descartesJS) {
       // execute a function
       else if (data.type === "exec") {
         var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
-        var params = [];
-        
-        if (data.value !== "") {
-          params = (data.value.toString()).split(",");
-        }
-        
+        var params = (data.value.toString()).split(",");
+        var _temp;
+
+        // for (var i=0,l=params.length; i<l; i++) {
+        //   if (!isNaN(parseFloat(params[i]))) {
+        //     params[i] = parseFloat(params[i]);
+        //   }
+        // }
+
         if (fun) {
           fun.apply(descartesJS.apps[0].evaluator, params);
         }
@@ -28062,11 +28197,6 @@ var descartesJS = (function(descartesJS) {
   // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
-
-    // var editorScript = document.createElement("script");
-    // editorScript.setAttribute("type", "text/javascript");
-    // editorScript.setAttribute("src", "http://arquimedes.matem.unam.mx/Descartes5/lib/descartes_editor-min.js");
-    // document.head.appendChild(editorScript);
 
     // register the onload evt
     window.addEventListener("load", onLoad);

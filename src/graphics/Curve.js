@@ -177,7 +177,8 @@ var descartesJS = (function(descartesJS) {
         
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
-      ctx.fill();
+      ctx.fill("evenodd");
+      // ctx.fill();
     }
     ctx.stroke();
     

@@ -17,6 +17,11 @@ var descartesJS = (function(descartesJS) {
   var vertices;
   var v;
 
+  var ui;
+  var vi;
+  var ii;
+  var ll;
+
   /**
    * A Descartes 3D surface
    * @constructor 
@@ -79,14 +84,14 @@ var descartesJS = (function(descartesJS) {
     // array to store the computed vertices 
     vertices = [];
 
-    for (var ui=0; ui<=Nu; ui++) {
+    for (ui=0; ui<=Nu; ui++) {
       evaluator.setVariable("u", ui/Nu);
 
-      for (var vi=0; vi<=Nv; vi++) {
+      for (vi=0; vi<=Nv; vi++) {
         evaluator.setVariable("v", vi/Nv);
 
         // eval all the subterms in the expression
-        for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
+        for (ii=0, ll=this.expresion.length; ii<ll; ii++) {
           evaluator.evalExpression(this.expresion[ii]);
         }
 
@@ -94,8 +99,8 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    for (var ui=0; ui<Nu; ui++) {
-      for (var vi=0; vi<Nv; vi++) {
+    for (ui=0; ui<Nu; ui++) {
+      for (vi=0; vi<Nv; vi++) {
         v = [];
         v.push(vertices[vi + ui*Nv + ui]);        // 0
         v.push(vertices[vi+1 + ui*Nv + ui]);      // 1

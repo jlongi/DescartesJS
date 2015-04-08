@@ -17,11 +17,11 @@ var descartesJS = (function(descartesJS) {
   var lastTokenType;
 
   var whiteSpaceRegExp = /^\s+/;
-  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B]+[a-zA-Z_0-9\u00C0-\u021B]*([.]*[0-9a-zA-Z_\u00C0-\u021B]+[0-9]*)*/;
+  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[a-zA-Z_0-9\u00C0-\u021B\u0391-\u03C9]*([.]*[0-9a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[0-9]*)*/;
   var numberRegExp = /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/;
   var compOperatorRegExp = /^==|^!=|^<=|^<|^>=|^>|^#/;
   var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
-  var asignRegExp = /^=/;
+  var asignRegExp = /^=|^:=/;
   var conditionalRegExp = /^[\?\:]/;
   var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
   var squareBracketRegExp = /^\[|^\]/;
@@ -103,7 +103,7 @@ var descartesJS = (function(descartesJS) {
             return;
           }
         }
-        
+
         val = str.substring(1, inc);
         addToken("string", val, val.length+2);
         continue;

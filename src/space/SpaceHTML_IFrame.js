@@ -24,10 +24,30 @@ var descartesJS = (function(descartesJS) {
 
     var evaluator = this.parent.evaluator;
 
-    // PATCH
+    //
+    if (this._w_ != undefined) {
+      var tmpW = evaluator.parser.parse(this._w_);
+      if (tmpW.type != "number") {
+        this._w_ = tmpW;
+      }
+      else {
+        this._w_ = undefined;
+      }
+    }
+    //
+    if (this._h_ != undefined) {
+      var tmpH = evaluator.parser.parse(this._h_);
+      if (tmpH.type != "number") {
+        this._h_ = tmpH;
+      }
+      else {
+        this._h_ = undefined;
+      }
+    }
+    //
+
     // if the web browser is firefox then a problem ocurrs with a none visible iframe
-    var isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
-    // PATCH
+    this.isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
 
     this.file = (this.file) ? this.file.trim() : "";
 
@@ -51,25 +71,17 @@ var descartesJS = (function(descartesJS) {
     if (this.oldFile != 0) {
       this.MyIFrame.setAttribute("src", this.oldFile);
     }
-    this.MyIFrame.setAttribute("id", this.id);
     this.MyIFrame.setAttribute("marginheight", 0);
     this.MyIFrame.setAttribute("marginwidth", 0);
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
-    // this.MyIFrame.setAttribute("style", "overflow: hidden; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    // this.MyIFrame.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-
     this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
 
     this.container = document.createElement("div");
-    // this.container.setAttribute("style", "-webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
-    if (descartesJS.isIOS) {
-      this.container.setAttribute("style", "overflow: scroll; -webkit-overflow-scrolling: touch; position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-    }
-    else {
-      this.container.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
-    }
-    
+    this.container.setAttribute("id", this.id);
+
+    var strStyle = (descartesJS.isIOS) ? "overflow: scroll; -webkit-overflow-scrolling: touch; overflow-scrolling: touch; " : "";
+    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
     this.container.appendChild(this.MyIFrame);
 
     // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
@@ -101,6 +113,16 @@ var descartesJS = (function(descartesJS) {
         return 0;
       }
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
+
+      //
+      self.ImReady = !self.isFirefox;
+      if (!self.isFirefox) {
+        self.container.style.visibility = "visible";
+        self.container.style.opacity = "1";
+        self.container.style.zIndex = self.zIndex;
+        self.container.style.display = (self.drawIfValue) ? "block" : "none";
+      }
+      self.MyIFrame.style.visibility = "visible";
     }
 
     this.update = this.iframeUpdate;
@@ -140,11 +162,14 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
-    if (descartesJS.isIOS) {
+
+    if (this.ImReady) {
       this.container.style.display = (this.drawIfValue) ? "block" : "none";
     }
     else {
-      this.container.style.visibility = (this.drawIfValue)? "visible" : "hidden";
+      this.container.style.visibility = (this.drawIfValue) ? "visible" : "hidden";
+      this.container.style.opacity = (this.drawIfValue) ? "1" : "0";
+      this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
     }
 
     if (this.drawIfValue) {
@@ -158,6 +183,23 @@ var descartesJS = (function(descartesJS) {
       this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
       this.y = (changeY) ? evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
 
+      if (this._w_ != undefined) {
+        var new_w = evaluator.evalExpression(this._w_);
+        if (this.w !== new_w) {
+          this.container.style.width = new_w + "px";
+          this.MyIFrame.style.width  = new_w + "px";
+          this.w = new_w;
+        }
+      }
+      if (this._h_ != undefined) {
+        var new_h = evaluator.evalExpression(this._h_);
+        if (this.h !== new_h) {
+          this.container.style.height = new_h + "px";
+          this.MyIFrame.style.height  = new_h + "px";
+          this.h = new_h;
+        }
+      }
+
       // if the position change
       if ((changeX) || (changeY)) {
         this.container.style.left = this.x + "px";
@@ -166,6 +208,17 @@ var descartesJS = (function(descartesJS) {
 
       file = evaluator.evalExpression(this.file);
       if (file !== this.oldFile) {
+        //
+        this.ImReady = false;
+        if (!this.isFirefox) {
+          this.container.style.display = "block";
+          this.container.style.visibility = (this.drawIfValue) ? "visible" : "hidden";
+          this.container.style.opacity = (this.drawIfValue) ? "1" : "0";
+          this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
+        }
+        //
+
+        this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
         this.MyIFrame.setAttribute("src", file);
       }

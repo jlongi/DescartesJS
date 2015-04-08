@@ -238,7 +238,7 @@ var descartesJS = (function(descartesJS, babel) {
           
         // width
         case("width"):
-          temp = values_i_1;
+          temp = values_i_1.trim();
 
           // if specified with a percentage use the parent container's width to get the value in pixels
           if (temp[temp.length-1] === "%") {
@@ -248,19 +248,20 @@ var descartesJS = (function(descartesJS, babel) {
           // if not specified with a percentage get the numerical value of the width
           else {
             temp = parseFloat(values_i_1);
-            
+
             // whether to convert the value to a number the values ​​are different, then the width becomes the width of the parent container
             if (temp != values_i_1) {
               temp = this.parent.container.width; // default value
+              spaceObj["_w_"] = values_i_1.trim();
             }
           }
-          
+
           spaceObj["w"] = temp;
           break;
           
         // height
         case("height"):
-          temp = values_i_1;
+          temp = values_i_1.trim();
 
           // if specified with a percentage use the parent container's height to get the value in pixels
           if (temp[temp.length-1] === "%") {
@@ -274,6 +275,7 @@ var descartesJS = (function(descartesJS, babel) {
             // whether to convert the value to a number the values ​​are different, then the height becomes the height of the parent container
             if (temp != values_i_1) {
               temp = this.parent.container.height; // default value
+              spaceObj["_h_"] = values_i_1.trim()
             }
           }
           
@@ -531,6 +533,7 @@ var descartesJS = (function(descartesJS, babel) {
           for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
             tmpText[ii] = this.parser.parse(tmpText[ii], false);
           }
+
           controlObj["text"] = tmpText;
           break;
           
@@ -1205,7 +1208,7 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       default:
-        console.log(graphicObj.type);
+        // console.log(graphicObj.type);
         break;
     }
   }
@@ -1333,16 +1336,8 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    if (auxiliarObj.type) {
-      if (auxiliarObj.type == "rectangle") {
-        this.parent.auxiliaries.push(new descartesJS.Rectangle(this.parent, auxiliarObj));
-        return;
-      }
-    }
-
     // sequence
     if (auxiliarObj.sequence) {
-      // var auxS = new descartesJS.AuxSequence(this.parent, auxiliarObj);
       var auxS = new descartesJS.Function(this.parent, auxiliarObj);
       return;
     }
@@ -1361,13 +1356,10 @@ var descartesJS = (function(descartesJS, babel) {
 
     // algorithm
     else if ((auxiliarObj.algorithm) && (auxiliarObj.evaluate)) {
-      // only once evaluation
       var auxA = new descartesJS.Algorithm(this.parent, auxiliarObj);
       
-      // always evaluation
-//       if (auxiliarObj.evaluate === "always") {
-        this.parent.auxiliaries.push(auxA);
-//       }
+      this.parent.auxiliaries.push(auxA);
+
       return;
     }
     
@@ -1397,9 +1389,6 @@ var descartesJS = (function(descartesJS, babel) {
     
     // event
     else if ((auxiliarObj.event) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
-      // var auxE = new descartesJS.Event(this.parent, auxiliarObj);
-      // this.parent.events.push(auxE);
-
       this.parent.events.push( new descartesJS.Event(this.parent, auxiliarObj) );
 
       return;
@@ -1666,7 +1655,7 @@ var descartesJS = (function(descartesJS, babel) {
     } 
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 12px; padding-bottom: 12px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
     }
     
     // creates the container for the title and the content is added

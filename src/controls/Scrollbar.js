@@ -712,7 +712,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_Canvas(evt) {
       self.canvasClick = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
     }
     if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_Canvas);
@@ -767,7 +767,7 @@ var descartesJS = (function(descartesJS) {
         self.initPos = self.getCursorPosition(evt);
 
         window.addEventListener("touchend", onTouchEnd_scrollManipulator);
-        window.addEventListener("touchmove", onToucheMove_scrollManipulator);
+        window.addEventListener("touchmove", onMouseMove_scrollManipulator);
         
         evt.preventDefault();
       }    
@@ -932,7 +932,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_UpButton(evt) {
       self.up = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
       self.draw();
     }
     if (hasTouchSupport) {
@@ -949,7 +949,7 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_DownButton(evt) {
       self.down = false;
       clearInterval(timer);
-      evt.preventDefault();
+      // evt.preventDefault();
       self.draw();
     }
     if (hasTouchSupport) {

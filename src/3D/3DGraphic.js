@@ -364,10 +364,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
-    if (this.macroChildren) {
-      v = this.applyMacroTransform(v)
-    }
-
     if (this.inirotEuler) {
       tmpVertex = this.inirotM.multiplyVector4(v);
     }
@@ -390,8 +386,13 @@ var descartesJS = (function(descartesJS) {
 
     tmpVertex = this.endposM.multiplyVector4(tmpVertex);
 
+    // make the rotation of the macro
+    if (this.macroChildren) {
+      tmpVertex = this.applyMacroTransform(tmpVertex);
+    }
+
     return tmpVertex;
-   }
+  }
 
   /** 
    *
@@ -403,7 +404,7 @@ var descartesJS = (function(descartesJS) {
     else {
       tmpVertex = this.macro_inirotM_X.multiplyVector4(v);
       tmpVertex = this.macro_inirotM_Y.multiplyVector4(tmpVertex);
-      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);      
+      tmpVertex = this.macro_inirotM_Z.multiplyVector4(tmpVertex);
     }
 
     tmpVertex = this.macro_iniposM.multiplyVector4(tmpVertex);
@@ -427,99 +428,61 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
     tmpExpr3 = [];
-var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
-var tmpEmprArr = [];
-var statusIgnore = 0;
-var statusEqual = 1;
-var statusId = 2;
-var status = statusIgnore;
-var charAt;
-var lastIndex = tmpEmpr.length;
+    var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
+    var tmpEmprArr = [];
+    var statusIgnore = 0;
+    var statusEqual = 1;
+    var statusId = 2;
+    var status = statusIgnore;
+    var charAt;
+    var lastIndex = tmpEmpr.length;
 
 
-for (var i=tmpEmpr.length-1; i>-1; i--) {
-  charAt = tmpEmpr.charAt(i)
+    for (var i=tmpEmpr.length-1; i>-1; i--) {
+      charAt = tmpEmpr.charAt(i)
 
-  if (status == statusIgnore) {
-    if (charAt != "=") {
-      continue;
+      if (status == statusIgnore) {
+        if (charAt != "=") {
+          continue;
+        }
+        else {
+          status = statusEqual;
+          continue; 
+        }
+      }
+
+      if (status == statusEqual) {
+        if (charAt == " ") {
+          continue;
+        }
+        else if ( (charAt == "<") || (charAt == ">") ) {
+          status = statusIgnore;
+          continue;
+        }
+        else {
+          status = statusId;
+          continue;
+        }
+      }
+
+      if (status == statusId) {
+        if (charAt == " ") {
+          tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
+          lastIndex = i;
+          status = statusIgnore;
+          continue;
+        }
+      }
     }
-    else {
-      status = statusEqual;
-      continue; 
+
+    tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
+
+    for(var i=0, l=tmpEmprArr.length; i<l; i++) {
+      tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
     }
-  }
-
-  if (status == statusEqual) {
-    if (charAt == " ") {
-      continue;
-    }
-    else if ( (charAt == "<") || (charAt == ">") ) {
-      status = statusIgnore;
-      continue;
-    }
-    else {
-      status = statusId;
-      continue;
-    }
-  }
-
-  if (status == statusId) {
-    if (charAt == " ") {
-      tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
-      lastIndex = i;
-      status = statusIgnore;
-      continue;
-    }
-  }
-}
-
-tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
-
-for(var i=0, l=tmpEmprArr.length; i<l; i++) {
-  tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
-}
 
 
-return tmpExpr3;
-
-    // tmpExpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim().split("=");
-    // tmpExpr2 = tmpExpr[0];
-    // tmpExpr3 = [];
-
-    // var newTmpExpr = [];
-    // var tmpindex;
-
-    // for (var i=0, l=tmpExpr.length; i<l; i++) {
-    //   lastIndexOfSpace = tmpExpr[i].lastIndexOf(" ");
-
-    //   if (lastIndexOfSpace !== -1) {
-    //     newTmpExpr.push( tmpExpr[i].substring(0, lastIndexOfSpace) );
-    //     newTmpExpr.push( tmpExpr[i].substring(lastIndexOfSpace+1) );
-    //   }
-    //   else {
-    //     newTmpExpr.push(tmpExpr[i]);
-    //   }
-    // }
-
-    // var newTmpExpr2 = [];
-    // for (var i=0, l=newTmpExpr.length; i<l; i++) {
-    //   if ((newTmpExpr[i] == "x") || (newTmpExpr[i] == "y") || (newTmpExpr[i] == "z")) {
-    //     newTmpExpr2.push( newTmpExpr[i] );
-    //     newTmpExpr2.push("");
-    //   }
-    //   else {
-    //     tmpindex = newTmpExpr2.length-1;
-    //     newTmpExpr2[tmpindex] = newTmpExpr2[tmpindex] + ((newTmpExpr2[tmpindex] == "")?"":"=") + newTmpExpr[i];
-    //   } 
-    // }
-
-    // for (var i=0; i<3; i++) {
-    //   tmpExpr2 = newTmpExpr2[i*2] + "=" + newTmpExpr2[i*2 +1];
-    //   tmpExpr3.push( this.evaluator.parser.parse( tmpExpr2, true ) );
-    // }
-
-    // return tmpExpr3;
+    return tmpExpr3;
   }
 
   var tmpPrimitives;

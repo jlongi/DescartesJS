@@ -85,6 +85,8 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.addExternalFileContent = function(filename, data) {
+// console.log(filename)
+// console.log(data)
     descartesJS._externalFilesContent[filename] = data;
   }
 

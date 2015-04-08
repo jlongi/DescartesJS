@@ -74,6 +74,10 @@ var descartesJS = (function(descartesJS) {
       self.audio.currentTime = 0.0;
       return 0;
     });
+    self.evaluator.setFunction(self.id + ".currentTime", function(time) {
+      self.audio.currentTime = parseFloat(time);
+      return 0;
+    });
     self.audio.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
       // self.parent.update();

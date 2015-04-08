@@ -8,7 +8,7 @@ var descartesJS = (function(descartesJS) {
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
                  "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/2.5/es/}, si no se indica lo contrario.\\par "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
                  "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
@@ -188,6 +188,11 @@ var descartesJS = (function(descartesJS) {
         this.image_loader = children_i.value;
       }
 
+      // get image cover space
+      if (children_i.name == "expand") {
+        this.expand = children_i.value;
+      }
+
       // // set the docBase for the elements in the resources
       if (children_i.name == "docBase") {
         this.docBase = children_i.value;
@@ -197,6 +202,27 @@ var descartesJS = (function(descartesJS) {
         document.head.appendChild(base);
       }
 
+    }
+
+    // cover space
+    if (this.expand) {
+      if (this.expand == "cover") {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+      }
+      // else if (this.expand == "adjust") {
+      //   var meta = document.createElement("meta");
+      //   meta.setAttribute("name", "viewport");
+      //   if ( this.arquimedes ||
+      //        ( (parseFloat(window.innerWidth)/parseFloat(this.width)) <= (parseFloat(window.innerHeight)/parseFloat(this.height)) )
+      //      ) {
+      //     meta.setAttribute("content", "width=" + this.width);
+      //   }
+      //   else {
+      //     meta.setAttribute("content", "height=" + this.height);
+      //   }
+      //   document.head.appendChild(meta);
+      // }
     }
 
     // configure an arquimedes lesson
@@ -324,7 +350,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 1;
+    this.numberOfIframes = 0;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
@@ -347,6 +373,11 @@ var descartesJS = (function(descartesJS) {
     this.loader.height = this.height;
     this.loader.setAttribute("class", "DescartesLoader");
     this.loader.setAttribute("style", "width:" + this.width + "px; height:" + this.height + "px; z-index:1000;");
+
+    // if hava an image, the background is transparent
+    if (this.image_loader) {
+      this.loader.style.backgroundColor = "rgba(0,0,0,0)";
+    }
 
     // this.adjustDimensions();
 
@@ -566,7 +597,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
     }
     else {
       this.finishInit();
@@ -580,6 +611,7 @@ var descartesJS = (function(descartesJS) {
    * Finish the interpretation
    */
   descartesJS.DescartesApp.prototype.finishInit = function() {
+    this.evaluator.setVariable("decimalSymbol", this.decimal_symbol);
     this.update();
 
     // hide the loader
@@ -600,7 +632,7 @@ var descartesJS = (function(descartesJS) {
       this.parentContainer.style.padding = "0px";
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
-      window.parent.postMessage({ type: "ready" }, '*');
+      window.parent.postMessage({ type: "ready", value: window.location.href }, '*');
 
       descartesJS.onResize();
     }
@@ -611,8 +643,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
-
-    
   }
 
   /**
@@ -987,7 +1017,7 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
-  	
+
     // this.updateAuxiliaries();
     // this.updateControls();
     // this.updateEvents();
@@ -1091,8 +1121,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.reinitAnimation = function() {
     if (this.animation) {
-      // this.animation.reinit();
-      this.animation.play();
+      this.animation.reinit();
+      // this.animation.play();
     }
   }
 
@@ -1130,7 +1160,7 @@ var descartesJS = (function(descartesJS) {
       else {
         images[name] = new Image();
         images[name].addEventListener('load', function() { this.ready = 1; });
-        images[name].addEventListener('error', function() { this.errorload = 1; });
+        images[name].addEventListener('error', function() { this.ready = 0; this.errorload = 1; });
         images[name].src = name;
 
         return images[name];

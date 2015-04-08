@@ -274,9 +274,6 @@ var descartesJS = (function(descartesJS) {
       this.containerControl.style.display = "none";
     }
 
-    // update the position and size
-    this.updatePositionAndSize();
-
     if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
       this.label.innerHTML = evaluator.evalExpression(this.name).toString();
 
@@ -298,7 +295,10 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.ok = (this.value == this.answer) ? 1 : 0;
-    this.evaluator.setVariable(this.id+".ok", this.ok);    
+    this.evaluator.setVariable(this.id+".ok", this.ok);
+
+    // update the position and size
+    this.updatePositionAndSize();
   }
 
   /**
@@ -439,12 +439,12 @@ var descartesJS = (function(descartesJS) {
      * Prevent an error with the focus of a text field
      */
     self.field.addEventListener("click", function(evt) {
-      this.select();      
+      // this.select();
       this.focus();
     });
-    self.select.addEventListener("mouse", function(evt) {
-      this.focus();
-    });
+    // self.select.addEventListener("mouse", function(evt) {
+    //   this.focus();
+    // });
   }
 
   return descartesJS;

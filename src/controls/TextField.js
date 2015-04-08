@@ -403,7 +403,9 @@ var descartesJS = (function(descartesJS) {
      */
     function onBlur_textField(evt) {
       // self.update();
-      self.changeValue(self.field.value, true);
+      if (self.evaluator.evalExpression(self.drawIf)) {
+        self.changeValue(self.field.value, true);
+      }
     }
     this.field.addEventListener("blur", onBlur_textField);
         

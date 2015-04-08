@@ -153,9 +153,7 @@ descartesJS._debug_vez = 0;
   /**
    * Update the equation
    */
-  descartesJS.Equation.prototype.update = function() {
-    // this.oldWidth = parseInt(this.evaluator.evalExpression(this.width));
-  }
+  descartesJS.Equation.prototype.update = function() { }
   
   /**
    * Draw the equation (special case of the draw defined in Graphic)
@@ -246,8 +244,11 @@ descartesJS._debug_vez = 0;
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
     
-    w = space.w;
-    h = space.h;
+    // w = space.w;
+    // h = space.h;
+    w = space.w +24;
+    h = space.h +24;
+
     
     dx = w/9;
     if (dx<3) {
@@ -301,11 +302,14 @@ descartesJS._debug_vez = 0;
         Qx = Q.ix();
         Qy = Q.iy();
 
-        if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
-          if (b[Qx + Qy*space.w]) {
+        // if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+        if ((Qx>=-12) && (Qx<w+24) && (Qy>=-12) && (Qy<h+24)) {
+          // if (b[Qx + Qy*space.w]) {
+          if (b[Qx+12 + (Qy+12)*space.w]) {
             continue; // zero already detected
           }
-          b[Qx + Qy*space.w] = true;
+          // b[Qx + Qy*space.w] = true;
+          b[Qx+12 + (Qy+12)*space.w] = true;
         }
 
         if (descartesJS.rangeOK) {
@@ -394,17 +398,21 @@ descartesJS._debug_vez = 0;
             Qx = Px;
             Qy = Py;
             
-            if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+            // if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
+            if ((Qx>=-12) && (Qx<w+24) && (Qy>=-12) && (Qy<h+24)) {
               zeroVisited = 0;
 
-              secondVisit = b[Qx + Qy*space.w];
+              // secondVisit = b[Qx + Qy*space.w];
+              secondVisit = b[Qx+12 + (Qy+12)*space.w];
 
-              b[Qx + Qy*space.w] = true;
+              // b[Qx + Qy*space.w] = true;
+              b[Qx+12 + (Qy+12)*space.w] = true;
               for (var s=1; s<np; s++) {
                 Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
                 Qsy = Qya + Math.round((Qy-Qya)*s/np);
                 if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
-                  b[Qsx + Qsy*space.w] = true;
+                  // b[Qsx + Qsy*space.w] = true;
+                  b[Qsx+12 + (Qsy+12)*space.w] = true;
                 }
               }
 
@@ -492,7 +500,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
   var Dx = 0;
   var vv = v;
 
-  while (Math.abs(dxx)>1E-12) {
+  while (Math.abs(dxx)>1E-15) {
     var xa = this.evaluator.getVariable(X);
     var x = this.evaluator.getVariable(X) + dxx;
 
@@ -500,7 +508,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
 
     var ok = true;
 
-    // try {
+    try {
       var vva = vv;
       vv = this.evaluator.evalExpression(this.funExpr);
       this.evaluator.setVariable(Y, vv);
@@ -522,10 +530,10 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
       else {
         ok = false;
       }
-    // } 
-    // catch (e) {
-    //   ok = false;
-    // }
+    } 
+    catch (e) {
+      ok = false;
+    }
 
     if (ok) {
       Dx += dxx;
@@ -541,6 +549,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
   return new descartesJS.R2(Dx/Math.abs(dx),vv);
 }
 
+
 /**
  * 
  */
@@ -550,12 +559,12 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
   var Dx = 0;
   var vv = v;
 
-  while (Math.abs(dxx)>1E-12) {
+  while (Math.abs(dxx)>1E-15) {
     this.evaluator.setVariable(this.evaluator.getVariable(X) +dxx);
     var ok = true;
 
     if (this.evaluator.evalExpression(cond) > 0) {
-      // try {
+      try {
         var vva = vv;
         vv = this.evaluator.evalExpression(this.funExpr);
         
@@ -564,10 +573,10 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
         if (this.evaluator.evalExpression(cond) <= 0) {
           ok = false;
         }
-      // }
-      // catch (e) {
-      //   ok = false;
-      // }
+      }
+      catch (e) {
+        ok = false;
+      }
     }
     else {
       ok = false;
@@ -587,18 +596,18 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
     Dx = dx;
     vv = v;
 
-    while (Math.abs(dxx)>1E-12) {
+    while (Math.abs(dxx)>1E-15) {
       this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
 
       var ok = true;
 
       if (this.evaluator.evalExpression(cond) > 0) {
-        // try {
+        try {
           vv = this.evaluator.evalExpression(this.funExpr);
-        // }
-        // catch (e) {
-        //   ok = false;
-        // }
+        }
+        catch (e) {
+          ok = false;
+        }
       }
       else {
         ok = false;
@@ -623,15 +632,18 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
  * 
  */
 descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, minmax) {
+    if (isNaN(vb) || isNaN(va) || isNaN(minmax.y) || isNaN(minmax.x)) {
+      return 2;
+    }
     if (a >= b) {
       return 2;
     }
     var saveX = this.evaluator.getVariable(X);
     var disc=0;
 
-    // try {
-      if ( (Math.abs(b-a) < 1E-12) || 
-           ( (Math.abs(b-a) < 1E-8) && (Math.abs(vb-va) > Math.abs(e)) ) 
+    try {
+      if ( (Math.abs(b-a) < 1E-15) || 
+           ( (Math.abs(b-a) < 1E-12) && (Math.abs(vb-va) > Math.abs(e)) ) 
          ) {
         this.evaluator.setVariable(X, saveX);
         return 1;
@@ -643,7 +655,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       var auxv = this.evaluator.evalExpression(this.funExpr);
 
       if (Math.abs(vb-va)>e) {  // detectar saltos
-        var epsilon = 0.000001;
+        var epsilon = 1E-12;
         this.evaluator.setVariable(X, a-epsilon);
         var _v = this.evaluator.evalExpression(this.funExpr);
         var _D = (va-_v)/epsilon;
@@ -651,21 +663,23 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
         this.evaluator.setVariable(X, b+epsilon);
         var v_ = this.evaluator.evalExpression(this.funExpr);
         var D_ = (v_-vb)/epsilon;
-
         var Dj = (vb-va)/(b-a);
 
         if ( (Math.abs(D_) < 10) || 
              (Math.abs(_D) < 10)
            ) { 
-          if ((D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
-            if (8*Math.abs(D_) < Math.abs(Dj)) {
+          if ( (D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
+            if (4*Math.abs(D_) < Math.abs(Dj)) {
               this.evaluator.setVariable(X, saveX);
               return 2;
             }
           }
         }
       }
-      if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
+      if (isNaN(minmax.x) || isNaN(minmax.y) || (isNaN(auxv))){
+        return 2;
+      }
+      else if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
         this.evaluator.setVariable(X, ab2);
         minmax.x = Math.min(va, auxv);
         minmax.y = Math.max(va, auxv);
@@ -678,10 +692,10 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
         disc = Math.max(s1, s2);
       }
-    // } 
-    // catch (exc) {
-    //   disc = 1;
-    // }
+    } 
+    catch (exc) {
+      disc = 1;
+    }
 
     this.evaluator.setVariable(X, saveX)
 
@@ -731,8 +745,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       dx = 1;
     }
 
-    var condWhile = (this.of_y) ? this.space.h : this.space.w;
-    while (x < condWhile) {
+    var condWhile = (this.of_y) ? this.space.h+2 : this.space.w+2;
+    while (x <= condWhile) {
       var def = true;
       var sing = 0;
       this.evaluator.setVariable(X, Xr);
@@ -773,6 +787,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillM.getColor();
                   ctx.beginPath();
+                  // Line(g[i],width,x,y0+1,x,y,of_y);
                   if (this.of_y) {
                     ctx.moveTo(y0+1, this.space.h-x+.5);
                     ctx.lineTo(y, this.space.h-x+.5);
@@ -781,6 +796,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                     ctx.moveTo(x+.5, y0+1);
                     ctx.lineTo(x+.5, y);
                   }
+
                   ctx.stroke();
                 }
                 if ((this.fillP) && (y<y0)) {
@@ -802,6 +818,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 ctx.strokeStyle = this.color.getColor();
 
                 ctx.beginPath();
+                // Line(g[i],width,xa,nya,x,y,of_y);
                 if (this.of_y) {
                   ctx.moveTo(nya+.5, this.space.h-xa);
                   ctx.lineTo(y+.5, this.space.h-x);
@@ -816,7 +833,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
               else if (sing === 1) {
                 this.evaluator.setVariable(X, Xr-dx);
                 var pn = this.extrapolate(cond, X, Y, F, va, dx);
-                y = this.YY(width, pn.y, this.abs_coord);
+                y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
 
                 this.evaluator.setVariable(X, Xr);
                 var pa = this.extrapolate(cond, X, Y, F, v, -dx);
@@ -825,15 +842,32 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
              }
               // sing === 2
               else {
-                y = this.YY(width, v, this.abs_coord);
+                y = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
               }
             }
             // defa === false; extrapolate forward
             else {
               var pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
 
-              ya = this.YY(width, pa.y, this.abs_coord);
-              y = this.YY(width, v, this.abs_coord);
+              ya = (this.of_y)?this.XX(width, pa.y, this.abs_coord):this.YY(width, pa.y, this.abs_coord);
+              y  = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
+
+              //
+              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
+              ctx.lineWidth = width;
+              ctx.strokeStyle = this.color.getColor();
+              ctx.beginPath();
+
+              if (this.of_y) {
+                ctx.moveTo(ya, this.space.h-(x+Math.round(pa.x))+.5);
+                ctx.lineTo(y,  this.space.h-x+.5);
+              }
+              else {
+                ctx.moveTo(x+Math.round(pa.x), ya);
+                ctx.lineTo(x, y);
+              }
+              ctx.stroke();
+              //
             }
 
             va = v;
@@ -848,7 +882,23 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
             this.evaluator.setVariable(Y, va);
 
             var pn = this.extrapolate(cond, X, Y, F, va, dx);
-            y = this.YY(width, pn.y, this.abs_coord);
+            y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
+
+            //
+            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+            ctx.lineWidth = width;
+            ctx.strokeStyle = this.color.getColor();
+            ctx.beginPath();
+            if (this.of_y) {
+              ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
+              ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
+            }
+            else {
+              ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
+              ctx.lineTo((xa+Math.round(pn.x))+.5, y);
+            }
+            ctx.stroke();
+            //
 
             this.evaluator.setVariable(X, Xr);
           }

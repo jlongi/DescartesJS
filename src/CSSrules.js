@@ -23,7 +23,9 @@ var descartesJS = (function(descartesJS) {
     meta.setAttribute("name", "viewport");
     meta.setAttribute("content", "width=device-width, initial-scale=1.0, user-scalable=yes");
     // add the metadata to the head of the document
-    head.appendChild(meta);
+    if (!document.querySelector("meta[name=viewport]")) {
+      head.appendChild(meta);
+    }
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-capable");
@@ -33,7 +35,7 @@ var descartesJS = (function(descartesJS) {
 
     meta = document.createElement("meta");
     meta.setAttribute("name", "apple-mobile-web-app-status-bar-style");
-    meta.setAttribute("content", "black-translucent");
+    meta.setAttribute("content", "black");
     // add the metadata to the head of the document
     head.appendChild(meta);
 

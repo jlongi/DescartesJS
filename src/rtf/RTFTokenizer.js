@@ -20,6 +20,7 @@ var descartesJS = (function(descartesJS) {
   var lastTokenType;
   var tmpMatch;
   var tmpText;
+  var spaceFlag;
 
   /**
    * A rtf tokenizer
@@ -124,8 +125,12 @@ var descartesJS = (function(descartesJS) {
 
           // if the controlWord has a space 
           if (nextChar === " ") {
-            pos++
+            pos++;
             nextChar = input.charAt(pos+1);
+            spaceFlag = true;
+          }
+          else {
+            spaceFlag = false;
           }
 
           // controlWord of the form \'##
@@ -155,9 +160,9 @@ var descartesJS = (function(descartesJS) {
             }
             // generic controlWord
             else {
-              // scaped characters
-              if ((tokenValue === "{") || (tokenValue === "}")) {
-                tokens.push({ type: "text", value: tokenValue });
+              // escaped characters
+              if ((tokenValue === "{") || (tokenValue === "}") || (currentChar == "\\")) {
+                tokens.push({ type: "text", value: tokenValue +((spaceFlag)?" ":"") });
                 lastTokenType = "text";
               }
               else {
@@ -168,6 +173,12 @@ var descartesJS = (function(descartesJS) {
               tokenValue = "";
             }
           }
+        }
+        // escaped characters
+        else if ((currentChar == "{") || (currentChar == "}") || (currentChar == "\\")) {
+          insideControlWord = false;
+          tokens.push({ type: "text", value: currentChar });
+          lastTokenType = "text";
         }
         else {
           tokenValue += currentChar;

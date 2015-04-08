@@ -97,7 +97,6 @@ var descartesJS = (function(descartesJS) {
       this.end = this.end.substring(1);
     }
 
-
     this.initExpr = parent.evaluator.parser.parse(this.init);
     this.endExpr = parent.evaluator.parser.parse(this.end);
   }
@@ -145,7 +144,6 @@ var descartesJS = (function(descartesJS) {
       u2 = initVal[0][1];
       v1 = endVal[0][0];
       v2 = endVal[0][1];
-
 
       // arc expressed with points in the space
       if (!this.vectors) {
@@ -208,21 +206,28 @@ var descartesJS = (function(descartesJS) {
         angulo2 = 2*Math.PI-angulo2;
       }
 
-      // always choose the angles in order from lowest to highest
-      tmpAngulo1 = Math.min(angulo1, angulo2);
-      tmpAngulo2 = Math.max(angulo1, angulo2);
-      angulo1 = tmpAngulo1;
-      angulo2 = tmpAngulo2;
-
-      // if the internal angle if greater than PI and the angle is in absolute coordinates
-      if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
-        angulo1 = tmpAngulo2;
+      if (this.initFlag) {
+        tmpAngulo1 = angulo1;
+        angulo1 = angulo2;
         angulo2 = tmpAngulo1;
       }
-      // if the internal angle if less than PI and the angle is in relative coordinates
-      if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
-        angulo1 = tmpAngulo2;
-        angulo2 = tmpAngulo1;
+      else {
+        // always choose the angles in order from lowest to highest
+        tmpAngulo1 = Math.min(angulo1, angulo2);
+        tmpAngulo2 = Math.max(angulo1, angulo2);
+        angulo1 = tmpAngulo1;
+        angulo2 = tmpAngulo2;
+
+        // if the internal angle if greater than PI and the angle is in absolute coordinates
+        if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
+          angulo1 = tmpAngulo2;
+          angulo2 = tmpAngulo1;
+        }
+        // if the internal angle if less than PI and the angle is in relative coordinates
+        if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
+          angulo1 = tmpAngulo2;
+          angulo2 = tmpAngulo1;
+        }
       }
 
       this.iniAng = angulo1;

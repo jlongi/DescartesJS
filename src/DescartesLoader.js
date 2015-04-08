@@ -7,6 +7,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var scale;
+  var barWidth;
+  var barHeight;
 
   /**
    * Descartes loader
@@ -30,6 +32,7 @@ var descartesJS = (function(descartesJS) {
     this.imageLoader.height = descartesApp.height;
     this.imageLoader.setAttribute("class", "DescartesLoaderImage")
     this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); background-size:cover; width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
+    
     descartesApp.loader.appendChild(this.imageLoader);
     
     this.loaderBar = document.createElement("canvas");
@@ -100,7 +103,6 @@ var descartesJS = (function(descartesJS) {
           if ((macroElement) && (macroElement.type == "descartes/macro")) {
             response = macroElement.text;
           }
-
           // the macro is in an external file
           else {
             response = descartesJS.openExternalFile(filename);
@@ -114,9 +116,8 @@ var descartesJS = (function(descartesJS) {
 
         if (response) {
           imageFilename = response.match(regExpImage);
-
           if (imageFilename) {
-            for (var j, il=imageFilename.length; j<il; j++) {
+            for (j=0, il=imageFilename.length; j<il; j++) {
               imageTmp = imageFilename[j];
 
               // if the filename is not VACIO.GIF or vacio.gif
@@ -254,15 +255,15 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasTouchSupport) {
       audios[file].load();
       audios[file].play();
-      setTimeout( function(){ console.log("detenido"); audios[file].pause(); }, 10);
+      setTimeout( function(){ 
+        // console.log("detenido"); 
+        audios[file].pause(); 
+      }, 20);
       audios[file].ready = 1;
     } else {
       audios[file].load();
     }
   }
-
-  var barWidth;
-  var barHeight;
   /**
    * Draw the loader bar
    * @param {CanvasContextRendering2D} ctx the context render where to draw

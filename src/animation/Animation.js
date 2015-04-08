@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var MathMax = Math.max;
+
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
   window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
@@ -36,6 +38,8 @@ var descartesJS = (function(descartesJS) {
     this.auto = (values.auto == undefined) ? true : values.auto;
     this.controls = values.controls;
 
+    this.pause = false;
+
     // parse the init expression
     this.init = algorithmAuxiliary.splitInstructions(parser, values.init);
 
@@ -56,19 +60,18 @@ var descartesJS = (function(descartesJS) {
       for (i=0; i<l; i++) {
         evaluator.evalExpression(self.doExpr[i]);
       }
-
       self.parent.update();
 
       if ( (self.playing) && ((evaluator.evalExpression(self.whileExpr) > 0) || (self.loop)) ) {
         delay = evaluator.evalExpression(self.delay);
 
         if (!window.requestAnimationFrame) {
-          self.timer = setTimeout(self.animationExec, ((delay < 10) ? 10 : delay));
+          self.timer = setTimeout(self.animationExec, MathMax(delay, 10));
         }
-
       } 
       else {
         self.stop();
+        self.pause = false;
         self.parent.update();
       }
     }
@@ -87,9 +90,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Animation.prototype.play = function() {
     var self = this;
     if (!this.playing) {
-      this.reinit();
+      if (!this.pause) {
+        this.reinit();
+      }
     
       this.playing = true;
+      this.pause = false;
       delay = this.parent.evaluator.evalExpression(this.delay);
 
       if (window.requestAnimationFrame) {
@@ -98,11 +104,11 @@ var descartesJS = (function(descartesJS) {
         });
       } 
       else {
-        this.timer = setTimeout(this.animationExec, ((delay < 10) ? 10 : delay));
+        this.timer = setTimeout(this.animationExec, MathMax(delay, 10));
       }
-    } 
-    
+    }
     else {
+      this.pause = true;
       this.stop();
     }
   }
@@ -140,8 +146,7 @@ var descartesJS = (function(descartesJS) {
       self.start = timestamp;
     }
 
-    delay = self.parent.evaluator.evalExpression(self.delay);
-    delay = (delay < 10) ? 10 : delay;
+    delay = MathMax(self.parent.evaluator.evalExpression(self.delay), 10);
 
     // if ( ((timestamp - self.start) > delay) && (self.parent.evaluator.evalExpression(self.whileExpr) > 0) ) {
     if ((timestamp - self.start) > delay) {

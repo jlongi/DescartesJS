@@ -18,6 +18,7 @@ var descartesJS = (function(descartesJS) {
     
     var evaluator = this.evaluator;
     
+    delete(this.evaluate);
     this.condition = evaluator.parser.parse(this.condition);
     this.lastEvaluation = false;
 
@@ -26,7 +27,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is onlyOnce
     if (this.execution == "onlyOnce") {
       this.eventExec = function() {
-        if ((evaluator.evalExpression(this.condition) > 0) && (!this.lastEvaluation)) {
+        if ((this.evaluator.evalExpression(this.condition) > 0) && (!this.lastEvaluation)) {
           this.lastEvaluation = true;
           this.action.execute();
         }
@@ -36,7 +37,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is alternate
     if (this.execution == "alternate") {
       this.eventExec = function() {
-        var cond = (evaluator.evalExpression(this.condition) > 0);
+        var cond = (this.evaluator.evalExpression(this.condition) > 0);
         //////////////////////////////////////////////////////////////////
         // DESCARTES 3
         if (this.parent.version == 3) {
@@ -69,7 +70,7 @@ var descartesJS = (function(descartesJS) {
     // if the type of evaluation is always
     if (this.execution == "always") {
       this.eventExec = function() {
-        if (evaluator.evalExpression(this.condition) > 0) {
+        if (this.evaluator.evalExpression(this.condition) > 0) {
           this.action.execute();
         }
       }

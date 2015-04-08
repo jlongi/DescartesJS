@@ -92,7 +92,6 @@ var descartesJS = (function(descartesJS, babel) {
     this.endrotM_Z = new descartesJS.Matrix4x4();
     this.endposM   = new descartesJS.Matrix4x4();
 
-
     this.graphics = [];
     
     var lessonParser = parent.lessonParser;
@@ -318,22 +317,20 @@ var descartesJS = (function(descartesJS, babel) {
       thisGraphics_i = this.graphics[i];
 
       thisGraphics_i.macro_inirotEuler = this.inirotEuler;
-      thisGraphics_i.macro_inirotM = this.inirotM;
-      thisGraphics_i.macro_inirotM_X = this.inirotM_X;
-      thisGraphics_i.macro_inirotM_Y = this.inirotM_Y;
-      thisGraphics_i.macro_inirotM_Z = this.inirotM_Z;
-
+      thisGraphics_i.macro_inirotM     = this.inirotM;
+      thisGraphics_i.macro_inirotM_X   = this.inirotM_X;
+      thisGraphics_i.macro_inirotM_Y   = this.inirotM_Y;
+      thisGraphics_i.macro_inirotM_Z   = this.inirotM_Z;
       thisGraphics_i.macro_iniposM = this.iniposM;
 
       thisGraphics_i.macro_endrotEuler = this.endrotEuler;
-      thisGraphics_i.macro_endrotM = this.endrotM;
-      thisGraphics_i.macro_endrotM_X = this.endrotM_X;
-      thisGraphics_i.macro_endrotM_Y = this.endrotM_Y;
-      thisGraphics_i.macro_endrotM_Z = this.endrotM_Z;
-
+      thisGraphics_i.macro_endrotM     = this.endrotM;
+      thisGraphics_i.macro_endrotM_X   = this.endrotM_X;
+      thisGraphics_i.macro_endrotM_Y   = this.endrotM_Y;
+      thisGraphics_i.macro_endrotM_Z   = this.endrotM_Z;
       thisGraphics_i.macro_endposM = this.endposM;
 
-      thisGraphics_i.update();      
+      thisGraphics_i.update();
     }
 
     // split the primitives if needed

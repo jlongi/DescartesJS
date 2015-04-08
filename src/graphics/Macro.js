@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
+  var reservedIdentifiers = "-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -146,7 +146,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing          
           if ( (babelResp === "font") ||
-               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
+               (((babelResp === "fill") || (babelResp === "color") || (babelResp === "border") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
@@ -208,7 +208,7 @@ var descartesJS = (function(descartesJS, babel) {
             var tmpTokensArray = respText[j][1].replace(/\&squot;/g, "'").split(";");
 
             for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
-              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI]);
+              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
 
               for (var t=0, lt=tmpTokens.length; t<lt; t++) {
                 if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
@@ -221,7 +221,7 @@ var descartesJS = (function(descartesJS, babel) {
 
             respText[j][1] = tmpTokensArray.join(";");
           }
-        
+
         }
 
       }

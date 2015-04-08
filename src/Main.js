@@ -172,7 +172,7 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span>';
+    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span><span style="font:12px descartesJS_extra;visibility:hidden;">_</span>';
     document.body.appendChild(div);
 
     // get the features for interpreting descartes applets
@@ -188,19 +188,17 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener("resize", descartesJS.onResize);
 
       // scroll the page 2 pixel to remove the address bar when page is done loading in mobile
-      window.scrollTo(0, 2);      
+      // window.scrollTo(0, 2);
+      window.scrollTo(0, 0);
 
-      document.body.setAttribute("tabIndex", 1000000);
+      // document.body.setAttribute("tabIndex", 1000000);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {
-      // prompt a message to install chrome frame
-      // when the installation is ready reload the webpage
-      // document.location.reload()
-
       showApplets();
     }
-    
+
+    // setTimeout(function(){ document.body.removeChild(div); }, 1000);
     document.body.removeChild(div);
   }
   
@@ -231,11 +229,6 @@ var descartesJS = (function(descartesJS) {
           }
         }        
       }
-
-      // // get the value of a variable
-      // if (data.type === "get") {
-      //   descartesJS.apps[0].registerCacheVar(data.name);
-      // }
       
       // update the scene
       else if (data.type === "update") {
@@ -245,12 +238,15 @@ var descartesJS = (function(descartesJS) {
       // execute a function
       else if (data.type === "exec") {
         var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
-        var params = [];
-        
-        if (data.value !== "") {
-          params = (data.value.toString()).split(",");
-        }
-        
+        var params = (data.value.toString()).split(",");
+        var _temp;
+
+        // for (var i=0,l=params.length; i<l; i++) {
+        //   if (!isNaN(parseFloat(params[i]))) {
+        //     params[i] = parseFloat(params[i]);
+        //   }
+        // }
+
         if (fun) {
           fun.apply(descartesJS.apps[0].evaluator, params);
         }
@@ -271,11 +267,6 @@ var descartesJS = (function(descartesJS) {
   // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
-
-    // var editorScript = document.createElement("script");
-    // editorScript.setAttribute("type", "text/javascript");
-    // editorScript.setAttribute("src", "http://arquimedes.matem.unam.mx/Descartes5/lib/descartes_editor-min.js");
-    // document.head.appendChild(editorScript);
 
     // register the onload evt
     window.addEventListener("load", onLoad);

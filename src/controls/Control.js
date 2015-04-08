@@ -566,7 +566,7 @@ var descartesJS = (function(descartesJS) {
     this.actionExec.execute();
 
     // update again the controls
-    // this.parent.updateControls();
+    this.parent.updateControls();
 
     // if the action is animate then do not update the scene
     if (this.action !== "animate") {

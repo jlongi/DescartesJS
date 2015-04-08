@@ -130,7 +130,7 @@ var descartesJS = (function(descartesJS) {
     imageData.data[index+0] = color.r;
     imageData.data[index+1] = color.g;
     imageData.data[index+2] = color.b;
-    imageData.data[index+3] = 255 - color.a;
+    imageData.data[index+3] = color.a*255;
   }
 
   /**

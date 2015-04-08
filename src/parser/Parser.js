@@ -190,6 +190,15 @@ var descartesJS = (function(descartesJS) {
         }
         // the identifier is a variable
         else {
+          var scrollable = tokens_i_value.match(/(\w*)\.mouse_x/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_y/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_pressed/) || 
+                           tokens_i_value.match(/(\w*)\.mouse_clicked/) || 
+                           tokens_i_value.match(/(\w*)\.clic_izquierdo/);
+          if (scrollable) {
+            this.variables[scrollable[1] + ".DESCARTESJS_no_fixed"] = 1;
+          }
+
           this.getVariable(tokens_i_value, true);
         } 
       }
@@ -359,7 +368,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // find the correspondign open parentheses
-          while (lastNode && lastNode.parent && (lastNode.value != "(")) {
+          while (lastNode && lastNode.parent && ((lastNode.value != "(")  || ((lastNode.value == "(") && (lastNode.type != parenthesesType)))) {
             lastNode = lastNode.parent;
           }
           
@@ -392,7 +401,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // find the correspondign square brackets
-          while (lastNode && lastNode.parent && (lastNode.value != "[")) {
+          while (lastNode && lastNode.parent && ((lastNode.value != "[")  || ((lastNode.value == "[") && (lastNode.type != squareBracketType)))) {
             lastNode = lastNode.parent;
           }
           
@@ -558,7 +567,7 @@ var descartesJS = (function(descartesJS) {
             openConditional--;
             
             // find the correspondign signo ? correspondiente
-            while (lastNode && lastNode.parent && (lastNode.value != "?")) {
+            while (lastNode && lastNode.parent && ((lastNode.value != "?")  || ((lastNode.value == "?") && (lastNode.type != conditionalType)))) {
               lastNode = lastNode.parent;
             }
             // if can find the ?
@@ -646,6 +655,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Parser.prototype.getPrecedence = function(op) {
     switch(op){
       case "=":  return 1;
+      case ":=": return 1;
       case "(":  return 2;
       case "[":  return 2;
       case "?":  return 2;
@@ -672,62 +682,105 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /**
    * Register the default variables and functions of Descartes
    */
   descartesJS.Parser.prototype.registerDefaultValues = function() {
     var decimals = 1000000000000000;
-    // register the default variables
-    this.variables["rnd"] = Math.random;
-    this.variables["pi"] = descartesJS.returnValue(Math.PI);
-    this.variables["e"] = descartesJS.returnValue(Math.E);
-    this.variables["Infinity"] = Infinity;
-    this.variables["-Infinity"] = -Infinity;
-    
-    // register the default funtions
-    this.functions["sqr"]   = function(x) { return (x*x) };
-    this.functions["sqrt"]  = this.functions["ra\u00EDz"] = Math.sqrt;
-    this.functions["exp"]   = Math.exp;
-    this.functions["log"]   = Math.log;
-    this.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
-    this.functions["abs"]   = Math.abs;
-    this.functions["ent"]   = Math.floor; //function(x) { return Math.floor( parseInt(x*decimals)/decimals ); };
-    this.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
-    this.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
-    this.functions["sin"]   = this.functions["sen"] = Math.sin;
-    this.functions["cos"]   = Math.cos;
-    this.functions["tan"]   = Math.tan;
-    this.functions["cot"]   = function(x) { return 1/Math.tan(x); };
-    this.functions["sec"]   = function(x) { return 1/Math.cos(x); };
-    this.functions["csc"]   = function(x) { return 1/Math.sin(x); };
-    this.functions["sinh"]  = this.functions["senh"] = function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
-    this.functions["cosh"]  = function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
-    this.functions["tanh"]  = function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
-    this.functions["coth"]  = function(x) { return 1/this.functions.tanh(x); };
-    this.functions["sech"]  = function(x) { return 1/this.functions.cosh(x); };
-    this.functions["csch"]  = function(x) { return 1/this.functions.sinh(x); };
-    this.functions["asin"]  = this.functions["asen"] = Math.asin;
-    this.functions["acos"]  = Math.acos;
-    this.functions["atan"]  = Math.atan;
-    this.functions["min"]   = Math.min;
-    this.functions["max"]   = Math.max;
-    this.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
-
-    // new internal functions
     var self = this;
-    this.functions["_Trace_"] = function(x) { console.log(x); };
-    this.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
-    ////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // register the default variables
+    self.variables["rnd"] = Math.random;
+    self.variables["pi"] = self.variables["\u03C0"] = descartesJS.returnValue(Math.PI);
+    self.variables["e"] = descartesJS.returnValue(Math.E);
+    self.variables["Infinity"] = Infinity;
+    self.variables["-Infinity"] = -Infinity;
+    self.variables["isTouch"] = self.variables["esT\u00E1ctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // register the default funtions
+    self.functions["sqr"]   = function(x) { return (x*x) };
+    self.functions["sqrt"]  = self.functions["ra\u00EDz"] = Math.sqrt;
+    self.functions["exp"]   = Math.exp;
+    self.functions["log"]   = Math.log;
+    self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
+    self.functions["abs"]   = Math.abs;
+    self.functions["ent"]   = Math.floor;
+    self.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
+    self.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
+    self.functions["sin"]   = self.functions["sen"] = Math.sin;
+    self.functions["cos"]   = Math.cos;
+    self.functions["tan"]   = Math.tan;
+    self.functions["cot"]   = function(x) { return 1/Math.tan(x); };
+    self.functions["sec"]   = function(x) { return 1/Math.cos(x); };
+    self.functions["csc"]   = function(x) { return 1/Math.sin(x); };
+    self.functions["sinh"]  = self.functions["senh"] = function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
+    self.functions["cosh"]  = function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
+    self.functions["tanh"]  = function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
+    self.functions["coth"]  = function(x) { return 1/self.functions.tanh(x); };
+    self.functions["sech"]  = function(x) { return 1/self.functions.cosh(x); };
+    self.functions["csch"]  = function(x) { return 1/self.functions.sinh(x); };
+    self.functions["asin"]  = self.functions["asen"] = Math.asin;
+    self.functions["acos"]  = Math.acos;
+    self.functions["atan"]  = Math.atan;
+    self.functions["min"]   = Math.min;
+    self.functions["max"]   = Math.max;
+    self.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
+    self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.log.apply(console, arguments); return 0; }; //function(x) { console.log(x); return 0; };
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // function for the dialog
+    self.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
+    self.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
+    self.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
-    ////////////////////////////////////////
-    // new string function
-    this.functions["_charAt_"] = this.functions["_letraEn_"] = function(str, n) {
-      str = str.toString();
+    // if the lesson is inside a iframe then register the comunication functions with the parent
+    if (window.parent !== window) {
+
+      // function to set a variable value to the parent
+      self.functions["parent.set"] = function(varName, value) {
+        window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
+        return 0;
+      }
+      
+      // function to update the parent
+      self.functions["parent.update"] = function() {
+        window.parent.postMessage({ type: "update" }, '*');
+        return 0;
+      }
+
+      // function to execute a function in the parent
+      self.functions["parent.exec"] = function(functionName, functionParameters) {
+        window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
+        return 0;
+      }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     *
+     */
+    self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
+      return parseFloat(num).toFixed(parseInt(dec));
+    };
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // new string functions
+    /**
+     *
+     */
+    self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
+      str = (str || "").toString();
+      n = (isNaN(parseInt(n))) ? 0 : parseInt(n);
       return str.charAt(n);
     };
-    this.functions["_substring_"] = this.functions["_subcadena_"] = function(str, i, j) {
-      str = str.toString();
+    /**
+     *
+     */
+    self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
+      str = (str || "").toString();
       i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
       j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
 
@@ -746,66 +799,248 @@ var descartesJS = (function(descartesJS) {
         }
       }
     };
-    this.functions["_length_"] = this.functions["_longitud_"] = function(str) {
-      str = str.toString();
+    /**
+     *
+     */
+    self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
+      str = (str || "").toString();
       return str.length;
     };
-    this.functions["_indexOf_"] = this.functions["_\u00EDndiceDe_"] = function(str, w) {
-      str = str.toString();
-      w = w.toString();
-      return str.indexOf(w);
+    /**
+     *
+     */
+    self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
+      str  = (str || "").toString();
+      word = (word || "").toString();
+      return str.indexOf(word);
     };
-    ////////////////////////////////////////
 
-
-    // function for the dialog
-    this.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
-    this.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
-
-    // if the lesson is inside a iframe then register the comunication functions with the parent
-    if (window.parent !== window) {
-
-      // function to set a variable value to the parent
-      this.functions["parent.set"] = function(varName, value) {
-        window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
-        return 0;
-      }
-      
-      // function to update the parent
-      this.functions["parent.update"] = function() {
-        window.parent.postMessage({ type: "update" }, '*');
-        return 0;
-      }
-
-      // function to execute a function in the parent
-      this.functions["parent.exec"] = function(functionName, functionParameters) {
-        window.parent.postMessage({ type: "exec", name: functionName, value: functionParameters }, '*');
-        return 0;
-      }
-    }
-
-    ////////////////////////////////////////
-    // new funcionaity //
-    this.functions["_GetValues_"] = function(file, name) {
-      var response;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // read external values
+    /**
+     *
+     */
+    this.functions["_Load_"] = function(file) {
+      var response = "";
       if (file) {
         var fileElement = document.getElementById(file);
+        response = ((fileElement) && (fileElement.type == "descartes/archivo")) ? fileElement.text : descartesJS.openExternalFile(file);
+      }
+      return response || "";
+    }
+    /**
+     *
+     */
+    this.functions["_GetValues_"] = function(file, name) {
+      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
 
-        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
+      return this.functions._ExecBlock_(response, name);
+    };
+    /**
+     *
+     */
+    this.functions["_GetMatrix_"] = function(file, name) {
+      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
+
+      return this.functions._StrToMatrix_(response, name);
+    };
+    /**
+     *
+     */
+    this.functions["_MatrixToStr_"] = function(Mstr) {
+      var M = this.matrices[Mstr];
+      if (M) {
+        var strM = "<" + Mstr + ">\\n";
+
+        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
+        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          for (var j=0; j<k; j++) {
+            _val = M[i][j];
+
+            if (_val !== undefined) {
+              if (typeof(_val) == "string") {
+                _val = "'" + _val + "'";
+              }
+
+              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
+            }
+          }
+          // remove the last pipe is any
+          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
-        else {
-          response = descartesJS.openExternalFile(file);
-        }
+
+        strM += "</" + Mstr + ">";
+
+        return strM;
       }
       else {
-        return;
+        return "";
       }
-
-      var initialIndex = -1;
-      var finalIndex = -1;
+    }
+    /**
+     *
+     */
+    this.functions["_StrToMatrix_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      values.type = "matrix";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            tmpValue = response[i].trim().split("<" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+              values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
+            }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            tmpValue = response[i].trim().split("</" + name + ">");
+
+            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+              values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
+            }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
+          }
+        }
+
+        self.matrices[name] = values;
+        self.setVariable(name + ".filas", values[0].length);
+        self.setVariable(name + ".columnas", values.length);
+      }
+
+      return 'OK';
+    }
+    /**
+     *
+     */
+    this.functions["_GetVector_"] = function(file, name) {
+      var response = this.functions._Load_(file);
+      return this.functions._StrToVector_(response, name);
+    }
+    /**
+     *
+     */
+    this.functions["_VectorToStr_"] = function(Vstr) {
+      var V = this.vectors[Vstr];
+
+      if (V) {
+        var strV = "<" + Vstr + ">\\n";
+
+        var l = this.getVariable(Vstr + ".long_usada") || V._size_ || 0;
+        var _val;
+
+        for (var i=0; i<l; i++) {
+          _val = V[i];
+
+          if (_val !== undefined) {
+            // if (typeof(_val) == "string") {
+            //   _val = "'" + _val + "'";
+            // }
+
+            if (typeof(_val) == "number") {
+              _val = parseFloat(_val);
+            }
+
+            strV += _val + "\\n";
+          }
+          else {
+            strV += 0 + "\\n";
+          }
+        }
+
+        strV += "</" + Vstr + ">";
+
+        return strV;
+      }
+      else {
+        return "";
+      }
+    }
+    /**
+     *
+     */
+    this.functions["_StrToVector_"] = function(response, name) {
+      var values = [];
+      var storeValues = false;
+      values.type = "vector";
+
+      var tmpValue;
+
+      if (response) {
+        response = response.replace(/\r/g, "").split("\n");
+
+        for (var i=0, l=response.length; i<l; i++) {
+          // initial position of the values
+          if (response[i].match("<" + name + ">")) {
+            // tmpValue = response[i].trim().split("<" + name + ">");
+
+            // if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
+            //   values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
+            // }
+
+            storeValues = true;
+            continue;
+          }
+
+          // final position of the values
+          if (response[i].match("</" + name + ">")) {
+            // tmpValue = response[i].trim().split("</" + name + ">");
+
+            // if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
+            //   values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
+            // }
+
+            storeValues = false;
+            continue;
+          }
+
+          // add elementes in between
+          if (storeValues) {
+            values.push( myMapFun(response[i]) );
+          }
+        }
+
+        values._size_ = values.length;
+        self.vectors[name] = values;
+        self.setVariable(name + ".long", values.length);
+        self.setVariable(name + ".long_usada", values.length);
+      }
+
+      return "OK";
+    }
+    /**
+     *
+     */
+    this.functions["_ExecStr_"] = function(response) {
+      return this.functions._ExecBlock_(response, "");
+    }
+    /**
+     *
+     */
+    this.functions["_ExecBlock_"] = function(response, name) {
+      var values = [];
+      var storeValues = (name == "");
       var tmpValue;
 
       if (response) {
@@ -862,75 +1097,11 @@ var descartesJS = (function(descartesJS) {
       }
 
       return 0;
-    };
+    }
 
-    this.functions["_GetMatrix_"] = function(file, name) {
-      var response;
-      if (file) {
-        var fileElement = document.getElementById(file);
-
-        if ((fileElement) && (fileElement.type == "descartes/archivo")) {
-          response = fileElement.text.replace(/&brvbar;/g, String.fromCharCode("166"));
-        }
-        else {
-          response = descartesJS.openExternalFile(file);
-        }
-      }
-      else {
-        return;
-      }
-      
-      var initialIndex = -1;
-      var finalIndex = -1;
-      var values = [];
-      var storeValues = false;
-      values.type = "matrix";
-
-      var tmpValue;
-
-      if (response) {
-        response = response.replace(/\r/g, "").split("\n");
-
-        for (var i=0, l=response.length; i<l; i++) {
-          // initial position of the values
-          if (response[i].match("<" + name + ">")) {
-            tmpValue = response[i].trim().split("<" + name + ">");
-
-            if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
-              values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
-            }
-
-            storeValues = true;
-            continue;
-          }
-
-          // final position of the values
-          if (response[i].match("</" + name + ">")) {
-            tmpValue = response[i].trim().split("</" + name + ">");
-
-            if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
-              values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
-            }
-
-            storeValues = false;
-            continue;
-          }
-
-          // add elementes in between
-          if (storeValues) {
-            values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
-          }
-        }
-
-        self.matrices[name] = values;
-        self.setVariable(name + ".filas", values[0].length);
-        self.setVariable(name + ".columnas", values.length);
-      }
-
-      return 0;
-    };
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     var anchor = document.createElement("a");
+    anchor.setAttribute("target", "_blank");
     var blob;
     var lastDownload = null;
     /**
@@ -947,7 +1118,7 @@ var descartesJS = (function(descartesJS) {
         lastDownload = true;
         setTimeout(function() { 
           lastDownload = null;
-        }, 500);
+        }, 1000);
       }
 
       document.body.removeChild(anchor);
@@ -981,6 +1152,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       if (files.length >0) {
+        // no deberia, pero parece que los archivos estan en ISO-8859-1
+        // reader.readAsText(files[0], "ISO-8859-1");
         reader.readAsText(files[0]);
       }
     }
@@ -1064,132 +1237,61 @@ var descartesJS = (function(descartesJS) {
     input2.removeEventListener("change", onHandleFileSelect2);
     input2.addEventListener("change", onHandleFileSelect2);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // time and date functions
+    this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
+    this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
+    this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
+    this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
+    this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
+    this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
+
     // /**
     //  *
     //  */
     // this.functions["_OpenState_"] = function() {
     //   input2.click(); 
-
     //   return 0;
     // }
-
-    /**
-     *
-     */
-    this.functions["_Rojo_"] = function(c) {
-      return (new descartesJS.Color(c).r)/255;
-    }
-    /**
-     *
-     */
-    this.functions["_Verde_"] = function(c) {
-      return (new descartesJS.Color(c).g)/255;
-    }
-    /**
-     *
-     */
-    this.functions["_Azul_"] = function(c) {
-      return (new descartesJS.Color(c).b)/255;
-    }
     /**
      *
      */
     this.functions["_AnchoDeCadena_"] = this.functions["_strWidth_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
-    /**
-     *
-     */
-    this.functions["_GetDay_"] = function() {
-      return (new Date()).getDate();
-    }
-    /**
-     *
-     */
-    this.functions["_GetMonth_"] = function() {
-      return (new Date()).getMonth() +1;
-    }
-    /**
-     *
-     */
-    this.functions["_GetYear_"] = function() {
-      return (new Date()).getFullYear();
-    }
-    /**
-     *
-     */
-    this.functions["_GetHours_"] = function() {
-      return (new Date()).getHours();
-    }
-    /**
-     *
-     */
-    this.functions["_GetMinutes_"] = function() {
-      return (new Date()).getMinutes();
-    }
-    /**
-     *
-     */
-    this.functions["_GetSeconds_"] = function() {
-      return (new Date()).getSeconds();
-    }
-    /**
-     *
-     */
-    this.functions["_MatrixToStr_"] = function(Mstr) {
-      var M = this.matrices[Mstr];
-      if (M) {
-        strM = "<" + Mstr + ">\\n";
 
-        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
-        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
-        var _val;
+    this.functions["_Rojo_"]  = this.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
+    this.functions["_Verde_"] = this.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
+    this.functions["_Azul_"]  = this.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
 
-        for (var i=0; i<l; i++) {
-          for (var j=0; j<k; j++) {
-            _val = M[i][j];
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (_val !== undefined) {
-              if (typeof(_val) == "string") {
-                _val = "'" + _val + "'";
-              }
-
-              strM += _val + ((j<k-1)? (" \u00A6 ") : "");
-            }
-          }
-          // remove the last pipe is any
-          strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
-        }
-
-        strM += "</" + Mstr + ">";
-
-        return strM;
-      }
-      else {
-        return "";
-      }
-    }
-    ////////////////////////////////////////
   }  
 
-/**
- *
- */
-function myMapFun(x) {
-  if (isNaN(parseFloat(x))) {
-    // .replace(/^\s|\s$/g, "") remove the initial white space
-    return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+  /**
+   *
+   */
+  function myMapFun(x) {
+    if (isNaN(parseFloat(x))) {
+      // .replace(/^\s|\s$/g, "") remove the initial white space
+      return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+    }
+    else {
+      return parseFloat(x);
+    }
   }
-  else {
-    return parseFloat(x);
-  }
-}
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // console.log(((new descartesJS.Parser).parse("(t,func(t))")).toString());
 // console.log(((new descartesJS.Parser).parse("((Aleat=0)&(Opmult=2)|(Aleat=1)&(Opmult=3))\nVerError=(Opm_ok=0)\nPaso=(Opm_ok=1)?Paso+1:Paso")).toString());
 // console.log(((new descartesJS.Parser).parse("3(x+2)")).toString());
 // console.log(((new descartesJS.Parser).parse("", true)).toString());
 // console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
+// console.log(((new descartesJS.Parser).parse("literal3=b=1?nombre1+&squot;(&squot;:(b=2?nombre2+&squot;(&squot;:nombre3+&squot;(&squot;)", true)).toString());
+// console.log(((new descartesJS.Parser).parse("bla:=1+1", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});
