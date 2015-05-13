@@ -81,8 +81,14 @@ var descartesJS = (function(descartesJS) {
     this.container.setAttribute("id", this.id);
 
     var strStyle = (descartesJS.isIOS) ? "overflow: scroll; -webkit-overflow-scrolling: touch; overflow-scrolling: touch; " : "";
-    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
+    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; background-repeat: no-repeat; background-position: center; ");
     this.container.appendChild(this.MyIFrame);
+
+    //
+    if (this.imageSrc) {
+      this.container.style.backgroundImage = "url(" + this.imageSrc +")";
+    }
+    //
 
     // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
     this.parent.container.insertBefore(this.container, this.parent.loader);
@@ -123,6 +129,7 @@ var descartesJS = (function(descartesJS) {
         self.container.style.display = (self.drawIfValue) ? "block" : "none";
       }
       self.MyIFrame.style.visibility = "visible";
+      self.container.style.backgroundImage = "";
     }
 
     this.update = this.iframeUpdate;
@@ -217,7 +224,10 @@ var descartesJS = (function(descartesJS) {
           this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
         }
         //
-
+        if (this.imageSrc) {
+          this.container.style.backgroundImage = "url(" + this.imageSrc +")";
+        }
+        //
         this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
         this.MyIFrame.setAttribute("src", file);

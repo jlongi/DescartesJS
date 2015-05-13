@@ -88,6 +88,16 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
+//
+var devicePixelRatio = window.devicePixelRatio || 1;
+var backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
+                        descartesJS.ctx.mozBackingStorePixelRatio ||
+                        descartesJS.ctx.msBackingStorePixelRatio ||
+                        descartesJS.ctx.oBackingStorePixelRatio ||
+                        descartesJS.ctx.backingStorePixelRatio || 1;
+descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
+//
+
     if (this.font_size === -1) {
       this.fontSizeNotSet = true;
     }
@@ -235,8 +245,8 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas and the rendering context
     this.canvas = document.createElement("canvas");
-    this.canvas.width  = this.w *descartesJS._ratio;
-    this.canvas.height = this.h *descartesJS._ratio;
+    this.canvas.width  = this.w *descartesJS.button_ratio;
+    this.canvas.height = this.h *descartesJS.button_ratio;
     // this.canvas.setAttribute("width", this.w+"px");
     // this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
@@ -278,8 +288,8 @@ var descartesJS = (function(descartesJS) {
     }
 
     //
-    canvas.width  = this.w *descartesJS._ratio;
-    canvas.height = this.h *descartesJS._ratio;
+    canvas.width  = this.w *descartesJS.button_ratio;
+    canvas.height = this.h *descartesJS.button_ratio;
     canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
     //
@@ -413,7 +423,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     ctx.save();
-    ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
+    ctx.setTransform(descartesJS.button_ratio, 0, 0, descartesJS.button_ratio, 0, 0);
 
     font_size = this.fs_evaluated; 
 

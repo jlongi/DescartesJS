@@ -160,7 +160,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx, space) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = ((this.backColor.charAt(0) == "#") || (this.frontColor.charAt(0) == "#")) ? 1 : 0.1;
 
     // set the path to draw
     ctx.beginPath();
@@ -205,7 +205,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
-      // ctx.lineWidth = 1;
+      ctx.lineWidth = 1;
       ctx.strokeStyle = "#808080"
       ctx.stroke();
     }

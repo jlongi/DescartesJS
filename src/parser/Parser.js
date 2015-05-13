@@ -1292,6 +1292,7 @@ var descartesJS = (function(descartesJS) {
 // console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
 // console.log(((new descartesJS.Parser).parse("literal3=b=1?nombre1+&squot;(&squot;:(b=2?nombre2+&squot;(&squot;:nombre3+&squot;(&squot;)", true)).toString());
 // console.log(((new descartesJS.Parser).parse("bla:=1+1", true)).toString());
+// console.log(((new descartesJS.Parser).parse("bla(n0,n1)&ble(n0,n2)", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});

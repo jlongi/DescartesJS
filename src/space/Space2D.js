@@ -717,7 +717,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom);
 
         // show the external space
-        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+        if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
         }
       }

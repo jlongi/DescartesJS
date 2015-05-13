@@ -393,6 +393,8 @@ var descartesJS = (function(descartesJS) {
    * Init the parse and creation of objects for the descartes lesson
    */
   descartesJS.DescartesApp.prototype.initBuildApp = function() {
+  	descartesJS.showConfig = true;
+
     var children = this.children;
     var lessonParser = this.lessonParser;
     
@@ -409,6 +411,11 @@ var descartesJS = (function(descartesJS) {
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
       
+      // find if the scene is editable
+      if (babel[children_i.name] == "editable") {
+      	descartesJS.showConfig = (babel[children_i.value] == 'false') ? false : true;
+      }
+
       // find the language of the lesson
       if (babel[children_i.name] == "language") {
         this.language = children_i.value;

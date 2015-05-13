@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-03-27
+ * 2015-05-11
  */
 
 /**
@@ -8311,7 +8311,7 @@ var descartesJS = (function(descartesJS) {
   function drawFace(ctx, space) {
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = ((this.backColor.charAt(0) == "#") || (this.frontColor.charAt(0) == "#")) ? 1 : 0.1;
 
     // set the path to draw
     ctx.beginPath();
@@ -8356,7 +8356,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
-      // ctx.lineWidth = 1;
+      ctx.lineWidth = 1;
       ctx.strokeStyle = "#808080"
       ctx.stroke();
     }
@@ -11982,6 +11982,16 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
+//
+var devicePixelRatio = window.devicePixelRatio || 1;
+var backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
+                        descartesJS.ctx.mozBackingStorePixelRatio ||
+                        descartesJS.ctx.msBackingStorePixelRatio ||
+                        descartesJS.ctx.oBackingStorePixelRatio ||
+                        descartesJS.ctx.backingStorePixelRatio || 1;
+descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
+//
+
     if (this.font_size === -1) {
       this.fontSizeNotSet = true;
     }
@@ -12129,8 +12139,8 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas and the rendering context
     this.canvas = document.createElement("canvas");
-    this.canvas.width  = this.w *descartesJS._ratio;
-    this.canvas.height = this.h *descartesJS._ratio;
+    this.canvas.width  = this.w *descartesJS.button_ratio;
+    this.canvas.height = this.h *descartesJS.button_ratio;
     // this.canvas.setAttribute("width", this.w+"px");
     // this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
@@ -12172,8 +12182,8 @@ var descartesJS = (function(descartesJS) {
     }
 
     //
-    canvas.width  = this.w *descartesJS._ratio;
-    canvas.height = this.h *descartesJS._ratio;
+    canvas.width  = this.w *descartesJS.button_ratio;
+    canvas.height = this.h *descartesJS.button_ratio;
     canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
     //
@@ -12307,7 +12317,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     ctx.save();
-    ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
+    ctx.setTransform(descartesJS.button_ratio, 0, 0, descartesJS.button_ratio, 0, 0);
 
     font_size = this.fs_evaluated; 
 
@@ -20548,6 +20558,7 @@ var descartesJS = (function(descartesJS) {
 // console.log(((new descartesJS.Parser).parse("3−4·5×6÷7", true)).toString());
 // console.log(((new descartesJS.Parser).parse("literal3=b=1?nombre1+&squot;(&squot;:(b=2?nombre2+&squot;(&squot;:nombre3+&squot;(&squot;)", true)).toString());
 // console.log(((new descartesJS.Parser).parse("bla:=1+1", true)).toString());
+// console.log(((new descartesJS.Parser).parse("bla(n0,n1)&ble(n0,n2)", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});/**
@@ -24606,7 +24617,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom);
 
         // show the external space
-        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+        if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
         }
       }
@@ -25508,7 +25519,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mousemove", onMouseMoveZoom, false);
 
         // show the external space
-        if (self.clickPosForZoom == self.clickPosForZoomNew) {
+        if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
         }
       }
@@ -25927,8 +25938,14 @@ var descartesJS = (function(descartesJS) {
     this.container.setAttribute("id", this.id);
 
     var strStyle = (descartesJS.isIOS) ? "overflow: scroll; -webkit-overflow-scrolling: touch; overflow-scrolling: touch; " : "";
-    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";"); 
+    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; background-repeat: no-repeat; background-position: center; ");
     this.container.appendChild(this.MyIFrame);
+
+    //
+    if (this.imageSrc) {
+      this.container.style.backgroundImage = "url(" + this.imageSrc +")";
+    }
+    //
 
     // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
     this.parent.container.insertBefore(this.container, this.parent.loader);
@@ -25969,6 +25986,7 @@ var descartesJS = (function(descartesJS) {
         self.container.style.display = (self.drawIfValue) ? "block" : "none";
       }
       self.MyIFrame.style.visibility = "visible";
+      self.container.style.backgroundImage = "";
     }
 
     this.update = this.iframeUpdate;
@@ -26063,7 +26081,10 @@ var descartesJS = (function(descartesJS) {
           this.container.style.zIndex = (this.drawIfValue) ? this.zIndex : -1000;
         }
         //
-
+        if (this.imageSrc) {
+          this.container.style.backgroundImage = "url(" + this.imageSrc +")";
+        }
+        //
         this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
         this.MyIFrame.setAttribute("src", file);
@@ -26088,7 +26109,8 @@ var descartesJS = (function(descartesJS) {
   }
   
   return descartesJS;
-})(descartesJS || {});/**
+})(descartesJS || {});
+/**
  * @author Joel Espinosa Longi
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
@@ -26842,6 +26864,8 @@ var descartesJS = (function(descartesJS) {
    * Init the parse and creation of objects for the descartes lesson
    */
   descartesJS.DescartesApp.prototype.initBuildApp = function() {
+  	descartesJS.showConfig = true;
+
     var children = this.children;
     var lessonParser = this.lessonParser;
     
@@ -26858,6 +26882,11 @@ var descartesJS = (function(descartesJS) {
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
       
+      // find if the scene is editable
+      if (babel[children_i.name] == "editable") {
+      	descartesJS.showConfig = (babel[children_i.value] == 'false') ? false : true;
+      }
+
       // find the language of the lesson
       if (babel[children_i.name] == "language") {
         this.language = children_i.value;
