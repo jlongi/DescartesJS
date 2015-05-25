@@ -189,6 +189,8 @@ var descartesJS = (function(descartesJS) {
     self.w_2 = self.w/2;
     self.h_2 = self.h/2;
 
+    self.w_plus_h = self.w + self.h;
+
     self.oldMouse = {x: 0, y: 0};
   }
 
@@ -238,29 +240,33 @@ var descartesJS = (function(descartesJS) {
         }
 
         if (observerSet) {
-          self.observer = evaluator.getVariable(self.obsStr) || (self.w + self.h) * 0.5;
+          self.observer = evaluator.getVariable(self.obsStr) || (self.w_plus_h) * 2.5;
         }
         else {
-          self.observer = (self.w + self.h) * 2.5;
+          self.observer = (self.w_plus_h) * 2.5;
         }
 
-        self.observer = MathMax(self.observer, 0.1*(self.w+self.h));
+        self.observer = MathMax(self.observer, 0.25*(self.w_plus_h));
 
         evaluator.setVariable(self.obsStr, self.observer);
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
-                     y: 0, 
-                     z: (self.observer/self.scale)*sinTiltAngle
-                   };
-        self.D = self.scale*self.eye.x/cosTiltAngle;
-        self.XE = MathRound(self.scale*self.eye.y +0.5);
-        self.YE = MathRound(self.scale*self.eye.z +0.5);
-        ////////////////////////////////////////////////////////////////////////////////////////////////
       }
 
-      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.1*(self.w+self.h));
-      evaluator.setVariable(self.obsStr, self.observer);
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
+                   y: 0, 
+                   z: (self.observer/self.scale)*sinTiltAngle
+                 };
+      self.D = self.scale*self.eye.x/cosTiltAngle;
+      self.XE = MathRound(self.scale*self.eye.y +0.5);
+      self.YE = MathRound(self.scale*self.eye.z +0.5);
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+
+      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.25*(self.w_plus_h));
+      if (self.observer != evaluator.getVariable(self.obsStr)) {
+        evaluator.setVariable(self.obsStr, self.observer);
+        self.parent.updateControls();
+      }
 
       // check if the scale is not below the lower limit
       if (self.scale < minScale) {
@@ -775,12 +781,16 @@ var descartesJS = (function(descartesJS) {
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
 
+        self.clickPosForObserver = (self.getCursorPosition(evt)).x;
+        self.clickPosForObserverNew = self.clickPosForObserver;
+
         self.clickPosForZoom = (self.getCursorPosition(evt)).y;
         self.clickPosForZoomNew = self.clickPosForZoom;
 
         // if fixed add a zoom manager
         if (!self.fixed) {
           self.tempScale = self.scale;
+          self.tempObserver = self.observer;
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
@@ -855,8 +865,10 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
 
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
-
       self.evaluator.setVariable(self.scaleStr, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+
+      self.clickPosForObserverNew = (self.getCursorPosition(evt)).x;
+      self.evaluator.setVariable(self.obsStr, self.tempObserver - (self.clickPosForObserver-self.clickPosForObserverNew)*2.5);
 
       self.parent.update();
     }

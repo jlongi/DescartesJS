@@ -236,7 +236,7 @@ var descartesJS = (function(descartesJS) {
               evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
             }
 
-            return evaluator.evalExpression( evalCache[evalArgument] ) || 0;
+            return evaluator.evalExpression( evalCache[evalArgument] ) || NaN;
           }
         }
 

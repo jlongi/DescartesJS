@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-05-11
+ * 2015-05-25
  */
 
 /**
@@ -5243,7 +5243,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
 
   while (Math.abs(dxx)>1E-15) {
     var xa = this.evaluator.getVariable(X);
-    var x = this.evaluator.getVariable(X) + dxx;
+    var x  = this.evaluator.getVariable(X) + dxx;
 
     this.evaluator.setVariable(X, x);
 
@@ -5301,7 +5301,7 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
   var vv = v;
 
   while (Math.abs(dxx)>1E-15) {
-    this.evaluator.setVariable(this.evaluator.getVariable(X) +dxx);
+    this.evaluator.setVariable(X, this.evaluator.getVariable(X) +dxx);
     var ok = true;
 
     if (this.evaluator.evalExpression(cond) > 0) {
@@ -5327,7 +5327,7 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
       Dx += dxx;
     }
     else {
-      this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
+      this.evaluator.setVariable(X, this.evaluator.getVariable(X)-dxx);
     }
     dxx/=2;
   }
@@ -5338,7 +5338,7 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
     vv = v;
 
     while (Math.abs(dxx)>1E-15) {
-      this.evaluator.setVariable(this.evaluator.getVariable(X)-dxx);
+      this.evaluator.setVariable(X, this.evaluator.getVariable(X)-dxx);
 
       var ok = true;
 
@@ -5358,13 +5358,13 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
         Dx += -dxx;
       } 
       else {
-        this.evaluator.setVariable(this.evaluator.getVariable(X)+dxx);
+        this.evaluator.setVariable(X, this.evaluator.getVariable(X)+dxx);
       }
       dxx/=2;
     }
   }
 
-  this.evaluator.setVariable(saveX);
+  this.evaluator.setVariable(X, saveX);
 
   return new descartesJS.R2(Dx/Math.abs(dx), vv);
 }
@@ -5393,7 +5393,19 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       var ab2=(a+b)/2;
       this.evaluator.setVariable(X, ab2);
 
-      var auxv = this.evaluator.evalExpression(this.funExpr);
+      var auxv = NaN;
+
+      try {
+        auxv = this.evaluator.evalExpression(this.funExpr);
+      }
+      catch (e) {
+        return 2;
+      }
+
+      if (isNaN(auxv)) {
+        return 2;
+      }
+      
 
       if (Math.abs(vb-va)>e) {  // detectar saltos
         var epsilon = 1E-12;
@@ -5492,10 +5504,11 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       var sing = 0;
       this.evaluator.setVariable(X, Xr);
 
-      // try {
+      try {
         var v = this.evaluator.evalExpression(this.funExpr);
 
-        if (!isNaN(v)) {
+        // if (!isNaN(v)) {
+        if (true) {
           this.evaluator.setVariable(Y, v);
 
           if ((this.evaluator.evalExpression(this.drawif) > 0) && (descartesJS.rangeOK)) {
@@ -5543,6 +5556,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 if ((this.fillP) && (y<y0)) {
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillP.getColor();
+                  // Line(g[i],width,x,y0-1,x,y,of_y);
                   ctx.beginPath();
                   if (this.of_y) {
                     ctx.moveTo(y0-1, this.space.h-x+.5);
@@ -5576,14 +5590,69 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                 var pn = this.extrapolate(cond, X, Y, F, va, dx);
                 y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
 
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,xa,ya, xa+(int)Math.round(pn.x),y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(ya+.5, this.space.h-xa);
+                  ctx.lineTo(y+.5, this.space.h-xa+Math.round(pn.x));
+                }
+                else {
+                  ctx.moveTo(xa+.5, ya);
+                  ctx.lineTo(xa+Math.round(pn.x)+.5, y);
+                }
+                ctx.stroke();
+                //
+
                 this.evaluator.setVariable(X, Xr);
                 var pa = this.extrapolate(cond, X, Y, F, v, -dx);
                 ya = this.YY(width, pa.y, this.abs_coord);
                 y = this.YY(width, v, this.abs_coord);
+
+
+
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,x+(int)Math.round(pa.x),ya, x,y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(ya+.5, this.space.h-x);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(x+.5, ya);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+                //
+
              }
               // sing === 2
               else {
                 y = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
+
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,x, y,x,y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(y+.5, this.space.h-x);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(x+.5, y);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+                //
+
               }
             }
             // defa === false; extrapolate forward
@@ -5617,41 +5686,37 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
           else {
             def = false;
           }
+        }
+      }
+      catch(e) {
+        def = false;
+      }
 
-          if (defa && !def) {
-            this.evaluator.setVariable(X, Xr-dx);
-            this.evaluator.setVariable(Y, va);
+      if (defa && !def) {
+        this.evaluator.setVariable(X, Xr-dx);
+        this.evaluator.setVariable(Y, va);
 
-            var pn = this.extrapolate(cond, X, Y, F, va, dx);
-            y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
+        var pn = this.extrapolate(cond, X, Y, F, va, dx);
+        y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
 
-            //
-            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
-            ctx.lineWidth = width;
-            ctx.strokeStyle = this.color.getColor();
-            ctx.beginPath();
-            if (this.of_y) {
-              ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
-              ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
-            }
-            else {
-              ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
-              ctx.lineTo((xa+Math.round(pn.x))+.5, y);
-            }
-            ctx.stroke();
-            //
-
-            this.evaluator.setVariable(X, Xr);
-          }
+        //
+        // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = this.color.getColor();
+        ctx.beginPath();
+        if (this.of_y) {
+          ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
+          ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
         }
         else {
-          def = false;
+          ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
+          ctx.lineTo((xa+Math.round(pn.x))+.5, y);
         }
+        ctx.stroke();
+        //
 
-      // }
-      // catch(e) {
-      //   def = false;
-      // }
+        this.evaluator.setVariable(X, Xr);
+      }
 
       defa = def;
       singa = sing;
@@ -18525,7 +18590,7 @@ var descartesJS = (function(descartesJS) {
               evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
             }
 
-            return evaluator.evalExpression( evalCache[evalArgument] ) || 0;
+            return evaluator.evalExpression( evalCache[evalArgument] ) || NaN;
           }
         }
 
@@ -24890,6 +24955,8 @@ var descartesJS = (function(descartesJS) {
     self.w_2 = self.w/2;
     self.h_2 = self.h/2;
 
+    self.w_plus_h = self.w + self.h;
+
     self.oldMouse = {x: 0, y: 0};
   }
 
@@ -24939,29 +25006,33 @@ var descartesJS = (function(descartesJS) {
         }
 
         if (observerSet) {
-          self.observer = evaluator.getVariable(self.obsStr) || (self.w + self.h) * 0.5;
+          self.observer = evaluator.getVariable(self.obsStr) || (self.w_plus_h) * 2.5;
         }
         else {
-          self.observer = (self.w + self.h) * 2.5;
+          self.observer = (self.w_plus_h) * 2.5;
         }
 
-        self.observer = MathMax(self.observer, 0.1*(self.w+self.h));
+        self.observer = MathMax(self.observer, 0.25*(self.w_plus_h));
 
         evaluator.setVariable(self.obsStr, self.observer);
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
-                     y: 0, 
-                     z: (self.observer/self.scale)*sinTiltAngle
-                   };
-        self.D = self.scale*self.eye.x/cosTiltAngle;
-        self.XE = MathRound(self.scale*self.eye.y +0.5);
-        self.YE = MathRound(self.scale*self.eye.z +0.5);
-        ////////////////////////////////////////////////////////////////////////////////////////////////
       }
 
-      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.1*(self.w+self.h));
-      evaluator.setVariable(self.obsStr, self.observer);
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
+                   y: 0, 
+                   z: (self.observer/self.scale)*sinTiltAngle
+                 };
+      self.D = self.scale*self.eye.x/cosTiltAngle;
+      self.XE = MathRound(self.scale*self.eye.y +0.5);
+      self.YE = MathRound(self.scale*self.eye.z +0.5);
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+
+      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.25*(self.w_plus_h));
+      if (self.observer != evaluator.getVariable(self.obsStr)) {
+        evaluator.setVariable(self.obsStr, self.observer);
+        self.parent.updateControls();
+      }
 
       // check if the scale is not below the lower limit
       if (self.scale < minScale) {
@@ -25476,12 +25547,16 @@ var descartesJS = (function(descartesJS) {
       if (self.whichButton === "R") {
         window.addEventListener("mouseup", onMouseUp);
 
+        self.clickPosForObserver = (self.getCursorPosition(evt)).x;
+        self.clickPosForObserverNew = self.clickPosForObserver;
+
         self.clickPosForZoom = (self.getCursorPosition(evt)).y;
         self.clickPosForZoomNew = self.clickPosForZoom;
 
         // if fixed add a zoom manager
         if (!self.fixed) {
           self.tempScale = self.scale;
+          self.tempObserver = self.observer;
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
@@ -25556,8 +25631,10 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
 
       self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
-
       self.evaluator.setVariable(self.scaleStr, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+
+      self.clickPosForObserverNew = (self.getCursorPosition(evt)).x;
+      self.evaluator.setVariable(self.obsStr, self.tempObserver - (self.clickPosForObserver-self.clickPosForObserverNew)*2.5);
 
       self.parent.update();
     }
