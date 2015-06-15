@@ -349,7 +349,7 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "!=") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) != this.childs[1].evaluate(evaluator))+0;
+          return (this.childs[0].evaluate(evaluator) !== this.childs[1].evaluate(evaluator))+0;
         }
       }
     }

@@ -104,12 +104,21 @@ var descartesJS = (function(descartesJS) {
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
+    this.passDraw = 1;
+
     // this.depth = 0;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.project(this.newV[i]);
+      this.passDraw = this.passDraw && (this.newV[i].z > 0);
       // this.depth += this.newV[i].z;
     }
     // this.depth/= l;
+
+
+    // dibujar la cara en el sistema viejo
+    if (!space.new3D) { 
+      this.passDraw = 1;
+    }
   }
 
   var tmpVertices;

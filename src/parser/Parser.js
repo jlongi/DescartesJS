@@ -763,7 +763,9 @@ var descartesJS = (function(descartesJS) {
      *
      */
     self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
-      return parseFloat(num).toFixed(parseInt(dec));
+      num = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
+      dec = dec || 0;
+      return num.toFixed(parseInt(dec));
     };
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,7 +893,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
@@ -988,7 +990,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
@@ -1044,7 +1046,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
 
@@ -1277,7 +1279,7 @@ var descartesJS = (function(descartesJS) {
       return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
     }
     else {
-      return parseFloat(x);
+      return (parseFloat(x) == x) ? parseFloat(x) : x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
     }
   }
 

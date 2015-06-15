@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-05-25
+ * 2015-06-15
  */
 
 /**
@@ -8320,12 +8320,21 @@ var descartesJS = (function(descartesJS) {
       this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
+    this.passDraw = 1;
+
     // this.depth = 0;
     for (var i=0, l=this.vertices.length; i<l; i++) {
       this.newV[i] = space.project(this.newV[i]);
+      this.passDraw = this.passDraw && (this.newV[i].z > 0);
       // this.depth += this.newV[i].z;
     }
     // this.depth/= l;
+
+
+    // dibujar la cara en el sistema viejo
+    if (!space.new3D) { 
+      this.passDraw = 1;
+    }
   }
 
   var tmpVertices;
@@ -18703,7 +18712,7 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "!=") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) != this.childs[1].evaluate(evaluator))+0;
+          return (this.childs[0].evaluate(evaluator) !== this.childs[1].evaluate(evaluator))+0;
         }
       }
     }
@@ -20094,7 +20103,9 @@ var descartesJS = (function(descartesJS) {
      *
      */
     self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
-      return parseFloat(num).toFixed(parseInt(dec));
+      num = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
+      dec = dec || 0;
+      return num.toFixed(parseInt(dec));
     };
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20222,7 +20233,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
@@ -20319,7 +20330,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
@@ -20375,7 +20386,7 @@ var descartesJS = (function(descartesJS) {
       var tmpValue;
 
       if (response) {
-        response = response.replace(/\r/g, "").split("\n");
+        response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
         for (var i=0, l=response.length; i<l; i++) {
 
@@ -20608,7 +20619,7 @@ var descartesJS = (function(descartesJS) {
       return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
     }
     else {
-      return parseFloat(x);
+      return (parseFloat(x) == x) ? parseFloat(x) : x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
     }
   }
 
@@ -24912,6 +24923,15 @@ var descartesJS = (function(descartesJS) {
     self.userI_y_Str = self.id + ".userIlum.y";
     self.userI_z_Str = self.id + ".userIlum.z";
 
+    self.new3D_Str = self.id + "._3Dnew_";
+    self.xO_Str = self.id + ".xO";
+    self.yO_Str = self.id + ".yO";
+    self.zO_Str = self.id + ".zO";
+    self.AO_Str = self.id + ".AO";
+    self.BO_Str = self.id + ".BO";
+    self.CO_Str = self.id + ".CO";
+    self.zoom_Str = self.id + ".zoom";
+
     // set the value to the rotation variables
     self.evaluator.setVariable(self.rotZStr, 0);
     self.evaluator.setVariable(self.rotYStr, 0);
@@ -24969,6 +24989,10 @@ var descartesJS = (function(descartesJS) {
     evaluator = self.evaluator;
     parent = self.parent;
 
+    //
+		self.new3D = (evaluator.getVariable(self.new3D_Str) > 0);
+		//
+
     // prevents the change of the width and height from an external change
     evaluator.setVariable(self.wStr, self.w);
     evaluator.setVariable(self.hStr, self.h);
@@ -25015,23 +25039,59 @@ var descartesJS = (function(descartesJS) {
         self.observer = MathMax(self.observer, 0.25*(self.w_plus_h));
 
         evaluator.setVariable(self.obsStr, self.observer);
-
       }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
-                   y: 0, 
-                   z: (self.observer/self.scale)*sinTiltAngle
-                 };
-      self.D = self.scale*self.eye.x/cosTiltAngle;
-      self.XE = MathRound(self.scale*self.eye.y +0.5);
-      self.YE = MathRound(self.scale*self.eye.z +0.5);
-      ////////////////////////////////////////////////////////////////////////////////////////////////
+      // use the new 3D
+      if (self.new3D) {
+        if (evaluator.getVariable(self.xO_Str) == undefined) {
+          evaluator.setVariable(self.xO_Str, (self.observer/self.scale)*cosTiltAngle);
+        }
+        if (evaluator.getVariable(self.yO_Str) == undefined) {
+          evaluator.setVariable(self.yO_Str, 0);
+        }
+        if (evaluator.getVariable(self.zO_Str) == undefined) {
+          evaluator.setVariable(self.zO_Str, (self.observer/self.scale)*sinTiltAngle);
+        }
+        if (evaluator.getVariable(self.AO_Str) == undefined) {
+          evaluator.setVariable(self.AO_Str, 0);
+        }
+        if (evaluator.getVariable(self.BO_Str) == undefined) {
+          evaluator.setVariable(self.BO_Str, 345);
+        }
+        if (evaluator.getVariable(self.CO_Str) == undefined) {
+          evaluator.setVariable(self.CO_Str, 0);
+        }
 
-      self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.25*(self.w_plus_h));
-      if (self.observer != evaluator.getVariable(self.obsStr)) {
-        evaluator.setVariable(self.obsStr, self.observer);
-        self.parent.updateControls();
+        self.xO = evaluator.getVariable(self.xO_Str);
+        self.yO = evaluator.getVariable(self.yO_Str);
+        self.zO = evaluator.getVariable(self.zO_Str);
+        self.AO = evaluator.getVariable(self.AO_Str);
+        self.BO = evaluator.getVariable(self.BO_Str);
+        self.CO = evaluator.getVariable(self.CO_Str);
+        self.zoom = evaluator.getVariable(self.zoom_Str);
+
+        self.eye = { x: parseFloat(evaluator.getVariable(self.xO_Str)), 
+                     y: parseFloat(evaluator.getVariable(self.yO_Str)), 
+                     z: parseFloat(evaluator.getVariable(self.zO_Str))
+                   };
+      }
+      // the old 3D
+      else {
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        self.eye = { x: (self.observer/self.scale)*cosTiltAngle, 
+                     y: 0, 
+                     z: (self.observer/self.scale)*sinTiltAngle
+                   };
+        self.D = self.scale*self.eye.x/cosTiltAngle;
+        self.XE = MathRound(self.scale*self.eye.y +0.5);
+        self.YE = MathRound(self.scale*self.eye.z +0.5);
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+
+        self.observer = MathMax(evaluator.getVariable(self.obsStr), 0.25*(self.w_plus_h));
+        if (self.observer != evaluator.getVariable(self.obsStr)) {
+          evaluator.setVariable(self.obsStr, self.observer);
+          self.parent.updateControls();
+        }
       }
 
       // check if the scale is not below the lower limit
@@ -25117,7 +25177,7 @@ var descartesJS = (function(descartesJS) {
 
     // split the primitives if needed
     for (var i=0, l=this.graphics.length; i<l; i++) {
-      thisGraphics_i = this.graphics[i];
+      thisGraphics_i = this.graphics[i]; // los vertices ya estan rotados
 
       if ((thisGraphics_i.split) || (this.split)) {
         for (var j=i+1; j<l; j++) {
@@ -25146,9 +25206,11 @@ var descartesJS = (function(descartesJS) {
       this.drawPainter(primitives);
     }
     else {
-      primitives = primitives.sort(depthSort);      
+      primitives = primitives.sort(depthSort);
       for(var i=0; i<primitivesLength; i++) {
-        primitives[i].draw(this.ctx, this);
+      	if (primitives[i].passDraw) {
+	        primitives[i].draw(this.ctx, this);
+	      }
       }
     }
 
@@ -25305,7 +25367,9 @@ var descartesJS = (function(descartesJS) {
       renderTree = renderTree.inOrder();
 
       for(var i=0; i<renderTree.length; i++) {
-        renderTree[i].draw(this.ctx, this);
+      	if (renderTree[i].passDraw) {
+      		renderTree[i].draw(this.ctx, this);
+      	}
       }
       
     }
@@ -25341,11 +25405,18 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space3D.prototype.updateCamera = function() {
     self = this;
 
-    self.D = self.observer;
+    if (self.new3D) {
+      self.D = self.scale*self.eye.x/cosTiltAngle;
+      self.XE = MathRound(self.scale*self.eye.y +0.5);
+      self.YE = MathRound(self.scale*self.eye.z +0.5);
+    }
+    else {
+      self.D = self.observer;
 
-    self.eye.x = self.D/self.scale;
-    self.eye.y = self.XE/self.scale;
-    self.eye.z = self.YE/self.scale;
+      self.eye.x = self.D/self.scale;
+      self.eye.y = self.XE/self.scale;
+      self.eye.z = self.YE/self.scale;
+    }
   }
 
   /**
@@ -25373,25 +25444,105 @@ var descartesJS = (function(descartesJS) {
            };
   }
 
+var AO;
+var aO;
+var caO;
+var saO;
+var BO;
+var bO;
+var cbO;
+var sbO;
+var CO;
+var cO;
+var ccO;
+var scO;
+var Q00;
+var Q01;
+var Q02;
+var Q10;
+var Q11;
+var Q12;
+var Q20;
+var Q21;
+var Q22;
+var x1;
+var y1;
+var z1;
+var x2;
+var y2;
+var z2;
+var zoom;
+
   /**
    *
    */
   descartesJS.Space3D.prototype.project = function(v) {
     self = this;
 
-    dx = self.eye.x - v.x;
-    dy = self.eye.y - v.y;
-    dz = self.eye.z - v.z;
-    var tt = MathSqrt(dx*dx + dy*dy + dz*dz);
-    t = -v.x/tt || 0;
+    if (self.new3D) {
 
-    dx = this.w_2 + this.Ox + self.scale*(v.y + t*(self.eye.y - v.y));
-    dy = this.h_2 + this.Oy - self.scale*(v.z + t*(self.eye.z - v.z));
+      dx = self.eye.x - v.x;
+      dy = self.eye.y - v.y;
+      dz = self.eye.z - v.z;
+      var tt = MathSqrt(dx*dx + dy*dy + dz*dz);
+      t = -v.x/tt || 0;
 
-    return { x: dx,
-             y: dy,
-             z: tt
-           };
+      ////
+			AO=self.AO%360;
+			aO=AO*Math.PI/180;
+			caO=Math.cos(aO);
+			saO=Math.sin(aO);
+
+			BO=self.BO%360;
+			bO=BO*Math.PI/180;
+			cbO=Math.cos(bO);
+			sbO=Math.sin(bO);
+
+			CO=self.CO%360;
+			cO=CO*Math.PI/180;
+			ccO=Math.cos(cO);
+			scO=Math.sin(cO);
+
+			Q00= cbO*caO;
+			Q01=-ccO*cbO*saO-scO*sbO;
+			Q02=-scO*cbO*saO+ccO*sbO;
+			Q10= saO;
+			Q11= ccO*caO;
+			Q12= scO*caO;
+			Q20=-sbO*caO;
+			Q21= ccO*sbO*saO-scO*caO;
+			Q22= scO*sbO*saO+ccO*caO;
+
+			x1=-self.eye.x +v.x;
+			y1=-self.eye.y +v.y;
+			z1=-self.eye.z +v.z;
+			x2=Q00*x1+Q10*y1+Q20*z1;
+			y2=Q01*x1+Q11*y1+Q21*z1;
+			z2=Q02*x1+Q12*y1+Q22*z1;
+
+			zoom = parseFloat(self.evaluator.getVariable(self.zoom_Str));
+			////
+
+      return { x: this.getAbsoluteX(-zoom*y2/x2),
+               y: this.getAbsoluteY(-zoom*z2/x2),
+               z: ((x2>0) ? -tt : tt)
+             };
+    }
+    else {
+      dx = self.eye.x - v.x;
+      dy = self.eye.y - v.y;
+      dz = self.eye.z - v.z;
+      var tt = MathSqrt(dx*dx + dy*dy + dz*dz);
+      t = -v.x/tt || 0;
+
+      dx = this.w_2 + this.Ox + self.scale*(v.y + t*(self.eye.y - v.y));
+      dy = this.h_2 + this.Oy - self.scale*(v.z + t*(self.eye.z - v.z));
+
+      return { x: dx,
+               y: dy,
+               z: tt
+             };
+    }
   }
 
   /**
