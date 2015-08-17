@@ -650,7 +650,6 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       // remove the focus of the controls
       document.body.focus();
-      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -679,8 +678,6 @@ var descartesJS = (function(descartesJS) {
       }
       else if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
-        // self.evaluator.setVariable(self.mclickedString, 0);
-        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
@@ -704,10 +701,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp(evt) {
       // remove the focus of the controls
       document.body.focus();
-      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
+      
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -719,6 +716,8 @@ var descartesJS = (function(descartesJS) {
         // show the external space
         if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
+          self.clickPosForZoom = false;
+          self.clickPosForZoomNew = true;
         }
       }
 
@@ -745,8 +744,8 @@ var descartesJS = (function(descartesJS) {
         self.evaluator.setVariable(self.mxString, self.mouse_x);
         self.evaluator.setVariable(self.myString, self.mouse_y);
 
-        // self.evaluator.setVariable(self.mclickedString, 0);
-        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
+        self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
         self.parent.update();
         // lastTime = Date.now();

@@ -1363,6 +1363,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawComponentSpace = function(ctx, x, y) {
     this.getTextMetrics();
+
     this.componentSpace.xExpr = this.evaluator.parser.parse(x+"");
     this.componentSpace.yExpr = this.evaluator.parser.parse((y-this.parent.ascent)+"");
   }
@@ -1381,24 +1382,98 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  descartesJS.RTFNode.prototype.toHTML = function() {
+  descartesJS.RTFNode.prototype.toHTML = function(objectReferences) {
     var htmlString = "";
-    
     if ( (this.nodeType === "textLineBlock") || (this.nodeType === "textBlock") ) {
       for (var i=0, l=this.children.length; i<l; i++) {
-        htmlString = htmlString + this.children[i].toHTML();
+        htmlString = htmlString + this.children[i].toHTML(objectReferences);
       }
     }
     else if (this.nodeType === "text") {
-      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "</span>"; 
+      htmlString = "<span " + this.style.toCSS() + ">" + this.value.replace(/ {2}/g, "&nbsp;&nbsp;").replace(/&nbsp; /g, "&nbsp;") + "</span>";
     }
     else if (this.nodeType === "newLine") {
       htmlString = "<span " + this.style.toCSS() + ">" + this.value + "<br /></span>";
     }
+    else if (this.nodeType === "hyperlink") {
+      htmlString = "<span " + this.style.toCSS() + "> <a target='_blank' href='" + this.URL + "'>"+ this.value + "</a></span>";
+    }
+    else if (this.nodeType === "formula") {
+      // htmlString = "<span " + this.style.toCSS() + "> \\[" + formulaToHTML(this) + "\\] </span>";
+      htmlString = "<span " + this.style.toCSS() + "> \\( \\displaystyle " + formulaToHTML(this) + "\\) </span>";
+    }
+    else if (this.nodeType === "componentSpace") {
+      objectReferences.spaces.push({ cID: "cID_"+this.value, value: this.componentSpace} );
+      htmlString = "<div style='display:inline-block; vertical-align:top; width:" + this.componentSpace.w + "px; height:0px;' id='cID_" + this.value + "'></div>";
+    }
+    else if (this.nodeType === "componentNumCtrl") {
+      objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
+      htmlString = "<div style='display:inline-block; vertical-align:middle; width:" + this.componentNumCtrl.w + "px; height:" + this.componentNumCtrl.h + "px;' id='cID_" + this.value + "'></div>";
+    }
     else {
-      // console.log(">>><<<", this);
+      console.log(">>>", this, "<<<");
     }
     
+    return htmlString;
+  }
+
+  function formulaToHTML(formula) {
+    var htmlString = "";
+    var children_i;
+
+    for (var i=0; i<formula.children.length; i++) {
+      children_i = formula.children[i];
+      if (children_i.nodeType === "text") {
+        htmlString += children_i.value.replace(/\[/g, "\\left[").replace(/\]/g, "\\right]").replace(/_/g, "\\_").replace(/ /g, "\\;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      else if (children_i.nodeType === "mathSymbol") {
+        htmlString += children_i.value.replace(/\(/g, "\\left(").replace(/\)/g, "\\right)");
+      }
+      else if (children_i.nodeType === "superIndex") {
+        htmlString += "^{" + formulaToHTML(children_i) + "}";
+      }
+      else if (children_i.nodeType === "subIndex") {
+        htmlString += "_{" + formulaToHTML(children_i) + "}";
+      }
+      else if (children_i.nodeType === "fraction") {
+        htmlString += "\\frac{" + formulaToHTML(children_i.children[0]) + "}{" + formulaToHTML(children_i.children[1]) + "}";
+      }
+      else if (children_i.nodeType === "radical") {
+        htmlString += "\\sqrt[" + formulaToHTML(children_i.children[0]) + "]{" + formulaToHTML(children_i.children[1]) + "}";
+      }
+      else if (children_i.nodeType === "sum") {
+        htmlString += "\\sum_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "integral") {
+        htmlString += "\\int_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "limit") {
+        htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "matrix") {
+        htmlString += "\\begin{bmatrix}"
+        for (var ci=0; ci<children_i.rows; ci++) {
+          for (var cj=0; cj<children_i.columns; cj++) {
+            htmlString += formulaToHTML(children_i.children[cj +ci*children_i.columns]) + " &";
+          }
+          htmlString = htmlString.substring(0, htmlString.length-2) + "\\\\";
+        }
+        htmlString += "\\end{bmatrix}";
+      }
+      else if (children_i.nodeType === "defparts") {
+        htmlString += "\\begin{cases}"
+        for (var ci=0; ci<children_i.parts; ci++) {
+          htmlString += formulaToHTML(children_i.children[ci]) + " \\\\";
+        }
+        htmlString += "\\end{cases}";
+        // htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else {
+console.log("<<", formula.children[i].nodeType, ">>")
+      }
+    }
+
+// console.log(htmlString);
     return htmlString;
   }
   

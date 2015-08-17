@@ -615,34 +615,37 @@ var descartesJS = (function(descartesJS) {
    * {String} retur a CSS style for the font style
    */
   descartesJS.FontStyle.prototype.toCSS = function() {
-    var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
+    // var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
+    var cssRule = 'style="font-size:' + this.fontSize + 'px; font-family:' + this.fontType + '; ';
 
     if (this.textUnderline && !this.textOverline) {
-      cssRule += "text-decoration: underline; ";
+      cssRule += 'text-decoration: underline; ';
     }
     if (!this.textUnderline && this.textOverline) {
-      cssRule += "text-decoration: overline; ";
+      cssRule += 'text-decoration: overline; ';
     }
     if (this.textUnderline && this.textOverline) {
-      cssRule += "text-decoration: underline overline; ";
+      cssRule += 'text-decoration: underline overline; ';
     }
     if (this.textBold && !this.textItalic) {
-      cssRule += "font-style: normal; font-weight: bold; ";
+      cssRule += 'font-style: normal; font-weight: bold; ';
     }
     if (!this.textBold && this.textItalic) {
-      cssRule += "font-style: oblique; font-weight: normal; ";
+      // cssRule += "font-style: oblique; font-weight: normal; ";
+      cssRule += 'font-style: italic; font-weight: normal; ';
     }
     if (this.textBold && this.textItalic) {
-      cssRule += "font-style: oblique; font-weight: bold; ";
+      // cssRule += "font-style: oblique; font-weight: bold; ";
+      cssRule += 'font-style: italic; font-weight: bold; ';
     }
     if (!this.textBold && !this.textItalic) {
-      cssRule += "font-style: normal; font-weight: normal; ";
+      cssRule += 'font-style: normal; font-weight: normal; ';
     }
     if (this.textColor) {
-      cssRule += "color: " + this.textColor + "; ";
+      cssRule += 'color: ' + this.textColor + '; ';
     }
 
-    return cssRule + "'";
+    return cssRule + '"';
   }
 
   /**

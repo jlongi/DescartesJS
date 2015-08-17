@@ -421,7 +421,7 @@ var descartesJS = (function(descartesJS) {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
     this.evaluator.setVariable(this.activeString, 0);
-    this.evaluator.setVariable(this.mclickedString, 0);
+    // this.evaluator.setVariable(this.mclickedString, 0);
     this.evaluator.setVariable(this.mclicizquierdoString, 0);
   }
   

@@ -80,17 +80,17 @@ var descartesJS = (function(descartesJS) {
                         "div.DescartesLoader{ background-color :#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
-                        "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
+                        "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ touch-action:none; position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
                         "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
                         "div.DescartesButtonContainer{ position:absolute; background-repeat:no-repeat; }\n" +
                         "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
                         "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesGraphicControl{ border-style:none; position:absolute; }\n" +
+                        "div.DescartesGraphicControl{ touch-action:none; border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
                         "select.DescartesMenuSelect{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding-top:0px; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n" +
+                        "div.DescartesScrollbarContainer{ touch-action:none; background:#eee; overflow:hidden; position:absolute; }\n" +
 
                         // style for the internal editor
 

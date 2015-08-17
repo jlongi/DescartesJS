@@ -7,8 +7,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                 "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
+                 "{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22 "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
                  "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
@@ -193,7 +193,7 @@ var descartesJS = (function(descartesJS) {
         this.expand = children_i.value;
       }
 
-      // // set the docBase for the elements in the resources
+      // set the docBase for the elements in the resources
       if (children_i.name == "docBase") {
         this.docBase = children_i.value;
         var base = document.createElement("base");
@@ -201,7 +201,6 @@ var descartesJS = (function(descartesJS) {
         base.setAttribute("href", this.docBase);
         document.head.appendChild(base);
       }
-
     }
 
     // cover space
@@ -650,6 +649,76 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
+
+    ////////////////////////////////////////////////////////////////
+    // new mathjax
+    ////////////////////////////////////////////////////////////////
+    if ((this.arquimedes) && (MathJax)) {
+      var x = this.scenarioRegion.scenarioSpace.container.style.left;
+      var y = this.scenarioRegion.scenarioSpace.container.style.top;
+      var mathJaxScenarioSpace = document.createElement("div");
+      mathJaxScenarioSpace.setAttribute("style", "position:relative; left:" + x + "; top:" + y + "; text-align:left; margin:0; padding:18px 0 0 18px;");
+      var objectReferences = { ctrs: [], spaces: [] };
+      mathJaxScenarioSpace.innerHTML = this.scenarioRegion.scenarioSpace.backgroundGraphics[0].text.toHTML(objectReferences);
+      this.scenarioRegion.scenarioSpace.container.style.visibility = "hidden";
+      this.scenarioRegion.scenarioSpace.container.style.display = "none";
+      // this.scenarioRegion.container.insertBefore(mathJaxScenarioSpace, this.scenarioRegion.scenarioSpace.container);
+      this.scenarioRegion.container.replaceChild(mathJaxScenarioSpace, this.scenarioRegion.scenarioSpace.container);
+      this.scenarioRegion.container.style.background = "#fff";
+      this.container.style.height = "100%";
+      this.scenarioRegion.container.style.height = "100%";
+      this.container.style.overflow = "visible";
+
+      var tmpBottom = document.createElement("div");
+      tmpBottom.setAttribute("style", "padding-bottom:25px;");
+      tmpBottom.innerHTML = "<br/> <hr style='border-width:2px;'>";
+
+      var tmpAnchor = document.createElement("a");
+      tmpAnchor.setAttribute("href", "https://creativecommons.org/licenses/by-nc-sa/4.0/")
+      tmpAnchor.setAttribute("target", "_blank");
+      tmpBottom.appendChild(tmpAnchor);
+
+      var tmpImage = descartesJS.getCreativeCommonsLicenseImage();
+      tmpImage.setAttribute("style", "position:absolute; left:30px; padding-top:4px;");
+      tmpAnchor.appendChild(tmpImage);
+
+      var tmpBottomText = document.createElement("div");
+      tmpBottomText.setAttribute("style", "display:inline-block; width:100%; text-align:left;")
+      tmpBottomText.innerHTML = this.scenarioRegion.scenarioSpace.backgroundGraphics[1].text.toHTML();
+      tmpBottomText.removeChild(tmpBottomText.firstChild);
+      tmpBottomText.removeChild(tmpBottomText.firstChild);
+      tmpBottom.appendChild(tmpBottomText);
+      mathJaxScenarioSpace.appendChild(tmpBottom);
+
+      var spaces_i;
+      var dom_elem;
+      var tmpBorder;
+      for (var i=0; i<objectReferences.spaces.length; i++) {
+        spaces_i = objectReferences.spaces[i];
+        if (spaces_i.value.container) {
+          dom_elem = document.getElementById(spaces_i.cID);
+          tmpBorder = spaces_i.value.container.style.border;
+          tmpBorder = (tmpBorder != "") ? "border:" + tmpBorder + ";" : "";
+          spaces_i.value.container.setAttribute("style", tmpBorder);
+          dom_elem.appendChild(spaces_i.value.container);
+        }
+      }
+      var ctrs_i;
+      var ctr_container;
+      for (var i=0; i<objectReferences.ctrs.length; i++) {
+        ctrs_i = objectReferences.ctrs[i];
+        ctr_container = ctrs_i.value.containerControl || ctrs_i.value.container;
+        if (ctr_container) {
+          dom_elem = document.getElementById(ctrs_i.cID);
+          ctr_container.setAttribute("style", "width:" + ctrs_i.value.w + "px; height:" + ctrs_i.value.h + "px;");
+          dom_elem.appendChild(ctr_container);
+        }
+      }
+
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
   }
 
   /**

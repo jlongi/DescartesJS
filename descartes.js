@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-06-15
+ * 2015-08-17
  */
 
 /**
@@ -2120,92 +2120,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getCreativeCommonsLicenseImage = function() {
     var img = new Image();
-
-    // w = 88;
-    // h = 31;
-    // black = "#000";
-    // white = "#fff";
-    // gray = "#bebebe";
-
-    // canvas = document.createElement("canvas");
-    // canvas.setAttribute("width", w);
-    // canvas.setAttribute("height", h);
-    // ctx = canvas.getContext("2d");
-
-    // ctx.lineWidth = 1;
-    // ctx.fillStyle = gray;
-    // ctx.fillRect(0, 0, w, h);
-
-    // ctx.strokeStyle = black;
-    // ctx.strokeRect(.5, .5, w-1, h-1);
-
-    // ctx.fillStyle = black;
-    // ctx.fillRect(0, 21, w, h)
-
-    // ctx.fillStyle = gray;
-    // ctx.beginPath();
-    // ctx.arc(14, 14.5, 13.5, 0, Math.PI);
-    // ctx.fill();
-
-    // ctx.lineWidth = 2;
-    // ctx.fillStyle = white;
-
-    // // cc
-    // ctx.beginPath();
-    // ctx.arc(14, 14.5, 10.5, 0, 2*Math.PI);
-    // ctx.fill();
-    // ctx.stroke();
-    // ctx.font = "bold 12px Arial";
-    // ctx.fillStyle = black;
-    // ctx.fillText("cc", 7.5, 18);
-    // ctx.fillStyle = white;
-
-    // // by
-    // ctx.beginPath();
-    // ctx.arc(40, 11, 7.5, 0, 2*Math.PI);
-    // ctx.fill();
-    // ctx.stroke();
-    // ctx.fillStyle = black;
-    // ctx.fillRect(39, 6, 2, 2);
-    // ctx.fillRect(38.5, 9, 3.5, 3.5);
-    // ctx.fillRect(39, 9, 2, 7);
-    // ctx.fillStyle = white;
-
-    // // nc
-    // ctx.beginPath();
-    // ctx.arc(58, 11, 7.5, 0, 2*Math.PI);
-    // ctx.fill();
-    // ctx.stroke();
-    // // inside nc
-    // ctx.font = "bold 11px Arial";
-    // ctx.fillStyle = black;
-    // ctx.fillText("$", 55.5, 15);
-    // ctx.fillStyle = white;
-    // ctx.beginPath();
-    // ctx.moveTo(51, 9);
-    // ctx.lineTo(64, 13);
-    // ctx.stroke();
-
-    // // sa
-    // ctx.beginPath();
-    // ctx.arc(76, 11, 7.5, 0, 2*Math.PI);
-    // ctx.fill();
-    // ctx.stroke();
-    // // inside sa
-    // ctx.beginPath();
-    // ctx.arc(76, 11, 3.5, 4*Math.PI/5, Math.PI, true);
-    // ctx.stroke();
-
-    // // text
-    // ctx.font = "8px Arial";
-    // ctx.fillText("BY", 35, 29);
-    // ctx.fillText("NC", 53, 29);
-    // ctx.fillText("SA", 71, 29);
-
-    // img.src = canvas.toDataURL();
-
     img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAYAAABjyArgAAAABHNCSVQICAgIfAhkiAAACpVJREFUaIHtWm1sU9cZfu61iUYnPP/bJgdhhDbFkVYcCrR0tLHXrVNL01wvgUJDh820tivrkpQQtpEvA4HGhDoe/dCmNfbaVa1WKszX2oUO3xC0OHESm9Hi/FhloyQq1aY5OGgq8ce7H9f3xI7txKFsdKyPdHSPz8dzz33Oe77eY46IVBzHXcUXuOkgIo4DQABwuucUeJ4Hz/NQKBTgeQUUPA9ekXryPDiOB89x4DgO4DiZBQQCJQlJSiKZlEIikZCeyQQSiSSSyQTLS1KSlSciuTEsfjtgY+UmAAAHgGRxFQqFFHjFTFyhkPJ4RUpkDhzHp+ubEiclbFISM5FIhfR4IlPkZDLJhE0X+nbBxspNUALIFFehhDLjKYWTx0/B4/FgcHAQU9GpDKIlqiVYu3YtjN8xouLRR5BIKsDzcalDEjw4cJD6cgaUJGkkANIY4iRxR3x+uN9xIxgMZpTX6XQQqgSsWlNW0Md9Xng4APSns+9BqVQyUZVKpRQUSvSK52B73oaJiYmCGqTRaND4i0aUl9+PeCKBRCKOeDwVEnHE4wlm4emW/PHExzjS9SJGg6MAAIPBAL1eDwAIBAIQRREAUKIrwY7aHfja17+a8/1XPv4ELzle+lzwbKzcJAn8fu8ZKBXKGWGVi7BIqURrcxvcx9ysglqthiAI0Gq1KC8vBwD09vYiHA7D7XZjcnKSlRVMAhoad2LxHYsRj8cRi8cRj8cQj8czpwxK4mrkKn769LOIRqMQBAF2ux1arTajseFwGPX19XC73VCpVGi3tWd91LXoNdTuqPvc8MjzMJ3tO0t9/eeo39dPQwEfXfggQIJJIEiDl9RqNbW1tVEkEqG54HQ6Sa1Ws3oluhI6399HQ4Eh8g71U1//OfL0naUzYg+99+d36XTPKTrx7nHS6XQEgMxmcwafzDP7HTL328f/kBFKdCU5eRx2Oz3+2ObPxDM2Nkbe/n7y9vfT2NhYQTwAiAcARWoOVioUUCoyLVev18Pv96O1tRVqtTprGKTDbDYjFAqxoTQaHEWn7XDGXM6zHYm0G/F5fQgGgxAEAY27ds3JL79DEASMBkcx4vOz9BGfH6PBUawqK8O996xj6b/q6sLzNhtOnj6N3Q27MD4+XhBPent+/9prMKy/DzWbt6Bm8xYY1t+HMz09c/Kkg/q8feQd8tLIhWFyHHEwy9Hr9fNabS5EIhHS6/WMx/Gig0b+OkIDw1467+0jz3nJit99/4+kK5WsNxQKFcwfCoUIAOl0OmYt8igo+cY3acUyLZV/ez09/eMnCQC1tbXRwQMHCQAdffvtgnjk9nj7+yW+u9fRj7ZZqHFnA61YpqUVy7TksNvz8uSwYMmKbc/bAEjzrdPpnNdqc0GtVsPj8bC6toO21F46ZcFcak/N8wheCsJgMGTNcRaLhVm5xWLJyNNqtTAYDBkrezAo8VRUVGDjpk0YHx/HmZ4erFimxb+mrmHrE1tx6cMPUVVdXRCPVqtFNBpF0H8RAFAp/AC/dXWjo/MQ9rQ0AwBc3c68PDJ4AKlhK23F5N1CXV0dG+o3ArVaDbvdDgCYmJjAyROn2IFFEplj27Rc73G5XDnjMnLV0ev1sB3uxEFbB954601UVVfjo8th2A53YunSpXB1OxG8dKkgHhntL0gG95vfvcrSvvfggwCAaDSKT65cycsDpASWrcnj8QCQxKmtrWWFRFGEyWSC0WiE0WiE1WrNm9fV1cXyzGYzs2LPWU+a9XLg+BmB/xO4+5570NF5CGNjY2jc2YCyb92Jd44eRcXDG1CzeQubQ+eCSqWCw+HAHaoleOWVV3KW+fTT63NySAcNjgPPcRgcHAQACILAhBFFEUajMaOSKIoQRRG1tbUwmUxZeRcuXIDT6WRcLpcLg4OD0gkwJawkriRwIBDIapjZbGaWazabs/Jz1ZmdFo1GcaanBx2dh2C+ZEHFwxsAAANeLwa8XhQXF4NbpJyTZ5FSicaGBtyxeDFLG/B6WXyZdlne9gDMgqUPlk9oK1euZAXq6+sBSPNMKBSCx+OBVqvFtm3bmCXr9XqEQiEcO3YsY48MgMWnolPSe8ClPYHS0lKIoohwOJzRMLmDZscBaQ8qiiJ0Oh1L0+l0WTw/efIptO/dh1V3rkTN5i346HIYVdXV6Og8hJqtWwviGR8fR1tLKx5/bDPa9+5D+959aGlqAgDs2r07b3syBAaHjOGaPp/IPWM2m9lkHgqFYDabWZ58+BAEgeXJSF+8JKPNPDZvfExadOSOLARyWaFKYGlyPJ2no/MQLNu348o//o6/hUJw2O3Y09KMqupqWPfvQ9ma1fPyWLZvh2X7dgCAs7sbzu5uXP/0OjZUPIItNY/nbY+M7PHxX8a69eugK9XB7XbDYrFkWetsyKenEl1Jhh9g1ZoylOhKMniKi4uxp6UZX1q8GCPDw/hZXd0N8expacb3H3oIly+HAUijTldaOiePDMmCKdOLlT6fyNbscrkwOTmJQCCA5cuXw2q1sjz5mJyeJyN9yEpnM3l7PIPmtmaoVCq4XC6YTCZWh9K8bOFwGCaTCV1dXVCpVNhRuyPrY3b/sjEnz85dDXjjrTc/E8/qNatRVV2Nqupq6EpLC+IBUs4e38ggioqKsP7e+zAVnYLZbGaW5Ha7sxYyQJoyKisr8+bJ9evr69HV1YUlqiU4/5c+TE9PYzo2jVg8hlgsLjmDEnFE/jmJA9YDbC+p1+uh1+uhVqshiiLr9PmcNNei19BxwMacNLeShzl7BoYHUFRUBGuLFe5jbqjVakQiEVZQFEU4HA7mzDEYDGhtbWUd4HA4WNn0PABYvnw5wuEwHvjuAzhs78T16WnEZgks+42TiSR8Az4cO3rr3Yw3g4cJ7B3qx6JFRTh/7jxqn5X2v3a7HXVpc9aNwOVysVPY/gP78fCGhzAdm8Z0LIZ4LIZYfJbAORzw/8vYWLlJmoPlKx2DsRwajQYAYLVas7ZOC8Hk5CRbXTUaTcoRn7rFSCaRTM3FlLpyul3BA0CSkkgkpHu0fe17AUgCmUymDB9voZicnITRaGR1G3/emHKwJ2ZETrsyYovsrMX2dgEBoKbWJvKNDFLgop+e+OETGR41v9+/IE9XuidNMAkUuOgn38gg7W3fy9L/j8LMj7rnamnI76PADTjcI5EItbW1ZTjc16xdQxc+CNBQwEdNrU23+kNvSWDX9jKaW5tQaRKgVCpx2HYYr7/2Ostb6JWRdV8b4vE4BgYG8cxTz2A+pE8P8smSiDJOmbN/5+PJV0d+R6GOpnxtWhDH7NDc2iRZ8kU/dbteJY1GU3CPaTQachxxUOCin4YCPnr51y8XXJeI5oynp83HM1/9QrhylVkoR5YFy6h7rhY1W2vYVY/o6cWJ4yfmvLZ/VHgUBkM5u9A8fvwE9lv3F9DHEnJZS3reQqyO47i8z4VgtrXOXoTn48srMACsuqsMza0tKF6qSbuNSHc3ImPfKv/xZGJ8HC902nGu99yCP+azTA35eABkCbxQsXN1UiEccwos4/7y+7GhYgPuWn0XvqJSpf46Jb9ZetHVaBTDQ8M4ffL0goVN/wjWsJtgwbl+L2T+nG9NuGkCf4EbB09EX77VjbhdQUTcvwFtwhQyXNo3TwAAAABJRU5ErkJggg==";
-
     return img;
   }
 
@@ -2491,17 +2406,17 @@ var descartesJS = (function(descartesJS) {
                         "div.DescartesLoader{ background-color :#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
-                        "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
+                        "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ touch-action:none; position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
                         "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
                         "div.DescartesButtonContainer{ position:absolute; background-repeat:no-repeat; }\n" +
                         "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
                         "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesGraphicControl{ border-style:none; position:absolute; }\n" +
+                        "div.DescartesGraphicControl{ touch-action:none; border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
                         "select.DescartesMenuSelect{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding-top:0px; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ background:#eee; overflow:hidden; position:absolute; }\n" +
+                        "div.DescartesScrollbarContainer{ touch-action:none; background:#eee; overflow:hidden; position:absolute; }\n" +
 
                         // style for the internal editor
 
@@ -16256,7 +16171,7 @@ var descartesJS = (function(descartesJS) {
     this.active = false;
     this.evaluator.setVariable(this.activoString, 0);
     this.evaluator.setVariable(this.activeString, 0);
-    this.evaluator.setVariable(this.mclickedString, 0);
+    // this.evaluator.setVariable(this.mclickedString, 0);
     this.evaluator.setVariable(this.mclicizquierdoString, 0);
   }
   
@@ -22127,6 +22042,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawComponentSpace = function(ctx, x, y) {
     this.getTextMetrics();
+
     this.componentSpace.xExpr = this.evaluator.parser.parse(x+"");
     this.componentSpace.yExpr = this.evaluator.parser.parse((y-this.parent.ascent)+"");
   }
@@ -22145,24 +22061,98 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  descartesJS.RTFNode.prototype.toHTML = function() {
+  descartesJS.RTFNode.prototype.toHTML = function(objectReferences) {
     var htmlString = "";
-    
     if ( (this.nodeType === "textLineBlock") || (this.nodeType === "textBlock") ) {
       for (var i=0, l=this.children.length; i<l; i++) {
-        htmlString = htmlString + this.children[i].toHTML();
+        htmlString = htmlString + this.children[i].toHTML(objectReferences);
       }
     }
     else if (this.nodeType === "text") {
-      htmlString = "<span " + this.style.toCSS() + ">" + this.value + "</span>"; 
+      htmlString = "<span " + this.style.toCSS() + ">" + this.value.replace(/ {2}/g, "&nbsp;&nbsp;").replace(/&nbsp; /g, "&nbsp;") + "</span>";
     }
     else if (this.nodeType === "newLine") {
       htmlString = "<span " + this.style.toCSS() + ">" + this.value + "<br /></span>";
     }
+    else if (this.nodeType === "hyperlink") {
+      htmlString = "<span " + this.style.toCSS() + "> <a target='_blank' href='" + this.URL + "'>"+ this.value + "</a></span>";
+    }
+    else if (this.nodeType === "formula") {
+      // htmlString = "<span " + this.style.toCSS() + "> \\[" + formulaToHTML(this) + "\\] </span>";
+      htmlString = "<span " + this.style.toCSS() + "> \\( \\displaystyle " + formulaToHTML(this) + "\\) </span>";
+    }
+    else if (this.nodeType === "componentSpace") {
+      objectReferences.spaces.push({ cID: "cID_"+this.value, value: this.componentSpace} );
+      htmlString = "<div style='display:inline-block; vertical-align:top; width:" + this.componentSpace.w + "px; height:0px;' id='cID_" + this.value + "'></div>";
+    }
+    else if (this.nodeType === "componentNumCtrl") {
+      objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
+      htmlString = "<div style='display:inline-block; vertical-align:middle; width:" + this.componentNumCtrl.w + "px; height:" + this.componentNumCtrl.h + "px;' id='cID_" + this.value + "'></div>";
+    }
     else {
-      // console.log(">>><<<", this);
+      console.log(">>>", this, "<<<");
     }
     
+    return htmlString;
+  }
+
+  function formulaToHTML(formula) {
+    var htmlString = "";
+    var children_i;
+
+    for (var i=0; i<formula.children.length; i++) {
+      children_i = formula.children[i];
+      if (children_i.nodeType === "text") {
+        htmlString += children_i.value.replace(/\[/g, "\\left[").replace(/\]/g, "\\right]").replace(/_/g, "\\_").replace(/ /g, "\\;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      else if (children_i.nodeType === "mathSymbol") {
+        htmlString += children_i.value.replace(/\(/g, "\\left(").replace(/\)/g, "\\right)");
+      }
+      else if (children_i.nodeType === "superIndex") {
+        htmlString += "^{" + formulaToHTML(children_i) + "}";
+      }
+      else if (children_i.nodeType === "subIndex") {
+        htmlString += "_{" + formulaToHTML(children_i) + "}";
+      }
+      else if (children_i.nodeType === "fraction") {
+        htmlString += "\\frac{" + formulaToHTML(children_i.children[0]) + "}{" + formulaToHTML(children_i.children[1]) + "}";
+      }
+      else if (children_i.nodeType === "radical") {
+        htmlString += "\\sqrt[" + formulaToHTML(children_i.children[0]) + "]{" + formulaToHTML(children_i.children[1]) + "}";
+      }
+      else if (children_i.nodeType === "sum") {
+        htmlString += "\\sum_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "integral") {
+        htmlString += "\\int_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "limit") {
+        htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else if (children_i.nodeType === "matrix") {
+        htmlString += "\\begin{bmatrix}"
+        for (var ci=0; ci<children_i.rows; ci++) {
+          for (var cj=0; cj<children_i.columns; cj++) {
+            htmlString += formulaToHTML(children_i.children[cj +ci*children_i.columns]) + " &";
+          }
+          htmlString = htmlString.substring(0, htmlString.length-2) + "\\\\";
+        }
+        htmlString += "\\end{bmatrix}";
+      }
+      else if (children_i.nodeType === "defparts") {
+        htmlString += "\\begin{cases}"
+        for (var ci=0; ci<children_i.parts; ci++) {
+          htmlString += formulaToHTML(children_i.children[ci]) + " \\\\";
+        }
+        htmlString += "\\end{cases}";
+        // htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+      }
+      else {
+console.log("<<", formula.children[i].nodeType, ">>")
+      }
+    }
+
+// console.log(htmlString);
     return htmlString;
   }
   
@@ -22984,34 +22974,37 @@ var descartesJS = (function(descartesJS) {
    * {String} retur a CSS style for the font style
    */
   descartesJS.FontStyle.prototype.toCSS = function() {
-    var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
+    // var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
+    var cssRule = 'style="font-size:' + this.fontSize + 'px; font-family:' + this.fontType + '; ';
 
     if (this.textUnderline && !this.textOverline) {
-      cssRule += "text-decoration: underline; ";
+      cssRule += 'text-decoration: underline; ';
     }
     if (!this.textUnderline && this.textOverline) {
-      cssRule += "text-decoration: overline; ";
+      cssRule += 'text-decoration: overline; ';
     }
     if (this.textUnderline && this.textOverline) {
-      cssRule += "text-decoration: underline overline; ";
+      cssRule += 'text-decoration: underline overline; ';
     }
     if (this.textBold && !this.textItalic) {
-      cssRule += "font-style: normal; font-weight: bold; ";
+      cssRule += 'font-style: normal; font-weight: bold; ';
     }
     if (!this.textBold && this.textItalic) {
-      cssRule += "font-style: oblique; font-weight: normal; ";
+      // cssRule += "font-style: oblique; font-weight: normal; ";
+      cssRule += 'font-style: italic; font-weight: normal; ';
     }
     if (this.textBold && this.textItalic) {
-      cssRule += "font-style: oblique; font-weight: bold; ";
+      // cssRule += "font-style: oblique; font-weight: bold; ";
+      cssRule += 'font-style: italic; font-weight: bold; ';
     }
     if (!this.textBold && !this.textItalic) {
-      cssRule += "font-style: normal; font-weight: normal; ";
+      cssRule += 'font-style: normal; font-weight: normal; ';
     }
     if (this.textColor) {
-      cssRule += "color: " + this.textColor + "; ";
+      cssRule += 'color: ' + this.textColor + '; ';
     }
 
-    return cssRule + "'";
+    return cssRule + '"';
   }
 
   /**
@@ -24626,7 +24619,6 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       // remove the focus of the controls
       document.body.focus();
-      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -24655,8 +24647,6 @@ var descartesJS = (function(descartesJS) {
       }
       else if (self.whichButton === "L") {
         self.evaluator.setVariable(self.mpressedString, 1);
-        // self.evaluator.setVariable(self.mclickedString, 0);
-        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
         self.evaluator.setVariable(self.mclickedString, 0);
         self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
@@ -24680,10 +24670,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp(evt) {
       // remove the focus of the controls
       document.body.focus();
-      // self.canvas.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
+      
       self.click = 0;
       self.evaluator.setVariable(self.mpressedString, 0);
       self.evaluator.setVariable(self.mclickedString, 1);
@@ -24695,6 +24685,8 @@ var descartesJS = (function(descartesJS) {
         // show the external space
         if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
+          self.clickPosForZoom = false;
+          self.clickPosForZoomNew = true;
         }
       }
 
@@ -24721,8 +24713,8 @@ var descartesJS = (function(descartesJS) {
         self.evaluator.setVariable(self.mxString, self.mouse_x);
         self.evaluator.setVariable(self.myString, self.mouse_y);
 
-        // self.evaluator.setVariable(self.mclickedString, 0);
-        // self.evaluator.setVariable(self.mclicizquierdoString, 0);
+        self.evaluator.setVariable(self.mclickedString, 0);
+        self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
         self.parent.update();
         // lastTime = Date.now();
@@ -26706,8 +26698,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
-                 "{\\f0\\fs34 __________________________________________________________________________________ \\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una  {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
+                 "{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22 "+
+                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
                  "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
                  "}";
 
@@ -26892,7 +26884,7 @@ var descartesJS = (function(descartesJS) {
         this.expand = children_i.value;
       }
 
-      // // set the docBase for the elements in the resources
+      // set the docBase for the elements in the resources
       if (children_i.name == "docBase") {
         this.docBase = children_i.value;
         var base = document.createElement("base");
@@ -26900,7 +26892,6 @@ var descartesJS = (function(descartesJS) {
         base.setAttribute("href", this.docBase);
         document.head.appendChild(base);
       }
-
     }
 
     // cover space
@@ -27349,6 +27340,76 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
+
+    ////////////////////////////////////////////////////////////////
+    // new mathjax
+    ////////////////////////////////////////////////////////////////
+    if ((this.arquimedes) && (MathJax)) {
+      var x = this.scenarioRegion.scenarioSpace.container.style.left;
+      var y = this.scenarioRegion.scenarioSpace.container.style.top;
+      var mathJaxScenarioSpace = document.createElement("div");
+      mathJaxScenarioSpace.setAttribute("style", "position:relative; left:" + x + "; top:" + y + "; text-align:left; margin:0; padding:18px 0 0 18px;");
+      var objectReferences = { ctrs: [], spaces: [] };
+      mathJaxScenarioSpace.innerHTML = this.scenarioRegion.scenarioSpace.backgroundGraphics[0].text.toHTML(objectReferences);
+      this.scenarioRegion.scenarioSpace.container.style.visibility = "hidden";
+      this.scenarioRegion.scenarioSpace.container.style.display = "none";
+      // this.scenarioRegion.container.insertBefore(mathJaxScenarioSpace, this.scenarioRegion.scenarioSpace.container);
+      this.scenarioRegion.container.replaceChild(mathJaxScenarioSpace, this.scenarioRegion.scenarioSpace.container);
+      this.scenarioRegion.container.style.background = "#fff";
+      this.container.style.height = "100%";
+      this.scenarioRegion.container.style.height = "100%";
+      this.container.style.overflow = "visible";
+
+      var tmpBottom = document.createElement("div");
+      tmpBottom.setAttribute("style", "padding-bottom:25px;");
+      tmpBottom.innerHTML = "<br/> <hr style='border-width:2px;'>";
+
+      var tmpAnchor = document.createElement("a");
+      tmpAnchor.setAttribute("href", "https://creativecommons.org/licenses/by-nc-sa/4.0/")
+      tmpAnchor.setAttribute("target", "_blank");
+      tmpBottom.appendChild(tmpAnchor);
+
+      var tmpImage = descartesJS.getCreativeCommonsLicenseImage();
+      tmpImage.setAttribute("style", "position:absolute; left:30px; padding-top:4px;");
+      tmpAnchor.appendChild(tmpImage);
+
+      var tmpBottomText = document.createElement("div");
+      tmpBottomText.setAttribute("style", "display:inline-block; width:100%; text-align:left;")
+      tmpBottomText.innerHTML = this.scenarioRegion.scenarioSpace.backgroundGraphics[1].text.toHTML();
+      tmpBottomText.removeChild(tmpBottomText.firstChild);
+      tmpBottomText.removeChild(tmpBottomText.firstChild);
+      tmpBottom.appendChild(tmpBottomText);
+      mathJaxScenarioSpace.appendChild(tmpBottom);
+
+      var spaces_i;
+      var dom_elem;
+      var tmpBorder;
+      for (var i=0; i<objectReferences.spaces.length; i++) {
+        spaces_i = objectReferences.spaces[i];
+        if (spaces_i.value.container) {
+          dom_elem = document.getElementById(spaces_i.cID);
+          tmpBorder = spaces_i.value.container.style.border;
+          tmpBorder = (tmpBorder != "") ? "border:" + tmpBorder + ";" : "";
+          spaces_i.value.container.setAttribute("style", tmpBorder);
+          dom_elem.appendChild(spaces_i.value.container);
+        }
+      }
+      var ctrs_i;
+      var ctr_container;
+      for (var i=0; i<objectReferences.ctrs.length; i++) {
+        ctrs_i = objectReferences.ctrs[i];
+        ctr_container = ctrs_i.value.containerControl || ctrs_i.value.container;
+        if (ctr_container) {
+          dom_elem = document.getElementById(ctrs_i.cID);
+          ctr_container.setAttribute("style", "width:" + ctrs_i.value.w + "px; height:" + ctrs_i.value.h + "px;");
+          dom_elem.appendChild(ctr_container);
+        }
+      }
+
+      MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+    ////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
   }
 
   /**
