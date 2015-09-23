@@ -567,6 +567,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+
+  var rect;
   /**
    * Get the cursor position of the mouse in absolute coordinates respect to space where it is
    * @param {Event} evt the event containing the mouse position
@@ -576,16 +578,16 @@ var descartesJS = (function(descartesJS) {
     this.findOffset();
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: (pos.x) - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft), 
-             y: (pos.y) - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop)
+    return { x: (pos.x - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft)), 
+             y: (pos.y - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop))
            };
 
-    // return { x: (pos.x) - (document.body.scrollLeft + this.offsetLeft), 
-    //          y: (pos.y) - (document.body.scrollTop  + this.offsetTop)
-    //        };
-    // return { x: (pos.x) - this.offsetLeft, 
-    //          y: (pos.y) - this.offsetTop 
-    //        };
+//posible nueva opcion mas moderna
+    // rect = this.container.getBoundingClientRect();
+    // pos = descartesJS.getCursorPosition(evt);
+    // return { x: pos.x -rect.left, 
+    //          y: pos.y -rect.top
+    //         }
   }
   
   return descartesJS;

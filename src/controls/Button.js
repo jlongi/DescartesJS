@@ -251,9 +251,9 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     // this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     this.ctx = this.canvas.getContext("2d");
-    this.ctx.imageSmoothingEnabled = false;
-    this.ctx.mozImageSmoothingEnabled = false;
-    this.ctx.webkitImageSmoothingEnabled = false;
+    // this.ctx.imageSmoothingEnabled = false;
+    // this.ctx.mozImageSmoothingEnabled = false;
+    // this.ctx.webkitImageSmoothingEnabled = false;
 
     this.container.appendChild(this.canvas);
 
@@ -429,15 +429,19 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     // container.setAttribute("data-name", name);
 
-    image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+    if (imageSrc) {
+      image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+      prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+      sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
-    prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-    sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
-
-    imageOverSrc = prefix + "_over" + sufix;
-    imageDownSrc = prefix + "_down" + sufix;
-    imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
-    imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+      imageOverSrc = prefix + "_over" + sufix;
+      imageDownSrc = prefix + "_down" + sufix;
+      imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+      imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+    }
+    else {
+      image = this.emptyImage;
+    }
 
     ctx.clearRect(0, 0, this.w, this.h);
 

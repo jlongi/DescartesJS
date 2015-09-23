@@ -156,9 +156,9 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class", "i") || 
-                      !!this.code.match("Arquimedes", "i") ||
-                      !!this.code.match("Discurso", "i");
+    this.arquimedes = !!this.code.match(/descinst.DescartesWeb2_0.class/i) || 
+                      !!this.code.match(/Arquimedes/i) ||
+                      !!this.code.match(/Discurso/i);
 
     // licences for arquimedes
     this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
@@ -603,7 +603,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
     }
     else {
       this.finishInit();

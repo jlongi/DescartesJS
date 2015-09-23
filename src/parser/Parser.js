@@ -1268,6 +1268,30 @@ var descartesJS = (function(descartesJS) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    var tmpcanvas;
+    var tmpctx;
+    var tmpimg;
+    this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
+      tmpimg = this.parent.images[imagename];
+
+      if (tmpimg && tmpimg.ready && tmpimg.complete) {
+        tmpcanvas = document.createElement("canvas");
+        tmpctx = tmpcanvas.getContext("2d");
+        tmpcanvas.width  = Math.min(w, tmpimg.width);
+        tmpcanvas.height = Math.min(h, tmpimg.height);
+        tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
+
+        this.parent.images[newname] = tmpcanvas;
+        this.parent.images[newname].ready = 1;
+        this.parent.images[newname].complete = true;
+        this.setVariable(newname, newname);
+      }
+
+      return newname;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   }  
 
   /**

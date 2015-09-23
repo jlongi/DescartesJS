@@ -214,6 +214,7 @@ var descartesJS = (function(descartesJS) {
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
       var _asign;
+      var tmp_ret;
 
       this.evaluate = function(evaluator) {
         argu = [];
@@ -225,6 +226,7 @@ var descartesJS = (function(descartesJS) {
         if (this.value === "_Eval_") {
           // argu[0] = (argu.length > 0) ? argu[0].toString() : '';
           // evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
+
           evalArgument = (argu.length > 0) ? argu[0] : 0;
 
           if (typeof(evalArgument) == "number") {
@@ -236,7 +238,8 @@ var descartesJS = (function(descartesJS) {
               evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
             }
 
-            return evaluator.evalExpression( evalCache[evalArgument] ) || NaN;
+            tmp_ret = evaluator.evalExpression( evalCache[evalArgument] );
+            return (tmp_ret != undefined) ? tmp_ret : NaN;
           }
         }
 

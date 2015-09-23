@@ -3,7 +3,7 @@
  * j.longi@gmail.com
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-08-17
+ * 2015-09-23
  */
 
 /**
@@ -1284,6 +1284,7 @@ var descartesJS = (function(descartesJS) {
   var blue;
   var alpha;
 
+  var touch;
   var mouseX;
   var mouseY;
 
@@ -1391,8 +1392,8 @@ var descartesJS = (function(descartesJS) {
 
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
-    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || (system.match("android")&&true);
-    descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
+    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
+    // descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
 
     descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
 
@@ -1567,7 +1568,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.getCursorPosition = function(evt) {
     // if has touch events
     if (evt.touches) {
-      var touch = evt.touches[0];
+      touch = evt.touches[0];
     
       mouseX = touch.pageX; 
       mouseY = touch.pageY;
@@ -1575,15 +1576,19 @@ var descartesJS = (function(descartesJS) {
     // if has mouse events
     else {
       // all browsers
-      if (evt.pageX != undefined && evt.pageY != undefined) { 
-        mouseX = evt.pageX; 
-        mouseY = evt.pageY;
-      } 
-      // IE
-      else { 
-        mouseX = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        mouseY = evt.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
-      }
+      // if (evt.pageX != undefined && evt.pageY != undefined) { 
+      //   mouseX = evt.pageX; 
+      //   mouseY = evt.pageY;
+      // } 
+      // // IE
+      // else { 
+      //   mouseX = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      //   mouseY = evt.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
+      // }
+
+      // posible nueva opcion mas moderna
+      mouseX = evt.clientX; 
+      mouseY = evt.clientY;
     }
 
     return { x:mouseX, y:mouseY };
@@ -1607,12 +1612,14 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=app.spaces.length; i<l; i++) {
         space_i = app.spaces[i];
 
-        // draw the content of a 2D space
-        if (space_i.type === "R2") {
-          ctx.drawImage(space_i.backgroundCanvas, space_i.x, space_i.y);
-          ctx.drawImage(space_i.canvas, space_i.x, space_i.y);
+        if (space_i.drawIfValue) {
+          // draw the content of a 2D space
+          if (space_i.type === "R2") {
+            ctx.drawImage(space_i.backgroundCanvas, space_i.x, space_i.y);
+            ctx.drawImage(space_i.canvas, space_i.x, space_i.y);
 
-          getScreenshotControls(ctx, space_i.container, space_i.ctrs);
+            getScreenshotControls(ctx, space_i.container, space_i.ctrs);
+          }
         }
       }
 
@@ -1667,8 +1674,9 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=controls.length-1; i>=0; i--) {
       ctr_i = controls[i];
-
-      ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
+      if (ctr_i.drawIfValue) {
+        ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
+      }
     }
   }
 
@@ -2398,12 +2406,12 @@ var descartesJS = (function(descartesJS) {
 
     cssNode.innerHTML = 
                         // "body{ }\n" +
-                        // "html{ box-sizing: border-box; }\n" +
-                        // "*, *:before, *:after { box-sizing: inherit; }\n" +
+                        // "html{ box-sizing:border-box; }\n" +
+                        // "*, *:before, *:after { box-sizing:inherit; }\n" +
                         // "canvas { image-rendering:optimizeSpeed; image-rendering:crisp-edges; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" +
                         "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
                         "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoader{ background-color :#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
+                        "div.DescartesLoader{ background-color:#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
                         "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ touch-action:none; position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
@@ -2411,7 +2419,7 @@ var descartesJS = (function(descartesJS) {
                         "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
                         "div.DescartesButtonContainer{ position:absolute; background-repeat:no-repeat; }\n" +
                         "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
-                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
+                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
                         "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
                         "div.DescartesGraphicControl{ touch-action:none; border-style:none; position:absolute; }\n" +
                         "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
@@ -2423,24 +2431,24 @@ var descartesJS = (function(descartesJS) {
                         "div.DescartesEditorContainer{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; position:fixed; left:0px; top:0px; width:100%; height:100%; background-color:#2e2e2e; z-index:10001; }\n" +
                         "div.DescartesEditorTabContainer{ width:100%; height:100%; position:absolute; padding:0px;  }\n" +
 
-                        ".DescartesTabs{ height: 37px; }\n" +
+                        ".DescartesTabs{ height:37px; }\n" +
                         ".DescartesTabs > ul{ font-size:18px; list-style:none; padding:0 1px 1px; margin-left:4px; text-align:center; }\n" +
                         ".DescartesTabs > ul > li{ margin-right:1px; padding:8px 8px; float:left; color:#fff; -webkit-user-select:none; -moz-user-select:none; user-select:none; border-radius:7px 7px 0px 0px; background:#0C91EC; background:-moz-linear-gradient(top, #0C91EC 0%, #257AB6 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#0C91EC), color-stop(100%,#257AB6)); }\n" +
-                        ".DescartesTabs > ul > li:hover{ background:#fff; background:-moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); cursor:pointer; color:#000; }\n" +
-                        ".DescartesTabs > ul > li.tabActiveHeader{ background:#fff; background:-moz-linear-gradient(top, #FFFFFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFFFFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFFFFF)); cursor:pointer; color:#000; }\n" +
+                        ".DescartesTabs > ul > li:hover{ background:#fff; background:-moz-linear-gradient(top, #FFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFF)); cursor:pointer; color:#000; }\n" +
+                        ".DescartesTabs > ul > li.tabActiveHeader{ background:#fff; background:-moz-linear-gradient(top, #FFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFF)); cursor:pointer; color:#000; }\n" +
 
-                        ".DescartesTabscontent{ position:absolute; left:5px; right:5px; top:55px; bottom:45px; overflow:y-scroll; padding:10px 10px 25px; background:#000; background:-moz-linear-gradient(top, #FFFFFF 0%, #FFFFFF 90%, #e4e9ed 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFFFFF), color-stop(90%,#FFFFFF), color-stop(100%,#e4e9ed)); margin:0px; color:#000; background-color:#000; }\n" +
+                        ".DescartesTabscontent{ position:absolute; left:5px; right:5px; top:55px; bottom:45px; overflow:y-scroll; padding:10px 10px 25px; background:#000; background:-moz-linear-gradient(top, #FFF 0%, #FFF 90%, #e4e9ed 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(90%,#FFF), color-stop(100%,#e4e9ed)); margin:0px; color:#000; background-color:#000; }\n" +
 
                         //
                         "div.DescartesConfigPanel{ position:absolute; left:10px; right:10px; top:10px; bottom:10px; overflow:y-scroll; border:solid 1px #000; border-radius:5px; font-size:18px; padding:10px; line-height:1.5em; overflow:auto; }\n" +
-                        "div.DescartesLeftPanelClass{ position:absolute; left:10px; top:10px; bottom:10px; width:200px; background-color:; border:1px solid black; overflow:auto; }\n" +
+                        "div.DescartesLeftPanelClass{ position:absolute; left:10px; top:10px; bottom:10px; width:200px; background-color:#FFF; border:1px solid black; overflow:auto; }\n" +
                         "div.DescartesLeftPanelClass li:nth-child(odd){ background-color:#6495ED; }\n" +
                         "div.DescartesLeftPanelClass li:nth-child(even){ background-color:#ED6495; }\n" +
                         // "div.DescartesLeftPanelClass > div{ background-color:yellow; overflow:auto; }\n" +
                         "div.DescartesLeftPanelClass > div > ul{ list-style:none; background:#bbb; padding:5px; }\n" +
-                        "div.DescartesLeftPanelClass > div > ul > li{ padding:5px; -webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer; white-space: nowrap; overflow: hidden; }\n" +
+                        "div.DescartesLeftPanelClass > div > ul > li{ padding:5px; -webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer; white-space:nowrap; overflow:hidden; }\n" +
 
-                        "div.DescartesRightPanelClass{ position:absolute; left:220px; right: 10px; top:10px; bottom:10px; background-color:; border:1px solid black; overflow:auto; }\n" +
+                        "div.DescartesRightPanelClass{ position:absolute; left:220px; right:10px; top:10px; bottom:10px; background-color:#FFF; border:1px solid black; overflow:auto; }\n" +
 
                         "div.DescartesLabelAndElementContainer{ padding:4px 8px; margin:4px; display:inline-block; background-color:lightgray; border-radius:3px; }\n" +
                         "div.DescartesLabelAndElementContainer > select{ font-family:Monospace; font-size:18px; }\n" +
@@ -2453,25 +2461,25 @@ var descartesJS = (function(descartesJS) {
                         "div.DescarteslistContainer li:nth-child(odd){ background-color:#BBB; }\n" +
                         "div.DescarteslistContainer li:nth-child(even){ background-color:#999; }\n" +
 
-                        "div.DescartesExtraInfo{ padding: 12px; }\n" +
+                        "div.DescartesExtraInfo{ padding:12px; }\n" +
 
                         "span.DescartesSpanName{ background-color:lightblue; margin:5px; }\n" +
                         "span.DescartesSpanValue{ background-color:#333; color:white; margin:0px; padding:5px; border-radius:3px; line-height:1.75em; }\n" +
-                        "span.DescartesSpanValue br{ display: none; }\n" +  // prevents breaklines
-                        "span.DescartesSpanValue * { display: inline }\n" + // prevents breaklines
+                        "span.DescartesSpanValue br{ display:none; }\n" +  // prevents breaklines
+                        "span.DescartesSpanValue * { display:inline }\n" + // prevents breaklines
                         //
 
                         "div.Descartes_param_name{ background-color:#669; color:#ee5; margin-bottom:10px; }\n" +
 
-                        ".DescartesToolbarPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; top:0px; height:40px; min-width:290px; background: #ccc; padding:4px; }\n" +
+                        ".DescartesToolbarPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; top:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
 
-                        ".DescartesButtonsPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; bottom:0px; height:40px; min-width:290px; background: #ccc; padding:4px; }\n" +
+                        ".DescartesButtonsPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; bottom:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
                         
-                        "div.DescartesAddPanel{ position:absolute; top:10px; left:10px; width:350px; background-color:white; }\n" +
+                        "div.DescartesAddPanel{ position:absolute; top:10px; left:10px; width:350px; background-color:#FFF; }\n" +
 
                         "div.DescarteslistContainer li.DescartesElementSelected{ border:1px solid black; background-color:#D66; }\n" +
 
-                        "input.DescartesEditorButton{ cursor:pointer; width:110px; height:30px; padding:5px 25px; margin:0px 2px; background:#257AB6; border:1px solid #fff; border-radius:7px; box-shadow: inset 0px 1px 0px #3e9cbf, 0px 2px 0px 0px #205c73, 0px 4px 5px #999; color:#fff; font-size:1em; }\n" +
+                        "input.DescartesEditorButton{ cursor:pointer; width:110px; height:30px; padding:5px 25px; margin:0px 2px; background:#257AB6; border:1px solid #fff; border-radius:7px; box-shadow:inset 0px 1px 0px #3e9cbf, 0px 2px 0px 0px #205c73, 0px 4px 5px #999; color:#fff; font-size:1em; }\n" +
                         "input.DescartesEditorButton:hover, input.DescartesEditorButton:focus{ background-color:#0C91EC; box-shadow:0 0 1px rgba(0,0,0, .75); }\n";
 
   }
@@ -4664,7 +4672,6 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
 
-
   var b;
 
   var evaluator;
@@ -4763,6 +4770,8 @@ descartesJS._debug_vez = 0;
     t = new descartesJS.R2();
     q_ij = new descartesJS.R2();
     Q = new descartesJS.R2();
+
+    this.cInd = 0;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////
@@ -4869,6 +4878,15 @@ descartesJS._debug_vez = 0;
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
+
+  var Qxa;
+  var Qya;
+  var secondVisit;
+  var Qsx;
+  var Qsy;
+  var np;
+  var dist;
+  var ds;
     
   /**
    * Auxiliary function for draw an non explicit equation 
@@ -4881,12 +4899,6 @@ descartesJS._debug_vez = 0;
     if ( this.evaluator.evalExpression(this.drawif) <= 0 ) {
       return;
     }
-
-    var Qxa;
-    var Qya;
-    var secondVisit;
-    var Qsx;
-    var Qsy;
 
     evaluator = this.evaluator;
     parser = evaluator.parser;
@@ -4905,7 +4917,6 @@ descartesJS._debug_vez = 0;
     w = space.w +24;
     h = space.h +24;
 
-    
     dx = w/9;
     if (dx<3) {
       dx=3;
@@ -4915,15 +4926,21 @@ descartesJS._debug_vez = 0;
       dy=3;
     }
 
-    b = [];
+    if (this.cInd == 0) {
+      b = [];
+      this.cInd++;
+    }
+    else {
+      this.cInd = (this.cInd+1)%100000;
+    }
 
     q0.set(0, 0);
     qb.set(0, 0);
     t.set(0, 0);
 
-    var np = 8;
-    var dist = 0.25;
-    var ds = np;
+    np = 8;
+    dist = 0.25;
+    ds = np;
     if (!this.abs_coord) {
       dist = dist/space.scale;
       ds = ds/space.scale;
@@ -4961,11 +4978,11 @@ descartesJS._debug_vez = 0;
         // if ((Qx>=0) && (Qx<w) && (Qy>=0) && (Qy<h)) {
         if ((Qx>=-12) && (Qx<w+24) && (Qy>=-12) && (Qy<h+24)) {
           // if (b[Qx + Qy*space.w]) {
-          if (b[Qx+12 + (Qy+12)*space.w]) {
+          if (b[Qx+12 + (Qy+12)*space.w] === this.cInd) {
             continue; // zero already detected
           }
           // b[Qx + Qy*space.w] = true;
-          b[Qx+12 + (Qy+12)*space.w] = true;
+          b[Qx+12 + (Qy+12)*space.w] = this.cInd;
         }
 
         if (descartesJS.rangeOK) {
@@ -5062,13 +5079,13 @@ descartesJS._debug_vez = 0;
               secondVisit = b[Qx+12 + (Qy+12)*space.w];
 
               // b[Qx + Qy*space.w] = true;
-              b[Qx+12 + (Qy+12)*space.w] = true;
+              b[Qx+12 + (Qy+12)*space.w] = this.cInd;
               for (var s=1; s<np; s++) {
                 Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
                 Qsy = Qya + Math.round((Qy-Qya)*s/np);
                 if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
                   // b[Qsx + Qsy*space.w] = true;
-                  b[Qsx+12 + (Qsy+12)*space.w] = true;
+                  b[Qsx+12 + (Qsy+12)*space.w] = this.cInd;
                 }
               }
 
@@ -5077,7 +5094,7 @@ descartesJS._debug_vez = 0;
                 ctx.lineTo(Qx, Qy);
               }
 
-              if (secondVisit) {
+              if (secondVisit === this.cInd) {
                 break;
               }
             }
@@ -5155,23 +5172,29 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
   var dxx = dx/2;
   var Dx = 0;
   var vv = v;
+  var xa;
+  var x;
+  var ok;
+  var vva;
+  var minmax;
+  var sing;
 
   while (Math.abs(dxx)>1E-15) {
-    var xa = this.evaluator.getVariable(X);
-    var x  = this.evaluator.getVariable(X) + dxx;
+    xa = this.evaluator.getVariable(X);
+    x  = this.evaluator.getVariable(X) + dxx;
 
     this.evaluator.setVariable(X, x);
 
-    var ok = true;
+    ok = true;
 
     try {
-      var vva = vv;
+      vva = vv;
       vv = this.evaluator.evalExpression(this.funExpr);
       this.evaluator.setVariable(Y, vv);
 
       if (this.evaluator.evalExpression(cond) > 0) {
-        var minmax = new descartesJS.R2(Math.min(vva, vv), Math.max(vva, vv));
-        var sing = 0;
+        minmax = new descartesJS.R2(Math.min(vva, vv), Math.max(vva, vv));
+        sing = 0;
 
         if (dx>0) {
           sing = this.Singularity(Math.abs(dxx), X, F, xa, vva, x, vv, minmax);
@@ -5202,7 +5225,7 @@ descartesJS.Equation.prototype.extrapolate = function(cond, X, Y, F, v, dx) {
 
   this.evaluator.setVariable(X, saveX);
 
-  return new descartesJS.R2(Dx/Math.abs(dx),vv);
+  return new descartesJS.R2(Dx/Math.abs(dx), vv);
 }
 
 
@@ -5214,14 +5237,16 @@ descartesJS.Equation.prototype.extrapolateOnSingularity = function(cond, X, Y, F
   var dxx = dx/2;
   var Dx = 0;
   var vv = v;
+  var ok;
+  var vva;
 
   while (Math.abs(dxx)>1E-15) {
     this.evaluator.setVariable(X, this.evaluator.getVariable(X) +dxx);
-    var ok = true;
+    ok = true;
 
     if (this.evaluator.evalExpression(cond) > 0) {
       try {
-        var vva = vv;
+        vva = vv;
         vv = this.evaluator.evalExpression(this.funExpr);
         
         this.evaluator.setVariable(Y, vv);
@@ -5333,9 +5358,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
         var D_ = (v_-vb)/epsilon;
         var Dj = (vb-va)/(b-a);
 
-        if ( (Math.abs(D_) < 10) || 
-             (Math.abs(_D) < 10)
-           ) { 
+        if ( (Math.abs(D_) < 10) || (Math.abs(_D) < 10) ) { 
           if ( (D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
             if (4*Math.abs(D_) < Math.abs(Dj)) {
               this.evaluator.setVariable(X, saveX);
@@ -5405,7 +5428,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
     var xa = 0;
 
     var dx = 1/this.space.scale;
-    var Xr = dx*((this.of_y)?-this.space.h+(this.space.h/2+this.space.Oy):-(this.space.w/2+this.space.Ox));
+    // var Xr = dx*((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
+    var Xr = dx*((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
     var va = 0;
 
     if (this.abs_coord) {
@@ -5413,26 +5437,39 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       dx = 1;
     }
 
-    var condWhile = (this.of_y) ? this.space.h+2 : this.space.w+2;
+    var def;
+    var sing;
+    var v;
+    var min;
+    var max;
+    var minmax;
+    var nya;
+    var pn;
+    var pa;
+
+    var condWhile = (this.of_y) ? this.space.h+4 : this.space.w+4;
     while (x <= condWhile) {
-      var def = true;
-      var sing = 0;
+      def = true;
+      sing = 0;
       this.evaluator.setVariable(X, Xr);
 
       try {
-        var v = this.evaluator.evalExpression(this.funExpr);
+        v = this.evaluator.evalExpression(this.funExpr);
 
-        // if (!isNaN(v)) {
-        if (true) {
+        // if (!isNaN(v) && (abs(v) > -1e-14)) {
+        if (!isNaN(v)) {
+        // if (true) {
           this.evaluator.setVariable(Y, v);
 
           if ((this.evaluator.evalExpression(this.drawif) > 0) && (descartesJS.rangeOK)) {
             if (defa) {
-              var min = Math.min(va, v);
-              var max = Math.max(va, v);
-              var minmax = new descartesJS.R2(min, max);
+              min = Math.min(va, v);
+              max = Math.max(va, v);
+              minmax = new descartesJS.R2(min, max);
 
               sing = this.Singularity(dx, X, F, Xr-dx, va, Xr, v, minmax);
+
+// console.log(this.evaluator.getVariable(X), "***", v, "***", sing)
 
               if (sing === 0) {
                 if (va <= v) {
@@ -5444,14 +5481,15 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   va = minmax.y;
                 }
 
-                var nya = (this.of_y) ? this.XX(width, va, this.abs_coord) : this.YY(width, va, this.abs_coord);
+                nya = parseInt( (this.of_y) ? this.XX(width, va, this.abs_coord) : this.YY(width, va, this.abs_coord) );
                 if (this.abs_coord) {
                   y = Math.round(v);
                 } 
                 else {
-                  y = (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord);
+                  y = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
                 }
 
+                // fill the equation (fill minus)
                 if ((this.fillM) && (y>y0)) {
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillM.getColor();
@@ -5468,6 +5506,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
 
                   ctx.stroke();
                 }
+                // fill maximus
                 if ((this.fillP) && (y<y0)) {
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillP.getColor();
@@ -5502,9 +5541,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
               // sing === 1
               else if (sing === 1) {
                 this.evaluator.setVariable(X, Xr-dx);
-                var pn = this.extrapolate(cond, X, Y, F, va, dx);
-                y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
-
+                pn = this.extrapolate(cond, X, Y, F, va, dx);
+                y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
                 //
                 ctx.lineWidth = width;
                 ctx.strokeStyle = this.color.getColor();
@@ -5519,15 +5557,16 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
                   ctx.moveTo(xa+.5, ya);
                   ctx.lineTo(xa+Math.round(pn.x)+.5, y);
                 }
-                ctx.stroke();
+                //////////////////////////////////////
+                // quizas sea un error dibujar esto //
+                //////////////////////////////////////
+                // ctx.stroke();
                 //
 
                 this.evaluator.setVariable(X, Xr);
-                var pa = this.extrapolate(cond, X, Y, F, v, -dx);
+                pa = this.extrapolate(cond, X, Y, F, v, -dx);
                 ya = this.YY(width, pa.y, this.abs_coord);
                 y = this.YY(width, v, this.abs_coord);
-
-
 
                 //
                 ctx.lineWidth = width;
@@ -5549,7 +5588,7 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
              }
               // sing === 2
               else {
-                y = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
+                y = parseInt( (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord) );
 
                 //
                 ctx.lineWidth = width;
@@ -5572,10 +5611,10 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
             }
             // defa === false; extrapolate forward
             else {
-              var pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
+              pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
 
-              ya = (this.of_y)?this.XX(width, pa.y, this.abs_coord):this.YY(width, pa.y, this.abs_coord);
-              y  = (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord);
+              ya = (this.of_y) ? this.XX(width, pa.y, this.abs_coord) : this.YY(width, pa.y, this.abs_coord);
+              y  = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
 
               //
               // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
@@ -5611,8 +5650,8 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
         this.evaluator.setVariable(X, Xr-dx);
         this.evaluator.setVariable(Y, va);
 
-        var pn = this.extrapolate(cond, X, Y, F, va, dx);
-        y = (this.of_y)?this.XX(width, pn.y, this.abs_coord):this.YY(width, pn.y, this.abs_coord);
+        pn = this.extrapolate(cond, X, Y, F, va, dx);
+        y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
 
         //
         // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
@@ -5639,7 +5678,6 @@ descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, min
       ya = y;
       xa = x++;
     }
-
 
     this.evaluator.parser.setVariable("x", savex);
     this.evaluator.parser.setVariable("y", savey);
@@ -12134,9 +12172,9 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     // this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     this.ctx = this.canvas.getContext("2d");
-    this.ctx.imageSmoothingEnabled = false;
-    this.ctx.mozImageSmoothingEnabled = false;
-    this.ctx.webkitImageSmoothingEnabled = false;
+    // this.ctx.imageSmoothingEnabled = false;
+    // this.ctx.mozImageSmoothingEnabled = false;
+    // this.ctx.webkitImageSmoothingEnabled = false;
 
     this.container.appendChild(this.canvas);
 
@@ -12312,15 +12350,19 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     // container.setAttribute("data-name", name);
 
-    image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+    if (imageSrc) {
+      image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+      prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+      sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
-    prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-    sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
-
-    imageOverSrc = prefix + "_over" + sufix;
-    imageDownSrc = prefix + "_down" + sufix;
-    imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
-    imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+      imageOverSrc = prefix + "_over" + sufix;
+      imageDownSrc = prefix + "_down" + sufix;
+      imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
+      imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
+    }
+    else {
+      image = this.emptyImage;
+    }
 
     ctx.clearRect(0, 0, this.w, this.h);
 
@@ -15393,7 +15435,7 @@ var descartesJS = (function(descartesJS) {
     if (self.video.canPlayType("video/mp4")) {
       source = document.createElement("source");
       source.setAttribute("src", filename + ".mp4");
-      source.setAttribute("type", "video/mp4");
+      // source.setAttribute("type", "video/mp4");
       self.video.appendChild(source);
     }
     // ogg, ogv
@@ -18492,6 +18534,7 @@ var descartesJS = (function(descartesJS) {
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
       var _asign;
+      var tmp_ret;
 
       this.evaluate = function(evaluator) {
         argu = [];
@@ -18503,6 +18546,7 @@ var descartesJS = (function(descartesJS) {
         if (this.value === "_Eval_") {
           // argu[0] = (argu.length > 0) ? argu[0].toString() : '';
           // evalArgument = argu[0].replace(evaluator.parent.decimal_symbol_regexp, ".");
+
           evalArgument = (argu.length > 0) ? argu[0] : 0;
 
           if (typeof(evalArgument) == "number") {
@@ -18514,7 +18558,8 @@ var descartesJS = (function(descartesJS) {
               evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
             }
 
-            return evaluator.evalExpression( evalCache[evalArgument] ) || NaN;
+            tmp_ret = evaluator.evalExpression( evalCache[evalArgument] );
+            return (tmp_ret != undefined) ? tmp_ret : NaN;
           }
         }
 
@@ -20520,6 +20565,30 @@ var descartesJS = (function(descartesJS) {
     this.functions["_Rojo_"]  = this.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
     this.functions["_Verde_"] = this.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
     this.functions["_Azul_"]  = this.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    var tmpcanvas;
+    var tmpctx;
+    var tmpimg;
+    this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
+      tmpimg = this.parent.images[imagename];
+
+      if (tmpimg && tmpimg.ready && tmpimg.complete) {
+        tmpcanvas = document.createElement("canvas");
+        tmpctx = tmpcanvas.getContext("2d");
+        tmpcanvas.width  = Math.min(w, tmpimg.width);
+        tmpcanvas.height = Math.min(h, tmpimg.height);
+        tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
+
+        this.parent.images[newname] = tmpcanvas;
+        this.parent.images[newname].ready = 1;
+        this.parent.images[newname].complete = true;
+        this.setVariable(newname, newname);
+      }
+
+      return newname;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -23660,6 +23729,8 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+
+  var rect;
   /**
    * Get the cursor position of the mouse in absolute coordinates respect to space where it is
    * @param {Event} evt the event containing the mouse position
@@ -23669,16 +23740,16 @@ var descartesJS = (function(descartesJS) {
     this.findOffset();
     pos = descartesJS.getCursorPosition(evt);
 
-    return { x: (pos.x) - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft), 
-             y: (pos.y) - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop)
+    return { x: (pos.x - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft)), 
+             y: (pos.y - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop))
            };
 
-    // return { x: (pos.x) - (document.body.scrollLeft + this.offsetLeft), 
-    //          y: (pos.y) - (document.body.scrollTop  + this.offsetTop)
-    //        };
-    // return { x: (pos.x) - this.offsetLeft, 
-    //          y: (pos.y) - this.offsetTop 
-    //        };
+//posible nueva opcion mas moderna
+    // rect = this.container.getBoundingClientRect();
+    // pos = descartesJS.getCursorPosition(evt);
+    // return { x: pos.x -rect.left, 
+    //          y: pos.y -rect.top
+    //         }
   }
   
   return descartesJS;
@@ -24047,9 +24118,7 @@ var descartesJS = (function(descartesJS) {
     self.backgroundCanvas.style.height = self.h + "px";
 
     self.backgroundCtx = self.backgroundCanvas.getContext("2d");
-    self.backgroundCtx.imageSmoothingEnabled = false;
-    self.backgroundCtx.mozImageSmoothingEnabled = false;
-    self.backgroundCtx.webkitImageSmoothingEnabled = false;
+    // self.backgroundCtx.imageSmoothingEnabled = false;
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
@@ -24060,9 +24129,7 @@ var descartesJS = (function(descartesJS) {
     // self.canvas.setAttribute("tabindex", 100);
 
     self.ctx = self.canvas.getContext("2d");
-    self.ctx.imageSmoothingEnabled = false;
-    self.ctx.mozImageSmoothingEnabled = false;
-    self.ctx.webkitImageSmoothingEnabled = false;
+    // self.ctx.imageSmoothingEnabled = false;
 
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
@@ -24515,7 +24582,6 @@ var descartesJS = (function(descartesJS) {
     
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
-
     self.clickPosForZoom = null;
     self.clickPosForZoomNew = null;
 
@@ -24541,7 +24607,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchStart(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       // try to preserve the slide gesture in the tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
@@ -24574,7 +24640,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchEnd(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       // try to preserve the slide gesture in the tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
@@ -24618,7 +24684,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -24657,10 +24723,12 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // when the window lose focus remove make a mouse up
-    window.addEventListener("blur", function(evt) {
-      onMouseUp(evt);
-    });
+    //
+    // unknown why added, maybe has to return or isn't necessary
+    // when the window lose focus make a mouse up
+    // window.addEventListener("blur", function(evt) {
+      // onMouseUp(evt);
+    // });
 
     /**
      * 
@@ -24669,7 +24737,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -24705,20 +24773,18 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onSensitiveToMouseMovements(evt) {
-      // limit the number of updates in the lesson
-      // if (Date.now() - lastTime > elapsedTime) {
-        self.posAnte = self.getCursorPosition(evt);
-        self.mouse_x = self.getRelativeX(self.posAnte.x);
-        self.mouse_y = self.getRelativeY(self.posAnte.y);
-        self.evaluator.setVariable(self.mxString, self.mouse_x);
-        self.evaluator.setVariable(self.myString, self.mouse_y);
+      self.posAnte = self.getCursorPosition(evt);
+      // self.mouse_x = self.getRelativeX(self.posAnte.x/descartesJs.cssScale);
+      // self.mouse_y = self.getRelativeY(self.posAnte.y/descartesJs.cssScale);
+      self.mouse_x = self.getRelativeX(self.posAnte.x);
+      self.mouse_y = self.getRelativeY(self.posAnte.y);
+      self.evaluator.setVariable(self.mxString, self.mouse_x);
+      self.evaluator.setVariable(self.myString, self.mouse_y);
 
-        self.evaluator.setVariable(self.mclickedString, 0);
-        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+      self.evaluator.setVariable(self.mclickedString, 0);
+      self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
-        self.parent.update();
-        // lastTime = Date.now();
-      // }
+      self.parent.update();
     }
     
     /**
@@ -24745,7 +24811,6 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
 
       // if the space is not fixed, then change the origin coordinates
-      // if ((!self.fixed) && (Date.now() - lastTime1 > elapsedTime)) {
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
         disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
@@ -24753,6 +24818,8 @@ var descartesJS = (function(descartesJS) {
 
         self.evaluator.setVariable(self.OxString, (self.Ox - disp.x));
         self.evaluator.setVariable(self.OyString, (self.Oy - disp.y));
+        // self.evaluator.setVariable(self.OxString, (self.Ox - disp.x/descartesJs.cssScale));
+        // self.evaluator.setVariable(self.OyString, (self.Oy - disp.y/descartesJs.cssScale));
         self.posAnte.x -= disp.x;
         self.posAnte.y -= disp.y;
       }
@@ -24846,8 +24913,6 @@ var descartesJS = (function(descartesJS) {
     self.backgroundCanvas.setAttribute("height", self.h + "px");
     // self.backgroundCtx = self.backgroundCanvas.getContext("2d");
     // self.backgroundCtx.imageSmoothingEnabled = false;
-    // self.backgroundCtx.mozImageSmoothingEnabled = false;
-    // self.backgroundCtx.webkitImageSmoothingEnabled = false;
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
@@ -24856,9 +24921,7 @@ var descartesJS = (function(descartesJS) {
     self.canvas.setAttribute("class", "DescartesSpace3DCanvas");
     self.canvas.setAttribute("style", "z-index: " + self.zIndex + ";");
     self.ctx = self.canvas.getContext("2d");
-    self.ctx.imageSmoothingEnabled = false;
-    self.ctx.mozImageSmoothingEnabled = false;
-    self.ctx.webkitImageSmoothingEnabled = false;
+    // self.ctx.imageSmoothingEnabled = false;
     
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
@@ -26257,6 +26320,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.drawIfValue) {
+      this.MyIFrame.contentWindow.focus();
+    }
+    else {
+      this.MyIFrame.contentWindow.blur();
+    }
+
+    if (this.drawIfValue) {
       if (firstTime) {
         this.x = Infinity;
         this.y = Infinity;
@@ -26307,7 +26377,9 @@ var descartesJS = (function(descartesJS) {
         //
         this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
-        this.MyIFrame.setAttribute("src", file);
+        // prevent add history entries when the source of an iframe change
+        this.MyIFrame.contentWindow.location.replace(file);
+        // this.MyIFrame.setAttribute("src", file);
       }
      
       this.scrollVar = evaluator.getVariable(this.id + "._scroll");
@@ -26847,9 +26919,9 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match("descinst.DescartesWeb2_0.class", "i") || 
-                      !!this.code.match("Arquimedes", "i") ||
-                      !!this.code.match("Discurso", "i");
+    this.arquimedes = !!this.code.match(/descinst.DescartesWeb2_0.class/i) || 
+                      !!this.code.match(/Arquimedes/i) ||
+                      !!this.code.match(/Discurso/i);
 
     // licences for arquimedes
     this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
@@ -27294,7 +27366,7 @@ var descartesJS = (function(descartesJS) {
     // finish the interpretation
     var self = this;
     if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 300*this.numberOfIframes);
+      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
     }
     else {
       this.finishInit();

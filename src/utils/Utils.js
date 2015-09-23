@@ -21,6 +21,7 @@ var descartesJS = (function(descartesJS) {
   var blue;
   var alpha;
 
+  var touch;
   var mouseX;
   var mouseY;
 
@@ -128,8 +129,8 @@ var descartesJS = (function(descartesJS) {
 
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
-    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || (system.match("android")&&true);
-    descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
+    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
+    // descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
 
     descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
 
@@ -304,7 +305,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.getCursorPosition = function(evt) {
     // if has touch events
     if (evt.touches) {
-      var touch = evt.touches[0];
+      touch = evt.touches[0];
     
       mouseX = touch.pageX; 
       mouseY = touch.pageY;
@@ -312,15 +313,19 @@ var descartesJS = (function(descartesJS) {
     // if has mouse events
     else {
       // all browsers
-      if (evt.pageX != undefined && evt.pageY != undefined) { 
-        mouseX = evt.pageX; 
-        mouseY = evt.pageY;
-      } 
-      // IE
-      else { 
-        mouseX = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        mouseY = evt.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
-      }
+      // if (evt.pageX != undefined && evt.pageY != undefined) { 
+      //   mouseX = evt.pageX; 
+      //   mouseY = evt.pageY;
+      // } 
+      // // IE
+      // else { 
+      //   mouseX = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      //   mouseY = evt.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
+      // }
+
+      // posible nueva opcion mas moderna
+      mouseX = evt.clientX; 
+      mouseY = evt.clientY;
     }
 
     return { x:mouseX, y:mouseY };
@@ -344,12 +349,14 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=app.spaces.length; i<l; i++) {
         space_i = app.spaces[i];
 
-        // draw the content of a 2D space
-        if (space_i.type === "R2") {
-          ctx.drawImage(space_i.backgroundCanvas, space_i.x, space_i.y);
-          ctx.drawImage(space_i.canvas, space_i.x, space_i.y);
+        if (space_i.drawIfValue) {
+          // draw the content of a 2D space
+          if (space_i.type === "R2") {
+            ctx.drawImage(space_i.backgroundCanvas, space_i.x, space_i.y);
+            ctx.drawImage(space_i.canvas, space_i.x, space_i.y);
 
-          getScreenshotControls(ctx, space_i.container, space_i.ctrs);
+            getScreenshotControls(ctx, space_i.container, space_i.ctrs);
+          }
         }
       }
 
@@ -404,8 +411,9 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=controls.length-1; i>=0; i--) {
       ctr_i = controls[i];
-
-      ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
+      if (ctr_i.drawIfValue) {
+        ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
+      }
     }
   }
 

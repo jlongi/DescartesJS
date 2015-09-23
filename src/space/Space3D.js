@@ -77,8 +77,6 @@ var descartesJS = (function(descartesJS) {
     self.backgroundCanvas.setAttribute("height", self.h + "px");
     // self.backgroundCtx = self.backgroundCanvas.getContext("2d");
     // self.backgroundCtx.imageSmoothingEnabled = false;
-    // self.backgroundCtx.mozImageSmoothingEnabled = false;
-    // self.backgroundCtx.webkitImageSmoothingEnabled = false;
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
@@ -87,9 +85,7 @@ var descartesJS = (function(descartesJS) {
     self.canvas.setAttribute("class", "DescartesSpace3DCanvas");
     self.canvas.setAttribute("style", "z-index: " + self.zIndex + ";");
     self.ctx = self.canvas.getContext("2d");
-    self.ctx.imageSmoothingEnabled = false;
-    self.ctx.mozImageSmoothingEnabled = false;
-    self.ctx.webkitImageSmoothingEnabled = false;
+    // self.ctx.imageSmoothingEnabled = false;
     
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");

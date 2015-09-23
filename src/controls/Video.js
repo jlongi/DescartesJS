@@ -77,7 +77,7 @@ var descartesJS = (function(descartesJS) {
     if (self.video.canPlayType("video/mp4")) {
       source = document.createElement("source");
       source.setAttribute("src", filename + ".mp4");
-      source.setAttribute("type", "video/mp4");
+      // source.setAttribute("type", "video/mp4");
       self.video.appendChild(source);
     }
     // ogg, ogv

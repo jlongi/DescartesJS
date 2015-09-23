@@ -78,9 +78,7 @@ var descartesJS = (function(descartesJS) {
     self.backgroundCanvas.style.height = self.h + "px";
 
     self.backgroundCtx = self.backgroundCanvas.getContext("2d");
-    self.backgroundCtx.imageSmoothingEnabled = false;
-    self.backgroundCtx.mozImageSmoothingEnabled = false;
-    self.backgroundCtx.webkitImageSmoothingEnabled = false;
+    // self.backgroundCtx.imageSmoothingEnabled = false;
 
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
@@ -91,9 +89,7 @@ var descartesJS = (function(descartesJS) {
     // self.canvas.setAttribute("tabindex", 100);
 
     self.ctx = self.canvas.getContext("2d");
-    self.ctx.imageSmoothingEnabled = false;
-    self.ctx.mozImageSmoothingEnabled = false;
-    self.ctx.webkitImageSmoothingEnabled = false;
+    // self.ctx.imageSmoothingEnabled = false;
 
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
@@ -546,7 +542,6 @@ var descartesJS = (function(descartesJS) {
     
     var self = this;
     hasTouchSupport = descartesJS.hasTouchSupport;
-
     self.clickPosForZoom = null;
     self.clickPosForZoomNew = null;
 
@@ -572,7 +567,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchStart(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       // try to preserve the slide gesture in the tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
@@ -605,7 +600,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchEnd(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       // try to preserve the slide gesture in the tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
@@ -649,7 +644,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseDown(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -688,10 +683,12 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // when the window lose focus remove make a mouse up
-    window.addEventListener("blur", function(evt) {
-      onMouseUp(evt);
-    });
+    //
+    // unknown why added, maybe has to return or isn't necessary
+    // when the window lose focus make a mouse up
+    // window.addEventListener("blur", function(evt) {
+      // onMouseUp(evt);
+    // });
 
     /**
      * 
@@ -700,7 +697,7 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -736,20 +733,18 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onSensitiveToMouseMovements(evt) {
-      // limit the number of updates in the lesson
-      // if (Date.now() - lastTime > elapsedTime) {
-        self.posAnte = self.getCursorPosition(evt);
-        self.mouse_x = self.getRelativeX(self.posAnte.x);
-        self.mouse_y = self.getRelativeY(self.posAnte.y);
-        self.evaluator.setVariable(self.mxString, self.mouse_x);
-        self.evaluator.setVariable(self.myString, self.mouse_y);
+      self.posAnte = self.getCursorPosition(evt);
+      // self.mouse_x = self.getRelativeX(self.posAnte.x/descartesJs.cssScale);
+      // self.mouse_y = self.getRelativeY(self.posAnte.y/descartesJs.cssScale);
+      self.mouse_x = self.getRelativeX(self.posAnte.x);
+      self.mouse_y = self.getRelativeY(self.posAnte.y);
+      self.evaluator.setVariable(self.mxString, self.mouse_x);
+      self.evaluator.setVariable(self.myString, self.mouse_y);
 
-        self.evaluator.setVariable(self.mclickedString, 0);
-        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+      self.evaluator.setVariable(self.mclickedString, 0);
+      self.evaluator.setVariable(self.mclicizquierdoString, 0);
 
-        self.parent.update();
-        // lastTime = Date.now();
-      // }
+      self.parent.update();
     }
     
     /**
@@ -776,7 +771,6 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
 
       // if the space is not fixed, then change the origin coordinates
-      // if ((!self.fixed) && (Date.now() - lastTime1 > elapsedTime)) {
       if (!self.fixed) {
         self.posNext = self.getCursorPosition(evt);
         disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
@@ -784,6 +778,8 @@ var descartesJS = (function(descartesJS) {
 
         self.evaluator.setVariable(self.OxString, (self.Ox - disp.x));
         self.evaluator.setVariable(self.OyString, (self.Oy - disp.y));
+        // self.evaluator.setVariable(self.OxString, (self.Ox - disp.x/descartesJs.cssScale));
+        // self.evaluator.setVariable(self.OyString, (self.Oy - disp.y/descartesJs.cssScale));
         self.posAnte.x -= disp.x;
         self.posAnte.y -= disp.y;
       }

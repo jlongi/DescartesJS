@@ -180,6 +180,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.drawIfValue) {
+      this.MyIFrame.contentWindow.focus();
+    }
+    else {
+      this.MyIFrame.contentWindow.blur();
+    }
+
+    if (this.drawIfValue) {
       if (firstTime) {
         this.x = Infinity;
         this.y = Infinity;
@@ -230,7 +237,9 @@ var descartesJS = (function(descartesJS) {
         //
         this.MyIFrame.style.visibility = "hidden";
         this.oldFile = file;
-        this.MyIFrame.setAttribute("src", file);
+        // prevent add history entries when the source of an iframe change
+        this.MyIFrame.contentWindow.location.replace(file);
+        // this.MyIFrame.setAttribute("src", file);
       }
      
       this.scrollVar = evaluator.getVariable(this.id + "._scroll");
