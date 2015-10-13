@@ -77,20 +77,14 @@ var descartesJS = (function(descartesJS) {
      */
     this.color = new descartesJS.Color("blue");
     if (this.parent.version !== 2) {
-    // if (this.parent.code == "descinst.com.mja.descartes.DescartesJS.class") {
       this.color = new descartesJS.Color("20303a");
-    // } else {
-    //   this.color = "#000000";
-    // }
+
       // ##ARQUIMEDES## //
       if (this.parent.arquimedes) {
         this.color = new descartesJS.Color("black");
       }
       // ##ARQUIMEDES## //
     }
-    // if (this.parent.code === "descinst.Descartes.class") {
-    //   this.color = "blue";
-    // }
 
     /**
      * the color for the trace of the graphic
@@ -145,7 +139,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.font = (this.parent.version >=5) ? "Monospaced,PLAIN,15" : "Monospaced,PLAIN,12";
+    this.font = "Monospaced,PLAIN," + ((this.parent.version >=5) ? "15" : "12");
     
     /**
      * the condition for determining whether the text of the graph is fixed or not

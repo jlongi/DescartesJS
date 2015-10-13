@@ -684,11 +684,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchstart", onMouseDown_canvas);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousedown", onMouseDown_canvas);
-    }
+    // }
     
     /**
      * 
@@ -700,9 +700,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    }
+    // }
 
     /**
      * 
@@ -714,11 +714,11 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       // evt.preventDefault();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_Canvas);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_Canvas);
-    }
+    // }
 
     /**
      * 
@@ -731,11 +731,11 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
-    }
+    // }
     
     /**
      * 
@@ -773,11 +773,11 @@ var descartesJS = (function(descartesJS) {
       }    
     }
     
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator);
-    } else {
+    // } else {
       this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator);
-    }
+    // }
     
     /**
      * 
@@ -867,11 +867,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-    } else {
+    // } else {
       this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
-    }
+    // }
     
     /**
      * 
@@ -890,11 +890,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-    } else {
+    // } else {
       this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
-    }
+    // }
     
     /**
      * 
@@ -906,9 +906,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();      
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -920,9 +920,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    }
+    // }
 
     /**
      * 
@@ -935,11 +935,11 @@ var descartesJS = (function(descartesJS) {
       // evt.preventDefault();
       self.draw();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_UpButton);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -952,11 +952,11 @@ var descartesJS = (function(descartesJS) {
       // evt.preventDefault();
       self.draw();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_DownButton);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_DownButton);
-    }
+    // }
     
   }
   

@@ -130,7 +130,6 @@ var descartesJS = (function(descartesJS) {
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
-    // descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
 
     descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
 
@@ -471,13 +470,11 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.showAbout = function() {
-    var content;
+    var content = htmlAbout;
     if (descartesJS.creativeCommonsLicense) {
-      content = htmlAbout + htmlCreative + htmlFinal;
+      content+=htmlCreative;
     }
-    else {
-      content = htmlAbout + htmlFinal;
-    }
+    content+=htmlFinal;
 
     var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
     tmpW.document.write(content);

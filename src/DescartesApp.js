@@ -1044,13 +1044,13 @@ var descartesJS = (function(descartesJS) {
 
           ////////////////////////////////////////////////////////////////
           // the container
-          editableRegionTextFields[i].container.setAttribute("style", "font-family: Arial, Helvetica, 'Droid Sans', Sans-serif; width: " + (textFieldsWidth-4) + "px; height: " + (editableRegionHeight) + "px; position: absolute; left: " + ( i*textFieldsWidth ) + "px; top: 0px;")// border: 2px groove white;");
+          editableRegionTextFields[i].container.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;width:" + (textFieldsWidth-4) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;");// border: 2px groove white;");
 
           ////////////////////////////////////////////////////////////////
           // the label
           var label = editableRegionTextFields[i].container.firstChild;
           
-          label.setAttribute("style", "font-family: Arial, Helvetica, 'Droid Sans', Sans-serif; font-size: " + fontSize + "px; padding-top: 0%; background-color: #e0e4e8; position: absolute; left: 0px; top: 0px; height:" + (editableRegionHeight) + "px; text-align: center; line-height: "+ (editableRegionHeight) +"px;");
+          label.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;font-size:" + fontSize + "px;padding-top:0%;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
           var labelWidth = label.offsetWidth;
           label.style.width = labelWidth + "px";
 
@@ -1060,14 +1060,13 @@ var descartesJS = (function(descartesJS) {
           ////////////////////////////////////////////////////////////////
           // the text field
           var textfield = editableRegionTextFields[i].container.lastChild;
-          // textfield.setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; width:" + (textFieldsWidth-labelWidth-8) + "px; height:" + (editableRegionHeight-9) + "px; position:absolute; left:" + (labelWidth) + "px; top:0px; border:2px groove white;");
-          textfield.setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; font-size: " + fontSize + "px; width:" + (textFieldsWidth-labelWidth) + "px; height:" + (editableRegionHeight) + "px; position:absolute; left:" + (labelWidth) + "px; top:0px; border:2px groove white;");
+          textfield.setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth-labelWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + (labelWidth) + "px;top:0;border:2px groove white;");
         } 
 
         else {
           container.appendChild(editableRegionTextFields[i]);
 
-          editableRegionTextFields[i].setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; font-size: " + fontSize + "px; width:" + (textFieldsWidth) + "px; height:" + (editableRegionHeight) + "px; position:absolute; left:" + ( i*textFieldsWidth ) + "px; top:0px; border:2px groove white;");
+          editableRegionTextFields[i].setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;border:2px groove white;");
         }
       }
     }    

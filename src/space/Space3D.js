@@ -835,12 +835,12 @@ var zoom;
 
     this.canvas.oncontextmenu = function () { return false; };
 
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       // if (this.sensitive_to_mouse_movements) {
       //   this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       // }
       this.canvas.addEventListener("touchstart", onTouchStart);
-    }
+    // }
 
     /**
      * @param {Event} evt
@@ -891,12 +891,12 @@ var zoom;
     ///////////////////////////////////////////////////////////////////////////
     // 
     ///////////////////////////////////////////////////////////////////////////
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       // if (this.sensitive_to_mouse_movements) {
       //   this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       // }
       this.canvas.addEventListener("mousedown", onMouseDown);
-    }
+    // }
     
     /**
      * 

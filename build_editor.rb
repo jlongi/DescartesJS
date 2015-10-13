@@ -20,7 +20,7 @@ files = [ "editor/EditorGenericPanel.js",
 out.write(
 "/**
  * @preserve Joel Espinosa Longi
- * j.longi@gmail.com
+ * jlongi@im.unam.mx
  * LGPL - http://www.gnu.org/licenses/lgpl.html
  * " + Date.today.to_s() + "
  */\n\n")

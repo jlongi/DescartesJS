@@ -886,10 +886,6 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.Fill(this.parent, graphicObj);
         break;
 
-      case("generic"):
-        return new descartesJS.Generic(this.parent, graphicObj);
-        break;
-
       default:
         break;
     }
@@ -1648,19 +1644,19 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; height: "+ (imageHeight-16) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; overflow: hidden; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;height:"+ (imageHeight-16) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:100;");
       
-      image.setAttribute("style", "position: absolute; left: 0px; top: 0px; z-index: -1; width: 100%; height: 100%");
+      image.setAttribute("style", "position: absolute;left:0;top:0;z-index:-1;width:100%;height:100%;");
       plecaObj.divPleca.appendChild(image);
     } 
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 12px; padding-bottom: 12px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
     }
     
     // creates the container for the title and the content is added
     divTitle = document.createElement("div");
-    divTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.titlefont + "; overflow: hidden; white-space: nowrap;");
+    divTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.titlefont + ";overflow:hidden;white-space:nowrap;");
     divTitle.innerHTML = plecaObj.title;
 
     // create the container for the subtitle
@@ -1680,7 +1676,7 @@ var descartesJS = (function(descartesJS, babel) {
         tempFontSize = tempFontSize - tempDecrement;
         
         // style is assigned to temporary container to measure the number of lines in the text
-        tempDiv.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; width: " + (w-2*paddingSides) + "px; line-height: " + tempFontSize + "px;")
+        tempDiv.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;width:" + (w-2*paddingSides) + "px;line-height:" + tempFontSize + "px;")
         
         // find the height of the temporary container
         tempDivHeight = tempDiv.offsetHeight;
@@ -1696,11 +1692,11 @@ var descartesJS = (function(descartesJS, babel) {
       document.body.removeChild(tempDiv);
       
       // assign to the subtitle style the proper font size
-      divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; line-height: 110%; overflow: hidden; white-space: nowrap;");
+      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;line-height: 110%;overflow:hidden;white-space:nowrap;");
     } 
     // if the number of lines is different from 1, then the number of lines is ignored
     else {
-      divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; line-height: 110%;");
+      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";line-height:110%;");
     }
     // assign the content to the subtitle
     divSubTitle.innerHTML = plecaObj.subtitle;

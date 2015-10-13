@@ -6,6 +6,44 @@
 var descartesJS = (function(descartesJS) {
   // if (descartesJS.loadLib) { return descartesJS; }
 
+  // try to get the style
+  var cssNode = document.getElementById("StyleDescartesAppsEditor");
+    
+  // if the style exists, then the lesson was saved before, then remove the style
+  if (cssNode) {
+    (cssNode.parentNode).removeChild(cssNode);
+  }
+    
+  cssNode = document.createElement("style");
+  cssNode.type = "text/css";
+  cssNode.id = "StyleDescartesAppsEditor";
+  cssNode.setAttribute("rel", "stylesheet");
+  
+  // add the style to the head of the document
+  document.head.appendChild(cssNode); 
+
+  cssNode.innerHTML = ".DescartesToolbarPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; top:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
+                      ".DescartesButtonsPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; bottom:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
+                      "div.DescartesEditorContainer{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; position:fixed; left:0px; top:0px; width:100%; height:100%; background-color:#2e2e2e; z-index:10001; }\n" +
+                      "div.DescarteslistContainer{ font-family:Arial,Helvetica,Sans-serif; font-size:20px; position:absolute; left:5px; right:5px; top:45px; bottom:45px; border-radius:5px; background-color:#DDD; overflow:auto; }\n" +
+                      "div.DescarteslistContainer > ul{ margin:5px; padding:5px; padding-bottom:15px; list-style:none; }\n"+
+                      "div.DescarteslistContainer > ul > li{ padding:7px; margin:1px; }\n"+
+                      "div.DescarteslistContainer li:nth-child(odd){ background-color:#BBB; }\n" +
+                      "div.DescarteslistContainer li:nth-child(even){ background-color:#999; }\n" +
+                      "div.DescartesExtraInfo{ padding:12px; }\n" +
+                      "span.DescartesSpanName{ background-color:lightblue; margin:5px; }\n" +
+                      "span.DescartesSpanValue{ background-color:#333; color:white; margin:0px; padding:5px; border-radius:3px; line-height:1.75em; }\n" +
+                      "span.DescartesSpanValue br{ display:none; }\n" +  // prevents breaklines
+                      "span.DescartesSpanValue * { display:inline }\n" + // prevents breaklines
+                      "div.Descartes_param_name{ background-color:#669; color:#ee5; margin-bottom:10px; }\n" +
+                      "div.DescartesAddPanel{ position:absolute; top:10px; left:10px; width:350px; background-color:#FFF; }\n" +
+                      "div.DescarteslistContainer li.DescartesElementSelected{ border:1px solid black; background-color:#D66; }\n" +
+                      "input.DescartesEditorButton{ cursor:pointer; width:110px; height:30px; padding:5px 25px; margin:0px 2px; background:#257AB6; border:1px solid #fff; border-radius:7px; box-shadow:inset 0px 1px 0px #3e9cbf, 0px 2px 0px 0px #205c73, 0px 4px 5px #999; color:#fff; font-size:1em; }\n" +
+                      "input.DescartesEditorButton:hover, input.DescartesEditorButton:focus{ background-color:#0C91EC; box-shadow:0 0 1px rgba(0,0,0, .75); }";
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
   var optionText = ["Espacio 2D", "Espacio 3D", "Espacio HTMLIFrame", 
                     "Pulsador", "Campo de texto", "Men\u00FA", "Barra", "Bot\u00F3n", "Control gr\u00E1fico", "Control de texto", "Audio", "Video", 
                     "Variable", "Funci\u00F3n", "Vector", "Matriz", 

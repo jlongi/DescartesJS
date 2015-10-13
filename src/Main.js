@@ -172,7 +172,24 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span><span style="font:12px descartesJS_extra;visibility:hidden;">_</span>';
+    div.innerHTML = '<div style="visibility:hidden;">\n'+
+                    '<span style="font:12px descartesJS_serif;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '</div>';
     document.body.appendChild(div);
 
     // get the features for interpreting descartes applets

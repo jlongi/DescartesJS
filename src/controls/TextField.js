@@ -389,12 +389,12 @@ var descartesJS = (function(descartesJS) {
     self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
 
     // prevent the default events int the label    
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
-    } 
-    else {
+    // } 
+    // else {
       self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
-    }
+    // }
 
     /**
      * 

@@ -39,9 +39,6 @@ files = [ "Babel.js",
           "auxiliaries/Algorithm.js",
           "auxiliaries/Event.js",
 
-# "objectDefinitions/GenericDefinition.js",
-# "objectDefinitions/Rectangle.js",
-
           "graphics/Graphic.js",
           "graphics/SimpleText.js",
           "graphics/Equation.js",
@@ -105,17 +102,6 @@ files = [ "Babel.js",
           "space/SpaceAP.js",
           "space/SpaceHTML_IFrame.js",
 
-# "editor/EditorGenericPanel.js",
-# "editor/EditorConfigPanel.js",
-# "editor/EditorSpacePanel.js",
-# "editor/EditorControlPanel.js",
-# "editor/EditorDefinitionPanel.js",
-# "editor/EditorProgramPanel.js",
-# "editor/EditorGraphicPanel.js",
-# "editor/EditorGraphic3DPanel.js",
-# "editor/EditorAnimationPanel.js",
-# "editor/Editor.js",
-
           "DescartesLoader.js",          
           "DescartesApp.js",
           "Main.js"]
@@ -124,7 +110,7 @@ files = [ "Babel.js",
 out.write(
 "/**
  * @preserve Joel Espinosa Longi
- * j.longi@gmail.com
+ * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
  * " + Date.today.to_s() + "

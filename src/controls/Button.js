@@ -21,7 +21,7 @@ var descartesJS = (function(descartesJS) {
   var despY;
   var txtW;
   var hasTouchSupport;
-  var delay = 2000;
+  var delay = 1000;
 
   var _image_pos_x;
   var _image_pos_y;
@@ -111,76 +111,86 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     var tmpParam;
+    this.classContainer = "";
     if (this.imageSrc.trim().match("^_STYLE_")) {
       this.customStyle = true;
-      this.canvasStyle = [ ];
+      this.canvasStyle = [];
       this.containerStyle = [];
+      this.containerStyle.textBorder = 3;
 
       tmpParam = this.imageSrc.trim().substring(8).split("|");
       var tempo;
+      var isRGB;
       for (var i=0, l=tmpParam.length; i<l; i++) {
         tempo = tmpParam[i];
-        if (tempo.match("border=")) {
+        isRGB = tempo.match(/rgb/g);
+        if (tempo.match("class=")) {
+          this.classContainer = " " + tempo.substring(6);
+        }
+        else if (tempo.match("border=")) {
           this.canvasStyle.push( { type: "border-style", value: "solid" } );
           this.canvasStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
         }
-        if (tempo.match("borderRadius=")) {
+        else if (tempo.match("borderRadius=")) {
           this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
           this.containerStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
         }
-        if (tempo.match("borderColor=")) {
-          this.canvasStyle.push( { type: "border-color", value: "#" + tempo.substring(12).trim() } );
+        else if (tempo.match("borderColor=")) {
+          this.canvasStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
         }
-        if (tempo.match("overColor=")) {
-          this.containerStyle.overColor = "#" + tempo.substring(10).trim();
+        else if (tempo.match("overColor=")) {
+          this.containerStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
-        if (tempo.match("downColor=")) {
-          this.containerStyle.downColor = "#" + tempo.substring(10).trim();
+        else if (tempo.match("downColor=")) {
+          this.containerStyle.downColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
-        if (tempo.match("font=")) {
+        else if (tempo.match("font=")) {
           this.containerStyle.font = tempo.substring(5).trim().toLowerCase();
         }
-        if (tempo.match("inactiveColor=")) {
-          this.containerStyle.inactiveColor = "#" + tempo.substring(14).trim();
+        else if (tempo.match("inactiveColor=")) {
+          this.containerStyle.inactiveColor = ((isRGB)?"":"#") + tempo.substring(14).trim();
         }
-        if (tempo.match("inactiveColorBorder=")) {
-          this.containerStyle.inactiveColorBorder = "#" + tempo.substring(20).trim();
+        else if (tempo.match("inactiveColorBorder=")) {
+          this.containerStyle.inactiveColorBorder = ((isRGB)?"":"#") + tempo.substring(20).trim();
         }
-        if (tempo.match("shadowTextBlur=")) {
+        else if (tempo.match("shadowTextBlur=")) {
           this.containerStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
         }
-        if (tempo.match("shadowTextOffsetX=")) {
+        else if (tempo.match("shadowTextOffsetX=")) {
           this.containerStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
         }
-        if (tempo.match("shadowTextOffsetY=")) {
+        else if (tempo.match("shadowTextOffsetY=")) {
           this.containerStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
         }
-        if (tempo.match("shadowTextColor=")) {
-          this.containerStyle.shadowTextColor = "#" + tempo.substring(16).trim();
+        else if (tempo.match("shadowTextColor=")) {
+          this.containerStyle.shadowTextColor = ((isRGB)?"":"#") + tempo.substring(16).trim();
         }
-        if (tempo.match("shadowBoxBlur=")) {
+        else if (tempo.match("shadowBoxBlur=")) {
           this.containerStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
         }
-        if (tempo.match("shadowBoxOffsetX=")) {
+        else if (tempo.match("shadowBoxOffsetX=")) {
           this.containerStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
         }
-        if (tempo.match("shadowBoxOffsetY=")) {
+        else if (tempo.match("shadowBoxOffsetY=")) {
           this.containerStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
         }
-        if (tempo.match("shadowBoxColor=")) {
-          this.containerStyle.shadowBoxColor = "#" + tempo.substring(15).trim();
+        else if (tempo.match("shadowBoxColor=")) {
+          this.containerStyle.shadowBoxColor = ((isRGB)?"":"#") + tempo.substring(15).trim();
         }
-        if (tempo.match("shadowInsetBoxBlur=")) {
+        else if (tempo.match("shadowInsetBoxBlur=")) {
           this.containerStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
         }
-        if (tempo.match("shadowInsetBoxOffsetX=")) {
+        else if (tempo.match("shadowInsetBoxOffsetX=")) {
           this.containerStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
         }
-        if (tempo.match("shadowInsetBoxOffsetY=")) {
+        else if (tempo.match("shadowInsetBoxOffsetY=")) {
           this.containerStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
         }
-        if (tempo.match("shadowInsetBoxColor=")) {
-          this.containerStyle.shadowInsetBoxColor = "#" + tempo.substring(20).trim();
+        else if (tempo.match("shadowInsetBoxColor=")) {
+          this.containerStyle.shadowInsetBoxColor = ((isRGB)?"":"#") + tempo.substring(20).trim();
+        }
+        else if (tempo.match("textBorder=")) {
+          this.containerStyle.textBorder = parseFloat(tempo.substring(11).trim());
         }
       }
       this.imageSrc = "vacio.gif";
@@ -239,7 +249,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     this.container = document.createElement("div");
-    this.container.setAttribute("class", "DescartesButtonContainer");
+    this.container.setAttribute("class", "DescartesButtonContainer" + this.classContainer);
     this.container.setAttribute("id", this.id);
     this.container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + ";");
 
@@ -383,7 +393,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
+    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // update the position and size
     this.updatePositionAndSize();
@@ -426,8 +436,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     ctx.setTransform(descartesJS.button_ratio, 0, 0, descartesJS.button_ratio, 0, 0);
 
     font_size = this.fs_evaluated; 
-
-    // container.setAttribute("data-name", name);
+    container.setAttribute("data-name", name);
 
     if (imageSrc) {
       image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
@@ -567,8 +576,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     ctx.fillStyle = this.color.getColor();
 
     if (this.customStyle) {
-      if (this.containerStyle.shadowTextColor) {
-        ctx.lineWidth = 3;
+      if ((this.containerStyle.shadowTextColor) && (this.containerStyle.textBorder > 0)) {
+        ctx.lineWidth = this.containerStyle.textBorder;
         ctx.strokeStyle = this.containerStyle.shadowTextColor;
         ctx.strokeText(name, _text_pos_x, _text_pos_y);
       }
@@ -667,13 +676,13 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     this.buttonClick = false;
     this.over = false;
     
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchstart", onMouseDown);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousedown", onMouseDown);
       this.canvas.addEventListener("mouseover", onMouseOver);
       this.canvas.addEventListener("mouseout", onMouseOut);
-    }
+    // }
     
     /**
      * 
@@ -707,14 +716,14 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
             repeat(delay, self.buttonPressed, true);
           }
           
-          if (hasTouchSupport) {
+          // if (hasTouchSupport) {
             self.canvas.removeEventListener("touchend", onMouseUp);
             self.canvas.addEventListener("touchend", onMouseUp);
-          } 
-          else {
+          // } 
+          // else {
             self.canvas.removeEventListener("mouseup", onMouseUp);
             self.canvas.addEventListener("mouseup", onMouseUp);
-          }
+          // }
         }
       }
     }
@@ -742,12 +751,12 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
           self.buttonPressed();
         }
         
-        if (hasTouchSupport) {
+        // if (hasTouchSupport) {
           self.canvas.removeEventListener("touchend", onMouseUp);
-        } 
-        else {
+        // } 
+        // else {
           self.canvas.removeEventListener("mouseup", onMouseUp);
-        }
+        // }
       }
       // espero que no haya errores
       self.parent.update();

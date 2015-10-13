@@ -440,13 +440,13 @@ var descartesJS = (function(descartesJS) {
     // prevent the context menu display
     this.mouseCacher.oncontextmenu = function () { return false; };    
 
-    if (descartesJS.hasTouchSupport) {
+    // if (descartesJS.hasTouchSupport) {
       this.mouseCacher.addEventListener("touchstart", onTouchStart);
-    } else {
+    // } else {
       this.mouseCacher.addEventListener("mousedown", onMouseDown);
       this.mouseCacher.addEventListener("mouseover", onMouseOver);
       this.mouseCacher.addEventListener("mouseout", onMouseOut);
-    }
+    // }
 
     /**
      * 
@@ -543,13 +543,13 @@ var descartesJS = (function(descartesJS) {
       if ((self.activeIfValue) || (self.active)) {
         self.click = false;
 
-        if (descartesJS.hasTouchSupport) {
+        // if (descartesJS.hasTouchSupport) {
           window.removeEventListener("touchmove", onMouseMove, false);
           window.removeEventListener("touchend", onMouseUp, false);
-        } else {
+        // } else {
           window.removeEventListener("mouseup", onMouseUp, false);
           window.removeEventListener("mousemove", onMouseMove, false);
-        }
+        // }
 
         posNew = self.getCursorPosition(evt);
 

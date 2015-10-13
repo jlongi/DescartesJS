@@ -1,9 +1,9 @@
 /**
  * @preserve Joel Espinosa Longi
- * j.longi@gmail.com
+ * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-09-23
+ * 2015-10-13
  */
 
 /**
@@ -1393,7 +1393,6 @@ var descartesJS = (function(descartesJS) {
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
-    // descartesJS.hasTouchSupport = ((navigator.userAgent).toLowerCase()).match("qt") ? false : descartesJS.hasTouchSupport;
 
     descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
 
@@ -1734,13 +1733,11 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.showAbout = function() {
-    var content;
+    var content = htmlAbout;
     if (descartesJS.creativeCommonsLicense) {
-      content = htmlAbout + htmlCreative + htmlFinal;
+      content+=htmlCreative;
     }
-    else {
-      content = htmlAbout + htmlFinal;
-    }
+    content+=htmlFinal;
 
     var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
     tmpW.document.write(content);
@@ -2338,7 +2335,7 @@ var descartesJS = (function(descartesJS) {
  */
 
 var descartesJS = (function(descartesJS) {
-  if (descartesJS.loadLib){ return descartesJS; }
+  if (descartesJS.loadLib) { return descartesJS; }
 
   /**
    * Add meta tags needed for tablets
@@ -2353,9 +2350,9 @@ var descartesJS = (function(descartesJS) {
     // add the metadata to the head of the document
     head.appendChild(meta);
 
-    meta = document.createElement("meta");    
+    meta = document.createElement("meta");   
     meta.setAttribute("name", "viewport");
-    meta.setAttribute("content", "width=device-width, initial-scale=1.0, user-scalable=yes");
+    meta.setAttribute("content", "width=device-width,initial-scale=1.0,user-scalable=yes");
     // add the metadata to the head of the document
     if (!document.querySelector("meta[name=viewport]")) {
       head.appendChild(meta);
@@ -2372,12 +2369,6 @@ var descartesJS = (function(descartesJS) {
     meta.setAttribute("content", "black");
     // add the metadata to the head of the document
     head.appendChild(meta);
-
-    // var link = document.createElement("link");
-    // link.setAttribute("rel", "apple-touch-icon-precomposed");
-    // link.setAttribute("href", "images/descartesLogo.png");
-    // // add the link to the head of the document
-    // document.head.appendChild(link);
   }
   
   /** 
@@ -2390,10 +2381,10 @@ var descartesJS = (function(descartesJS) {
     // try to get the style
     var cssNode = document.getElementById("StyleDescartesApps2");
     
-    // if the style exists, then the lesson was saved before, then remove the style
+    // if the style exists,then the lesson was saved before,then remove the style
     if (cssNode) {
       (cssNode.parentNode).removeChild(cssNode);
-    }
+   }
     
     cssNode = document.createElement("style");
     cssNode.type = "text/css";
@@ -2402,87 +2393,30 @@ var descartesJS = (function(descartesJS) {
     cssNode.setAttribute("rel", "stylesheet");
     
     // add the style to the head of the document
-    document.head.appendChild(cssNode); 
+    document.head.appendChild(cssNode);
 
     cssNode.innerHTML = 
-                        // "body{ }\n" +
-                        // "html{ box-sizing:border-box; }\n" +
-                        // "*, *:before, *:after { box-sizing:inherit; }\n" +
-                        // "canvas { image-rendering:optimizeSpeed; image-rendering:crisp-edges; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; -ms-interpolation-mode:nearest-neighbor; }\n" +
-                        "div.DescartesCatcher{ background-color:rgba(255, 255, 255, 0); cursor:pointer; position:absolute; }\n" +
-                        "div.DescartesAppContainer{ border:0px solid black; position:relative; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoader{ background-color:#CACACA; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
-                        "div.DescartesLoaderImage{ background-repeat:no-repeat; background-position:center; position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
-                        "canvas.DescartesLoaderBar{ position:absolute; overflow:hidden; top:0px; left:0px; }\n" +
-                        "canvas.DescartesSpace2DCanvas, canvas.DescartesSpace3DCanvas, div.blocker{ touch-action:none; position:absolute; overflow:hidden; left:0px; top:0px; }\n" +
-                        "div.DescartesSpace2DContainer, div.DescartesSpace3DContainer{ position:absolute; overflow:hidden; line-height:0px; }\n" + 
-                        "canvas.DescartesButton{ position:absolute; cursor:pointer; }\n" +
-                        "div.DescartesButtonContainer{ position:absolute; background-repeat:no-repeat; }\n" +
-                        "div.DescartesSpinnerContainer, div.DescartesTextFieldContainer, div.DescartesMenuContainer{ background:lightgray; position:absolute; overflow:hidden; }\n" +
-                        "input.DescartesSpinnerField, input.DescartesTextFieldField, input.DescartesMenuField, input.DescartesScrollbarField{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding:0px; border:solid #666 1px; position:absolute; top:0px; }\n" +
-                        "label.DescartesSpinnerLabel, label.DescartesMenuLabel, label.DescartesScrollbarLabel, label.DescartesTextFieldLabel{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; font-weight:normal; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:#e0e4e8; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesGraphicControl{ touch-action:none; border-style:none; position:absolute; }\n" +
-                        "div.DescartesTextAreaContainer{ position:absolute; overflow:hidden; background:#c0d0d8; }\n" +
-                        "select.DescartesMenuSelect{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; padding-top:0px; text-align:center; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; background-color:white; position:absolute; left:0px; top:0px; }\n" +
-                        "div.DescartesScrollbarContainer{ touch-action:none; background:#eee; overflow:hidden; position:absolute; }\n" +
-
-                        // style for the internal editor
-
-                        "div.DescartesEditorContainer{ font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif; position:fixed; left:0px; top:0px; width:100%; height:100%; background-color:#2e2e2e; z-index:10001; }\n" +
-                        "div.DescartesEditorTabContainer{ width:100%; height:100%; position:absolute; padding:0px;  }\n" +
-
-                        ".DescartesTabs{ height:37px; }\n" +
-                        ".DescartesTabs > ul{ font-size:18px; list-style:none; padding:0 1px 1px; margin-left:4px; text-align:center; }\n" +
-                        ".DescartesTabs > ul > li{ margin-right:1px; padding:8px 8px; float:left; color:#fff; -webkit-user-select:none; -moz-user-select:none; user-select:none; border-radius:7px 7px 0px 0px; background:#0C91EC; background:-moz-linear-gradient(top, #0C91EC 0%, #257AB6 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#0C91EC), color-stop(100%,#257AB6)); }\n" +
-                        ".DescartesTabs > ul > li:hover{ background:#fff; background:-moz-linear-gradient(top, #FFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFF)); cursor:pointer; color:#000; }\n" +
-                        ".DescartesTabs > ul > li.tabActiveHeader{ background:#fff; background:-moz-linear-gradient(top, #FFF 0%, #F3F3F3 10%, #F3F3F3 50%, #FFF 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(10%,#F3F3F3), color-stop(50%,#F3F3F3), color-stop(100%,#FFF)); cursor:pointer; color:#000; }\n" +
-
-                        ".DescartesTabscontent{ position:absolute; left:5px; right:5px; top:55px; bottom:45px; overflow:y-scroll; padding:10px 10px 25px; background:#000; background:-moz-linear-gradient(top, #FFF 0%, #FFF 90%, #e4e9ed 100%); background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF), color-stop(90%,#FFF), color-stop(100%,#e4e9ed)); margin:0px; color:#000; background-color:#000; }\n" +
-
-                        //
-                        "div.DescartesConfigPanel{ position:absolute; left:10px; right:10px; top:10px; bottom:10px; overflow:y-scroll; border:solid 1px #000; border-radius:5px; font-size:18px; padding:10px; line-height:1.5em; overflow:auto; }\n" +
-                        "div.DescartesLeftPanelClass{ position:absolute; left:10px; top:10px; bottom:10px; width:200px; background-color:#FFF; border:1px solid black; overflow:auto; }\n" +
-                        "div.DescartesLeftPanelClass li:nth-child(odd){ background-color:#6495ED; }\n" +
-                        "div.DescartesLeftPanelClass li:nth-child(even){ background-color:#ED6495; }\n" +
-                        // "div.DescartesLeftPanelClass > div{ background-color:yellow; overflow:auto; }\n" +
-                        "div.DescartesLeftPanelClass > div > ul{ list-style:none; background:#bbb; padding:5px; }\n" +
-                        "div.DescartesLeftPanelClass > div > ul > li{ padding:5px; -webkit-user-select:none; -moz-user-select:none; user-select:none; cursor:pointer; white-space:nowrap; overflow:hidden; }\n" +
-
-                        "div.DescartesRightPanelClass{ position:absolute; left:220px; right:10px; top:10px; bottom:10px; background-color:#FFF; border:1px solid black; overflow:auto; }\n" +
-
-                        "div.DescartesLabelAndElementContainer{ padding:4px 8px; margin:4px; display:inline-block; background-color:lightgray; border-radius:3px; }\n" +
-                        "div.DescartesLabelAndElementContainer > select{ font-family:Monospace; font-size:18px; }\n" +
-                        "div.DescartesLabelAndElementContainer > input{ font-family:Monospace; font-size:18px; }\n" +
-
-                        //
-                        "div.DescarteslistContainer{ font-family:Arial,Helvetica,Sans-serif; font-size:20px; position:absolute; left:5px; right:5px; top:45px; bottom:45px; border-radius:5px; background-color:#DDD; overflow:auto; }\n" +
-                        "div.DescarteslistContainer > ul{ margin:5px; padding:5px; padding-bottom:15px; list-style:none; }\n"+
-                        "div.DescarteslistContainer > ul > li{ padding:7px; margin:1px; }\n"+
-                        "div.DescarteslistContainer li:nth-child(odd){ background-color:#BBB; }\n" +
-                        "div.DescarteslistContainer li:nth-child(even){ background-color:#999; }\n" +
-
-                        "div.DescartesExtraInfo{ padding:12px; }\n" +
-
-                        "span.DescartesSpanName{ background-color:lightblue; margin:5px; }\n" +
-                        "span.DescartesSpanValue{ background-color:#333; color:white; margin:0px; padding:5px; border-radius:3px; line-height:1.75em; }\n" +
-                        "span.DescartesSpanValue br{ display:none; }\n" +  // prevents breaklines
-                        "span.DescartesSpanValue * { display:inline }\n" + // prevents breaklines
-                        //
-
-                        "div.Descartes_param_name{ background-color:#669; color:#ee5; margin-bottom:10px; }\n" +
-
-                        ".DescartesToolbarPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; top:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
-
-                        ".DescartesButtonsPlace{ -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; text-align:center; border-radius:4px 4px 4px 4px;  position:absolute; left:5px; right:5px; bottom:0px; height:40px; min-width:290px; background:#ccc; padding:4px; }\n" +
-                        
-                        "div.DescartesAddPanel{ position:absolute; top:10px; left:10px; width:350px; background-color:#FFF; }\n" +
-
-                        "div.DescarteslistContainer li.DescartesElementSelected{ border:1px solid black; background-color:#D66; }\n" +
-
-                        "input.DescartesEditorButton{ cursor:pointer; width:110px; height:30px; padding:5px 25px; margin:0px 2px; background:#257AB6; border:1px solid #fff; border-radius:7px; box-shadow:inset 0px 1px 0px #3e9cbf, 0px 2px 0px 0px #205c73, 0px 4px 5px #999; color:#fff; font-size:1em; }\n" +
-                        "input.DescartesEditorButton:hover, input.DescartesEditorButton:focus{ background-color:#0C91EC; box-shadow:0 0 1px rgba(0,0,0, .75); }\n";
-
-  }
+                        // "body{}\n" +
+                        // "html{box-sizing:border-box;}\n" +
+                        // "*,*:before,*:after {box-sizing:inherit;}\n" +
+                        // "canvas {image-rendering:optimizeSpeed;image-rendering:crisp-edges;image-rendering:-moz-crisp-edges;image-rendering:-o-crisp-edges;image-rendering:-webkit-optimize-contrast;-ms-interpolation-mode:nearest-neighbor;}\n" +
+                        "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
+                        "div.DescartesAppContainer{border:0 solid black;position:relative;overflow:hidden;top:0;left:0;}\n" +
+                        "div.DescartesLoader{background-color:#CACACA;position:absolute;overflow:hidden;top:0;left:0;}\n" +
+                        "div.DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;}\n" +
+                        "canvas.DescartesLoaderBar{position:absolute;overflow:hidden;top:0;left:0;}\n" +
+                        "canvas.DescartesSpace2DCanvas,canvas.DescartesSpace3DCanvas,div.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
+                        "div.DescartesSpace2DContainer,div.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" + 
+                        "canvas.DescartesButton{position:absolute;cursor:pointer;}\n" +
+                        "div.DescartesButtonContainer{position:absolute;background-repeat:no-repeat;}\n" +
+                        "div.DescartesSpinnerContainer,div.DescartesTextFieldContainer,div.DescartesMenuContainer{background:lightgray;position:absolute;overflow:hidden;}\n" +
+                        "input.DescartesSpinnerField,input.DescartesTextFieldField,input.DescartesMenuField,input.DescartesScrollbarField{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif;padding:0;border:solid #666 1px;position:absolute;top:0;}\n" +
+                        "label.DescartesSpinnerLabel,label.DescartesMenuLabel,label.DescartesScrollbarLabel,label.DescartesTextFieldLabel{font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif;font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
+                        "div.DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
+                        "div.DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#c0d0d8;}\n" +
+                        "select.DescartesMenuSelect{font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif;padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:white;position:absolute;left:0;top:0;}\n" +
+                        "div.DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}";
+ }
 
   // immediately add the style to the document
   addCSSrules();
@@ -4242,20 +4176,14 @@ var descartesJS = (function(descartesJS) {
      */
     this.color = new descartesJS.Color("blue");
     if (this.parent.version !== 2) {
-    // if (this.parent.code == "descinst.com.mja.descartes.DescartesJS.class") {
       this.color = new descartesJS.Color("20303a");
-    // } else {
-    //   this.color = "#000000";
-    // }
+
       // ##ARQUIMEDES## //
       if (this.parent.arquimedes) {
         this.color = new descartesJS.Color("black");
       }
       // ##ARQUIMEDES## //
     }
-    // if (this.parent.code === "descinst.Descartes.class") {
-    //   this.color = "blue";
-    // }
 
     /**
      * the color for the trace of the graphic
@@ -4310,7 +4238,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.font = (this.parent.version >=5) ? "Monospaced,PLAIN,15" : "Monospaced,PLAIN,12";
+    this.font = "Monospaced,PLAIN," + ((this.parent.version >=5) ? "15" : "12");
     
     /**
      * the condition for determining whether the text of the graph is fixed or not
@@ -7575,7 +7503,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-";
+  var reservedIdentifiers = new String("-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-");
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -9889,7 +9817,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = "-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-";
+  var reservedIdentifiers = new String("-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-");
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;
@@ -11942,7 +11870,7 @@ var descartesJS = (function(descartesJS) {
   var despY;
   var txtW;
   var hasTouchSupport;
-  var delay = 2000;
+  var delay = 1000;
 
   var _image_pos_x;
   var _image_pos_y;
@@ -12032,76 +11960,86 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     var tmpParam;
+    this.classContainer = "";
     if (this.imageSrc.trim().match("^_STYLE_")) {
       this.customStyle = true;
-      this.canvasStyle = [ ];
+      this.canvasStyle = [];
       this.containerStyle = [];
+      this.containerStyle.textBorder = 3;
 
       tmpParam = this.imageSrc.trim().substring(8).split("|");
       var tempo;
+      var isRGB;
       for (var i=0, l=tmpParam.length; i<l; i++) {
         tempo = tmpParam[i];
-        if (tempo.match("border=")) {
+        isRGB = tempo.match(/rgb/g);
+        if (tempo.match("class=")) {
+          this.classContainer = " " + tempo.substring(6);
+        }
+        else if (tempo.match("border=")) {
           this.canvasStyle.push( { type: "border-style", value: "solid" } );
           this.canvasStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
         }
-        if (tempo.match("borderRadius=")) {
+        else if (tempo.match("borderRadius=")) {
           this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
           this.containerStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
         }
-        if (tempo.match("borderColor=")) {
-          this.canvasStyle.push( { type: "border-color", value: "#" + tempo.substring(12).trim() } );
+        else if (tempo.match("borderColor=")) {
+          this.canvasStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
         }
-        if (tempo.match("overColor=")) {
-          this.containerStyle.overColor = "#" + tempo.substring(10).trim();
+        else if (tempo.match("overColor=")) {
+          this.containerStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
-        if (tempo.match("downColor=")) {
-          this.containerStyle.downColor = "#" + tempo.substring(10).trim();
+        else if (tempo.match("downColor=")) {
+          this.containerStyle.downColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
-        if (tempo.match("font=")) {
+        else if (tempo.match("font=")) {
           this.containerStyle.font = tempo.substring(5).trim().toLowerCase();
         }
-        if (tempo.match("inactiveColor=")) {
-          this.containerStyle.inactiveColor = "#" + tempo.substring(14).trim();
+        else if (tempo.match("inactiveColor=")) {
+          this.containerStyle.inactiveColor = ((isRGB)?"":"#") + tempo.substring(14).trim();
         }
-        if (tempo.match("inactiveColorBorder=")) {
-          this.containerStyle.inactiveColorBorder = "#" + tempo.substring(20).trim();
+        else if (tempo.match("inactiveColorBorder=")) {
+          this.containerStyle.inactiveColorBorder = ((isRGB)?"":"#") + tempo.substring(20).trim();
         }
-        if (tempo.match("shadowTextBlur=")) {
+        else if (tempo.match("shadowTextBlur=")) {
           this.containerStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
         }
-        if (tempo.match("shadowTextOffsetX=")) {
+        else if (tempo.match("shadowTextOffsetX=")) {
           this.containerStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
         }
-        if (tempo.match("shadowTextOffsetY=")) {
+        else if (tempo.match("shadowTextOffsetY=")) {
           this.containerStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
         }
-        if (tempo.match("shadowTextColor=")) {
-          this.containerStyle.shadowTextColor = "#" + tempo.substring(16).trim();
+        else if (tempo.match("shadowTextColor=")) {
+          this.containerStyle.shadowTextColor = ((isRGB)?"":"#") + tempo.substring(16).trim();
         }
-        if (tempo.match("shadowBoxBlur=")) {
+        else if (tempo.match("shadowBoxBlur=")) {
           this.containerStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
         }
-        if (tempo.match("shadowBoxOffsetX=")) {
+        else if (tempo.match("shadowBoxOffsetX=")) {
           this.containerStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
         }
-        if (tempo.match("shadowBoxOffsetY=")) {
+        else if (tempo.match("shadowBoxOffsetY=")) {
           this.containerStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
         }
-        if (tempo.match("shadowBoxColor=")) {
-          this.containerStyle.shadowBoxColor = "#" + tempo.substring(15).trim();
+        else if (tempo.match("shadowBoxColor=")) {
+          this.containerStyle.shadowBoxColor = ((isRGB)?"":"#") + tempo.substring(15).trim();
         }
-        if (tempo.match("shadowInsetBoxBlur=")) {
+        else if (tempo.match("shadowInsetBoxBlur=")) {
           this.containerStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
         }
-        if (tempo.match("shadowInsetBoxOffsetX=")) {
+        else if (tempo.match("shadowInsetBoxOffsetX=")) {
           this.containerStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
         }
-        if (tempo.match("shadowInsetBoxOffsetY=")) {
+        else if (tempo.match("shadowInsetBoxOffsetY=")) {
           this.containerStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
         }
-        if (tempo.match("shadowInsetBoxColor=")) {
-          this.containerStyle.shadowInsetBoxColor = "#" + tempo.substring(20).trim();
+        else if (tempo.match("shadowInsetBoxColor=")) {
+          this.containerStyle.shadowInsetBoxColor = ((isRGB)?"":"#") + tempo.substring(20).trim();
+        }
+        else if (tempo.match("textBorder=")) {
+          this.containerStyle.textBorder = parseFloat(tempo.substring(11).trim());
         }
       }
       this.imageSrc = "vacio.gif";
@@ -12160,7 +12098,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     this.container = document.createElement("div");
-    this.container.setAttribute("class", "DescartesButtonContainer");
+    this.container.setAttribute("class", "DescartesButtonContainer" + this.classContainer);
     this.container.setAttribute("id", this.id);
     this.container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + ";");
 
@@ -12304,7 +12242,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
+    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // update the position and size
     this.updatePositionAndSize();
@@ -12347,8 +12285,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     ctx.setTransform(descartesJS.button_ratio, 0, 0, descartesJS.button_ratio, 0, 0);
 
     font_size = this.fs_evaluated; 
-
-    // container.setAttribute("data-name", name);
+    container.setAttribute("data-name", name);
 
     if (imageSrc) {
       image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
@@ -12488,8 +12425,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     ctx.fillStyle = this.color.getColor();
 
     if (this.customStyle) {
-      if (this.containerStyle.shadowTextColor) {
-        ctx.lineWidth = 3;
+      if ((this.containerStyle.shadowTextColor) && (this.containerStyle.textBorder > 0)) {
+        ctx.lineWidth = this.containerStyle.textBorder;
         ctx.strokeStyle = this.containerStyle.shadowTextColor;
         ctx.strokeText(name, _text_pos_x, _text_pos_y);
       }
@@ -12588,13 +12525,13 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     this.buttonClick = false;
     this.over = false;
     
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchstart", onMouseDown);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousedown", onMouseDown);
       this.canvas.addEventListener("mouseover", onMouseOver);
       this.canvas.addEventListener("mouseout", onMouseOut);
-    }
+    // }
     
     /**
      * 
@@ -12628,14 +12565,14 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
             repeat(delay, self.buttonPressed, true);
           }
           
-          if (hasTouchSupport) {
+          // if (hasTouchSupport) {
             self.canvas.removeEventListener("touchend", onMouseUp);
             self.canvas.addEventListener("touchend", onMouseUp);
-          } 
-          else {
+          // } 
+          // else {
             self.canvas.removeEventListener("mouseup", onMouseUp);
             self.canvas.addEventListener("mouseup", onMouseUp);
-          }
+          // }
         }
       }
     }
@@ -12663,12 +12600,12 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
           self.buttonPressed();
         }
         
-        if (hasTouchSupport) {
+        // if (hasTouchSupport) {
           self.canvas.removeEventListener("touchend", onMouseUp);
-        } 
-        else {
+        // } 
+        // else {
           self.canvas.removeEventListener("mouseup", onMouseUp);
-        }
+        // }
       }
       // espero que no haya errores
       self.parent.update();
@@ -13164,12 +13101,12 @@ var descartesJS = (function(descartesJS) {
     self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
 
     // prevent the default events int the label    
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
-    } 
-    else {
+    // } 
+    // else {
       this.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
-    }
+    // }
 
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -13220,11 +13157,11 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-    } else {
+    // } else {
       this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
-    }
+    // }
     
     /**
      * 
@@ -13244,11 +13181,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-    } else {
+    // } else {
       this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
-    }
+    // }
     
     /**
      * 
@@ -13261,9 +13198,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       evt.preventDefault();      
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -13276,9 +13213,9 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       evt.preventDefault();
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    }
+    // }
 
     /**
      * 
@@ -13291,13 +13228,13 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       // evt.preventDefault();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divUp.addEventListener("touchend", onMouseUp_UpButton);
       window.addEventListener("touchend", onMouseUp_UpButton);
-    } else {
+    // } else {
       this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
       window.addEventListener("mouseup", onMouseUp_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -13310,13 +13247,13 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       // evt.preventDefault();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divDown.addEventListener("touchend", onMouseUp_DownButton);
       window.addEventListener("touchend", onMouseUp_DownButton);
-    } else {
+    // } else {
       this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
       window.addEventListener("mouseup", onMouseUp_DownButton);
-    }
+    // }
 
     /**
      *
@@ -13729,12 +13666,12 @@ var descartesJS = (function(descartesJS) {
     self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
 
     // prevent the default events int the label    
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
-    } 
-    else {
+    // } 
+    // else {
       self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
-    }
+    // }
 
     /**
      * 
@@ -13845,61 +13782,83 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-    
-    // options are separated using the comma as separator
-    this.options = this.options.split(",");
-    
-    this.menuOptions = [];
-    this.strValue = [];
 
-    var splitOption;
-    // parse the options
-    for (var i=0, l=this.options.length; i<l; i++) {
+//////////////////////////////////////////////////////////////////////////////////////////////
+    var self = this;
+    this.evaluator.setFunction(this.id + ".setOptions", setOptions);
+    /**
+     * Auxiliar function to set the optios to the menu
+     */
+    function setOptions(options) {
+      // options are separated using the comma as separator
+      self.options = options.split(",");
+      self.menuOptions = [];
+      self.strValue = [];
 
-      // split the options if has values with square backets (option[value])
-      splitOption = this.customSplit(this.options[i]);
+      var splitOption;
 
-      // if divide the option only has a value, then are not specifying its value and take the order in which it appears
-      if (splitOption.length == 1) {
-        this.menuOptions.push( splitOption[0] );
-        this.strValue.push( i.toString() );
-      } 
-      // if divide the option has two values, then has a value specified
-      else if (splitOption.length == 2) {
-        this.menuOptions.push( splitOption[0] );
-        
-        // if the value is an empty string, then asign the order value
-        if (splitOption[1] == "") {
-          this.strValue.push( i.toString() );
+      // parse the options
+      for (var i=0, l=self.options.length; i<l; i++) {
+
+        // split the options if has values with square backets (option[value])
+        splitOption = self.customSplit(self.options[i]);
+
+        // if divide the option only has a value, then are not specifying its value and take the order in which it appears
+        if (splitOption.length == 1) {
+          self.menuOptions.push( splitOption[0] );
+          self.strValue.push( i.toString() );
+        } 
+        // if divide the option has two values, then has a value specified
+        else if (splitOption.length == 2) {
+          self.menuOptions.push( splitOption[0] );
+          
+          // if the value is an empty string, then asign the order value
+          if (splitOption[1] == "") {
+            self.strValue.push( i.toString() );
+          }
+          // if not, then use te especified value
+          else {
+            self.strValue.push(splitOption[1]);
+          }
         }
-        // if not, then use te especified value
+      }
+
+      for (var i=0, l=self.menuOptions.length; i<l; i++) {
+        // is an expression
+        if ( (self.menuOptions[i].match(/^\[/)) && (self.menuOptions[i].match(/\]$/)) ) {
+          self.menuOptions[i] = parser.parse( self.menuOptions[i].substring(1, self.menuOptions[i].length-1) );
+        }
+        // is a string
         else {
-          this.strValue.push(splitOption[1]);
+          self.menuOptions[i] = parser.parse( "'" + self.menuOptions[i] + "'" );
         }
       }
-    }
 
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      // is an expression
-      if ( (this.menuOptions[i].match(/^\[/)) && (this.menuOptions[i].match(/\]$/)) ) {
-        this.menuOptions[i] = parser.parse( this.menuOptions[i].substring(1, this.menuOptions[i].length-1) );
+      // parse the option values
+      for (var i=0, l=self.strValue.length; i<l; i++) {
+        if ( (self.strValue[i].match(/^\[/)) && (self.strValue[i].match(/\]$/)) ) {
+          self.strValue[i] = parser.parse( self.strValue[i].substring(1, self.strValue[i].length-1) );
+        } 
+        else {
+          self.strValue[i] = parser.parse( self.strValue[i] );
+        }
       }
-      // is a string
-      else {
-        this.menuOptions[i] = parser.parse( "'" + this.menuOptions[i] + "'" );
-      }
-    }
 
-    // parse the option values
-    for (var i=0, l=this.strValue.length; i<l; i++) {
-      if ( (this.strValue[i].match(/^\[/)) && (this.strValue[i].match(/\]$/)) ) {
-        this.strValue[i] = parser.parse( this.strValue[i].substring(1, this.strValue[i].length-1) );
-      } 
-      else {
-        this.strValue[i] = parser.parse( this.strValue[i] );
+      // remove all the previous options
+      while (self.select.firstChild) {
+        self.select.removeChild(self.select.firstChild);
+      }
+
+      // add the options to the menu
+      var opt;
+      for (var i=0, l=self.menuOptions.length; i<l; i++) {
+        opt = document.createElement("option");
+        opt.innerHTML = evaluator.evalExpression( self.menuOptions[i] );
+        self.select.appendChild(opt);
       }
     }
-   
+//////////////////////////////////////////////////////////////////////////////////////////////
+
     // control container
     this.containerControl = document.createElement("div");
 
@@ -13909,16 +13868,12 @@ var descartesJS = (function(descartesJS) {
     // the menu
     this.select = document.createElement("select");
 
-    // add the options to the menu
-    var opt;
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      opt = document.createElement("option");
-      opt.innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-      this.select.appendChild(opt);
-    }
-
     // the text field
     this.field = document.createElement("input");
+
+    //
+    setOptions(this.options);
+    //
 
     // add the elements to the container
     this.containerControl.appendChild(this.label);
@@ -14169,12 +14124,12 @@ var descartesJS = (function(descartesJS) {
     // prevent the context menu display
     self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = function() { return false; };
 
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; })
-    } 
-    else {
+    // } 
+    // else {
       self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; })
-    }
+    // }
 
     /**
      * 
@@ -14910,11 +14865,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchstart", onMouseDown_canvas);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousedown", onMouseDown_canvas);
-    }
+    // }
     
     /**
      * 
@@ -14926,9 +14881,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    }
+    // }
 
     /**
      * 
@@ -14940,11 +14895,11 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       // evt.preventDefault();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_Canvas);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_Canvas);
-    }
+    // }
 
     /**
      * 
@@ -14957,11 +14912,11 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
-    } else {
+    // } else {
       this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
-    }
+    // }
     
     /**
      * 
@@ -14999,11 +14954,11 @@ var descartesJS = (function(descartesJS) {
       }    
     }
     
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator);
-    } else {
+    // } else {
       this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator);
-    }
+    // }
     
     /**
      * 
@@ -15093,11 +15048,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-    } else {
+    // } else {
       this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
-    }
+    // }
     
     /**
      * 
@@ -15116,11 +15071,11 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-    } else {
+    // } else {
       this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
-    }
+    // }
     
     /**
      * 
@@ -15132,9 +15087,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();      
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -15146,9 +15101,9 @@ var descartesJS = (function(descartesJS) {
       clearInterval(timer);
       evt.preventDefault();
     }
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    }
+    // }
 
     /**
      * 
@@ -15161,11 +15116,11 @@ var descartesJS = (function(descartesJS) {
       // evt.preventDefault();
       self.draw();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_UpButton);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_UpButton);
-    }
+    // }
 
     /**
      * 
@@ -15178,11 +15133,11 @@ var descartesJS = (function(descartesJS) {
       // evt.preventDefault();
       self.draw();
     }
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       window.addEventListener("touchend", onMouseUp_DownButton);
-    } else {
+    // } else {
       window.addEventListener("mouseup", onMouseUp_DownButton);
-    }
+    // }
     
   }
   
@@ -16232,13 +16187,13 @@ var descartesJS = (function(descartesJS) {
     // prevent the context menu display
     this.mouseCacher.oncontextmenu = function () { return false; };    
 
-    if (descartesJS.hasTouchSupport) {
+    // if (descartesJS.hasTouchSupport) {
       this.mouseCacher.addEventListener("touchstart", onTouchStart);
-    } else {
+    // } else {
       this.mouseCacher.addEventListener("mousedown", onMouseDown);
       this.mouseCacher.addEventListener("mouseover", onMouseOver);
       this.mouseCacher.addEventListener("mouseout", onMouseOut);
-    }
+    // }
 
     /**
      * 
@@ -16335,13 +16290,13 @@ var descartesJS = (function(descartesJS) {
       if ((self.activeIfValue) || (self.active)) {
         self.click = false;
 
-        if (descartesJS.hasTouchSupport) {
+        // if (descartesJS.hasTouchSupport) {
           window.removeEventListener("touchmove", onMouseMove, false);
           window.removeEventListener("touchend", onMouseUp, false);
-        } else {
+        // } else {
           window.removeEventListener("mouseup", onMouseUp, false);
           window.removeEventListener("mousemove", onMouseMove, false);
-        }
+        // }
 
         posNew = self.getCursorPosition(evt);
 
@@ -17379,10 +17334,6 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.Fill(this.parent, graphicObj);
         break;
 
-      case("generic"):
-        return new descartesJS.Generic(this.parent, graphicObj);
-        break;
-
       default:
         break;
     }
@@ -18141,19 +18092,19 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; height: "+ (imageHeight-16) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 8px; padding-bottom: 8px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; overflow: hidden; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;height:"+ (imageHeight-16) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:100;");
       
-      image.setAttribute("style", "position: absolute; left: 0px; top: 0px; z-index: -1; width: 100%; height: 100%");
+      image.setAttribute("style", "position: absolute;left:0;top:0;z-index:-1;width:100%;height:100%;");
       plecaObj.divPleca.appendChild(image);
     } 
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position: absolute; left: 0px; top: 0px; text-align: " + plecaObj.align + "; width: " + (w-2*paddingSides) + "px; background: " + plecaObj.bgcolor + "; color: " + plecaObj.fgcolor + "; padding-top: 12px; padding-bottom: 12px; padding-left: " + paddingSides + "px; padding-right: " + paddingSides + "px; margin: 0px; z-index: 100;");
+      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
     }
     
     // creates the container for the title and the content is added
     divTitle = document.createElement("div");
-    divTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.titlefont + "; overflow: hidden; white-space: nowrap;");
+    divTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.titlefont + ";overflow:hidden;white-space:nowrap;");
     divTitle.innerHTML = plecaObj.title;
 
     // create the container for the subtitle
@@ -18173,7 +18124,7 @@ var descartesJS = (function(descartesJS, babel) {
         tempFontSize = tempFontSize - tempDecrement;
         
         // style is assigned to temporary container to measure the number of lines in the text
-        tempDiv.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; width: " + (w-2*paddingSides) + "px; line-height: " + tempFontSize + "px;")
+        tempDiv.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;width:" + (w-2*paddingSides) + "px;line-height:" + tempFontSize + "px;")
         
         // find the height of the temporary container
         tempDivHeight = tempDiv.offsetHeight;
@@ -18189,11 +18140,11 @@ var descartesJS = (function(descartesJS, babel) {
       document.body.removeChild(tempDiv);
       
       // assign to the subtitle style the proper font size
-      divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; font-size: " + tempFontSize + "px; line-height: 110%; overflow: hidden; white-space: nowrap;");
+      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;line-height: 110%;overflow:hidden;white-space:nowrap;");
     } 
     // if the number of lines is different from 1, then the number of lines is ignored
     else {
-      divSubTitle.setAttribute("style", "padding: 0px; margin: 0px; font: " + plecaObj.subtitlefont + "; line-height: 110%;");
+      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";line-height:110%;");
     }
     // assign the content to the subtitle
     divSubTitle.innerHTML = plecaObj.subtitle;
@@ -19321,6 +19272,9 @@ var descartesJS = (function(descartesJS) {
     this.definitions = {};
     
     this.registerDefaultValues();
+    if (this.registerExternalValues) {
+      this.registerExternalValues();
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19988,7 +19942,6 @@ var descartesJS = (function(descartesJS) {
    * Register the default variables and functions of Descartes
    */
   descartesJS.Parser.prototype.registerDefaultValues = function() {
-    var decimals = 1000000000000000;
     var self = this;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default variables
@@ -20038,7 +19991,6 @@ var descartesJS = (function(descartesJS) {
 
     // if the lesson is inside a iframe then register the comunication functions with the parent
     if (window.parent !== window) {
-
       // function to set a variable value to the parent
       self.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
@@ -20541,12 +20493,12 @@ var descartesJS = (function(descartesJS) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // time and date functions
-    this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
-    this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
-    this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
-    this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
-    this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
-    this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
+    // this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
+    // this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
+    // this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
+    // this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
+    // this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
+    // this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
 
     // /**
     //  *
@@ -20568,29 +20520,28 @@ var descartesJS = (function(descartesJS) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    var tmpcanvas;
-    var tmpctx;
-    var tmpimg;
-    this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
-      tmpimg = this.parent.images[imagename];
+    // var tmpcanvas;
+    // var tmpctx;
+    // var tmpimg;
+    // this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
+    //   tmpimg = this.parent.images[imagename];
 
-      if (tmpimg && tmpimg.ready && tmpimg.complete) {
-        tmpcanvas = document.createElement("canvas");
-        tmpctx = tmpcanvas.getContext("2d");
-        tmpcanvas.width  = Math.min(w, tmpimg.width);
-        tmpcanvas.height = Math.min(h, tmpimg.height);
-        tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
+    //   if (tmpimg && tmpimg.ready && tmpimg.complete) {
+    //     tmpcanvas = document.createElement("canvas");
+    //     tmpctx = tmpcanvas.getContext("2d");
+    //     tmpcanvas.width  = Math.min(w, tmpimg.width);
+    //     tmpcanvas.height = Math.min(h, tmpimg.height);
+    //     tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
 
-        this.parent.images[newname] = tmpcanvas;
-        this.parent.images[newname].ready = 1;
-        this.parent.images[newname].complete = true;
-        this.setVariable(newname, newname);
-      }
+    //     this.parent.images[newname] = tmpcanvas;
+    //     this.parent.images[newname].ready = 1;
+    //     this.parent.images[newname].complete = true;
+    //   }
 
-      return newname;
-    }
+    //   return newname;
+    // }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }  
 
@@ -23783,10 +23734,10 @@ var descartesJS = (function(descartesJS) {
     self.container = document.createElement("div");
     // self.container.setAttribute("id", "_DescartesExternalRegion_");
     // self.container.setAttribute("class", "DescartesSpaceExternalContainer");
-    self.container.setAttribute("style", "-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border-style: ridge; border-width: 5px; border-color: gray; box-shadow: #000 0px 0px 25px 5px; overflow-y: scroll; overflow-x: hidden; position: fixed; left: 0px; top: 0px; z-index: 10000; width: " + (self.width +27) + "px; height: 460px; background-color: #63b4fb");
+    self.container.setAttribute("style", "box-sizing:border-box;border-style:ridge;border-width:5px;border-color:gray;box-shadow:#000 0 0 25px 5px;overflow-y:scroll;overflow-x:hidden;position:fixed;left:0;top:0;z-index:10000;width:" + (self.width +27) + "px;height:460px;background-color:#63b4fb");
 
     self.moveManipulator = document.createElement("div");
-    self.moveManipulator.setAttribute("style", " position: absolute; left: 0px; top: 0px; width: " + (self.width +27) + "px; height: " + self.vSpace + "px; line-height: " + self.vSpace + "px; background-color: ddd; cursor: move; padding-left: 75px; font-family: Sans-Serif; font-size: 18px;");
+    self.moveManipulator.setAttribute("style", " position:absolute;left:0;top:0;width:" + (self.width +27) + "px;height:" + self.vSpace + "px;line-height:" + self.vSpace + "px;background-color:#ddd;cursor:move;padding-left:75px;font-family:Sans-Serif;font-size:18px;");
     self.moveManipulator.innerHTML = "Descartes";
     self.container.appendChild(self.moveManipulator);
 
@@ -24594,12 +24545,12 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de touch (iOS, android)
     ///////////////////////////////////////////////////////////////////////////
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
         this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
       this.canvas.addEventListener("touchstart", onTouchStart);
-    }
+    // }
 
     /**
      * @param {Event} evt 
@@ -24670,12 +24621,12 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de mouse
     ///////////////////////////////////////////////////////////////////////////
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
         this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
       this.canvas.addEventListener("mousedown", onMouseDown);
-    }
+    // }
     
     /**
      * 
@@ -25671,12 +25622,12 @@ var zoom;
 
     this.canvas.oncontextmenu = function () { return false; };
 
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       // if (this.sensitive_to_mouse_movements) {
       //   this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       // }
       this.canvas.addEventListener("touchstart", onTouchStart);
-    }
+    // }
 
     /**
      * @param {Event} evt
@@ -25727,12 +25678,12 @@ var zoom;
     ///////////////////////////////////////////////////////////////////////////
     // 
     ///////////////////////////////////////////////////////////////////////////
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       // if (this.sensitive_to_mouse_movements) {
       //   this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       // }
       this.canvas.addEventListener("mousedown", onMouseDown);
-    }
+    // }
     
     /**
      * 
@@ -27807,13 +27758,13 @@ var descartesJS = (function(descartesJS) {
 
           ////////////////////////////////////////////////////////////////
           // the container
-          editableRegionTextFields[i].container.setAttribute("style", "font-family: Arial, Helvetica, 'Droid Sans', Sans-serif; width: " + (textFieldsWidth-4) + "px; height: " + (editableRegionHeight) + "px; position: absolute; left: " + ( i*textFieldsWidth ) + "px; top: 0px;")// border: 2px groove white;");
+          editableRegionTextFields[i].container.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;width:" + (textFieldsWidth-4) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;");// border: 2px groove white;");
 
           ////////////////////////////////////////////////////////////////
           // the label
           var label = editableRegionTextFields[i].container.firstChild;
           
-          label.setAttribute("style", "font-family: Arial, Helvetica, 'Droid Sans', Sans-serif; font-size: " + fontSize + "px; padding-top: 0%; background-color: #e0e4e8; position: absolute; left: 0px; top: 0px; height:" + (editableRegionHeight) + "px; text-align: center; line-height: "+ (editableRegionHeight) +"px;");
+          label.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;font-size:" + fontSize + "px;padding-top:0%;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
           var labelWidth = label.offsetWidth;
           label.style.width = labelWidth + "px";
 
@@ -27823,14 +27774,13 @@ var descartesJS = (function(descartesJS) {
           ////////////////////////////////////////////////////////////////
           // the text field
           var textfield = editableRegionTextFields[i].container.lastChild;
-          // textfield.setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; width:" + (textFieldsWidth-labelWidth-8) + "px; height:" + (editableRegionHeight-9) + "px; position:absolute; left:" + (labelWidth) + "px; top:0px; border:2px groove white;");
-          textfield.setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; font-size: " + fontSize + "px; width:" + (textFieldsWidth-labelWidth) + "px; height:" + (editableRegionHeight) + "px; position:absolute; left:" + (labelWidth) + "px; top:0px; border:2px groove white;");
+          textfield.setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth-labelWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + (labelWidth) + "px;top:0;border:2px groove white;");
         } 
 
         else {
           container.appendChild(editableRegionTextFields[i]);
 
-          editableRegionTextFields[i].setAttribute("style", "font-family:'Courier New', Courier, 'Droid Sans Mono', Monospace; font-size: " + fontSize + "px; width:" + (textFieldsWidth) + "px; height:" + (editableRegionHeight) + "px; position:absolute; left:" + ( i*textFieldsWidth ) + "px; top:0px; border:2px groove white;");
+          editableRegionTextFields[i].setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;border:2px groove white;");
         }
       }
     }    
@@ -28492,7 +28442,24 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<span style="font:12px descartesJS_serif;visibility:hidden;">_</span><span style="font:12px descartesJS_sansserif;visibility:hidden;">_</span><span style="font:12px descartesJS_monospace;visibility:hidden;">_</span><span style="font:12px descartesJS_extra;visibility:hidden;">_</span>';
+    div.innerHTML = '<div style="visibility:hidden;">\n'+
+                    '<span style="font:12px descartesJS_serif;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_serif;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_monospace;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-weight:bold;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-style:italic;">_</span>\n'+
+                    '<span style="font:12px descartesJS_extra;font-weight:bold;font-style:italic;">_</span>\n'+
+                    '</div>';
     document.body.appendChild(div);
 
     // get the features for interpreting descartes applets

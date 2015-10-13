@@ -69,61 +69,83 @@ var descartesJS = (function(descartesJS) {
     else {
       this.name = this.parser.parse("'" + this.name + "'");
     }
-    
-    // options are separated using the comma as separator
-    this.options = this.options.split(",");
-    
-    this.menuOptions = [];
-    this.strValue = [];
 
-    var splitOption;
-    // parse the options
-    for (var i=0, l=this.options.length; i<l; i++) {
+//////////////////////////////////////////////////////////////////////////////////////////////
+    var self = this;
+    this.evaluator.setFunction(this.id + ".setOptions", setOptions);
+    /**
+     * Auxiliar function to set the optios to the menu
+     */
+    function setOptions(options) {
+      // options are separated using the comma as separator
+      self.options = options.split(",");
+      self.menuOptions = [];
+      self.strValue = [];
 
-      // split the options if has values with square backets (option[value])
-      splitOption = this.customSplit(this.options[i]);
+      var splitOption;
 
-      // if divide the option only has a value, then are not specifying its value and take the order in which it appears
-      if (splitOption.length == 1) {
-        this.menuOptions.push( splitOption[0] );
-        this.strValue.push( i.toString() );
-      } 
-      // if divide the option has two values, then has a value specified
-      else if (splitOption.length == 2) {
-        this.menuOptions.push( splitOption[0] );
-        
-        // if the value is an empty string, then asign the order value
-        if (splitOption[1] == "") {
-          this.strValue.push( i.toString() );
+      // parse the options
+      for (var i=0, l=self.options.length; i<l; i++) {
+
+        // split the options if has values with square backets (option[value])
+        splitOption = self.customSplit(self.options[i]);
+
+        // if divide the option only has a value, then are not specifying its value and take the order in which it appears
+        if (splitOption.length == 1) {
+          self.menuOptions.push( splitOption[0] );
+          self.strValue.push( i.toString() );
+        } 
+        // if divide the option has two values, then has a value specified
+        else if (splitOption.length == 2) {
+          self.menuOptions.push( splitOption[0] );
+          
+          // if the value is an empty string, then asign the order value
+          if (splitOption[1] == "") {
+            self.strValue.push( i.toString() );
+          }
+          // if not, then use te especified value
+          else {
+            self.strValue.push(splitOption[1]);
+          }
         }
-        // if not, then use te especified value
+      }
+
+      for (var i=0, l=self.menuOptions.length; i<l; i++) {
+        // is an expression
+        if ( (self.menuOptions[i].match(/^\[/)) && (self.menuOptions[i].match(/\]$/)) ) {
+          self.menuOptions[i] = parser.parse( self.menuOptions[i].substring(1, self.menuOptions[i].length-1) );
+        }
+        // is a string
         else {
-          this.strValue.push(splitOption[1]);
+          self.menuOptions[i] = parser.parse( "'" + self.menuOptions[i] + "'" );
         }
       }
-    }
 
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      // is an expression
-      if ( (this.menuOptions[i].match(/^\[/)) && (this.menuOptions[i].match(/\]$/)) ) {
-        this.menuOptions[i] = parser.parse( this.menuOptions[i].substring(1, this.menuOptions[i].length-1) );
+      // parse the option values
+      for (var i=0, l=self.strValue.length; i<l; i++) {
+        if ( (self.strValue[i].match(/^\[/)) && (self.strValue[i].match(/\]$/)) ) {
+          self.strValue[i] = parser.parse( self.strValue[i].substring(1, self.strValue[i].length-1) );
+        } 
+        else {
+          self.strValue[i] = parser.parse( self.strValue[i] );
+        }
       }
-      // is a string
-      else {
-        this.menuOptions[i] = parser.parse( "'" + this.menuOptions[i] + "'" );
-      }
-    }
 
-    // parse the option values
-    for (var i=0, l=this.strValue.length; i<l; i++) {
-      if ( (this.strValue[i].match(/^\[/)) && (this.strValue[i].match(/\]$/)) ) {
-        this.strValue[i] = parser.parse( this.strValue[i].substring(1, this.strValue[i].length-1) );
-      } 
-      else {
-        this.strValue[i] = parser.parse( this.strValue[i] );
+      // remove all the previous options
+      while (self.select.firstChild) {
+        self.select.removeChild(self.select.firstChild);
+      }
+
+      // add the options to the menu
+      var opt;
+      for (var i=0, l=self.menuOptions.length; i<l; i++) {
+        opt = document.createElement("option");
+        opt.innerHTML = evaluator.evalExpression( self.menuOptions[i] );
+        self.select.appendChild(opt);
       }
     }
-   
+//////////////////////////////////////////////////////////////////////////////////////////////
+
     // control container
     this.containerControl = document.createElement("div");
 
@@ -133,16 +155,12 @@ var descartesJS = (function(descartesJS) {
     // the menu
     this.select = document.createElement("select");
 
-    // add the options to the menu
-    var opt;
-    for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      opt = document.createElement("option");
-      opt.innerHTML = evaluator.evalExpression( this.menuOptions[i] );
-      this.select.appendChild(opt);
-    }
-
     // the text field
     this.field = document.createElement("input");
+
+    //
+    setOptions(this.options);
+    //
 
     // add the elements to the container
     this.containerControl.appendChild(this.label);
@@ -393,12 +411,12 @@ var descartesJS = (function(descartesJS) {
     // prevent the context menu display
     self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = function() { return false; };
 
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; })
-    } 
-    else {
+    // } 
+    // else {
       self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; })
-    }
+    // }
 
     /**
      * 

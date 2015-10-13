@@ -21,6 +21,9 @@ var descartesJS = (function(descartesJS) {
     this.definitions = {};
     
     this.registerDefaultValues();
+    if (this.registerExternalValues) {
+      this.registerExternalValues();
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -688,7 +691,6 @@ var descartesJS = (function(descartesJS) {
    * Register the default variables and functions of Descartes
    */
   descartesJS.Parser.prototype.registerDefaultValues = function() {
-    var decimals = 1000000000000000;
     var self = this;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default variables
@@ -738,7 +740,6 @@ var descartesJS = (function(descartesJS) {
 
     // if the lesson is inside a iframe then register the comunication functions with the parent
     if (window.parent !== window) {
-
       // function to set a variable value to the parent
       self.functions["parent.set"] = function(varName, value) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
@@ -1241,12 +1242,12 @@ var descartesJS = (function(descartesJS) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // time and date functions
-    this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
-    this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
-    this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
-    this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
-    this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
-    this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
+    // this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
+    // this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
+    // this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
+    // this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
+    // this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
+    // this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
 
     // /**
     //  *
@@ -1268,29 +1269,28 @@ var descartesJS = (function(descartesJS) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    var tmpcanvas;
-    var tmpctx;
-    var tmpimg;
-    this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
-      tmpimg = this.parent.images[imagename];
+    // var tmpcanvas;
+    // var tmpctx;
+    // var tmpimg;
+    // this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
+    //   tmpimg = this.parent.images[imagename];
 
-      if (tmpimg && tmpimg.ready && tmpimg.complete) {
-        tmpcanvas = document.createElement("canvas");
-        tmpctx = tmpcanvas.getContext("2d");
-        tmpcanvas.width  = Math.min(w, tmpimg.width);
-        tmpcanvas.height = Math.min(h, tmpimg.height);
-        tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
+    //   if (tmpimg && tmpimg.ready && tmpimg.complete) {
+    //     tmpcanvas = document.createElement("canvas");
+    //     tmpctx = tmpcanvas.getContext("2d");
+    //     tmpcanvas.width  = Math.min(w, tmpimg.width);
+    //     tmpcanvas.height = Math.min(h, tmpimg.height);
+    //     tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
 
-        this.parent.images[newname] = tmpcanvas;
-        this.parent.images[newname].ready = 1;
-        this.parent.images[newname].complete = true;
-        this.setVariable(newname, newname);
-      }
+    //     this.parent.images[newname] = tmpcanvas;
+    //     this.parent.images[newname].ready = 1;
+    //     this.parent.images[newname].complete = true;
+    //   }
 
-      return newname;
-    }
+    //   return newname;
+    // }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   }  
 

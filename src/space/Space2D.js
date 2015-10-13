@@ -554,12 +554,12 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de touch (iOS, android)
     ///////////////////////////////////////////////////////////////////////////
-    if (hasTouchSupport) {
+    // if (hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
         this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
       this.canvas.addEventListener("touchstart", onTouchStart);
-    }
+    // }
 
     /**
      * @param {Event} evt 
@@ -630,12 +630,12 @@ var descartesJS = (function(descartesJS) {
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de mouse
     ///////////////////////////////////////////////////////////////////////////
-    if (!hasTouchSupport) {
+    // if (!hasTouchSupport) {
       if (this.sensitive_to_mouse_movements) {
         this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
       this.canvas.addEventListener("mousedown", onMouseDown);
-    }
+    // }
     
     /**
      * 
