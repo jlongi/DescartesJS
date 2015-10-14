@@ -129,9 +129,9 @@ var descartesJS = (function(descartesJS) {
 
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
-    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
+    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
-    descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
+    descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');

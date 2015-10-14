@@ -72,7 +72,7 @@ var descartesJS = (function(descartesJS) {
     str = input;
     count = 0;
     lastTokenType = "";
-       
+
     /** 
      * Auxiliar function to add tokens and move the character position
      * @param {String} type the type of the token
@@ -110,8 +110,8 @@ var descartesJS = (function(descartesJS) {
       }
       
       // white spaces
-      val = str.match(whiteSpaceRegExp);
-      if (val) {
+      if (whiteSpaceRegExp.test(str)) {
+        val = str.match(whiteSpaceRegExp);
         str = str.slice(val[0].length);
         pos += val[0].length;
         count++;
@@ -119,16 +119,16 @@ var descartesJS = (function(descartesJS) {
       }
 
       // operator
-      val = str.match(operatorRegExp);
-      if (val) {
+      else if (operatorRegExp.test(str)) {
+        val = str.match(operatorRegExp);
         val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
         addToken("operator", val[0], val[0].length);
         continue;
       }
       
       // identifier
-      val = str.match(identifierRegExp);
-      if (val) {
+      else if (identifierRegExp.test(str)) {
+        val = str.match(identifierRegExp);
         // expression of the form 2pi change to 2*pi, so we need to know that the type of the last token is a number
         if (lastTokenType === "number") {
           // add a multiplication operator
@@ -140,58 +140,66 @@ var descartesJS = (function(descartesJS) {
       }
     
       // number
-      val = str.match(numberRegExp);
-      if (val) {
+      else if (numberRegExp.test(str)) {
+        val = str.match(numberRegExp);
         addToken("number", val[0], val[0].length);
         continue;
       }
     
       // comparison
-      val = str.match(compOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
+      else if (compOperatorRegExp.test(str)) {
+        val = str.match(compOperatorRegExp);
+        tempVal = val[0];
 
-        if (tempVal == "#") { tempVal = "!="; }     
-          addToken("compOperator", tempVal, val[0].length);
+        if (tempVal == "#") { 
+          tempVal = "!="; 
+        }     
+        addToken("compOperator", tempVal, val[0].length);
         continue;
       }
 
       // booleans
-      val = str.match(boolOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
-        if (tempVal == "||") { tempVal = "|"; } 
-        else if (tempVal == "&&") { tempVal = "&"; }
-        else if (tempVal == "~") { tempVal = "!"; }
+      else if (boolOperatorRegExp.test(str)) {
+        val = str.match(boolOperatorRegExp);
+        tempVal = val[0];
 
+        if (tempVal == "||") { 
+          tempVal = "|"; 
+        } 
+        else if (tempVal == "&&") { 
+          tempVal = "&"; 
+        }
+        else if (tempVal == "~") { 
+          tempVal = "!"; 
+        }
         addToken("boolOperator", tempVal, val[0].length);
         continue;
       }
 
       // equal (asign)
-      val = str.match(asignRegExp);
-      if ((val) && !(str.match( /^==/))) {
+      else if (asignRegExp.test(str) && !((/^==/).test(str))) {
+        val = str.match(asignRegExp);
         addToken("asign", val[0], val[0].length);
         continue;
       }
 
       // conditional
-      val = str.match(conditionalRegExp);
-      if (val) {
+      else if (conditionalRegExp.test(str)) {
+        val = str.match(conditionalRegExp);
         addToken("conditional", val[0], val[0].length);
         continue;
       }
     
       // square brackets
-      val = str.match(squareBracketRegExp);
-      if (val) {
+      else if (squareBracketRegExp.test(str)) {
+        val = str.match(squareBracketRegExp);
         addToken("square_bracket", val[0], val[0].length);
         continue;
       }
 
       // parentheses
-      val = str.match( parenthesesRegExp );
-      if (val) {
+      else if (parenthesesRegExp.test(str)) {
+        val = str.match(parenthesesRegExp);
         if ((val == "(") && (lastTokenType === "number")) {
           // add a multiplication operator
           tokens.push({ type: "operator", value: "*" });
@@ -202,14 +210,14 @@ var descartesJS = (function(descartesJS) {
       }
 
       // separator
-      val = str.match(separatorRegExp);
-      if (val) {
+      else if (separatorRegExp.test(str)) {
+        val = str.match(separatorRegExp);
         addToken("separator", val[0], val[0].length);
         continue;
       }
 
       // square
-      if (str.charCodeAt(0) === 178) {
+      else if (str.charCodeAt(0) === 178) {
         // add a multiplication operator
         tokens.push({ type: "operator", value: "^" });
 
@@ -218,7 +226,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
       // cube
-      if (str.charCodeAt(0) === 179) {
+      else if (str.charCodeAt(0) === 179) {
         // add a multiplication operator
         tokens.push({ type: "operator", value: "^" });
 
@@ -228,8 +236,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       // final of expression
-      val = str.match(finalOfExpressionRegExp);
-      if (val) {
+      else if (finalOfExpressionRegExp.test(str)) {
+        val = str.match(finalOfExpressionRegExp);
         addToken("final_of_expresion", val[0], val[0].length);
         continue;
       }

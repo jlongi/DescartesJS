@@ -3,7 +3,7 @@
  * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2015-10-13
+ * 2015-10-14
  */
 
 /**
@@ -1392,9 +1392,9 @@ var descartesJS = (function(descartesJS) {
 
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
-    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || (system.match("android")&&true);
+    descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
-    descartesJS.isIOS = !!(navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i));
+    descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');
@@ -2111,21 +2111,13 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  // var w;
-  // var h;
-  // var canvas;
-  // var ctx;
-  // var black;
-  // var white;
-  // var gray;
-
   /**
    * Get the embedded image of the license used in Arquimedes
    * @return {Image} return the image of the license used in Arquimedes
    */
   descartesJS.getCreativeCommonsLicenseImage = function() {
     var img = new Image();
-    img.src = "data:image/png;base64,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";
+    img.src = "data:image/png;base64,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";
     return img;
   }
 
@@ -19048,7 +19040,7 @@ var descartesJS = (function(descartesJS) {
     str = input;
     count = 0;
     lastTokenType = "";
-       
+
     /** 
      * Auxiliar function to add tokens and move the character position
      * @param {String} type the type of the token
@@ -19086,8 +19078,8 @@ var descartesJS = (function(descartesJS) {
       }
       
       // white spaces
-      val = str.match(whiteSpaceRegExp);
-      if (val) {
+      if (whiteSpaceRegExp.test(str)) {
+        val = str.match(whiteSpaceRegExp);
         str = str.slice(val[0].length);
         pos += val[0].length;
         count++;
@@ -19095,16 +19087,16 @@ var descartesJS = (function(descartesJS) {
       }
 
       // operator
-      val = str.match(operatorRegExp);
-      if (val) {
+      else if (operatorRegExp.test(str)) {
+        val = str.match(operatorRegExp);
         val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
         addToken("operator", val[0], val[0].length);
         continue;
       }
       
       // identifier
-      val = str.match(identifierRegExp);
-      if (val) {
+      else if (identifierRegExp.test(str)) {
+        val = str.match(identifierRegExp);
         // expression of the form 2pi change to 2*pi, so we need to know that the type of the last token is a number
         if (lastTokenType === "number") {
           // add a multiplication operator
@@ -19116,58 +19108,66 @@ var descartesJS = (function(descartesJS) {
       }
     
       // number
-      val = str.match(numberRegExp);
-      if (val) {
+      else if (numberRegExp.test(str)) {
+        val = str.match(numberRegExp);
         addToken("number", val[0], val[0].length);
         continue;
       }
     
       // comparison
-      val = str.match(compOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
+      else if (compOperatorRegExp.test(str)) {
+        val = str.match(compOperatorRegExp);
+        tempVal = val[0];
 
-        if (tempVal == "#") { tempVal = "!="; }     
-          addToken("compOperator", tempVal, val[0].length);
+        if (tempVal == "#") { 
+          tempVal = "!="; 
+        }     
+        addToken("compOperator", tempVal, val[0].length);
         continue;
       }
 
       // booleans
-      val = str.match(boolOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
-        if (tempVal == "||") { tempVal = "|"; } 
-        else if (tempVal == "&&") { tempVal = "&"; }
-        else if (tempVal == "~") { tempVal = "!"; }
+      else if (boolOperatorRegExp.test(str)) {
+        val = str.match(boolOperatorRegExp);
+        tempVal = val[0];
 
+        if (tempVal == "||") { 
+          tempVal = "|"; 
+        } 
+        else if (tempVal == "&&") { 
+          tempVal = "&"; 
+        }
+        else if (tempVal == "~") { 
+          tempVal = "!"; 
+        }
         addToken("boolOperator", tempVal, val[0].length);
         continue;
       }
 
       // equal (asign)
-      val = str.match(asignRegExp);
-      if ((val) && !(str.match( /^==/))) {
+      else if (asignRegExp.test(str) && !((/^==/).test(str))) {
+        val = str.match(asignRegExp);
         addToken("asign", val[0], val[0].length);
         continue;
       }
 
       // conditional
-      val = str.match(conditionalRegExp);
-      if (val) {
+      else if (conditionalRegExp.test(str)) {
+        val = str.match(conditionalRegExp);
         addToken("conditional", val[0], val[0].length);
         continue;
       }
     
       // square brackets
-      val = str.match(squareBracketRegExp);
-      if (val) {
+      else if (squareBracketRegExp.test(str)) {
+        val = str.match(squareBracketRegExp);
         addToken("square_bracket", val[0], val[0].length);
         continue;
       }
 
       // parentheses
-      val = str.match( parenthesesRegExp );
-      if (val) {
+      else if (parenthesesRegExp.test(str)) {
+        val = str.match(parenthesesRegExp);
         if ((val == "(") && (lastTokenType === "number")) {
           // add a multiplication operator
           tokens.push({ type: "operator", value: "*" });
@@ -19178,14 +19178,14 @@ var descartesJS = (function(descartesJS) {
       }
 
       // separator
-      val = str.match(separatorRegExp);
-      if (val) {
+      else if (separatorRegExp.test(str)) {
+        val = str.match(separatorRegExp);
         addToken("separator", val[0], val[0].length);
         continue;
       }
 
       // square
-      if (str.charCodeAt(0) === 178) {
+      else if (str.charCodeAt(0) === 178) {
         // add a multiplication operator
         tokens.push({ type: "operator", value: "^" });
 
@@ -19194,7 +19194,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
       // cube
-      if (str.charCodeAt(0) === 179) {
+      else if (str.charCodeAt(0) === 179) {
         // add a multiplication operator
         tokens.push({ type: "operator", value: "^" });
 
@@ -19204,8 +19204,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       // final of expression
-      val = str.match(finalOfExpressionRegExp);
-      if (val) {
+      else if (finalOfExpressionRegExp.test(str)) {
+        val = str.match(finalOfExpressionRegExp);
         addToken("final_of_expresion", val[0], val[0].length);
         continue;
       }
@@ -26783,7 +26783,7 @@ var descartesJS = (function(descartesJS) {
      * type {Array.<param>}
      * @private
      */
-    this.children = applet.getElementsByTagName("param");
+    this.children = applet.querySelectorAll("param");
 
     // se the license attribute
     descartesJS.creativeCommonsLicense = true;
@@ -26870,9 +26870,7 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match(/descinst.DescartesWeb2_0.class/i) || 
-                      !!this.code.match(/Arquimedes/i) ||
-                      !!this.code.match(/Discurso/i);
+    this.arquimedes = (/DescartesWeb2_0|Arquimedes|Discurso/i).test(this.code);
 
     // licences for arquimedes
     this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
@@ -26923,19 +26921,6 @@ var descartesJS = (function(descartesJS) {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
       }
-      // else if (this.expand == "adjust") {
-      //   var meta = document.createElement("meta");
-      //   meta.setAttribute("name", "viewport");
-      //   if ( this.arquimedes ||
-      //        ( (parseFloat(window.innerWidth)/parseFloat(this.width)) <= (parseFloat(window.innerHeight)/parseFloat(this.height)) )
-      //      ) {
-      //     meta.setAttribute("content", "width=" + this.width);
-      //   }
-      //   else {
-      //     meta.setAttribute("content", "height=" + this.height);
-      //   }
-      //   document.head.appendChild(meta);
-      // }
     }
 
     // configure an arquimedes lesson
@@ -27063,7 +27048,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 0;
+    this.numIframes = 0;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
@@ -27191,8 +27176,9 @@ var descartesJS = (function(descartesJS) {
 
       // if the name of the children start with "E" then is a space
       if (children_i.name.charAt(0) == "E") {
-        if (children_i.value.match(/'HTMLIFrame'/)) {
-          this.numberOfIframes++;
+        // if is an HTMLIframe add one to the number of iframes
+        if ((/'HTMLIFrame'/).test(children_i.value)) {
+          this.numIframes++;
         }
         
         tmpSpaces.push(children_i.value);
@@ -27316,14 +27302,12 @@ var descartesJS = (function(descartesJS) {
 
     // finish the interpretation
     var self = this;
-    if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
+    if (this.numIframes) {
+      setTimeout(function() { self.finishInit(); }, 200*this.numIframes);
     }
     else {
       this.finishInit();
     }
-
-// console.log(this.auxiliaries)
 
   }
   
@@ -27367,7 +27351,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////
     // new mathjax
     ////////////////////////////////////////////////////////////////
-    if ((this.arquimedes) && (MathJax)) {
+    if ((this.arquimedes) && (window.hasOwnProperty("MathJax")) && (MathJax)) {
       var x = this.scenarioRegion.scenarioSpace.container.style.left;
       var y = this.scenarioRegion.scenarioSpace.container.style.top;
       var mathJaxScenarioSpace = document.createElement("div");
@@ -27806,14 +27790,6 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
-
-    // this.updateAuxiliaries();
-    // this.updateControls();
-    // this.updateEvents();
-    // this.updateSpaces();
-
-    // send the cache vars to the htmliframes
-    // this.sendCacheVars();
   }
 
   /**
@@ -27837,41 +27813,39 @@ var descartesJS = (function(descartesJS) {
       }
     }    
   }
+
+  function update(type, firstime) {
+    for (var i=0, l=this[type].length; i<l; i++) {
+      this[type][i].update(firstime);
+    }
+  }
   
   /**
    * Update the auxiliaries
    */
   descartesJS.DescartesApp.prototype.updateAuxiliaries = function() {
-    for (var i=0, l=this.auxiliaries.length; i<l; i++) {
-      this.auxiliaries[i].update();
-    }
+    update.apply(this, ["auxiliaries"]);
   }
 
   /**
    * Update the events
    */
   descartesJS.DescartesApp.prototype.updateEvents = function() {
-    for (var i=0, l=this.events.length; i<l; i++) {
-      this.events[i].update();
-    }    
+    update.apply(this, ["events"]);
   }
   
   /**
    * Update the controls
    */
   descartesJS.DescartesApp.prototype.updateControls = function() {
-    for (var i=0, l=this.controls.length; i<l; i++) {
-      this.controls[i].update();
-    }
+    update.apply(this, ["controls"]);
   }
 
   /**
    * Update the spaces
    */
   descartesJS.DescartesApp.prototype.updateSpaces = function(firstime) {
-    for (var i=0, l=this.spaces.length; i<l; i++) {
-      this.spaces[i].update(firstime);
-    } 
+    update.apply(this, ["spaces", firstime]);
   }
   
   /**
@@ -28339,37 +28313,20 @@ var descartesJS = (function(descartesJS) {
    */
   function getDescartesApplets() {
     // get all the applets in the document
-    var applets = document.getElementsByTagName("applet");
-    var appletsAJS = document.getElementsByTagName("ajs");
+    var applets = document.querySelectorAll("applet, ajs");
     var applet_i;
-    
+    var descartesRegExp = /Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i;
+
     // se crea un arreglo donde guardar los applets encontrados
     var tmpArrayApplets = [];
 
     for (var i=0, l=applets.length; i<l; i++) {
       applet_i = applets[i];
-      if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
-           (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
-           (applet_i.getAttribute("code").match("Descartes")) || 
-           (applet_i.getAttribute("code").match("Arquimedes")) ||
-           (applet_i.getAttribute("code").match("Discurso"))
-         ) {
+      if ( descartesRegExp.test(applet_i.getAttribute("code") || "") ) {
         tmpArrayApplets.push(applet_i);
       }
     }
 
-    for (var i=0, l=appletsAJS.length; i<l; i++) {
-      applet_i = appletsAJS[i];
-      if ( (applet_i.getAttribute("code").match("DescartesJS")) || 
-           (applet_i.getAttribute("code").match("descinst.DescartesWeb2_0.class")) ||
-           (applet_i.getAttribute("code").match("Descartes")) || 
-           (applet_i.getAttribute("code").match("Arquimedes")) ||
-           (applet_i.getAttribute("code").match("Discurso"))
-         ) {
-        tmpArrayApplets.push(applet_i);
-      }
-    }
-    
     return tmpArrayApplets;
   }
   
@@ -28385,20 +28342,8 @@ var descartesJS = (function(descartesJS) {
    * Remove extra data included in an previous interpretation
    */
   function removeDescartesAppContainers() {
-    // get all html tags
-    var allHTMLTags = document.getElementsByTagName("*");
-    
-    // array to store the elements to be removed
-    var toBeRemoved = [];
-    
-    for (var i=0, l=allHTMLTags.length; i<l; i++) {
-      // remove elements with "DescartesAppContainer" class
-      if (allHTMLTags[i].className == "DescartesAppContainer") {
-        toBeRemoved.push(allHTMLTags[i]);
-      }
-    }
-
-    // remove the elements in the toBeRemove array
+    // remove elements with "DescartesAppContainer" class
+    var toBeRemoved = document.querySelectorAll(".DescartesAppContainer");
     for (var i=0, l=toBeRemoved.length; i<l; i++) {
       (toBeRemoved[i].parentNode).removeChild(toBeRemoved[i]);
     }
@@ -28442,23 +28387,31 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<div style="visibility:hidden;">\n'+
-                    '<span style="font:12px descartesJS_serif;">_</span>\n'+
-                    '<span style="font:12px descartesJS_serif;font-weight:bold;">_</span>\n'+
-                    '<span style="font:12px descartesJS_serif;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_serif;font-weight:bold;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_sansserif;">_</span>\n'+
-                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;">_</span>\n'+
-                    '<span style="font:12px descartesJS_sansserif;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_sansserif;font-weight:bold;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_monospace;">_</span>\n'+
-                    '<span style="font:12px descartesJS_monospace;font-weight:bold;">_</span>\n'+
-                    '<span style="font:12px descartesJS_monospace;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_monospace;font-weight:bold;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_extra;">_</span>\n'+
-                    '<span style="font:12px descartesJS_extra;font-weight:bold;">_</span>\n'+
-                    '<span style="font:12px descartesJS_extra;font-style:italic;">_</span>\n'+
-                    '<span style="font:12px descartesJS_extra;font-weight:bold;font-style:italic;">_</span>\n'+
+    div.innerHTML = '<div style="visibility:hidden;font-size:12px">'+
+                      '<div style="font-family:descartesJS_serif;">'+
+                        '<span>_</span>'+
+                        '<span style="font-weight:bold;">_</span>'+
+                        '<span style="font-style:italic;">_</span>'+
+                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
+                      '</div>'+
+                      '<div style="font-family:descartesJS_sansserif;">'+
+                        '<span>_</span>'+
+                        '<span style="font-weight:bold;">_</span>'+
+                        '<span style="font-style:italic;">_</span>'+
+                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
+                      '</div>'+
+                      '<div style="font-family:descartesJS_monospace;">'+
+                        '<span>_</span>'+
+                        '<span style="font-weight:bold;">_</span>'+
+                        '<span style="font-style:italic;">_</span>'+
+                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
+                      '</div>'+
+                      '<div style="font-family:descartesJS_extra;">'+
+                        '<span>_</span>'+
+                        '<span style="font-weight:bold;">_</span>'+
+                        '<span style="font-style:italic;">_</span>'+
+                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
+                      '</div>'+
                     '</div>';
     document.body.appendChild(div);
 
@@ -28468,24 +28421,16 @@ var descartesJS = (function(descartesJS) {
     // if has support for canvas start the interpretation
     if (descartesJS.hasCanvasSupport) {
       window.scrollTo(0, 10);
-
       removeDescartesAppContainers();
       makeDescartesApps();
-      // showNoDescartesJSApplets();
       window.addEventListener("resize", descartesJS.onResize);
-
-      // scroll the page 2 pixel to remove the address bar when page is done loading in mobile
-      // window.scrollTo(0, 2);
       window.scrollTo(0, 0);
-
-      // document.body.setAttribute("tabIndex", 1000000);
     } 
     // if has not support for canvas show the applets and do not interpret
     else {
       showApplets();
     }
 
-    // setTimeout(function(){ document.body.removeChild(div); }, 1000);
     document.body.removeChild(div);
   }
   
@@ -28503,7 +28448,6 @@ var descartesJS = (function(descartesJS) {
 
       // set a value to a variable
       if (data.type === "set") {
-
         if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
           descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
         }
@@ -28526,7 +28470,6 @@ var descartesJS = (function(descartesJS) {
       else if (data.type === "exec") {
         var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
         var params = (data.value.toString()).split(",");
-        var _temp;
 
         // for (var i=0,l=params.length; i<l; i++) {
         //   if (!isNaN(parseFloat(params[i]))) {

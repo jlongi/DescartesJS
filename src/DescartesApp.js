@@ -69,7 +69,7 @@ var descartesJS = (function(descartesJS) {
      * type {Array.<param>}
      * @private
      */
-    this.children = applet.getElementsByTagName("param");
+    this.children = applet.querySelectorAll("param");
 
     // se the license attribute
     descartesJS.creativeCommonsLicense = true;
@@ -156,9 +156,7 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.arquimedes = !!this.code.match(/descinst.DescartesWeb2_0.class/i) || 
-                      !!this.code.match(/Arquimedes/i) ||
-                      !!this.code.match(/Discurso/i);
+    this.arquimedes = (/DescartesWeb2_0|Arquimedes|Discurso/i).test(this.code);
 
     // licences for arquimedes
     this.licenseA = (descartesJS.creativeCommonsLicense) ? licenseA : "";
@@ -209,19 +207,6 @@ var descartesJS = (function(descartesJS) {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
       }
-      // else if (this.expand == "adjust") {
-      //   var meta = document.createElement("meta");
-      //   meta.setAttribute("name", "viewport");
-      //   if ( this.arquimedes ||
-      //        ( (parseFloat(window.innerWidth)/parseFloat(this.width)) <= (parseFloat(window.innerHeight)/parseFloat(this.height)) )
-      //      ) {
-      //     meta.setAttribute("content", "width=" + this.width);
-      //   }
-      //   else {
-      //     meta.setAttribute("content", "height=" + this.height);
-      //   }
-      //   document.head.appendChild(meta);
-      // }
     }
 
     // configure an arquimedes lesson
@@ -349,7 +334,7 @@ var descartesJS = (function(descartesJS) {
      * @type {Number}
      * @private
      */
-    this.numberOfIframes = 0;
+    this.numIframes = 0;
     
     // code needed for reinit the lesson
     if (this.container != undefined) {
@@ -477,8 +462,9 @@ var descartesJS = (function(descartesJS) {
 
       // if the name of the children start with "E" then is a space
       if (children_i.name.charAt(0) == "E") {
-        if (children_i.value.match(/'HTMLIFrame'/)) {
-          this.numberOfIframes++;
+        // if is an HTMLIframe add one to the number of iframes
+        if ((/'HTMLIFrame'/).test(children_i.value)) {
+          this.numIframes++;
         }
         
         tmpSpaces.push(children_i.value);
@@ -602,14 +588,12 @@ var descartesJS = (function(descartesJS) {
 
     // finish the interpretation
     var self = this;
-    if (this.numberOfIframes) {
-      setTimeout(function() { self.finishInit(); }, 200*this.numberOfIframes);
+    if (this.numIframes) {
+      setTimeout(function() { self.finishInit(); }, 200*this.numIframes);
     }
     else {
       this.finishInit();
     }
-
-// console.log(this.auxiliaries)
 
   }
   
@@ -653,7 +637,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////
     // new mathjax
     ////////////////////////////////////////////////////////////////
-    if ((this.arquimedes) && (MathJax)) {
+    if ((this.arquimedes) && (window.hasOwnProperty("MathJax")) && (MathJax)) {
       var x = this.scenarioRegion.scenarioSpace.container.style.left;
       var y = this.scenarioRegion.scenarioSpace.container.style.top;
       var mathJaxScenarioSpace = document.createElement("div");
@@ -1092,14 +1076,6 @@ var descartesJS = (function(descartesJS) {
     this.updateEvents();
     this.updateControls();
     this.updateSpaces();
-
-    // this.updateAuxiliaries();
-    // this.updateControls();
-    // this.updateEvents();
-    // this.updateSpaces();
-
-    // send the cache vars to the htmliframes
-    // this.sendCacheVars();
   }
 
   /**
@@ -1123,41 +1099,39 @@ var descartesJS = (function(descartesJS) {
       }
     }    
   }
+
+  function update(type, firstime) {
+    for (var i=0, l=this[type].length; i<l; i++) {
+      this[type][i].update(firstime);
+    }
+  }
   
   /**
    * Update the auxiliaries
    */
   descartesJS.DescartesApp.prototype.updateAuxiliaries = function() {
-    for (var i=0, l=this.auxiliaries.length; i<l; i++) {
-      this.auxiliaries[i].update();
-    }
+    update.apply(this, ["auxiliaries"]);
   }
 
   /**
    * Update the events
    */
   descartesJS.DescartesApp.prototype.updateEvents = function() {
-    for (var i=0, l=this.events.length; i<l; i++) {
-      this.events[i].update();
-    }    
+    update.apply(this, ["events"]);
   }
   
   /**
    * Update the controls
    */
   descartesJS.DescartesApp.prototype.updateControls = function() {
-    for (var i=0, l=this.controls.length; i<l; i++) {
-      this.controls[i].update();
-    }
+    update.apply(this, ["controls"]);
   }
 
   /**
    * Update the spaces
    */
   descartesJS.DescartesApp.prototype.updateSpaces = function(firstime) {
-    for (var i=0, l=this.spaces.length; i<l; i++) {
-      this.spaces[i].update(firstime);
-    } 
+    update.apply(this, ["spaces", firstime]);
   }
   
   /**
