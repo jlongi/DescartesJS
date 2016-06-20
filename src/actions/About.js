@@ -31,7 +31,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.About.prototype.execute = function() {
     if (this.urlAbout) {
-      var codeWindow = window.open(this.urlAbout, "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
+      var codeWindow = window.open(this.urlAbout, "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes");
     }
     else {
       var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")

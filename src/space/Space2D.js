@@ -52,12 +52,11 @@ var descartesJS = (function(descartesJS) {
   var posX;
   var posY;
 
-  var hasTouchSupport;
   var disp;
 
   /**
    * Descartes 2D space
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
@@ -66,115 +65,98 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Space.call(this, parent, values);
 
     self = this;
-    
-    self._ratio = ((self.w*descartesJS._ratio * self.h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+
+    // self.ratio = ((self.w*descartesJS.ratio * self.h*descartesJS.ratio) > 5000000) ? 1 : descartesJS.ratio;
+    self.ratio = parent.ratio;
 
     // create the canvas
-    self.backgroundCanvas = document.createElement("canvas");
-    self.backgroundCanvas.setAttribute("id", self.id + "_background");
-    self.backgroundCanvas.width  = self.w *self._ratio;
-    self.backgroundCanvas.height = self.h *self._ratio;
-    self.backgroundCanvas.style.width  = self.w + "px";
-    self.backgroundCanvas.style.height = self.h + "px";
-
-    self.backgroundCtx = self.backgroundCanvas.getContext("2d");
-    // self.backgroundCtx.imageSmoothingEnabled = false;
-
     self.canvas = document.createElement("canvas");
     self.canvas.setAttribute("id", self.id + "_canvas");
-    self.canvas.width  = self.w *self._ratio;
-    self.canvas.height = self.h *self._ratio;
     self.canvas.setAttribute("class", "DescartesSpace2DCanvas");
-    self.canvas.setAttribute("style", "z-index: " + self.zIndex + "; width:" + self.w + "px; height:" + self.h + "px;");
-    // self.canvas.setAttribute("tabindex", 100);
 
+    self.backCanvas = document.createElement("canvas");
+    self.backCanvas.setAttribute("id", self.id + "_background");
+
+    self.canvas.style.zIndex = self.zIndex;
+    self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+    self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+    self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+    self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+
+    // get context
     self.ctx = self.canvas.getContext("2d");
-    // self.ctx.imageSmoothingEnabled = false;
+    self.backCtx = self.backCanvas.getContext("2d");
+    self.ctx.imageSmoothingEnabled = self.backCtx.imageSmoothingEnabled = false;
 
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
     self.graphicControlContainer.setAttribute("id", self.id + "_graphicControls");
-    self.graphicControlContainer.setAttribute("style", "position: absolute; left: 0px; top: 0px; z-index: " + self.zIndex + ";");
-    
+    self.graphicControlContainer.setAttribute("style", "position:absolute;left:0;top:0;z-index:" + self.zIndex + ";");
+
     // create a control container
     self.numericalControlContainer = document.createElement("div");
     self.numericalControlContainer.setAttribute("id", self.id + "_numericalControls");
-    self.numericalControlContainer.setAttribute("style", "position: absolute; left: 0px; top: 0px; z-index: " + self.zIndex + ";");
+    self.numericalControlContainer.setAttribute("style", "position:absolute;left:0;top:0;z-index:" + self.zIndex + ";");
 
     // create the principal container
     self.container = document.createElement("div");
     self.container.setAttribute("id", self.id);
     self.container.setAttribute("class", "DescartesSpace2DContainer");
-    self.container.setAttribute("style", "left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
+    self.container.setAttribute("style", "left:" + self.x + "px;top:" + self.y + "px;z-index:" + self.zIndex + ";");
 
     // ### ARQUIMEDES ###
-    // if is the default arquimedes add a border to the container
+    // the default arquimedes add a border to the container
     if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
       self.container.style.border = "1px solid #b8c4c8";
     }
     // ### ARQUIMEDES ###
 
     // add the elements to the container
-    self.container.appendChild(self.backgroundCanvas);
+    self.container.appendChild(self.backCanvas);
     self.container.appendChild(self.canvas);
     self.container.appendChild(self.graphicControlContainer);
     self.container.appendChild(self.numericalControlContainer);
-    
+
     parent.container.insertBefore(self.container, parent.loader);
 
     // variable to expose the image of the space
     self.parent.images[self.id + ".image"] = self.canvas;
     self.parent.images[self.id + ".image"].ready = 1;
     self.parent.images[self.id + ".image"].complete = true;
+    self.parent.images[self.id + ".image"].canvas = true;
     self.evaluator.setVariable(self.id + ".image", self.id + ".image");
 
     // variable to expose the image of the background space
-    self.parent.images[self.id + ".back"] = self.backgroundCanvas;
+    self.parent.images[self.id + ".back"] = self.backCanvas;
     self.parent.images[self.id + ".back"].ready = 1;
     self.parent.images[self.id + ".back"].complete = true;
+    self.parent.images[self.id + ".back"].canvas = true;
     self.evaluator.setVariable(self.id + ".back", self.id + ".back");
 
-    if ((self.id !== "") && (parent.version !== 2)) {
-      self.OxString    = self.id + ".Ox";
-      self.OyString    = self.id + ".Oy";
-      self.scaleString = self.id + ".escala";
-      self.wString     = self.id + "._w";
-      self.hString     = self.id + "._h";  
-      self.mxString    = self.id + ".mouse_x";
-      self.myString    = self.id + ".mouse_y";
-      self.mpressedString = self.id + ".mouse_pressed";
-      self.mclickedString = self.id + ".mouse_clicked";
-      self.mclicizquierdoString = self.id + ".clic_izquierdo";
-      self.kpressedString = self.id + ".key_pressed";
-      self.kvalueString   = self.id + ".key_value";
-    }
-    else {
-      self.OxString    = "Ox";
-      self.OyString    = "Oy";
-      self.scaleString = "escala";
-      self.wString     = "_w";
-      self.hString     = "_h";
-      self.mxString    = "mouse_x";
-      self.myString    = "mouse_y";
-      self.mpressedString = "mouse_pressed";
-      self.mclickedString = "mouse_clicked";
-      self.mclicizquierdoString = "clic_izquierdo";
-      self.kpressedString = "key_pressed";
-      self.kvalueString   = "key_value";
-    }
+    var tmpStr = ((self.id !== "") && (parent.version !== 2)) ? self.id + "." : "";
+    self.OxStr    = tmpStr + "Ox";
+    self.OyStr    = tmpStr + "Oy";
+    self.scaleStr = tmpStr + "escala";
+    self.wStr     = tmpStr + "_w";
+    self.hStr     = tmpStr + "_h";
+    self.mxStr    = tmpStr + "mouse_x";
+    self.myStr    = tmpStr + "mouse_y";
+    self.mpressedStr = tmpStr + "mouse_pressed";
+    self.mclickedStr = tmpStr + "mouse_clicked";
+    self.mclickIzqStr = tmpStr + "clic_izquierdo";
 
     self.click = 0;
 
     // register the mouse and touch events
-    if (self.id !== "descartesJS_scenario") {
-      self.registerMouseAndTouchEvents();
+    if (self.id !== "descartesJS_stage") {
+      self.addEvents();
     }
     else {
       self.canvas.oncontextmenu = function (evt) { return false; };
     }
 
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
@@ -185,26 +167,16 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space2D.prototype.init = function() {
     self = this;
-    
+
     // call the init of the parent
     self.uber.init.call(self);
 
     // update the size of the canvas if has some regions
     if (self.canvas) {
-      self.backgroundCanvas.width  = self.w *self._ratio;
-      self.backgroundCanvas.height = self.h *self._ratio;
-      self.backgroundCanvas.style.width  = self.w + "px";
-      self.backgroundCanvas.style.height = self.h + "px";
-
-      self.canvas.width  = self.w *self._ratio;
-      self.canvas.height = self.h *self._ratio;
-      self.canvas.style.width  = self.w + "px";
-      self.canvas.style.height = self.h + "px";
-    };
-
-    // find the offset of the container
-    if (self.container) {
-      self.findOffset();
+      self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+      self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+      self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+      self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
     }
   }
 
@@ -218,49 +190,41 @@ var descartesJS = (function(descartesJS) {
     parent = self.parent;
 
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.wString, self.w);
-    evaluator.setVariable(self.hString, self.h);
+    evaluator.setVariable(self.wStr, self.w);
+    evaluator.setVariable(self.hStr, self.h);
     // check the draw if condition
-    self.drawIfValue = evaluator.evalExpression(self.drawif) > 0;
+    self.drawIfValue = evaluator.eval(self.drawif) > 0;
 
     // draw the space
     if (self.drawIfValue) {
-      changeX = (self.x !== (evaluator.evalExpression(self.xExpr) + self.displaceRegionWest));
-      changeY = (self.y !== (evaluator.evalExpression(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
+      changeX = (self.x !== (evaluator.eval(self.xExpr) + self.displaceRegionWest));
+      changeY = (self.y !== (evaluator.eval(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
 
       // check if the space has change
       self.spaceChange = firstTime ||
                          changeX ||
                          changeY ||
                          (self.drawBefore !== self.drawIfValue) ||
-                         (self.Ox !== evaluator.getVariable(self.OxString)) ||
-                         (self.Oy !== evaluator.getVariable(self.OyString)) ||
-                         (self.scale !== evaluator.getVariable(self.scaleString)) ||
+                         (self.Ox !== evaluator.getVariable(self.OxStr)) ||
+                         (self.Oy !== evaluator.getVariable(self.OyStr)) ||
+                         (self.scale !== evaluator.getVariable(self.scaleStr)) ||
                          (self.backColor !== self.background.getColor());
 
-      self.x = (changeX) ? evaluator.evalExpression(self.xExpr) + self.displaceRegionWest : self.x;
-      self.y = (changeY) ? evaluator.evalExpression(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
-      self.Ox = evaluator.getVariable(self.OxString);
-      self.Oy = evaluator.getVariable(self.OyString);
-      self.scale = evaluator.getVariable(self.scaleString);
+      self.x = (changeX) ? evaluator.eval(self.xExpr) + self.displaceRegionWest : self.x;
+      self.y = (changeY) ? evaluator.eval(self.yExpr) + parent.plecaHeight + self.displaceRegionNorth : self.y;
+      self.Ox = evaluator.getVariable(self.OxStr);
+      self.Oy = evaluator.getVariable(self.OyStr);
+      self.scale = evaluator.getVariable(self.scaleStr);
       self.drawBefore = self.drawIfValue;
 
-      // check if the scale is not below the lower limit
-      if (self.scale < minScale) {
-        self.scale = minScale;
-        evaluator.setVariable(self.scaleString, minScale);
-      }
-      // check if the scale is not above the upper limit
-      else if (self.scale > maxScale) {
-        self.scale = maxScale;
-        evaluator.setVariable(self.scaleString, maxScale);
-      }
-      
+      // check if the scale is not below the lower limit or not above the upper limit
+      self.scale = Math.max(minScale, Math.min(maxScale, self.scale));
+      evaluator.setVariable(self.scaleStr, self.scale);
+
       // if some property change then adjust the container style
       if ((changeX) || (changeY)) {
         self.container.style.left = self.x + "px";
-        self.container.style.top = self.y + "px";
-        self.findOffset();
+        self.container.style.top  = self.y + "px";
       }
 
       self.container.style.display = "block";
@@ -269,56 +233,55 @@ var descartesJS = (function(descartesJS) {
       self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
 
       if (self.spaceChange) {
-        self.backgroundCtx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
+        self.backCtx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
         self.drawBackground();
-        self.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
+        // self.backCtx.setTransform(1, 0, 0, 1, 0, 0);
       }
-      self.ctx.setTransform(self._ratio, 0, 0, self._ratio, 0, 0);
+      self.ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
       self.draw();
-      self.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    } 
+      // self.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
     // hide the space
     else {
       self.container.style.display = "none";
     }
-    
   }
 
   /**
-   * Draw the space background 
+   * Draw the space background
    */
   descartesJS.Space2D.prototype.drawBackground = function() {
-    evaluator = this.evaluator;
-    ctx = this.backgroundCtx;
+    self = this;
+    evaluator = self.evaluator;
+    ctx = self.backCtx;
 
     // draw the background color
-    ctx.clearRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    ctx.clearRect(0, 0, self.backCanvas.width, self.backCanvas.height);
+    self.backColor = self.background.getColor();
+    ctx.fillStyle = self.backColor;
 
-    this.backColor = this.background.getColor();
-    ctx.fillStyle = this.backColor;
-
-    ctx.fillRect(0, 0, this.backgroundCanvas.width, this.backgroundCanvas.height);
+    ctx.fillRect(0, 0, self.backCanvas.width, self.backCanvas.height);
 
     // draw the background image if any
-    if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
-      if (this.bg_display === "topleft") {
-        ctx.drawImage(this.image, 0, 0);
-      } 
-      else if (this.bg_display === "stretch") {
-        ctx.drawImage(this.image, 0, 0, this.w, this.h);
-      } 
-      else if (this.bg_display === "patch") {
-        ctx.fillStyle = ctx.createPattern(this.image, "repeat");
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    if ( (self.image) && (self.image.src != "") && (self.image.ready) && (self.image.complete) ) {
+      if (self.bg_display === "topleft") {
+        ctx.drawImage(self.image, 0, 0);
       }
-      else if (this.bg_display === "imgcenter") {
-        ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
+      else if (self.bg_display === "stretch") {
+        ctx.drawImage(self.image, 0, 0, self.w, self.h);
+      }
+      else if (self.bg_display === "patch") {
+        ctx.fillStyle = ctx.createPattern(self.image, "repeat");
+        ctx.fillRect(0, 0, self.w, self.h);
+      }
+      else if (self.bg_display === "imgcenter") {
+        ctx.drawImage(self.image, (self.w-self.image.width)/2, (self.h-self.image.height)/2);
       }
     }
-    
-    rsc = this.scale;
+
+    rsc = self.scale;
     dec = 0;
-    wh_temp = ((this.w+this.h) < 0) ? 0 : (this.w+this.h);
+    wh_temp = ((self.w+self.h) < 0) ? 0 : (self.w+self.h);
 
     while (rsc>(wh_temp)) {
       rsc/=10;
@@ -331,93 +294,92 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = 1;
 
     // draw the big net
-    if (this.net !== "") {
-      ctx.strokeStyle = this.net.getColor();
-      this.drawMarks(ctx, rsc/10, -1);
+    if (self.net !== "") {
+      ctx.strokeStyle = self.net.getColor();
+      self.drawMarks(ctx, rsc/10, -1);
     }
-    
+
     // draw the finnest net
-    if ( ((this.parent.version !== 2) && (this.net10 !== "")) || 
-         ((this.parent.version === 2) && (this.net !== "") && (this.net10 !== ""))
+    if ( ((self.parent.version !== 2) && (self.net10 !== "")) ||
+         ((self.parent.version === 2) && (self.net !== "") && (self.net10 !== ""))
        ) {
-      ctx.strokeStyle = this.net10.getColor();
-      this.drawMarks(ctx, rsc, -1);
+      ctx.strokeStyle = self.net10.getColor();
+      self.drawMarks(ctx, rsc, -1);
     }
-    
+
     // draw the axes
-    if (this.axes !== "") {
-      ctx.strokeStyle = this.axes.getColor();
-      
+    if (self.axes !== "") {
+      ctx.strokeStyle = self.axes.getColor();
+
       ctx.beginPath();
       // x axis
-      if ((this.x_axis !== "") || (this.parent.version !== 2)) {
-        ctx.moveTo(0, MathFloor(this.h/2+this.Oy)+.5);
-        ctx.lineTo(this.w, MathFloor(this.h/2+this.Oy)+.5);
+      if ((self.x_axis !== "") || (self.parent.version !== 2)) {
+        ctx.moveTo(0, MathFloor(self.h/2+self.Oy)+.5);
+        ctx.lineTo(self.w, MathFloor(self.h/2+self.Oy)+.5);
       }
 
       // y axis
-      if ((this.y_axis !== "") || (this.parent.version !== 2)) {
-        ctx.moveTo(MathFloor(this.w/2+this.Ox)+.5, 0);
-        ctx.lineTo(MathFloor(this.w/2+this.Ox)+.5, this.h);
+      if ((self.y_axis !== "") || (self.parent.version !== 2)) {
+        ctx.moveTo(MathFloor(self.w/2+self.Ox)+.5, 0);
+        ctx.lineTo(MathFloor(self.w/2+self.Ox)+.5, self.h);
       }
-      
+
       ctx.stroke();
 
-      this.drawMarks(ctx, rsc, 4);
-      this.drawMarks(ctx, rsc/2, 2);
-      this.drawMarks(ctx, rsc/10, 1);
+      self.drawMarks(ctx, rsc, 4);
+      self.drawMarks(ctx, rsc/2, 2);
+      self.drawMarks(ctx, rsc/10, 1);
     }
-    
-    // draw the axis names
-    if ((this.x_axis !== "") || (this.y_axis !== "")) {
-      ctx.fillStyle = (this.axes !== "") ? this.axes.getColor() : "black";
 
-      ctx.font = axisFont
+    // draw the axis names
+    if ((self.x_axis !== "") || (self.y_axis !== "")) {
+      ctx.fillStyle = (self.axes !== "") ? self.axes.getColor() : "#000";
+
+      ctx.font = axisFont;
       ctx.textAlign = "right";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(this.x_axis, MathFloor(this.w)-2, MathFloor(this.h/2+this.Oy)+12);
-      ctx.fillText(this.y_axis, MathFloor(this.w/2+this.Ox)-2, 12); 
+      ctx.fillText(self.x_axis, MathFloor(self.w)-2, MathFloor(self.h/2+self.Oy)+12);
+      ctx.fillText(self.y_axis, MathFloor(self.w/2+self.Ox)-2, 12);
     }
-    
+
     // draw the axis numbers
-    if ((this.numbers) && (this.axes != "")) {
-      ctx.fillStyle = this.axes.getColor();
-      ctx.font = axisFont
+    if ((self.numbers) && (self.axes != "")) {
+      ctx.fillStyle = self.axes.getColor();
+      ctx.font = axisFont;
       ctx.textAlign = "start";
       ctx.textBaseline = "bottom";
 
-      if (rsc > ((this.w+this.h)/2)) {
-        this.drawNumbers(ctx, rsc/5, (rsc<=this.scale)?dec+1:dec);
-      } 
-      
-      else if (rsc > ((this.w+this.h)/4)) {
-        this.drawNumbers(ctx, rsc/2, (rsc<=this.scale)?dec+1:dec);
-      } 
-      
+      if (rsc > ((self.w+self.h)/2)) {
+        self.drawNumbers(ctx, rsc/5, (rsc<=self.scale)?dec+1:dec);
+      }
+      else if (rsc > ((self.w+self.h)/4)) {
+        self.drawNumbers(ctx, rsc/2, (rsc<=self.scale)?dec+1:dec);
+      }
       else {
-        this.drawNumbers(ctx, rsc, dec);
+        self.drawNumbers(ctx, rsc, dec);
       }
     }
 
     // draw the background graphics
-    for(var i=0, l=this.backgroundGraphics.length; i<l; i++) {
-      this.backgroundGraphics[i].draw();
-    }    
+    for (var i=0, l=self.backGraphics.length; i<l; i++) {
+      self.backGraphics[i].draw();
+    }
   }
 
   /**
    * Draw the space
    */
   descartesJS.Space2D.prototype.draw = function() {
-    ctx = this.ctx;
+    self = this;
+    ctx = self.ctx;
 
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
 
     // draw the no background graphics
-    for(var i=0, l=this.graphics.length; i<l; i++) {
-      thisGraphics_i = this.graphics[i];
+    for (var i=0, l=self.graphics.length; i<l; i++) {
+      thisGraphics_i = self.graphics[i];
 
-      if ((thisGraphics_i.trace !== "") && (this.drawTrace)) {
+      if ((thisGraphics_i.trace !== "") && (self.drawTrace)) {
         thisGraphics_i.drawTrace();
       }
 
@@ -425,41 +387,41 @@ var descartesJS = (function(descartesJS) {
     }
 
     // draw the graphic controls
-    for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+    for (var i=0, l=self.graphicsCtr.length; i<l; i++) {
       // checar si no ocurren problemas
       // this.graphicsCtr[i].update();
-      this.graphicsCtr[i].draw();
+      self.graphicsCtr[i].draw();
     }
 
     // draw the text showing the mouse postion
-    if ((this.text != "") && (this.click) && (this.whichButton === "L")) {
-      ctx.fillStyle = this.text.getColor();
+    if ((self.text != "") && (self.click) && (self.whichBtn === "L")) {
+      ctx.fillStyle = self.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
       ctx.font = mouseTextFont;
       ctx.textAlign = "center";
       ctx.textBaseline = "alphabetic";
 
-      coordTxt_X = (this.scale <= 1) ? ((this.mouse_x).toFixed(0)) : (this.mouse_x).toFixed((this.scale).toString().length);
-      coordTxt_Y = (this.scale <= 1) ? ((this.mouse_y).toFixed(0)) : (this.mouse_y).toFixed((this.scale).toString().length);
+      coordTxt_X = (self.scale <= 1) ? ((self.mouse_x).toFixed(0)) : (self.mouse_x).toFixed((self.scale).toString().length);
+      coordTxt_Y = (self.scale <= 1) ? ((self.mouse_y).toFixed(0)) : (self.mouse_y).toFixed((self.scale).toString().length);
       coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
       coordTxtW = MathFloor(ctx.measureText(coordTxt).width/2);
-      mouseX = this.getAbsoluteX(this.mouse_x);
-      mouseY = this.getAbsoluteY(this.mouse_y);
+      mouseX = self.getAbsoluteX(self.mouse_x);
+      mouseY = self.getAbsoluteY(self.mouse_y);
       posX = MathFloor(mouseX);
       posY = MathFloor(mouseY-10);
 
       // prevents the mouse position text get out of the space
-      if ((posX+coordTxtW) > this.w) {
-        posX = this.w-coordTxtW;
-      } 
+      if ((posX+coordTxtW) > self.w) {
+        posX = self.w-coordTxtW;
+      }
       else if ((posX-coordTxtW) < 0) {
         posX = coordTxtW;
       }
-      if ((posY+1) > this.h) {
-        posY = this.h;
-      } 
-      else if ((posY-14) < 0) { // 14 is aproximately the text width
+      if ((posY+1) > self.h) {
+        posY = self.h;
+      }
+      else if ((posY-14) < 0) { // 14 is aproximately the text height
         posY = 15;
       }
 
@@ -470,7 +432,7 @@ var descartesJS = (function(descartesJS) {
       ctx.stroke();
     }
   }
-  
+
   /**
    * Draw the axis marks in the space
    * @param {CanvasRenderingContext2D} ctx the rendering context to draw
@@ -480,23 +442,23 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space2D.prototype.drawMarks = function(ctx, rsc, sz) {
     w = this.w;
     h = this.h;
-    
+
     x1 = 0;
     x2 = w;
     y1 = 0;
     y2 = h;
     Ox = MathFloor(w/2+this.Ox);
     Oy = MathFloor(h/2+this.Oy);
-    
+
     if (sz >= 0) {
       x1 = Ox-sz;
       x2 = Ox+sz;
       y1 = Oy-sz;
       y2 = Oy+sz;
     }
-        
+
     ctx.beginPath();
-    
+
     for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
       ctx.moveTo(x+.5, y1+.5);
       ctx.lineTo(x+.5, y2+.5);
@@ -508,7 +470,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.stroke();
   }
-    
+
   /**
    * Draw the axis numbers
    * @param {CanvasRenderingContext2D} ctx the rendering context to draw
@@ -518,14 +480,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space2D.prototype.drawNumbers = function(ctx, rsc, dec) {
     w = this.w;
     h = this.h;
-    
+
     Ox = MathFloor(w/2+this.Ox);
     Oy = MathFloor(h/2+this.Oy);
-    
+
     for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
       ctx.fillText(parseFloat( (i*rsc/this.scale).toFixed(4) ), x+1, Oy-2);
     }
-    
+
     for (var i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
       if (parseFloat( (-i*rsc/this.scale) ) !== 0) {
         ctx.fillText(parseFloat( (-i*rsc/this.scale).toFixed(4) ), Ox+5, y+5);
@@ -536,33 +498,27 @@ var descartesJS = (function(descartesJS) {
   /**
    * Register the mouse and touch events
    */
-  descartesJS.Space2D.prototype.registerMouseAndTouchEvents = function() {
+  descartesJS.Space2D.prototype.addEvents = function() {
     var lastTime = 0;
     var lastTime1 = 0;
-    
-    var self = this;
-    hasTouchSupport = descartesJS.hasTouchSupport;
-    self.clickPosForZoom = null;
-    self.clickPosForZoomNew = null;
 
-    // self.clickPosForContext = null;
-    // self.clickPosForContextNew = null;
+    var self = this;
+    self.posZoom = null;
+    self.posZoomNew = null;
 
     // prevent the context menu display
     self.canvas.oncontextmenu = function (evt) { return false; };
 
     ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de touch (iOS, android)
+    // Registro de eventos de touch
     ///////////////////////////////////////////////////////////////////////////
-    // if (hasTouchSupport) {
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
-      }
-      this.canvas.addEventListener("touchstart", onTouchStart);
-    // }
+    if (this.sensitive_to_mouse_movements) {
+      this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
+    }
+    this.canvas.addEventListener("touchstart", onTouchStart);
 
     /**
-     * @param {Event} evt 
+     * @param {Event} evt
      * @private
      */
     function onTouchStart(evt) {
@@ -577,25 +533,25 @@ var descartesJS = (function(descartesJS) {
       self.parent.clearClick();
 
       self.click = 1;
-      self.evaluator.setVariable(self.mpressedString, 1);
-      self.evaluator.setVariable(self.mclickedString, 0);
-      self.evaluator.setVariable(self.mclicizquierdoString, 0);
+      self.evaluator.setVariable(self.mpressedStr, 1);
+      self.evaluator.setVariable(self.mclickedStr, 0);
+      self.evaluator.setVariable(self.mclickIzqStr, 0);
 
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
 
       onSensitiveToMouseMovements(evt);
-      
+
       window.addEventListener("touchmove", onMouseMove);
       window.addEventListener("touchend", onTouchEnd);
 
       evt.stopPropagation();
       evt.preventDefault();
     }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onTouchEnd(evt) {
@@ -608,15 +564,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       self.click = 0;
-      self.evaluator.setVariable(self.mpressedString, 0);
-      self.evaluator.setVariable(self.mclickedString, 1);
-      self.evaluator.setVariable(self.mclicizquierdoString, 1);
-
-        // self.clickPosForContext = (self.getCursorPosition(evt)).y;
-        // // show the external space
-        // if (self.clickPosForContext == self.clickPosForContextNew) {
-        //   self.parent.externalSpace.show();
-        // }
+      self.evaluator.setVariable(self.mpressedStr, 0);
+      self.evaluator.setVariable(self.mclickedStr, 1);
+      self.evaluator.setVariable(self.mclickIzqStr, 1);
 
       window.removeEventListener("touchmove", onMouseMove);
       window.removeEventListener("touchend", onTouchEnd);
@@ -624,22 +574,20 @@ var descartesJS = (function(descartesJS) {
       evt.stopPropagation();
       evt.preventDefault();
 
-      self.parent.update();      
+      self.parent.update();
     }
-  
+
     ///////////////////////////////////////////////////////////////////////////
     // Registro de eventos de mouse
     ///////////////////////////////////////////////////////////////////////////
-    // if (!hasTouchSupport) {
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
-      }
-      this.canvas.addEventListener("mousedown", onMouseDown);
-    // }
-    
+    if (this.sensitive_to_mouse_movements) {
+      this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
+    }
+    this.canvas.addEventListener("mousedown", onMouseDown);
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseDown(evt) {
@@ -656,14 +604,14 @@ var descartesJS = (function(descartesJS) {
       // deactivate the graphic controls
       self.parent.deactivateGraphiControls();
 
-      self.whichButton = descartesJS.whichButton(evt);
+      self.whichBtn = descartesJS.whichBtn(evt);
 
-      if (self.whichButton === "R") {
+      if (self.whichBtn === "R") {
         window.addEventListener("mouseup", onMouseUp);
 
-        self.clickPosForZoom = (self.getCursorPosition(evt)).y;
-        self.clickPosForZoomNew = self.clickPosForZoom;
-        
+        self.posZoom = (descartesJS.getCursorPosition(evt, self.container)).y;
+        self.posZoomNew = self.posZoom;
+
         // if not fixed add a zoom manager
         if (!self.fixed) {
           self.tempScale = self.scale;
@@ -671,10 +619,10 @@ var descartesJS = (function(descartesJS) {
           window.addEventListener("mousemove", onMouseMoveZoom);
         }
       }
-      else if (self.whichButton === "L") {
-        self.evaluator.setVariable(self.mpressedString, 1);
-        self.evaluator.setVariable(self.mclickedString, 0);
-        self.evaluator.setVariable(self.mclicizquierdoString, 0);
+      else if (self.whichBtn === "L") {
+        self.evaluator.setVariable(self.mpressedStr, 1);
+        self.evaluator.setVariable(self.mclickedStr, 0);
+        self.evaluator.setVariable(self.mclickIzqStr, 0);
 
         onSensitiveToMouseMovements(evt);
 
@@ -683,16 +631,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    //
-    // unknown why added, maybe has to return or isn't necessary
-    // when the window lose focus make a mouse up
-    // window.addEventListener("blur", function(evt) {
-      // onMouseUp(evt);
-    // });
-
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseUp(evt) {
@@ -701,20 +642,20 @@ var descartesJS = (function(descartesJS) {
 
       evt.stopPropagation();
       evt.preventDefault();
-      
-      self.click = 0;
-      self.evaluator.setVariable(self.mpressedString, 0);
-      self.evaluator.setVariable(self.mclickedString, 1);
-      self.evaluator.setVariable(self.mclicizquierdoString, 1);
 
-      if (self.whichButton === "R") {
+      self.click = 0;
+      self.evaluator.setVariable(self.mpressedStr, 0);
+      self.evaluator.setVariable(self.mclickedStr, 1);
+      self.evaluator.setVariable(self.mclickIzqStr, 1);
+
+      if (self.whichBtn === "R") {
         window.removeEventListener("mousemove", onMouseMoveZoom);
 
         // show the external space
-        if ((self.clickPosForZoom == self.clickPosForZoomNew) && (descartesJS.showConfig)) {
+        if ((self.posZoom == self.posZoomNew) && (descartesJS.showConfig)) {
           self.parent.externalSpace.show();
-          self.clickPosForZoom = false;
-          self.clickPosForZoomNew = true;
+          self.posZoom = false;
+          self.posZoomNew = true;
         }
       }
 
@@ -723,30 +664,28 @@ var descartesJS = (function(descartesJS) {
 
       // deactivate control
       self.parent.deactivateGraphiControls();
-      
+
       self.parent.update();
     }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onSensitiveToMouseMovements(evt) {
-      self.posAnte = self.getCursorPosition(evt);
-      // self.mouse_x = self.getRelativeX(self.posAnte.x/descartesJs.cssScale);
-      // self.mouse_y = self.getRelativeY(self.posAnte.y/descartesJs.cssScale);
+      self.posAnte = descartesJS.getCursorPosition(evt, self.container);
       self.mouse_x = self.getRelativeX(self.posAnte.x);
       self.mouse_y = self.getRelativeY(self.posAnte.y);
-      self.evaluator.setVariable(self.mxString, self.mouse_x);
-      self.evaluator.setVariable(self.myString, self.mouse_y);
+      self.evaluator.setVariable(self.mxStr, self.mouse_x);
+      self.evaluator.setVariable(self.myStr, self.mouse_y);
 
-      self.evaluator.setVariable(self.mclickedString, 0);
-      self.evaluator.setVariable(self.mclicizquierdoString, 0);
+      self.evaluator.setVariable(self.mclickedStr, 0);
+      self.evaluator.setVariable(self.mclickIzqStr, 0);
 
       self.parent.update();
     }
-    
+
     /**
      * @param {Event} evt
      * @private
@@ -754,16 +693,16 @@ var descartesJS = (function(descartesJS) {
     function onMouseMoveZoom(evt) {
       evt.preventDefault();
 
-      self.clickPosForZoomNew = (self.getCursorPosition(evt)).y;
+      self.posZoomNew = (descartesJS.getCursorPosition(evt, self.container)).y;
 
-      self.evaluator.setVariable(self.scaleString, self.tempScale + (self.tempScale/45)*((self.clickPosForZoom-self.clickPosForZoomNew)/10));
+      self.evaluator.setVariable(self.scaleStr, self.tempScale + (self.tempScale/45)*((self.posZoom-self.posZoomNew)/10));
 
-      self.parent.update();      
+      self.parent.update();
     }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseMove(evt) {
@@ -772,16 +711,12 @@ var descartesJS = (function(descartesJS) {
 
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
-        self.posNext = self.getCursorPosition(evt);
-        disp = { x: MathFloor(self.posAnte.x-self.posNext.x), 
-                 y: MathFloor(self.posAnte.y-self.posNext.y) };
+        self.posNext = descartesJS.getCursorPosition(evt, self.container);
+        disp = { x: (self.posAnte.x - self.posNext.x).toFixed(8),
+                 y: (self.posAnte.y - self.posNext.y).toFixed(8) };
 
-        self.evaluator.setVariable(self.OxString, (self.Ox - disp.x));
-        self.evaluator.setVariable(self.OyString, (self.Oy - disp.y));
-        // self.evaluator.setVariable(self.OxString, (self.Ox - disp.x/descartesJs.cssScale));
-        // self.evaluator.setVariable(self.OyString, (self.Oy - disp.y/descartesJs.cssScale));
-        self.posAnte.x -= disp.x;
-        self.posAnte.y -= disp.y;
+        self.evaluator.setVariable(self.OxStr, (self.Ox - disp.x));
+        self.evaluator.setVariable(self.OyStr, (self.Oy - disp.y));
       }
 
       onSensitiveToMouseMovements(evt);
@@ -792,6 +727,6 @@ var descartesJS = (function(descartesJS) {
     });
 
   }
-    
+
   return descartesJS;
 })(descartesJS || {});

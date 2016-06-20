@@ -12,23 +12,23 @@ var descartesJS = (function(descartesJS) {
    */
   function newXMLHttpRequest() {
     var xhr = false;
-    
+
     // all browsers
     if (window.XMLHttpRequest) {
-      try { 
+      try {
         xhr = new XMLHttpRequest();
       }
-      catch (e) { 
+      catch (e) {
         xhr = false;
       }
     }
     // IE do not have an XMLHttpRequest native object, so try an activeX object
     else if (window.ActiveXObject) {
-      try { 
-        xhr = new ActiveXObject("Msxml2.XMLHTTP"); 
+      try {
+        xhr = new ActiveXObject("Msxml2.XMLHTTP");
       }
       catch(e) {
-        try { 
+        try {
           xhr = new ActiveXObject("Microsoft.XMLHTTP");
         }
         catch(e) {
@@ -36,13 +36,13 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    
+
     return xhr;
   }
-  
+
   var response;
   var xhr;
-  descartesJS._externalFilesContent = {};
+  descartesJS.cacheFiles = {};
   /**
    * Open an external file using an ajax request
    * Abre un archivo externo
@@ -50,9 +50,9 @@ var descartesJS = (function(descartesJS) {
    * @return the content of the file if readed or null if not
    */
   descartesJS.openExternalFile = function(filename) {
-    ////////////////////////////////////////////////////////// 
-    if (descartesJS._externalFilesContent[filename]) {
-      return descartesJS._externalFilesContent[filename];
+    //////////////////////////////////////////////////////////
+    if (descartesJS.cacheFiles[filename]) {
+      return descartesJS.cacheFiles[filename];
     }
     //////////////////////////////////////////////////////////
 
@@ -61,8 +61,8 @@ var descartesJS = (function(descartesJS) {
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);
-      response = xhr.responseText;
-        
+      response = (xhr.status === 200 || xhr.status === 304) ? xhr.responseText : "";
+
       ////////////////////////////////////////////////////////////////////////
       // patch to read ISO-8859-1 text files
       if (response.match(String.fromCharCode(65533))) {
@@ -77,7 +77,7 @@ var descartesJS = (function(descartesJS) {
       console.log("Error to load the file :", filename);
       response = null;
     }
-    
+
     return response;
   }
 
@@ -85,9 +85,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.addExternalFileContent = function(filename, data) {
-// console.log(filename)
-// console.log(data)
-    descartesJS._externalFilesContent[filename] = data;
+    descartesJS.cacheFiles[filename] = data;
   }
 
   return descartesJS;

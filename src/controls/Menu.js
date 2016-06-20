@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes menu control
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the menu control
    */
@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
 
     // the evaluation of the control
     this.ok = 0;
-    
+
     // tabular index
     this.tabindex = ++this.parent.tabindex;
 
@@ -94,11 +94,11 @@ var descartesJS = (function(descartesJS) {
         if (splitOption.length == 1) {
           self.menuOptions.push( splitOption[0] );
           self.strValue.push( i.toString() );
-        } 
+        }
         // if divide the option has two values, then has a value specified
         else if (splitOption.length == 2) {
           self.menuOptions.push( splitOption[0] );
-          
+
           // if the value is an empty string, then asign the order value
           if (splitOption[1] == "") {
             self.strValue.push( i.toString() );
@@ -125,7 +125,7 @@ var descartesJS = (function(descartesJS) {
       for (var i=0, l=self.strValue.length; i<l; i++) {
         if ( (self.strValue[i].match(/^\[/)) && (self.strValue[i].match(/\]$/)) ) {
           self.strValue[i] = parser.parse( self.strValue[i].substring(1, self.strValue[i].length-1) );
-        } 
+        }
         else {
           self.strValue[i] = parser.parse( self.strValue[i] );
         }
@@ -140,9 +140,11 @@ var descartesJS = (function(descartesJS) {
       var opt;
       for (var i=0, l=self.menuOptions.length; i<l; i++) {
         opt = document.createElement("option");
-        opt.innerHTML = evaluator.evalExpression( self.menuOptions[i] );
+        opt.innerHTML = evaluator.eval( self.menuOptions[i] );
         self.select.appendChild(opt);
       }
+
+      return 0;
     }
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -151,7 +153,7 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    
+
     // the menu
     this.select = document.createElement("select");
 
@@ -165,21 +167,21 @@ var descartesJS = (function(descartesJS) {
     // add the elements to the container
     this.containerControl.appendChild(this.label);
     this.containerControl.appendChild(this.select);
-    
+
     // if visible then show the text field
     if (this.visible) {
       this.containerControl.appendChild(this.field);
     }
 
     this.addControlContainer(this.containerControl);
-    
+
     // register the mouse and touch events
-    this.registerMouseAndTouchEvents();
+    this.addEvents();
 
     // init the menu parameters
     this.init();
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +193,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Menu.prototype.init = function(noupdate) {
     evaluator = this.evaluator;
 
-    var name = evaluator.evalExpression(this.name).toString();
+    var name = evaluator.eval(this.name).toString();
     this.label.innerHTML = name;
 
     // find the font size of the text field
@@ -201,20 +203,20 @@ var descartesJS = (function(descartesJS) {
     var indMinTFw = 0;
     var minTFw = 0;
     var mow;
-    this.value = (noupdate) ? this.value : evaluator.evalExpression(this.valueExpr);
+    this.value = (noupdate) ? this.value : evaluator.eval(this.valueExpr);
     this.indexValue = this.getIndex(this.value);
 
     // find the widest choice to set the menu width
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      mow = descartesJS.getTextWidth( evaluator.evalExpression(this.menuOptions[i]).toString(), this.fieldFontSize+"px Arial" );
+      mow = descartesJS.getTextWidth( evaluator.eval(this.menuOptions[i]).toString(), this.fieldFontSize+"px Arial" );
       if (mow > minchw) {
         minchw = mow;
         indMinTFw = i;
       }
     }
-    
+
     minchw += 25;
-    minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.evalExpression(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
+    minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.eval(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
 
     var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
     var fieldWidth = minTFw;
@@ -241,15 +243,15 @@ var descartesJS = (function(descartesJS) {
     var chx = labelWidth;
     var TFx = chx + chw;
     fieldWidth = this.w - TFx;
-    
-    var fieldValue = this.formatOutputValue( evaluator.evalExpression(this.strValue[this.indexValue]) );
+
+    var fieldValue = this.formatOutputValue( evaluator.eval(this.strValue[this.indexValue]) );
 
     this.containerControl.setAttribute("class", "DescartesMenuContainer");
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index:" + this.zIndex + ";");
 
     this.label.setAttribute("class", "DescartesMenuLabel");
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width:" + labelWidth + "px; height:" + this.h + "px; line-height:" + this.h + "px;");
-    
+
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_menuField");
     this.field.value = fieldValue;
@@ -277,13 +279,13 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
 
     // check if the control is active and visible
-    this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
-    this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
+    this.activeIfValue = (evaluator.eval(this.activeif) > 0);
+    this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
     // enable or disable the control
     this.field.disabled = (this.activeIfValue) ? false : true;
     this.select.disabled = (this.activeIfValue) ? false : true;
-    
+
     // hide or show the menu control
     if (this.drawIfValue) {
       this.containerControl.style.display = "block";
@@ -293,10 +295,10 @@ var descartesJS = (function(descartesJS) {
     }
 
     if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
-      this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+      this.label.innerHTML = evaluator.eval(this.name).toString();
 
       for (var i=0, l=this.menuOptions.length; i<l; i++) {
-        this.select.options[i].innerHTML = evaluator.evalExpression( this.menuOptions[i] );
+        this.select.options[i].innerHTML = evaluator.eval( this.menuOptions[i] );
       }
 
       // update the value of the menu
@@ -306,7 +308,7 @@ var descartesJS = (function(descartesJS) {
         this.value = 0;
       }
       this.field.value = this.formatOutputValue(this.value);
-      
+
       // register the control value
       evaluator.setVariable(this.id, parseFloat(this.value));
       this.select.selectedIndex = parseFloat(this.getIndex(this.value));
@@ -353,10 +355,10 @@ var descartesJS = (function(descartesJS) {
         lastPos = pos+1;
         ignoreSquareBracket--;
       }
-      
+
       else if (op.charAt(pos) == "]") {
         ignoreSquareBracket = (ignoreSquareBracket < 0) ? ignoreSquareBracket : ignoreSquareBracket-1;
-      } 
+      }
 
       tmpText = tmpText + op.charAt(pos);
 
@@ -375,18 +377,18 @@ var descartesJS = (function(descartesJS) {
     val = parseFloat( (val.toString()).replace(this.parent.decimal_symbol, ".") );
     tempInd = -1;
     diff = Infinity;
-    
+
     for (var i=0, l=this.strValue.length; i<l; i++) {
-      rest = MathAbs( val - parseFloat( this.evaluator.evalExpression(this.strValue[i])) );
-      
+      rest = MathAbs( val - parseFloat( this.evaluator.eval(this.strValue[i])) );
+
       if (rest <= diff) {
         diff = rest;
         tempInd = i;
       }
     }
-        
+
     return tempInd;
-  }  
+  }
 
   /**
    * Change the menu value
@@ -403,7 +405,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Register the mouse and touch events
    */
-  descartesJS.Menu.prototype.registerMouseAndTouchEvents = function() {
+  descartesJS.Menu.prototype.addEvents = function() {
     hasTouchSupport = descartesJS.hasTouchSupport;
 
     var self = this;
@@ -413,30 +415,30 @@ var descartesJS = (function(descartesJS) {
 
     // if (hasTouchSupport) {
       self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; })
-    // } 
+    // }
     // else {
       self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; })
     // }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onChangeSelect(evt) {
-      self.value = self.evaluator.evalExpression( self.strValue[this.selectedIndex] );
+      self.value = self.evaluator.eval( self.strValue[this.selectedIndex] );
       self.field.value = self.formatOutputValue(self.value);
       self.evaluator.setVariable(self.id, self.field.value);
-      
+
       self.changeValue();
-      
+
       evt.preventDefault();
     }
     this.select.addEventListener("change", onChangeSelect);
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onKeyDown_TextField(evt) {
@@ -444,10 +446,10 @@ var descartesJS = (function(descartesJS) {
       if (evt.keyCode == 13) {
         self.indexValue = self.getIndex(self.field.value);
 
-        self.value = self.evaluator.evalExpression( self.strValue[self.indexValue] );
+        self.value = self.evaluator.eval( self.strValue[self.indexValue] );
         self.field.value = self.formatOutputValue(self.indexValue);
         self.select.selectedIndex = self.indexValue;
-        
+
         self.changeValue();
       }
     }

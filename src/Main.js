@@ -26,66 +26,62 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  /** 
+  /**
    * Hide the applets in the page
    */
   function hideApplets() {
     var cssNode = document.getElementById("StyleDescartesApps");
-    
+
     if (cssNode) {
       (cssNode.parentNode).removeChild(cssNode);
     }
-    
+
     // create the CSS style to hide the applets
     cssNode = document.createElement("style");
     cssNode.id = "StyleDescartesApps";
     cssNode.type = "text/css";
     cssNode.setAttribute("rel", "stylesheet");
     cssNode.innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
-    
+
     // add the style in the head of the document
-    document.head.appendChild(cssNode); 
+    document.head.appendChild(cssNode);
   }
-  
-  /** 
+
+  /**
    * Show the hidden applets
    */
   function showApplets() {
-    var cssNode = document.getElementById("StyleDescartesApps");
-
-    cssNode.innerHTML = "applet.DescartesJS {display:block;} applet {display:block;} ajs.DescartesJS {display:block;} ajs {display:block;}";
+    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:block;} applet {display:block;} ajs.DescartesJS {display:block;} ajs {display:block;}";
   }
-  
-  /** 
+
+  /**
    * Shows applets that are not descartes
    */
   function showNoDescartesJSApplets() {
     document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
   }
-  
+
   /**
    * Find and get the descartes applets in the document
    * @return {Array.<applet>} the descartes applets in the document
    */
   function getDescartesApplets() {
     // get all the applets in the document
-    var applets = document.querySelectorAll("applet, ajs");
-    var applet_i;
+    var applets = document.querySelectorAll("applet,ajs");
     var descartesRegExp = /Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i;
 
     // se crea un arreglo donde guardar los applets encontrados
     var tmpArrayApplets = [];
 
     for (var i=0, l=applets.length; i<l; i++) {
-      applet_i = applets[i];
-      if ( descartesRegExp.test(applet_i.getAttribute("code") || "") ) {
-        tmpArrayApplets.push(applet_i);
+      if ( descartesRegExp.test(applets[i].getAttribute("code")) ) {
+        tmpArrayApplets.push(applets[i]);
       }
     }
 
     return tmpArrayApplets;
   }
-  
+
   /**
    * Change the class of an applet to "DescartesJS"
    * @param {<applet>} applet the applet to change the class
@@ -100,11 +96,13 @@ var descartesJS = (function(descartesJS) {
   function removeDescartesAppContainers() {
     // remove elements with "DescartesAppContainer" class
     var toBeRemoved = document.querySelectorAll(".DescartesAppContainer");
+
+    // remove the elements in the toBeRemove array
     for (var i=0, l=toBeRemoved.length; i<l; i++) {
       (toBeRemoved[i].parentNode).removeChild(toBeRemoved[i]);
     }
   }
-  
+
   /**
    * Get the array of descartes apps, i.e. javascript interpretations of the descartes applets
    * @return {Array.<DescartesApp>}
@@ -115,59 +113,55 @@ var descartesJS = (function(descartesJS) {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // The following code is executed immediately
-  //////////////////////////////////////////////////////////////////////////////////////////////////  
+  //////////////////////////////////////////////////////////////////////////////////////////////////
   // if the variable debugDescartesJS exist and is true then hide the applets
-  if (!(window.hasOwnProperty('debugDescartesJS') && debugDescartesJS)) { 
+  if (!(window.hasOwnProperty('debugDescartesJS') && debugDescartesJS)) {
     hideApplets();
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   /**
    * Function to handle the resize of the browser
    * @param {Event} evt the evt of resize the browser
    */
   descartesJS.onResize = function(evt) {
-    var spaces;
-    for (var i=0, l=descartesJS.apps.length; i<l; i++) {
-      spaces = descartesJS.apps[i].spaces;
-
-      for (var j=0, k=spaces.length; j<k; j++) {
-        spaces[j].findOffset();
-      }
+    // if is adaptative then scale it
+    if (descartesJS.apps.length > 0) {
+      descartesJS.apps[0].scaleToFit();
     }
   }
-  
+
   /**
    * Function to handle the load evt of the document
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
     var div = document.createElement("div");
-    div.innerHTML = '<div style="visibility:hidden;font-size:12px">'+
-                      '<div style="font-family:descartesJS_serif;">'+
-                        '<span>_</span>'+
-                        '<span style="font-weight:bold;">_</span>'+
-                        '<span style="font-style:italic;">_</span>'+
-                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
-                      '</div>'+
-                      '<div style="font-family:descartesJS_sansserif;">'+
-                        '<span>_</span>'+
-                        '<span style="font-weight:bold;">_</span>'+
-                        '<span style="font-style:italic;">_</span>'+
-                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
-                      '</div>'+
-                      '<div style="font-family:descartesJS_monospace;">'+
-                        '<span>_</span>'+
-                        '<span style="font-weight:bold;">_</span>'+
-                        '<span style="font-style:italic;">_</span>'+
-                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
-                      '</div>'+
-                      '<div style="font-family:descartesJS_extra;">'+
-                        '<span>_</span>'+
-                        '<span style="font-weight:bold;">_</span>'+
-                        '<span style="font-style:italic;">_</span>'+
-                        '<span style="font-weight:bold;font-style:italic;">_</span>'+
-                      '</div>'+
+    div.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
+                        '<div style="font-family:descartesJS_serif;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:descartesJS_sansserif;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:descartesJS_monospace;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:descartesJS_extra;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
                     '</div>';
     document.body.appendChild(div);
 
@@ -175,26 +169,30 @@ var descartesJS = (function(descartesJS) {
     descartesJS.getFeatures();
 
     // if has support for canvas start the interpretation
-    if (descartesJS.hasCanvasSupport) {
+    if (descartesJS.hasCanvas) {
       window.scrollTo(0, 10);
+
       removeDescartesAppContainers();
       makeDescartesApps();
+
       window.addEventListener("resize", descartesJS.onResize);
+
       window.scrollTo(0, 0);
-    } 
+    }
     // if has not support for canvas show the applets and do not interpret
     else {
       showApplets();
     }
 
+    // setTimeout(function(){ document.body.removeChild(div); }, 1000);
     document.body.removeChild(div);
   }
-  
+
   /**
    * Function to handle the message between frames
    * @param {Event} evt the evt of receive a message
    */
-  descartesJS.receiveMessage = function(evt) {
+  descartesJS.onMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
       var data = evt.data;
 
@@ -214,18 +212,19 @@ var descartesJS = (function(descartesJS) {
           else {
             descartesJS.apps[0].evaluator.vectors[data.name] = data.value;
           }
-        }        
+        }
       }
-      
+
       // update the scene
       else if (data.type === "update") {
         descartesJS.apps[0].update();
       }
-            
+
       // execute a function
       else if (data.type === "exec") {
         var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
         var params = (data.value.toString()).split(",");
+        var _temp;
 
         // for (var i=0,l=params.length; i<l; i++) {
         //   if (!isNaN(parseFloat(params[i]))) {
@@ -250,15 +249,15 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the DescartesJS library is loaded multiple times, prevt the collision of diferent version
+  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 
-    // register the onload evt
+    // register the onload event
     window.addEventListener("load", onLoad);
-    
-    // register the message evt, to handle the messages between frames
-    window.addEventListener("message", descartesJS.receiveMessage);
+
+    // register the message event, to handle the messages between frames
+    window.addEventListener("message", descartesJS.onMessage);
 
     // add event listener to transitions of spaces
     var trasitionEvents = ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"];

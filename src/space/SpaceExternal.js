@@ -10,7 +10,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes 2D space
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
@@ -26,30 +26,27 @@ var descartesJS = (function(descartesJS) {
 
     // create the principal container
     self.container = document.createElement("div");
-    // self.container.setAttribute("id", "_DescartesExternalRegion_");
-    // self.container.setAttribute("class", "DescartesSpaceExternalContainer");
     self.container.setAttribute("style", "box-sizing:border-box;border-style:ridge;border-width:5px;border-color:gray;box-shadow:#000 0 0 25px 5px;overflow-y:scroll;overflow-x:hidden;position:fixed;left:0;top:0;z-index:10000;width:" + (self.width +27) + "px;height:460px;background-color:#63b4fb");
 
-    self.moveManipulator = document.createElement("div");
-    self.moveManipulator.setAttribute("style", " position:absolute;left:0;top:0;width:" + (self.width +27) + "px;height:" + self.vSpace + "px;line-height:" + self.vSpace + "px;background-color:#ddd;cursor:move;padding-left:75px;font-family:Sans-Serif;font-size:18px;");
-    self.moveManipulator.innerHTML = "Descartes";
-    self.container.appendChild(self.moveManipulator);
+    self.movable = document.createElement("div");
+    self.movable.setAttribute("style", " position:absolute;left:0;top:0;width:" + (self.width +27) + "px;height:" + self.vSpace + "px;line-height:" + self.vSpace + "px;background-color:#ddd;cursor:move;padding-left:75px;font-family:Sans-Serif;font-size:18px;");
+    self.movable.innerHTML = "Descartes";
+    self.container.appendChild(self.movable);
 
     self.ctrs = [];
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
   // descartesJS.extend(descartesJS.SpaceExternal, descartesJS.Space);
-   
+
   descartesJS.SpaceExternal.prototype.init = function() {
     document.body.appendChild(this.container);
 
-    var self = this;
+    self = this;
     var parser = self.parent.evaluator.parser;
     var fontSizeDefaultButtons = "15";
-    var text;
 
     for (var i=0,l=self.ctrs.length; i<l; i++) {
       self.ctrs[i].expresion = parser.parse("(0," + (self.vSpace + 23 + i*35) + "," + (self.width) + ",35)");
@@ -59,86 +56,46 @@ var descartesJS = (function(descartesJS) {
     self.numCtr = l;
 
     // create the credits button
-    if (self.language == "espa\u00F1ol") {
-      text = "cr\u00E9ditos";
-    } 
-    else if (self.language == "english") {
-      text = "about";
-    }
-    else {
-      text = "cr\u00E9ditos";
-    }
-
-    var btnAbout = new descartesJS.Button(self.parent, { region: "external", 
-                                                         name: text, 
+    var btnAbout = new descartesJS.Button(self.parent, { region: "external",
+                                                         name: (self.language == "english") ? "about" : "cr\u00E9ditos",
                                                          font_size: parser.parse(fontSizeDefaultButtons),
-                                                         expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)") 
+                                                         expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)")
                                                         });
     btnAbout.actionExec = { execute: descartesJS.showAbout };
     btnAbout.update();
 
     // create the configuration button
-    var btnConfig = new descartesJS.Button(self.parent, { region: "external", 
-                                                          name: "config", 
+    var btnConfig = new descartesJS.Button(self.parent, { region: "external",
+                                                          name: "config",
                                                           font_size: parser.parse(fontSizeDefaultButtons),
                                                           action: "config",
-                                                          expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)") 
+                                                          expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)")
                                                         });
-    btnConfig.update();    
+    btnConfig.update();
 
     // create the init button
-    if (self.language == "espa\u00F1ol") {
-      text = "inicio";
-    } 
-    else if (self.language == "english") {
-      text = "init";
-    }
-    else {
-      text = "inicio";
-    }
-
-    var btnInit = new descartesJS.Button(self.parent, { region: "external", 
-                                                        name: text, 
-                                                        font_size: parser.parse(fontSizeDefaultButtons), 
-                                                        action: "init", 
-                                                        expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)") 
+    var btnInit = new descartesJS.Button(self.parent, { region: "external",
+                                                        name: (self.language == "english") ? "init" : "inicio",
+                                                        font_size: parser.parse(fontSizeDefaultButtons),
+                                                        action: "init",
+                                                        expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
                                                       });
     btnInit.update();
 
     // create the clear button
-    if (self.language == "espa\u00F1ol") {
-      text = "limpiar";
-    } 
-    else if (self.language == "english") {
-      text = "clear";
-    }
-    else {
-      text = "limpiar";
-    }
-    
-    var btnClear = new descartesJS.Button(self.parent, { region: "external", 
-                                                         name: text, 
+    var btnClear = new descartesJS.Button(self.parent, { region: "external",
+                                                         name: (self.language == "english") ? "clear" : "limpiar",
                                                          font_size: parser.parse(fontSizeDefaultButtons),
                                                          action: "clear",
-                                                         expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)") 
+                                                         expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
                                                        });
     btnClear.update();
 
     // create the clear button
-    if (self.language == "espa\u00F1ol") {
-      text = "cerrar";
-    } 
-    else if (self.language == "english") {
-      text = "close";
-    }
-    else {
-      text = "close";
-    }
-
-    var btnClose = new descartesJS.Button(self.parent, { region: "external", 
-                                                         name: text, 
+    var btnClose = new descartesJS.Button(self.parent, { region: "external",
+                                                         name: (self.language == "english") ? "close" : "cerrar",
                                                          font_size: parser.parse(fontSizeDefaultButtons),
-                                                         expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)") 
+                                                         expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)")
                                                        });
     btnClose.update();
     btnClose.canvas.addEventListener("click", function(evt) {
@@ -152,9 +109,9 @@ var descartesJS = (function(descartesJS) {
      *
      */
     function onMouseMove(evt) {
-      self.newPosition = descartesJS.getCursorPosition(evt);
-      self.container.style.left = self.initialPosition.x + (self.newPosition.x - self.oldPosition.x) + "px";
-      self.container.style.top  = self.initialPosition.y + (self.newPosition.y - self.oldPosition.y) + "px";
+      self.newPos = descartesJS.getCursorPosition(evt, document.body);
+      self.container.style.left = self.initialPosition.x + (self.newPos.x - self.oldPos.x)*descartesJS.cssScale + "px";
+      self.container.style.top  = self.initialPosition.y + (self.newPos.y - self.oldPos.y)*descartesJS.cssScale + "px";
     }
 
     /**
@@ -162,8 +119,6 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseUp(evt) {
       evt.preventDefault();
-
-      self.findOffset();
 
       document.body.removeEventListener("mousemove", onMouseMove);
       document.body.removeEventListener("mouseup", onMouseUp);
@@ -175,16 +130,15 @@ var descartesJS = (function(descartesJS) {
     function onMouseDown(evt) {
       evt.preventDefault();
 
-      self.oldPosition = descartesJS.getCursorPosition(evt);
+      self.oldPos = descartesJS.getCursorPosition(evt, document.body);
       self.initialPosition = { x: self.container.offsetLeft, y: self.container.offsetTop };
 
       document.body.addEventListener("mousemove", onMouseMove);
       document.body.addEventListener("mouseup", onMouseUp);
     }
 
-    self.moveManipulator.addEventListener("mousedown", onMouseDown);
+    self.movable.addEventListener("mousedown", onMouseDown);
 
-    self.findOffset();
     self.hide();
   }
 
@@ -194,29 +148,28 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.SpaceExternal.prototype.addCtr = function(ctr) {
     this.ctrs.push(ctr);
-  }  
+  }
 
   /**
    *
    */
   descartesJS.SpaceExternal.prototype.show = function() {
     this.setPositionAndSize();
-
     this.container.style.display = "block";
-  }  
+  }
 
   /**
    *
    */
   descartesJS.SpaceExternal.prototype.hide = function() {
     this.container.style.display = "none";
-  }  
+  }
 
   /**
    *
    */
   descartesJS.SpaceExternal.prototype.setPositionAndSize = function() {
-    var self = this;
+    self = this;
     var newHeight = self.vSpace + 46 + self.numCtr*35 + 25 + 10;
 
     self.container.style.left = Math.max((parseInt(window.innerWidth - self.width)/2), 0) + "px";
@@ -231,54 +184,6 @@ var descartesJS = (function(descartesJS) {
     }
     else {
       self.container.style.height = newHeight + "px";
-    }
-  }
-
-  /**
-   * Find the offset postion of a space
-   */
-  descartesJS.SpaceExternal.prototype.findOffset = function() {
-    tmpContainer = this.container;
-
-    this.offsetLeft = 0;
-    this.offsetTop = 0;
-
-    // store the display style
-    if ((this.container) && (this.container.style)) {
-      tmpDisplay = this.container.style.display;
-    }
-
-    // make visible the element to get the offset values
-    this.container.style.display = "block";
-
-    if (tmpContainer.getBoundingClientRect) {
-      var boundingRect = tmpContainer.getBoundingClientRect();
-      this.offsetLeft = boundingRect.left;
-      this.offsetTop  = boundingRect.top;
-    }
-    else {
-      while (tmpContainer) {
-        if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
-          this.offsetLeft += tmpContainer.offsetLeft || 0;
-          this.offsetTop  += tmpContainer.offsetTop || 0;
-          tmpContainer = tmpContainer.parentNode;
-        }
-        else {
-          tmpContainer = null;
-        }
-      }
-    }
-    
-    // restore the display style
-    if ((this.container) && (this.container.style)) {
-      this.container.style.display = tmpDisplay;
-    }
-
-    // find the offset for the controls that need it
-    for (var i=0,l=this.ctrs.length; i<l; i++) {
-      if (this.ctrs[i].findOffset) {
-        this.ctrs[i].findOffset();
-      }
     }
   }
 

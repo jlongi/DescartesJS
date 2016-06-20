@@ -67,12 +67,12 @@ var descartesJS = (function(descartesJS) {
         }
         
         for (var i=0, l=self.init.length; i<l; i++) {
-          evaluator.evalExpression(self.init[i]);
+          evaluator.eval(self.init[i]);
         }
         
         do {
           for (var i=0, l=self.doExpr.length; i<l; i++) {
-            evaluator.evalExpression(self.doExpr[i]);
+            evaluator.eval(self.doExpr[i]);
           }
 
           if (++this.iterations > 100000) {
@@ -80,11 +80,11 @@ var descartesJS = (function(descartesJS) {
             return 0;
           }
         }
-        while (evaluator.evalExpression(self.whileExpr) > 0);
+        while (evaluator.eval(self.whileExpr) > 0);
 
         // evaluates to the return value
-        var result = evaluator.evalExpression(self.expresion);
-        descartesJS.rangeOK = evaluator.evalExpression(self.domain);
+        var result = evaluator.eval(self.expresion);
+        descartesJS.rangeOK = evaluator.eval(self.domain);
 
         // restore the variable values that have the same names as function parameters
         for (var i=0, l=self.params.length; i<l; i++) {

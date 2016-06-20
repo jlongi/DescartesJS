@@ -57,7 +57,7 @@ var descartesJS = (function(descartesJS, babel) {
 
   /**
    * Parser of principal elements of descartes
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    */
   descartesJS.LessonParser = function(parent) {
@@ -79,7 +79,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
-    
+
     // traverse all values and asign to variables of the button configuration
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
@@ -107,14 +107,14 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("----- attributo de space no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+          console.log("Propiedad de botones no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
 
     return buttonConfigObj;
   }
-  
+
   /**
    * Parse and create a space
    * @param {String} values is the string containing the values ​​that define the space
@@ -123,7 +123,7 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.LessonParser.prototype.parseSpace = function(values) {
     // object containing all the values ​​found in values
     spaceObj = {};
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
@@ -131,7 +131,7 @@ var descartesJS = (function(descartesJS, babel) {
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
-      
+
       babelValue = babel[values_i_0];
 
       switch(babelValue) {
@@ -157,7 +157,7 @@ var descartesJS = (function(descartesJS, babel) {
         // split option for the render
         case("split"):
           spaceObj[babelValue] = (babel[values_i_1] === "true");
-          break;          
+          break;
 
         // how the background image is positioned
         case("bg_display"):
@@ -188,7 +188,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("y_axis"):
           spaceObj[babelValue] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
-          
+
         // x position of origin
         case("O.x"):
           spaceObj["OxExpr"] = values_i_1;
@@ -203,39 +203,41 @@ var descartesJS = (function(descartesJS, babel) {
         case("image"):
           spaceObj["imageSrc"] = values_i_1;
           break;
-          
+
         // x position
         case("x"):
           temp = values_i_1;
-          
+
           // if specified with a percentage use the parent container's width to get the value in pixels
           if (temp[temp.length-1] === "%") {
+            spaceObj["xPercentExpr"] = temp.trim();
             temp = (this.parent.container.width*parseFloat(temp)/100).toString();
           }
           // if not specified with a percentage get the numerical value of the position in x
           else {
             temp = values_i_1;
           }
-          
+
           spaceObj["xExpr"] = this.parser.parse(temp);
           break;
-          
+
         // y position
         case("y"):
           temp = values_i_1;
-          
+
           // if specified with a percentage use the parent container's height to get the value in pixels
           if (temp[temp.length-1] === "%") {
+            spaceObj["yPercentExpr"] = temp.trim();
             temp = (this.parent.container.height*parseFloat(temp)/100).toString();
-          } 
+          }
           // if not specified with a percentage get the numerical value of the position in y
           else {
             temp = values_i_1;
           }
-          
+
           spaceObj["yExpr"] = this.parser.parse(temp);
           break;
-          
+
         // width
         case("width"):
           temp = values_i_1.trim();
@@ -258,7 +260,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           spaceObj["w"] = temp;
           break;
-          
+
         // height
         case("height"):
           temp = values_i_1.trim();
@@ -267,52 +269,52 @@ var descartesJS = (function(descartesJS, babel) {
           if (temp[temp.length-1] === "%") {
             spaceObj["hExpr"] = temp;
             temp = this.parent.container.height*parseFloat(temp)/100;
-          } 
+          }
           // if not specified with a percentage get the numerical value of the height
           else {
             temp = parseFloat(values_i_1);
-            
+
             // whether to convert the value to a number the values ​​are different, then the height becomes the height of the parent container
             if (temp != values_i_1) {
               temp = this.parent.container.height; // default value
               spaceObj["_h_"] = values_i_1.trim()
             }
           }
-          
+
           spaceObj["h"] = temp;
           break;
-          
+
         // drawif condition
         case("drawif"):
           if (values_i_1 != "") {
             spaceObj["drawif"] = this.parser.parse(values_i_1);
           }
           break;
-          
+
         // scale
         case("scale"):
           temp = parseFloat(values_i_1);
-          
+
           // whether to convert the value to a number the values ​​are different, then use the default value
           // this case ocurrs when the scale has a no valid value
           // if (temp.toString() != values_i_1) {
           if (isNaN(temp)) {
             temp =  48; // default value
-          }          
-          
+          }
+
           spaceObj["scale"] = temp;
           break;
-                  
+
         // background color
         case("background"):
           spaceObj["background"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           break;
-          
+
         // any variable missing
         default:
-          console.log("----- attributo de space no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+          console.log("Propiedad del espacio no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
-      }   
+      }
     }
 
     // construct the space
@@ -360,7 +362,7 @@ var descartesJS = (function(descartesJS, babel) {
       babelValue = babel[values_i_0];
 
       switch(babelValue) {
-        
+
         // identifier
         case("id"):
         // name
@@ -447,7 +449,7 @@ var descartesJS = (function(descartesJS, babel) {
             controlObj[babelValue] = this.parser.parse(values_i_1);
           }
           break;
-          
+
         // control graphic constraint
         case("constraint"):
           controlObj["constraintExpr"] = values_i_1;
@@ -457,17 +459,17 @@ var descartesJS = (function(descartesJS, babel) {
         case("image"):
           controlObj["imageSrc"] = values_i_1;
           break;
-          
+
         // id of the containing space
         case("space"):
           controlObj["spaceID"] = values_i_1;
           break;
-          
+
         // type
         case("type"):
           controlObj["type"] = babel[values_i_1.trim()];
           break;
-                    
+
         // expresion of the position and size
         case("expresion"):
           controlObj["expresion"] = this.parser.parse(values_i_1.replace(")(", ","));
@@ -479,21 +481,21 @@ var descartesJS = (function(descartesJS, babel) {
             controlObj["bold"] = "bold";
           }
           break;
-          
-        // italic text condition 
+
+        // italic text condition
         case("italics"):
           if (babel[values_i_1] != "false") {
             controlObj["italics"] = "italic";
           }
           break;
-          
+
         // underline text condition
         case("underlined"):
           if (babel[values_i_1] != "false") {
             controlObj["underlined"] = true;
           }
           break;
-          
+
         // value
         case("value"):
           var tmpVal = values_i_1.replace(/&squot;/g, "'");
@@ -509,9 +511,9 @@ var descartesJS = (function(descartesJS, babel) {
           // the value expression for future evaluation
           controlObj["valueExpr"] = this.parser.parse(tmpVal);
           // the value string for reference
-          controlObj["valueExprString"] = tmpVal;          
+          controlObj["valueExprString"] = tmpVal;
           break;
-          
+
         // increment
         case("incr"):
           if (values_i_1 != 0) {
@@ -528,7 +530,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("text"):
           // the raw string
           controlObj["rawText"] = values_i_1;
-          
+
           var tmpText = this.parseText(values_i_1);
           for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
             tmpText[ii] = this.parser.parse(tmpText[ii], false);
@@ -536,30 +538,30 @@ var descartesJS = (function(descartesJS, babel) {
 
           controlObj["text"] = tmpText;
           break;
-          
+
         // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
-          
+
           // find the font of the paramether
           if ((prefix === "parameter") && (sufix === "font")) {
             controlObj["parameterFont"] = values_i_1;
             break;
-            
+
           // find the font of the explanation
           } else if ((prefix === "Explanation") && (sufix === "font")) {
             controlObj["ExplanationFont"] = values_i_1;
             break;
-            
+
           // find the font of the tooltip
           } else if ((prefix === "tooltip") && (sufix === "font")) {
             controlObj["tooltipFont"] = values_i_1;
-            break;            
+            break;
           }
-         
-          console.log("----- attributo de control no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+
+          console.log("Propiedad de control no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -571,41 +573,41 @@ var descartesJS = (function(descartesJS, babel) {
         case("spinner"):
           return new descartesJS.Spinner(this.parent, controlObj);
           break;
-          
+
         case("button"):
           return new descartesJS.Button(this.parent, controlObj);
           break;
-          
+
         case("textfield"):
           return new descartesJS.TextField(this.parent, controlObj);
           break;
-          
+
         case("menu"):
           return new descartesJS.Menu(this.parent, controlObj);
           break;
-          
+
         case("scrollbar"):
           return new descartesJS.Scrollbar(this.parent, controlObj);
           break;
-          
+
         default:
           return new descartesJS.Spinner(this.parent, controlObj);
           break;
       }
     }
-    
+
     else if (controlObj.type === "video") {
       return new descartesJS.Video(this.parent, controlObj);
     }
-    
+
     else if (controlObj.type === "audio") {
       return new descartesJS.Audio(this.parent, controlObj);
     }
-    
+
     else if (controlObj.type === "graphic") {
       return new descartesJS.GraphicControl(this.parent, controlObj);
     }
-    
+
     else if (controlObj.type === "text") {
       return new descartesJS.TextArea(this.parent, controlObj);
     }
@@ -619,7 +621,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
    * @return {Graphic} return a graphic constructed with the correspondign values
    */
-  descartesJS.LessonParser.prototype.parseGraphic = function(values, abs_coord, background, rotateExp) { 
+  descartesJS.LessonParser.prototype.parseGraphic = function(values, abs_coord, background, rotateExp) {
     // object containing all the values ​​found in values
     graphicObj = { rotateExp: rotateExp, parameter: "t" };
 
@@ -634,7 +636,7 @@ var descartesJS = (function(descartesJS, babel) {
       babelValue = babel[values_i_0];
 
       if (values_i_1 != "") {
-        switch(babelValue) {        
+        switch(babelValue) {
 
           // type
           case("type"):
@@ -739,12 +741,12 @@ var descartesJS = (function(descartesJS, babel) {
               }
             }
             break;
-                      
+
           // text
           case("text"):
             graphicObj["text"] = this.parseText(values_i_1);
             break;
-            
+
           // file name
           case("file"):
             var fileTmp = values_i_1.replace(/&squot;/g, "'");
@@ -757,28 +759,28 @@ var descartesJS = (function(descartesJS, babel) {
             }
             graphicObj["file"] = this.parser.parse(fileTmp);
             break;
-            
+
           // color border
           case("border"):
             if ( (values_i_1 != "") && (babel[values_i_1] != "false") ) {
               graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
             }
             break;
-            
+
           // any variable missing
           default:
             if (graphicObj["family"] != undefined) {
               if (values_i_0.substring(0, graphicObj["family"].length+1) === (graphicObj["family"] + ".")) {
 
                 switch(babel[values_i_0.substring(graphicObj["family"].length+1)]) {
-                  
+
                   // find the interval variable of a family
                   case("interval"):
                     if (values_i_1 != "") {
                       graphicObj["family_interval"] = this.parser.parse(values_i_1);
                     }
                     break;
-                    
+
                   // find the number of steps in the family
                   case("steps"):
                     if (values_i_1 != "") {
@@ -807,7 +809,7 @@ var descartesJS = (function(descartesJS, babel) {
                       graphicObj["parameter_interval"] = this.parser.parse(values_i_1);
                     }
                     break;
-                    
+
                   // find the number of steps in the parameter
                   case("steps"):
                     if (values_i_1 != "") {
@@ -819,7 +821,7 @@ var descartesJS = (function(descartesJS, babel) {
               }
             }
 
-            console.log("----- attributo del graphic no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+            console.log("Propiedad del grafico no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
             break;
         }
       } // end switch
@@ -900,11 +902,11 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
    * @return {3DGraphic} return a 3D graphic constructed with the correspondign values
    */
-  descartesJS.LessonParser.prototype.parse3DGraphic = function(values, abs_coord, background, rotateExp) { 
+  descartesJS.LessonParser.prototype.parse3DGraphic = function(values, abs_coord, background, rotateExp) {
     // object containing all the values ​​found in values
     graphicObj = { rotateExp:rotateExp };
     graphicObj["parameter"] = "t";
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
@@ -912,7 +914,7 @@ var descartesJS = (function(descartesJS, babel) {
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
-      
+
       babelValue = babel[values_i_0];
 
       switch(babelValue) {
@@ -922,7 +924,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("model"):
           graphicObj[babelValue] = babel[values_i_1];
           break;
-          
+
         // condition to draw the graphic in the background
         case("background"):
         // condition to use fixed notation in the text
@@ -945,7 +947,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("model"):
           graphicObj[babelValue] = babel[values_i_1];
           break;
-          
+
         // condition to draw the graphic in the background
         case("background"):
         // condition to use fixed notation in the text
@@ -985,7 +987,7 @@ var descartesJS = (function(descartesJS, babel) {
           if (values_i_1 != "") {
             graphicObj[babelValue] = this.parser.parse(values_i_1);
           }
-          break;          
+          break;
 
         // family parameter
         case("family"):
@@ -1000,13 +1002,13 @@ var descartesJS = (function(descartesJS, babel) {
         // end rotation
         case("endrot"):
           graphicObj[babelValue] = values_i_1;
-          break;          
-          
+          break;
+
         // space identifier
         case("space"):
           graphicObj["spaceID"] = values_i_1;
           break;
-          
+
         // expression
         case("expresion"):
           if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
@@ -1016,7 +1018,7 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = values_i_1.replace(/\\n/g, " ").replace(/;/g, " ");
           }
           break;
-                    
+
         // text
         case("text"):
           var tmpText = this.parseText(values_i_1);
@@ -1026,7 +1028,7 @@ var descartesJS = (function(descartesJS, babel) {
           }
           graphicObj["text"] = tmpText;
           break;
-          
+
         // file name
         case("file"):
           var fileTmp = values_i_1.replace(/&squot;/g, "'");
@@ -1040,7 +1042,7 @@ var descartesJS = (function(descartesJS, babel) {
           }
 
           graphicObj["file"] = this.parser.parse(fileTmp);
-          break;          
+          break;
 
           break;
 
@@ -1067,7 +1069,7 @@ var descartesJS = (function(descartesJS, babel) {
           if (values_i_1 != "") {
             graphicObj[babelValue] = this.parser.parse(values_i_1);
           }
-          break;          
+          break;
 
         // family parameter
         case("family"):
@@ -1078,13 +1080,13 @@ var descartesJS = (function(descartesJS, babel) {
         // name
         case("name"):
           graphicObj[babelValue] = values_i_1;
-          break;          
-          
+          break;
+
         // space identifier
         case("space"):
           graphicObj["spaceID"] = values_i_1;
           break;
-          
+
         // expression
         case("expresion"):
           if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
@@ -1094,7 +1096,7 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = values_i_1;
           }
           break;
-                    
+
         // text
         case("text"):
           var tmpText = this.parseText(values_i_1);
@@ -1104,7 +1106,7 @@ var descartesJS = (function(descartesJS, babel) {
           }
           graphicObj["text"] = tmpText;
           break;
-          
+
         // file name
         case("file"):
           var fileTmp = values_i_1.replace(/&squot;/g, "'");
@@ -1142,7 +1144,7 @@ var descartesJS = (function(descartesJS, babel) {
             }
           }
 
-          console.log("----- attributo del graphic3D no identificado: <" + values_i_0 + "> valor: <" + values_i_1 +"> -----");
+          console.log("Propiedad del grafico 3D no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
           break;
 
       }
@@ -1208,7 +1210,7 @@ var descartesJS = (function(descartesJS, babel) {
         break;
     }
   }
-  
+
   /**
    * Parse and create an auxiliar
    * @param {String} values is the string containing the values ​​that define the auxiliar
@@ -1220,11 +1222,11 @@ var descartesJS = (function(descartesJS, babel) {
 
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
-    
+
     for(var i=0, l=values.length; i<l; i++) {
       values[i][1] = (values[i][1]).replace(/&squot;/g, "'");
     }
-    
+
     // traverse all values and asign to variables del auxiliar
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
@@ -1320,14 +1322,14 @@ var descartesJS = (function(descartesJS, babel) {
           var ind    = values_i_0.indexOf(".");
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
-          
+
           // find the font of the paramether
           if ((prefix === "parameter") && (sufix === "font")) {
             auxiliarObj["parameterFont"] = values_i_1;
             break;
           }
-          
-          console.log("----- attributo de auxiliar no identificado: <" + values_i_0 + "> valor: <" + values_i_1 + "> -----");
+
+          console.log("Propiedad del auxiliar no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -1337,12 +1339,12 @@ var descartesJS = (function(descartesJS, babel) {
       var auxS = new descartesJS.Function(this.parent, auxiliarObj);
       return;
     }
-    
+
     // constant
     else if (auxiliarObj.constant) {
       // only once evaluation
       var auxC = new descartesJS.Constant(this.parent, auxiliarObj);
-      
+
       // always evaluation
       if ((auxiliarObj.evaluate) && (auxiliarObj.evaluate === "always")) {
         this.parent.auxiliaries.push(auxC);
@@ -1353,12 +1355,12 @@ var descartesJS = (function(descartesJS, babel) {
     // algorithm
     else if ((auxiliarObj.algorithm) && (auxiliarObj.evaluate)) {
       var auxA = new descartesJS.Algorithm(this.parent, auxiliarObj);
-      
+
       this.parent.auxiliaries.push(auxA);
 
       return;
     }
-    
+
     // vector
     else if ((auxiliarObj.array) && (!auxiliarObj.matrix) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
       // only once evaluation
@@ -1382,19 +1384,19 @@ var descartesJS = (function(descartesJS, babel) {
       }
       return;
     }
-    
+
     // event
     else if ((auxiliarObj.event) && (auxiliarObj.id.charAt(auxiliarObj.id.length-1) != ")")) {
       this.parent.events.push( new descartesJS.Event(this.parent, auxiliarObj) );
 
       return;
     }
-    
+
     else {
       // function
       if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
         new descartesJS.Function(this.parent, auxiliarObj);
-      } 
+      }
       // variable
       else {
         new descartesJS.Variable(this.parent, auxiliarObj);
@@ -1402,7 +1404,7 @@ var descartesJS = (function(descartesJS, babel) {
       return;
     }
   }
-  
+
   /**
    * Parse and create an action
    * @param {String} theAction is the string containing the values ​​that define the action
@@ -1412,7 +1414,7 @@ var descartesJS = (function(descartesJS, babel) {
     theAction_action = theAction.action;
     theAction_parent = theAction.parent;
     theAction_parameter = theAction.parameter;
-    
+
     // if has some action then create it
     if (theAction_action) {
       switch (theAction_action) {
@@ -1420,12 +1422,12 @@ var descartesJS = (function(descartesJS, babel) {
         case("message"):
           return (new descartesJS.Message(theAction_parent, theAction_parameter));
           break;
-          
+
         // performs calculations
         case("calculate"):
           return (new descartesJS.Calculate(theAction_parent, theAction_parameter));
           break;
-          
+
         // open an URL
         case("openURL"):
           return (new descartesJS.OpenURL(theAction_parent, theAction_parameter));
@@ -1450,29 +1452,29 @@ var descartesJS = (function(descartesJS, babel) {
         case("init"):
           return (new descartesJS.Init(theAction_parent, theAction_parameter));
           break;
-          
+
         // clear the trace
         case("clear"):
           return (new descartesJS.Clear(theAction_parent, theAction_parameter));
           break;
-          
+
         // start the animation
         case("animate"):
           return (new descartesJS.Animate(theAction_parent, theAction_parameter));
           break;
-          
+
         // init the animation
         case("initAnimation"):
           return (new descartesJS.InitAnimation(theAction_parent, theAction_parameter));
           break;
-          
+
         // play audio
         case("playAudio"):
           return (new descartesJS.PlayAudio(theAction_parent, theAction_parameter));
           break;
 
         default:
-          console.log("----- Accion no soportada aun: <" + theAction_action + "> -----");
+          console.log("Accion no soportada: <" + theAction_action + ">");
           break;
       }
     }
@@ -1490,7 +1492,7 @@ var descartesJS = (function(descartesJS, babel) {
   descartesJS.LessonParser.prototype.parseAnimation = function(values) {
     // object containing all the values ​​found in values
     var animationObj = {};
-    
+
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
@@ -1515,7 +1517,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("whileExpr"):
           animationObj[babelValue] = values_i_1.replace(/&squot;/g, "'");
           break;
-          
+
         // condition to show the controls
         case("controls"):
         // condition to star automatically
@@ -1524,30 +1526,30 @@ var descartesJS = (function(descartesJS, babel) {
         case("loop"):
         // algorithm condition
         case("algorithm"):
-        // type of evaluation          
+        // type of evaluation
         case("evaluate"):
           animationObj[babelValue] = (babel[values_i_1] === "true");
-          break;          
-         
+          break;
+
         // any variable missing
         default:
-          console.log("----- attributo de la animacion no identificado: <" + values_i_0 + ">  <" + values_i_1 + "> -----");
+          console.log("Propiedad de la animacion no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
           break;
       }
     }
-    
+
     return (new descartesJS.Animation(this.parent, animationObj));
   }
 
   /**
-   * 
+   *
    */
   descartesJS.LessonParser.prototype.parsePleca = function(values, w) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
     // object containing all the values ​​found in values
-    plecaObj = { 
+    plecaObj = {
                 title:        "",
                 subtitle:     "",
                 subtitlines:  0,
@@ -1558,7 +1560,7 @@ var descartesJS = (function(descartesJS, babel) {
                 titlefont:    "SansSerif,BOLD,20",
                 subtitlefont: "SansSerif,PLAIN,18"
              };
- 
+
     // traverse all values and asign to variables of the pleca
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
@@ -1569,7 +1571,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("title"):
           plecaObj.title = values_i_1;
           break;
-         
+
         // subtitle text
         case("subtitle"):
           plecaObj.subtitle = values_i_1;
@@ -1618,7 +1620,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("----- attributo de la pleca no identificado: <" + values_i_0 + ">  <" + values_i_1 + "> -----");
+          console.log("Propiedad de la pleca no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
           break;
       }
     }
@@ -1637,7 +1639,7 @@ var descartesJS = (function(descartesJS, babel) {
       image = this.parent.getImage(plecaObj.titleimage);
       imageHeight = image.height;
     }
-    
+
     // create the container
     plecaObj.divPleca = document.createElement("div");
     plecaObj.divPleca.setAttribute("id", "descartesPleca");
@@ -1645,15 +1647,15 @@ var descartesJS = (function(descartesJS, babel) {
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
       plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;height:"+ (imageHeight-16) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:100;");
-      
+
       image.setAttribute("style", "position: absolute;left:0;top:0;z-index:-1;width:100%;height:100%;");
       plecaObj.divPleca.appendChild(image);
-    } 
+    }
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
       plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
     }
-    
+
     // creates the container for the title and the content is added
     divTitle = document.createElement("div");
     divTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.titlefont + ";overflow:hidden;white-space:nowrap;");
@@ -1674,26 +1676,26 @@ var descartesJS = (function(descartesJS, babel) {
 
       do {
         tempFontSize = tempFontSize - tempDecrement;
-        
+
         // style is assigned to temporary container to measure the number of lines in the text
         tempDiv.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;width:" + (w-2*paddingSides) + "px;line-height:" + tempFontSize + "px;")
-        
+
         // find the height of the temporary container
         tempDivHeight = tempDiv.offsetHeight;
         // find the number of lines by dividing the height between the height of a line
         noLines = tempDivHeight / tempFontSize;
 
         tempDecrement = 1;
-      } 
+      }
       // If the number of lines is one or the font size becomes smaller than 8px then the search ends
       while ((noLines > 1) && (tempFontSize > 8));
 
       // temporary container is removed from the body
       document.body.removeChild(tempDiv);
-      
+
       // assign to the subtitle style the proper font size
       divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;line-height: 110%;overflow:hidden;white-space:nowrap;");
-    } 
+    }
     // if the number of lines is different from 1, then the number of lines is ignored
     else {
       divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";line-height:110%;");
@@ -1703,11 +1705,11 @@ var descartesJS = (function(descartesJS, babel) {
 
     plecaObj.divPleca.appendChild(divTitle);
     plecaObj.divPleca.appendChild(divSubTitle);
-    
+
     plecaObj.divPleca.imageHeight = imageHeight;
     return plecaObj.divPleca;
   }
-  
+
   /**
    * Removes single quotes in the value and divided into an array of parameters name and value pairs
    * @param {String} values the string to divided
@@ -1720,7 +1722,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     values = values || "";
     values = values.replace(/\\'/g, "’");
-    
+
     splitValues = [];
     pos = 0;
     i = 0;
@@ -1736,31 +1738,31 @@ var descartesJS = (function(descartesJS, babel) {
       if ((values.charAt(pos) === " ") && (!initToken)) {
         pos++;
       }
-      
+
       // find a character which is different from a blank space
       if ((values.charAt(pos) !== " ") && (!initToken)) {
         initToken = true;
         initPosToken = pos;
       }
-      
+
       // values ​​are specified as a string
       if ((values.charAt(pos) === "=") && (values.charAt(pos+1) === "'") && (!stringToken)) {
         stringToken = true;
-        
+
         splitValues[i] = [values.substring(initPosToken, pos)]
 
         initPosToken = pos+2;
-        
+
         pos+=2;
       }
-      
+
       if ((stringToken) && (values.charAt(pos) === "'")) {
         stringToken = false;
-        
+
         initToken = false;
-        
+
         splitValues[i].push(values.substring(initPosToken, pos));
-        
+
         i++;
       }
 
@@ -1769,7 +1771,7 @@ var descartesJS = (function(descartesJS, babel) {
         splitValues[i] = [values.substring(initPosToken, pos)]
 
         initPosToken = pos+1;
-        
+
         pos++;
 
         // find the next space and equal sign
@@ -1778,7 +1780,7 @@ var descartesJS = (function(descartesJS, babel) {
         if (tmpIndexEqual === -1) {
           tmpIndexEqual = values.length;
           tmpIndexSpace = values.length;
-        } 
+        }
         else {
           tmpIndexEqual += pos;
 
@@ -1799,11 +1801,11 @@ var descartesJS = (function(descartesJS, babel) {
       }
 
       pos++;
-    }      
+    }
 
     return splitValues;
   }
-  
+
   /**
    * Parse a text an construct a simple text or rtf text
    * @param {String} text the string text to parse
@@ -1815,7 +1817,7 @@ var descartesJS = (function(descartesJS, babel) {
     if (text.match(/^\{\\rtf1/)) {
       return this.RTFparser.parse(text.substring(10));
     }
-    
+
     // is a simple text
     return new descartesJS.SimpleText(this.parent, text);
   }

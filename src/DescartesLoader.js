@@ -12,43 +12,43 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes loader
-   * @constructor 
+   * @constructor
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesLoader = function(descartesApp) {
+    var self = this;
+
     this.children = descartesApp.children;
     this.lessonParser = descartesApp.lessonParser;
     this.images = descartesApp.images;
     this.images.length = descartesApp.images.length;
     this.audios = descartesApp.audios;
     this.audios.length = descartesApp.audios.length;
-    this.arquimedes = descartesApp.arquimedes;
     this.descartesApp = descartesApp;
-    
-    var imageURL = (descartesApp.image_loader) ? descartesApp.image_loader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height);
+
+    var imageURL = (descartesApp.imgLoader) ? descartesApp.imgLoader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height, descartesApp.ratio);
 
     this.imageLoader = document.createElement("div");
     this.imageLoader.width = descartesApp.width;
     this.imageLoader.height = descartesApp.height;
     this.imageLoader.setAttribute("class", "DescartesLoaderImage")
-    this.imageLoader.setAttribute("style", "background-image: url(" + imageURL + "); background-size:cover; width: " + descartesApp.width + "px; height: " + descartesApp.height + "px;");
-    
+    this.imageLoader.setAttribute("style", "background-image:url(" + imageURL + ");background-size:cover;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+
     descartesApp.loader.appendChild(this.imageLoader);
-    
+
     this.loaderBar = document.createElement("canvas");
     this.loaderBar.width = descartesApp.width;
     this.loaderBar.height = descartesApp.height;
     this.loaderBar.setAttribute("class", "DescartesLoaderBar");
-    this.loaderBar.setAttribute("style", "width: " + descartesApp.width + "px; height:" + descartesApp.height + "px;");
+    this.loaderBar.setAttribute("style", "width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
     this.loaderBar.ctx = this.loaderBar.getContext("2d");
 
     descartesApp.loader.appendChild(this.loaderBar);
-    
+
     this.barWidth = 80;
     this.barHeight = Math.floor(descartesApp.loader.height/70);
-    
-    var self = this;
-    this.timer = setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, descartesApp.width, descartesApp.height); }, 10);
+
+    this.timer = descartesJS.setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, descartesApp.width, descartesApp.height); }, 10);
 
     descartesApp.firstRun = false;
 
@@ -66,12 +66,10 @@ var descartesJS = (function(descartesJS) {
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
     // if arquimedes then add the license image
-    if (this.arquimedes) {
-      var licenceFile = "lib/DescartesCCLicense.png";
-      images[licenceFile] = descartesJS.getCreativeCommonsLicenseImage();
-      images[licenceFile].addEventListener('load', function() { this.ready = 1; });
-      images[licenceFile].addEventListener('error', function() { this.errorload = 1; });
-    }
+    var licenceFile = "lib/DescartesCCLicense.png";
+    images[licenceFile] = descartesJS.getCCLImg();
+    images[licenceFile].addEventListener('load', function() { this.ready = 1; });
+    images[licenceFile].addEventListener('error', function() { this.errorload = 1; });
 
     var imageFilename;
     var imageTmp;
@@ -106,7 +104,7 @@ var descartesJS = (function(descartesJS) {
           // the macro is in an external file
           else {
             response = descartesJS.openExternalFile(filename);
-            
+
             // verify the content is a Descartes macro
             if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
               response = null;
@@ -153,7 +151,7 @@ var descartesJS = (function(descartesJS) {
 
       // check if the children has an audio filename
       audioFilename = (children[i].value).match(regExpAudio);
-     
+
       // if audioFilename has a match then add the audios
       if (audioFilename) {
         for (j=0, al=audioFilename.length; j<al; j++) {
@@ -161,7 +159,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-        
+
     // count how many images
     for (var propName in images) {
       if (images.hasOwnProperty(propName)) {
@@ -179,7 +177,7 @@ var descartesJS = (function(descartesJS) {
     var self = this;
     var total = this.images.length + this.audios.length;
     this.sep = (2*(this.barWidth-2))/total;
-    
+
     /**
      * Function that checks if all the media are loaded
      */
@@ -205,13 +203,13 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // if the number of count elements is diferente to the total then execute again checLoader
+      // if the number of count elements is different to the total then execute again checkLoader
       if (self.readys != total) {
-        setTimeout(checkLoader, 30);
+        descartesJS.setTimeout(checkLoader, 30);
       }
       // if the number of count elements is equal to the total then clear the timer and init the build of the app
       else {
-        clearTimeout(self.timer);
+        descartesJS.clearInterval(self.timer);
         self.descartesApp.initBuildApp();
       }
     }
@@ -226,14 +224,14 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesLoader.prototype.initAudio = function(file) {
     var audios = this.audios;
-    
+
     audios[file] = new Audio(file);
     audios[file].filename = file;
 
     var onCanPlayThrough = function() {
       this.ready = 1;
     }
-    
+
     var onError = function() {
       if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
         audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
@@ -242,7 +240,7 @@ var descartesJS = (function(descartesJS) {
         audios[file].addEventListener('load', onCanPlayThrough);
         audios[file].addEventListener('error', onError);
         audios[file].load();
-      } 
+      }
       else {
         console.log("El archivo '" + file + "' no puede ser reproducido");
         this.errorload = 1;
@@ -255,9 +253,9 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.hasTouchSupport) {
       audios[file].load();
       audios[file].play();
-      setTimeout( function(){ 
-        // console.log("detenido"); 
-        audios[file].pause(); 
+      descartesJS.setTimeout( function(){
+        // console.log("detenido");
+        audios[file].pause();
       }, 20);
       audios[file].ready = 1;
     } else {
@@ -278,16 +276,16 @@ var descartesJS = (function(descartesJS) {
     ctx.scale(scale, scale);
 
     ctx.strokeRect(-barWidth, -barHeight, 2*barWidth, barHeight);
-    
+
     ctx.fillStyle = "#888";
     ctx.fillRect(-barWidth+2, -barHeight+2, 2*(barWidth-2), barHeight-4);
-    
+
     ctx.fillStyle = "#1f358d";
     ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*this.sep, barHeight-4);
 
     // reset the transformation
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-  }  
+  }
 
   /**
    * Draw the descartesJS logo
@@ -295,9 +293,9 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} h space height
    * @return {Image} return the image corresponding to the logo
    */
-  var drawDescartesLogo = function(w, h) {
+  var drawDescartesLogo = function(w, h, ratio) {
     var canvas = document.createElement("canvas");
-    var ratio = ((w*descartesJS._ratio * h*descartesJS._ratio) > 5000000) ? 1 : descartesJS._ratio;
+    var ratio = ((w*this.ratio * h*this.ratio) > 5000000) ? 1 : ratio;
 
     canvas.width  = w * ratio;
     canvas.height = h * ratio;
@@ -309,7 +307,7 @@ var descartesJS = (function(descartesJS) {
     ctx.save();
 
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    
+
     ctx.strokeStyle = ctx.fillStyle = "#1f358d";
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
@@ -327,7 +325,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.translate((w-(120*scale))/2, (h-(65*scale))/2);
     ctx.scale(scale, scale);
-    
+
     ctx.moveTo(3,25);
     ctx.lineTo(3,1);
     ctx.lineTo(21,1);
@@ -354,7 +352,7 @@ var descartesJS = (function(descartesJS) {
     ctx.restore();
 
     return canvas.toDataURL();
-  }  
-    
+  }
+
   return descartesJS;
 })(descartesJS || {});

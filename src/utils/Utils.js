@@ -5,7 +5,7 @@
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
-  
+
   var PI2 = Math.PI*2;
   var trecientosSesentaEntreDosPi = 360/PI2;
   var dosPiEntreTrecientosSesenta = PI2/360;
@@ -24,11 +24,13 @@ var descartesJS = (function(descartesJS) {
   var touch;
   var mouseX;
   var mouseY;
+  var boundingRect;
 
   var desp;
 
   descartesJS.rangeOK = 1;
-  
+  descartesJS.cssScale = 1;
+
   /**
    * Extends an object with inheritance
    * @param {Object} child is the object that extends
@@ -37,16 +39,16 @@ var descartesJS = (function(descartesJS) {
   descartesJS.extend = function(child, parent) {
     // updated method
     if (typeof Object.create == "function") {
-      child.prototype = Object.create(parent.prototype);      
+      child.prototype = Object.create(parent.prototype);
     }
     // old method
     else {
       if (child.prototype.__proto__) {
         child.prototype.__proto__ = parent.prototype;
       }
-      else { 
+      else {
         // copy all the functions of the parent
-        for( var i in parent.prototype ) { 
+        for( var i in parent.prototype ) {
           if (parent.prototype.hasOwnProperty(i)) {
             child.prototype[i] = parent.prototype[i];
           }
@@ -66,7 +68,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.radToDeg = function(r) {
     return r*trecientosSesentaEntreDosPi;
   }
-  
+
   /**
    * Converts degrees to radians
    * @param {Number} d the degree to convert
@@ -90,13 +92,13 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = lineWidth || 1;
     ctx.strokeStyle = strokeStyle || "black";
     desp = (ctx.lineWidth%2) ? .5 : 0;
-    
+
     ctx.beginPath();
     ctx.moveTo(MathFloor(x1)+desp, MathFloor(y1)+desp);
     ctx.lineTo(MathFloor(x2)+desp, MathFloor(y2)+desp);
     ctx.stroke();
   }
-  
+
   /**
    * Get a color string from a Descartes color
    * @param {DescartesJS.Evaluator} evaluator the evaluator needed for evaluate the posible expressions
@@ -110,23 +112,20 @@ var descartesJS = (function(descartesJS) {
     }
     // if the color has an expression, then evaluate the string and return the corresponding color
     else {
-      colorExpr = evaluator.evalExpression(color);
+      colorExpr = evaluator.eval(color);
       red   = MathFloor(colorExpr[0][0]*255);
       green = MathFloor(colorExpr[0][1]*255);
       blue  = MathFloor(colorExpr[0][2]*255);
       alpha = (1-colorExpr[0][3]);
 
       return "rgba(" + red + "," + green + "," + blue + "," + alpha + ")";
-    }    
+    }
   }
-  
+
   /**
    * Get some feature needed for the properly interpretation of the Descartes lesson
    */
   descartesJS.getFeatures = function() {
-    // detects if the browser has java enable
-    descartesJS.hasJavaSupport = navigator.javaEnabled();
-
     // detects if the browser supports touch events
     var system = navigator.appVersion.toLowerCase();
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
@@ -135,20 +134,18 @@ var descartesJS = (function(descartesJS) {
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');
-    descartesJS.hasCanvasSupport = (elem.getContext && elem.getContext('2d'));
-    if (descartesJS.hasCanvasSupport) {
+    descartesJS.hasCanvas = (elem.getContext && elem.getContext('2d'));
+    if (descartesJS.hasCanvas) {
       // render context used to measuere text
       descartesJS.ctx = document.createElement("canvas").getContext("2d");
 
-// descartesJS.devicePixelRatio = window.devicePixelRatio || 1;
-// descartesJS.backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
-//                                 descartesJS.ctx.mozBackingStorePixelRatio ||
-//                                 descartesJS.ctx.msBackingStorePixelRatio ||
-//                                 descartesJS.ctx.oBackingStorePixelRatio ||
-//                                 descartesJS.ctx.backingStorePixelRatio || 1;
-// descartesJS._ratio = descartesJS.devicePixelRatio / descartesJS.backingStoreRatio;
-
-      descartesJS._ratio = descartesJS.devicePixelRatio = descartesJS.backingStoreRatio = 1;
+      // var backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
+      //                         descartesJS.ctx.mozBackingStorePixelRatio ||
+      //                         descartesJS.ctx.msBackingStorePixelRatio ||
+      //                         descartesJS.ctx.oBackingStorePixelRatio ||
+      //                         descartesJS.ctx.backingStorePixelRatio || 1;
+      // descartesJS._ratio = (window.devicePixelRatio || 1) / backingStoreRatio;
+      descartesJS._ratio = 1.5;
     }
 
     setNewToFixed();
@@ -162,7 +159,7 @@ var descartesJS = (function(descartesJS) {
     var indexOfDot;
     var extraZero;
     var diff;
-    
+
     var indexOfE;
     var exponentialNotationSplit;
     var exponentialNumber;
@@ -174,76 +171,69 @@ var descartesJS = (function(descartesJS) {
     }
 
     // maintain the original toFixed function
-    Number.prototype.originalToFixed = Number.prototype.toFixed;
+    Number.prototype.oToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      // if the browser support more than 20 decimals use the browser function otherwise use a custom implementation
-      try {
-        return this.originalToFixed(decimals);
+      decimals = (decimals) ? decimals : 0;
+      decimals = (decimals<0) ? 0 : parseInt(decimals);
+
+      strNum = this.toString();
+      indexOfE = strNum.indexOf("e");
+
+      if (indexOfE !== -1) {
+        exponentialNotationSplit = strNum.split("e");
+        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).oToFixed(11) : parseFloat(exponentialNotationSplit[0]).oToFixed(11);
+
+        moveDotTo = parseInt(exponentialNotationSplit[1]);
+        indexOfDot = exponentialNumber.indexOf(".");
+
+        if (indexOfDot+moveDotTo < 0) {
+          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
+          strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+        }
+        else {
+          exponentialNumber = exponentialNumber.replace(".", "");
+          strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+        }
       }
-      catch(e) {
-        decimals = (decimals) ? decimals : 0;
-        decimals = (decimals<0) ? 0 : parseInt(decimals);
 
-        strNum = this.toString();
-        indexOfE = strNum.indexOf("e");
+      indexOfDot = strNum.indexOf(".");
+      extraZero = "";
 
-        if (indexOfE !== -1) {
-          exponentialNotationSplit = strNum.split("e");
-          exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
-          exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).originalToFixed(11) : parseFloat(exponentialNotationSplit[0]).originalToFixed(11);
-
-          moveDotTo = parseInt(exponentialNotationSplit[1]);
-          indexOfDot = exponentialNumber.indexOf(".");
-
-          if (indexOfDot+moveDotTo < 0) {
-            indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
-            strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
-          }
-          else {
-            exponentialNumber = exponentialNumber.replace(".", "");
-            strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
-          }
+      // is a float number
+      if (indexOfDot === -1) {
+        if (decimals > 0) {
+          extraZero = ".";
         }
 
-        indexOfDot = strNum.indexOf(".");
-        extraZero = "";
+        extraZero += (new Array(decimals+1)).join("0");
 
-        // is a float number
-        if (indexOfDot === -1) {
-          if (decimals > 0) {
-            extraZero = ".";
+        strNum = strNum + extraZero;
+      }
+      else {
+        diff = strNum.length - indexOfDot - 1;
+
+        if (diff >= decimals) {
+          if (decimals <= 11) {
+            strNum = parseFloat(strNum).oToFixed(decimals);
           }
 
-          extraZero += (new Array(decimals+1)).join("0");
+          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+        }
+        else {
+          for (var i=0, l=decimals-diff; i<l; i++) {
+            extraZero += "0";
+          }
 
           strNum = strNum + extraZero;
         }
-        else {
-          diff = strNum.length - indexOfDot - 1;
-
-          if (diff >= decimals) {
-            if (decimals <= 11) {
-              strNum = parseFloat(strNum).originalToFixed(decimals);
-            }
-            
-            strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
-          }
-          else {
-            for (var i=0, l=decimals-diff; i<l; i++) {
-              extraZero += "0";
-            }
-
-            strNum = strNum + extraZero;
-          }
-        }
-
-        return strNum;
       }
-      // end catch
+
+      return strNum;
     }
   }
-  
+
   /**
    *
    */
@@ -253,8 +243,9 @@ var descartesJS = (function(descartesJS) {
 
     if (typeof(num) == "string") {
       indexOfDot = num.indexOf(".");
+
       if (indexOfDot != -1) {
-        decimalNumbers = num.substring(indexOfDot)
+        decimalNumbers = num.substring(indexOfDot);
 
         if (parseFloat(decimalNumbers) == 0) {
           return num.substring(0, indexOfDot);
@@ -266,8 +257,8 @@ var descartesJS = (function(descartesJS) {
             }
           }
         }
-        
-        return num;        
+
+        return num;
       }
     }
 
@@ -287,7 +278,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Get which mouse button is pressed
    */
-  descartesJS.whichButton = function(evt) {
+  descartesJS.whichBtn = function(evt) {
     // all browsers
     if (evt.which !== null) {
       return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
@@ -301,122 +292,99 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the event that has the cursor postion
    * @return {Object} return the position of the mouse in absolute coordinates
    */
-  descartesJS.getCursorPosition = function(evt) {
+  descartesJS.getCursorPosition = function(evt, container) {
     // if has touch events
     if (evt.touches) {
       touch = evt.touches[0];
-    
-      mouseX = touch.pageX; 
+
+      mouseX = touch.pageX;
       mouseY = touch.pageY;
-    } 
+    }
     // if has mouse events
     else {
-      // all browsers
-      // if (evt.pageX != undefined && evt.pageY != undefined) { 
-      //   mouseX = evt.pageX; 
-      //   mouseY = evt.pageY;
-      // } 
-      // // IE
-      // else { 
-      //   mouseX = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-      //   mouseY = evt.clientY + document.body.scrollTop  + document.documentElement.scrollTop;
-      // }
-
-      // posible nueva opcion mas moderna
-      mouseX = evt.clientX; 
-      mouseY = evt.clientY;
+      mouseX = evt.pageX;
+      mouseY = evt.pageY;
     }
 
-    return { x:mouseX, y:mouseY };
+    boundingRect = container.getBoundingClientRect();
+
+    // considerar para la escala por transformacion de css
+    return { x: (mouseX -window.pageXOffset -boundingRect.left)/descartesJS.cssScale,
+             y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
+           }
   }
   
+
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
   /**
-   * Get a screenshot of the lesson
-   * @return {Image} return a screenshot image of the lesson
+   *
    */
-  descartesJS.getScreenshot = function() {
-    var app = descartesJS.apps[0];
-    var space_i;
-    var canvas = document.createElement("canvas");
-    var image = new Image();
-
-    if (app) {
-      canvas.setAttribute("width", app.width);
-      canvas.setAttribute("height", app.height);
-      var ctx = canvas.getContext("2d");
-
-      for (var i=0, l=app.spaces.length; i<l; i++) {
-        space_i = app.spaces[i];
-
-        if (space_i.drawIfValue) {
-          // draw the content of a 2D space
-          if (space_i.type === "R2") {
-            ctx.drawImage(space_i.backgroundCanvas, space_i.x, space_i.y);
-            ctx.drawImage(space_i.canvas, space_i.x, space_i.y);
-
-            getScreenshotControls(ctx, space_i.container, space_i.ctrs);
-          }
-        }
-      }
-
-      // draw the north space region
-      if (app.northSpace.controls.length > 0) {
-        getScreenshotRegion(ctx, app.northSpace.container, app.northSpace);
-      }
-      // draw the south space region
-      if (app.southSpace.controls.length > 0) {
-        getScreenshotRegion(ctx, app.southSpace.container, app.southSpace);
-      }
-      // draw the east space region
-      if (app.eastSpace.controls.length > 0) {
-        getScreenshotRegion(ctx, app.eastSpace.container, app.eastSpace);
-      }
-      // draw the west space region
-      if (app.westSpace.controls.length > 0) {
-        getScreenshotRegion(ctx, app.westSpace.container, app.westSpace);
-      }
-
-      image.src = canvas.toDataURL("image/png");
+  descartesJS.setInterval = function(fun, delay) {
+    if (!requestAnimationFrame) {
+      return setInterval(fun, delay);
     }
 
-    return image;
-  }
+    var start = new Date().getTime();
+    var handle = {};
 
-  /**
-   * Auxiliary function to draw the north, south, east and west regions
-   * @param {2DContext} ctx the rendering context to draw
-   * @param {HTMLnode} container the html container of the region
-   * @param {Space} space the space to draw
-   */
-  function getScreenshotRegion(ctx, container, space) {
-    ctx.fillStyle = "#c0c0c0";
-
-    ctx.fillRect(container.offsetLeft, 
-                 container.offsetTop, 
-                 container.offsetWidth, 
-                 container.offsetHeight);
-
-    getScreenshotControls(ctx, container, space.controls);
-  }
-
-  /**
-   * Auxiliary function to draw the controls of a space
-   * @param {2DContext} ctx the rendering context to draw
-   * @param {HMTLnode} container the html container of the space
-   * @param {Array<Control>} controls the controls of the space to draw
-   */
-  function getScreenshotControls(ctx, container, controls) {
-    var ctr_i;
-
-    for (var i=controls.length-1; i>=0; i--) {
-      ctr_i = controls[i];
-      if (ctr_i.drawIfValue) {
-        ctx.drawImage(ctr_i.getScreenshot(), container.offsetLeft + ctr_i.x, container.offsetTop + ctr_i.y);
+    function loop() {
+      if(((new Date().getTime()) - start) >= delay) {
+        fun.call();
+        start = new Date().getTime();
       }
+
+      handle.value = requestAnimationFrame(loop);
+    };
+
+    handle.value = requestAnimationFrame(loop);
+    return handle;
+  }
+
+  /**
+   *
+   */
+  descartesJS.clearInterval = function(handle) {
+    if (handle) {
+      (cancelAnimationFrame) ? cancelAnimationFrame(handle.value) : clearInterval(handle);
     }
   }
 
-  var htmlAbout = 
+  /**
+   *
+   */
+  descartesJS.setTimeout = function(fun, delay) {
+    if (!requestAnimationFrame) {
+      return setTimeout(fun, delay);
+    }
+
+    var start = new Date().getTime();
+    var handle = {};
+
+    function loop() {
+      if (((new Date().getTime()) - start) >= delay) {
+        fun.call();
+      }
+      else {
+        handle.value = requestAnimationFrame(loop);
+      }
+    };
+
+    handle.value = requestAnimationFrame(loop);
+    return handle;
+  }
+
+  /**
+   *
+   */
+  descartesJS.clearTimeout = function(handle) {
+    if (handle) {
+      (cancelAnimationFrame) ? cancelAnimationFrame(handle.value) : clearTimeout(handle);
+    }
+  }
+
+  var htmlAbout =
   "<html>\n" +
   "<head>\n" +
   "<style>\n" +
@@ -471,7 +439,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.showAbout = function() {
     var content = htmlAbout;
-    if (descartesJS.creativeCommonsLicense) {
+    if (descartesJS.ccLicense) {
       content+=htmlCreative;
     }
     content+=htmlFinal;

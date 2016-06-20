@@ -61,12 +61,9 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Krypto.prototype.encode = function(s) {
     n = MathFloor(31*MathRandom());
-    
     this.key = this.getKey(n);
-
-    b = stringfromCharCode(this.alfanum(n));
     
-    return b + this.encripta(s);
+    return stringfromCharCode(this.alfanum(n)) + this.encripta(s);
   }
   
   /**
@@ -75,7 +72,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Krypto.prototype.decode = function(s) {
     n = this.numalfa( s.charCodeAt(0) );
-
     this.key = this.getKey(n);
 
     return this.desencripta(s.substring(1));

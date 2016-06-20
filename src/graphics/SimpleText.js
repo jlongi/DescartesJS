@@ -8,9 +8,9 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes plain text (not RTF)
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
-   * @param {String} text the content text 
+   * @param {String} text the content text
    */
   descartesJS.SimpleText = function(parent, text) {
     text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
@@ -39,25 +39,25 @@ var descartesJS = (function(descartesJS) {
         this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "['");
         lastPos = pos+1;
       }
-      
+
       // close square bracket scaped
       else if ((charAt === "]") && (charAtAnt === "\\")) {
         this.textElements.push(text.substring(lastPos, pos-1) + "]");
         this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "]'");
         lastPos = pos+1;
       }
-      
+
       // if find an open square bracket
       else if ((charAt === "[") && (ignoreSquareBracket === -1)) {
         this.textElements.push(text.substring(lastPos, pos));
         this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
         lastPos = pos;
         ignoreSquareBracket++;
-      } 
+      }
 
       else if (charAt === "[") {
         ignoreSquareBracket++;
-      } 
+      }
 
       // if find a close square bracket add the string +'
       else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
@@ -66,17 +66,17 @@ var descartesJS = (function(descartesJS) {
         lastPos = pos+1;
         ignoreSquareBracket--;
       }
-      
+
       else if (text.charAt(pos) == "]") {
         ignoreSquareBracket = (ignoreSquareBracket < 0) ? ignoreSquareBracket : ignoreSquareBracket-1;
         txt = txt + text.charAt(pos);
-      } 
+      }
 
       else {
         txt = txt + text.charAt(pos);
-      }      
+      }
 
-      pos++; 
+      pos++;
     }
     this.textElements.push(text.substring(lastPos, pos));
     this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
@@ -99,7 +99,7 @@ var descartesJS = (function(descartesJS) {
         txt += this.textElements[i];
       }
       else {
-        evalString = this.evaluator.evalExpression(this.textElements[i])[0][0];
+        evalString = this.evaluator.eval(this.textElements[i])[0][0];
 
         if (evalString !== "") {
           // the evaluation is a string
@@ -111,7 +111,7 @@ var descartesJS = (function(descartesJS) {
             evalString = parseFloat(evalString);
 
             evalString = (fixed) ? evalString.toFixed(decimals) : descartesJS.removeNeedlessDecimals(evalString.toFixed(decimals));
-            txt += evalString.toString().replace(".", this.parent.decimal_symbol);                        
+            txt += evalString.toString().replace(".", this.parent.decimal_symbol);
           }
         }
       }

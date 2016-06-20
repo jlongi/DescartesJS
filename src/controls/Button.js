@@ -8,7 +8,7 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var MathAbs = Math.abs;
-    
+
   var evaluator;
   var canvas;
   var ctx;
@@ -52,7 +52,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes button control
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the button control
    */
@@ -70,7 +70,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.image = new Image();
-    
+
     /**
      * over image
      * type {Image}
@@ -88,15 +88,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-//
-var devicePixelRatio = window.devicePixelRatio || 1;
-var backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
-                        descartesJS.ctx.mozBackingStorePixelRatio ||
-                        descartesJS.ctx.msBackingStorePixelRatio ||
-                        descartesJS.ctx.oBackingStorePixelRatio ||
-                        descartesJS.ctx.backingStorePixelRatio || 1;
-descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
-//
+    this.ratio = parent.ratio;
 
     if (this.font_size === -1) {
       this.fontSizeNotSet = true;
@@ -115,8 +107,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     if (this.imageSrc.trim().match("^_STYLE_")) {
       this.customStyle = true;
       this.canvasStyle = [];
-      this.containerStyle = [];
-      this.containerStyle.textBorder = 3;
+      this.conStyle = [];
+      this.conStyle.textBorder = 3;
 
       tmpParam = this.imageSrc.trim().substring(8).split("|");
       var tempo;
@@ -133,64 +125,64 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
         }
         else if (tempo.match("borderRadius=")) {
           this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
-          this.containerStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+          this.conStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
         }
         else if (tempo.match("borderColor=")) {
           this.canvasStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
         }
         else if (tempo.match("overColor=")) {
-          this.containerStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
+          this.conStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
         else if (tempo.match("downColor=")) {
-          this.containerStyle.downColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
+          this.conStyle.downColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
         }
         else if (tempo.match("font=")) {
-          this.containerStyle.font = tempo.substring(5).trim().toLowerCase();
+          this.conStyle.font = tempo.substring(5).trim().toLowerCase();
         }
         else if (tempo.match("inactiveColor=")) {
-          this.containerStyle.inactiveColor = ((isRGB)?"":"#") + tempo.substring(14).trim();
+          this.conStyle.inactiveColor = ((isRGB)?"":"#") + tempo.substring(14).trim();
         }
         else if (tempo.match("inactiveColorBorder=")) {
-          this.containerStyle.inactiveColorBorder = ((isRGB)?"":"#") + tempo.substring(20).trim();
+          this.conStyle.inactiveColorBorder = ((isRGB)?"":"#") + tempo.substring(20).trim();
         }
         else if (tempo.match("shadowTextBlur=")) {
-          this.containerStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
+          this.conStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
         }
         else if (tempo.match("shadowTextOffsetX=")) {
-          this.containerStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
+          this.conStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
         }
         else if (tempo.match("shadowTextOffsetY=")) {
-          this.containerStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
+          this.conStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
         }
         else if (tempo.match("shadowTextColor=")) {
-          this.containerStyle.shadowTextColor = ((isRGB)?"":"#") + tempo.substring(16).trim();
+          this.conStyle.shadowTextColor = ((isRGB)?"":"#") + tempo.substring(16).trim();
         }
         else if (tempo.match("shadowBoxBlur=")) {
-          this.containerStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
+          this.conStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
         }
         else if (tempo.match("shadowBoxOffsetX=")) {
-          this.containerStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
+          this.conStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
         }
         else if (tempo.match("shadowBoxOffsetY=")) {
-          this.containerStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
+          this.conStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
         }
         else if (tempo.match("shadowBoxColor=")) {
-          this.containerStyle.shadowBoxColor = ((isRGB)?"":"#") + tempo.substring(15).trim();
+          this.conStyle.shadowBoxColor = ((isRGB)?"":"#") + tempo.substring(15).trim();
         }
         else if (tempo.match("shadowInsetBoxBlur=")) {
-          this.containerStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
+          this.conStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
         }
         else if (tempo.match("shadowInsetBoxOffsetX=")) {
-          this.containerStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
+          this.conStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
         }
         else if (tempo.match("shadowInsetBoxOffsetY=")) {
-          this.containerStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
+          this.conStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
         }
         else if (tempo.match("shadowInsetBoxColor=")) {
-          this.containerStyle.shadowInsetBoxColor = ((isRGB)?"":"#") + tempo.substring(20).trim();
+          this.conStyle.shadowInsetBoxColor = ((isRGB)?"":"#") + tempo.substring(20).trim();
         }
         else if (tempo.match("textBorder=")) {
-          this.containerStyle.textBorder = parseFloat(tempo.substring(11).trim());
+          this.conStyle.textBorder = parseFloat(tempo.substring(11).trim());
         }
       }
       this.imageSrc = "vacio.gif";
@@ -216,7 +208,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     // if the button has an image then load it and try to load the over and down images
-    var imageSrc = this.evaluator.evalExpression(this.imageSrc).toString().trim();
+    var imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
 
     if (imageSrc != "") {
       var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
@@ -236,10 +228,11 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
         this.emptyImage = { ready: true };
         imageSrc = this.parser.parse("'vacio.gif'");
-      } 
+      }
       // the image is not empty
       else {
         this.image = this.parent.getImage(imageSrc);
+
         // if the name is empty, do not try to get over and down images
         if (prefix) {
           this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
@@ -255,27 +248,25 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     // create the canvas and the rendering context
     this.canvas = document.createElement("canvas");
-    this.canvas.width  = this.w *descartesJS.button_ratio;
-    this.canvas.height = this.h *descartesJS.button_ratio;
+    this.canvas.width  = this.w *this.ratio;
+    this.canvas.height = this.h *this.ratio;
     // this.canvas.setAttribute("width", this.w+"px");
     // this.canvas.setAttribute("height", this.h+"px");
     this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     this.ctx = this.canvas.getContext("2d");
-    // this.ctx.imageSmoothingEnabled = false;
-    // this.ctx.mozImageSmoothingEnabled = false;
-    // this.ctx.webkitImageSmoothingEnabled = false;
+    this.ctx.imageSmoothingEnabled = false;
 
     this.container.appendChild(this.canvas);
 
     this.addControlContainer(this.container);
 
     // register the mouse and touch events
-    this.registerMouseAndTouchEvents();
+    this.addEvents();
 
     // init the button parameters
     this.init();
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +280,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     container = this.container;
     canvas = this.canvas;
     ctx = this.ctx;
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     this.x = expr[0][0];
     this.y = expr[0][1];
     if (expr[0].length == 4) {
@@ -298,8 +289,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     //
-    canvas.width  = this.w *descartesJS.button_ratio;
-    canvas.height = this.h *descartesJS.button_ratio;
+    canvas.width  = this.w *this.ratio;
+    canvas.height = this.h *this.ratio;
     canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
     //
@@ -310,30 +301,30 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
         canvas.style[this.canvasStyle[i].type] = this.canvasStyle[i].value;
       }
     }
-    if (this.containerStyle) {
-      for (var i=0, l=this.containerStyle.length; i<l; i++) {
-        container.style[this.containerStyle[i].type] = this.containerStyle[i].value;
+    if (this.conStyle) {
+      for (var i=0, l=this.conStyle.length; i<l; i++) {
+        container.style[this.conStyle[i].type] = this.conStyle[i].value;
       }
 
-      if (this.containerStyle.shadowBoxColor) {
-        var hShadow = this.containerStyle.shadowBoxOffsetX || 0;
-        var wShadow = this.containerStyle.shadowBoxOffsetY || 2;
-        var blur = this.containerStyle.shadowBoxBlur || 2;
+      if (this.conStyle.shadowBoxColor) {
+        var hShadow = this.conStyle.shadowBoxOffsetX || 0;
+        var wShadow = this.conStyle.shadowBoxOffsetY || 2;
+        var blur = this.conStyle.shadowBoxBlur || 2;
         var spread = 1;
-        container.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowBoxColor;
+        container.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowBoxColor;
       }
-      if (this.containerStyle.shadowInsetBoxColor) {
-        var hShadow = this.containerStyle.shadowInsetBoxOffsetX || 0;
-        var wShadow = this.containerStyle.shadowInsetBoxOffsetY || -2;
-        var blur = this.containerStyle.shadowInsetBoxBlur || 1;
+      if (this.conStyle.shadowInsetBoxColor) {
+        var hShadow = this.conStyle.shadowInsetBoxOffsetX || 0;
+        var wShadow = this.conStyle.shadowInsetBoxOffsetY || -2;
+        var blur = this.conStyle.shadowInsetBoxBlur || 1;
         var spread = 1;
-        canvas.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.containerStyle.shadowInsetBoxColor + " inset";
+        canvas.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
       }
-      if (this.containerStyle.shadowTextColor) {
-        ctx.shadowBlur = this.containerStyle.shadowTextBlur || 1;
-        ctx.shadowOffsetX = this.containerStyle.shadowTextOffsetX || 0;
-        ctx.shadowOffsetY = this.containerStyle.shadowTextOffsetY || 2;
-        ctx.shadowColor = this.containerStyle.shadowTextColor;
+      if (this.conStyle.shadowTextColor) {
+        ctx.shadowBlur = this.conStyle.shadowTextBlur || 1;
+        ctx.shadowOffsetX = this.conStyle.shadowTextOffsetX || 0;
+        ctx.shadowOffsetY = this.conStyle.shadowTextOffsetY || 2;
+        ctx.shadowColor = this.conStyle.shadowTextColor;
       }
     }
     //
@@ -341,35 +332,32 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     if (this.fontSizeNotSet) {
       this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
     }
-    this.fs_evaluated = evaluator.evalExpression(this.font_size);
+    this.fs_evaluated = evaluator.eval(this.font_size);
 
     // create the background gradient
     this.createGradient(this.w, this.h);
 
-    container.style.display = (evaluator.evalExpression(this.drawif) > 0) ? "block" : "none";
+    container.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
 
     ////
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineJoin = "round";
-    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_sansserif,Arial,Helvetica,Sans-serif";
-    
+    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.sansserif_font;
+
     if (this.customStyle) {
-      if (this.containerStyle.font == "serif") {
-        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_serif,Times,'Times New Roman', serif";
+      if (this.conStyle.font == "serif") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.serif_font;
       }
-      else if (this.containerStyle.font == "monospace") {
-        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_monospace,Courier,'Courier New',Monospace";
-      }
-      else if (this.containerStyle.font == "icons") {
-        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px descartesJS_icons,Arial,Helvetica,Sans-serif";
+      else if (this.conStyle.font == "monospace") {
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.monospace_font;
       }
     }
     // container.setAttribute("data-color", this.colorInt.getColor());
 
     this.draw(force);
   }
-  
+
   /**
    * Update the button
    */
@@ -379,8 +367,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     canvas = this.canvas;
 
     // check if the control is active and visible
-    this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
-    this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
+    this.activeIfValue = (evaluator.eval(this.activeif) > 0);
+    this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
     // hide or show the button control
     if (this.drawIfValue) {
@@ -408,8 +396,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     canvas = this.canvas;
     ctx = this.ctx;
 
-    name = evaluator.evalExpression(this.name);
-    imageSrc = evaluator.evalExpression(this.imageSrc) + "";
+    name = evaluator.eval(this.name);
+    imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
 
     // if ((!force) && (this.customStyle)) {
     if (!force) {
@@ -433,13 +421,14 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     ctx.save();
-    ctx.setTransform(descartesJS.button_ratio, 0, 0, descartesJS.button_ratio, 0, 0);
+ 	  ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
 
-    font_size = this.fs_evaluated; 
+    font_size = this.fs_evaluated;
     container.setAttribute("data-name", name);
 
     if (imageSrc) {
       image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
+
       prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
       sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
@@ -450,6 +439,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
     else {
       image = this.emptyImage;
+      imageOver = this.emptyImage;
+      imageDown = this.emptyImage;
     }
 
     ctx.clearRect(0, 0, this.w, this.h);
@@ -500,6 +491,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
         // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // check if is a gif image
         if ( imageSrc.match(gifPattern) ) {
+          this.canvas.style.backgroundRepeat = "no-repeat";
           this.canvas.style.backgroundImage = "url('" + imageSrc + "')";
           this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
@@ -523,7 +515,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
         descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
         descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
       }
-      
+
       ctx.fillStyle = this.linearGradient;
       ctx.fillRect(0, 0, this.w, this.h);
     }
@@ -542,8 +534,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
           ctx.drawImage(imageOver, _image_pos_x, _image_pos_y);
         }
       }
-      else if ((this.customStyle) && (this.containerStyle.overColor) && (this.over)) {
-        container.style.backgroundColor = this.containerStyle.overColor;
+      else if ((this.customStyle) && (this.conStyle.overColor) && (this.over)) {
+        container.style.backgroundColor = this.conStyle.overColor;
       }
     }
 
@@ -561,8 +553,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
           ctx.drawImage(imageDown, _image_pos_x, _image_pos_y);
         }
       }
-      else if ((this.customStyle) && (this.containerStyle.downColor) && (this.buttonClick)) {
-        container.style.backgroundColor = this.containerStyle.downColor;
+      else if ((this.customStyle) && (this.conStyle.downColor) && (this.buttonClick)) {
+        container.style.backgroundColor = this.conStyle.downColor;
       }
     }
     else if ((this.buttonClick) && (!image)) {
@@ -576,15 +568,15 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     ctx.fillStyle = this.color.getColor();
 
     if (this.customStyle) {
-      if ((this.containerStyle.shadowTextColor) && (this.containerStyle.textBorder > 0)) {
-        ctx.lineWidth = this.containerStyle.textBorder;
-        ctx.strokeStyle = this.containerStyle.shadowTextColor;
+      if ((this.conStyle.shadowTextColor) && (this.conStyle.textBorder > 0)) {
+        ctx.lineWidth = this.conStyle.textBorder;
+        ctx.strokeStyle = this.conStyle.shadowTextColor;
         ctx.strokeText(name, _text_pos_x, _text_pos_y);
       }
     }
 
     // text border
-    if ( (!newButtonCondition) && (!this.containerStyle) && (this.drawTextBorder()) ) {
+    if ( (!newButtonCondition) && (!this.conStyle) && (this.drawTextBorder()) ) {
       ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.colorInt.getColor();
       ctx.strokeText(name, _text_pos_x, _text_pos_y);
@@ -608,10 +600,10 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
       ctx.stroke();
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////     
+    ////////////////////////////////////////////////////////////////////////////////////////
     if (!this.activeIfValue) {
-      if ((this.customStyle) && (this.containerStyle.inactiveColor)) {
-        container.style.backgroundColor = this.containerStyle.inactiveColor;
+      if ((this.customStyle) && (this.conStyle.inactiveColor)) {
+        container.style.backgroundColor = this.conStyle.inactiveColor;
       }
       else {
         // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
@@ -624,7 +616,7 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
     // for the screenshot
     this._image_pos_x = _image_pos_x;
-    this._image_pos_y = _image_pos_y;    
+    this._image_pos_y = _image_pos_y;
   }
 
   /**
@@ -636,19 +628,19 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     this.color.getColor();
 
     return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
-  }  
-  
+  }
+
   /**
    * Function executed when the button is pressed
    */
   descartesJS.Button.prototype.buttonPressed = function() {
     this.updateAndExecAction();
   }
-  
+
   /**
    * Register the mouse and touch events
    */
-  descartesJS.Button.prototype.registerMouseAndTouchEvents = function() {
+  descartesJS.Button.prototype.addEvents = function() {
     hasTouchSupport = descartesJS.hasTouchSupport;
     var self = this;
     var timer;
@@ -659,23 +651,23 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
      * @param {Number} delayTime the delay of time between the function repetition
-     * @param {Function} fun the function to execut
+     * @param {Function} fun the function to execute
      * @param {Boolean} firstime a flag to indicated if is the first time clicked
      * @private
      */
     function repeat(delayTime, fun, firstTime) {
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
 
       if ((self.buttonClick) && (self.drawIfValue) && (self.activeIfValue)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 100;
-        timer = setTimeout(function() { repeat(delayTime, fun, false); }, delayTime);
+        timer = descartesJS.setTimeout(function() { repeat(delayTime, fun, false); }, delayTime);
       }
     }
 
     this.buttonClick = false;
     this.over = false;
-    
+
     // if (hasTouchSupport) {
       this.canvas.addEventListener("touchstart", onMouseDown);
     // } else {
@@ -683,10 +675,10 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
       this.canvas.addEventListener("mouseover", onMouseOver);
       this.canvas.addEventListener("mouseout", onMouseOut);
     // }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseDown(evt) {
@@ -702,24 +694,24 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
         document.activeElement.blur();
       }
 
-      self.whichButton = descartesJS.whichButton(evt);
+      self.whichBtn = descartesJS.whichBtn(evt);
 
-      if (self.whichButton == "L") {
+      if (self.whichBtn == "L") {
         if (self.activeIfValue) {
           self.buttonClick = true;
-          
+
           self.draw();
 
           if (self.action == "calculate") {
             // se registra el valor de la variable
-            self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
+            self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
             repeat(delay, self.buttonPressed, true);
           }
-          
+
           // if (hasTouchSupport) {
             self.canvas.removeEventListener("touchend", onMouseUp);
             self.canvas.addEventListener("touchend", onMouseUp);
-          // } 
+          // }
           // else {
             self.canvas.removeEventListener("mouseup", onMouseUp);
             self.canvas.addEventListener("mouseup", onMouseUp);
@@ -729,8 +721,8 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
     }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseUp(evt) {
@@ -740,20 +732,20 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
 
       evt.preventDefault();
       evt.stopPropagation();
-      
+
       if ((self.activeIfValue) || (self.buttonClick)) {
         self.buttonClick = false;
         self.draw();
 
         if (self.action != "calculate") {
           // se registra el valor de la variable
-          self.evaluator.setVariable(self.id, self.evaluator.evalExpression(self.valueExpr));
+          self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
           self.buttonPressed();
         }
-        
+
         // if (hasTouchSupport) {
           self.canvas.removeEventListener("touchend", onMouseUp);
-        // } 
+        // }
         // else {
           self.canvas.removeEventListener("mouseup", onMouseUp);
         // }
@@ -761,10 +753,10 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
       // espero que no haya errores
       self.parent.update();
     }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseOver(evt) {
@@ -774,10 +766,10 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
       self.over = true;
       self.draw();
     }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseOut(evt) {
@@ -796,28 +788,6 @@ descartesJS.button_ratio = devicePixelRatio / backingStoreRatio;
       self.buttonClick = false;
     });
 
-  }
-
-  descartesJS.Button.prototype.getScreenshot = function() {
-    var canvas = document.createElement("canvas");
-    canvas.width  = this.w;
-    canvas.height = this.h;
-    ctx = canvas.getContext("2d");
-
-    imageSrc = evaluator.evalExpression(this.imageSrc);
-    image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
-
-    if ((image) && (image.ready)) {
-      ctx.drawImage(image, this._image_pos_x, this._image_pos_y);
-    }
-    else {
-      ctx.fillStyle = this.colorInt.getColor();
-      ctx.fillRect(0, 0, this.w, this.h);
-    }
-
-    ctx.drawImage(this.canvas, 0, 0);
-
-    return canvas;
   }
 
   return descartesJS;

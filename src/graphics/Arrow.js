@@ -8,7 +8,7 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var mathRound = Math.round;
-  
+
   var evaluator;
   var points;
   var radianAngle;
@@ -16,7 +16,7 @@ var descartesJS = (function(descartesJS) {
   var senTheta;
   var tmpRotX;
   var tmpRotY;
-  var space;    
+  var space;
   var midpX;
   var midpY;
   var desp;
@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes arrow
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the arrow
   */
@@ -64,43 +64,43 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.arrow = new descartesJS.Color("ee0022");
-    
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Arrow, descartesJS.Graphic);
-  
+
   /**
    * Update the arrow
    */
   descartesJS.Arrow.prototype.update = function() {
     evaluator = this.evaluator;
 
-    points = evaluator.evalExpression(this.expresion);
+    points = evaluator.eval(this.expresion);
     this.endPoints = [];
 
     for(var i=0, l=points.length; i<l; i++){
       this.endPoints[i] = {x: points[i][0], y: points[i][1]};
     }
-    
+
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
-      
+
       for (var i=0, l=this.endPoints.length; i<l; i++) {
         tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
         tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
         this.endPoints[i].x = tmpRotX;
         this.endPoints[i].y = tmpRotY;
-      }      
+      }
     }
-    
+
   }
 
   /**
@@ -128,16 +128,16 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Arrow.prototype.drawAux = function(ctx, fill, stroke){
     evaluator = this.evaluator;
     space = this.space;
-    
-    desp = 10 + evaluator.evalExpression(this.size);
-    width1 = evaluator.evalExpression(this.width);
+
+    desp = 10 + evaluator.eval(this.size);
+    width1 = evaluator.eval(this.width);
     if (width1 < 0) {
       width1 = 0;
     }
 
     width2 = Math.ceil(width1/2);
     scale = space.scale;
-    
+
     this.vect = new descartesJS.Vector2D(this.endPoints[1].x-this.endPoints[0].x, this.endPoints[1].y-this.endPoints[0].y);
     vlength = this.vect.vectorLength();
     this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
@@ -145,29 +145,29 @@ var descartesJS = (function(descartesJS) {
     ctx.fillStyle = fill.getColor();
     ctx.strokeStyle = stroke.getColor();
     ctx.lineWidth = 2.0;
-    
+
     if (this.abs_coord) {
       coordX =  mathRound(this.endPoints[0].x);
       coordY =  mathRound(this.endPoints[0].y);
-      
+
       coordX1 = mathRound(this.endPoints[1].x);
       coordY1 = mathRound(this.endPoints[1].y);
     } else {
       coordX =  mathRound(space.getAbsoluteX(this.endPoints[0].x));
       coordY =  mathRound(space.getAbsoluteY(this.endPoints[0].y));
-    
+
       coordX1 = mathRound(space.getAbsoluteX(this.endPoints[1].x));
-      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));        
+      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));
     }
-    
-    var spear = evaluator.evalExpression(this.spear);
+
+    var spear = evaluator.eval(this.spear);
     if (spear < 0) {
       spear = 0
     }
-    
+
     ctx.save();
     ctx.translate(coordX, coordY, vlength);
-    
+
     if (this.abs_coord) {
       if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
         ctx.rotate(this.angle)
@@ -176,22 +176,15 @@ var descartesJS = (function(descartesJS) {
       }
     } else {
       vlength = vlength*scale;
-      
+
       if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
         ctx.rotate(-this.angle)
       } else {
         ctx.rotate(this.angle)
       }
     }
-    
+
     ctx.beginPath();
-    // ctx.moveTo(-width2 +.5,                         MathFloor(-width2) +.5);
-    // ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(-width2) +.5);
-    // ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(-spear-width2) +.5);
-    // ctx.lineTo(MathFloor(vlength) +.5,              0);
-    // ctx.lineTo(MathFloor(vlength-2*spear) +.5,      MathFloor(spear+width2) -.5);
-    // ctx.lineTo(MathFloor(vlength-spear-width1) +.5, MathFloor(width2) -.5);
-    // ctx.lineTo(-width2 +.5,                         MathFloor(width2) -.5);
     ctx.moveTo(-width2,                         MathFloor(-width2));
     ctx.lineTo(MathFloor(vlength-spear-width1), MathFloor(-width2));
     ctx.lineTo(MathFloor(vlength-2*spear),      MathFloor(-spear-width2));
@@ -199,20 +192,20 @@ var descartesJS = (function(descartesJS) {
     ctx.lineTo(MathFloor(vlength-2*spear),      MathFloor(spear+width2));
     ctx.lineTo(MathFloor(vlength-spear-width1), MathFloor(width2));
     ctx.lineTo(-width2,                         MathFloor(width2));
-    
+
     ctx.closePath();
     ctx.stroke();
     ctx.fill();
     ctx.restore();
-    
+
     // draw the text of the arrow
     if (this.text != [""]) {
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
-      
-      this.uber.drawText.call(this, ctx, this.text, midpX, midpY, stroke, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
+
+      this.uber.drawText.call(this, ctx, this.text, midpX, midpY, stroke, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

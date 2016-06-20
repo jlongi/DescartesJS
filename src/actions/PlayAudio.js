@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav|\.OGG|\.OGA\.MP3|\.WAV)/g;
+  var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
   /**
    * Descartes play audio action
@@ -22,6 +22,10 @@ var descartesJS = (function(descartesJS) {
       this.filenameExpr = this.evaluator.parser.parse("'" + parameter.match(regExpAudio) + "'");
     }
     else {
+      // if the parameter inits with braces [], extract the expression
+      if ((parameter!='') && (parameter[0]=='[') && (parameter[parameter.length-1]==']')) {
+        parameter = parameter.substring(1, parameter.length-1);
+      }
       this.filenameExpr = this.evaluator.parser.parse(parameter);
     }
   }  
@@ -35,7 +39,7 @@ var descartesJS = (function(descartesJS) {
    * Execute the action
    */
   descartesJS.PlayAudio.prototype.execute = function() {
-    this.theAudio = this.parent.getAudio( this.evaluator.evalExpression(this.filenameExpr) );
+    this.theAudio = this.parent.getAudio( this.evaluator.eval(this.filenameExpr) );
 
     var theAudio = this.theAudio;
 

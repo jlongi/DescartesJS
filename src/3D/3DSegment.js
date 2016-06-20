@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
     tempParamU = evaluator.getVariable("u");
     evaluator.setVariable("u", this.Nu);
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     v1_x = expr[0][0];
     v1_y = expr[0][1];
     v1_z = expr[0][2];
@@ -61,7 +61,7 @@ var descartesJS = (function(descartesJS) {
                                                        ],
                                                          type: "edge",
                                                          frontColor: this.color.getColor(), 
-                                                         lineWidth: evaluator.evalExpression(this.width)
+                                                         lineWidth: evaluator.eval(this.width)
                                                        },
                                                        this.space ));
 

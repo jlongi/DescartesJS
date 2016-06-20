@@ -44,7 +44,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes 3D face
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the triangle
    */
@@ -77,7 +77,7 @@ var descartesJS = (function(descartesJS) {
 
       case("sphere"):
         this.isSphere = true;
-      case("ellipsoid"):      
+      case("ellipsoid"):
         this.buildGeometry = buildSphere;
         break;
 
@@ -98,7 +98,7 @@ var descartesJS = (function(descartesJS) {
         break;
 
       case("mesh"):
-        this.fileData = descartesJS.openExternalFile(this.evaluator.evalExpression(this.file)).split(/\r/);
+        this.fileData = descartesJS.openExternalFile(this.evaluator.eval(this.file)).split(/\r/);
         this.buildGeometry = buildMesh;
         break;
     }
@@ -108,7 +108,7 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic3D
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.OtherGeometry, descartesJS.Graphic3D);
-  
+
   /**
    * Build the primitives corresponding to the face
    */
@@ -118,7 +118,7 @@ var descartesJS = (function(descartesJS) {
     this.updateMVMatrix();
 
     // construct the vertices
-    this.buildGeometry(evaluator.evalExpression(this.width), evaluator.evalExpression(this.height), evaluator.evalExpression(this.length), evaluator.evalExpression(this.Nu), evaluator.evalExpression(this.Nv));
+    this.buildGeometry(evaluator.eval(this.width), evaluator.eval(this.height), evaluator.eval(this.length), evaluator.eval(this.Nu), evaluator.eval(this.Nv));
 
     for (i=0, l=this.faces.length; i<l; i++) {
       v = [];
@@ -129,8 +129,8 @@ var descartesJS = (function(descartesJS) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                            type: "face",
                                                            frontColor: this.color.getColor(),
-                                                           backColor: this.backcolor.getColor(), 
-                                                           edges: this.edges, 
+                                                           backColor: this.backcolor.getColor(),
+                                                           edges: this.edges,
                                                            model: this.model
                                                          },
                             this.space ));
@@ -298,7 +298,7 @@ var descartesJS = (function(descartesJS) {
                       new vec4D(-width_m_goldenRatio, 0, -width, 1)  //11
                     ];
 
-    this.faces = [[10, 0, 2], [0, 8, 2], [8, 5, 2], [5, 7, 2], [7, 10, 2], 
+    this.faces = [[10, 0, 2], [0, 8, 2], [8, 5, 2], [5, 7, 2], [7, 10, 2],
                   [6, 0, 10], [11, 6, 10], [7, 11, 10], [7, 3, 11], [5, 3, 7], [9, 3, 5], [8, 9, 5], [4, 9, 8], [0, 4, 8], [6, 4, 0],
                   [11, 3, 1], [6, 11, 1], [4, 6, 1], [9, 4, 1], [3, 9, 1]];
 
@@ -309,7 +309,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.updateValues(width, height, length, Nu, Nv);
-  }  
+  }
 
   /**
    * Define the vertex and faces of the sphere
@@ -330,7 +330,7 @@ var descartesJS = (function(descartesJS) {
     if (this.changeGeometry(width, height, length, Nu, Nv)) {
       return;
     }
-    
+
     this.vertices = [new vec4D(0, 0, height, 1)];
 
     for (i=1; i<Nu; i++) {
@@ -356,8 +356,8 @@ var descartesJS = (function(descartesJS) {
     // center part
     for (i=1; i<Nu-1; i++) {
       for (j=0; j<Nv; j++) {
-        this.faces.push([ j+1 +(i-1)*Nv, 
-                         (j+1)%Nv +1 +(i-1)*Nv, 
+        this.faces.push([ j+1 +(i-1)*Nv,
+                         (j+1)%Nv +1 +(i-1)*Nv,
                          (j+1)%Nv +1 +i*Nv,
                          j+1 +i*Nv
                         ]);
@@ -402,7 +402,7 @@ var descartesJS = (function(descartesJS) {
 
     for (i=0; i<Nv-1; i++) {
       for (j=0; j<Nu; j++) {
-        this.faces.push( [j +i*Nu, 
+        this.faces.push( [j +i*Nu,
                           (j+1)%Nu +i*Nu,
                           (j+1)%Nu +(i+1)*Nu,
                           j +(i+1)*Nu
@@ -448,8 +448,8 @@ var descartesJS = (function(descartesJS) {
 
     for (i=0; i<Nv; i++) {
       for (j=0; j<Nu; j++) {
-        this.faces.push( [j +i*Nu, 
-                          (j+1)%Nu +i*Nu, 
+        this.faces.push( [j +i*Nu,
+                          (j+1)%Nu +i*Nu,
                           (j+1)%Nu +(i+1)*Nu,
                           j +(i+1)*Nu
                          ]
@@ -459,7 +459,7 @@ var descartesJS = (function(descartesJS) {
 
     this.updateValues(width, height, length, Nu, Nv);
   }
-  
+
   /**
    * Define the vertex and faces of a mesh
    */
@@ -472,7 +472,7 @@ var descartesJS = (function(descartesJS) {
 
     for (i=0, l=this.fileData.length; i<l; i++) {
       currentLine = this.fileData[i];
-      
+
       if (currentLine.match(/^V\(/)) {
         tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(toFloat);
         this.vertices.push( new vec4D(tempValue[0] || 0, tempValue[1] || 0, tempValue[2] || 0, 1) );

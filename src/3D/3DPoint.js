@@ -38,7 +38,7 @@ var descartesJS = (function(descartesJS) {
     // do not apply the rotations in the model view matrix transformation
     this.updateMVMatrix();
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     exprX = expr[0][0];
     exprY = expr[0][1];
     exprZ = expr[0][2];
@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
                                type: "vertex",
                                backColor: this.backcolor.getColor(), 
                                frontColor: this.color.getColor(), 
-                               size: evaluator.evalExpression(this.width)
+                               size: evaluator.eval(this.width)
                              } ) );
 
     // add a text primitive only if the text has content
@@ -56,7 +56,7 @@ var descartesJS = (function(descartesJS) {
                                                            type: "text",
                                                            frontColor: this.color.getColor(), 
                                                            font: this.font,
-                                                           decimals: evaluator.evalExpression(this.decimals),
+                                                           decimals: evaluator.eval(this.decimals),
                                                            fixed: this.fixed,
                                                            displace: this.fontSize,
                                                            evaluator: evaluator,

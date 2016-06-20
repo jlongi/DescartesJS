@@ -24,10 +24,10 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A rtf tokenizer
-   * @constructor 
+   * @constructor
    */
   descartesJS.RTFTokenizer = function() { };
-  
+
   /**
    * Get a rtf parse tree from an input
    * @param {String} input the rtf text to tokenize
@@ -45,7 +45,7 @@ var descartesJS = (function(descartesJS) {
                    .replace(/\r/g, "")
                    .replace(/\\uc(\d+) /g, "")
                    .replace(/\\uc(\d+)/g, "");
-    } 
+    }
     else {
       return [];
     }
@@ -107,13 +107,7 @@ var descartesJS = (function(descartesJS) {
         }
         // control word
         else {
-          // if ((tokenValue === "") && (currentChar === " ") && (lastTokenType === "controlWord")) {
-          //   // lastTokenType = "text";
-          //   lastTokenType = "controlWord";
-          // }
-          // else {
-            tokenValue += currentChar;
-          // }
+          tokenValue += currentChar;
         }
       }
 
@@ -123,7 +117,7 @@ var descartesJS = (function(descartesJS) {
           insideControlWord = false;
           tokenValue += currentChar;
 
-          // if the controlWord has a space 
+          // if the controlWord has a space
           if (nextChar === " ") {
             pos++;
             nextChar = input.charAt(pos+1);
@@ -169,7 +163,7 @@ var descartesJS = (function(descartesJS) {
                 tokens.push({ type: "controlWord", value: tokenValue });
                 lastTokenType = "controlWord";
               }
-              
+
               tokenValue = "";
             }
           }
@@ -194,7 +188,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     return tokens;
-  }  
+  }
 
   return descartesJS;
 })(descartesJS || {});

@@ -29,7 +29,7 @@ var descartesJS = (function(descartesJS) {
    * Update constant
    */
   descartesJS.Constant.prototype.update = function() {
-    this.evaluator.setVariable(this.id, this.evaluator.evalExpression(this.expresion));
+    this.evaluator.setVariable(this.id, this.evaluator.eval(this.expresion));
   }
 
   return descartesJS;

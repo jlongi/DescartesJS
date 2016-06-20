@@ -30,10 +30,10 @@ var descartesJS = (function(descartesJS) {
   var _top;
   var _width;
   var _height;
-  
+
   /**
    * Descartes control
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the control
    */
@@ -68,7 +68,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.gui = "";
-    
+
     /**
      * region to draw
      * type {String}
@@ -89,7 +89,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
 //     this.name = "";
-    
+
     /**
      * x position
      * type {Number}
@@ -147,7 +147,7 @@ var descartesJS = (function(descartesJS) {
      * condition visibility
      * type {Boolean}
      * @private
-     */     
+     */
     this.visible = true;
 
     /**
@@ -155,15 +155,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.color = (this.parent.version < 4) ? new descartesJS.Color("000000") : new descartesJS.Color("222222");
+    this.color = new descartesJS.Color((this.parent.version < 4) ? "000000" : "222222");
 
     /**
      * control color
      * type {String}
      * @private
      */
-    // this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("ff0000");
-    this.colorInt = (values.type !== "graphic") ? new descartesJS.Color("f0f8ff") : new descartesJS.Color("cc0022");
+    this.colorInt = new descartesJS.Color((values.type !== "graphic") ? "f0f8ff" : "cc0022");
 
     /**
      * bold text condition
@@ -192,7 +191,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.font_size = (this.parent.version < 4) ? -1 : parser.parse("12");
-    
+
     /**
      * action type
      * type {String}
@@ -213,14 +212,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.parameterFont = "Monospace 12px";
-    
+
     /**
      * draw condition
      * type {Node}
      * @private
      */
     this.drawif = parser.parse("1");
-    
+
     /**
      * active condition
      * type {Node}
@@ -267,14 +266,14 @@ var descartesJS = (function(descartesJS) {
      * conponent identifier
      * type {String}
      * @private
-     */    
+     */
     this.cID = "";
-    
+
     /**
      * initial value (spinner)
      * type {Node}
      * @private
-     */    
+     */
     this.valueExpr = parser.parse("0");
 
     /**
@@ -318,14 +317,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.exponentialif = false;
-    
+
     /**
      * z index
      * @type {Number}
-     * @private 
+     * @private
      */
     this.zIndex = -1;
-    
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -341,26 +340,21 @@ var descartesJS = (function(descartesJS) {
 
     // ## Descartes 2 patch ## //
     if (this.name == undefined) {
-      if (this.parent.version == 2) {
-        this.name = this.id;
-      }
-      else {
-        this.name = "_nada_"
-      }
+      this.name = (this.parent.version == 2) ? this.id : "_nada_";
     }
     this.name = ((this.name == "_._") || (this.name == "_nada_") || (this.name == "_void_")) ? "" : this.name;
 
-    var expr = this.evaluator.evalExpression(this.expresion);
+    var expr = this.evaluator.eval(this.expresion);
     this.x = MathRound(expr[0][0]);
     this.y = MathRound(expr[0][1]);
     if (expr[0].length == 4) {
       this.w = MathRound(expr[0][2]);
       this.h = MathRound(expr[0][3]);
     }
-        
+
     this.actionExec = parent.lessonParser.parseAction(this);
   }
-  
+
   /**
    * Init the control parameters
    */
@@ -397,8 +391,7 @@ var descartesJS = (function(descartesJS) {
     }
     // if the control is in the external region
     else if (this.region === "external") {
-      // this.space = this.parent.externalSpace;
-      this.parent.externalSpace.addCtr(this);      
+      this.parent.externalSpace.addCtr(this);
       return this.parent.externalSpace.container;
     }
     // if the control is in the scenario
@@ -406,49 +399,29 @@ var descartesJS = (function(descartesJS) {
       // has a cID
       if (this.cID) {
         this.expresion = this.evaluator.parser.parse("(0,-1000," + this.w + "," + this.h + ")");
-        this.parent.scenarioRegion.scenarioSpace.addCtr(this);
-        this.zIndex = this.parent.scenarioRegion.scenarioSpace.zIndex;
-        return this.parent.scenarioRegion.scenarioSpace.numericalControlContainer;
+        this.parent.stage.stageSpace.addCtr(this);
+        this.zIndex = this.parent.stage.stageSpace.zIndex;
+        return this.parent.stage.stageSpace.numericalControlContainer;
       }
       else {
         return this.parent.externalSpace.container;
       }
 
     }
-    // if the cotrol is in the north region
-    else if (this.region === "north") {
-      this.parent.northSpace.controls.push(this);
-      return this.parent.northSpace.container;
-    }
-    // if the cotrol is in the south region
-    else if (this.region === "south") {
-      this.parent.southSpace.controls.push(this);
-      return this.parent.southSpace.container;
-    }
-    // if the cotrol is in the east region
-    else if (this.region === "east") {
-      this.parent.eastSpace.controls.push(this);
-      return this.parent.eastSpace.container;
-    }
-    // if the cotrol is in the west region
-    else if (this.region === "west") {
-      this.parent.westSpace.controls.push(this);
-      return this.parent.westSpace.container;
-    }
-    // if the cotrol is in a spacial region (credits, config, init or clear)
-    else if (this.region === "special") {
-      this.parent.specialSpace.controls.push(this);
-      return this.parent.specialSpace.container;
+    // if the cotrol is in the north, south, east or west region
+    else if ((/north|south|east|west/).test(this.region)) {
+      this.parent[this.region + "Space"].controls.push(this);
+      return this.parent[this.region + "Space"].container;
     }
 
-    // if do not find a space with the identifier the return the firs space
+    // if do not find a space with the identifier then return the first space
     spaces[0].addCtr(this);
     this.zIndex = spaces[0].zIndex;
     return spaces[0].numericalControlContainer;
   }
 
   /**
-   * 
+   *
    * @return {HTMLnode} return the space container asociated with the control
    */
   descartesJS.Control.prototype.addControlContainer = function(controlContainer) {
@@ -458,15 +431,7 @@ var descartesJS = (function(descartesJS) {
     // add the container in inverse order to the space container
     if (!container.childNodes[0]) {
       container.appendChild(controlContainer);
-    } 
-    else {
-      container.insertBefore(controlContainer, container.childNodes[0]);
     }
-
-    // add the container in inverse order to the space container
-    if (!container.childNodes[0]) {
-      container.appendChild(controlContainer);
-    } 
     else {
       container.insertBefore(controlContainer, container.childNodes[0]);
     }
@@ -477,7 +442,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Control.prototype.updatePositionAndSize = function() {
     changeX = changeY = changeW = changeH = false;
-    expr = this.evaluator.evalExpression(this.expresion);
+    expr = this.evaluator.eval(this.expresion);
 
     temporalCompare = MathRound(expr[0][0]);
     changeX = MathRound(this.x) !== temporalCompare;
@@ -486,7 +451,7 @@ var descartesJS = (function(descartesJS) {
     temporalCompare = MathRound(expr[0][1]);
     changeY = MathRound(this.y) !== temporalCompare;
     this.y = temporalCompare;
-    
+
     if (expr[0].length === 4) {
       temporalCompare = MathRound(expr[0][2]);
       changeW = MathRound(this.w) !== temporalCompare;
@@ -513,7 +478,7 @@ var descartesJS = (function(descartesJS) {
     parent = this.parent;
 
     resultValue = value+"";
-    decimals = this.evaluator.evalExpression(this.decimals);
+    decimals = this.evaluator.eval(this.decimals);
 
     indexDot = resultValue.indexOf(".");
     if ( indexDot != -1 ) {
@@ -525,7 +490,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.fixed) {
-      // ## patch for Descartes 2 ## 
+      // ## patch for Descartes 2 ##
       // in a version diferente to 2, then fixed stays as it should
       // if the version is 2 but do not use exponential notation
       if ( (parent.version !== 2) || ((parent.version === 2) && (!this.exponentialif)) ) {
@@ -535,7 +500,7 @@ var descartesJS = (function(descartesJS) {
 
     // if the value is zero then do not show the E in the exponential notation
     if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
-      // ## patch for Descartes 2 ## 
+      // ## patch for Descartes 2 ##
       // in the version 2 do not show the decimals
       if ((this.fixed) && (parent.version !== 2)) {
         resultValue = parseFloat(resultValue).toExponential(decimals);
@@ -543,12 +508,10 @@ var descartesJS = (function(descartesJS) {
       else {
         resultValue = parseFloat(resultValue).toExponential();
       }
-      resultValue = resultValue.toUpperCase();
-      resultValue = resultValue.replace("+", "");
+      resultValue = resultValue.toUpperCase().replace("+", "");
     }
 
-    resultValue = resultValue.replace(".", parent.decimal_symbol);
-    return resultValue;
+    return resultValue.replace(".", parent.decimal_symbol);
   }
 
   /**
@@ -583,103 +546,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Control.prototype.createGradient = function(w, h) {
     this.linearGradient = this.ctx.createLinearGradient(0, 0, 0, h);
     hh = h*h;
-    
+
     for (var i=0; i<h; i++) {
       di = MathFloor(i-(35*h)/100);
       this.linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
     }
   }
-
-  /**
-   *
-   */
-  descartesJS.Control.prototype.getScreenshot = function() {
-    self = this;
-    canvas = document.createElement("canvas");
-    canvas.setAttribute("width", self.w);
-    canvas.setAttribute("height", self.h);
-    ctx = canvas.getContext("2d");
-
-    ctx.font = self.fieldFontSize + "px Arial, Helvetica, 'Droid Sans', Sans-serif";
-
-    // draw the buttons
-    if (self.canvas) {
-      _left = self.canvas.offsetLeft;
-      _top = self.canvas.offsetTop;
-
-      ctx.drawImage(self.canvas, _left, _top);
-    }
-
-    // draw the label
-    if (self.label) {
-      _left = self.label.offsetLeft;
-      _top = self.label.offsetTop;
-      _width = self.label.offsetWidth;
-      _height = self.label.offsetHeight;
-
-      ctx.fillStyle = "#e0e4e8";
-      ctx.fillRect(_left, _top, _width, _height);
-
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      ctx.fillText(self.name, _left+_width/2, _top+_height/2);
-    }
-
-    // draw the text field
-    if (self.field) {
-      _left = self.field.offsetLeft;
-      _top = self.field.offsetTop;
-      _width = self.field.offsetWidth;
-      _height = self.field.offsetHeight;
-
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "#666666";
-      ctx.lineWidth = 1;    
-      ctx.fillRect(_left, 0, _width, _height);
-      ctx.strokeRect(_left+.5, .5, _width-1, _height-1);
-
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textAlign = "left";
-      ctx.fillText(self.field.value, _left+2, _height/2);
-    }
-
-    // draw the menu
-    if (self.select) {
-      _left = self.select.offsetLeft;
-      _top = self.select.offsetTop;
-      _width = self.select.offsetWidth;
-      _height = self.select.offsetHeight;
-
-      ctx.fillStyle = "#e0e4e8";
-      ctx.strokeStyle = "#666666";
-      ctx.lineWidth = 1;    
-      ctx.fillRect(_left, 0, _width, _height);
-      ctx.strokeRect(_left+.5, .5, _width, _height-1);
-
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textAlign = "left";
-      ctx.fillText(self.select.value, _left+2, _height/2);
-
-      ctx.fillStyle = "#c0c0c0";
-      ctx.fillRect(_left+_width-15 +.5, .5, 15, _height-1);
-      ctx.strokeRect(_left+_width-15 +.5, .5, 15, _height-1);
-
-      ctx.fillStyle = "black";
-      ctx.beginPath();
-      ctx.moveTo(_left+_width-15 +4.5,  _height/2 -2.5);
-      ctx.lineTo(_left+_width-15 +8,    _height/2 +2.5);
-      ctx.lineTo(_left+_width-15 +11.5, _height/2 -2.5);
-      ctx.closePath();
-      ctx.fill();
-
-    }
-
-    return canvas;
-  }  
 
   return descartesJS;
 })(descartesJS || {});

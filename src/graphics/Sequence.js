@@ -26,7 +26,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes sequence
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the sequence
    */
@@ -43,7 +43,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
@@ -52,26 +52,26 @@ var descartesJS = (function(descartesJS) {
   /**
    * Update the sequence
    */
-  descartesJS.Sequence.prototype.update = function() { 
+  descartesJS.Sequence.prototype.update = function() {
     evaluator = this.evaluator;
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
-      
+
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
       this.exprX = tmpRotX;
       this.exprY = tmpRotY;
     }
 
-    range = evaluator.evalExpression(this.range);
+    range = evaluator.eval(this.range);
     this.rangeInf = range[0][0];
     this.rangeMax = range[0][1];
   }
@@ -91,7 +91,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
-  
+
   /**
    * Auxiliary function for draw a sequence
    * @param {CanvasRenderingContext2D} ctx rendering context on which the sequence is drawn
@@ -101,7 +101,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    size = Math.ceil(evaluator.evalExpression(this.size)-.4);
+    size = Math.ceil(evaluator.eval(this.size)-.4);
     desp = size;
 
     ctx.fillStyle = fill.getColor();
@@ -113,32 +113,31 @@ var descartesJS = (function(descartesJS) {
       this.rangeInf = this.rangeMax;
       this.rangeMax = tmp;
     }
-      
+
     var tmpValue = evaluator.getVariable("n");
     for (var i=this.rangeInf, l=this.rangeMax; i<=l; i++) {
       evaluator.setVariable("n", i);
-      
-      expr = evaluator.evalExpression(this.expresion);
+
+      expr = evaluator.eval(this.expresion);
       this.exprX = expr[0][0];
       this.exprY = expr[0][1];
-   
-      coordX = (this.abs_coord) ? mathRound(this.exprX) : mathRound(space.getAbsoluteX(this.exprX));
-      coordY = (this.abs_coord) ? mathRound(this.exprY) : mathRound(space.getAbsoluteY(this.exprY));
+
+      coordX = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
+      coordY = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
 
       ctx.beginPath();
       ctx.arc(coordX, coordY, size, 0, PI2, true);
       ctx.fill()
     }
-    
+
     ctx.fill();
 
     // draw the text of the sequence
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
+      this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
 
     evaluator.setVariable("n", tmpValue);
-
   }
 
   return descartesJS;

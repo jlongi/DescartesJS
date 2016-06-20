@@ -6,6 +6,13 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
+  var fontTokens;
+  var fontCanvas;
+
+  descartesJS.serif_font = "descartesJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
+  descartesJS.sansserif_font = "descartesJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
+  descartesJS.monospace_font = "descartesJS_monospace,'Courier New',Courier,'Liberation Mono','Nimbus Mono L',monospace";
+
   /**
    * Converts a Descartes font string, to a canvas font string
    * @param {String} fontStr the Descartes font string
@@ -39,15 +46,15 @@ var descartesJS = (function(descartesJS) {
 
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += "descartesJS_serif,Times,'Times New Roman', serif";
+      fontCanvas += descartesJS.serif_font;
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+      fontCanvas += descartesJS.sansserif_font;
     }
     // monospace font
     else {
-      fontCanvas += "descartesJS_monospace,Courier,'Courier New',Monospace";
+      fontCanvas += descartesJS.monospace_font;
     }
 
     return fontCanvas;
@@ -431,262 +438,6 @@ var descartesJS = (function(descartesJS) {
     metricCache[font] = result;
 
     return result;
-
-    // if (metricCache[font]) {
-    //   return metricCache[font];
-    // }
-
-    // _font_size = parseFloat( font.match(/(\d+\.*)+px/)[0] );
-    // _canvas_size = _font_size * 2;
-
-    // _aux_canvas.width  = _canvas_size * descartesJS._ratio;
-    // _aux_canvas.height = _canvas_size * descartesJS._ratio;
-    // _aux_canvas.style.width  = _canvas_size + "px";
-    // _aux_canvas.style.height = _canvas_size + "px";
-    // _aux_ctx = _aux_canvas.getContext("2d");
-    // _aux_ctx.setTransform(descartesJS._ratio, 0, 0, descartesJS._ratio, 0, 0);
-
-    // _baselineOffset = Math.floor( _canvas_size/2 );
-
-    // _aux_ctx.clearRect(0, 0, _canvas_size, _canvas_size);
-
-    // _aux_ctx.font = font;
-    // _aux_ctx.fillStyle = "#ff0000";
-    // _aux_ctx.fillText("\u00C1p", 0, _baselineOffset);
-
-    // _imageData = _aux_ctx.getImageData(0, 0, _canvas_size, _canvas_size);
-    // _data = _imageData.data;
-
-    // _top = 0;
-    // _bottom = 0;    
-
-    // // top
-    // for (var i=0, l=_data.length; i<l; i+=4) {
-    //   if ( (_data[i] === 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
-    //     _top = Math.floor(i/(_canvas_size*4));
-    //     break;
-    //   }
-    // }
-
-    // // bottom
-    // for (var i=_data.length-40; i>=0; i-=4) {
-    //   if ( (_data[i] == 255) && (_data[i+1] === 0) && (_data[i+2] === 0) ) {
-    //     _bottom = Math.floor(i/(_canvas_size*4));
-    //     break;
-    //   }
-    // }
-
-    // var sansserif = [];
-    // for(var i=0,l=100; i<l; i++) {
-    //   if (i<=8) {
-    //     sansserif[i] = 3;
-    //   }
-    //   else if (i<=16) {
-    //     sansserif[i] = 4;
-    //   }
-    //   else if (i<=20) {
-    //     sansserif[i] = 5;
-    //   }
-    //   else if (i==24) {
-    //     sansserif[i] = 7
-    //   }
-    //   else if (i<=25) {
-    //     sansserif[i] = 6;
-    //   }
-    //   else if (i<=29) {
-    //     sansserif[i] = 7;
-    //   }
-    //   else if (i<=34) {
-    //     sansserif[i] = 8;
-    //   }
-    //   else if (i<=36) {
-    //     sansserif[i] = 9;
-    //   }
-    //   else if (i<=40) {
-    //     sansserif[i] = 10;
-    //   }
-    //   else if (i<=48) {
-    //     sansserif[i] = 11;
-    //   }
-    //   else if (i<=52) {
-    //     sansserif[i] = 13;
-    //   }
-    //   else if (i<=60) {
-    //     sansserif[i] = 14;
-    //   }
-    //   else if (i<=64) {
-    //     sansserif[i] = 15;
-    //   }
-    //   else if (i<=68) {
-    //     sansserif[i] = 16;
-    //   }
-    //   else if (i<=76) {
-    //     sansserif[i] = 17;
-    //   }
-    //   else if (i<=80) {
-    //     sansserif[i] = 18;
-    //   }
-    //   else {
-    //     sansserif[i] = 20;
-    //   }
-    // }
-
-    // var serif = [];
-    // for(var i=0,l=100; i<l; i++) {
-    //   if (i<=9) {
-    //     serif[i] = 4;
-    //   }
-    //   else if (i==10) {
-    //     serif[i] = 3;
-    //   }
-    //   else if (i<=14) {
-    //     serif[i] = 4;
-    //   }
-    //   else if (i<=18) {
-    //     serif[i] = 5;
-    //   }
-    //   else if (i<=22) {
-    //     serif[i] = 6;
-    //   }
-    //   else if (i<=26) {
-    //     serif[i] = 7;
-    //   }
-    //   else if (i<=30) {
-    //     serif[i] = 8;
-    //   }
-    //   else if (i<=34) {
-    //     serif[i] = 9;
-    //   }
-    //   else if (i<=38) {
-    //     serif[i] = 10;
-    //   }
-    //   else if (i<=40) {
-    //     serif[i] = 12;
-    //   }
-    //   else if (i<=44) {
-    //     serif[i] = 12;
-    //   }
-    //   else if (i<=48) {
-    //     serif[i] = 13;
-    //   }
-    //   else if (i<=52) {
-    //     serif[i] = 15;
-    //   }
-    //   else if (i<=60) {
-    //     serif[i] = 15;
-    //   }
-    //   else if (i<=64) {
-    //     serif[i] = 17;
-    //   }
-    //   else if (i<=68) {
-    //     serif[i] = 17;
-    //   }
-    //   else if (i<=72) {
-    //     serif[i] = 18;
-    //   }
-    //   else if (i<=76) {
-    //     serif[i] = 19;
-    //   }
-    //   else if (i<=80) {
-    //     serif[i] = 20;
-    //   }
-    //   else {
-    //     serif[i] = 21;
-    //   }
-    // }
-
-    // var monospace = [];
-    // for(var i=0,l=100; i<l; i++) {
-    //   if (i<=8) {
-    //     monospace[i] = 3;
-    //   }
-    //   else if (i<=10) {
-    //     monospace[i] = 4;
-    //   }
-    //   else if (i<=12) {
-    //     monospace[i] = 5;
-    //   }
-    //   else if (i==14) {
-    //     monospace[i] = 7;
-    //   }
-    //   else if (i<=16) {
-    //     monospace[i] = 6;
-    //   }
-    //   else if (i<=20) {
-    //     monospace[i] = 7;
-    //   }
-    //   else if (i<=22) {
-    //     monospace[i] = 8;
-    //   }
-    //   else if (i<=27) {
-    //     monospace[i] = 9;
-    //   }
-    //   else if (i<=30) {
-    //     monospace[i] = 10;
-    //   }
-    //   else if (i==36) {
-    //     monospace[i] = 12;
-    //   }
-    //   else if (i<=38) {
-    //     monospace[i] = 11;
-    //   }
-    //   else if (i<=40) {
-    //     monospace[i] = 12;
-    //   }
-    //   else if (i<=48) {
-    //     monospace[i] = 14;
-    //   }
-    //   else if (i<=52) {
-    //     monospace[i] = 17;
-    //   }
-    //   else if (i<=56) {
-    //     monospace[i] = 18;
-    //   }
-    //   else if (i<=60) {
-    //     monospace[i] = 19;
-    //   }
-    //   else if (i==64) {
-    //     monospace[i] = 22;
-    //   }
-    //   else if (i<=68) {
-    //     monospace[i] = 21;
-    //   }
-    //   else if (i<=72) {
-    //     monospace[i] = 22;
-    //   }
-    //   else if (i<=76) {
-    //     monospace[i] = 23;
-    //   }
-    //   else if (i<=80) {
-    //     monospace[i] = 24;
-    //   }
-    //   else {
-    //     monospace[i] = 25;
-    //   }
-    // }
-
-
-    // if (font.match("sansserif")) {
-    //   _bottom = _baselineOffset + sansserif[parseInt(_font_size)];
-    // }
-    // else if (font.match("serif")) {
-    //   _bottom = _baselineOffset + serif[parseInt(_font_size)];
-    // }
-    // else if (font.match("monospace")) {
-    //   _bottom = _baselineOffset + monospace[parseInt(_font_size)];
-    // }
-
-    // var result = { ascent: (_baselineOffset - _top), 
-    //                descent: (_bottom - _baselineOffset), 
-    //                h: (_bottom - _top), 
-    //                baseline: (_baselineOffset - _top)
-    //              };
-
-    // _aux_ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-    // metricCache[font] = result;
-
-    // return result;
   }
 
   return descartesJS;

@@ -40,7 +40,7 @@ var descartesJS = (function(descartesJS) {
 
     this.updateMVMatrix();
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     v1_x = expr[0][0];
     v1_y = expr[0][1];
     v1_z = expr[0][2];

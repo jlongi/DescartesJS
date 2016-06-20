@@ -41,7 +41,7 @@ var descartesJS = (function(descartesJS) {
     // do not apply the rotations in the model view matrix transformation
     this.updateMVMatrix();
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
 
     for (var i=0, l=expr.length-1; i<l; i++) {
       v1_x = expr[i][0];
@@ -57,7 +57,7 @@ var descartesJS = (function(descartesJS) {
                                                                      ],
                                                            type: "edge",
                                                            frontColor: this.color.getColor(), 
-                                                           lineWidth: evaluator.evalExpression(this.width)
+                                                           lineWidth: evaluator.eval(this.width)
                                                          },
                             this.space ));
 

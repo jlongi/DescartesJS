@@ -54,7 +54,7 @@ var descartesJS = (function(descartesJS) {
 
     // if the filename is a variable
     this.oldFile = this.file;
-    newFile = evaluator.evalExpression(this.parseFile);
+    newFile = evaluator.eval(this.parseFile);
     if (newFile) {
       this.file = newFile;
     }
@@ -121,7 +121,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     var vectInit = [];
-    vectInit._size_ = evaluator.evalExpression(this.size);
+    vectInit._size_ = evaluator.eval(this.size);
     for (var i=0, l=this._size_; i<l; i++) {
       vectInit.push(0);
     }
@@ -130,7 +130,7 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.id + ".long", vectInit._size_);
 
     for(var i=0, l=newExpression.length; i<l; i++) {
-      evaluator.evalExpression(newExpression[i]);
+      evaluator.eval(newExpression[i]);
     }    
   }
 

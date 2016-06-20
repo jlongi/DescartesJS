@@ -30,7 +30,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes segment
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the segment
    */
@@ -52,7 +52,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Segment.prototype.update = function() {
     evaluator = this.evaluator;
 
-    points = evaluator.evalExpression(this.expresion);
+    points = evaluator.eval(this.expresion);
     this.endPoints = [];
 
     for(var i=0, l=points.length; i<l; i++){
@@ -73,16 +73,16 @@ var descartesJS = (function(descartesJS) {
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
-      
+
       for (var i=0, l=this.endPoints.length; i<l; i++) {
         tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
         tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
         this.endPoints[i].x = tmpRotX;
         this.endPoints[i].y = tmpRotY;
-      }      
+      }
     }
   }
 
@@ -93,7 +93,7 @@ var descartesJS = (function(descartesJS) {
     // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.color, this.color);
   }
-  
+
   /**
    * Draw the trace of the segment
    */
@@ -101,7 +101,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
-  
+
   /**
    * Auxiliary function for draw a segment
    * @param {CanvasRenderingContext2D} ctx rendering context on which the segment is drawn
@@ -113,22 +113,22 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
+    tmpLineWidth = mathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
-    size = evaluator.evalExpression(this.size);
+    size = evaluator.eval(this.size);
     if (size < 0) {
       size = 0;
     }
-    
+
     ctx.fillStyle = fill.getColor();
     ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
-    
+
     desp = 10+ctx.lineWidth;
-    
+
     lineDesp = (ctx.lineWidth%2 == 0) ? 0 : 0.5;
-    
+
     if (this.abs_coord) {
       coordX =  mathRound(this.endPoints[0].x);
       coordY =  mathRound(this.endPoints[0].y);
@@ -138,28 +138,29 @@ var descartesJS = (function(descartesJS) {
       coordX =  mathRound(space.getAbsoluteX(this.endPoints[0].x));
       coordY =  mathRound(space.getAbsoluteY(this.endPoints[0].y));
       coordX1 = mathRound(space.getAbsoluteX(this.endPoints[1].x));
-      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));        
+      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));
     }
-    
+
     ctx.beginPath();
     ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
     ctx.lineTo(coordX1+lineDesp, coordY1+lineDesp);
-        
     ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.arc(coordX, coordY, size, 0, PI2, true);
-    ctx.arc(coordX1, coordY1, size, 0, PI2, true);
-    ctx.fill();
-    
+
+    if (size > 0) {
+      ctx.beginPath();
+      ctx.arc(coordX, coordY, size, 0, PI2, true);
+      ctx.arc(coordX1, coordY1, size, 0, PI2, true);
+      ctx.fill();
+    }
+
     // draw the text of the segment
     if (this.text != [""]) {
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
-      
-      this.uber.drawText.call(this, ctx, this.text, midpX+desp, midpY-desp, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
+
+      this.uber.drawText.call(this, ctx, this.text, midpX+desp, midpY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

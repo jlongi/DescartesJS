@@ -20,9 +20,11 @@ var descartesJS = (function(descartesJS) {
   var tmpExpr3;
   var lastIndexOfSpace;
 
+  var degToRad = descartesJS.degToRad;
+
   /**
    * Descartes 3D graphics
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
@@ -33,7 +35,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.parent = parent;
-    
+
     /**
      * object for parse and evaluate expressions
      * type {Evaluator}
@@ -80,21 +82,21 @@ var descartesJS = (function(descartesJS) {
 
     this.Nu = this.evaluator.parser.parse("7");
     this.Nv = this.evaluator.parser.parse("7");
-    
+
     /**
      * the condition to draw the graphic
      * type {Node}
      * @private
      */
     this.drawif = parser.parse("1");
-    
+
     /**
      * the condition for determine whether the graphic is in absolute coordinates
      * type {Boolean}
      * @private
      */
     this.abs_coord = false;
-    
+
     /**
      * the condition and parameter name for family of the graphic
      * type {String}
@@ -115,14 +117,14 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.family_steps = parser.parse("8");
-    
+
     /**
      * info font
      * type {String}
      * @private
      */
     this.font = "Monospaced,PLAIN,12";
-    
+
     /**
      * the condition for determining whether the text of the graph is fixed or not
      * type {Boolean}
@@ -151,7 +153,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.inirot = "(0,0,0)";
     this.inirotEuler = false;
-    
+
     /**
      * the init position of a graphic
      * type {Node}
@@ -166,7 +168,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.endrot = "(0,0,0)";
     this.endrotEuler = false;
-    
+
     /**
      * the init position of a graphic
      * type {Node}
@@ -180,7 +182,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.model = "color";
-    
+
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
@@ -196,22 +198,15 @@ var descartesJS = (function(descartesJS) {
     // get the space of the graphic
     this.space = this.getSpace();
 
-    if (this.background) {
-      this.canvas = this.space.backgroundCanvas;
-    } else {
-      this.canvas = this.space.canvas;
-    }
+    // get the canvas
+    this.canvas = (this.background) ? this.space.backCanvas : this.space.canvas;
     this.ctx = this.canvas.getContext("2d");
-        
+
     this.font = descartesJS.convertFont(this.font)
 
     // get the font size
     this.fontSize = this.font.match(/(\d+)px/);
-    if (this.fontSize) {
-      this.fontSize = parseInt(this.fontSize[1]);
-    } else {
-      this.fontSize = 10;
-    }
+    this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
 
     // euler rotations
     if (this.inirot.match("Euler")) {
@@ -239,7 +234,7 @@ var descartesJS = (function(descartesJS) {
     this.endrotM_Z = new descartesJS.Matrix4x4();
     this.endposM   = new descartesJS.Matrix4x4();
   }
-  
+
   /**
    * Get the space to which the graphic belongs
    * return {Space} return the space to which the graphic belongs
@@ -255,23 +250,23 @@ var descartesJS = (function(descartesJS) {
         return space_i;
       }
     }
-    
+
     // if do not find the identifier, return the first space
     return spaces[0];
   }
-  
+
   /**
    * Get the family values of the graphic
    */
   descartesJS.Graphic3D.prototype.getFamilyValues = function() {
     evaluator = this.evaluator;
-    expr = evaluator.evalExpression(this.family_interval);
+    expr = evaluator.eval(this.family_interval);
     this.familyInf = expr[0][0];
     this.familySup = expr[0][1];
-    this.fSteps = Math.round(evaluator.evalExpression(this.family_steps));
+    this.fSteps = Math.round(evaluator.eval(this.family_steps));
     this.family_sep = (this.fSteps > 0) ? (this.familySup - this.familyInf)/this.fSteps : 0;
   }
-  
+
   /**
    *
    */
@@ -293,7 +288,7 @@ var descartesJS = (function(descartesJS) {
         this.familyValue = this.familyInf+(i*this.family_sep);
 
         // if the condition to draw is true then update and draw the graphic
-        if ( evaluator.evalExpression(this.drawif) ) {
+        if ( evaluator.eval(this.drawif) ) {
           this.buildPrimitives();
         }
       }
@@ -308,7 +303,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Graphic3D.prototype.update = function() {
     this.primitives = [];
 
-    if (this.evaluator.evalExpression(this.drawif)) {
+    if (this.evaluator.eval(this.drawif)) {
       // build the primitives of a single object
       if (!this.family) {
         this.buildPrimitives();
@@ -319,48 +314,48 @@ var descartesJS = (function(descartesJS) {
     if (this.family) {
       this.buildFamilyPrimitives();
     }
-  }  
+  }
 
   /**
    *
    */
   descartesJS.Graphic3D.prototype.updateMVMatrix = function() {
-    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    tmpExpr = this.evaluator.eval(this.inirot);
     if (this.inirotEuler) {
       this.inirotM = this.inirotM.setIdentity();
-      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
-      this.inirotM = this.inirotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
-      this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+      this.inirotM = this.inirotM.rotateZ(degToRad(tmpExpr[0][0])); //Z
+      this.inirotM = this.inirotM.rotateX(degToRad(tmpExpr[0][1])); //X
+      this.inirotM = this.inirotM.rotateZ(degToRad(tmpExpr[0][2])); //Z
     }
     else {
-      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
-      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
-      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+      this.inirotM_X = this.inirotM_X.setIdentity().rotateX(degToRad(tmpExpr[0][0])); //X
+      this.inirotM_Y = this.inirotM_Y.setIdentity().rotateY(degToRad(tmpExpr[0][1])); //Y
+      this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(degToRad(tmpExpr[0][2])); //Z
     }
 
-    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    tmpExpr = this.evaluator.eval(this.inipos);
     translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.iniposM = this.iniposM.setIdentity().translate(translate);
 
-    tmpExpr = this.evaluator.evalExpression(this.endrot);
+    tmpExpr = this.evaluator.eval(this.endrot);
     if (this.endrotEuler) {
       this.endrotM = this.endrotM.setIdentity();
-      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
-      this.endrotM = this.endrotM.rotateX(descartesJS.degToRad(tmpExpr[0][1])); //X
-      this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+      this.endrotM = this.endrotM.rotateZ(degToRad(tmpExpr[0][0])); //Z
+      this.endrotM = this.endrotM.rotateX(degToRad(tmpExpr[0][1])); //X
+      this.endrotM = this.endrotM.rotateZ(degToRad(tmpExpr[0][2])); //Z
     }
     else {
-      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(descartesJS.degToRad(tmpExpr[0][0])); //X
-      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(descartesJS.degToRad(tmpExpr[0][1])); //Y
-      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
+      this.endrotM_X = this.endrotM_X.setIdentity().rotateX(degToRad(tmpExpr[0][0])); //X
+      this.endrotM_Y = this.endrotM_Y.setIdentity().rotateY(degToRad(tmpExpr[0][1])); //Y
+      this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(degToRad(tmpExpr[0][2])); //Z
     }
 
-    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    tmpExpr = this.evaluator.eval(this.endpos);
     translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.endposM = this.endposM.setIdentity().translate(translate);
   }
 
-  /** 
+  /**
    *
    */
    descartesJS.Graphic3D.prototype.transformVertex = function(v) {
@@ -370,7 +365,7 @@ var descartesJS = (function(descartesJS) {
     else {
       tmpVertex = this.inirotM_X.multiplyVector4(v);
       tmpVertex = this.inirotM_Y.multiplyVector4(tmpVertex);
-      tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);      
+      tmpVertex = this.inirotM_Z.multiplyVector4(tmpVertex);
     }
 
     tmpVertex = this.iniposM.multiplyVector4(tmpVertex);
@@ -394,7 +389,7 @@ var descartesJS = (function(descartesJS) {
     return tmpVertex;
   }
 
-  /** 
+  /**
    *
    */
    descartesJS.Graphic3D.prototype.applyMacroTransform = function(v) {
@@ -424,7 +419,7 @@ var descartesJS = (function(descartesJS) {
    }
 
   /**
-   *
+   * Parse expression for curve graphic
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
     tmpExpr3 = [];
@@ -447,7 +442,7 @@ var descartesJS = (function(descartesJS) {
         }
         else {
           status = statusEqual;
-          continue; 
+          continue;
         }
       }
 
@@ -481,7 +476,6 @@ var descartesJS = (function(descartesJS) {
       tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
     }
 
-
     return tmpExpr3;
   }
 
@@ -512,6 +506,6 @@ var descartesJS = (function(descartesJS) {
       }
     }
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

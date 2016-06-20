@@ -38,7 +38,7 @@ var descartesJS = (function(descartesJS) {
 
     this.updateMVMatrix();
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
 
     vertices = [];
 

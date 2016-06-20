@@ -14,7 +14,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes graphics
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
@@ -33,8 +33,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluator = parent.evaluator;
 
-    var parser = this.evaluator.parser;    
-    
+    var parser = this.evaluator.parser;
+
     /**
      * identifier of the space that belongs to the graphic
      * type {String}
@@ -120,7 +120,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.family_steps = parser.parse("8");
-    
+
     // /**
     //  * type {Boolean}
     //  * @private
@@ -140,7 +140,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.font = "Monospaced,PLAIN," + ((this.parent.version >=5) ? "15" : "12");
-    
+
     /**
      * the condition for determining whether the text of the graph is fixed or not
      * type {Boolean}
@@ -169,35 +169,27 @@ var descartesJS = (function(descartesJS) {
         this[propName] = values[propName];
       }
     }
-    
+
     // get the space of the graphic
     this.space = this.getSpace();
 
-    // get the space
-    if (this.background) {
-      this.canvas = this.space.backgroundCanvas;
-    } else {
-      this.canvas = this.space.canvas;
-    }
+    // get the canvas
+    this.canvas = (this.background) ? this.space.backCanvas : this.space.canvas;
     this.ctx = this.canvas.getContext("2d");
-    
+
     // if the object has trace, then get the background canvas render context
     if (this.trace) {
-      this.traceCtx = this.space.backgroundCanvas.getContext("2d");
+      this.traceCtx = this.space.backCtx;
     }
-    
+
     // get a Descartes font
     this.font = descartesJS.convertFont(this.font);
 
     // get the font size
     this.fontSize = this.font.match(/([\d\.]+)px/);
-    if (this.fontSize) {
-      this.fontSize = parseFloat(this.fontSize[1]);
-    } else {
-      this.fontSize = 10;
-    }
-  }  
-  
+    this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
+  }
+
   /**
    * Get the space to which the graphic belongs
    * return {Space} return the space to which the graphic belongs
@@ -213,7 +205,7 @@ var descartesJS = (function(descartesJS) {
         return space_i;
       }
     }
-    
+
     // if do not find the identifier, return the first space
     return spaces[0];
   }
@@ -223,13 +215,13 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic.prototype.getFamilyValues = function() {
     evaluator = this.evaluator;
-    expr = evaluator.evalExpression(this.family_interval);
+    expr = evaluator.eval(this.family_interval);
     this.familyInf = expr[0][0];
     this.familySup = expr[0][1];
-    this.fSteps = Math.round(evaluator.evalExpression(this.family_steps));
+    this.fSteps = Math.round(evaluator.eval(this.family_steps));
     this.family_sep = (this.fSteps > 0) ? (this.familySup - this.familyInf)/this.fSteps : 0;
   }
-  
+
   /**
    * Auxiliar function for draw a family graphic
    * @param {CanvasRenderingContext2D} ctx the render context to draw
@@ -250,9 +242,9 @@ var descartesJS = (function(descartesJS) {
       for(var i=0, l=this.fSteps; i<=l; i++) {
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
-                
+
         // if the condition to draw if true then update and draw the graphic
-        if ( evaluator.evalExpression(this.drawif) > 0 ) {
+        if ( evaluator.eval(this.drawif) > 0 ) {
           // update the values of the graphic
           this.update();
           // draw the graphic
@@ -278,7 +270,7 @@ var descartesJS = (function(descartesJS) {
     // if the graphic has not a family
     else  {
       // if the condition to draw is true
-      if ( this.evaluator.evalExpression(this.drawif) > 0 ) {
+      if ( this.evaluator.eval(this.drawif) > 0 ) {
         // update the values of the graphic
         this.update();
         // draw the graphic
@@ -286,7 +278,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
   }
-  
+
   /**
    * Draw the trace of the graphic
    * @param {String} fill the fill color of the graphic
@@ -298,9 +290,9 @@ var descartesJS = (function(descartesJS) {
       this.drawFamilyAux(this.traceCtx, fill, stroke);
     }
     // if the graphic has not a family
-    else {      
+    else {
       // if the condition to draw is true
-      if ( this.evaluator.evalExpression(this.drawif) > 0 ) {
+      if ( this.evaluator.eval(this.drawif) > 0 ) {
         // update the values of the graphic
         this.update();
         // draw the graphic
@@ -324,13 +316,16 @@ var descartesJS = (function(descartesJS) {
    * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
    */
   descartesJS.Graphic.prototype.drawText = function(ctx, text, x, y, fill, font, align, baseline, decimals, fixed, displaceY) {
+    ctx.textNode = text;
+
     // rtf text
     if (text.type === "rtfNode") {
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
+      ctx.textNode.pos = { x:x, y:y };
       text.draw(ctx, x, y+1, decimals, fixed, align, displaceY, fill.getColor());
-      
+
       return;
     }
 
@@ -339,20 +334,19 @@ var descartesJS = (function(descartesJS) {
       text = text.toString(decimals, fixed).split("\\n");
     }
 
-    // font = (15) + font.substring( font.indexOf("px") );
-    x = x + (font.match("Arial") ? -2 : (font.match("Times") ? -2: 0));
-    
+    x = x + ((/Arial|Times/i).test(font) ? -2 : 0);
+
     evaluator = this.evaluator;
     ctx.fillStyle = fill.getColor();
     ctx.font = font;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
-        
+
     if (this.border) {
       ctx.strokeStyle = this.border.getColor();
       ctx.lineWidth = 4;
     }
-    
+
     verticalDisplace = this.fontSize*1.2 || 0;
 
     for (var i=0, l=text.length; i<l; i++) {

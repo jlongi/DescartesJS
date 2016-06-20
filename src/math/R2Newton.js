@@ -79,11 +79,11 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", q0.x);
     evaluator.setVariable("y", q0.y);
 
-    this.f0 = evaluator.evalExpression(this.constraint);
+    this.f0 = evaluator.eval(this.constraint);
     
     evaluator.setVariable("x", evaluator.getVariable("x") + delta);
 
-    FV = evaluator.evalExpression(this.constraint);
+    FV = evaluator.eval(this.constraint);
    
     newQ.x = (FV-this.f0)/delta;
     newQ.x = (!isNaN(newQ.x)) ? newQ.x : Infinity;
@@ -91,7 +91,7 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", evaluator.getVariable("x") - delta);
     evaluator.setVariable("y", evaluator.getVariable("y") + delta);
 
-    FV = evaluator.evalExpression(this.constraint);
+    FV = evaluator.eval(this.constraint);
 
     newQ.y = (FV-this.f0)/delta;
     newQ.y = (!isNaN(newQ.y)) ? newQ.y : Infinity;
@@ -108,7 +108,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2Newton.prototype.findZero = function(q0, dist, is_graphic_control) {
     evaluator = this.evaluator;
     
-    // q = q0.copy();
     q.x = q0.x;
     q.y = q0.y;
     
@@ -118,7 +117,7 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("x", q0.x);
     evaluator.setVariable("y", q0.y);
     
-    this.f0 = evaluator.evalExpression(this.constraint);
+    this.f0 = evaluator.eval(this.constraint);
     
     if ((this.sign === "menor") && (this.f0 <= 0)) {
       return q;
@@ -131,7 +130,6 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable("y", savey);
 
     for (var i=0; i<16; i++) {
-    // for (var i=0; i<256; i++) {
       xa = q.x;
       ya = q.y;
 

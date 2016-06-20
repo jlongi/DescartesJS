@@ -20,13 +20,14 @@ var descartesJS = (function(descartesJS) {
   var OyExpr;
 
   var tmpContainer;
+  var boundingRect;
   var tmpDisplay;
   var containerClass;
   var pos;
 
   /**
    * Descartes space
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
@@ -37,7 +38,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.parent = parent;
-    
+
     /**
      * object for parse and evaluate expressions
      * type {Evaluator}
@@ -53,14 +54,14 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      */
     this.id = "";
-    
+
     /**
      * initial values
      * type {String}
      * @private
      */
     this.values = values;
-    
+
     /**
      * type
      * type {String}
@@ -95,7 +96,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.h = parseInt(parent.container.height);
-    
+
     /**
      * drawif condition
      * type {Node}
@@ -108,7 +109,7 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.fixed = (parent.version != 2) ? false : true;
+    this.fixed = (parent.version == 2);
 
     /**
      * scale
@@ -116,7 +117,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.scale = 48;
-    
+
     /**
      * displacement x of the origin
      * type {Number}
@@ -130,7 +131,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.Oy = 0;
-    
+
     /**
      * background image
      * type {Image}
@@ -147,26 +148,21 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.imageSrc = "";
-    
+
     /**
      * how the background image is positioned
      * type {String}
      * @private
      */
     this.bg_display = "topleft";
-    
+
     /**
      * background color
      * type {String}
      * @private
      */
-    if ( (parent.code === "descinst.com.mja.descartes.DescartesJS.class") || (parent.arquimedes) ) {
-      this.background = new descartesJS.Color("f0f8fa");
-    }
-    else {
-      this.background = new descartesJS.Color("ffffff");
-    }
-    
+    this.background = new descartesJS.Color( ((/DescartesJS.class/i).test(parent.code) || (parent.arquimedes)) ? "f0f8fa" : "ffffff" );
+
     /**
      * net condition and color
      * type {String}
@@ -215,7 +211,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.y_axis = (parent.version != 2) ? "" : " ";
+    this.y_axis = this.x_axis;
 
     /**
      * sensitive to mose movements condition
@@ -223,12 +219,12 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.sensitive_to_mouse_movements = false;
-    
+
     /**
      * component identifier (rtf text positioning)
      * type {String}
      * @private
-     */    
+     */
     this.cID = ""
 
     /**
@@ -244,7 +240,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.mouse_y = 0;
-    
+
     /**
      * the controls
      * type {Array<Controls>}
@@ -258,25 +254,25 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.graphicsCtr = [];
-    
+
     /**
      * the graphics
      * type {Array<Graphics>}
      * @private
      */
     this.graphics = [];
-    
+
     /**
      * the background graphics
      * type {Array<Graphics>}
      * @private
      */
-    this.backgroundGraphics = [];
-    
+    this.backGraphics = [];
+
     /**
      * z index of the elements
      * @type {Number}
-     * @private 
+     * @private
      */
     this.zIndex = parent.zIndex;
 
@@ -294,7 +290,7 @@ var descartesJS = (function(descartesJS) {
 
     this.init();
   }
-  
+
   /**
    * Init the values of the space
    */
@@ -304,61 +300,67 @@ var descartesJS = (function(descartesJS) {
     thisID = this.id;
 
     this.displaceRegionNorth = parent.displaceRegionNorth || 0;
+    this.displaceRegionSouth = parent.displaceRegionSouth || 0;
+    this.displaceRegionEast = parent.displaceRegionEast || 0;
     this.displaceRegionWest = parent.displaceRegionWest || 0;
 
+    parentW = parseInt(parent.container.width);
+    parentH = parseInt(parent.container.height);
+
     if (this.wExpr != undefined) {
-      this.w = (parseInt(parent.container.width) - this.displaceRegionWest)*parseFloat(this.wExpr)/100;
+      this.w = parseInt(parentW - this.displaceRegionWest - this.displaceRegionEast)*parseFloat(this.wExpr)/100;
     }
     if (this.hExpr != undefined) {
-      this.h = (parseInt(parent.container.height) - this.displaceRegionNorth)*parseFloat(this.hExpr)/100;
+      this.h = parseInt(parentH - this.displaceRegionNorth - this.displaceRegionSouth)*parseFloat(this.hExpr)/100;
     }
 
-    parentH = parseInt(parent.container.height);
-    parentW = parseInt(parent.container.width);
-        
     // get the x and y position
-    this.x = evaluator.evalExpression(this.xExpr) + this.displaceRegionWest;
-    this.y = evaluator.evalExpression(this.yExpr) + this.plecaHeight + this.displaceRegionNorth;
+    if (this.xPercentExpr != undefined) {
+      this.xExpr = evaluator.parser.parse((parseInt(parentW - this.displaceRegionWest - this.displaceRegionEast)*parseFloat(this.xPercentExpr)/100).toString());
+    }
+    if (this.yPercentExpr != undefined) {
+      this.yExpr = evaluator.parser.parse((parseInt(parentH - this.displaceRegionNorth - this.displaceRegionSouth)*parseFloat(this.yPercentExpr)/100).toString());
+    }
+
+    this.x = evaluator.eval(this.xExpr) + this.displaceRegionWest;
+    this.y = evaluator.eval(this.yExpr) + this.plecaHeight + this.displaceRegionNorth;
 
     // if the container exist then modify it's x and y position
     if (this.container) {
       this.container.style.left = this.x + "px";
       this.container.style.top = this.y + "px";
     }
-    
-    // ignore the change in the size if the id of the space is _BASE_
-    // if (thisID === "_BASE_") {
-      if (this.y >=0) {
-        newH = parentH - this.y;
-        if (this.h > newH) {
-          this.h = newH;
-        }
-      } else {
-        newH = this.h + this.y;
-        if (newH >= parentH) {
-          this.h = parentH;
-        } else {
-          this.h = newH;
-        }
-      }
 
-      if (this.x >=0) {
-        newW = parentW - this.x;
-        if (this.w > newW) {
-          this.w = newW;
-        }
-      } else {
-        newW = this.w + this.x;
-        if (newW >= parentW) {
-          this.w = parentW;
-        } else {
-          this.w = newW;
-        }
+    if (this.y >=0) {
+      newH = parentH - this.y;
+      if (this.h > newH) {
+        this.h = newH;
       }
-    // }
+    } else {
+      newH = this.h + this.y;
+      if (newH >= parentH) {
+        this.h = parentH;
+      } else {
+        this.h = newH;
+      }
+    }
+
+    if (this.x >=0) {
+      newW = parentW - this.x;
+      if (this.w > newW) {
+        this.w = newW;
+      }
+    } else {
+      newW = this.w + this.x;
+      if (newW >= parentW) {
+        this.w = parentW;
+      } else {
+        this.w = newW;
+      }
+    }
 
     // if the space has a background image then get the image from the loader
-    if ((this.imageSrc != "") || !(this.imageSrc.trim().toLowerCase().match(/vacio.gif$/))) {
+    if ( (this.imageSrc != "") || !(/vacio.gif$/i).test(this.imageSrc.trim()) ) {
       this.image = parent.getImage(this.imageSrc);
     }
 
@@ -368,11 +370,11 @@ var descartesJS = (function(descartesJS) {
       OxExpr = this.OxExpr;
       if (OxExpr[OxExpr.length-1] === "%") {
         this.Ox = this.w*parseFloat(OxExpr)/100;
-      } 
+      }
       // if not specified with a percentage
       else {
         temp = parseFloat(OxExpr);
-        
+
         // whether to convert the value to a number the values ​​are different
         if (temp != OxExpr) {
           temp = 0;
@@ -387,11 +389,11 @@ var descartesJS = (function(descartesJS) {
       OyExpr = this.OyExpr;
       if (OyExpr[OyExpr.length-1] === "%") {
         this.Oy = this.h*parseFloat(OyExpr)/100;
-      } 
+      }
       // if not specified with a percentage
       else {
         temp = parseFloat(OyExpr);
-        
+
         // whether to convert the value to a number the values ​​are different
         if (temp != OyExpr) {
           temp = 0;
@@ -434,14 +436,14 @@ var descartesJS = (function(descartesJS) {
       temp = evaluator.getVariable("Oy");
       if (temp === undefined) { temp = this.Oy; };
       evaluator.setVariable("Oy", temp);
-      
+
       evaluator.setVariable("mouse_x", 0);
       evaluator.setVariable("mouse_y", 0);
       evaluator.setVariable("mouse_pressed", 0);
       evaluator.setVariable("mouse_clicked", 0);
       evaluator.setVariable("clic_izquierdo", 0);
 
-      if ((this.x_axis === "") && (this.y_axis === "") && (parent.version == 2)) {
+      if ((parent.version == 2) && (this.x_axis === "") && (this.y_axis === "")) {
         this.axes = "";
       }
     }
@@ -449,7 +451,7 @@ var descartesJS = (function(descartesJS) {
     this.w_2 = this.w/2;
     this.h_2 = this.h/2;
   }
-  
+
   /**
    * Add a control to the list of controls of the space
    * @param {Control} ctr is the control to add
@@ -457,24 +459,24 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space.prototype.addCtr = function(ctr) {
     if (ctr.type === "graphic") {
       this.graphicsCtr.push(ctr);
-    } 
+    }
     else {
       this.ctrs.push(ctr);
     }
   }
-  
+
   /**
    * Add a graphic to the list of graphics of the space
    * @param {Graphic} gra is the graphic to add
    */
   descartesJS.Space.prototype.addGraph = function(gra, is3D) {
     // add only graphs with the type of the space
-    if ( ((this.type == "R2") && is3D) || (this.type == "R3" && !is3D) ) {
+    if ( ((this.type === "R2") && is3D) || ((this.type === "R3") && !is3D) ) {
       return;
     }
 
     if ((gra.background) && (this.type !== "R3")) {
-      this.backgroundGraphics.push(gra);
+      this.backGraphics.push(gra);
     }
     else {
       this.graphics.push(gra);
@@ -507,7 +509,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Space.prototype.getRelativeY = function(y) {
     return (-parseInt(y) + this.h_2 + this.Oy)/this.scale;
   }
-  
+
   /**
    * Calculate the position absolute respect to the canvas coordinate system
    * @param {Number} x ths position
@@ -526,69 +528,5 @@ var descartesJS = (function(descartesJS) {
     return (-y*this.scale + this.h_2 + this.Oy);
   }
 
-  /**
-   * Find the offset postion of a space
-   */
-  descartesJS.Space.prototype.findOffset = function() {
-    tmpContainer = this.container;
-
-    this.offsetLeft = 0;
-    this.offsetTop = 0;
-
-    // store the display style
-    if ((this.container) && (this.container.style)) {
-      tmpDisplay = this.container.style.display;
-    }
-
-    // make visible the element to get the offset values
-    this.container.style.display = "block";
-
-    if (tmpContainer.getBoundingClientRect) {
-      var boundingRect = tmpContainer.getBoundingClientRect();
-      this.offsetLeft = boundingRect.left;
-      this.offsetTop  = boundingRect.top;
-    }
-    else {
-      while (tmpContainer) {
-        if ((tmpContainer.tagName) && (tmpContainer.tagName.toLowerCase() !== "html")) {
-          this.offsetLeft += tmpContainer.offsetLeft || 0;
-          this.offsetTop  += tmpContainer.offsetTop || 0;
-          tmpContainer = tmpContainer.parentNode;
-        }
-        else {
-          tmpContainer = null;
-        }
-      }
-    }
-    
-    // restore the display style
-    if ((this.container) && (this.container.style)) {
-      this.container.style.display = tmpDisplay;
-    }
-  }
-
-
-  var rect;
-  /**
-   * Get the cursor position of the mouse in absolute coordinates respect to space where it is
-   * @param {Event} evt the event containing the mouse position
-   * @return {Object} return an object with the cursor position
-   */
-  descartesJS.Space.prototype.getCursorPosition = function(evt) {
-    this.findOffset();
-    pos = descartesJS.getCursorPosition(evt);
-
-    return { x: (pos.x - (((document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft) + this.offsetLeft)), 
-             y: (pos.y - (((document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop)  + this.offsetTop))
-           };
-
-//posible nueva opcion mas moderna
-    // rect = this.container.getBoundingClientRect();
-    // pos = descartesJS.getCursorPosition(evt);
-    // return { x: pos.x -rect.left, 
-    //          y: pos.y -rect.top
-    //         }
-  }
-  
   return descartesJS;
 })(descartesJS || {});

@@ -5,7 +5,9 @@
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
-  
+
+  var mathMax = Math.max;
+
   var tokens;
   var indexToken;
   var fontTable;
@@ -38,10 +40,10 @@ var descartesJS = (function(descartesJS) {
   var descartesComponentNumCtrl;
   var descartesComponentSpace;
   var descartesHyperLink;
-  
+
   /**
    * Descartes RTF parser
-   * @constructor 
+   * @constructor
    */
   descartesJS.RTFParser = function(evaluator) {
     this.evaluator = evaluator;
@@ -61,28 +63,28 @@ var descartesJS = (function(descartesJS) {
     fontTable = {};
     tempI = 2;
 // console.log(tokens);
-    
+
     // build the font block
     if ( (tokens[0].type == "openBlock") && (tokens[1].value == "fonttbl") ) {
       openBlockIndex = tokens[0].value;
-      
+
       while ( ((tokens[tempI].type != "closeBlock") && (tokens[tempI].value != openBlockIndex)) ) {
         fontTable[tokens[tempI].value] = (tokens[tempI+2].value).substring(0, (tokens[tempI+2].value).length-1);
         tempI = tempI + 3;
       }
-      
+
       tempI++;
     }
 
     colorTable = {};
     colorTableIndex = 0;
-    
+
     // build the color block
     if ( (tokens[tempI].type == "openBlock") && (tokens[tempI+1].value == "colortbl") ) {
       openBlockIndex = tokens[tempI++].value;
-      
+
       tempI++;
-      
+
       while ( ((tokens[tempI].type != "closeBlock") && (tokens[tempI].value != openBlockIndex)) ) {
         r = parseInt(tokens[tempI++].value.substring(3)).toString(16);
         g = parseInt(tokens[tempI++].value.substring(5)).toString(16);
@@ -95,15 +97,15 @@ var descartesJS = (function(descartesJS) {
         // #rrggbb
         colorTable[colorTableIndex++] = "#" + ((r.length < 2)? "0"+r : r) + ((g.length < 2)? "0"+g : g) + ((b.length < 2)? "0"+b : b);
       }
-      
-      tempI++;      
+
+      tempI++;
     }
 
     // initial parse tree nodes
     newNode = new descartesJS.RTFNode(this.evaluator, "", "textBlock", "", false, "");
     lastNode = new descartesJS.RTFNode(this.evaluator, "", "textLineBlock", "", false, "");
     newNode.addChild(lastNode);
-    
+
     lastDynamicNode = null;
     lastMatrixNode = null;
     lastPartsNode = null;
@@ -121,15 +123,15 @@ var descartesJS = (function(descartesJS) {
     blockNum = -1;
     formulaBlock = -1;
     formulaStack = [];
-    
-    // has formula flag 
+
+    // has formula flag
     hasFormula = false;
-    
+
     // arquimedes rft components
     descartesComponentNumCtrl = false;
     descartesComponentSpace = false;
     descartesHyperLink = false;
-    
+
     // build the text nodes
     for (var i=tempI, l=tokens.length; i<l; i++) {
       // font type
@@ -154,7 +156,7 @@ var descartesJS = (function(descartesJS) {
       }
       // init italic text
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "i")) {
-        styleStackTop.textItalic = "oblique";
+        styleStackTop.textItalic = "italic";
         continue;
       }
       // end italic text
@@ -194,10 +196,10 @@ var descartesJS = (function(descartesJS) {
       // init a rtf block, expressions or formulas
       else if (tokens[i].type == "openBlock") {
         blockNum = tokens[i].value;
-        
+
         styleStackTop = styleStackTop.clone();
         styleStack.push(styleStackTop);
-        
+
         formulaStack.push(null);
 
         continue;
@@ -209,7 +211,7 @@ var descartesJS = (function(descartesJS) {
           descartesFormula = false;
           lastNode = lastNode.parent;
         }
-        
+
         styleStack.pop();
         styleStackTop = styleStack[styleStack.length-1];
 
@@ -220,13 +222,13 @@ var descartesJS = (function(descartesJS) {
       // a new line
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "par")) {
         lastNode.addChild( new descartesJS.RTFNode(this.evaluator, "", "newLine", styleStackTop.clone()) );
-        
+
         newNode = new descartesJS.RTFNode(this.evaluator, "", "textLineBlock", styleStackTop.clone());
-        
+
         // find a textBlock to add the new line
         if (lastNode.nodeType != "textBlock") {
           lastNode = lastNode.parent;
-         
+
           while (lastNode.nodeType != "textBlock") {
             lastNode = lastNode.parent;
           }
@@ -242,18 +244,18 @@ var descartesJS = (function(descartesJS) {
         hasFormula = true;
         formulaBlock = blockNum;
         descartesFormula = true;
-        
+
         newNode = new descartesJS.RTFNode(this.evaluator, "", "formula", styleStackTop.clone());
         lastNode.addChild(newNode);
         lastNode = newNode;
-        
+
         formulaStack[formulaStack.length-1] = newNode;
 
         continue;
       }
       // fraction, sum, integral and limit
-      else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "fraction") || 
-                                                     (tokens[i].value == "radicand") || 
+      else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "fraction") ||
+                                                     (tokens[i].value == "radicand") ||
                                                      (tokens[i].value == "radical") ||
                                                      (tokens[i].value == "what") ||
                                                      (tokens[i].value == "sum") ||
@@ -266,43 +268,37 @@ var descartesJS = (function(descartesJS) {
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-        
+
         continue;
       }
       // root index, limits of sum and integral
-      else if ((tokens[i].type == "controlWord") && ( (tokens[i].value == "index")) || 
+      else if ((tokens[i].type == "controlWord") && ( (tokens[i].value == "index")) ||
                                                       (tokens[i].value == "to") ||
                                                       (tokens[i].value == "from") ) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
-        tmpStyle.fontSize = parseInt(tmpStyle.fontSize - tmpStyle.fontSize*.2);
 
         // the size of the font can not be less than 8
-        if (tmpStyle.fontSize < 8) {
-          tmpStyle.fontSize = 8;
-        }
+        tmpStyle.fontSize = mathMax( parseInt(tmpStyle.fontSize - tmpStyle.fontSize*.2), 8 );
 
         newNode = new descartesJS.RTFNode(this.evaluator, "", tokens[i].value, tmpStyle);
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-        
+
         continue;
       }
       // numerator or denominator of a fraction
       else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "num") || (tokens[i].value == "den"))) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
-        tmpStyle.fontSize = Math.round(tmpStyle.fontSize - tmpStyle.fontSize*.1);
 
         // the size of the font can not be less than 8
-        if (tmpStyle.fontSize < 8) {
-          tmpStyle.fontSize = 8;
-        }
+        tmpStyle.fontSize = mathMax( Math.round(tmpStyle.fontSize - tmpStyle.fontSize*.1), 8 );
 
         if (tokens[i].value == "num") {
           newNode = new descartesJS.RTFNode(this.evaluator, "", "numerator", tmpStyle);
@@ -313,21 +309,18 @@ var descartesJS = (function(descartesJS) {
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-        
+
         continue;
       }
       // subindex or superindex
       else if ((tokens[i].type == "controlWord") && ((tokens[i].value == "subix") || (tokens[i].value == "supix"))) {
         var tmpStyle = formulaStack[formulaStack.length-2].style.clone();
-        tmpStyle.fontSize = Math.floor(tmpStyle.fontSize - tmpStyle.fontSize/3);
-        
+
         // the size of the font can not be less than 8
-        if (tmpStyle.fontSize < 8) {
-          tmpStyle.fontSize = 8;
-        }
+        tmpStyle.fontSize = mathMax( Math.floor(tmpStyle.fontSize - tmpStyle.fontSize/3), 8 );
 
         if (tokens[i].value == "subix") {
           newNode = new descartesJS.RTFNode(this.evaluator, "", "subIndex", tmpStyle);
@@ -335,16 +328,16 @@ var descartesJS = (function(descartesJS) {
         else if (tokens[i].value == "supix") {
           newNode = new descartesJS.RTFNode(this.evaluator, "", "superIndex", tmpStyle);
         }
-        
+
         newNode.originalStyle = formulaStack[formulaStack.length-2].style.clone();
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-        
-        continue;        
+
+        continue;
       }
       // defparts, a matrix or an element
       else if ((tokens[i].type == "controlWord") && ( (tokens[i].value == "defparts") || (tokens[i].value == "matrix") || (tokens[i].value == "element") )) {
@@ -354,10 +347,10 @@ var descartesJS = (function(descartesJS) {
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-               
+
         if (tokens[i].value == "defparts") {
           lastPartsNode = newNode;
         }
@@ -365,7 +358,7 @@ var descartesJS = (function(descartesJS) {
           lastMatrixNode = newNode;
         }
 
-        continue;        
+        continue;
       }
       // number of parts
       else if ((tokens[i].type == "controlWord") && (tokens[i].value == "parts")) {
@@ -451,7 +444,7 @@ var descartesJS = (function(descartesJS) {
 
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
-         
+
           while (lastNode.nodeType != "textLineBlock") {
             lastNode = lastNode.parent;
           }
@@ -467,7 +460,7 @@ var descartesJS = (function(descartesJS) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].value, "componentNumCtrl", styleStackTop.clone());
 
         lastNode.addChild(newNode);
-        
+
         descartesComponentNumCtrl = false;
         continue;
       }
@@ -476,7 +469,7 @@ var descartesJS = (function(descartesJS) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].value, "componentSpace", styleStackTop.clone());
 
         lastNode.addChild(newNode);
-        
+
         descartesComponentSpace = false;
         continue;
       }
@@ -490,13 +483,13 @@ var descartesJS = (function(descartesJS) {
 
         // add the new node to the element previous to the top, because the top contains the new element to add
         formulaStack[formulaStack.length-2].addChild(newNode);
-        
+
         // the new element is the stack top
         formulaStack[formulaStack.length-1] = newNode;
-        
+
         // save the reference to the last dynamic node, to asign the number of decimals and the fixed representation
         lastDynamicNode = newNode;
-        
+
         dinamycText = false;
         continue;
       }
@@ -505,15 +498,15 @@ var descartesJS = (function(descartesJS) {
         textContent = tokens[i].value;
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "text", styleStackTop.clone());
-        
+
         if (lastNode.nodeType != "textLineBlock") {
           lastNode = lastNode.parent;
-         
+
           while (lastNode.nodeType != "textLineBlock") {
             lastNode = lastNode.parent;
           }
         }
-        
+
         lastNode.addChild(newNode);
         continue;
       }
@@ -522,35 +515,35 @@ var descartesJS = (function(descartesJS) {
         textContent = tokens[i].value;
 
         newNode = new descartesJS.RTFNode(this.evaluator, textContent, "text", formulaStack[formulaStack.length-1].style.clone());
-        
+
         // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
-        
+
         continue;
       }
       // mathematic symbols parentheses
       else if ( (tokens[i].type == "(") || (tokens[i].type == ")") ) {
         var tmpStyle = formulaStack[formulaStack.length-1].style.clone();
         tmpStyle.textItalic = "";
-        
+
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].type, "mathSymbol", tmpStyle);
 
         // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
-        
+
         continue;
       }
       // mathematic symbols +, -, *,  =
-      else if ( (tokens[i].type == "+") || (tokens[i].type == "-") || 
+      else if ( (tokens[i].type == "+") || (tokens[i].type == "-") ||
                 (tokens[i].type == "*") || (tokens[i].type == "=") ) {
         newNode = new descartesJS.RTFNode(this.evaluator, tokens[i].type, "mathSymbol", formulaStack[formulaStack.length-1].style.clone());
 
         // add the new node to the top of the formulas stack
         formulaStack[formulaStack.length-1].addChild(newNode);
-        
+
         continue;
       }
-      
+
       // unknown elements
       else {
 //         console.log("Desconocido ", tokens[i]);
@@ -562,12 +555,12 @@ var descartesJS = (function(descartesJS) {
       var rootNode = lastNode.getRoot();
       rootNode.stableWidth = stableWidth;
       rootNode.getTextMetrics();
-      
+
       rootNode.hasFormula = hasFormula;
-      
+
       // console.log(rootNode);
     }
-    
+
     return rootNode;
   }
 
@@ -591,58 +584,55 @@ var descartesJS = (function(descartesJS) {
     this.textOverline = textOverline;
     this.textColor = textColor;
   }
-  
+
   /**
    * Convert the font style to a string representation
    * @return {String} return the string representation of the style
    */
   descartesJS.FontStyle.prototype.toString = function() {
-    if (this.fontType.toLowerCase() == "arial") {
-      this.fontType = "descartesJS_sansserif,Arial,Helvetica,Sans-serif";
+    if ((/arial/i).test(this.fontType)) {
+      this.fontType = descartesJS.sansserif_font;
     }
-    else if (this.fontType.toLowerCase().match("times")) {
-      this.fontType = "descartesJS_serif,'Times New Roman',Times,serif";
+    else if ((/times/i).test(this.fontType)) {
+      this.fontType = descartesJS.serif_font;
     }
-    else if (this.fontType.toLowerCase().match("courier")) {
-      this.fontType = "descartesJS_monospace,'Courier New',Courier,Monospace";
+    else if ((/courier/i).test(this.fontType)) {
+      this.fontType = descartesJS.monospace_font;
     }
 
     return (this.textBold + " " + this.textItalic + " " + this.fontSize + "px " + this.fontType).trim();
   }
-  
+
   /**
    * Get a CSS style
    * {String} retur a CSS style for the font style
    */
   descartesJS.FontStyle.prototype.toCSS = function() {
-    // var cssRule = "style='font: " + this.fontSize + "px " + this.fontType + "; ";
-    var cssRule = 'style="font-size:' + this.fontSize + 'px; font-family:' + this.fontType + '; ';
+    var cssRule = 'style="font-size:' + this.fontSize + 'px; font-family:' + this.fontType + ';';
 
     if (this.textUnderline && !this.textOverline) {
-      cssRule += 'text-decoration: underline; ';
+      cssRule += 'text-decoration:underline;';
     }
     if (!this.textUnderline && this.textOverline) {
-      cssRule += 'text-decoration: overline; ';
+      cssRule += 'text-decoration:overline;';
     }
     if (this.textUnderline && this.textOverline) {
-      cssRule += 'text-decoration: underline overline; ';
+      cssRule += 'text-decoration:underline overline;';
     }
     if (this.textBold && !this.textItalic) {
-      cssRule += 'font-style: normal; font-weight: bold; ';
+      cssRule += 'font-style:normal;font-weight:bold;';
     }
     if (!this.textBold && this.textItalic) {
-      // cssRule += "font-style: oblique; font-weight: normal; ";
-      cssRule += 'font-style: italic; font-weight: normal; ';
+      cssRule += 'font-style:italic;font-weight:normal;';
     }
     if (this.textBold && this.textItalic) {
-      // cssRule += "font-style: oblique; font-weight: bold; ";
-      cssRule += 'font-style: italic; font-weight: bold; ';
+      cssRule += 'font-style:italic;font-weight:bold;';
     }
     if (!this.textBold && !this.textItalic) {
-      cssRule += 'font-style: normal; font-weight: normal; ';
+      cssRule += 'font-style:normal;font-weight:normal;';
     }
     if (this.textColor) {
-      cssRule += 'color: ' + this.textColor + '; ';
+      cssRule += 'color:' + this.textColor + ';';
     }
 
     return cssRule + '"';
@@ -659,48 +649,48 @@ var descartesJS = (function(descartesJS) {
   function checkMathSymboslInFormula(tokens) {
 //     console.log(tokens);
     var tokensResult = [];
-    
+
     var inFormula = false;
     var ignoreText = false;
     var inExpression = false;
     var currentOpenBlock = [];
-    
+
     for (var i=0, l=tokens.length; i<l; i++) {
       // register if open a block, to see if it is within a formula or not
       if (tokens[i].type == "openBlock") {
         currentOpenBlock.push(tokens[i].value);
       }
-      
+
       // register if close a block, to see if it is within a formula or not
       if (tokens[i].type == "closeBlock") {
         currentOpenBlock.pop();
-        
+
         if (currentOpenBlock.length <= 0) {
           inFormula = false;
         }
       }
-      
+
       // the parentheses within an expression should not be changed
       if ((tokens[i].type == "controlWord") && ((tokens[i].value == "expr") || (tokens[i].value == "decimals"))) {
         ignoreText = true;
       }
-      
+
       // register if is on a formula, to check the texts within it
-      if ((tokens[i].type == "controlWord") && (tokens[i].value == "mjaformula")){
+      if ((tokens[i].type == "controlWord") && (tokens[i].value == "mjaformula")) {
         inFormula = true
       }
-      
+
       // if the token is a text and we are in a formula and the text is not an expression then must seek parentheses
       if ((tokens[i].type == "text") && (inFormula) && (!ignoreText)) {
         var lastIndex = 0;
         var value = tokens[i].value;
         var newValue = "";
-        
+
         for (var j=0, k=value.length; j<k; j++) {
 
-          if ( (value.charAt(j) == "(") || (value.charAt(j) == ")") || 
-               (value.charAt(j) == "+") || (value.charAt(j) == "-") || 
-               (value.charAt(j) == "*") || (value.charAt(j) == "=") 
+          if ( (value.charAt(j) == "(") || (value.charAt(j) == ")") ||
+               (value.charAt(j) == "+") || (value.charAt(j) == "-") ||
+               (value.charAt(j) == "*") || (value.charAt(j) == "=")
              ) {
             newValue = value.substring(lastIndex, j);
             if (newValue != "") {
@@ -726,7 +716,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    
+
 //     console.log(tokensResult);
     return tokensResult;
   }

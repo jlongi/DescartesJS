@@ -35,12 +35,13 @@ var descartesJS = (function(descartesJS) {
   var hasTouchSupport;
 
   var tmpContainer;
+  var boundingRect;
   var tmpDisplay;
   var pos;
 
   /**
    * Descartes scrollbar control
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the scrollbar control
    */
@@ -78,16 +79,16 @@ var descartesJS = (function(descartesJS) {
     this.containerControl.appendChild(this.divDown);
     this.containerControl.appendChild(this.field);
     this.containerControl.appendChild(this.scrollManipulator);
-    
+
     this.addControlContainer(this.containerControl);
 
     // register the mouse and touch events
-    this.registerMouseAndTouchEvents();
+    this.addEvents();
 
     // init the menu parameters
     this.init();
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
@@ -98,25 +99,22 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Scrollbar.prototype.init = function() {
     evaluator = this.evaluator;
-    
-    // get the offset of the scrollbar container to get the correct mouse cordinates
-    this.findOffset();
 
     // if has decimasl the increment are the interval [min, max] dividen by 100, if not then the incremente is 1
-    if (evaluator.evalExpression(this.decimals) == 0) {
+    if (evaluator.eval(this.decimals) == 0) {
       this.incr = 1;
     }
     else {
-      this.incr = (evaluator.evalExpression(this.max) - evaluator.evalExpression(this.min)) / 100;
+      this.incr = (evaluator.eval(this.max) - evaluator.eval(this.min)) / 100;
     }
 
     // validate the initial value
-    this.value = this.validateValue( evaluator.evalExpression(this.valueExpr) );
+    this.value = this.validateValue( evaluator.eval(this.valueExpr) );
 
     // format the output value
     fieldValue = this.formatOutputValue(this.value);
 
-    expr = this.evaluator.evalExpression(this.expresion);
+    expr = this.evaluator.eval(this.expresion);
     this.x = expr[0][0];
     this.y = expr[0][1];
     if (expr[0].length == 4) {
@@ -142,7 +140,7 @@ var descartesJS = (function(descartesJS) {
     self = this;
     evaluator = self.evaluator;
 
-    var name = evaluator.evalExpression(self.name).toString();
+    var name = evaluator.eval(self.name).toString();
     self.label.innerHTML = name;
 
     var defaultHeight = (self.orientation === verticalScrollbar) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
@@ -151,65 +149,65 @@ var descartesJS = (function(descartesJS) {
     self.fieldFontSize = (self.orientation === verticalScrollbar) ? (defaultHeight - parseInt(self.h/20) -1) : ((self.parent.version !== 2) ? descartesJS.getFieldFontSize(defaultHeight) : 10);
 
     var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", self.fieldFontSize+"px Arial");
-    
+
     var spaceH = self.parent.getSpaceById(self.spaceID).h;
-    
+
     self.labelHeight = (name == "") ? 0 : defaultHeight;
     self.fieldHeight = (self.visible == "") ? 0 : defaultHeight;
-    
+
     // vertical orientation
     if (self.orientation === verticalScrollbar) {
       self.canvasWidth = self.w;
-      self.canvasHeight = self.h - self.labelHeight - self.fieldHeight;    
+      self.canvasHeight = self.h - self.labelHeight - self.fieldHeight;
 
       if (self.canvasHeight + self.y - spaceH >= 18) {
         self.canvasHeight = spaceH;
       }
-      
+
       var sbx = 0;
       var sby = self.fieldHeight;
       var TFy = sby + self.canvasHeight;
 
       self.canvasX = 0;
       self.canvasY = self.fieldHeight;
-      
+
       self.labelWidth = self.w;
       self.labelY = TFy;
-      
+
       self.upWidth = self.downW = self.w;
       self.upHeight = self.downH = 15;
       self.upX = 0;
       self.upY = self.fieldHeight;
       self.downX = 0;
       self.downY = TFy-self.downH;
-      
+
       self.fieldWidth = self.w;
       self.fieldX = 0;
-      
+
       self.scrollManipulatorW = self.w;
       self.scrollManipulatorH = parseInt( (self.canvasHeight -self.upHeight -self.downH -self.labelHeight -self.fieldHeight)/10 );
       self.scrollManipulatorH = (self.scrollManipulatorH < 15) ? 15 : self.scrollManipulatorH;
-      
+
       self.scrollManipulatorLimInf = TFy -self.downH -self.scrollManipulatorH;
       self.scrollManipulatorLimSup = sby+self.downH;
     }
     else {
       var minsbw = 58;
-      
+
       // get the width of all elements in the scrollbar
       var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px Arial") +10;
       self.labelWidth = minLabelWidth;
       var minTFWidth = fieldValueSize;
       self.fieldWidth = minTFWidth;
-      
+
       if (name == "") {
         self.labelWidth = 0;
       }
-      
+
       if (!self.visible) {
         self.fieldWidth = 0;
       }
-      
+
       var sbw = self.w - self.fieldWidth - self.labelWidth;
       while ((sbw < minsbw) && (self.labelWidth > 0)) {
         self.labelWidth--;
@@ -219,56 +217,57 @@ var descartesJS = (function(descartesJS) {
         self.fieldWidth--;
         sbw++;
       }
-      
+
       var sbx = self.labelWidth;
       var sby = 0;
       var TFx = sbx + sbw;
       self.fieldWidth = self.w - TFx;
-      
+
       self.canvasWidth = sbw;
       self.canvasHeight = self.h;
       self.canvasX = self.labelWidth;
       self.canvasY = 0;
 
       self.fieldX = self.canvasWidth + self.labelWidth;
-      
+
       self.labelHeight = self.h;
       self.labelY = 0;
-      
+
       self.upWidth = self.downW = 15;
       self.upHeight = self.downH = self.h;
       self.upX = TFx-self.downW;
       self.upY = 0;
       self.downX = self.labelWidth;
       self.downY = 0;
-      
+
       self.scrollManipulatorW = parseInt( (self.canvasWidth-self.upWidth-self.downW)/10 );
       self.scrollManipulatorW = (self.scrollManipulatorW < 15) ? 15 : self.scrollManipulatorW;
       self.scrollManipulatorH = self.h;
-      
+
       self.scrollManipulatorLimInf = sbx+self.downW;
       self.scrollManipulatorLimSup = sbx+self.canvasWidth-self.downW -self.scrollManipulatorW;
     }
 
     self.containerControl.setAttribute("class", "DescartesScrollbarContainer");
-    self.containerControl.setAttribute("id", self.id);    
+    self.containerControl.setAttribute("id", self.id);
     self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
-    
+
     self.canvas.setAttribute("width", self.w+"px");
     self.canvas.setAttribute("height", self.h+"px");
-    self.canvas.setAttribute("style", "position: absolute; left: 0px; top: 0px;");    
+    self.canvas.setAttribute("style", "position: absolute; left: 0px; top: 0px;");
     self.ctx = self.canvas.getContext("2d");
-  
+    self.ctx.imageSmoothingEnabled = false;
+
     self.divUp.setAttribute("class", "DescartesCatcher up");
     self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
     self.divDown.setAttribute("class", "DescartesCatcher down");
     self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
-    
+
     self.scrollManipulator.setAttribute("class", "DescartesCatcher manipulator");
     self.scrollManipulator.setAttribute("style", "width : " + self.scrollManipulatorW + "px; height : " + self.scrollManipulatorH + "px;");
     self.scrollManipulator.style.top = ((self.orientation === verticalScrollbar) ? self.scrollManipulatorLimInf : 0) + "px";
     self.scrollManipulator.style.left = ((self.orientation === verticalScrollbar) ? 0 : self.scrollManipulatorLimInf) + "px";
-        
+
     // style the text field
     self.field.setAttribute("type", "text");
     self.field.setAttribute("id", self.id+"scrollbar");
@@ -278,36 +277,36 @@ var descartesJS = (function(descartesJS) {
     if (self.fieldHeight === 0) {
       self.field.style.display = "none";
     }
-    
+
     // style the label
     self.label.setAttribute("class", "DescartesScrollbarLabel");
     self.label.setAttribute("style", "font-size:" + self.fieldFontSize + "px; width: " + self.labelWidth + "px; height: " + self.labelHeight + "px; line-height: " + self.labelHeight + "px; left: 0px; top:" + self.labelY + "px;");
-    
+
   }
-    
+
   /**
    * Update the scrollbar
    */
   descartesJS.Scrollbar.prototype.update = function() {
     evaluator = this.evaluator;
 
-    this.label.innerHTML = evaluator.evalExpression(this.name).toString();
+    this.label.innerHTML = evaluator.eval(this.name).toString();
 
     // the incremente is the interval [min, max] dividen by 100 if has decimasl, if not then the incremente is 1
-    if (evaluator.evalExpression(this.decimals) == 0) {
+    if (evaluator.eval(this.decimals) == 0) {
       this.incr = 1;
     }
     else {
-      this.incr = (evaluator.evalExpression(this.max) - evaluator.evalExpression(this.min)) / 100;
+      this.incr = (evaluator.eval(this.max) - evaluator.eval(this.min)) / 100;
     }
 
     // check if the control is active and visible
-    this.activeIfValue = (evaluator.evalExpression(this.activeif) > 0);
-    this.drawIfValue = (evaluator.evalExpression(this.drawif) > 0);
+    this.activeIfValue = (evaluator.eval(this.activeif) > 0);
+    this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
     // enable or disable the control
     this.field.disabled = !this.activeIfValue;
-    
+
     // hide or show the menu control
     if (this.drawIfValue) {
       this.containerControl.style.display = "block";
@@ -315,7 +314,7 @@ var descartesJS = (function(descartesJS) {
     } else {
       this.containerControl.style.display = "none";
     }
-    
+
     // update the position and size
     this.updatePositionAndSize();
 
@@ -436,11 +435,11 @@ var descartesJS = (function(descartesJS) {
       ctx.fillRect(0, 0, tmpW, tmpH.h);
     }
   }
-  
+
   /**
    * Validate if the value is the range [min, max]
    * @param {String} value the value to validate
-   * @return {Number} return the value like a number, 
+   * @return {Number} return the value like a number,
    *                         is greater than the upper limit then return the upper limit
    *                         is less than the lower limit then return the lower limit
    */
@@ -451,18 +450,18 @@ var descartesJS = (function(descartesJS) {
 
     // if the value is a string that do not represent a number, parseFloat return NaN
     if (isNaN(resultValue)) {
-      resultValue = 0; 
+      resultValue = 0;
     }
-    
+
     // if is less than the lower limit
-    this.minimo = evaluator.evalExpression(this.min);
+    this.minimo = evaluator.eval(this.min);
     if (resultValue < this.minimo) {
       this.value = null;
       resultValue = this.minimo;
     }
 
     // if si greater than the upper limit
-    this.maximo = evaluator.evalExpression(this.max);
+    this.maximo = evaluator.eval(this.max);
     if (resultValue > this.maximo) {
       this.value = null;
       resultValue = this.maximo;
@@ -477,7 +476,7 @@ var descartesJS = (function(descartesJS) {
 //     }
 
     if (this.fixed) {
-      resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.evalExpression(this.decimals)));
+      resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.eval(this.decimals)));
     }
 
     return resultValue;
@@ -489,7 +488,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Scrollbar.prototype.increase = function() {
     this.changeValue( parseFloat(this.value) + this.incr );
   }
-  
+
   /**
    * Decrease the value of the scrollbar
    */
@@ -501,7 +500,7 @@ var descartesJS = (function(descartesJS) {
    * Increase by then the value of the scrollbar
    */
   descartesJS.Scrollbar.prototype.increase10 = function() {
-    desp = (this.evaluator.evalExpression(this.max)-this.evaluator.evalExpression(this.min))/10;
+    desp = (this.evaluator.eval(this.max)-this.evaluator.eval(this.min))/10;
 
     if (this.orientation == horizontalScrollbar) {
       if (this.clickPos.x > this.prePos) {
@@ -510,27 +509,27 @@ var descartesJS = (function(descartesJS) {
     } else {
       if (this.clickPos.y < this.prePos) {
         this.changeValue( parseFloat(this.value) + desp );
-      }      
+      }
     }
   }
-  
+
   /**
    * Decrease by then the value of the scrollbar
    */
   descartesJS.Scrollbar.prototype.decrease10 = function() {
-    desp = (this.evaluator.evalExpression(this.max)-this.evaluator.evalExpression(this.min))/10;
+    desp = (this.evaluator.eval(this.max)-this.evaluator.eval(this.min))/10;
 
     if (this.orientation == horizontalScrollbar) {
       if (this.clickPos.x < this.prePos) {
         this.changeValue( parseFloat(this.value) - desp );
-      } 
+      }
     } else {
       if (this.clickPos.y > this.prePos) {
         this.changeValue( parseFloat(this.value) - desp );
-      } 
+      }
     }
   }
-  
+
   /**
    * Change the scrollbar value
    */
@@ -542,7 +541,7 @@ var descartesJS = (function(descartesJS) {
       if (newValue != this.value) {
         this.value = newValue;
         this.field.value = this.formatOutputValue(newValue);
-        
+
         this.changeScrollPositionFromValue();
 
         this.prePos = this.pos;
@@ -562,20 +561,20 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     limInf = this.scrollManipulatorLimInf;
     limSup = this.scrollManipulatorLimSup;
-    min = evaluator.evalExpression(this.min);
-    max = evaluator.evalExpression(this.max);
+    min = evaluator.eval(this.min);
+    max = evaluator.eval(this.max);
     incr = this.incr;
-        
+
     newValue = MathFloor( (((this.pos-limInf)*(max-min))/(limSup-limInf))/incr )*incr  +min;
-    
+
     // if the value change, the update everything
     if (newValue != this.value) {
       this.value = newValue;
       this.field.value = this.formatOutputValue(newValue);
-      
+
       // register the control value
       evaluator.setVariable(this.id, this.value);
-      
+
       // update the controls
       this.parent.updateControls();
       // execute the acction
@@ -584,7 +583,7 @@ var descartesJS = (function(descartesJS) {
       this.parent.update();
     }
   }
-  
+
   /**
    * Change the position of the scroll handler give the value
    */
@@ -592,12 +591,12 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     limInf = this.scrollManipulatorLimInf;
     limSup = this.scrollManipulatorLimSup;
-    min = evaluator.evalExpression(this.min);
-    max = evaluator.evalExpression(this.max);
+    min = evaluator.eval(this.min);
+    max = evaluator.eval(this.max);
     incr = this.incr;
-    
+
     this.pos = (((this.value-min)*(limSup-limInf))/(max-min))+limInf;
-    
+
     if (this.orientation == horizontalScrollbar) {
       // this.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + this.scrollManipulatorW + "px; height : " + this.h + "px; left: " + this.pos + "px; top: 0px;");
       this.scrollManipulator.style.left = this.pos + "px";
@@ -606,11 +605,11 @@ var descartesJS = (function(descartesJS) {
       this.scrollManipulator.style.top = this.pos + "px";
     }
   }
-  
+
   /**
    * Register the mouse and touch events
    */
-  descartesJS.Scrollbar.prototype.registerMouseAndTouchEvents = function() {
+  descartesJS.Scrollbar.prototype.addEvents = function() {
     hasTouchSupport = descartesJS.hasTouchSupport;
 
     var self = this;
@@ -626,20 +625,20 @@ var descartesJS = (function(descartesJS) {
      * @param {Function} fun the function to execut
      * @param {Boolean} firstime a flag to indicated if is the first time clicked
      * @private
-     */    
+     */
     function repeat(delayTime, fun, firstTime, limit) {
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
 
       if ((self.up || self.down || self.canvasClick) && (Math.abs(self.value - limit) > .0000001)) {
         fun.call(self);
         delayTime = (firstTime) ? delayTime : 30;
-        timer = setTimeout(function() { repeat(delayTime, fun, false, limit); }, delayTime);
+        timer = descartesJS.setTimeout(function() { repeat(delayTime, fun, false, limit); }, delayTime);
       }
     }
-    
+
     /**
-     * 
-     * @param {Event} 
+     *
+     * @param {Event}
      * @private
      */
     function onKeyDown_TextField(evt) {
@@ -649,34 +648,34 @@ var descartesJS = (function(descartesJS) {
       }
     }
     this.field.addEventListener("keydown", onKeyDown_TextField);
-    
+
     /**
-     * 
-     * @param {Event} 
+     *
+     * @param {Event}
      * @private
      */
     function onMouseDown_canvas(evt) {
       evt.preventDefault();
 
-      self.whichButton = descartesJS.whichButton(evt);
+      self.whichBtn = descartesJS.whichBtn(evt);
 
-      if (self.whichButton == "L") {
+      if (self.whichBtn == "L") {
         if (self.activeIfValue) {
-          self.clickPos = self.getCursorPosition(evt);
+          self.clickPos = descartesJS.getCursorPosition(evt, self.containerControl);
           self.canvasClick = true;
-          
+
           if (self.orientation == horizontalScrollbar) {
             if (self.clickPos.x < self.prePos) {
               repeat(delay, self.decrease10, true, self.minimo);
-            } 
+            }
             else {
               repeat(delay, self.increase10, true, self.maximo);
             }
-          } 
+          }
           else {
             if (self.clickPos.y < self.prePos) {
               repeat(delay, self.increase10, true, self.maximo);
-            } 
+            }
             else {
               repeat(delay, self.decrease10, true, self.minimo);
             }
@@ -689,15 +688,15 @@ var descartesJS = (function(descartesJS) {
     // } else {
       this.canvas.addEventListener("mousedown", onMouseDown_canvas);
     // }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseOut_canvas(evt) {
       self.canvasClick = false;
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
       evt.preventDefault();
     }
     // if (!hasTouchSupport) {
@@ -705,13 +704,13 @@ var descartesJS = (function(descartesJS) {
     // }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseUp_Canvas(evt) {
       self.canvasClick = false;
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
       // evt.preventDefault();
     }
     // if (hasTouchSupport) {
@@ -721,13 +720,13 @@ var descartesJS = (function(descartesJS) {
     // }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseMove_Canvas(evt) {
       if (self.canvasClick == true) {
-        self.clickPos = self.getCursorPosition(evt);
+        self.clickPos = descartesJS.getCursorPosition(evt, self.containerControl);
         evt.preventDefault();
       }
     }
@@ -736,51 +735,51 @@ var descartesJS = (function(descartesJS) {
     // } else {
       this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
     // }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseDown_scrollManipulator(evt) {
       if (self.activeIfValue) {
         self.scrollClick = true;
-        
-        self.initPos = self.getCursorPosition(evt);
+
+        self.initPos = descartesJS.getCursorPosition(evt, self.containerControl);
 
         window.addEventListener("mouseup", onMouseUp_scrollManipulator);
         window.addEventListener("mousemove", onMouseMove_scrollManipulator);
-        
+
         evt.preventDefault();
       }
     }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onTouchStart_scrollManipulator(evt) {
       if (self.activeIfValue) {
         self.scrollClick = true;
-        
-        self.initPos = self.getCursorPosition(evt);
+
+        self.initPos = descartesJS.getCursorPosition(evt, self.containerControl);
 
         window.addEventListener("touchend", onTouchEnd_scrollManipulator);
         window.addEventListener("touchmove", onMouseMove_scrollManipulator);
-        
+
         evt.preventDefault();
-      }    
+      }
     }
-    
+
     // if (hasTouchSupport) {
       this.scrollManipulator.addEventListener("touchstart", onTouchStart_scrollManipulator);
     // } else {
       this.scrollManipulator.addEventListener("mousedown", onMouseDown_scrollManipulator);
     // }
-    
+
     /**
-     * 
+     *
      * @param {Event} evt
      * @private
      */
@@ -794,9 +793,9 @@ var descartesJS = (function(descartesJS) {
 
       evt.preventDefault();
     }
-    
+
     /**
-     * 
+     *
      * @param {Event} evt
      * @private
      */
@@ -810,14 +809,14 @@ var descartesJS = (function(descartesJS) {
 
       evt.preventDefault();
     }
-    
+
     /**
-     * 
+     *
      * @param {Event} evt
      * @private
      */
     function onMouseMove_scrollManipulator(evt) {
-      var newPos = self.getCursorPosition(evt);
+      var newPos = descartesJS.getCursorPosition(evt, self.containerControl);
 
       if (self.orientation == horizontalScrollbar) {
         self.pos = self.prePos - (self.initPos.x - newPos.x);
@@ -825,42 +824,42 @@ var descartesJS = (function(descartesJS) {
         if (self.pos < self.scrollManipulatorLimInf) {
           self.pos =  self.scrollManipulatorLimInf;
         }
-      
+
         if (self.pos > self.scrollManipulatorLimSup) {
           self.pos =  self.scrollManipulatorLimSup;
         }
 
-        self.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.scrollManipulatorW + "px; height : " + self.h + "px; left: " + self.pos + "px; top: 0px;"); 
+        self.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.scrollManipulatorW + "px; height : " + self.h + "px; left: " + self.pos + "px; top: 0px;");
       } else {
         self.pos = self.prePos - (self.initPos.y - newPos.y);
 
         if (self.pos > self.scrollManipulatorLimInf) {
           self.pos =  self.scrollManipulatorLimInf;
         }
-      
+
         if (self.pos < self.scrollManipulatorLimSup) {
           self.pos =  self.scrollManipulatorLimSup;
         }
-       
-        self.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.w + "px; height : " + self.scrollManipulatorH + "px; left: 0px; top: " + self.pos + "px;"); 
+
+        self.scrollManipulator.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.w + "px; height : " + self.scrollManipulatorH + "px; left: 0px; top: " + self.pos + "px;");
       }
-      
+
       self.changeValueForScrollMovement();
 
       evt.preventDefault();
     }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseDown_UpButton(evt) {
       evt.preventDefault();
 
-      self.whichButton = descartesJS.whichButton(evt);
+      self.whichBtn = descartesJS.whichBtn(evt);
 
-      if (self.whichButton == "L") {
+      if (self.whichBtn == "L") {
         if (self.activeIfValue) {
           self.up = true;
           repeat(delay, self.increase, true, self.maximo);
@@ -872,18 +871,18 @@ var descartesJS = (function(descartesJS) {
     // } else {
       this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
     // }
-    
+
     /**
-     * 
-     * @param {Event} 
+     *
+     * @param {Event}
      * @private
      */
     function onMouseDown_DownButton(evt) {
       evt.preventDefault();
 
-      self.whichButton = descartesJS.whichButton(evt);
+      self.whichBtn = descartesJS.whichBtn(evt);
 
-      if (self.whichButton == "L") {
+      if (self.whichBtn == "L") {
         if (self.activeIfValue) {
           self.down = true;
           repeat(delay, self.decrease, true, self.minimo);
@@ -895,29 +894,29 @@ var descartesJS = (function(descartesJS) {
     // } else {
       this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
     // }
-    
+
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseOut_UpButton(evt) {
       self.up = false;
-      clearInterval(timer);
-      evt.preventDefault();      
+      descartesJS.clearTimeout(timer);
+      evt.preventDefault();
     }
     // if (!hasTouchSupport) {
       this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
     // }
 
     /**
-     * 
+     *
      * @param {Event} evt
      * @private
      */
     function onMouseOut_DownButton(evt) {
       self.down = false;
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
       evt.preventDefault();
     }
     // if (!hasTouchSupport) {
@@ -925,13 +924,13 @@ var descartesJS = (function(descartesJS) {
     // }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseUp_UpButton(evt) {
       self.up = false;
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
       // evt.preventDefault();
       self.draw();
     }
@@ -942,13 +941,13 @@ var descartesJS = (function(descartesJS) {
     // }
 
     /**
-     * 
-     * @param {Event} evt 
+     *
+     * @param {Event} evt
      * @private
      */
     function onMouseUp_DownButton(evt) {
       self.down = false;
-      clearInterval(timer);
+      descartesJS.clearTimeout(timer);
       // evt.preventDefault();
       self.draw();
     }
@@ -957,47 +956,8 @@ var descartesJS = (function(descartesJS) {
     // } else {
       window.addEventListener("mouseup", onMouseUp_DownButton);
     // }
-    
+
   }
-  
- /**
-   * Find the offset postion of a scrollbar
-   */
-  descartesJS.Scrollbar.prototype.findOffset = function() {
-    tmpContainer = this.containerControl;
-
-    this.offsetLeft = 0;
-    this.offsetTop = 0;
-
-    // store the display style
-    tmpDisplay = this.containerControl.style.display;
-
-    // make visible the element to get the offset values
-    this.containerControl.style.display = "block";
-
-    while (tmpContainer) {
-      this.offsetLeft += (tmpContainer.offsetLeft || 0);
-      this.offsetTop  += (tmpContainer.offsetTop || 0);
-      
-      tmpContainer = tmpContainer.parentNode;
-    }
-
-    // restore the display style
-    this.containerControl.style.display = tmpDisplay;
-  }
-
-  /**
-   * Get the cursor position of the mouse in absolute coordinates respect to space where it is
-   * @param {Event} evt the event containing the mouse position
-   * @return {Object} return an object with the cursor position
-   */
-  descartesJS.Scrollbar.prototype.getCursorPosition = function(evt) {
-    pos = descartesJS.getCursorPosition(evt);
-
-    return { x: pos.x - this.offsetLeft, 
-             y: pos.y - this.offsetTop 
-           };
-  }  
 
   return descartesJS;
 })(descartesJS || {});

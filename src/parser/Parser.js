@@ -5,21 +5,21 @@
 
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
-  
+
   /**
    * Descartes parser
-   * @constructor 
+   * @constructor
    */
   descartesJS.Parser = function(evaluator) {
     this.evaluator = evaluator;
-    
+
     this.tokenizer = new descartesJS.Tokenizer();
     this.vectors = {};
     this.matrices = {};
     this.variables = {};
     this.functions = {};
     this.definitions = {};
-    
+
     this.registerDefaultValues();
     if (this.registerExternalValues) {
       this.registerExternalValues();
@@ -36,7 +36,7 @@ var descartesJS = (function(descartesJS) {
     return this.definitions[name];
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   /**
    * Set the value to a variable
    * @param {String} name the name of the variable to set
@@ -144,8 +144,8 @@ var descartesJS = (function(descartesJS) {
   var tokens_i;
   var tokens_i_value;
   var tokens_i_type;
-  var root;  
- 
+  var root;
+
   /**
    * Function that parses a string
    * @param {String} input the input to parse
@@ -162,19 +162,19 @@ var descartesJS = (function(descartesJS) {
     lastNode = null;
     asignation = !asignation || false;
     count = 0;
-    
+
     openParentesis = 0;
     openSquareBracket = 0;
     openConditional = 0;
-    
+
     for (i=0, l=tokens.length; i<l; i++) {
       tokens_i = tokens[i];
       tokens_i_value = tokens_i.value;
       tokens_i_type = tokens_i.type;
-      
-      ////////////////////////////////////////////////////////////////////////////////      
+
+      ////////////////////////////////////////////////////////////////////////////////
       // verify if the variables exist
-      ////////////////////////////////////////////////////////////////////////////////      
+      ////////////////////////////////////////////////////////////////////////////////
       if (tokens_i_type === identifierType) {
         // the identifier is a function
         if ( ((i+1)<l) && (tokens[i+1].type === parenthesesType) && (tokens[i+1].value === "(") ) {
@@ -193,40 +193,36 @@ var descartesJS = (function(descartesJS) {
         }
         // the identifier is a variable
         else {
-          var scrollable = tokens_i_value.match(/(\w*)\.mouse_x/) || 
-                           tokens_i_value.match(/(\w*)\.mouse_y/) || 
-                           tokens_i_value.match(/(\w*)\.mouse_pressed/) || 
-                           tokens_i_value.match(/(\w*)\.mouse_clicked/) || 
-                           tokens_i_value.match(/(\w*)\.clic_izquierdo/);
+          var scrollable = tokens_i_value.match(/(\w*)\.mouse_x|(\w*)\.mouse_y|(\w*)\.mouse_pressed|(\w*)\.mouse_clicked|(\w*)\.clic_izquierdo/);
           if (scrollable) {
             this.variables[scrollable[1] + ".DESCARTESJS_no_fixed"] = 1;
           }
 
           this.getVariable(tokens_i_value, true);
-        } 
+        }
       }
       ////////////////////////////////////////////////////////////////////////////////
-      
+
       ////////////////////////////////////////////////////////////////////////////////
       //
       // Asignation (one equal sign)
       //
       ////////////////////////////////////////////////////////////////////////////////
-      if ( (tokens_i_type === asignType) && (asignation) ) {
+      if ( (tokens_i_type === asignType) && (asignation) && (tokens_i_value != ":=") ) {
         tokens_i_type = compOperatorType;
         tokens_i_value = "==";
       }
       if (tokens_i_type === asignType) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-        
+
         // the tree is not empty
         if (lastNode != null) {
           // the last element of the tree is an identifier
           if (lastNode.type === identifierType) {
             if (lastNode.parent){
               lastNode.parent.replaceLastChild(node);
-            } 
-            
+            }
+
             node.addChild(lastNode);
             lastNode = node;
             asignation = true;
@@ -235,17 +231,17 @@ var descartesJS = (function(descartesJS) {
           else if (lastNode.type === squareBracketType) {
             node.addChild(lastNode.parent);
             lastNode = node;
-            asignation = true;            
+            asignation = true;
           }
-          
+
           // otherwise
           else {
             node.type = compOperatorType;
             node.value = "==";
             asignation = true;
-            
+
             // find an element in the tree having a higher precedence to the node to be added
-            while ((lastNode.parent) && (this.getPrecedence(lastNode.parent.value) >= this.getPrecedence(node.value))){
+            while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
               lastNode = lastNode.parent;
             }
             // if can find an ancestor in the tree having a higher precedence
@@ -254,39 +250,39 @@ var descartesJS = (function(descartesJS) {
               node.addChild(lastNode);
               lastNode = node;
             }
-            
+
             // reached the root
             else {
               node.addChild(lastNode);
               lastNode = node;
             }
           }
-        } 
-        
+        }
+
         // do not have last element
         else {
           console.log("Error1: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
-      
+
         // continue with the next token
         continue;
       }
-    
+
       ////////////////////////////////////////////////////////////////////////////////
       //
       // Parentheses, function, vectors and matrices
       //
       ////////////////////////////////////////////////////////////////////////////////
-      // open parentheses and open square brackets 
-      if ( (tokens_i_type === parenthesesType) && (tokens_i_value === "(") || 
+      // open parentheses and open square brackets
+      if ( (tokens_i_type === parenthesesType) && (tokens_i_value === "(") ||
         (tokens_i_type === squareBracketType) && (tokens_i_value === "[") ) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-      
+
         if (tokens_i_value === "(") {
           openParentesis++;
         }
-        
+
         if (tokens_i_value === "[") {
           openSquareBracket++;
         }
@@ -300,7 +296,7 @@ var descartesJS = (function(descartesJS) {
           if (tokens_i_value === "[") {
             (new descartesJS.Node("[expr]", "[expr]")).addChild(node);
           }
-          
+
           lastNode = node;
         }
         // the tree has some element
@@ -310,7 +306,7 @@ var descartesJS = (function(descartesJS) {
             lastNode.addChild(node);
             lastNode = node;
           }
-          
+
           // the last element is a sign
           else if (lastNode.type === signType) {
             lastNode.addChild(node);
@@ -322,13 +318,13 @@ var descartesJS = (function(descartesJS) {
             lastNode.addChild(node);
             lastNode = node;
           }
-          
+
           // the last element in the tree is an open square bracket
           else if ((lastNode.type === squareBracketType) && (lastNode.value === "[")) {
             lastNode.addChild(node);
             lastNode = node;
           }
-          
+
           // the last element in the tree is a close parentheses
           else if ((lastNode.type === parenthesesType) && (lastNode.value === "()")) {
             lastNode.parent.addChild(node);
@@ -346,18 +342,18 @@ var descartesJS = (function(descartesJS) {
             lastNode.addChild(node);
             lastNode = node;
           }
-          
+
           // otherwise
           else {
             console.log("Error2: en la expresion <<" + input + ">>, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
-        
+
         // continue with the next token
         continue;
       }
-      
+
       // close parentheses
       else if ((tokens_i_type === parenthesesType) && (tokens_i_value === ")")) {
 
@@ -367,63 +363,63 @@ var descartesJS = (function(descartesJS) {
         if (lastNode === null) {
           console.log("Error3: en la expresion <<" + input + ">>, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
-        
+
         // the tree has some element
         else {
           // find the correspondign open parentheses
           while (lastNode && lastNode.parent && ((lastNode.value != "(")  || ((lastNode.value == "(") && (lastNode.type != parenthesesType)))) {
             lastNode = lastNode.parent;
           }
-          
+
           // if find the parentheses match
           if ((lastNode) && (lastNode.value === "(")) {
             lastNode.value = "()";
           }
-          
+
           // if not find the parentheses match
           else {
             console.log("Error4: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
-        
+
         // continue with the next token
         continue;
       }
-      
+
       // close square brackets
       else if ((tokens_i_type === squareBracketType) && (tokens_i_value === "]")) {
 
         openSquareBracket--;
-        
+
         // the first element of the tree
         if (lastNode === null) {
           console.log("Error5: en la expresion <<" + input + ">>, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
-        
+
         // the tree has some element
         else {
           // find the correspondign square brackets
           while (lastNode && lastNode.parent && ((lastNode.value != "[")  || ((lastNode.value == "[") && (lastNode.type != squareBracketType)))) {
             lastNode = lastNode.parent;
           }
-          
+
           // if find the square brackets
           if ((lastNode) && (lastNode.value === "[")) {
             lastNode.value = "[]";
           }
-          
+
           // if not find the square brackets
           else {
             console.log("Error6: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
-      
+
         // continue with the next token
         continue;
       }
-  
+
       ////////////////////////////////////////////////////////////////////////////////
       //
       // Numbers, strings and identifiers
@@ -441,7 +437,7 @@ var descartesJS = (function(descartesJS) {
         if (lastNode === null) {
           lastNode = node;
         }
-        
+
         // the tree has some element
         else {
           // the last element of the tree is an operator, an open parentheses, a sign or an asignation
@@ -449,14 +445,14 @@ var descartesJS = (function(descartesJS) {
             lastNode.addChild(node);
             lastNode = node;
           }
-          
+
           // otherwise
           else {
             console.log("Error7: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
-      
+
         // continue with the next token
         continue;
       }
@@ -468,7 +464,7 @@ var descartesJS = (function(descartesJS) {
       ////////////////////////////////////////////////////////////////////////////////
       if ( (tokens_i_type === operatorType) || (tokens_i_type === compOperatorType) || (tokens_i_type === boolOperatorType) ) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-        
+
         // the first element of the tree
         if (lastNode === null) {
           // an operator can start an expression if is a sign expression
@@ -476,8 +472,8 @@ var descartesJS = (function(descartesJS) {
             node.type = signType;
             node.value = signType + tokens_i_value;
             lastNode = node;
-          } 
-            
+          }
+
           // an operator can start an expression if is a boolean negation
           else if (tokens_i_value === "!") {
             lastNode = node;
@@ -489,7 +485,7 @@ var descartesJS = (function(descartesJS) {
             break;
           }
         }
-        
+
         // the tree has some element
         else {
           // the last element of the tree is an operator or an open parentheses and the operator is + or -
@@ -502,40 +498,40 @@ var descartesJS = (function(descartesJS) {
             lastNode.addChild(node);
             lastNode = node;
           }
-            
+
           // the last element of the tree is a number, parenthetical expression, a string or an identifier
           else if ( (lastNode.type === numberType) || ((lastNode.type === parenthesesType) && (lastNode.value === "()")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[]")) || (lastNode.type === stringType) || (lastNode.type === identifierType) || (lastNode.type === conditionalType) ||(lastNode.type === asignType) ) {
-              
+
             // find an element in the tree having a higher precedence to the node to be added
-            while ((lastNode.parent) && (this.getPrecedence(lastNode.parent.value) >= this.getPrecedence(node.value))){
+            while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
               lastNode = lastNode.parent;
             }
-              
+
             // if can find an ancestor in the tree having a higher precedence
             if (lastNode.parent){
               lastNode.parent.replaceLastChild(node);
               node.addChild(lastNode);
               lastNode = node;
             }
-              
+
             // reached the root
             else {
               node.addChild(lastNode);
               lastNode = node;
             }
           }
-            
+
           // otherwise
           else {
             console.log("Error9: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
-        
+
         // continue with the next token
         continue;
       }
-    
+
       ////////////////////////////////////////////////////////////////////////////////
       //
       // Conditional
@@ -543,15 +539,15 @@ var descartesJS = (function(descartesJS) {
       ////////////////////////////////////////////////////////////////////////////////
       if (tokens_i_type === conditionalType) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-        
+
         // the tree has some element
         if (lastNode != null) {
           // the operator is ?
           if (node.value === "?") {
             openConditional++;
-            
+
             // find an element in the tree having a higher precedence to the node to be added
-            while ((lastNode.parent) && (this.getPrecedence(lastNode.parent.value) > this.getPrecedence(node.value))){
+            while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) > getPrecedence(node.value))){
               lastNode = lastNode.parent;
             }
             // if can find an ancestor in the tree having a higher precedence
@@ -560,7 +556,7 @@ var descartesJS = (function(descartesJS) {
               node.addChild(lastNode);
               lastNode = node;
             }
-            
+
             // reached the root
             else {
               node.addChild(lastNode);
@@ -568,7 +564,7 @@ var descartesJS = (function(descartesJS) {
             }
           } else {
             openConditional--;
-            
+
             // find the correspondign signo ? correspondiente
             while (lastNode && lastNode.parent && ((lastNode.value != "?")  || ((lastNode.value == "?") && (lastNode.type != conditionalType)))) {
               lastNode = lastNode.parent;
@@ -577,7 +573,7 @@ var descartesJS = (function(descartesJS) {
             if ((lastNode) && (lastNode.value === "?")) {
               lastNode.value = "?:";
             }
-            
+
             // if can not find the ?
             else {
               console.log("Error10: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
@@ -585,17 +581,17 @@ var descartesJS = (function(descartesJS) {
             }
           }
         }
-      
+
         // last element do not exist
         else {
           console.log("Error11: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
-    
+
         // continue with the next token
         continue;
       }
-  
+
       ////////////////////////////////////////////////////////////////////////////////
       //
       // Separator (comma ,)
@@ -609,20 +605,20 @@ var descartesJS = (function(descartesJS) {
             lastNode = lastNode.parent;
           }
         }
-        
+
         else {
           console.log("Error12: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
-        
+
         // continue with the next token
         continue;
       }
-      
+
       console.log("Error13: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
       break;
     }
-    
+
     // missing or too many parentheses or square brackets
     if (openParentesis > 0) {
       alert("Error, faltan parentesis por cerrar: " + input);
@@ -630,12 +626,12 @@ var descartesJS = (function(descartesJS) {
     if (openParentesis < 0) {
       alert("Error, faltan parentesis por abrir: " + input);
     }
-    
+
     if (openSquareBracket > 0) {
-      alert("Error, faltan square bracketss por cerrar: " + input);
+      alert("Error, faltan corchetes por cerrar: " + input);
     }
     if (openSquareBracket < 0) {
-      alert("Error, faltan square bracketss por abrir: " + input);
+      alert("Error, faltan corchetes por abrir: " + input);
     }
     // miss the second term of the conditional
     if (openConditional !=0) {
@@ -644,7 +640,7 @@ var descartesJS = (function(descartesJS) {
 
     root = (lastNode) ? lastNode.getRoot() : null;
     if (root) {
-      root.setAllEvaluateFunction();
+      root.setAllEvalFun();
     }
 
     return root;
@@ -655,7 +651,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} op the operator to get the precedence
    * @return {Number} return a number that represent the precedence
    */
-  descartesJS.Parser.prototype.getPrecedence = function(op) {
+  function getPrecedence(op) {
     switch(op){
       case "=":  return 1;
       case ":=": return 1;
@@ -700,17 +696,17 @@ var descartesJS = (function(descartesJS) {
     self.variables["Infinity"] = Infinity;
     self.variables["-Infinity"] = -Infinity;
     self.variables["isTouch"] = self.variables["esT\u00E1ctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default funtions
     self.functions["sqr"]   = function(x) { return (x*x) };
     self.functions["sqrt"]  = self.functions["ra\u00EDz"] = Math.sqrt;
     self.functions["exp"]   = Math.exp;
     self.functions["log"]   = Math.log;
-    self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10); };
+    self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10) };
     self.functions["abs"]   = Math.abs;
     self.functions["ent"]   = Math.floor;
-    self.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0); };
+    self.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0) };
     self.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
     self.functions["sin"]   = self.functions["sen"] = Math.sin;
     self.functions["cos"]   = Math.cos;
@@ -729,8 +725,16 @@ var descartesJS = (function(descartesJS) {
     self.functions["atan"]  = Math.atan;
     self.functions["min"]   = Math.min;
     self.functions["max"]   = Math.max;
-    self.functions["_Num_"] = function(x) { return (typeof(x) == "number") ? "NaN" : ((parseFloat(x) == x) ? parseFloat(x) : "NaN") };
     self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.log.apply(console, arguments); return 0; }; //function(x) { console.log(x); return 0; };
+    self.functions["_Num_"] = function(x) {
+      if (typeof(x) == "number") {
+        return "NaN";
+      }
+      else {
+        x = x.replace(",", ".");
+        return (parseFloat(x) == x) ? parseFloat(x) : "NaN";
+      }
+    };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // function for the dialog
@@ -745,7 +749,7 @@ var descartesJS = (function(descartesJS) {
         window.parent.postMessage({ type: "set", name: varName, value: value }, '*');
         return 0;
       }
-      
+
       // function to update the parent
       self.functions["parent.update"] = function() {
         window.parent.postMessage({ type: "update" }, '*');
@@ -768,7 +772,7 @@ var descartesJS = (function(descartesJS) {
       dec = dec || 0;
       return num.toFixed(parseInt(dec));
     };
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // new string functions
     /**
@@ -806,16 +810,13 @@ var descartesJS = (function(descartesJS) {
      *
      */
     self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
-      str = (str || "").toString();
-      return str.length;
+      return ((str || "").toString()).length;
     };
     /**
      *
      */
     self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
-      str  = (str || "").toString();
-      word = (word || "").toString();
-      return str.indexOf(word);
+      return ((str || "").toString()).indexOf( (word || "").toString() );
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -855,8 +856,8 @@ var descartesJS = (function(descartesJS) {
       if (M) {
         var strM = "<" + Mstr + ">\\n";
 
-        var l = this.getVariable(Mstr + ".columnas_usadas")  || M.rows || 0;
-        var k = this.getVariable(Mstr + ".filas_usadas")     || M.cols || 0;
+        var l = this.getVariable(Mstr + ".columnas_usadas") || M.rows || 0;
+        var k = this.getVariable(Mstr + ".filas_usadas")    || M.cols || 0;
         var _val;
 
         for (var i=0; i<l; i++) {
@@ -871,7 +872,7 @@ var descartesJS = (function(descartesJS) {
               strM += _val + ((j<k-1)? (" \u00A6 ") : "");
             }
           }
-          // remove the last pipe is any
+          // remove the last pipe if any
           strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
 
@@ -957,10 +958,6 @@ var descartesJS = (function(descartesJS) {
           _val = V[i];
 
           if (_val !== undefined) {
-            // if (typeof(_val) == "string") {
-            //   _val = "'" + _val + "'";
-            // }
-
             if (typeof(_val) == "number") {
               _val = parseFloat(_val);
             }
@@ -996,24 +993,12 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
           if (response[i].match("<" + name + ">")) {
-            // tmpValue = response[i].trim().split("<" + name + ">");
-
-            // if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
-            //   values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
-            // }
-
             storeValues = true;
             continue;
           }
 
           // final position of the values
           if (response[i].match("</" + name + ">")) {
-            // tmpValue = response[i].trim().split("</" + name + ">");
-
-            // if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
-            //   values.push(tmpValue[0].split(String.fromCharCode("166")).map(myMapFun));
-            // }
-
             storeValues = false;
             continue;
           }
@@ -1112,14 +1097,14 @@ var descartesJS = (function(descartesJS) {
      */
     this.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob(["\ufeff", data.replace(/\\n/g, "\n").replace(/\\q/g, "'").replace(/\\r/g, "")], {type:"text/plain"});
+      blob = new Blob(["\ufeff", data.replace(/\\n/g, "\n").replace(/\\q/g, "'").replace(/\\r/g, "").replace(/\\_/g, "\\")], {type:"text/plain"});
 
       anchor.setAttribute("download", filename);
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
       if (lastDownload == null) {
         anchor.click();
         lastDownload = true;
-        setTimeout(function() { 
+        descartesJS.setTimeout(function() {
           lastDownload = null;
         }, 1000);
       }
@@ -1241,21 +1226,6 @@ var descartesJS = (function(descartesJS) {
     input2.addEventListener("change", onHandleFileSelect2);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // time and date functions
-    // this.functions["_GetDay_"]     = function() { return (new Date()).getDate(); }
-    // this.functions["_GetMonth_"]   = function() { return (new Date()).getMonth() +1; }
-    // this.functions["_GetYear_"]    = function() { return (new Date()).getFullYear(); }
-    // this.functions["_GetHours_"]   = function() { return (new Date()).getHours(); }
-    // this.functions["_GetMinutes_"] = function() { return (new Date()).getMinutes(); }
-    // this.functions["_GetSeconds_"] = function() { return (new Date()).getSeconds(); }
-
-    // /**
-    //  *
-    //  */
-    // this.functions["_OpenState_"] = function() {
-    //   input2.click(); 
-    //   return 0;
-    // }
     /**
      *
      */
@@ -1268,31 +1238,7 @@ var descartesJS = (function(descartesJS) {
     this.functions["_Azul_"]  = this.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // var tmpcanvas;
-    // var tmpctx;
-    // var tmpimg;
-    // this.functions["cropImage"] = function(newname, imagename, x, y, w, h) {
-    //   tmpimg = this.parent.images[imagename];
-
-    //   if (tmpimg && tmpimg.ready && tmpimg.complete) {
-    //     tmpcanvas = document.createElement("canvas");
-    //     tmpctx = tmpcanvas.getContext("2d");
-    //     tmpcanvas.width  = Math.min(w, tmpimg.width);
-    //     tmpcanvas.height = Math.min(h, tmpimg.height);
-    //     tmpctx.drawImage(tmpimg, x, y, tmpimg.width, tmpimg.height, 0, 0, tmpimg.width, tmpimg.height);
-
-    //     this.parent.images[newname] = tmpcanvas;
-    //     this.parent.images[newname].ready = 1;
-    //     this.parent.images[newname].complete = true;
-    //   }
-
-    //   return newname;
-    // }
-
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  }  
+  }
 
   /**
    *
@@ -1319,6 +1265,7 @@ var descartesJS = (function(descartesJS) {
 // console.log(((new descartesJS.Parser).parse("literal3=b=1?nombre1+&squot;(&squot;:(b=2?nombre2+&squot;(&squot;:nombre3+&squot;(&squot;)", true)).toString());
 // console.log(((new descartesJS.Parser).parse("bla:=1+1", true)).toString());
 // console.log(((new descartesJS.Parser).parse("bla(n0,n1)&ble(n0,n2)", true)).toString());
+// console.log(((new descartesJS.Parser).parse("(a:=10)+(b:=10)", true)).toString());
 
   return descartesJS;
 })(descartesJS || {});

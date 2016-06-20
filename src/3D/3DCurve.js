@@ -48,7 +48,7 @@ var descartesJS = (function(descartesJS) {
     tempParamU = evaluator.getVariable("u");
 
     evaluator.setVariable("u", 0);
-    Nu = evaluator.evalExpression(this.Nu);
+    Nu = evaluator.eval(this.Nu);
 
     vertices = [];
 
@@ -57,7 +57,7 @@ var descartesJS = (function(descartesJS) {
 
       // eval all the subterms in the expression
       for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
-        evaluator.evalExpression(this.expresion[ii]);
+        evaluator.eval(this.expresion[ii]);
       }
 
       vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
@@ -67,7 +67,7 @@ var descartesJS = (function(descartesJS) {
       this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
                                                            type: "edge",
                                                            frontColor: this.color.getColor(), 
-                                                           lineWidth: evaluator.evalExpression(this.width)
+                                                           lineWidth: evaluator.eval(this.width)
                                                          },
                             this.space ));
 

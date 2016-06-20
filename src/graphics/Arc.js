@@ -7,6 +7,13 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var mathRound = Math.round;
+  var mathMin   = Math.min;
+  var mathMax   = Math.max;
+  var mathAcos  = Math.acos;
+  var mathSqrt  = Math.sqrt;
+  var mathPI    = Math.PI;
+  var math_PI_2 = mathPI/2;
+  var math_2_PI = 2*mathPI;
 
   var evaluator;
   var expr;
@@ -37,7 +44,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes arc
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the arc
    */
@@ -100,7 +107,7 @@ var descartesJS = (function(descartesJS) {
     this.initExpr = parent.evaluator.parser.parse(this.init);
     this.endExpr = parent.evaluator.parser.parse(this.end);
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
@@ -112,33 +119,34 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Arc.prototype.update = function() {
     evaluator = this.evaluator;
 
-    expr = evaluator.evalExpression(this.center);
+    expr = evaluator.eval(this.center);
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
-    
+
     radianAngle = 0;
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
-      
+
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
       this.exprX = tmpRotX;
       this.exprY = tmpRotY;
     }
 
-    var initVal = evaluator.evalExpression(this.initExpr);
-    var endVal  = evaluator.evalExpression(this.endExpr);
+    var initVal = evaluator.eval(this.initExpr);
+    var endVal  = evaluator.eval(this.endExpr);
 
     // if the expression of the initial and final angle are parenthesized expressions
-    if ( ((this.initExpr.type == "(expr)") && (this.endExpr.type == "(expr)")) || 
-         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "[expr]")) || 
-         ((this.initExpr.type == "(expr)") && (this.endExpr.type == "[expr]")) || 
-         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "(expr)")) 
-       ) {
+    if ( (/^(\(|\[)expr(\)|\])$/i).test(this.initExpr.type) && (/^(\(|\[)expr(\)|\])$/i).test(this.endExpr.type) ) {
+//    if ( ((this.initExpr.type == "(expr)") && (this.endExpr.type == "(expr)")) ||
+//         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "[expr]")) ||
+//         ((this.initExpr.type == "(expr)") && (this.endExpr.type == "[expr]")) ||
+//         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "(expr)"))
+//       ) {
 
       u1 = initVal[0][0];
       u2 = initVal[0][1];
@@ -170,40 +178,40 @@ var descartesJS = (function(descartesJS) {
 
       w1 = 1;
       w2 = 0;
-      
+
       // find the angles
-      angulo1 = (u1 == 0) ? ((u2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (u1*w1)/Math.sqrt(u1*u1+u2*u2) );
-      angulo2 = (v1 == 0) ? ((v2 < 0) ? -Math.PI/2 : Math.PI/2) : Math.acos( (v1*w1)/Math.sqrt(v1*v1+v2*v2) );
+      angulo1 = (u1 == 0) ? ((u2 < 0) ? -math_PI_2 : math_PI_2) : mathAcos( (u1*w1)/mathSqrt(u1*u1+u2*u2) );
+      angulo2 = (v1 == 0) ? ((v2 < 0) ? -math_PI_2 : math_PI_2) : mathAcos( (v1*w1)/mathSqrt(v1*v1+v2*v2) );
 
       angulo1 += radianAngle;
       angulo2 += radianAngle;
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = 2*Math.PI-angulo1;
+        angulo1 = math_2_PI-angulo1;
       }
       if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = 2*Math.PI-angulo1;
+        angulo1 = math_2_PI-angulo1;
       }
       if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = 2*Math.PI-angulo1;
+        angulo1 = math_2_PI-angulo1;
       }
       if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = 2*Math.PI-angulo1;
+        angulo1 = math_2_PI-angulo1;
       }
-      
+
       // change considering the quadrant for the second angle
       if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = 2*Math.PI-angulo2;
+        angulo2 = math_2_PI-angulo2;
       }
       if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = 2*Math.PI-angulo2;
+        angulo2 = math_2_PI-angulo2;
       }
       if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = 2*Math.PI-angulo2;
+        angulo2 = math_2_PI-angulo2;
       }
       if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = 2*Math.PI-angulo2;
+        angulo2 = math_2_PI-angulo2;
       }
 
       if (this.initFlag) {
@@ -213,18 +221,18 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         // always choose the angles in order from lowest to highest
-        tmpAngulo1 = Math.min(angulo1, angulo2);
-        tmpAngulo2 = Math.max(angulo1, angulo2);
+        tmpAngulo1 = mathMin(angulo1, angulo2);
+        tmpAngulo2 = mathMax(angulo1, angulo2);
         angulo1 = tmpAngulo1;
         angulo2 = tmpAngulo2;
 
         // if the internal angle if greater than PI and the angle is in absolute coordinates
-        if (((angulo2 - angulo1) > Math.PI) && this.abs_coord) {
+        if (((angulo2 - angulo1) > mathPI) && this.abs_coord) {
           angulo1 = tmpAngulo2;
           angulo2 = tmpAngulo1;
         }
         // if the internal angle if less than PI and the angle is in relative coordinates
-        if (((angulo2 - angulo1) <= Math.PI) && !this.abs_coord) {
+        if (((angulo2 - angulo1) <= mathPI) && !this.abs_coord) {
           angulo1 = tmpAngulo2;
           angulo2 = tmpAngulo1;
         }
@@ -259,7 +267,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.fill, this.trace);
   }
-  
+
   /**
    * Auxiliary function for draw an arc
    * @param {CanvasRenderingContext2D} ctx rendering context on which the arc is drawn
@@ -270,13 +278,13 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    radius = evaluator.evalExpression(this.radius);
+    radius = evaluator.eval(this.radius);
     if (radius < 0) {
       radius = 0;
     }
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
+    tmpLineWidth = mathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
@@ -300,7 +308,7 @@ var descartesJS = (function(descartesJS) {
         tempAng = this.iniAng;
         this.iniAng = this.endAng;
         this.endAng = tempAng;
-      }       
+      }
     }
     // draw the arc when especified with points
     else if (this.drawPoints) {
@@ -314,7 +322,7 @@ var descartesJS = (function(descartesJS) {
         radius = radius*space.scale;
         this.iniAng = -this.iniAng;
         this.endAng = -this.endAng;
-      }      
+      }
     }
 
     if (this.fill) {
@@ -328,11 +336,11 @@ var descartesJS = (function(descartesJS) {
     ctx.beginPath();
     ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
     ctx.stroke();
-    
+
     // draw the text of the arc
     if (this.text != [""]) {
-      this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.evalExpression(this.decimals), this.fixed, true);
-    }      
+      this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
+    }
   }
 
   return descartesJS;

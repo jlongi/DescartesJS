@@ -20,7 +20,7 @@ var descartesJS = (function(descartesJS) {
      * type {Boolean}
      * @private
      */
-    this.controls = true;
+    this.controls = false;
 
     this.file = "";
 
@@ -50,14 +50,19 @@ var descartesJS = (function(descartesJS) {
 
     self.video = document.createElement("video");
 
+    self.video.addEventListener("click", addControls);
+    function addControls() {
+      self.video.play();
+      self.video.setAttribute("controls", "controls");
+      self.video.removeEventListener("click", addControls);
+    }
+
     if (self.autoplay) {
       self.video.setAttribute("autoplay", "autoplay");
     }
-
     if (self.loop) {
       self.video.setAttribute("loop", "loop");
     }
-
     if (self.controls) {
       self.video.setAttribute("controls", "controls");
     }
@@ -159,11 +164,11 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Video.prototype.update = function() {
     evaluator = this.evaluator;
 
-    drawif = evaluator.eval(this.drawif) > 0
+    drawif = evaluator.eval(this.drawif) > 0;
 
     // hide or show the video control
     if (drawif) {
-      this.video.style.display = "block"
+      this.video.style.display = "block";
     } else {
       this.video.style.display = "none";
 

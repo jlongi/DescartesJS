@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * A Descartes polygon
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the polygon
    */
@@ -41,7 +41,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.fill = "";
-    
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
@@ -52,34 +52,34 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Polygon, descartesJS.Graphic);
-  
+
   /**
    * Update polygon
    */
   descartesJS.Polygon.prototype.update = function() {
     evaluator = this.evaluator;
 
-    points = evaluator.evalExpression(this.expresion);
-    
+    points = evaluator.eval(this.expresion);
+
     for(var i=0, l=points.length; i<l; i++){
       this.endPoints[i] = { x: points[i][0], y: points[i][1] };
     }
-    
+
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.evalExpression(this.rotateExp));
+      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
-      
+
       for (var i=0, l=this.endPoints.length; i<l; i++) {
         tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
         tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
         this.endPoints[i].x = tmpRotX;
         this.endPoints[i].y = tmpRotY;
-      }      
+      }
     }
   }
-  
+
   /**
    * Draw the polygon
    */
@@ -87,7 +87,7 @@ var descartesJS = (function(descartesJS) {
     // call the draw function of the father (uber instead of super as it is reserved word)
     this.uber.draw.call(this, this.fill, this.color);
   }
-  
+
   /**
    * Draw the trace of the polygon
    */
@@ -95,7 +95,7 @@ var descartesJS = (function(descartesJS) {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
   }
-  
+
   /**
    * Auxiliary function for draw a polygon
    * @param {CanvasRenderingContext2D} ctx rendering context on which the polygon is drawn
@@ -107,37 +107,37 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.evalExpression(this.width) );
+    tmpLineWidth = mathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
-    
+
     ctx.strokeStyle = stroke.getColor();
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    
+
     lineDesp = (tmpLineWidth > 0) ? .5 : 0;
 
-    coordX = (this.abs_coord) ? mathRound(this.endPoints[0].x) : mathRound(space.getAbsoluteX(this.endPoints[0].x));
-    coordY = (this.abs_coord) ? mathRound(this.endPoints[0].y) : mathRound(space.getAbsoluteY(this.endPoints[0].y));
-    
+    coordX = mathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
+    coordY = mathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
+
     ctx.beginPath();
     ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
-    
+
     for(var i=1, l=this.endPoints.length; i<l; i++) {
-      coordX = (this.abs_coord) ? mathRound(this.endPoints[i].x) : mathRound(space.getAbsoluteX(this.endPoints[i].x));
-      coordY = (this.abs_coord) ? mathRound(this.endPoints[i].y) : mathRound(space.getAbsoluteY(this.endPoints[i].y));
+      coordX = mathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
+      coordY = mathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
       
       ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
     }
-    
+
     // draw the fill
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
       ctx.fill();
     }
-    
+
     // draw the stroke
     ctx.stroke();
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

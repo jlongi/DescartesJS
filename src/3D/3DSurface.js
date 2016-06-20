@@ -78,8 +78,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable("u", 0);
     evaluator.setVariable("v", 0);
-    Nu = evaluator.evalExpression(this.Nu);
-    Nv = evaluator.evalExpression(this.Nv);
+    Nu = evaluator.eval(this.Nu);
+    Nv = evaluator.eval(this.Nv);
 
     // array to store the computed vertices 
     vertices = [];
@@ -92,7 +92,7 @@ var descartesJS = (function(descartesJS) {
 
         // eval all the subterms in the expression
         for (ii=0, ll=this.expresion.length; ii<ll; ii++) {
-          evaluator.evalExpression(this.expresion[ii]);
+          evaluator.eval(this.expresion[ii]);
         }
 
         vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );

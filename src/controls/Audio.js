@@ -10,7 +10,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes audio control
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the audio control
    */
@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
     var self = this;
 
     // the audio position and size
-    var expr = self.evaluator.evalExpression(self.expresion);
+    var expr = self.evaluator.eval(self.expresion);
     if (expr[0].length == 4) {
       self.w = expr[0][2];
       self.h = expr[0][3];
@@ -40,14 +40,14 @@ var descartesJS = (function(descartesJS) {
       self.w = 200;
       self.h = 28;
     }
-    
+
     self.audio = self.parent.getAudio(self.file);
 
     if (self.autoplay) {
       self.audio.setAttribute("autoplay", "autoplay");
       self.audio.play();
     }
-    
+
     if (self.loop) {
       self.audio.setAttribute("loop", "loop");
     }
@@ -62,28 +62,40 @@ var descartesJS = (function(descartesJS) {
 
     //
     self.evaluator.setFunction(self.id + ".play", function() {
-      self.audio.play();
+      try {
+        self.audio.play();
+      } catch(e) {}
+
       return 0;
     });
     self.evaluator.setFunction(self.id + ".pause", function() {
-      self.audio.pause();
+      try {
+        self.audio.pause();
+      } catch(e) {}
+
       return 0;
     });
     self.evaluator.setFunction(self.id + ".stop", function() {
-      self.audio.pause();
-      self.audio.currentTime = 0.0;
+      try {
+        self.audio.pause();
+        self.audio.currentTime = 0.0;
+      } catch(e) {}
+
       return 0;
     });
     self.evaluator.setFunction(self.id + ".currentTime", function(time) {
-      self.audio.currentTime = parseFloat(time);
+      try {
+        self.audio.currentTime = parseFloat(time);
+      } catch(e) {}
+
       return 0;
     });
     self.audio.addEventListener("timeupdate", function(evt) {
       self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
-      // self.parent.update();
     });
+
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Control
   ////////////////////////////////////////////////////////////////////////////////////
@@ -108,8 +120,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Audio.prototype.update = function() {
     evaluator = this.evaluator;
 
-    drawif = evaluator.evalExpression(this.drawif) > 0
-    
+    drawif = evaluator.eval(this.drawif) > 0;
+
     // hide or show the audio control
     if (drawif) {
       this.audio.style.display = "block";
@@ -119,13 +131,13 @@ var descartesJS = (function(descartesJS) {
       if (drawif !== this.oldDrawIf) {
         this.audio.pause();
       }
-    }    
+    }
 
     this.oldDrawIf = drawif;
 
     // update the position and size
     this.updatePositionAndSize();
   }
-  
+
   return descartesJS;
 })(descartesJS || {});

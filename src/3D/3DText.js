@@ -34,7 +34,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Text3D.prototype.buildPrimitives = function() {
     evaluator = this.evaluator;
 
-    expr = evaluator.evalExpression(this.expresion);
+    expr = evaluator.eval(this.expresion);
     exprX = expr[0][0];
     exprY = expr[0][1];
     exprZ = 0;
@@ -43,15 +43,14 @@ var descartesJS = (function(descartesJS) {
                                                          type:"text",
                                                          frontColor: this.color.getColor(),
                                                          font: this.font,
-                                                         decimals: evaluator.evalExpression(this.decimals),
+                                                         decimals: evaluator.eval(this.decimals),
                                                          fixed: this.fixed,
                                                          displace: 0,
                                                          isText: true,
                                                          evaluator: evaluator,
                                                          text: this.text,
                                                          family: this.family,
-                                                         familyValue: this.familyValue,
-                                                         joel: "hola"
+                                                         familyValue: this.familyValue
                                                        },
                           this.space ));
 

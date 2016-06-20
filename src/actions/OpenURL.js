@@ -8,7 +8,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Descartes open URL action
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} parameter the values of the action
    */
@@ -20,13 +20,13 @@ var descartesJS = (function(descartesJS) {
     this.target = "_blank";
 
     var indexOfTarget = this.parameter.indexOf("target");
-    
+
     if (indexOfTarget != -1) {
       this.target = this.parameter.substring(indexOfTarget);
       this.target = this.target.substring(this.target.indexOf("=")+1);
       this.parameter = this.parameter.substring(0, indexOfTarget-1);
     }
-    
+
     // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
       // replace the &squot; with '
@@ -36,24 +36,27 @@ var descartesJS = (function(descartesJS) {
       var self = this;
       this.actionExec = function() {
         // eval(this.parameter);
-        eval(self.parameter.toString());
+        try {
+          eval(self.parameter.toString());
+        }
+        catch(e) {}
       }
     }
     // if the paramater is a file name
     else {
       // if the parameter is a file name relative to the current page
-      if (this.parameter.substring(0,7) != "http://") {
+      if (this.parameter.substring(0,4) != "http") {
         this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
       }
-      
+
       // build an action to open a new page relative to the actual page
       this.actionExec = function() {
         window.open(this.parameter, this.target);
       }
     }
 
-  }  
-  
+  }
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Action
   ////////////////////////////////////////////////////////////////////////////////////

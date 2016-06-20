@@ -7,11 +7,11 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-    
+
   /**
    * Descartes evaluador
    * @parent {DescartesApp} parent the parent asociated with the evaluator
-   * @constructor 
+   * @constructor
    */
   descartesJS.Evaluator = function (parent) {
     this.parent = parent;
@@ -34,7 +34,7 @@ var descartesJS = (function(descartesJS) {
     return this.definitions[name];
   }
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   /**
    * Set the value to a variable
    * @param {String} name the name of the variable to set
@@ -113,14 +113,14 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * 
+   *
    */
-  descartesJS.Evaluator.prototype.evalExpression = function (expr) {
+  descartesJS.Evaluator.prototype.eval = function (expr) {
     return (expr) ? expr.evaluate(this) : 0;
   }
 
   // evaluator used in a range evaluation
-  descartesJS.externalEvaluator = new descartesJS.Evaluator();  
-    
+  descartesJS.externalEvaluator = new descartesJS.Evaluator();
+
   return descartesJS;
 })(descartesJS || {});

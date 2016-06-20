@@ -11,6 +11,7 @@ var descartesJS = (function(descartesJS) {
   var changeY;
   var file;
   var self;
+  var scrollVar;
 
   /**
    * Descartes IFrame space
@@ -22,7 +23,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Space.call(this, parent, values);
 
-    var evaluator = this.parent.evaluator;
+    evaluator = this.parent.evaluator;
 
     //
     if (this._w_ != undefined) {
@@ -47,7 +48,7 @@ var descartesJS = (function(descartesJS) {
     //
 
     // if the web browser is firefox then a problem ocurrs with a none visible iframe
-    this.isFirefox = window.navigator.userAgent.toLowerCase().match(/firefox/);
+    this.isFirefox = (/firefox/i).test(window.navigator.userAgent);
 
     this.file = (this.file) ? this.file.trim() : "";
 
@@ -65,7 +66,7 @@ var descartesJS = (function(descartesJS) {
     }
     
     // register which are the old open file
-    this.oldFile = evaluator.evalExpression(this.file);    
+    this.oldFile = evaluator.eval(this.file);    
     
     this.MyIFrame = document.createElement("iframe");
     if (this.oldFile != 0) {
@@ -75,13 +76,13 @@ var descartesJS = (function(descartesJS) {
     this.MyIFrame.setAttribute("marginwidth", 0);
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
-    this.MyIFrame.setAttribute("style", "position: static; left: 0px; top: 0px;");
+    this.MyIFrame.setAttribute("style", "position:static;left:0px;top:0px;");
 
     this.container = document.createElement("div");
     this.container.setAttribute("id", this.id);
 
-    var strStyle = (descartesJS.isIOS) ? "overflow: scroll; -webkit-overflow-scrolling: touch; overflow-scrolling: touch; " : "";
-    this.container.setAttribute("style", strStyle + "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + "; background-repeat: no-repeat; background-position: center; ");
+    var strStyle = (descartesJS.isIOS) ? "overflow:scroll;-webkit-overflow-scrolling:touch;overflow-scrolling:touch;" : "";
+    this.container.setAttribute("style", strStyle + "position:absolute; width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";background-repeat:no-repeat;background-position:center;");
     this.container.appendChild(this.MyIFrame);
 
     //
@@ -159,7 +160,6 @@ var descartesJS = (function(descartesJS) {
       self.MyIFrame.style.left   = self.x + "px";
       self.MyIFrame.style.top    = self.y + "px";
     }
-
   }
 
   /**
@@ -168,7 +168,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.SpaceHTML_IFrame.prototype.iframeUpdate = function(firstTime) {
     evaluator = this.evaluator;
 
-    this.drawIfValue = evaluator.evalExpression(this.drawif) > 0;
+    this.drawIfValue = evaluator.eval(this.drawif) > 0;
 
     if (this.ImReady) {
       this.container.style.display = (this.drawIfValue) ? "block" : "none";
@@ -181,24 +181,19 @@ var descartesJS = (function(descartesJS) {
 
     if (this.drawIfValue) {
       this.MyIFrame.contentWindow.focus();
-    }
-    else {
-      this.MyIFrame.contentWindow.blur();
-    }
 
-    if (this.drawIfValue) {
       if (firstTime) {
         this.x = Infinity;
         this.y = Infinity;
       }
 
-      changeX = (this.x !== (evaluator.evalExpression(this.xExpr) + this.displaceRegionWest));
-      changeY = (this.y !== (evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
-      this.x = (changeX) ? evaluator.evalExpression(this.xExpr) + this.displaceRegionWest: this.x;
-      this.y = (changeY) ? evaluator.evalExpression(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
+      changeX = (this.x !== (evaluator.eval(this.xExpr) + this.displaceRegionWest));
+      changeY = (this.y !== (evaluator.eval(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
+      this.x = (changeX) ? evaluator.eval(this.xExpr) + this.displaceRegionWest: this.x;
+      this.y = (changeY) ? evaluator.eval(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
 
       if (this._w_ != undefined) {
-        var new_w = evaluator.evalExpression(this._w_);
+        var new_w = evaluator.eval(this._w_);
         if (this.w !== new_w) {
           this.container.style.width = new_w + "px";
           this.MyIFrame.style.width  = new_w + "px";
@@ -206,7 +201,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
       if (this._h_ != undefined) {
-        var new_h = evaluator.evalExpression(this._h_);
+        var new_h = evaluator.eval(this._h_);
         if (this.h !== new_h) {
           this.container.style.height = new_h + "px";
           this.MyIFrame.style.height  = new_h + "px";
@@ -220,7 +215,7 @@ var descartesJS = (function(descartesJS) {
         this.container.style.top = this.y + "px";
       }
 
-      file = evaluator.evalExpression(this.file);
+      file = evaluator.eval(this.file);
       if (file !== this.oldFile) {
         //
         this.ImReady = false;
@@ -242,13 +237,13 @@ var descartesJS = (function(descartesJS) {
         // this.MyIFrame.setAttribute("src", file);
       }
      
-      this.scrollVar = evaluator.getVariable(this.id + "._scroll");
+      scrollVar = evaluator.getVariable(this.id + "._scroll");
       
-      if (this.scrollVar == 1) {
+      if (scrollVar == 1) {
         this.MyIFrame.setAttribute("scrolling", "yes");
         this.MyIFrame.style.overflow = "";
       }
-      else if (this.scrollVar == -1) {
+      else if (scrollVar == -1) {
         this.MyIFrame.setAttribute("scrolling", "no");
         this.MyIFrame.style.overflow = "hidden";
       }
@@ -256,6 +251,9 @@ var descartesJS = (function(descartesJS) {
         this.MyIFrame.setAttribute("scrolling", "auto");
         this.MyIFrame.style.overflow = "";
       }
+    }
+    else {
+      this.MyIFrame.contentWindow.blur();
     }
 
   }

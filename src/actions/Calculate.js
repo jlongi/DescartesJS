@@ -42,7 +42,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.execute = function() {
       for (i=0; i<l; i++) {
-        evaluator.evalExpression(tmpParameter[i]);
+        evaluator.eval(tmpParameter[i]);
       }
     }
 

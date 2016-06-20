@@ -36,8 +36,8 @@ var descartesJS = (function(descartesJS) {
     // parse the expression
     this.expresion = this.splitInstructions(parser, this.expresion);
 
-    var rows = evaluator.evalExpression(this.rows);
-    var cols = evaluator.evalExpression(this.columns);
+    var rows = evaluator.eval(this.rows);
+    var cols = evaluator.eval(this.columns);
 
     var mat = [];
     mat.type = "matrix";
@@ -65,8 +65,8 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Matrix.prototype.update = function() {
     var evaluator = this.evaluator;
-    var rows = evaluator.evalExpression(this.rows);
-    var cols = evaluator.evalExpression(this.columns);
+    var rows = evaluator.eval(this.rows);
+    var cols = evaluator.eval(this.columns);
 
     evaluator.setVariable(this.id + ".filas", rows);
     evaluator.setVariable(this.id + ".columnas", cols);
@@ -76,7 +76,7 @@ var descartesJS = (function(descartesJS) {
     mat.cols = cols;
 
     for(var i=0, l=this.expresion.length; i<l; i++) {
-      evaluator.evalExpression(this.expresion[i]);
+      evaluator.eval(this.expresion[i]);
     }
   }
 

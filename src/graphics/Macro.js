@@ -6,13 +6,13 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = new String("-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_GetValues_-_GetMatrix_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_Rojo_-_Verde_-_Azul_-");
+  var reservedIdentifiers = new String("-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_NumToStr_-_NumACadena_-_charAt_-_letraEn_-_substring_-_subcadena_-_length_-_longitud_-_indexOf_-índiceDe-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-");
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
   /**
    * A Descartes macro
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the macro
    */
@@ -54,7 +54,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
 
     this.graphics = [];
-    
+
     var lessonParser = parent.lessonParser;
     var tokenizer = new descartesJS.Tokenizer();
 
@@ -62,16 +62,16 @@ var descartesJS = (function(descartesJS, babel) {
     if (!this.hasExpresion) {
       return;
     }
-    
+
     // if the macro name was not specified as a string, then adds single quotes to turn it into string
     if ( !(this.expresion.charAt(0) === "'")) {
       this.expresion = "'" + this.expresion + "'";
     }
     this.expresion = this.evaluator.parser.parse(this.expresion);
 
-    var filename = this.evaluator.evalExpression(this.expresion);
+    var filename = this.evaluator.eval(this.expresion);
     var response;
-    
+
     if (filename) {
       // the macro is embeded in the webpage
       var macroElement = document.getElementById(filename);
@@ -79,11 +79,10 @@ var descartesJS = (function(descartesJS, babel) {
       if ((macroElement) && (macroElement.type == "descartes/macro")) {
         response = macroElement.text;
       }
-
       // the macro is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
-        
+
         // verify the content is a Descartes macro
         if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
           response = null;
@@ -106,8 +105,6 @@ var descartesJS = (function(descartesJS, babel) {
         indexOfEqual = tmpResponse[i].indexOf("=");
 
         if(indexOfEqual !== -1) {
-          // tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
-
           var tmpSplitLine = lessonParser.split(tmpResponse[i]);
           for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
             if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
@@ -118,13 +115,13 @@ var descartesJS = (function(descartesJS, babel) {
           }
         }
       }
-      
+
       var respText;
       var babelResp;
       var dotIndex;
       var tmpTokens;
       var tmpTokensRespText;
-      
+
       var isID;
 
       // add the macro name as a prefix, only in some expressions
@@ -134,7 +131,7 @@ var descartesJS = (function(descartesJS, babel) {
         isID = ((respText) && (respText[0]) && (respText[0][0] === "id"));
 
         for (var j=0, k=respText.length; j<k; j++) {
-          // if the parameters that have a dot
+          // if the parameters have a dot
           dotIndex = respText[j][0].indexOf(".");
           if ((dotIndex !== -1) && (!isID)) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
@@ -144,11 +141,11 @@ var descartesJS = (function(descartesJS, babel) {
             babelResp = babel[respText[j][0]];
           }
 
-          // if the expressions are different from this, then the cycle continues and is not replaced nothing          
+          // if the expressions are different from this, then the cycle continues and is not replaced nothing
           if ( (babelResp === "font") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "border") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
-               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
+               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined))
              ) {
             continue;
           }
@@ -158,26 +155,26 @@ var descartesJS = (function(descartesJS, babel) {
             // if the text is rtf must processing it diferent
             if (respText[j][1].match(/\{\\rtf1/)) {
               var textTemp = respText[j][1];
- 
+
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
               var self = this;
 
               // function to replace expresions
               var funReplace = function(str, m1) {
                 var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
-                
+
                 for (var t=0, lt=tokens.length; t<lt; t++) {
                   if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
                 }
-                
+
                 var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
 
                 return prefix + tokenizer.flatTokens(tokens);
               }
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
               textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
               textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
 
@@ -252,7 +249,7 @@ var descartesJS = (function(descartesJS, babel) {
           if (isGraphic) {
             //agregar algo mas para indicar que se viene de un macro
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
-          } 
+          }
           // build and add the axiliaries to the scene
           else {
             lessonParser.parseAuxiliar(response[i]);
@@ -261,21 +258,21 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Macro, descartesJS.Graphic);
-    
+
   /**
    * Update the macro
    */
   descartesJS.Macro.prototype.update = function() {
-    expr = this.evaluator.evalExpression(this.inipos);
+    expr = this.evaluator.eval(this.inipos);
     this.iniPosX = expr[0][0];
     this.iniPosY = expr[0][1];
   }
-  
+
   /**
    * Auxiliary function for draw a macro
    * @param {CanvasRenderingContext2D} ctx rendering context on which the macro is drawn
@@ -284,14 +281,14 @@ var descartesJS = (function(descartesJS, babel) {
     for (var i=0, l=this.graphics.length; i<l; i++) {
       if (this.graphics[i]) {
         ctx.save();
-        
+
         if (this.graphics[i].abs_coord) {
           ctx.translate(this.iniPosX, this.iniPosY);
-        } 
+        }
         else {
           ctx.translate(this.iniPosX*this.space.scale, -this.iniPosY*this.space.scale);
         }
-        
+
         this.graphics[i].draw();
 
         // reset the transformations

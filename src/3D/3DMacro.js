@@ -108,7 +108,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
     this.expresion = this.evaluator.parser.parse(this.expresion);
 
-    var filename = this.evaluator.evalExpression(this.expresion);
+    var filename = this.evaluator.eval(this.expresion);
     var response;
     
     if (filename) {
@@ -306,7 +306,7 @@ var descartesJS = (function(descartesJS, babel) {
     this.updateTransformation();
 
     if (this.inipos) {
-      var expr = this.evaluator.evalExpression(this.inipos);
+      var expr = this.evaluator.eval(this.inipos);
       this.iniPosX = expr[0][0];
       this.iniPosY = expr[0][1];
     }
@@ -355,7 +355,7 @@ var descartesJS = (function(descartesJS, babel) {
    *
    */
   descartesJS.Macro3D.prototype.updateTransformation = function() {
-    tmpExpr = this.evaluator.evalExpression(this.inirot);
+    tmpExpr = this.evaluator.eval(this.inirot);
     if (this.inirotEuler) {
       this.inirotM = this.inirotM.setIdentity();
       this.inirotM = this.inirotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
@@ -368,11 +368,11 @@ var descartesJS = (function(descartesJS, babel) {
       this.inirotM_Z = this.inirotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
     }
 
-    tmpExpr = this.evaluator.evalExpression(this.inipos);
+    tmpExpr = this.evaluator.eval(this.inipos);
     translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.iniposM = this.iniposM.setIdentity().translate(translate);
 
-    tmpExpr = this.evaluator.evalExpression(this.endrot);
+    tmpExpr = this.evaluator.eval(this.endrot);
     if (this.endrotEuler) {
       this.endrotM = this.endrotM.setIdentity();
       this.endrotM = this.endrotM.rotateZ(descartesJS.degToRad(tmpExpr[0][0])); //Z
@@ -385,7 +385,7 @@ var descartesJS = (function(descartesJS, babel) {
       this.endrotM_Z = this.endrotM_Z.setIdentity().rotateZ(descartesJS.degToRad(tmpExpr[0][2])); //Z
     }
 
-    tmpExpr = this.evaluator.evalExpression(this.endpos);
+    tmpExpr = this.evaluator.eval(this.endpos);
     translate = { x: tmpExpr[0][0], y: tmpExpr[0][1], z: tmpExpr[0][2] };
     this.endposM = this.endposM.setIdentity().translate(translate);
   }

@@ -48,7 +48,7 @@ var descartesJS = (function(descartesJS) {
         tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
       }
     }
-        
+
     // ignore accents
     if ((tmpAnswer[0] == "`") && (tmpAnswer[tmpAnswer.length-1] == "´")) {
       answer.ignoreAcents = true;
@@ -76,11 +76,11 @@ var descartesJS = (function(descartesJS) {
     else if ((tmpAnswer.charAt(0) === "*") && (tmpAnswer.charAt(tmpAnswer.length-1) === "*")) {
       tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
     }
-        
+
     tmpAnswer = tmpAnswer.replace(/\?/g, "[\\S\\s]{1}");
 
     answer.regExp = tmpAnswer;
-    
+
     return answer;
   }
 
@@ -114,21 +114,21 @@ var descartesJS = (function(descartesJS) {
 
     answer_0 = regExp.expr[0];
     answer_1 = regExp.expr[1];
-    
-    limInf = evaluator.evalExpression(answer_0.expr);
-    limSup = evaluator.evalExpression(answer_1.expr);
-    
+
+    limInf = evaluator.eval(answer_0.expr);
+    limSup = evaluator.eval(answer_1.expr);
+
     cond1 = (answer_0.type == "(");
     cond2 = (answer_0.type == "[");
     cond3 = (answer_1.type == ")");
     cond4 = (answer_1.type == "]");
-    
+
     if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
         ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
        ) {
       return 1;
     }
-    
+
     return 0;
   }
 
@@ -140,7 +140,7 @@ var descartesJS = (function(descartesJS) {
   function removeAccents(value) {
     return value.toString().replace(/\u00e1/g, "a").replace(/\u00e9/g, "e").replace(/\u00ed/g, "i").replace(/\u00f3/g, "o").replace(/\u00fa/g, "u").replace(/\u00c1/g, "A").replace(/\u00c9/g, "E").replace(/\u00cd/g, "I").replace(/\u00d3/g, "O").replace(/\u00da/g, "U").replace(/\u00f1/g, "n").replace(/\u00d1/g, "N");
   }
-  
+
   /**
    * Build a regular expression pattern from a Descartes answer pattern
    * @param {String} answer the Descartes answer pattern to convert
@@ -163,25 +163,25 @@ var descartesJS = (function(descartesJS) {
         tmpAnswer = regExpPattern_i[j];
 
         // numeric pattern
-        if ( (tmpAnswer.indexOf(",") !== -1) && 
-             ( ((tmpAnswer.charAt(0) === "(" ) || (tmpAnswer.charAt(0) === "[")) && 
-               ((tmpAnswer.charAt(tmpAnswer.length-1) === ")") || (tmpAnswer.charAt(tmpAnswer.length-1) === "]")) 
+        if ( (tmpAnswer.indexOf(",") !== -1) &&
+             ( ((tmpAnswer.charAt(0) === "(" ) || (tmpAnswer.charAt(0) === "[")) &&
+               ((tmpAnswer.charAt(tmpAnswer.length-1) === ")") || (tmpAnswer.charAt(tmpAnswer.length-1) === "]"))
              )
            ) {
-          answerArray.push( buildNumericRegularExpressionPattern(tmpAnswer, evaluator) );          
+          answerArray.push( buildNumericRegularExpressionPattern(tmpAnswer, evaluator) );
         }
         // text pattern
         else {
           answerArray.push( buildTextRegularExpressionPattern(tmpAnswer) );
         }
       }
-      
+
       answer[i] = answerArray;
     }
 
     return answer;
   }
-  
+
   /**
    * Decide whether the answer meets the Descartes answer pattern ignoring accents and uppercase
    * @param {String} respPattern the Descartes answer pattern
@@ -209,7 +209,7 @@ var descartesJS = (function(descartesJS) {
           answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
-      
+
       if (answerValue) {
         return 1;
       }
@@ -230,7 +230,7 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=regExpPattern.length; i<l; i++) {
       regExpPattern_i = regExpPattern[i];
       answerValue = true;
-      
+
       for (var j=0, k=regExpPattern_i.length; j<k; j++) {
         tmpAnswer = regExpPattern_i[j].regExp;
 
@@ -240,7 +240,7 @@ var descartesJS = (function(descartesJS) {
             resp = removeAccents(resp);
             tmpAnswer = removeAccents(tmpAnswer);
           }
-          
+
           if (regExpPattern_i[j].ignoreCaps) {
             resp = resp.toLowerCase();
             tmpAnswer = removeAccents(tmpAnswer).toLowerCase();
@@ -253,12 +253,12 @@ var descartesJS = (function(descartesJS) {
           answerValue = answerValue = answerValue && inRange(regExpPattern_i[j], resp, evaluator);
         }
       }
-      
+
       if (answerValue) {
         return 1;
       }
     }
-    
+
     return 0;
   }
 

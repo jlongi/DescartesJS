@@ -24,12 +24,12 @@ var descartesJS = (function(descartesJS) {
       this.iterations = 0;
 
       for (var i=0, l=this.init.length; i<l; i++) {
-        evaluator.evalExpression(this.init[i]);
+        evaluator.eval(this.init[i]);
       }
       
       do {
         for (var i=0, l=this.doExpr.length; i<l; i++) {
-          evaluator.evalExpression(this.doExpr[i]);
+          evaluator.eval(this.doExpr[i]);
         }
 
         if (++this.iterations > 100000) {
@@ -37,7 +37,7 @@ var descartesJS = (function(descartesJS) {
           return 0;
         }
       }
-      while (evaluator.evalExpression(this.whileExpr) > 0);
+      while (evaluator.eval(this.whileExpr) > 0);
     }
   }
   

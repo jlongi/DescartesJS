@@ -39,11 +39,11 @@ var descartesJS = (function(descartesJS) {
 
     this.updateMVMatrix();
 
-    Nu = evaluator.evalExpression(this.Nu);
+    Nu = evaluator.eval(this.Nu);
 
     vertices = [this.transformVertex( new descartesJS.Vector4D(0, 0, 0, 1) )];
-    w = evaluator.evalExpression(this.width)/2;
-    l = evaluator.evalExpression(this.length)/2;
+    w = evaluator.eval(this.width)/2;
+    l = evaluator.eval(this.length)/2;
     theta = (2*Math.PI) / Nu;
 
     for (var i=0; i<Nu; i++) {

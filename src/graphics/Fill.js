@@ -13,10 +13,11 @@ var descartesJS = (function(descartesJS) {
   var currentPixel;
   var startColor;
   var index;
+  var count;
 
   /**
    * A Descartes fill
-   * @constructor 
+   * @constructor
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the fill
    */
@@ -24,7 +25,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ var descartesJS = (function(descartesJS) {
    * Update the fill
    */
   descartesJS.Fill.prototype.update = function() {
-    expr = this.evaluator.evalExpression(this.expresion);
+    expr = this.evaluator.eval(this.expresion);
 
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
@@ -53,9 +54,10 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Fill.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    // this.uber.drawTrace.call(this, this.trace, this.trace);
+    this.uber.drawTrace.call(this, this.trace, this.trace);
+    // console.log("hola")
   }
-  
+
   /**
    * Auxiliary function for draw a fill
    * @param {CanvasRenderingContext2D} ctx rendering context on which the fill is drawn
@@ -64,9 +66,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Fill.prototype.drawAux = function(ctx, fill) {
     // update the color components of the fill color
     fill.getColor();
-
-    // this.imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h).data;
-    imageData = this.ctx.getImageData(0, 0, this.space.w, this.space.h);
+    imageData = ctx.getImageData(0, 0, this.space.w, this.space.h);
 
     if (this.abs_coord) {
       x = parseInt(this.exprX);
@@ -81,14 +81,16 @@ var descartesJS = (function(descartesJS) {
       return;
     }
 
-    pixelStack = [{x: x, y: y}];
+    pixelStack = [[x, y]];
 
     startColor = getPixel(imageData, x, y);
+    count = 0;
 
     while(pixelStack.length > 0) {
+      count++;
       currentPixel = pixelStack.pop();
-      x = currentPixel.x;
-      y = currentPixel.y;
+      x = currentPixel[0];
+      y = currentPixel[1];
 
       if (equalColor(startColor, getPixel(imageData, x, y))) {
         // asign the color
@@ -96,17 +98,22 @@ var descartesJS = (function(descartesJS) {
 
         // add the next pixel to the stack
         if (x > 0) {
-          pixelStack.push({x: x-1, y: y});
+          pixelStack.push([x-1, y]);
         }
-        if (x <imageData.width-1) {
-          pixelStack.push({x: x+1, y: y});
+        if (x < imageData.width-1) {
+          pixelStack.push([x+1, y]);
         }
-        pixelStack.push({x: x, y: y-1});
-        pixelStack.push({x: x, y: y+1});
+        pixelStack.push([x, y-1]);
+        pixelStack.push([x, y+1]);
+      }
+
+      //exit safe
+      if (count >= this.space.w*this.space.h*3) {
+        break;
       }
     }
 
-    this.ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(imageData, 0, 0);
   }
 
   /**

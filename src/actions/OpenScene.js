@@ -28,12 +28,12 @@ var descartesJS = (function(descartesJS) {
     }
 
     // ### PROMETEO ###
-    if ( (this.target !== "_blank") && (this.target !== "_parent") && (this.target !== "_self") && (this.target !== "_top") ) {
-      this.actionExec = function() {
-        window.parent.postMessage({ type: "changeTarget", name: this.target, value: this.parameter }, '*');
-      }
-      return;
-    }
+    // if ( (this.target !== "_blank") && (this.target !== "_parent") && (this.target !== "_self") && (this.target !== "_top") ) {
+    //   this.actionExec = function() {
+    //     window.parent.postMessage({ type: "changeTarget", name: this.target, value: this.parameter }, '*');
+    //   }
+    //   return;
+    // }
     // ### PROMETEO ###
 
     // if the parameter is JavaScript code
