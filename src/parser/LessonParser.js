@@ -931,29 +931,6 @@ var descartesJS = (function(descartesJS, babel) {
         case("fixed"):
         // condition to draw the edges
         case("edges"):
-          graphicObj[babelValue] = (babel[values_i_1] === "true");
-          break;
-
-        // color
-        case("color"):
-        // back face color
-        case("backcolor"):
-          graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-          break;
-
-        // type
-        case("type"):
-        // ilumination model
-        case("model"):
-          graphicObj[babelValue] = babel[values_i_1];
-          break;
-
-        // condition to draw the graphic in the background
-        case("background"):
-        // condition to use fixed notation in the text
-        case("fixed"):
-        // condition to draw the edges
-        case("edges"):
         // condition to calculate the intersection edges of faces
         case("split"):
           graphicObj[babelValue] = (babel[values_i_1] === "true");
@@ -1044,84 +1021,6 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj["file"] = this.parser.parse(fileTmp);
           break;
 
-          break;
-
-        // drawif condition
-        case("drawif"):
-        // width
-        case("width"):
-        // lenght
-        case("length"):
-        // number of decimals of the text in the graphic
-        case("decimals"):
-        // Nu parameter
-        case("Nu"):
-        // Nv parameter
-        case("Nv"):
-        // initial rotation
-        case("inirot"):
-        // end rotation
-        case("endrot"):
-        // initial position
-        case("inipos"):
-        // end position
-        case("endpos"):
-          if (values_i_1 != "") {
-            graphicObj[babelValue] = this.parser.parse(values_i_1);
-          }
-          break;
-
-        // family parameter
-        case("family"):
-        // curve parameter
-        case("parameter"):
-        // font text
-        case("font"):
-        // name
-        case("name"):
-          graphicObj[babelValue] = values_i_1;
-          break;
-
-        // space identifier
-        case("space"):
-          graphicObj["spaceID"] = values_i_1;
-          break;
-
-        // expression
-        case("expresion"):
-          if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
-            graphicObj["expresion"] = this.parser.parse(values_i_1);
-            graphicObj["expresionString"] = values_i_1;
-          } else {
-            graphicObj["expresion"] = values_i_1;
-          }
-          break;
-
-        // text
-        case("text"):
-          var tmpText = this.parseText(values_i_1);
-
-          for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
-            tmpText[ii] = this.parser.parse(tmpText[ii], false);
-          }
-          graphicObj["text"] = tmpText;
-          break;
-
-        // file name
-        case("file"):
-          var fileTmp = values_i_1.replace(/&squot;/g, "'");
-
-          if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
-            fileTmp = fileTmp.substring(1, fileTmp.length-1);
-          }
-
-          if (fileTmp.match(/./)) {
-            fileTmp = "'" + fileTmp + "'";
-          }
-
-          graphicObj["file"] = this.parser.parse(fileTmp);
-          break;
-
         //
         default:
           if (graphicObj["family"] !== undefined) {
@@ -1146,7 +1045,6 @@ var descartesJS = (function(descartesJS, babel) {
 
           console.log("Propiedad del grafico 3D no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
           break;
-
       }
     }
 

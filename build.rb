@@ -91,6 +91,7 @@ files = [ "Babel.js",
           "parser/Parser.js",
           "parser/Evaluator.js",
 
+          "rtf/RichTextEditor.js",
           "rtf/RTFNode.js",
           "rtf/RTFTokenizer.js",
           "rtf/RTFParser.js",

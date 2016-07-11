@@ -1153,21 +1153,20 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + 1.25*this.spaceWidth, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
+      this.children[i].draw(ctx, x + this.style.fontSize/2, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
     }
-
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1;
     if (this.color != null) {
       ctx.strokeStyle = this.color;
     }
     ctx.beginPath();
-    ctx.moveTo(parseInt(x +2*this.spaceWidth) -7.5, y -this.ascent +0.5);
-    ctx.lineTo(parseInt(x +2*this.spaceWidth) -14.5, y -this.ascent +4.5);
-    ctx.lineTo(parseInt(x +2*this.spaceWidth) -14.5, y +this.descent -this.h/2 -4.5);
-    ctx.lineTo(x+2, y +this.descent -this.h/2);
-    ctx.lineTo(parseInt(x +2*this.spaceWidth) -14.5, y +this.descent -this.h/2 +4.5);
-    ctx.lineTo(parseInt(x +2*this.spaceWidth) -14.5, y +this.descent -4.5);
-    ctx.lineTo(parseInt(x +2*this.spaceWidth) -7.5, y +this.descent +0.5);
+    ctx.moveTo(parseInt(x +this.style.fontSize*0.4) +0.5, y -this.ascent -1.5);
+    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y -this.ascent +3.5);
+    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -this.h/2 -4.5);
+    ctx.lineTo(x, y +this.descent -this.h/2);
+    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -this.h/2 +4.5);
+    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -3.5);
+    ctx.lineTo(parseInt(x +this.style.fontSize*0.4) +0.5, y +this.descent +1.5);
 
     ctx.stroke();
   }
@@ -1262,6 +1261,162 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFNode.prototype.draw = function(ctx, x, y) {
     console.log(">>> Dibujo desconocido ", this.nodeType);
     // this.children[0].draw(ctx, x, y);
+  }
+
+  /**
+   *
+   */
+  descartesJS.RTFNode.prototype.toHTML = function(objectReferences) {
+    return this.toHTMLAux(objectReferences);
+  }  
+
+  /**
+   *
+   */
+  descartesJS.RTFNode.prototype.toHTMLAux = function(objectReferences) {
+    var htmlDom = document.createDocumentFragment();
+    var css = (this.style) ? this.style.toCSS() : "";
+    var domNode;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    if (this.nodeType === "textBlock") {
+      domNode = richTextEditor.newTextBlock();
+      for (var i=0, l=this.children.length; i<l; i++) {
+        domNode.appendChild( this.children[i].toHTMLAux(objectReferences) );
+      }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "textLineBlock") {
+      domNode = richTextEditor.newTextLineBlock();
+      for (var i=0, l=this.children.length; i<l; i++) {
+        domNode.appendChild( this.children[i].toHTMLAux(objectReferences) );
+      }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "text") {
+      domNode = richTextEditor.newTextNode(css, this.value);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "newLine") {
+      domNode = richTextEditor.newNewLine(css);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "hyperlink") {
+      domNode = richTextEditor.newHyperLink(css, this.value, this.URL);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "formula") {
+      domNode = richTextEditor.newFormula(css, formulaToHTML(this));
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "componentSpace") {
+      objectReferences.spaces.push({ cID: "cID_"+this.value, value: this.componentSpace} );
+      domNode = richTextEditor.newComponentSpace(this.componentSpace.w, this.value);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else if (this.nodeType === "componentNumCtrl") {
+      objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
+      domNode = richTextEditor.newComponentNumCtrl(this.componentSpace.w, this.componentSpace.h, this.value);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    else {
+      domNode = document.createDocumentFragment();
+      console.log(">>>", this, "<<<");
+    }
+
+    htmlDom.appendChild(domNode);
+
+    return htmlDom;
+  }
+
+  /**
+   *
+   */
+  function formulaToHTML(formula) {
+    var htmlDom = document.createDocumentFragment();
+    var children_i;
+    var domNode;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // for empty parameters
+    if (formula.children.length === 0) {
+      domNode = richTextEditor.newFormulaTextNode(richTextEditor.narrowSpace);
+      htmlDom.appendChild(domNode);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    for (var i=0; i<formula.children.length; i++) {
+      children_i = formula.children[i];
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      if (children_i.nodeType === "text") {
+        domNode = richTextEditor.newFormulaTextNode(children_i.value);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "dynamicText") {
+        domNode = richTextEditor.newDynamicTextNode(children_i);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      // ToDo: componer los signos matematicos, para que no se puedan editar
+      else if (children_i.nodeType === "mathSymbol") {
+        domNode = richTextEditor.newMathSymbolNode(children_i.value);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "superIndex") {
+        domNode = richTextEditor.newSuperIndexNode(formulaToHTML(children_i));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "subIndex") {
+        domNode = richTextEditor.newSubIndexNode(formulaToHTML(children_i));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "fraction") {
+        domNode = richTextEditor.newFractionNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "radical") {
+        domNode = richTextEditor.newRadicalNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "sum") {
+        domNode = richTextEditor.newSumNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "integral") {
+        domNode = richTextEditor.newIntegralNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "limit") {
+        domNode = richTextEditor.newLimitNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "matrix") {
+        var children = [];
+        for (var ci=0, cl=children_i.children.length; ci<cl; ci++) {
+          children.push( formulaToHTML(children_i.children[ci]) );
+        }
+        domNode = richTextEditor.newMatrixNode(children_i.rows, children_i.columns, children);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "defparts") {
+        var children = [];
+        for (var ci=0; ci<children_i.parts; ci++) {
+          children.push( formulaToHTML(children_i.children[ci]) );
+        }
+        domNode = richTextEditor.newCasesElementNode(children_i.parts, children);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else {
+        domNode = document.createDocumentFragment();
+        console.log(">>>", children_i, "<<<");
+      }
+
+
+      htmlDom.appendChild(domNode);
+    }
+
+    return htmlDom;
   }
 
 //   /**

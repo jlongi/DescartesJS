@@ -21,6 +21,7 @@ var descartesJS = (function(descartesJS) {
   var tmpRotY;
 
   var lineDesp = .5;
+  var POS_LIMIT = 10000000;
 
   /**
    * A Descartes curve
@@ -171,13 +172,16 @@ var descartesJS = (function(descartesJS) {
       }
       // MACRO //
 
-      ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
+      if ( !isNaN(this.exprX) && !isNaN(this.exprY) && (this.exprX > -POS_LIMIT) && (this.exprX < POS_LIMIT) && (this.exprY > -POS_LIMIT) && (this.exprY < POS_LIMIT) ) {
+        ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
+      }
     }
 
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
       ctx.fill("evenodd");
     }
+
     ctx.stroke();
 
     evaluator.setVariable(this.parameter, tempParam);

@@ -75,7 +75,7 @@ var descartesJS = (function(descartesJS) {
 
     // if the decimals are negative or zero
     this.originalIncr = this.incr;
-    if ( (this.evaluator.eval(this.decimals) <= 0) || (this.evaluator.eval(this.incr) == 0) ) {
+    if ( (this.evaluator.eval(this.decimals) < 0) || (this.evaluator.eval(this.incr) == 0) ) {
       var tmpIncr = this.evaluator.eval(this.incr);
 
       if (tmpIncr > 0) {
@@ -196,7 +196,7 @@ var descartesJS = (function(descartesJS) {
 
     this.label.innerHTML = evaluator.eval(this.name).toString();
 
-    if (evaluator.eval(this.decimals) <= 0) {
+    if (evaluator.eval(this.decimals) < 0) {
       tmpIncr = evaluator.eval(this.incr);
 
       if (tmpIncr > 0) {
