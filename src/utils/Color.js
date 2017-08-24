@@ -13,6 +13,7 @@ var descartesJS = (function(descartesJS) {
   var splitColor;
   var hexColor;
   var splitString;
+  var splitColor_i;
   var numParentheses;
   var numSquareParenteses;
   var lastSplitIndex;
@@ -26,17 +27,19 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Color = function(color, evaluator) {
-    this.r = 0;
-    this.g = 0;
-    this.b = 0;
-    this.a = 1;
+    var self = this;
+    self.r = 0;
+    self.g = 0;
+    self.b = 0;
+    self.a = 1;
 
-    this.evaluator = evaluator;
+    self.evaluator = evaluator;
+
+    self.getColor = self.getColorStr;
+
     // construct a simple color
     if (!color) {
-      this.colorStr = "rgba("+ this.r +","+ this.g +","+ this.b +","+ this.a + ")";
-
-      this.getColor = this.getColorStr;
+      self.colorStr = "rgba("+ self.r +","+ self.g +","+ self.b +","+ self.a + ")";
       return;
     }
 
@@ -48,62 +51,57 @@ var descartesJS = (function(descartesJS) {
 
       color = babel[color];
 
-      this.r = parseInt("0x"+color.substring(1,3), 16);
-      this.g = parseInt("0x"+color.substring(3,5), 16);
-      this.b = parseInt("0x"+color.substring(5,7), 16);
-      this.colorStr = color;
-
-      this.getColor = this.getColorStr;
+      self.r = parseInt("0x"+color.substring(1,3), 16);
+      self.g = parseInt("0x"+color.substring(3,5), 16);
+      self.b = parseInt("0x"+color.substring(5,7), 16);
+      self.colorStr = color;
     }
 
     // the color is six hexadecimals digits #RRGGBB
     if (color.length === 6) {
-      this.r = parseInt("0x"+color.substring(0,2), 16);
-      this.g = parseInt("0x"+color.substring(2,4), 16);
-      this.b = parseInt("0x"+color.substring(4,6), 16);
-      this.colorStr = "#" + color;
-
-      this.getColor = this.getColorStr;
+      self.r = parseInt("0x"+color.substring(0,2), 16);
+      self.g = parseInt("0x"+color.substring(2,4), 16);
+      self.b = parseInt("0x"+color.substring(4,6), 16);
+      self.colorStr = "#" + color;
     }
 
     // the color is eight hexadecimals digits #RRGGBBAA
     if (color.length === 8) {
-      this.r = parseInt("0x"+color.substring(2,4), 16);
-      this.g = parseInt("0x"+color.substring(4,6), 16);
-      this.b = parseInt("0x"+color.substring(6,8), 16);
-      this.a = (1-parseInt("0x"+color.substring(0,2), 16)/255);
-      this.colorStr = "rgba("+ this.r +","+ this.g +","+ this.b +","+ this.a + ")";
-
-      this.getColor = this.getColorStr;
+      self.r = parseInt("0x"+color.substring(2,4), 16);
+      self.g = parseInt("0x"+color.substring(4,6), 16);
+      self.b = parseInt("0x"+color.substring(6,8), 16);
+      self.a = (1-parseInt("0x"+color.substring(0,2), 16)/255);
+      self.colorStr = "rgba("+ self.r +","+ self.g +","+ self.b +","+ self.a + ")";
     }
 
     // the color is a Descartes expression (exprR, exprG, exprB, exprA)
     if (color[0] === "(") {
       tmpColor = [];
-      splitColor = this.splitComa(color.substring(1, color.length-1));
+      splitColor = self.splitComa(color.substring(1, color.length-1));
 
       for (var i=0, l=splitColor.length; i<l; i++) {
-        hexColor = parseInt(splitColor[i], 16);
-        if ( (splitColor[i] != hexColor.toString(16)) && (splitColor[i] !== "0"+hexColor.toString(16)) ) {
-          if ((splitColor[i].charAt(0) === "[") && (splitColor[i].charAt(splitColor[i].length-1) === "]")) {
-            splitColor[i] = splitColor[i].substring(1, splitColor[i].length-1);
+        splitColor_i = splitColor[i];
+        hexColor = parseInt(splitColor_i, 16);
+        
+        if ( (splitColor_i !== hexColor.toString(16)) && (splitColor_i !== "0"+hexColor.toString(16)) ) {
+          if ((splitColor_i.charAt(0) === "[") && (splitColor_i.charAt(splitColor_i.length-1) === "]")) {
+            splitColor_i = splitColor_i.substring(1, splitColor_i.length-1);
           }
 
-          tmpColor.push(this.evaluator.parser.parse( splitColor[i] ));
+          tmpColor.push(self.evaluator.parser.parse( splitColor_i ));
         }
         else {
-          tmpColor.push(this.evaluator.parser.parse( (hexColor/255).toString() ));
+          tmpColor.push(self.evaluator.parser.parse( (hexColor/255).toString() ));
         }
       }
 
-      this.rExpr = tmpColor[0];
-      this.gExpr = tmpColor[1];
-      this.bExpr = tmpColor[2];
-      this.aExpr = tmpColor[3];
+      self.rExpr = tmpColor[0];
+      self.gExpr = tmpColor[1];
+      self.bExpr = tmpColor[2];
+      self.aExpr = tmpColor[3];
 
-      this.getColor = this.getColorExp;
+      self.getColor = self.getColorExp;
     }
-
   }
 
   /**
@@ -145,7 +143,6 @@ var descartesJS = (function(descartesJS) {
     return splitString;
   }
 
-
   /**
    *
    */
@@ -157,23 +154,22 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Color.prototype.getColorExp = function() {
-    evaluator = this.evaluator;
-    this.r = MathMin(255, MathFloor(evaluator.eval(this.rExpr) * 255));
-    this.g = MathMin(255, MathFloor(evaluator.eval(this.gExpr) * 255));
-    this.b = MathMin(255, MathFloor(evaluator.eval(this.bExpr) * 255));
-    this.a = (1 - evaluator.eval(this.aExpr));
+    var self = this;
+    
+    evaluator = self.evaluator;
+    self.r = MathMin(255, MathFloor(evaluator.eval(self.rExpr) * 255));
+    self.g = MathMin(255, MathFloor(evaluator.eval(self.gExpr) * 255));
+    self.b = MathMin(255, MathFloor(evaluator.eval(self.bExpr) * 255));
+    self.a = (1 - evaluator.eval(self.aExpr));
 
-    return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
+    return "rgba(" + self.r + "," + self.g + "," + self.b + "," + self.a + ")";
   }
 
   /**
    *
    */
   descartesJS.Color.prototype.borderColor = function() {
-    if (this.r + this.g + this.b < 380) {
-      return "#ffffff";
-    }
-    return "#000000";
+    return (this.r + this.g + this.b < 380) ? "#ffffff" : "#000000";
   }
 
   /**
@@ -182,15 +178,15 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RGBAToHexColor = function(color) {
     color = color.substring(5, color.length-1).split(",");
 
-    r = parseInt(color[0]).toString(16);
-    g = parseInt(color[1]).toString(16);
-    b = parseInt(color[2]).toString(16);
-    a = (255- parseInt(parseFloat(color[3])*255)).toString(16);
+    r = (color[0] >> 0).toString(16);
+    g = (color[1] >> 0).toString(16);
+    b = (color[2] >> 0).toString(16);
+    a = (255 - ((parseFloat(color[3])*255) >> 0)).toString(16);
 
-    r = (r.length == 1) ? "0"+r : r;
-    g = (g.length == 1) ? "0"+g : g;
-    b = (b.length == 1) ? "0"+b : b;
-    a = (a.length == 1) ? "0"+a : a;
+    if (r.length === 1) r = "0"+r;
+    if (g.length === 1) g = "0"+g;
+    if (b.length === 1) b = "0"+b;
+    if (a.length === 1) a = "0"+a;
 
     return new descartesJS.Color(a+r+g+b);
   }

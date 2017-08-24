@@ -106,6 +106,14 @@ var descartesJS = (function(descartesJS) {
     this.y = y || 0;
     this.z = z || 0;
     this.w = w || 0;
+    this.adjustDec();
+  }
+
+  var pres = 1000000000;
+  descartesJS.Vector4D.prototype.adjustDec = function() {
+    this.x = parseInt(this.x*pres)/pres;
+    this.y = parseInt(this.y*pres)/pres;
+    this.z = parseInt(this.z*pres)/pres;
   }
 
   descartesJS.Matrix4x4 = function( a00, a01, a02, a03,

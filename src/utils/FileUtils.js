@@ -61,7 +61,7 @@ var descartesJS = (function(descartesJS) {
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);
-      response = (xhr.status === 200 || xhr.status === 304) ? xhr.responseText : "";
+      response = (xhr.status === 200 || xhr.status === 304) ? xhr.responseText : xhr.responseText || "";
 
       ////////////////////////////////////////////////////////////////////////
       // patch to read ISO-8859-1 text files

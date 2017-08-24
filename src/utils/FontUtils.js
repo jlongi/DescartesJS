@@ -8,10 +8,12 @@ var descartesJS = (function(descartesJS) {
   
   var fontTokens;
   var fontCanvas;
+  var name;
+  var style;
 
-  descartesJS.serif_font = "descartesJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
-  descartesJS.sansserif_font = "descartesJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
-  descartesJS.monospace_font = "descartesJS_monospace,'Courier New',Courier,'Liberation Mono','Nimbus Mono L',monospace";
+  descartesJS.serif_font     = "descartesJS_serif,DJS_symbola,DJS_extra,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
+  descartesJS.sansserif_font = "descartesJS_sansserif,DJS_symbola,DJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
+  descartesJS.monospace_font = "descartesJS_monospace,DJS_symbola,DJS_monospace,'Courier New',Courier,'Liberation Mono','Nimbus Mono L',monospace";
 
   /**
    * Converts a Descartes font string, to a canvas font string
@@ -20,44 +22,66 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.convertFont = function(fontStr) {
     if (fontStr == "") {
-      return fontStr;
+      return "";
     }
 
     fontTokens = fontStr.split(",");
     fontCanvas = "";
 
-    // bold text
-    if (fontTokens[1].toLowerCase() == "bold") {
-      fontCanvas += "Bold ";
-    } 
-    // italic text
-    else if ( (fontTokens[1].toLowerCase() == "italic") || (fontTokens[1].toLowerCase() == "italics")) {
-      fontCanvas += "Italic ";
-    }
-    // bold and italic text
-    else if (fontTokens[1].toLowerCase() == "bold+italic") {
-      fontCanvas += "Italic Bold ";
-    }
+    // font style
+    fontCanvas += descartesJS.getFontStyle(fontTokens[1]);
 
-    fontName = ((fontTokens[0].split(" "))[0]).toLowerCase();
-    
-    // the font size
+    // font size
     fontCanvas += fontTokens[2] + "px ";
 
+    // font name
+    fontCanvas += descartesJS.getFontName((fontTokens[0].split(" "))[0]);
+
+    return fontCanvas;
+  }
+
+  /**
+   * 
+   */
+  descartesJS.getFontName = function(fontName) {
+    fontName =  fontName.toLowerCase();
+    
+    // monospace font
+    name = descartesJS.monospace_font;
+    
     // serif font
     if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      fontCanvas += descartesJS.serif_font;
+      name = descartesJS.serif_font;
     }
     // sans serif font
     else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
-      fontCanvas += descartesJS.sansserif_font;
+      name = descartesJS.sansserif_font;
     }
-    // monospace font
-    else {
-      fontCanvas += descartesJS.monospace_font;
+    
+    return name;
+  }
+
+  /**
+   * 
+   */
+  descartesJS.getFontStyle = function(fontStyle) {
+    style = "";
+    fontStyle = fontStyle.toLowerCase();
+
+    // bold text
+    if (fontStyle == "bold") {
+      style += "Bold ";
+    } 
+    // italic text
+    else if ( (fontStyle == "italic") || (fontStyle == "italics")) {
+      style += "Italic ";
+    }
+    // bold and italic text
+    else if (fontStyle == "bold+italic") {
+      style += "Italic Bold ";
     }
 
-    return fontCanvas;
+    return style;
   }
 
   /**
@@ -81,7 +105,7 @@ var descartesJS = (function(descartesJS) {
     height = Math.min(50, height);
 
     if (height >= 24) {
-      height = Math.floor(height/2+2-height/16);
+      height = Math.floor(height/2 +2 -height/16);
     } 
     else if (height >= 20) {
       height = 12;
@@ -199,6 +223,36 @@ var descartesJS = (function(descartesJS) {
     ss_98: { a: 87, d: 20 },
     ss_99: { a: 89, d: 20 },
 
+    ss_100: { a: 78, d: 26 },
+    ss_101: { a: 78, d: 26 },
+    ss_102: { a: 78, d: 26 },
+    ss_103: { a: 78, d: 26 },
+    ss_104: { a: 78, d: 26 },
+    ss_105: { a: 78, d: 26 },
+    ss_106: { a: 78, d: 26 },
+    ss_107: { a: 78, d: 26 },
+    ss_108: { a: 78, d: 26 },
+    ss_109: { a: 78, d: 26 },
+    ss_110: { a: 78, d: 26 },
+    ss_111: { a: 78, d: 26 },
+    ss_112: { a: 78, d: 26 },
+    ss_113: { a: 78, d: 26 },
+    ss_114: { a: 78, d: 26 },
+    ss_115: { a: 78, d: 26 },
+    ss_116: { a: 78, d: 26 },
+    ss_117: { a: 78, d: 26 },
+    ss_118: { a: 78, d: 26 },
+    ss_119: { a: 78, d: 26 },
+    ss_120: { a: 78, d: 26 },
+    ss_121: { a: 78, d: 26 },
+    ss_122: { a: 78, d: 26 },
+    ss_123: { a: 78, d: 26 },
+    ss_124: { a: 78, d: 26 },
+    ss_125: { a: 78, d: 26 },
+    ss_126: { a: 78, d: 26 },
+    ss_127: { a: 78, d: 26 },
+    ss_128: { a: 78, d: 26 },
+    ss_129: { a: 78, d: 26 },
 
     // serif
     s_5: { a: 4, d: 4 },
@@ -297,6 +351,37 @@ var descartesJS = (function(descartesJS) {
     s_98: { a: 87, d: 21 },
     s_99: { a: 88, d: 21 },
 
+    s_100: { a: 78, d: 26 },
+    s_101: { a: 78, d: 26 },
+    s_102: { a: 78, d: 26 },
+    s_103: { a: 78, d: 26 },
+    s_104: { a: 78, d: 26 },
+    s_105: { a: 78, d: 26 },
+    s_106: { a: 78, d: 26 },
+    s_107: { a: 78, d: 26 },
+    s_108: { a: 78, d: 26 },
+    s_109: { a: 78, d: 26 },
+    s_110: { a: 78, d: 26 },
+    s_111: { a: 78, d: 26 },
+    s_112: { a: 78, d: 26 },
+    s_113: { a: 78, d: 26 },
+    s_114: { a: 78, d: 26 },
+    s_115: { a: 78, d: 26 },
+    s_116: { a: 78, d: 26 },
+    s_117: { a: 78, d: 26 },
+    s_118: { a: 78, d: 26 },
+    s_119: { a: 78, d: 26 },
+    s_120: { a: 78, d: 26 },
+    s_121: { a: 78, d: 26 },
+    s_122: { a: 78, d: 26 },
+    s_123: { a: 78, d: 26 },
+    s_124: { a: 78, d: 26 },
+    s_125: { a: 78, d: 26 },
+    s_126: { a: 78, d: 26 },
+    s_127: { a: 78, d: 26 },
+    s_128: { a: 78, d: 26 },
+    s_129: { a: 78, d: 26 },
+
     // monospace
     m_5: { a: 4, d: 3 },
     m_6: { a: 5, d: 3 },
@@ -392,7 +477,38 @@ var descartesJS = (function(descartesJS) {
     m_96: { a: 74, d: 25 },
     m_97: { a: 75, d: 25 },
     m_98: { a: 76, d: 25 },
-    m_99: { a: 77, d: 25 }
+    m_99: { a: 77, d: 25 },
+
+    m_100: { a: 78, d: 26 },
+    m_101: { a: 78, d: 26 },
+    m_102: { a: 78, d: 26 },
+    m_103: { a: 78, d: 26 },
+    m_104: { a: 78, d: 26 },
+    m_105: { a: 78, d: 26 },
+    m_106: { a: 78, d: 26 },
+    m_107: { a: 78, d: 26 },
+    m_108: { a: 78, d: 26 },
+    m_109: { a: 78, d: 26 },
+    m_110: { a: 78, d: 26 },
+    m_111: { a: 78, d: 26 },
+    m_112: { a: 78, d: 26 },
+    m_113: { a: 78, d: 26 },
+    m_114: { a: 78, d: 26 },
+    m_115: { a: 78, d: 26 },
+    m_116: { a: 78, d: 26 },
+    m_117: { a: 78, d: 26 },
+    m_118: { a: 78, d: 26 },
+    m_119: { a: 78, d: 26 },
+    m_120: { a: 78, d: 26 },
+    m_121: { a: 78, d: 26 },
+    m_122: { a: 78, d: 26 },
+    m_123: { a: 78, d: 26 },
+    m_124: { a: 78, d: 26 },
+    m_125: { a: 78, d: 26 },
+    m_126: { a: 78, d: 26 },
+    m_127: { a: 78, d: 26 },
+    m_128: { a: 78, d: 26 },
+    m_129: { a: 78, d: 26 },
   }
 
   var metricCache = {};

@@ -64,7 +64,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.R2.prototype.equals = function(p) {
-    return ((this.x == p.x) && (this.y == p.y)); 
+    return ((this.x === p.x) && (this.y === p.y)); 
   }
 
   descartesJS.R2.prototype.norm2 = function() {
@@ -163,8 +163,9 @@ var descartesJS = (function(descartesJS) {
     } 
     
     else if ((p2.x-q1.x)*B2 != (p2.y-q1.y)*B1) {
-      return null; // no estan alineados
-    } else { // estan alineados
+      return null;
+    } 
+    else {
       if (p1.x != p2.x) {
         mp = MathMin(p1.x, p2.x);
         Mp = MathMax(p1.x, p2.x);

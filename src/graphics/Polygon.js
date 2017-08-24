@@ -135,8 +135,12 @@ var descartesJS = (function(descartesJS) {
       ctx.fill();
     }
 
+    this.dashStyle();
     // draw the stroke
     ctx.stroke();
+
+    // restor the dash style
+    ctx.setLineDash([]);
   }
 
   return descartesJS;

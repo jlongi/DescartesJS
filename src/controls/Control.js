@@ -552,6 +552,21 @@ var descartesJS = (function(descartesJS) {
       this.linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
     }
   }
+  /**
+   *
+   */
+  descartesJS.Control.prototype.createCSSGradient = function(h) {
+    var gradientStr = "linear-gradient(";
+    hh = h*h;
+
+    for (var i=0; i<h; i++) {
+      di = MathFloor(i-(35*h)/100);
+      gradientStr += "rgba(0,0,0,"+ ((di*di*200)/hh)/255 +") "+ (i*100/(h-1)) +"%,";
+    }
+    gradientStr = gradientStr.substring(0, gradientStr.length-1);
+
+    return gradientStr + ")";
+  }
 
   return descartesJS;
 })(descartesJS || {});

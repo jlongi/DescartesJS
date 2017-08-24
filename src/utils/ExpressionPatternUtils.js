@@ -77,9 +77,7 @@ var descartesJS = (function(descartesJS) {
       tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
     }
 
-    tmpAnswer = tmpAnswer.replace(/\?/g, "[\\S\\s]{1}");
-
-    answer.regExp = tmpAnswer;
+    answer.regExp = tmpAnswer.replace(/\?/g, "[\\S\\s]{1}");
 
     return answer;
   }
@@ -97,14 +95,16 @@ var descartesJS = (function(descartesJS) {
     answer.expr = tmpAnswer.split(",");
 
     answer.expr[0] = answer.expr[0].trim();
-    answer.expr[0] = { type: answer.expr[0].charAt(0),
-                       expr: evaluator.parser.parse(answer.expr[0].substring(1))
-                     };
+    answer.expr[0] = { 
+      type: answer.expr[0].charAt(0),
+      expr: evaluator.parser.parse(answer.expr[0].substring(1))
+    };
 
     answer.expr[1] = answer.expr[1].trim();
-    answer.expr[1] = { type: answer.expr[1].charAt(answer.expr[1].length-1),
-                       expr: evaluator.parser.parse(answer.expr[1].substring(0, answer.expr[1].length-1))
-                     };
+    answer.expr[1] = { 
+      type: answer.expr[1].charAt(answer.expr[1].length-1),
+      expr: evaluator.parser.parse(answer.expr[1].substring(0, answer.expr[1].length-1))
+    };
 
     return answer;
   }
@@ -118,18 +118,23 @@ var descartesJS = (function(descartesJS) {
     limInf = evaluator.eval(answer_0.expr);
     limSup = evaluator.eval(answer_1.expr);
 
-    cond1 = (answer_0.type == "(");
-    cond2 = (answer_0.type == "[");
-    cond3 = (answer_1.type == ")");
-    cond4 = (answer_1.type == "]");
+    cond1 = (answer_0.type == "(") || (answer_0.type == "[");
+    cond2 = (answer_1.type == ")") || (answer_1.type == "]");
 
-    if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
-        ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
-       ) {
-      return 1;
-    }
+    return ( (cond1 && (value > limInf)) && (cond2 && (value <= limSup)) ) ? 1 : 0;
 
-    return 0;
+    // cond1 = (answer_0.type == "(");
+    // cond2 = (answer_0.type == "[");
+    // cond3 = (answer_1.type == ")");
+    // cond4 = (answer_1.type == "]");
+
+    // if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
+    //     ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
+    //    ) {
+    //   return 1;
+    // }
+
+    // return 0;
   }
 
   /**

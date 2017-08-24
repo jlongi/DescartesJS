@@ -39,20 +39,23 @@ var descartesJS = (function(descartesJS) {
     exprY = expr[0][1];
     exprZ = 0;
 
-    this.primitives.push( new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
-                                                         type:"text",
-                                                         frontColor: this.color.getColor(),
-                                                         font: this.font,
-                                                         decimals: evaluator.eval(this.decimals),
-                                                         fixed: this.fixed,
-                                                         displace: 0,
-                                                         isText: true,
-                                                         evaluator: evaluator,
-                                                         text: this.text,
-                                                         family: this.family,
-                                                         familyValue: this.familyValue
-                                                       },
-                          this.space ));
+    this.primitives.push( new descartesJS.Primitive3D( { 
+      vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
+      type:"text",
+      frontColor: this.color.getColor(),
+      font_size: this.font_size,
+      font_style: this.font_style,
+      font_family: this.font_family,
+      decimals: evaluator.eval(this.decimals),
+      fixed: this.fixed,
+      displace: 0,
+      isText: true,
+      evaluator: evaluator,
+      text: this.text,
+      family: this.family,
+      familyValue: this.familyValue
+    },
+    this.space ));
 
   }
   

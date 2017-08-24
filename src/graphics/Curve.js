@@ -21,6 +21,7 @@ var descartesJS = (function(descartesJS) {
   var tmpRotY;
 
   var lineDesp = .5;
+  var POS_LIMIT = 1000000;
 
   /**
    * A Descartes curve
@@ -68,11 +69,10 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Graphic.call(this, parent, values);
 
     // Descartes 2 visible
-    this.visible = ((this.parent.version == 2) && (this.visible == undefined));
+    this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;
     if (this.visible) {
       this.registerTextField();
     }
-
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -171,14 +171,21 @@ var descartesJS = (function(descartesJS) {
       }
       // MACRO //
 
-      ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
+      if ( !isNaN(this.exprX) && !isNaN(this.exprY) && (this.exprX > -POS_LIMIT) && (this.exprX < POS_LIMIT) && (this.exprY > -POS_LIMIT) && (this.exprY < POS_LIMIT) ) {
+        ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
+      }
     }
 
     if (this.fill) {
       ctx.fillStyle = fill.getColor();
       ctx.fill("evenodd");
     }
+
+    this.dashStyle();
     ctx.stroke();
+
+    // restor the dash style
+    ctx.setLineDash([]);
 
     evaluator.setVariable(this.parameter, tempParam);
   }
@@ -192,6 +199,7 @@ var descartesJS = (function(descartesJS) {
     textField.disabled = !(this.editable);
 
     var self = this;
+    textField.oncontextmenu = function (evt) { return false; };
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
       self.expresion = self.evaluator.parser.parse(this.value);

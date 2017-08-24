@@ -77,14 +77,11 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Auxiliary.prototype.splitInstructions = function(parser, expression) {
     tmpExpression = [];
 
-    if (expression) {
-      expression = expression.split(";");
-    } else {
-      expression = [""];
-    }
-    
-    // add only the instructions tha execute something, i.e. instructions whit parsing different of null
+    expression = (expression) ? descartesJS.splitSeparator(expression) : [""];
+
+    // add only the instructions that execute something, i.e. instructions whit parsing different of null
     for (var i=0, l=expression.length; i<l; i++) {
+      descartesJS.DEBUG.lineCount = i;
       tmp = parser.parse(expression[i], true);
       if (tmp) {
         tmpExpression.push(tmp);
@@ -134,15 +131,19 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Auxiliary.prototype.parseExpressions = function(parser) {
+    descartesJS.DEBUG.paramName = "inicio";
     // parse the init expression
     this.init = this.splitInstructions(parser, this.init);
 
+    descartesJS.DEBUG.paramName = "local";
     // parse the local expression
     this.privateVars = this.getPrivateVariables(parser, this.local);
 
+    descartesJS.DEBUG.paramName = "hacer";
     // parse the do expression
     this.doExpr = this.splitInstructions(parser, this.doExpr);
     
+    descartesJS.DEBUG.paramName = "mientras";
     // parse the while expression
     this.whileExpr = parser.parse(this.whileExpr);
   }

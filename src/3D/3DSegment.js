@@ -60,6 +60,7 @@ var descartesJS = (function(descartesJS) {
                                                                      this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
                                                        ],
                                                          type: "edge",
+                                                         lineDash: this.lineDash,
                                                          frontColor: this.color.getColor(), 
                                                          lineWidth: evaluator.eval(this.width)
                                                        },

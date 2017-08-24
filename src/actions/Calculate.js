@@ -15,15 +15,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Calculate = function(parent, parameter) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
-    
+
     var evaluator = this.evaluator;
     var parser = evaluator.parser;
 
     // replace the semicolon with a newline, since both notations can appear in the expression
     parameter = parameter || "";
     parameter = parameter.replace(/&squot;/g, "'");
-    parameter = parameter.replace(/;/g, "\\n");
-    parameter = parameter.split("\\n") || [""];
+    parameter = descartesJS.splitSeparator(parameter);
 
     // add only the instructions tha execute something, i.e. instructions with parsing different of null
     var tmpParameter = [];
@@ -52,6 +51,6 @@ var descartesJS = (function(descartesJS) {
   // create an inheritance of Action
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Calculate, descartesJS.Action);
-  
+
   return descartesJS;
 })(descartesJS || {});

@@ -40,7 +40,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    // modification to change the name of the button with an expression
+    // modification to change the name of the textfield with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
@@ -149,14 +149,16 @@ var descartesJS = (function(descartesJS) {
   /**
    * Init the text field
    */
-  descartesJS.TextField.prototype.init = function() {
+  descartesJS.TextField.prototype.init = function(changeSizePos) {
     evaluator = this.evaluator;
 
     var name = evaluator.eval(this.name).toString();
     this.label.innerHTML = name;
 
     // validate the initial value
-    this.value = this.validateValue( evaluator.eval(this.valueExpr) );
+    if (!changeSizePos) {
+      this.value = this.validateValue( evaluator.eval(this.valueExpr) );
+    }
 
     // get the width of the initial value to determine the width of the text field
     var fieldValue = this.formatOutputValue(this.value);
@@ -164,12 +166,12 @@ var descartesJS = (function(descartesJS) {
     // find the font size of the text field
     this.fieldFontSize = descartesJS.getFieldFontSize(this.h);
 
-    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px Arial");
+    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
     // widths are calculated for each element
     var labelWidth = parseInt(this.w/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial");
+    var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
     if (!this.visible) {
       labelWidth = this.w;
@@ -243,9 +245,6 @@ var descartesJS = (function(descartesJS) {
       this.containerControl.style.display = "none";
     }
 
-    // update the position and size
-    this.updatePositionAndSize();
-
     if ( !(this.parent.animation.playing) || (document.activeElement != this.field)) {
       oldFieldValue = this.field.value;
       oldValue = this.value;
@@ -263,6 +262,9 @@ var descartesJS = (function(descartesJS) {
       // register the control value
       evaluator.setVariable(this.id, this.value);
     }
+
+    // update the position and size
+    this.updatePositionAndSize();
   }
 
   /**
@@ -294,11 +296,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     evalMin = evaluator.eval(this.min);
-    if (evalMin == "") {
+    evalMax = evaluator.eval(this.max);
+    
+    if (evalMin === "") {
       evalMin = -Infinity;
     }
     evalMax = evaluator.eval(this.max);
-    if (evalMax == "") {
+    if (evalMax === "") {
       evalMax = Infinity;
     }
 
@@ -314,7 +318,7 @@ var descartesJS = (function(descartesJS) {
 
     if (this.discrete) {
       var incr = evaluator.eval(this.incr);
-      resultValue = (incr==0) ? 0 : (incr * Math.round(resultValue / incr));
+      resultValue = (incr === 0) ? 0 : (incr * Math.round(resultValue / incr));
     }
 
     resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.eval(this.decimals)));
@@ -399,12 +403,8 @@ var descartesJS = (function(descartesJS) {
     self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
 
     // prevent the default events int the label
-    // if (hasTouchSupport) {
-      self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
-    // }
-    // else {
-      self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
-    // }
+    self.label.addEventListener("touchstart", descartesJS.preventDefault);
+    self.label.addEventListener("mousedown", descartesJS.preventDefault);
 
     /**
      *

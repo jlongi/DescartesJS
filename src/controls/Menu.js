@@ -70,7 +70,6 @@ var descartesJS = (function(descartesJS) {
       this.name = this.parser.parse("'" + this.name + "'");
     }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
     var self = this;
     this.evaluator.setFunction(this.id + ".setOptions", setOptions);
     /**
@@ -146,7 +145,6 @@ var descartesJS = (function(descartesJS) {
 
       return 0;
     }
-//////////////////////////////////////////////////////////////////////////////////////////////
 
     // control container
     this.containerControl = document.createElement("div");
@@ -208,7 +206,7 @@ var descartesJS = (function(descartesJS) {
 
     // find the widest choice to set the menu width
     for (var i=0, l=this.menuOptions.length; i<l; i++) {
-      mow = descartesJS.getTextWidth( evaluator.eval(this.menuOptions[i]).toString(), this.fieldFontSize+"px Arial" );
+      mow = descartesJS.getTextWidth( evaluator.eval(this.menuOptions[i]).toString(), this.fieldFontSize+"px " + descartesJS.sansserif_font );
       if (mow > minchw) {
         minchw = mow;
         indMinTFw = i;
@@ -216,9 +214,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     minchw += 25;
-    minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.eval(this.strValue[indMinTFw])), this.fieldFontSize+"px Arial" ) + 7;
+    minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.eval(this.strValue[indMinTFw])), this.fieldFontSize+"px " + descartesJS.sansserif_font ) + 7;
 
-    var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px Arial") +10;
+    var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
     var fieldWidth = minTFw;
 
     if (name == "") {
@@ -262,7 +260,7 @@ var descartesJS = (function(descartesJS) {
 
     this.select.setAttribute("id", this.id+"_menuSelect");
     this.select.setAttribute("class", "DescartesMenuSelect");
-    this.select.setAttribute("style", "text-align:left; font-size:" + this.fieldFontSize + "px; width: " + chw + "px; height: " + this.h + "px; left: " + chx + "px; border: 1.5px solid #7a8a99; background-color: #eeeeee;");
+    this.select.setAttribute("style", "text-align:left; font-size:" + this.fieldFontSize + "px; width: " + chw + "px; height: " + this.h + "px; left: " + chx + "px;");
     this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;
 
@@ -413,12 +411,8 @@ var descartesJS = (function(descartesJS) {
     // prevent the context menu display
     self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = function() { return false; };
 
-    // if (hasTouchSupport) {
-      self.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; })
-    // }
-    // else {
-      self.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; })
-    // }
+    self.label.addEventListener("touchstart", descartesJS.preventDefault)
+    self.label.addEventListener("mousedown", descartesJS.preventDefault)
 
     /**
      *

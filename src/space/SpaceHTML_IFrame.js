@@ -65,7 +65,7 @@ var descartesJS = (function(descartesJS) {
       this.file = evaluator.parser.parse("'" + this.file + "'");
     }
     
-    // register which are the old open file
+    // register the previous open file
     this.oldFile = evaluator.eval(this.file);    
     
     this.MyIFrame = document.createElement("iframe");
@@ -76,13 +76,13 @@ var descartesJS = (function(descartesJS) {
     this.MyIFrame.setAttribute("marginwidth", 0);
     this.MyIFrame.setAttribute("frameborder", 0);
     this.MyIFrame.setAttribute("scrolling", "auto");
-    this.MyIFrame.setAttribute("style", "position:static;left:0px;top:0px;");
+    this.MyIFrame.setAttribute("style", "position:static;left:0;top:0;");
 
     this.container = document.createElement("div");
     this.container.setAttribute("id", this.id);
 
     var strStyle = (descartesJS.isIOS) ? "overflow:scroll;-webkit-overflow-scrolling:touch;overflow-scrolling:touch;" : "";
-    this.container.setAttribute("style", strStyle + "position:absolute; width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";background-repeat:no-repeat;background-position:center;");
+    this.container.setAttribute("style", strStyle + "position:absolute;width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";background-repeat:no-repeat;background-position:center;");
     this.container.appendChild(this.MyIFrame);
 
     //
@@ -91,7 +91,6 @@ var descartesJS = (function(descartesJS) {
     }
     //
 
-    // this.parent.container.insertBefore(this.MyIFrame, this.parent.loader);
     this.parent.container.insertBefore(this.container, this.parent.loader);
 
     // register the comunication functions
@@ -101,21 +100,21 @@ var descartesJS = (function(descartesJS) {
       var iframe = this;
 
       // set a value to a variable
-      var iframeSet = function(varName, value) {
+      function iframeSet(varName, value) {
         iframe.contentWindow.postMessage({ type: "set", name: varName, value: value }, "*");
         return 0;
       }      
       self.evaluator.setFunction(self.id + ".set", iframeSet);
 
       // update the scene
-      var iframeUpdate = function() {
+      function iframeUpdate() {
         iframe.contentWindow.postMessage({ type: "update" }, "*");
         return 0;
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
       // exec a funcion of the scene
-      var iframeExec = function(functionName, functionParameters) {
+      function iframeExec(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
         return 0;
       }
@@ -189,22 +188,20 @@ var descartesJS = (function(descartesJS) {
 
       changeX = (this.x !== (evaluator.eval(this.xExpr) + this.displaceRegionWest));
       changeY = (this.y !== (evaluator.eval(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth));
-      this.x = (changeX) ? evaluator.eval(this.xExpr) + this.displaceRegionWest: this.x;
+      this.x = (changeX) ? evaluator.eval(this.xExpr) + this.displaceRegionWest : this.x;
       this.y = (changeY) ? evaluator.eval(this.yExpr) + this.parent.plecaHeight  + this.displaceRegionNorth : this.y;
 
       if (this._w_ != undefined) {
         var new_w = evaluator.eval(this._w_);
         if (this.w !== new_w) {
-          this.container.style.width = new_w + "px";
-          this.MyIFrame.style.width  = new_w + "px";
+          this.container.style.width = this.MyIFrame.style.width  = new_w + "px";
           this.w = new_w;
         }
       }
       if (this._h_ != undefined) {
         var new_h = evaluator.eval(this._h_);
         if (this.h !== new_h) {
-          this.container.style.height = new_h + "px";
-          this.MyIFrame.style.height  = new_h + "px";
+          this.container.style.height = this.MyIFrame.style.height  = new_h + "px";
           this.h = new_h;
         }
       }
@@ -234,7 +231,6 @@ var descartesJS = (function(descartesJS) {
         this.oldFile = file;
         // prevent add history entries when the source of an iframe change
         this.MyIFrame.contentWindow.location.replace(file);
-        // this.MyIFrame.setAttribute("src", file);
       }
      
       scrollVar = evaluator.getVariable(this.id + "._scroll");

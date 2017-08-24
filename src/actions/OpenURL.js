@@ -30,7 +30,6 @@ var descartesJS = (function(descartesJS) {
     // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
       // replace the &squot; with '
-      // this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
       this.parameter = new descartesJS.SimpleText(parent, (this.parameter.substring(11)).replace(/&squot;/g, "'"));
 
       var self = this;

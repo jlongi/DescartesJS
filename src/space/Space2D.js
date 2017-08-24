@@ -54,6 +54,9 @@ var descartesJS = (function(descartesJS) {
 
   var disp;
 
+  var wModExpr;
+  var hModExpr;
+
   /**
    * Descartes 2D space
    * @constructor
@@ -66,7 +69,6 @@ var descartesJS = (function(descartesJS) {
 
     self = this;
 
-    // self.ratio = ((self.w*descartesJS.ratio * self.h*descartesJS.ratio) > 5000000) ? 1 : descartesJS.ratio;
     self.ratio = parent.ratio;
 
     // create the canvas
@@ -120,18 +122,18 @@ var descartesJS = (function(descartesJS) {
     parent.container.insertBefore(self.container, parent.loader);
 
     // variable to expose the image of the space
-    self.parent.images[self.id + ".image"] = self.canvas;
-    self.parent.images[self.id + ".image"].ready = 1;
-    self.parent.images[self.id + ".image"].complete = true;
-    self.parent.images[self.id + ".image"].canvas = true;
-    self.evaluator.setVariable(self.id + ".image", self.id + ".image");
+    var id_name = self.id + ".image";
+    self.parent.images[id_name] = self.canvas;
+    self.parent.images[id_name].ready = 1;
+    self.parent.images[id_name].complete = self.parent.images[id_name].canvas = true;
+    self.evaluator.setVariable(id_name, id_name);
 
     // variable to expose the image of the background space
-    self.parent.images[self.id + ".back"] = self.backCanvas;
-    self.parent.images[self.id + ".back"].ready = 1;
-    self.parent.images[self.id + ".back"].complete = true;
-    self.parent.images[self.id + ".back"].canvas = true;
-    self.evaluator.setVariable(self.id + ".back", self.id + ".back");
+    var id_back = self.id + ".back";
+    self.parent.images[id_back] = self.backCanvas;
+    self.parent.images[id_back].ready = 1;
+    self.parent.images[id_back].complete = self.parent.images[id_back].canvas = true;
+    self.evaluator.setVariable(id_back, id_back);
 
     var tmpStr = ((self.id !== "") && (parent.version !== 2)) ? self.id + "." : "";
     self.OxStr    = tmpStr + "Ox";
@@ -146,6 +148,11 @@ var descartesJS = (function(descartesJS) {
     self.mclickIzqStr = tmpStr + "clic_izquierdo";
 
     self.click = 0;
+
+    if(self.resizable) {
+      self.wModExpr = parent.evaluator.parser.parse(self.wModExpr);
+      self.hModExpr = parent.evaluator.parser.parse(self.hModExpr);
+    }
 
     // register the mouse and touch events
     if (self.id !== "descartesJS_stage") {
@@ -173,6 +180,8 @@ var descartesJS = (function(descartesJS) {
 
     // update the size of the canvas if has some regions
     if (self.canvas) {
+      self.old_w = self.w;
+      self.old_h = self.h;
       self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
       self.canvas.height = self.backCanvas.height = self.h *self.ratio;
       self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
@@ -190,13 +199,40 @@ var descartesJS = (function(descartesJS) {
     parent = self.parent;
 
     // prevents the change of the width and height from an external change
-    evaluator.setVariable(self.wStr, self.w);
-    evaluator.setVariable(self.hStr, self.h);
+    if (!self.resizable) {
+      evaluator.setVariable(self.wStr, self.w);
+      evaluator.setVariable(self.hStr, self.h);
+    }
     // check the draw if condition
     self.drawIfValue = evaluator.eval(self.drawif) > 0;
 
     // draw the space
     if (self.drawIfValue) {
+
+      //////////////////////////////////////////////////////////////////////////////////
+      // change in the space size
+      if (self.resizable) {
+        wModExpr = self.evaluator.eval(self.wModExpr);
+        hModExpr = self.evaluator.eval(self.hModExpr);
+        
+        if ((self.old_w != wModExpr) || (self.old_h != hModExpr)) {
+          self.w = wModExpr;
+          self.h = hModExpr;
+          self.w_2 = self.w/2;
+          self.h_2 = self.h/2;
+          evaluator.setVariable(self.wStr, self.w);
+          evaluator.setVariable(self.hStr, self.h);
+          self.old_w = self.w;
+          self.old_h = self.h;
+          self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+          self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+          self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+          self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+          firstTime = true;
+        }
+      }
+      //////////////////////////////////////////////////////////////////////////////////
+
       changeX = (self.x !== (evaluator.eval(self.xExpr) + self.displaceRegionWest));
       changeY = (self.y !== (evaluator.eval(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
 
@@ -230,16 +266,14 @@ var descartesJS = (function(descartesJS) {
       self.container.style.display = "block";
 
       // draw the trace
-      self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed)) ;
+      self.drawTrace = (!self.spaceChange) && (((!self.fixed)&&(!self.click)) || (self.fixed));
 
       if (self.spaceChange) {
         self.backCtx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
         self.drawBackground();
-        // self.backCtx.setTransform(1, 0, 0, 1, 0, 0);
       }
       self.ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
       self.draw();
-      // self.ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
     // hide the space
     else {
@@ -309,26 +343,36 @@ var descartesJS = (function(descartesJS) {
 
     // draw the axes
     if (self.axes !== "") {
+      var ignore_axis = "";
+      if (self.x_axis == "no") {
+        ignore_axis+= "x";
+      }
+      if (self.y_axis == "no") {
+        ignore_axis+= "y";
+      }
+
       ctx.strokeStyle = self.axes.getColor();
 
       ctx.beginPath();
       // x axis
-      if ((self.x_axis !== "") || (self.parent.version !== 2)) {
+      if ((self.x_axis != "no") && ((self.x_axis !== "") || (self.parent.version !== 2))) {
         ctx.moveTo(0, MathFloor(self.h/2+self.Oy)+.5);
         ctx.lineTo(self.w, MathFloor(self.h/2+self.Oy)+.5);
       }
 
       // y axis
-      if ((self.y_axis !== "") || (self.parent.version !== 2)) {
+      if ((self.y_axis != "no") && ((self.y_axis !== "") || (self.parent.version !== 2))) {
         ctx.moveTo(MathFloor(self.w/2+self.Ox)+.5, 0);
         ctx.lineTo(MathFloor(self.w/2+self.Ox)+.5, self.h);
       }
 
+      ctx.lineWidth = 1.2;
       ctx.stroke();
+      ctx.lineWidth = 1;
 
-      self.drawMarks(ctx, rsc, 4);
-      self.drawMarks(ctx, rsc/2, 2);
-      self.drawMarks(ctx, rsc/10, 1);
+      self.drawMarks(ctx, rsc, 4, ignore_axis);
+      self.drawMarks(ctx, rsc/2, 2, ignore_axis);
+      self.drawMarks(ctx, rsc/10, 1, ignore_axis);
     }
 
     // draw the axis names
@@ -338,8 +382,12 @@ var descartesJS = (function(descartesJS) {
       ctx.font = axisFont;
       ctx.textAlign = "right";
       ctx.textBaseline = "alphabetic";
-      ctx.fillText(self.x_axis, MathFloor(self.w)-2, MathFloor(self.h/2+self.Oy)+12);
-      ctx.fillText(self.y_axis, MathFloor(self.w/2+self.Ox)-2, 12);
+      if (self.x_axis != "no") {
+        ctx.fillText(self.x_axis, MathFloor(self.w)-2, MathFloor(self.h/2+self.Oy)+12);
+      }
+      if (self.y_axis != "no") {
+        ctx.fillText(self.y_axis, MathFloor(self.w/2+self.Ox)-2, 12);
+      }
     }
 
     // draw the axis numbers
@@ -388,8 +436,6 @@ var descartesJS = (function(descartesJS) {
 
     // draw the graphic controls
     for (var i=0, l=self.graphicsCtr.length; i<l; i++) {
-      // checar si no ocurren problemas
-      // this.graphicsCtr[i].update();
       self.graphicsCtr[i].draw();
     }
 
@@ -439,13 +485,13 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} rsc
    * @param {Number} sz
    */
-  descartesJS.Space2D.prototype.drawMarks = function(ctx, rsc, sz) {
+  descartesJS.Space2D.prototype.drawMarks = function(ctx, rsc, sz, ignore) {
     w = this.w;
     h = this.h;
 
     x1 = 0;
-    x2 = w;
     y1 = 0;
+    x2 = w;
     y2 = h;
     Ox = MathFloor(w/2+this.Ox);
     Oy = MathFloor(h/2+this.Oy);
@@ -459,13 +505,17 @@ var descartesJS = (function(descartesJS) {
 
     ctx.beginPath();
 
-    for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
-      ctx.moveTo(x+.5, y1+.5);
-      ctx.lineTo(x+.5, y2+.5);
+    if ((!ignore) || ((ignore) && (!ignore.match("x")))) {
+      for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
+        ctx.moveTo(x+.5, y1+.5);
+        ctx.lineTo(x+.5, y2+.5);
+      }
     }
-    for (var i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
-      ctx.moveTo(x1+.5, y+.5);
-      ctx.lineTo(x2+.5, y+.5);
+    if ((!ignore) || ((ignore) && (!ignore.match("y")))) {
+      for (var i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
+        ctx.moveTo(x1+.5, y+.5);
+        ctx.lineTo(x2+.5, y+.5);
+      }
     }
 
     ctx.stroke();
@@ -499,12 +549,8 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Space2D.prototype.addEvents = function() {
-    var lastTime = 0;
-    var lastTime1 = 0;
-
     var self = this;
-    self.posZoom = null;
-    self.posZoomNew = null;
+    self.posZoom = self.posZoomNew = null;
 
     // prevent the context menu display
     self.canvas.oncontextmenu = function (evt) { return false; };
@@ -524,8 +570,9 @@ var descartesJS = (function(descartesJS) {
     function onTouchStart(evt) {
       // remove the focus of the controls
       window.focus();
+      document.activeElement.blur();
 
-      // try to preserve the slide gesture in the tablets
+      // try to preserve the slide gesture in tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
         return;
       }
@@ -550,15 +597,15 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     *
      * @param {Event} evt
      * @private
      */
     function onTouchEnd(evt) {
       // remove the focus of the controls
       window.focus();
+      document.activeElement.blur();
 
-      // try to preserve the slide gesture in the tablets
+      // try to preserve the slide gesture in tablets
       if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
         return;
       }
@@ -586,13 +633,13 @@ var descartesJS = (function(descartesJS) {
     this.canvas.addEventListener("mousedown", onMouseDown);
 
     /**
-     *
      * @param {Event} evt
      * @private
      */
     function onMouseDown(evt) {
       // remove the focus of the controls
       window.focus();
+      document.activeElement.blur();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -632,13 +679,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     *
      * @param {Event} evt
      * @private
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
       window.focus();
+      document.activeElement.blur();
 
       evt.stopPropagation();
       evt.preventDefault();
@@ -701,7 +748,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     *
      * @param {Event} evt
      * @private
      */
@@ -712,8 +758,8 @@ var descartesJS = (function(descartesJS) {
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = descartesJS.getCursorPosition(evt, self.container);
-        disp = { x: (self.posAnte.x - self.posNext.x).toFixed(8),
-                 y: (self.posAnte.y - self.posNext.y).toFixed(8) };
+        disp = { x: (self.posAnte.x - self.posNext.x),
+                 y: (self.posAnte.y - self.posNext.y) };
 
         self.evaluator.setVariable(self.OxStr, (self.Ox - disp.x));
         self.evaluator.setVariable(self.OyStr, (self.Oy - disp.y));

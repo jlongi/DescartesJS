@@ -61,7 +61,7 @@ var descartesJS = (function(descartesJS) {
         // saves the variable values ​​that have the same names as function parameters
         var paramsTemp = [];
         for (var i=0, l=self.params.length; i<l; i++) {
-          paramsTemp[i] = evaluator.getVariable(self.params[i]) || 0;
+          paramsTemp[i] = evaluator.getVariable(self.params[i]);
           // associated input parameters of the function with parameter names
           evaluator.setVariable(self.params[i], arguments[i]);
         }

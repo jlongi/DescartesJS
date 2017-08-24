@@ -15,9 +15,6 @@ var descartesJS = (function(descartesJS) {
   var verticalDisplace;
 
   var tmpVertex;
-  var tmpExpr;
-  var tmpExpr2;
-  var tmpExpr3;
   var lastIndexOfSpace;
 
   var degToRad = descartesJS.degToRad;
@@ -202,12 +199,38 @@ var descartesJS = (function(descartesJS) {
     this.canvas = (this.background) ? this.space.backCanvas : this.space.canvas;
     this.ctx = this.canvas.getContext("2d");
 
-    this.font = descartesJS.convertFont(this.font)
-
+    //
+    // get a Descartes font
+    this.font_str = this.font;
+    this.font = descartesJS.convertFont(this.font);
     // get the font size
-    this.fontSize = this.font.match(/(\d+)px/);
+    this.fontSize = this.font.match(/([\d\.]+)px/);
     this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
 
+    this.font_style = descartesJS.getFontStyle(this.font_str.split(",")[1]);
+    if ((typeof this.bold === "boolean") || (typeof this.italics === "boolean")) {
+      if (this.bold && !this.italics) {
+        this.font_style = "Bold ";
+      }
+      else if (!this.bold && this.italics) {
+        this.font_style = "Italic ";
+      }
+      else if (this.bold && this.italics) {
+        this.font_style = "Italic Bold ";
+      }
+      else if (!this.bold && !this.italics) {
+        this.font_style = " ";
+      }
+    }
+    if (!this.font_family) {
+      this.font_family = this.font_str.split(",")[0];
+    }
+    this.font_family = descartesJS.getFontName(this.font_family);
+    if (typeof this.font_size === "undefined") {
+      this.font_size = parent.evaluator.parser.parse(this.fontSize.toString());
+    }
+    //
+    
     // euler rotations
     if (this.inirot.match("Euler")) {
       this.inirot = this.inirot.replace("Euler", "");
@@ -386,6 +409,11 @@ var descartesJS = (function(descartesJS) {
       tmpVertex = this.applyMacroTransform(tmpVertex);
     }
 
+    //
+    tmpVertex.adjustDec();
+    //
+
+
     return tmpVertex;
   }
 
@@ -422,19 +450,36 @@ var descartesJS = (function(descartesJS) {
    * Parse expression for curve graphic
    */
   descartesJS.Graphic3D.prototype.parseExpression = function() {
-    tmpExpr3 = [];
-    var tmpEmpr = this.expresion.replace(/\n/g, " ").replace(/ ( )+/g, " ").trim();
+    var expr = this.expresion.split(";");
+    var newExpr = [];
+
+    for (var i=0, l=expr.length; i<l; i++) {
+      if (expr[i].trim() !== "") {
+        newExpr = newExpr.concat(splitExpr(expr[i]));
+      }
+    }
+
+    for (var i=0, l=newExpr.length; i<l; i++) {
+      newExpr[i] = this.evaluator.parser.parse( newExpr[i], true );
+    }
+
+    return newExpr;
+  }
+
+  /**
+   * Split a line if has spaces
+   */
+  function splitExpr(expr) {
     var tmpEmprArr = [];
     var statusIgnore = 0;
     var statusEqual = 1;
     var statusId = 2;
     var status = statusIgnore;
     var charAt;
-    var lastIndex = tmpEmpr.length;
+    var lastIndex = expr.length;
 
-
-    for (var i=tmpEmpr.length-1; i>-1; i--) {
-      charAt = tmpEmpr.charAt(i)
+    for (var i=expr.length-1; i>-1; i--) {
+      charAt = expr.charAt(i)
 
       if (status == statusIgnore) {
         if (charAt != "=") {
@@ -450,7 +495,7 @@ var descartesJS = (function(descartesJS) {
         if (charAt == " ") {
           continue;
         }
-        else if ( (charAt == "<") || (charAt == ">") ) {
+        else if ( (charAt === "<") || (charAt === ">") ) {
           status = statusIgnore;
           continue;
         }
@@ -462,7 +507,7 @@ var descartesJS = (function(descartesJS) {
 
       if (status == statusId) {
         if (charAt == " ") {
-          tmpEmprArr.unshift( tmpEmpr.substring(i+1, lastIndex) );
+          tmpEmprArr.unshift(expr.substring(i+1, lastIndex));
           lastIndex = i;
           status = statusIgnore;
           continue;
@@ -470,13 +515,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    tmpEmprArr.unshift( tmpEmpr.substring(0, lastIndex));
+    tmpEmprArr.unshift(expr.substring(0, lastIndex));
 
-    for(var i=0, l=tmpEmprArr.length; i<l; i++) {
-      tmpExpr3.push( this.evaluator.parser.parse( tmpEmprArr[i], true ) );
-    }
-
-    return tmpExpr3;
+    return tmpEmprArr;
   }
 
   var tmpPrimitives;
@@ -490,8 +531,8 @@ var descartesJS = (function(descartesJS) {
 
       // if the primitive is a face then try to cut the other primitives faces
       if (this.primitives[i].type === "face") {
-
         for (var j=0, k=g.primitives.length; j<k; j++) {
+
           // the primitives of g are splited and added to an array
           if (g.primitives[j].type === "face") {
             tmpPrimitives = tmpPrimitives.concat( this.primitives[i].splitFace(g.primitives[j]) );

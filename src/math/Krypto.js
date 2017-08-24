@@ -104,7 +104,7 @@ var descartesJS = (function(descartesJS) {
       x = MathFloor(OrigMeu[i]+128)*256 + MathRound(MathRandom()*255) + MathRound(MathRandom()*255)*256*256;
       y = MathFloor((x<<this.shift(i))/256);
 
-      encripMeu[3*i] =   this.alfanum(y%32); 
+      encripMeu[3*i]   = this.alfanum(y%32); 
       encripMeu[3*i+1] = this.alfanum((y/32)%32);
       encripMeu[3*i+2] = this.alfanum((y/1024)%32);
     }

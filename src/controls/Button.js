@@ -10,7 +10,7 @@ var descartesJS = (function(descartesJS) {
   var MathAbs = Math.abs;
 
   var evaluator;
-  var canvas;
+  var btn;
   var ctx;
   var expr;
   var font_size;
@@ -20,7 +20,7 @@ var descartesJS = (function(descartesJS) {
   var despX;
   var despY;
   var txtW;
-  var hasTouchSupport;
+  // var hasTouchSupport;
   var delay = 1000;
 
   var _image_pos_x;
@@ -42,6 +42,7 @@ var descartesJS = (function(descartesJS) {
   var checkDrawIf;
   var checkName;
   var checkImageSrc;
+  var checkBackColor;
 
   var prefix;
   var sufix;
@@ -85,14 +86,29 @@ var descartesJS = (function(descartesJS) {
      */
     this.imageDown = new Image();
 
+    this.flat = false;
+    this.borderColor = false;
+    this.text_align = "center_center";
+    this.image_align = "center_center";
+    this.font_family = "arial";
+
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
+
+    this.font_family = descartesJS.getFontName(this.font_family);
 
     this.ratio = parent.ratio;
 
     if (this.font_size === -1) {
       this.fontSizeNotSet = true;
     }
+
+    if (this.borderColor) {
+      this.borderColor = new descartesJS.Color(this.borderColor);
+    }
+    this.text_align = this.text_align.split("_");
+    this.image_align = this.image_align.split("_");
+
 
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
@@ -103,10 +119,10 @@ var descartesJS = (function(descartesJS) {
     }
 
     var tmpParam;
-    this.classContainer = "";
+    this.classContainer = (this.cssClass) ? (" " + this.cssClass+" ") : "";
     if (this.imageSrc.trim().match("^_STYLE_")) {
       this.customStyle = true;
-      this.canvasStyle = [];
+      this.btnStyle = [];
       this.conStyle = [];
       this.conStyle.textBorder = 3;
 
@@ -120,15 +136,15 @@ var descartesJS = (function(descartesJS) {
           this.classContainer = " " + tempo.substring(6);
         }
         else if (tempo.match("border=")) {
-          this.canvasStyle.push( { type: "border-style", value: "solid" } );
-          this.canvasStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
+          this.btnStyle.push( { type: "border-style", value: "solid" } );
+          this.btnStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
         }
         else if (tempo.match("borderRadius=")) {
-          this.canvasStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+          this.btnStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
           this.conStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
         }
         else if (tempo.match("borderColor=")) {
-          this.canvasStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
+          this.btnStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
         }
         else if (tempo.match("overColor=")) {
           this.conStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
@@ -246,17 +262,15 @@ var descartesJS = (function(descartesJS) {
     this.container.setAttribute("id", this.id);
     this.container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + ";");
 
-    // create the canvas and the rendering context
-    this.canvas = document.createElement("canvas");
-    this.canvas.width  = this.w *this.ratio;
-    this.canvas.height = this.h *this.ratio;
-    // this.canvas.setAttribute("width", this.w+"px");
-    // this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
-    this.ctx = this.canvas.getContext("2d");
+    // create the btn and the rendering context
+    this.btn = document.createElement("canvas");
+    this.btn.width  = this.w *this.ratio;
+    this.btn.height = this.h *this.ratio;
+    this.btn.setAttribute("style", "position:absolute; left:0; top:0; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
+    this.ctx = this.btn.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
 
-    this.container.appendChild(this.canvas);
+    this.container.appendChild(this.btn);
 
     this.addControlContainer(this.container);
 
@@ -278,7 +292,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Button.prototype.init = function(force) {
     evaluator = this.evaluator;
     container = this.container;
-    canvas = this.canvas;
+    btn = this.btn;
     ctx = this.ctx;
     expr = evaluator.eval(this.expresion);
     this.x = expr[0][0];
@@ -287,18 +301,17 @@ var descartesJS = (function(descartesJS) {
       this.w = parseInt(expr[0][2]);
       this.h = parseInt(expr[0][3]);
     }
-
     //
-    canvas.width  = this.w *this.ratio;
-    canvas.height = this.h *this.ratio;
-    canvas.setAttribute("style", "position:absolute; left:0px; top:0px; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
+    btn.width  = this.w *this.ratio;
+    btn.height = this.h *this.ratio;
+    btn.setAttribute("style", "position:absolute; left:0; top:0; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
     container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
     //
 
     //
-    if (this.canvasStyle) {
-      for (var i=0, l=this.canvasStyle.length; i<l; i++) {
-        canvas.style[this.canvasStyle[i].type] = this.canvasStyle[i].value;
+    if (this.btnStyle) {
+      for (var i=0, l=this.btnStyle.length; i<l; i++) {
+        btn.style[this.btnStyle[i].type] = this.btnStyle[i].value;
       }
     }
     if (this.conStyle) {
@@ -318,7 +331,7 @@ var descartesJS = (function(descartesJS) {
         var wShadow = this.conStyle.shadowInsetBoxOffsetY || -2;
         var blur = this.conStyle.shadowInsetBoxBlur || 1;
         var spread = 1;
-        canvas.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
+        btn.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
       }
       if (this.conStyle.shadowTextColor) {
         ctx.shadowBlur = this.conStyle.shadowTextBlur || 1;
@@ -343,18 +356,17 @@ var descartesJS = (function(descartesJS) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineJoin = "round";
-    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.sansserif_font;
+    ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
 
     if (this.customStyle) {
       if (this.conStyle.font == "serif") {
-        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.serif_font;
+        ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
       }
       else if (this.conStyle.font == "monospace") {
         ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.monospace_font;
       }
     }
     // container.setAttribute("data-color", this.colorInt.getColor());
-
     this.draw(force);
   }
 
@@ -364,7 +376,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Button.prototype.update = function() {
     evaluator = this.evaluator;
     container = this.container;
-    canvas = this.canvas;
+    btn = this.btn;
 
     // check if the control is active and visible
     this.activeIfValue = (evaluator.eval(this.activeif) > 0);
@@ -379,8 +391,7 @@ var descartesJS = (function(descartesJS) {
       this.buttonClick = false;
     }
 
-    container.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    canvas.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
+    container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
     container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
 
     // update the position and size
@@ -393,7 +404,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Button.prototype.draw = function(force) {
     container = this.container;
     evaluator = this.evaluator;
-    canvas = this.canvas;
+    btn = this.btn;
     ctx = this.ctx;
 
     name = evaluator.eval(this.name);
@@ -407,6 +418,7 @@ var descartesJS = (function(descartesJS) {
       checkDrawIf = (this.drawIfValue === this.oldDrawIfValue);
       checkName = (name === this.oldName);
       checkImageSrc = (imageSrc === this.oldImageSrc);
+      checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
 
       this.oldOver = this.over;
       this.oldButtonClick = this.buttonClick;
@@ -414,8 +426,9 @@ var descartesJS = (function(descartesJS) {
       this.oldDrawIfValue = this.drawIfValue;
       this.oldName = name;
       this.oldImageSrc = imageSrc;
+      this.oldBackColor = this.colorInt.getColor();
 
-      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc) {
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor) {
         return;
       };
     }
@@ -446,56 +459,81 @@ var descartesJS = (function(descartesJS) {
     ctx.clearRect(0, 0, this.w, this.h);
 
     // text displace when the button is pressed
-    despX = 0;
-    despY = 0;
+    despX = despY = 0;
     if (this.buttonClick) {
-      despX = 1;
-      despY = 1;
+      despX = despY = 1;
     }
 
-    _text_pos_x = MathFloor(this.w/2 + despX)-.5;
-    _text_pos_y = MathFloor(this.h/2 + despY)-.5;
+    //////////////////////////////////////////////////////////
+    // text position
+    //////////////////////////////////////////////////////////
+    // horizontal text align
+    if (this.text_align[1] == "center") {
+      _text_pos_x = MathFloor(this.w/2 + despX)-.5;
+    }
+    else if (this.text_align[1] == "left") {
+      txtW = ctx.measureText(name).width;
+      _text_pos_x = txtW/2 + 5 + despX;
+    }
+    else if (this.text_align[1] == "right") {
+      txtW = ctx.measureText(name).width;
+      _text_pos_x = this.w - txtW/2 + despX -5;
+    }
+
+    // vertical text align
+    if (this.text_align[0] == "center") {
+      _text_pos_y = MathFloor(this.h/2 + despY)-.5;
+    }
+    else if (this.text_align[0] == "top") {
+      _text_pos_y = font_size/2 + despY +4;
+    }
+    else if (this.text_align[0] == "bottom") {
+      _text_pos_y = this.h - font_size/2 + despY -3;
+    }
+
 
     //////////////////////////////////////////////////////////
-    // text at the bottom
+    // image position
+    //////////////////////////////////////////////////////////
     if (image) {
-      _i_h = image.height || 100000000;
-      _font_h = descartesJS.getFontMetrics(this.italics + " " + this.bold + " " + font_size + "px descartesJS_sansserif, Arial, Helvetica, Sans-serif").h;
-      newButtonCondition = (name != "") ? (((this.h-_i_h-_font_h-2) >=0 ) ? true : false) : false;
-
-      _image_pos_x = parseInt((this.w-image.width)/2)+despX;
-      _image_pos_y = (newButtonCondition) ? (parseInt((this.h -_font_h -image.height +2)/2)) : (parseInt((this.h-image.height)/2)+despY);
-
-      if (newButtonCondition) {
-        _text_pos_y = parseInt(this.h - _font_h/2 -2);
-
-        container.style.backgroundColor = this.colorInt.getColor();
-
-        ctx.strokeStyle = this.color.getColor();
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0.5,0.5);
-        ctx.lineTo(this.w-0.5,0.5);
-        ctx.lineTo(this.w-0.5,this.h-0.5);
-        ctx.lineTo(0.5,this.h-0.5);
-        ctx.closePath();
-        ctx.stroke();
+      // horizontal image align
+      if (this.image_align[1] == "center") {
+        _image_pos_x = parseInt((this.w-image.width)/2)+despX;
       }
+      else if (this.image_align[1] == "left") {
+        _image_pos_x = despX;
+      }
+      else if (this.image_align[1] == "right") {
+        _image_pos_x = this.w-image.width +despX;
+      }
+
+      // verticall image align
+      if (this.image_align[0] == "center") {
+        _image_pos_y = parseInt((this.h-image.height)/2)+despY;
+      }
+      else if (this.image_align[0] == "top") {
+        _image_pos_y = despY;
+      }
+      else if (this.image_align[0] == "bottom") {
+        _image_pos_y = this.h - image.height +despY;
+      }      
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // the image is ready
     if ((image) && (image.ready)) {
       if ( (image !== this.emptyImage) && (image.complete) ) {
-        // container.style.backgroundImage = "url('" + imageSrc + "')";
-        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         // check if is a gif image
         if ( imageSrc.match(gifPattern) ) {
-          this.canvas.style.backgroundRepeat = "no-repeat";
-          this.canvas.style.backgroundImage = "url('" + imageSrc + "')";
-          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+          this.btn.style.backgroundRepeat = "no-repeat";
+          this.btn.style.backgroundImage = "url('" + imageSrc + "')";
+          this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
+          // se dibuja el fondo, incluso con la imagen
+          if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
+            container.style.backgroundColor = this.colorInt.getColor();
+          }
           ctx.drawImage(image, _image_pos_x, _image_pos_y);
         }
       }
@@ -507,28 +545,26 @@ var descartesJS = (function(descartesJS) {
     else {
       container.style.backgroundColor = this.colorInt.getColor();
 
-      if (!this.buttonClick) {
-        // descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,"+(0x80/255)+")");
-        // descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,"+(0x18/255)+")");
-        // descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,"+(0x08/255)+")");
-        descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
-        descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
-        descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
-      }
+      // add the gradient and border when not flat
+      if (!this.flat) {
+        if (!this.buttonClick) {
+          descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
+          descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
+          descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
+        }
 
-      ctx.fillStyle = this.linearGradient;
-      ctx.fillRect(0, 0, this.w, this.h);
+        ctx.fillStyle = this.linearGradient;
+        ctx.fillRect(0, 0, this.w, this.h);
+      }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
     // over image
     if (this.activeIfValue) {
       if ( (imageOver !== this.emptyImage) && (this.over) && (imageOver.ready) && (imageOver.complete) ) {
-        // container.style.backgroundImage = "url('" + imageOverSrc + "')";
-        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         if ( imageOverSrc.match(gifPattern) ) {
-          this.canvas.style.backgroundImage = "url('" + imageOverSrc + "')";
-          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+          this.btn.style.backgroundImage = "url('" + imageOverSrc + "')";
+          this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
           ctx.drawImage(imageOver, _image_pos_x, _image_pos_y);
@@ -546,8 +582,8 @@ var descartesJS = (function(descartesJS) {
         // container.style.backgroundImage = "url('" + imageDownSrc + "')";
         // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         if ( imageDownSrc.match(gifPattern) ) {
-          this.canvas.style.backgroundImage = "url('" + imageDownSrc + "')";
-          this.canvas.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+          this.btn.style.backgroundImage = "url('" + imageDownSrc + "')";
+          this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
           ctx.drawImage(imageDown, _image_pos_x, _image_pos_y);
@@ -576,9 +612,14 @@ var descartesJS = (function(descartesJS) {
     }
 
     // text border
-    if ( (!newButtonCondition) && (!this.conStyle) && (this.drawTextBorder()) ) {
-      ctx.lineWidth = parseInt(font_size/6);
-      ctx.strokeStyle = this.colorInt.getColor();
+    // if ( (!newButtonCondition) && (!this.conStyle) && (this.drawTextBorder()) ) {
+    //   ctx.lineWidth = parseInt(font_size/6);
+    //   ctx.strokeStyle = this.colorInt.getColor();
+    //   ctx.strokeText(name, _text_pos_x, _text_pos_y);
+    // }
+    if ( this.borderColor ) {
+      ctx.lineWidth = parseInt(font_size/7);
+      ctx.strokeStyle = this.borderColor.getColor();
       ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
 
@@ -595,8 +636,8 @@ var descartesJS = (function(descartesJS) {
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      ctx.moveTo( parseInt((this.w-txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
-      ctx.lineTo( parseInt((this.w+txtW)/2) + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
+      ctx.moveTo( _text_pos_x -txtW/2 + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
+      ctx.lineTo( _text_pos_x +txtW/2 + despX, _text_pos_y + MathFloor(font_size/2) + MathFloor(font_size/5) - 1.5 );
       ctx.stroke();
     }
 
@@ -606,7 +647,6 @@ var descartesJS = (function(descartesJS) {
         container.style.backgroundColor = this.conStyle.inactiveColor;
       }
       else {
-        // ctx.fillStyle = "rgba(" + 0xf0 + "," + 0xf0 + "," + 0xf0 + "," + (0xa0/255) + ")";
         ctx.fillStyle = "rgba(240,240,240,0.6)";
         ctx.fillRect(0, 0, this.w, this.h);
       }
@@ -641,12 +681,12 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Button.prototype.addEvents = function() {
-    hasTouchSupport = descartesJS.hasTouchSupport;
+    // hasTouchSupport = descartesJS.hasTouchSupport;
     var self = this;
     var timer;
 
     // prevent the context menu display
-    self.canvas.oncontextmenu = function () { return false; };
+    self.btn.oncontextmenu = function () { return false; };
 
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -668,13 +708,10 @@ var descartesJS = (function(descartesJS) {
     this.buttonClick = false;
     this.over = false;
 
-    // if (hasTouchSupport) {
-      this.canvas.addEventListener("touchstart", onMouseDown);
-    // } else {
-      this.canvas.addEventListener("mousedown", onMouseDown);
-      this.canvas.addEventListener("mouseover", onMouseOver);
-      this.canvas.addEventListener("mouseout", onMouseOut);
-    // }
+    this.btn.addEventListener("touchstart", onMouseDown);
+    this.btn.addEventListener("mousedown", onMouseDown);
+    this.btn.addEventListener("mouseover", onMouseOver);
+    this.btn.addEventListener("mouseout", onMouseOut);
 
     /**
      *
@@ -708,14 +745,10 @@ var descartesJS = (function(descartesJS) {
             repeat(delay, self.buttonPressed, true);
           }
 
-          // if (hasTouchSupport) {
-            self.canvas.removeEventListener("touchend", onMouseUp);
-            self.canvas.addEventListener("touchend", onMouseUp);
-          // }
-          // else {
-            self.canvas.removeEventListener("mouseup", onMouseUp);
-            self.canvas.addEventListener("mouseup", onMouseUp);
-          // }
+          self.btn.removeEventListener("touchend", onMouseUp);
+          self.btn.addEventListener("touchend", onMouseUp);
+          self.btn.removeEventListener("mouseup", onMouseUp);
+          self.btn.addEventListener("mouseup", onMouseUp);
         }
       }
     }
@@ -726,6 +759,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseUp(evt) {
+      // needed for the save action
+      descartesJS.newBlobContent = null;
+
       // remove the focus of the controls
       // document.body.focus();
       this.focus();
@@ -743,12 +779,8 @@ var descartesJS = (function(descartesJS) {
           self.buttonPressed();
         }
 
-        // if (hasTouchSupport) {
-          self.canvas.removeEventListener("touchend", onMouseUp);
-        // }
-        // else {
-          self.canvas.removeEventListener("mouseup", onMouseUp);
-        // }
+        self.btn.removeEventListener("touchend", onMouseUp);
+        self.btn.removeEventListener("mouseup", onMouseUp);
       }
       // espero que no haya errores
       self.parent.update();
@@ -773,6 +805,9 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     function onMouseOut(evt) {
+      // needed for the save action
+      descartesJS.newBlobContent = null;
+      
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -785,6 +820,8 @@ var descartesJS = (function(descartesJS) {
      *
      */
     document.addEventListener("visibilitychange", function(evt) {
+      // needed for the save action
+      descartesJS.newBlobContent = null;
       self.buttonClick = false;
     });
 

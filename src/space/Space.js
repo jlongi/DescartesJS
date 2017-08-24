@@ -32,113 +32,114 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the graphic
    */
   descartesJS.Space = function(parent, values) {
+    var self = this;
     /**
      * Descartes application
      * type {DescartesApp}
      * @private
      */
-    this.parent = parent;
+    self.parent = parent;
 
     /**
      * object for parse and evaluate expressions
      * type {Evaluator}
      * @private
      */
-    this.evaluator = this.parent.evaluator;
+    self.evaluator = self.parent.evaluator;
 
-    evaluator = this.evaluator;
+    evaluator = self.evaluator;
     parser = evaluator.parser;
 
     /**
      * identifier
      * type {String}
      */
-    this.id = "";
+    self.id = "";
 
     /**
      * initial values
      * type {String}
      * @private
      */
-    this.values = values;
+    self.values = values;
 
     /**
      * type
      * type {String}
      * @private
      */
-    this.type = "R2";
+    self.type = "R2";
 
     /**
      * x position
      * type {Node}
      * @private
      */
-    this.xExpr = parser.parse("0");
+    self.xExpr = parser.parse("0");
 
     /**
      * y position
      * type {Node}
      * @private
      */
-    this.yExpr = parser.parse("0");
+    self.yExpr = parser.parse("0");
 
     /**
      * width
      * type {Number}
      * @private
      */
-    this.w = parseInt(parent.container.width);
+    self.w = parseInt(parent.container.width);
 
     /**
      * height
      * type {Number}
      * @private
      */
-    this.h = parseInt(parent.container.height);
+    self.h = parseInt(parent.container.height);
 
     /**
      * drawif condition
      * type {Node}
      * @private
      */
-    this.drawif = parser.parse("1");
+    self.drawif = parser.parse("1");
 
     /**
      * fixed space condition
      * type {Boolean}
      * @private
      */
-    this.fixed = (parent.version == 2);
+    self.fixed = (parent.version === 2);
 
     /**
      * scale
      * type {Number}
      * @private
      */
-    this.scale = 48;
+    self.scale = 48;
 
     /**
      * displacement x of the origin
      * type {Number}
      * @private
      */
-    this.Ox = 0;
+    self.Ox = 0;
 
     /**
      * displacement y of the origin
      * type {Number}
      * @private
      */
-    this.Oy = 0;
+    self.Oy = 0;
 
     /**
      * background image
      * type {Image}
      * @private
      */
-    this.image = new Image();
-    this.image.onload = function() {
+    self.image = new Image();
+    self.image.onload = function() {
       this.ready = 1;
     }
 
@@ -147,229 +148,227 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.imageSrc = "";
+    self.imageSrc = "";
 
     /**
      * how the background image is positioned
      * type {String}
      * @private
      */
-    this.bg_display = "topleft";
+    self.bg_display = "topleft";
 
     /**
      * background color
      * type {String}
      * @private
      */
-    this.background = new descartesJS.Color( ((/DescartesJS.class/i).test(parent.code) || (parent.arquimedes)) ? "f0f8fa" : "ffffff" );
+    self.background = new descartesJS.Color( ((/DescartesJS.class/i).test(parent.code) || (parent.arquimedes)) ? "f0f8fa" : "ffffff" );
 
     /**
      * net condition and color
      * type {String}
      * @private
      */
-    this.net = (parent.version != 2) ? new descartesJS.Color("c0c0c0") : "";
+    self.net = (parent.version != 2) ? new descartesJS.Color("c0c0c0") : "";
 
     /**
      * net 10 condition and color
      * type {String}
      * @private
      */
-    this.net10 = (parent.version != 2) ? new descartesJS.Color("808080") : "";
+    self.net10 = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * axes condition and color
      * type {String}
      * @private
      */
-    // ## parche para descartes 2 ## //
-    this.axes = (parent.version != 2) ? new descartesJS.Color("808080") : "";
+    self.axes = (parent.version != 2) ? new descartesJS.Color("808080") : "";
 
     /**
      * coordinate text condition and color
      * type {String}
      * @private
      */
-    this.text = new descartesJS.Color("ffafaf");
+    self.text = new descartesJS.Color("ffafaf");
 
     /**
      * condition to draw the axis numbers
      * type {Boolean}
      * @private
      */
-    this.numbers = false;
+    self.numbers = false;
 
     /**
      * x axis text
      * type {String}
      * @private
      */
-    this.x_axis = (parent.version != 2) ? "" : " ";
+    self.x_axis = (parent.version != 2) ? "" : " ";
 
     /**
      * y axis text
      * type {String}
      * @private
      */
-    this.y_axis = this.x_axis;
+    self.y_axis = self.x_axis;
 
     /**
      * sensitive to mose movements condition
      * type {Boolean}
      * @private
      */
-    this.sensitive_to_mouse_movements = false;
+    self.sensitive_to_mouse_movements = false;
 
     /**
      * component identifier (rtf text positioning)
      * type {String}
      * @private
      */
-    this.cID = ""
+    self.cID = ""
 
     /**
      * mouse x position
      * type {Number}
      * @private
      */
-    this.mouse_x = 0;
+    self.mouse_x = 0;
 
     /**
      * mouse y position
      * type {Number}
      * @private
      */
-    this.mouse_y = 0;
+    self.mouse_y = 0;
 
     /**
      * the controls
      * type {Array<Controls>}
      * @private
      */
-    this.ctrs = [];
+    self.ctrs = [];
 
     /**
      * the graphic controls
      * type {Array<Controls>}
      * @private
      */
-    this.graphicsCtr = [];
+    self.graphicsCtr = [];
 
     /**
      * the graphics
      * type {Array<Graphics>}
      * @private
      */
-    this.graphics = [];
+    self.graphics = [];
 
     /**
      * the background graphics
      * type {Array<Graphics>}
      * @private
      */
-    this.backGraphics = [];
+    self.backGraphics = [];
 
     /**
      * z index of the elements
      * @type {Number}
      * @private
      */
-    this.zIndex = parent.zIndex;
+    self.zIndex = parent.zIndex;
 
-    this.plecaHeight = parent.plecaHeight || 0;
-    this.displaceRegionNorth = parent.displaceRegionNorth || 0;
-    this.displaceRegionWest = parent.displaceRegionWest || 0;
+    self.plecaHeight = parent.plecaHeight || 0;
+    self.displaceRegionNorth = parent.displaceRegionNorth || 0;
+    self.displaceRegionWest = parent.displaceRegionWest || 0;
 
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
       // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
-        this[propName] = values[propName];
+        self[propName] = values[propName];
       }
     }
 
-    this.init();
+    self.init();
   }
 
   /**
    * Init the values of the space
    */
   descartesJS.Space.prototype.init = function() {
-    parent = this.parent;
-    evaluator = this.evaluator;
-    thisID = this.id;
+    var self = this;
 
-    this.displaceRegionNorth = parent.displaceRegionNorth || 0;
-    this.displaceRegionSouth = parent.displaceRegionSouth || 0;
-    this.displaceRegionEast = parent.displaceRegionEast || 0;
-    this.displaceRegionWest = parent.displaceRegionWest || 0;
+    parent = self.parent;
+    evaluator = self.evaluator;
+    thisID = self.id;
 
-    parentW = parseInt(parent.container.width);
-    parentH = parseInt(parent.container.height);
+    if (!self.resizable) {
+      self.displaceRegionNorth = parent.displaceRegionNorth || 0;
+      self.displaceRegionSouth = parent.displaceRegionSouth || 0;
+      self.displaceRegionEast = parent.displaceRegionEast || 0;
+      self.displaceRegionWest = parent.displaceRegionWest || 0;
 
-    if (this.wExpr != undefined) {
-      this.w = parseInt(parentW - this.displaceRegionWest - this.displaceRegionEast)*parseFloat(this.wExpr)/100;
-    }
-    if (this.hExpr != undefined) {
-      this.h = parseInt(parentH - this.displaceRegionNorth - this.displaceRegionSouth)*parseFloat(this.hExpr)/100;
-    }
+      parentW = parseInt(parent.container.width);
+      parentH = parseInt(parent.container.height);
 
-    // get the x and y position
-    if (this.xPercentExpr != undefined) {
-      this.xExpr = evaluator.parser.parse((parseInt(parentW - this.displaceRegionWest - this.displaceRegionEast)*parseFloat(this.xPercentExpr)/100).toString());
-    }
-    if (this.yPercentExpr != undefined) {
-      this.yExpr = evaluator.parser.parse((parseInt(parentH - this.displaceRegionNorth - this.displaceRegionSouth)*parseFloat(this.yPercentExpr)/100).toString());
-    }
-
-    this.x = evaluator.eval(this.xExpr) + this.displaceRegionWest;
-    this.y = evaluator.eval(this.yExpr) + this.plecaHeight + this.displaceRegionNorth;
-
-    // if the container exist then modify it's x and y position
-    if (this.container) {
-      this.container.style.left = this.x + "px";
-      this.container.style.top = this.y + "px";
-    }
-
-    if (this.y >=0) {
-      newH = parentH - this.y;
-      if (this.h > newH) {
-        this.h = newH;
+      // percentage dimensions
+      if (self.wExpr != undefined) {
+        self.w = parseInt(parentW - self.displaceRegionWest - self.displaceRegionEast)*parseFloat(self.wExpr)/100;
       }
-    } else {
-      newH = this.h + this.y;
-      if (newH >= parentH) {
-        this.h = parentH;
-      } else {
-        this.h = newH;
+      if (self.hExpr != undefined) {
+        self.h = parseInt(parentH - self.displaceRegionNorth - self.displaceRegionSouth)*parseFloat(self.hExpr)/100;
       }
-    }
 
-    if (this.x >=0) {
-      newW = parentW - this.x;
-      if (this.w > newW) {
-        this.w = newW;
+      // get the x and y position
+      if (self.xPercentExpr != undefined) {
+        self.xExpr = evaluator.parser.parse((parseInt(parentW - self.displaceRegionWest - this.displaceRegionEast)*parseFloat(self.xPercentExpr)/100).toString());
       }
-    } else {
-      newW = this.w + this.x;
-      if (newW >= parentW) {
-        this.w = parentW;
-      } else {
-        this.w = newW;
+      if (self.yPercentExpr != undefined) {
+        self.yExpr = evaluator.parser.parse((parseInt(parentH - self.displaceRegionNorth - self.displaceRegionSouth)*parseFloat(self.yPercentExpr)/100).toString());
+      }
+
+      self.x = evaluator.eval(self.xExpr) + self.displaceRegionWest;
+      self.y = evaluator.eval(self.yExpr) + self.plecaHeight + self.displaceRegionNorth;
+
+      // if the container exist then modify it's x and y position
+      if (self.container) {
+        self.container.style.left = self.x + "px";
+        self.container.style.top  = self.y + "px";
+      }
+
+      if (self.y >= 0) {
+        newH = parentH - self.y;
+        if (self.h > newH) {
+          self.h = newH;
+        }
+      } 
+      else {
+        newH = self.h + self.y;
+        self.h = (newH >= parentH) ? parentH : newH;
+      }
+
+      if (self.x >= 0) {
+        newW = parentW - self.x;
+        if (self.w > newW) {
+          self.w = newW;
+        }
+      } 
+      else {
+        newW = self.w + self.x;
+        self.w = (newW >= parentW) ? parentW : newW;
       }
     }
 
     // if the space has a background image then get the image from the loader
-    if ( (this.imageSrc != "") || !(/vacio.gif$/i).test(this.imageSrc.trim()) ) {
-      this.image = parent.getImage(this.imageSrc);
+    if ( (self.imageSrc != "") || !(/vacio.gif$/i).test(self.imageSrc.trim()) ) {
+      self.image = parent.getImage(self.imageSrc);
     }
 
     // Ox
     // if specified with a percentage
-    if (this.OxExpr) {
-      OxExpr = this.OxExpr;
+    if (self.OxExpr) {
+      OxExpr = self.OxExpr;
       if (OxExpr[OxExpr.length-1] === "%") {
-        this.Ox = this.w*parseFloat(OxExpr)/100;
+        self.Ox = self.w*parseFloat(OxExpr)/100;
       }
       // if not specified with a percentage
       else {
@@ -379,16 +378,16 @@ var descartesJS = (function(descartesJS) {
         if (temp != OxExpr) {
           temp = 0;
         }
-        this.Ox = temp;
+        self.Ox = temp;
       }
     }
 
     // Oy
     // if specified with a percentage
-    if (this.OyExpr) {
-      OyExpr = this.OyExpr;
+    if (self.OyExpr) {
+      OyExpr = self.OyExpr;
       if (OyExpr[OyExpr.length-1] === "%") {
-        this.Oy = this.h*parseFloat(OyExpr)/100;
+        self.Oy = self.h*parseFloat(OyExpr)/100;
       }
       // if not specified with a percentage
       else {
@@ -398,18 +397,18 @@ var descartesJS = (function(descartesJS) {
         if (temp != OyExpr) {
           temp = 0;
         }
-        this.Oy = temp;
+        self.Oy = temp;
       }
     }
 
     // register the space variables
     // ## Descartes 2 patch ## //
-    if ((this.id !== "") && (parent.version !== 2)) {
-      evaluator.setVariable(thisID + "._w", this.w);
-      evaluator.setVariable(thisID + "._h", this.h);
-      evaluator.setVariable(thisID + ".escala", this.scale);
-      evaluator.setVariable(thisID + ".Ox", this.Ox);
-      evaluator.setVariable(thisID + ".Oy", this.Oy);
+    if ((self.id !== "") && (parent.version !== 2)) {
+      evaluator.setVariable(thisID + "._w", self.w);
+      evaluator.setVariable(thisID + "._h", self.h);
+      evaluator.setVariable(thisID + ".escala", self.scale);
+      evaluator.setVariable(thisID + ".Ox", self.Ox);
+      evaluator.setVariable(thisID + ".Oy", self.Oy);
       evaluator.setVariable(thisID + ".mouse_x", 0);
       evaluator.setVariable(thisID + ".mouse_y", 0);
       evaluator.setVariable(thisID + ".mouse_pressed", 0);
@@ -418,23 +417,23 @@ var descartesJS = (function(descartesJS) {
     }
     else {
       temp = evaluator.getVariable("_w");
-      if (temp === undefined) { temp = this.w; };
+      if (temp === undefined) { temp = self.w; };
       evaluator.setVariable("_w", temp);
 
       temp = evaluator.getVariable("_h");
-      if (temp === undefined) { temp = this.h; };
+      if (temp === undefined) { temp = self.h; };
       evaluator.setVariable("_h", temp);
 
       temp = evaluator.getVariable("escala");
-      if (temp === undefined) { temp = this.scale; };
+      if (temp === undefined) { temp = self.scale; };
       evaluator.setVariable("escala", temp);
 
       temp = evaluator.getVariable("Ox");
-      if (temp === undefined) { temp = this.Ox; };
+      if (temp === undefined) { temp = self.Ox; };
       evaluator.setVariable("Ox", temp);
 
       temp = evaluator.getVariable("Oy");
-      if (temp === undefined) { temp = this.Oy; };
+      if (temp === undefined) { temp = self.Oy; };
       evaluator.setVariable("Oy", temp);
 
       evaluator.setVariable("mouse_x", 0);
@@ -443,13 +442,13 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable("mouse_clicked", 0);
       evaluator.setVariable("clic_izquierdo", 0);
 
-      if ((parent.version == 2) && (this.x_axis === "") && (this.y_axis === "")) {
-        this.axes = "";
+      if ((parent.version == 2) && (self.x_axis === "") && (self.y_axis === "")) {
+        self.axes = "";
       }
     }
 
-    this.w_2 = this.w/2;
-    this.h_2 = this.h/2;
+    self.w_2 = self.w/2;
+    self.h_2 = self.h/2;
   }
 
   /**
@@ -498,7 +497,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the X axis
    */
   descartesJS.Space.prototype.getRelativeX = function(x) {
-    return (parseInt(x) - this.w_2 - this.Ox)/this.scale;
+    return ((x >> 0) - this.w_2 - this.Ox)/this.scale;
   }
 
   /**
@@ -507,7 +506,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the Y axis
    */
   descartesJS.Space.prototype.getRelativeY = function(y) {
-    return (-parseInt(y) + this.h_2 + this.Oy)/this.scale;
+    return (-(y >> 0) + this.h_2 + this.Oy)/this.scale;
   }
 
   /**

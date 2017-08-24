@@ -26,7 +26,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /**
    */
   descartesJS.Parser.prototype.setDefinition = function(name, value) {
@@ -35,7 +34,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Parser.prototype.getDefinition = function(name) {
     return this.definitions[name];
   }
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
    * Set the value to a variable
@@ -195,7 +193,7 @@ var descartesJS = (function(descartesJS) {
         else {
           var scrollable = tokens_i_value.match(/(\w*)\.mouse_x|(\w*)\.mouse_y|(\w*)\.mouse_pressed|(\w*)\.mouse_clicked|(\w*)\.clic_izquierdo/);
           if (scrollable) {
-            this.variables[scrollable[1] + ".DESCARTESJS_no_fixed"] = 1;
+            this.variables[(scrollable[1] || scrollable[2] || scrollable[3] || scrollable[4] || scrollable[5]) + ".DESCARTESJS_no_fixed"] = 1;
           }
 
           this.getVariable(tokens_i_value, true);
@@ -261,7 +259,7 @@ var descartesJS = (function(descartesJS) {
 
         // do not have last element
         else {
-          console.log("Error1: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error1: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -345,7 +343,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.log("Error2: en la expresion <<" + input + ">>, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error2: en la expresion 《 " + input + " 》, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -361,7 +359,7 @@ var descartesJS = (function(descartesJS) {
 
         // the first element of the tree
         if (lastNode === null) {
-          console.log("Error3: en la expresion <<" + input + ">>, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+          console.info("Error3: en la expresion 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
 
         // the tree has some element
@@ -378,7 +376,7 @@ var descartesJS = (function(descartesJS) {
 
           // if not find the parentheses match
           else {
-            console.log("Error4: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            // console.info("Error4: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -394,7 +392,7 @@ var descartesJS = (function(descartesJS) {
 
         // the first element of the tree
         if (lastNode === null) {
-          console.log("Error5: en la expresion <<" + input + ">>, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+          console.info("Error5: en la expresion 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
 
         // the tree has some element
@@ -411,7 +409,7 @@ var descartesJS = (function(descartesJS) {
 
           // if not find the square brackets
           else {
-            console.log("Error6: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error6: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -448,7 +446,8 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.log("Error7: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, input);
+            // console.info("Error7: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -481,7 +480,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.log("Error8: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");  //throw("Error: no se puede iniciar una expresion con un operador <<" + input + ">>")
+            console.info("Error8: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");  //throw("Error: no se puede iniciar una expresion con un operador 《 " + input + " 》")
             break;
           }
         }
@@ -523,7 +522,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.log("Error9: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error9: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -576,7 +575,7 @@ var descartesJS = (function(descartesJS) {
 
             // if can not find the ?
             else {
-              console.log("Error10: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              console.info("Error10: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
               break;
             }
           }
@@ -584,7 +583,7 @@ var descartesJS = (function(descartesJS) {
 
         // last element do not exist
         else {
-          console.log("Error11: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error11: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -607,7 +606,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         else {
-          console.log("Error12: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error12: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -615,27 +614,28 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      console.log("Error13: en la expresion <<" + input + ">>, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+      console.info("Error13: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
       break;
     }
 
     // missing or too many parentheses or square brackets
     if (openParentesis > 0) {
-      alert("Error, faltan parentesis por cerrar: " + input);
+      descartesJS.DEBUG.setError(descartesJS.DEBUG.PARENTHESIS_CLOSING, input);
     }
     if (openParentesis < 0) {
-      alert("Error, faltan parentesis por abrir: " + input);
+      descartesJS.DEBUG.setError(descartesJS.DEBUG.PARENTHESIS_OPENING, input);
     }
 
     if (openSquareBracket > 0) {
-      alert("Error, faltan corchetes por cerrar: " + input);
+      descartesJS.DEBUG.setError(descartesJS.DEBUG.BRACKET_CLOSING, input);
     }
     if (openSquareBracket < 0) {
-      alert("Error, faltan corchetes por abrir: " + input);
+      descartesJS.DEBUG.setError(descartesJS.DEBUG.BRACKET_OPENING, input);
     }
+    
     // miss the second term of the conditional
     if (openConditional !=0) {
-      alert("Error, condicional incompleta: " + input);
+      descartesJS.DEBUG.setError(descartesJS.DEBUG.INCOMPLETE_IF, input);
     }
 
     root = (lastNode) ? lastNode.getRoot() : null;
@@ -725,7 +725,7 @@ var descartesJS = (function(descartesJS) {
     self.functions["atan"]  = Math.atan;
     self.functions["min"]   = Math.min;
     self.functions["max"]   = Math.max;
-    self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.log.apply(console, arguments); return 0; }; //function(x) { console.log(x); return 0; };
+    self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.info.apply(console, arguments); return 0; };
     self.functions["_Num_"] = function(x) {
       if (typeof(x) == "number") {
         return "NaN";
@@ -737,7 +737,6 @@ var descartesJS = (function(descartesJS) {
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // function for the dialog
     self.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
     self.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
     self.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
@@ -818,13 +817,29 @@ var descartesJS = (function(descartesJS) {
     self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
       return ((str || "").toString()).indexOf( (word || "").toString() );
     };
+    /**
+     *
+     */
+    self.functions["_replace_"] = self.functions["_reemplazar_"] = function(str, strTo, strWith) {
+      str = (str || "").toString();
+      strTo = (strTo || "").toString();
+      strWith = (strWith || "").toString();
+
+      var index = str.indexOf(strTo);
+      while (index >= 0) {
+        str = str.substring(0, index) + strWith + str.substring(index+strTo.length);
+        index = str.indexOf(strTo);
+      }
+      
+      return str;
+    };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // read external values
     /**
      *
      */
-    this.functions["_Load_"] = function(file) {
+    self.functions["_Load_"] = function(file) {
       var response = "";
       if (file) {
         var fileElement = document.getElementById(file);
@@ -835,29 +850,25 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_GetValues_"] = function(file, name) {
-      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
-
-      return this.functions._ExecBlock_(response, name);
+    self.functions["_GetValues_"] = function(file, name) {
+      return self.functions._ExecBlock_(self.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166")), name);
     };
     /**
      *
      */
-    this.functions["_GetMatrix_"] = function(file, name) {
-      var response = this.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166"));
-
-      return this.functions._StrToMatrix_(response, name);
+    self.functions["_GetMatrix_"] = function(file, name) {
+      return self.functions._StrToMatrix_(self.functions._Load_(file).replace(/&brvbar;/g, String.fromCharCode("166")), name);
     };
     /**
      *
      */
-    this.functions["_MatrixToStr_"] = function(Mstr) {
-      var M = this.matrices[Mstr];
+    self.functions["_MatrixToStr_"] = function(Mstr) {
+      var M = self.matrices[Mstr];
       if (M) {
         var strM = "<" + Mstr + ">\\n";
 
-        var l = this.getVariable(Mstr + ".columnas_usadas") || M.rows || 0;
-        var k = this.getVariable(Mstr + ".filas_usadas")    || M.cols || 0;
+        var l = self.getVariable(Mstr + ".columnas_usadas") || M.cols || 0;
+        var k = self.getVariable(Mstr + ".filas_usadas")    || M.rows || 0;
         var _val;
 
         for (var i=0; i<l; i++) {
@@ -868,6 +879,9 @@ var descartesJS = (function(descartesJS) {
               if (typeof(_val) == "string") {
                 _val = "'" + _val + "'";
               }
+              else if (typeof(_val) == "number") {
+                _val = descartesJS.removeNeedlessDecimals(_val.toFixed(6));
+              }
 
               strM += _val + ((j<k-1)? (" \u00A6 ") : "");
             }
@@ -875,10 +889,8 @@ var descartesJS = (function(descartesJS) {
           // remove the last pipe if any
           strM = strM.replace(/(\u00A6 )$/g, "") + "\\n";
         }
-
-        strM += "</" + Mstr + ">";
-
-        return strM;
+        
+        return strM + "</" + Mstr + ">";
       }
       else {
         return "";
@@ -887,7 +899,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_StrToMatrix_"] = function(response, name) {
+    self.functions["_StrToMatrix_"] = function(response, name) {
       var values = [];
       var storeValues = false;
       values.type = "matrix";
@@ -938,20 +950,19 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_GetVector_"] = function(file, name) {
-      var response = this.functions._Load_(file);
-      return this.functions._StrToVector_(response, name);
+    self.functions["_GetVector_"] = function(file, name) {
+      return self.functions._StrToVector_(self.functions._Load_(file), name);
     }
     /**
      *
      */
-    this.functions["_VectorToStr_"] = function(Vstr) {
-      var V = this.vectors[Vstr];
+    self.functions["_VectorToStr_"] = function(Vstr) {
+      var V = self.vectors[Vstr];
 
       if (V) {
         var strV = "<" + Vstr + ">\\n";
 
-        var l = this.getVariable(Vstr + ".long_usada") || V._size_ || 0;
+        var l = self.getVariable(Vstr + ".long_usada") || V._size_ || 0;
         var _val;
 
         for (var i=0; i<l; i++) {
@@ -969,9 +980,7 @@ var descartesJS = (function(descartesJS) {
           }
         }
 
-        strV += "</" + Vstr + ">";
-
-        return strV;
+        return strV + "</" + Vstr + ">";
       }
       else {
         return "";
@@ -980,7 +989,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_StrToVector_"] = function(response, name) {
+    self.functions["_StrToVector_"] = function(response, name) {
       var values = [];
       var storeValues = false;
       values.type = "vector";
@@ -1020,13 +1029,13 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_ExecStr_"] = function(response) {
-      return this.functions._ExecBlock_(response, "");
+    self.functions["_ExecStr_"] = function(response) {
+      return self.functions._ExecBlock_(response, "");
     }
     /**
      *
      */
-    this.functions["_ExecBlock_"] = function(response, name) {
+    self.functions["_ExecBlock_"] = function(response, name) {
       var values = [];
       var storeValues = (name == "");
       var tmpValue;
@@ -1091,33 +1100,35 @@ var descartesJS = (function(descartesJS) {
     var anchor = document.createElement("a");
     anchor.setAttribute("target", "_blank");
     var blob;
-    var lastDownload = null;
+    var blobContent = null;
+    descartesJS.newBlobContent = null;
     /**
      *
      */
-    this.functions["_Save_"] = function(filename, data) {
+    self.functions["_Save_"] = function(filename, data) {
       document.body.appendChild(anchor);
-      blob = new Blob(["\ufeff", data.replace(/\\n/g, "\n").replace(/\\q/g, "'").replace(/\\r/g, "").replace(/\\_/g, "\\")], {type:"text/plain"});
+      blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
 
-      anchor.setAttribute("download", filename);
+      blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
       anchor.setAttribute("href", window.URL.createObjectURL(blob));
-      if (lastDownload == null) {
+      anchor.setAttribute("download", filename);
+      // anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(blobContent))
+
+      if (blobContent != descartesJS.newBlobContent) {
         anchor.click();
-        lastDownload = true;
-        descartesJS.setTimeout(function() {
-          lastDownload = null;
-        }, 1000);
+        descartesJS.newBlobContent = blobContent;
       }
 
       document.body.removeChild(anchor);
 
       return 0;
     };
+    // window.addEventListener("visibilitychange", function(evt) { descartesJS.newBlobContent = null; });
+    // window.addEventListener("blur", function(evt) { descartesJS.newBlobContent = null; });
 
     var files;
     var reader;
-    var _varname;
-    var _callback;
+
     var input = document.createElement("input");
     input.setAttribute("type", "file");
 
@@ -1129,19 +1140,20 @@ var descartesJS = (function(descartesJS) {
        * read the content of the file
        */
       reader.onload = function(evt) {
-        descartesJS.addExternalFileContent(files[0].name, evt.target.result)
+        descartesJS.addExternalFileContent(files[0].name, evt.target.result);
 
-        self.setVariable(_varname, files[0].name);
+        self.setVariable("DJS.fileName", files[0].name);
+        self.setVariable("DJS.fileContent", evt.target.result);
 
-        if (self.getFunction(_callback)) {
-          self.getFunction(_callback).apply(self.evaluator, []);
+        if (self.getFunction(self._callback)) {
+          self.getFunction(self._callback).apply(self.evaluator, []);
           self.evaluator.parent.update();
         }
+        // clean the input
+        input.value = "";
       }
 
       if (files.length >0) {
-        // no deberia, pero parece que los archivos estan en ISO-8859-1
-        // reader.readAsText(files[0], "ISO-8859-1");
         reader.readAsText(files[0]);
       }
     }
@@ -1150,93 +1162,30 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    this.functions["_Open_"] = function(varname, callback) {
-      _varname = varname;
-      _callback = callback;
-
+    self.functions["_Open_"] = function(callback) {
+      self._callback = callback;
       input.click();
 
       return 0;
     }
 
-    // /**
-    //  *
-    //  */
-    // this.functions["_SaveState_"] = function() {
-    //   this.functions._Save_("state.txt", JSON.stringify( { variables: this.variables, vectors: this.vectors, matrices: this.matrices } ) );
-    //   return 0;
-    // }
-
-    var files2;
-    var reader2;
-    var input2 = document.createElement("input");
-    input2.setAttribute("type", "file");
-
-    /**
-     *
-     */
-    function copyNewValues(oldVal, newVal) {
-      // traverse the values to replace the defaults values of the object
-      for (var propName in newVal) {
-        // verify the own properties of the object
-        if (newVal.hasOwnProperty(propName)) {
-          oldVal[propName] = newVal[propName];
-        }
-      }
-    }
-
-    /**
-     *
-     */
-    onHandleFileSelect2 = function(evt) {
-      evt.stopPropagation();
-      evt.preventDefault();
-
-      files2 = evt.target.files;
-
-      reader2 = new FileReader();
-      /**
-       * read the content of the file
-       */
-      reader2.onload = function(evt) {
-        var jsonParse = {};
-        try {
-          jsonParse = JSON.parse(evt.target.result);
-        }
-        catch(e) { };
-
-        if (jsonParse.variables) {
-          copyNewValues(self.variables, jsonParse.variables);
-        }
-        if (jsonParse.vectors) {
-          copyNewValues(self.vectors, jsonParse.vectors);
-        }
-        if (jsonParse.matrices) {
-          copyNewValues(self.matrices, jsonParse.matrices);
-        }
-
-        self.evaluator.parent.update();
-      }
-
-      if (files2.length >0) {
-        reader2.readAsText(files2[0]);
-      }
-    }
-    input2.removeEventListener("change", onHandleFileSelect2);
-    input2.addEventListener("change", onHandleFileSelect2);
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /**
      *
      */
-    this.functions["_AnchoDeCadena_"] = this.functions["_strWidth_"] = function(str, font, style, size) {
+    self.functions["_AnchoDeCadena_"] = self.functions["_strWidth_"] = function(str, font, style, size) {
       return descartesJS.getTextWidth(str, descartesJS.convertFont(font + "," + style + "," + size))
     }
 
-    this.functions["_Rojo_"]  = this.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
-    this.functions["_Verde_"] = this.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
-    this.functions["_Azul_"]  = this.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
+    self.functions["_Rojo_"]  = self.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
+    self.functions["_Verde_"] = self.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
+    self.functions["_Azul_"]  = self.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
 
+    self.functions["DJS.typeof"] = function(o) {
+      if (o.rows) { return "matrix"; }
+      if (o._size_) { return "vector"; }
+      return typeof(o);
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
 
@@ -1245,7 +1194,6 @@ var descartesJS = (function(descartesJS) {
    */
   function myMapFun(x) {
     if (isNaN(parseFloat(x))) {
-      // .replace(/^\s|\s$/g, "") remove the initial white space
       return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
     }
     else {

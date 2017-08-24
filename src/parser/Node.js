@@ -134,7 +134,7 @@ var descartesJS = (function(descartesJS) {
     // string
     else if (this.type === "string") {
       this.evaluate = function(evaluator) {
-        return this.value;
+        return this.value.replace(/\\u0027/g, "'");
       }
     }
 
@@ -232,11 +232,38 @@ var descartesJS = (function(descartesJS) {
           else {
             // check if the string is a number, then the argument needs to be a string
             if ( (evalArgument.match(",")) && (parseFloat(evalArgument.replace(",", ".")) == evalArgument.replace(",", ".")) ) {
-              evalArgument = "'" + evalArgument + "'";
+              // evalArgument = "'" + evalArgument + "'";
+              evalArgument = evalArgument.replace(",", ".");
             }
 
             if (evalCache[evalArgument] == undefined) {
               _asign = (evalArgument.match(/:=/g)) ? true : false;
+            
+              //////////////////////////////////////////////////////////////
+              if (evalArgument.match(";")) {
+                var inStr = false;
+                var charAt;
+                var valueArray = [];
+                var lastIndex = 0;
+
+                for (var i=0, l=evalArgument.length; i<l; i++) {
+                  charAt = evalArgument.charAt(i);
+                  // inside or outside of a string
+                  if (charAt === "'") {
+                    inStr = !inStr;
+                  }
+
+                  if ((!inStr) && (charAt === ";")) {
+                    valueArray.push(evalArgument.substring(lastIndex, i));
+                    lastIndex = i+1;
+                  }
+                }
+                valueArray.push(evalArgument.substring(lastIndex));
+
+                evalArgument = "(" + valueArray.join(")(") + ")";
+              }
+              //////////////////////////////////////////////////////////////
+
               evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
             }
 
@@ -328,7 +355,14 @@ var descartesJS = (function(descartesJS) {
       }
       else if (this.value === "^") {
         this.evaluate = function(evaluator) {
-          return Math.pow( this.childs[0].evaluate(evaluator), this.childs[1].evaluate(evaluator) );
+          var op1 = this.childs[0].evaluate(evaluator);
+          var op2 = this.childs[1].evaluate(evaluator);
+          if (op2 >= 0) {
+            return calcExp(op1, op2);
+          }
+          else {
+            return 1/calcExp(op1, -op2);
+          }
         }
       }
     }
@@ -455,72 +489,94 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // asignation
+    // assignation
     else if (this.type === "asign") {
-      var ide;
-      var expre;
-      var pos;
       var tmpPos;
       var tmpPos0;
       var tmpPos1;
-      var asignation;
+      var assignation;
 
-      this.evaluate = function(evaluator) {
-        ide = this.childs[0];
-        expre = this.childs[1];
+      var ide = this.childs[0];
+      var expre = this.childs[1];
+      var type = (ide.childs[0]) ? ide.childs[0].type : null
+      var pos = (ide.childs[0]) ? ide.childs[0].childs : null;
 
-        if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket")) {
-          pos = ide.childs[0].childs;
+      // vector assignation
+      if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket") && (pos.length === 1)) {
+        this.evaluate = function(evaluator) {
+          tmpPos = pos[0].evaluate(evaluator);
+          tmpPos = (tmpPos < 0) ? 0 : mathFloor(tmpPos);
 
-          // vector
-          if (pos.length === 1) {
-            tmpPos = pos[0].evaluate(evaluator);
-            tmpPos = (tmpPos < 0) ? 0 : mathFloor(tmpPos);
-
-            evaluator.vectors[ide.value][tmpPos] = expre.evaluate(evaluator);
-
-            return expre.evaluate(evaluator);
-          }
-
-          // matrix
-          else if (pos.length === 2) {
-            tmpPos0 = pos[0].evaluate(evaluator);
-            tmpPos1 = pos[1].evaluate(evaluator);
-            tmpPos0 = (tmpPos0 < 0) ? 0 : mathFloor(tmpPos0);
-            tmpPos1 = (tmpPos1 < 0) ? 0 : mathFloor(tmpPos1);
-
-            // condition to handle wrong matrix access
-            if (!evaluator.matrices[ide.value][tmpPos0]) {
-              evaluator.matrices[ide.value][tmpPos0] = [];
-            }
-            evaluator.matrices[ide.value][tmpPos0][tmpPos1] = expre.evaluate(evaluator);
-
-            return expre.evaluate(evaluator);
-          }
+          assignation = expre.evaluate(evaluator);
+          evaluator.vectors[ide.value][tmpPos] = assignation
+          return assignation;
         }
-        else {
-          asignation = expre.evaluate(evaluator);
+      }
+      // matrix assignation
+      else if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket") && (pos.length === 2)) {
+        this.evaluate = function(evaluator) {
+          tmpPos0 = pos[0].evaluate(evaluator);
+          tmpPos1 = pos[1].evaluate(evaluator);
+          tmpPos0 = (tmpPos0 < 0) ? 0 : mathFloor(tmpPos0);
+          tmpPos1 = (tmpPos1 < 0) ? 0 : mathFloor(tmpPos1);
 
-          // the asignation is a variable
-          if (!asignation.type) {
+          // condition to handle wrong matrix access
+          if (!evaluator.matrices[ide.value][tmpPos0]) {
+            evaluator.matrices[ide.value][tmpPos0] = [];
+          }
+
+          assignation = expre.evaluate(evaluator);
+          evaluator.matrices[ide.value][tmpPos0][tmpPos1] = assignation;
+          return assignation;
+        }
+      }
+      else {
+        this.evaluate = function(evaluator) {
+          assignation = expre.evaluate(evaluator);
+
+          // the assignation isn't a variable
+          if (!assignation.type) {
             // prevent to asign a value to an auxiliar variable
             if (typeof(evaluator.variables[ide.value]) !== "object") {
-              evaluator.variables[ide.value] = asignation;
-
-              return asignation;
+              evaluator.variables[ide.value] = assignation;
+              return assignation;
             }
           }
-          // the asignation is a matrix
+          // the assignation is a matrix
           else {
-            evaluator.matrices[ide.value] = asignation;
-
-            return asignation;
+            evaluator.matrices[ide.value] = assignation;
+            return assignation;
           }
 
           return 0;
         }
       }
     }
+  }
+
+  /**
+   *
+   */
+  function calcExp(x, y) {
+    if (y == 0) {
+      return 1;
+    }
+    if (y < 0) {
+      return NaN;
+    }
+    if ((x >= 0) || (Math.floor(y) === y)) {
+      return Math.pow(x, y);
+    }
+    if (x < 0) {
+      var yinv = 1/y;
+      var q = Math.floor(yinv);
+      if (q === yinv) {
+        if (q%2 === 1) {
+          return -Math.pow(-x, y);
+        }
+      }
+    }
+    return NaN;
   }
 
   var rows;

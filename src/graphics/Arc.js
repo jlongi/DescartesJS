@@ -142,12 +142,6 @@ var descartesJS = (function(descartesJS) {
 
     // if the expression of the initial and final angle are parenthesized expressions
     if ( (/^(\(|\[)expr(\)|\])$/i).test(this.initExpr.type) && (/^(\(|\[)expr(\)|\])$/i).test(this.endExpr.type) ) {
-//    if ( ((this.initExpr.type == "(expr)") && (this.endExpr.type == "(expr)")) ||
-//         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "[expr]")) ||
-//         ((this.initExpr.type == "(expr)") && (this.endExpr.type == "[expr]")) ||
-//         ((this.initExpr.type == "[expr]") && (this.endExpr.type == "(expr)"))
-//       ) {
-
       u1 = initVal[0][0];
       u2 = initVal[0][1];
       v1 = endVal[0][0];
@@ -335,10 +329,13 @@ var descartesJS = (function(descartesJS) {
 
     ctx.beginPath();
     ctx.arc(coordX, coordY, radius, this.iniAng, this.endAng, clockwise);
+    this.dashStyle();
     ctx.stroke();
 
     // draw the text of the arc
     if (this.text != [""]) {
+      this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
       this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
   }

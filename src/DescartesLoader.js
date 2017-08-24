@@ -7,8 +7,11 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var scale;
-  var barWidth;
-  var barHeight;
+  var original_w = 880;
+  var original_h = 840;
+  var original_scale = 1.3;
+  var barWidth = 356;
+
 
   /**
    * Descartes loader
@@ -43,12 +46,14 @@ var descartesJS = (function(descartesJS) {
     this.loaderBar.setAttribute("style", "width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
     this.loaderBar.ctx = this.loaderBar.getContext("2d");
 
+    this.loaderBar.ctx.lineCap = "round";
+    this.loaderBar.ctx.lineWidth = 14;
+    this.loaderBar.ctx.translate(descartesApp.width/2, (descartesApp.height-(original_h*scale))/3 +(original_h-80)*scale);
+    this.loaderBar.ctx.scale(scale, scale);
+
     descartesApp.loader.appendChild(this.loaderBar);
 
-    this.barWidth = 80;
-    this.barHeight = Math.floor(descartesApp.loader.height/70);
-
-    this.timer = descartesJS.setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, descartesApp.width, descartesApp.height); }, 10);
+    this.timer = descartesJS.setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, barWidth); }, 10);
 
     descartesApp.firstRun = false;
 
@@ -176,13 +181,12 @@ var descartesJS = (function(descartesJS) {
 
     var self = this;
     var total = this.images.length + this.audios.length;
-    this.sep = (2*(this.barWidth-2))/total;
+    this.sep = (2*barWidth)/(total-1);
 
     /**
      * Function that checks if all the media are loaded
      */
     var checkLoader = function() {
-      // contador para determinar cuantas imagenes se han cargado
       self.readys = 0;
 
       // how many images are loaded
@@ -195,7 +199,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // how many audios are loaded
-      for (var propName in self.audios) {
+      for (var propName in audios) {
         if (audios.hasOwnProperty(propName)) {
           if ( (audios[propName].ready) || (audios[propName].errorload) ) {
             self.readys++;
@@ -207,7 +211,7 @@ var descartesJS = (function(descartesJS) {
       if (self.readys != total) {
         descartesJS.setTimeout(checkLoader, 30);
       }
-      // if the number of count elements is equal to the total then clear the timer and init the build of the app
+      // if the number of count elements is equal to the total, then clear the timer and init the build of the app
       else {
         descartesJS.clearInterval(self.timer);
         self.descartesApp.initBuildApp();
@@ -268,23 +272,18 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} w the width of the canvas
    * @param {Number} h the height of the canvas
    */
-  descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx, w, h) {
-    barWidth = this.barWidth;
-    barHeight = this.barHeight;
+  descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx) {
+    ctx.beginPath();
+      ctx.strokeStyle = "#f2f2f2";
+    ctx.moveTo(-barWidth, 0);
+    ctx.lineTo( barWidth, 0);
+    ctx.stroke();
 
-    ctx.translate(w/2, (h-(65*scale))/2 +90*scale);
-    ctx.scale(scale, scale);
-
-    ctx.strokeRect(-barWidth, -barHeight, 2*barWidth, barHeight);
-
-    ctx.fillStyle = "#888";
-    ctx.fillRect(-barWidth+2, -barHeight+2, 2*(barWidth-2), barHeight-4);
-
-    ctx.fillStyle = "#1f358d";
-    ctx.fillRect(-barWidth+2, -barHeight+2, this.readys*this.sep, barHeight-4);
-
-    // reset the transformation
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.beginPath();
+    ctx.strokeStyle = "#2daae4";
+    ctx.moveTo(-barWidth, 0);
+    ctx.lineTo(-barWidth +this.readys*this.sep, 0);
+    ctx.stroke();
   }
 
   /**
@@ -304,52 +303,15 @@ var descartesJS = (function(descartesJS) {
 
     var ctx = canvas.getContext("2d");
 
-    ctx.save();
-
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    ctx.strokeStyle = ctx.fillStyle = "#1f358d";
-    ctx.lineCap = "round";
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    // the original image measure 120 x 65 pixels
-    // scale = 3;
-    if (w < h) {
-      scale = (w/(120*3));
-    }
-    else {
-      scale = (h/(65*3));
-    }
+    scale = (w < h) ? (w/(original_w*original_scale)) : (h/(original_h*original_scale));
     scale = (scale > 2.5) ? 2.5 : scale;
 
-    ctx.translate((w-(120*scale))/2, (h-(65*scale))/2);
+    ctx.translate((w-(original_w*scale))/2, (h-(original_h*scale))/3);
     ctx.scale(scale, scale);
 
-    ctx.moveTo(3,25);
-    ctx.lineTo(3,1);
-    ctx.lineTo(21,1);
-    ctx.bezierCurveTo(33,1, 41,15, 41,25);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(1,63); ctx.lineTo(1,64);
-    ctx.moveTo(5,62); ctx.lineTo(5,64);
-    ctx.moveTo(9,61); ctx.lineTo(9,64);
-    ctx.moveTo(13,60); ctx.lineTo(13,64);
-    ctx.moveTo(17,58); ctx.lineTo(17,64);
-    ctx.moveTo(21,56); ctx.lineTo(21,64);
-    ctx.moveTo(25,53); ctx.lineTo(25,64);
-    ctx.moveTo(29,50); ctx.lineTo(29,64);
-    ctx.moveTo(33,46); ctx.lineTo(33,64);
-    ctx.moveTo(37,41); ctx.lineTo(37,64);
-    ctx.moveTo(41,32); ctx.lineTo(41,64);
-    ctx.stroke();
-
-    ctx.font = "20px descartesJS_sansserif, Arial, Helvetica, Sans-serif";
-    ctx.fillText("escartes", 45, 33);
-    ctx.fillText("JS", 98, 64);
-    ctx.restore();
+    ctx.drawImage(descartesJS.loaderImg, 0, 0);
 
     return canvas.toDataURL();
   }

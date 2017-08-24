@@ -200,6 +200,9 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text of the arrow
     if (this.text != [""]) {
+      this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
+
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
 

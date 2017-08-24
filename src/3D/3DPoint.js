@@ -43,28 +43,37 @@ var descartesJS = (function(descartesJS) {
     exprY = expr[0][1];
     exprZ = expr[0][2];
 
-    this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
-                               type: "vertex",
-                               backColor: this.backcolor.getColor(), 
-                               frontColor: this.color.getColor(), 
-                               size: evaluator.eval(this.width)
-                             } ) );
+    this.primitives.push( new descartesJS.Primitive3D( { 
+      vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+      type: "vertex",
+      backColor: this.backcolor.getColor(), 
+      frontColor: this.color.getColor(), 
+      size: evaluator.eval(this.width)
+    } ) );
 
     // add a text primitive only if the text has content
     if (this.text !== "") {
-      this.primitives.push( new descartesJS.Primitive3D( { vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
-                                                           type: "text",
-                                                           frontColor: this.color.getColor(), 
-                                                           font: this.font,
-                                                           decimals: evaluator.eval(this.decimals),
-                                                           fixed: this.fixed,
-                                                           displace: this.fontSize,
-                                                           evaluator: evaluator,
-                                                           text: this.text,
-                                                           family: this.family,
-                                                           familyValue: this.familyValue
-                                                         },
-                            this.space ));
+      this.offset_dist = this.offset_dist || evaluator.parser.parse("10");
+      this.offset_angle = this.offset_angle || evaluator.parser.parse("270");
+
+      this.primitives.push( new descartesJS.Primitive3D( { 
+        vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
+        type: "text",
+        fromPoint: true,
+        frontColor: this.color.getColor(), 
+        font_size: this.font_size,
+        font_style: this.font_style,
+        font_family: this.font_family,
+        decimals: evaluator.eval(this.decimals),
+        fixed: this.fixed,
+        evaluator: evaluator,
+        text: this.text,
+        family: this.family,
+        familyValue: this.familyValue,
+        offset_dist: this.offset_dist,
+        offset_angle: this.offset_angle
+      },
+      this.space ));
     }
   }
 

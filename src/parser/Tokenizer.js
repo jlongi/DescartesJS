@@ -42,8 +42,18 @@ var descartesJS = (function(descartesJS) {
     inputInicial = input;
 
     if (input) {
+      var commentIndex = input.indexOf("//");
+      if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
+        input = input.substring(0, commentIndex);
+      }
+
       // change the values in UTF of the form \u##
-      input = input.replace(/\\u(\S+) /g, function(str, m1){ return String.fromCharCode(parseInt(m1, 16)); });
+      input = input.replace(/\\u(\S+) /g, function(str, m1){
+        if (parseInt(m1, 16) !== 39) {
+          return String.fromCharCode(parseInt(m1, 16));
+        }
+        return str; 
+      });
 
       // superindex numbers codified with &sup#;
       input = input.replace(/\&sup(.+);/g, "^ $1 ");
@@ -96,8 +106,9 @@ var descartesJS = (function(descartesJS) {
         while (str[inc] != "'") {
           if (inc < str.length) {
             inc++;
-          } else {
-            console.log(">Error, unknown symbol: ["+str+"], in the string <<" + inputInicial + ">>" );
+          }
+          else {
+            console.info(">Error, unknown symbol: ["+str+"], in the string 《" + inputInicial + "》" );
             return;
           }
         }
@@ -233,7 +244,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       if (exit == pos){
-        console.log("Error, simbolo no conocido: ["+str+"], en la cadena <<" + inputInicial + ">>" );
+        descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, inputInicial);
+        // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + inputInicial + "》" );
+        // console.info("Error: en la cadena 《 " + inputInicial + " 》");
         return;
       }
     }

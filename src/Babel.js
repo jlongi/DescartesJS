@@ -199,7 +199,7 @@ var babel = (function(babel) {
   babel["arr-izq"] = babel["topleft"] = babel["dalt-esq"] = babel["goi-ezk"] = babel["au-dessus-gau"] = babel["arr-esq"] = babel["acima-esquerda"] = "topleft";
   babel["expand."] = babel["stretch"] = babel["hedatu"] = babel["expandir "] = "stretch";
   babel["mosaico"] = babel["patch"] = babel["mosaic"] = babel["mosaiko"] = babel["mosa\u00EFque"] = "patch";
-  babel["centrada"] = babel["center"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "imgcenter";
+  babel["centrada"] = babel["zentratu"] = babel["centr\u00E9e"] = babel["centrado"] = "imgcenter";
   babel["archivo"] = babel["file"] = babel["fitxer"] = babel["artxibo"] = babel["fichier"] = babel["arquivo"] = "file";
 //   babel["loc"] = babel["loc"] = babel["lloc"] = babel["lok"] = babel["lieu"] = babel["loc"] = babel["loc"] = babel["lloc"] = "";
 //   babel["rot"] = babel["rot"] = babel["gir"] = babel["rot"] = babel["tour"] = babel["rot"] = babel["rot"] = babel["gir"] = "";
@@ -345,6 +345,8 @@ var babel = (function(babel) {
   
   ////////////////////////
   //  new options added
+  babel["library"] = "library";
+
   babel["color_contorn_text"] = babel["color_text_border"] = babel["color_borde_texto"] = babel["muga_testuaren_kolorea"] = babel["couleur_contour_texte"] = babel["cor_borde_texto"] = babel["colore_bordo_testo"] = babel["cor_borda_texto"] = babel["color_contorn_text"] = babel["border"] = "border";
   babel["video"] = babel["vid\u00e9o"] = "video";
   babel["audio"] = babel["\u00e0udio"] = "audio"; 
@@ -353,12 +355,54 @@ var babel = (function(babel) {
   babel["poster"] = "poster";
   babel["opacidad"] = babel["opacity"] = babel["opacit\u00E9"] = babel["opacitat"] = babel["opacidade"] = "opacity";
   babel["alinear"] = babel["align"] = babel["ali\u00F1ar"] = babel["aligner"] = "align";
+  babel["anchor"] = "anchor";
+  babel["a_left"] = "left";
+  babel["a_center"] = "center";
+  babel["a_right"] = "right";
+  babel["a_top_left"] = "top_left";
+  babel["a_top_center"] = "top_center";
+  babel["a_top_right"] = "top_right";
+  babel["a_center_left"] = "center_left";
+  babel["a_center_center"] = "center_center";
+  babel["a_center_right"] = "center_right";
+  babel["a_bottom_left"] = "bottom_left";
+  babel["a_bottom_center"] = "bottom_center";
+  babel["a_bottom_right"] = "bottom_right";
   babel["malla"] = babel["mesh"] = "mesh";
   babel["local"] = babel["Local"] = "local";
+  babel["rectangle"] = babel["rect\u00E1ngulo"] = "rectangle";
+  babel["lineDash"] = "lineDash";
+  babel["solid"] = "solid";
+  babel["dot"] = "dot";
+  babel["dash"] = "dash";
+  babel["dash_dot"] = "dash_dot";
 
-  // babel["rectangle"] = babel["rect\u00E1ngulo"] = "rectangle";
-  // babel["generic"] = babel["generico"] = "generic";
-  ////////////////////////
+  babel["offset_dist"] = "offset_dist";
+  babel["offset_angle"] = "offset_angle";
+
+  babel["cssClass"] = "cssClass";
+  babel["doc"] = "doc";
+
+  babel["flat"] = "flat";
+  babel["borderColor"] = "borderColor";
+  babel["text_align"] = "text_align";
+  babel["image_align"] = "image_align";
+
+  babel["checkbox"] = "checkbox";
+  babel["torus"] = babel["toro"] = "torus";
+  babel["R"] = "R";
+  babel["r"] = "r";
+  babel["border_radius"] = "border_radius";
+  babel["radio_group"] = "radio_group";
+  babel["font_family"] = "font_family";
+  babel["resizable"] = "resizable";
+
+  // extra
+  babel["antialias"] = "antialias";
+  babel["image_loader"] = "image_loader";
+  babel["expand"] = "expand";
+  babel["cover"] = babel["cubrir"] = "expand";
+  babel["fit"] = babel["escalar"] = "fit";
 
   return babel;
 })(babel || {});

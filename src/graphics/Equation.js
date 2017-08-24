@@ -128,19 +128,16 @@ descartesJS._debug_vez = 0;
         this.of_y = false;
         this.drawAux = this.drawAuxFun;
       }
-
       else if ( (right.type == "identifier") && (right.value == "y") && (!left.contains("y")) ) {
         this.funExpr = left;
         this.of_y = false;
         this.drawAux = this.drawAuxFun;
       }
-
       else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
         this.funExpr = right;
         this.of_y = true;
         this.drawAux = this.drawAuxFun;
       }
-
       else if ( (right.type == "identifier") && (right.value == "x") && (!left.contains("x")) ) {
         this.funExpr = right;
         this.of_y = true;
@@ -233,6 +230,8 @@ descartesJS._debug_vez = 0;
     if ( this.evaluator.eval(this.drawif) <= 0 ) {
       return;
     }
+    //
+    this.cInd = 0;
 
     evaluator = this.evaluator;
     parser = evaluator.parser;
@@ -252,12 +251,12 @@ descartesJS._debug_vez = 0;
     h = space.h +24;
 
     dx = w/9;
-    if (dx<3) {
-      dx=3;
+    if (dx < 3) {
+      dx = 3;
     }
     dy = h/7;
-    if (dy<3) {
-      dy=3;
+    if (dy < 3) {
+      dy = 3;
     }
 
     if (this.cInd == 0) {
@@ -265,7 +264,7 @@ descartesJS._debug_vez = 0;
       this.cInd++;
     }
     else {
-      this.cInd = (this.cInd+1)%100000;
+      this.cInd = (this.cInd+1)%10000000;
     }
 
     q0.set(0, 0);
@@ -446,8 +445,6 @@ descartesJS._debug_vez = 0;
     }
 
     ctx.stroke();
-    // reset the translation
-    // ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   /**
@@ -647,68 +644,68 @@ descartesJS._debug_vez = 0;
    *
    */
   descartesJS.Equation.prototype.Singularity = function(e, X, F, a, va, b, vb, minmax) {
-      if (isNaN(vb) || isNaN(va) || isNaN(minmax.y) || isNaN(minmax.x)) {
-        return 2;
+    if (isNaN(vb) || isNaN(va) || isNaN(minmax.y) || isNaN(minmax.x)) {
+      return 2;
+    }
+    if (a >= b) {
+      return 2;
+    }
+    var saveX = this.evaluator.getVariable(X);
+    var disc = 0;
+
+    try {
+      if ( (Math.abs(b-a) < 1E-15) ||
+           ( (Math.abs(b-a) < 1E-12) && (Math.abs(vb-va) > Math.abs(e)) )
+         ) {
+        this.evaluator.setVariable(X, saveX);
+        return 1;
       }
-      if (a >= b) {
-        return 2;
-      }
-      var saveX = this.evaluator.getVariable(X);
-      var disc=0;
+
+      var ab2=(a+b)/2;
+      this.evaluator.setVariable(X, ab2);
+
+      var auxv = NaN;
 
       try {
-        if ( (Math.abs(b-a) < 1E-15) ||
-             ( (Math.abs(b-a) < 1E-12) && (Math.abs(vb-va) > Math.abs(e)) )
-           ) {
-          this.evaluator.setVariable(X, saveX);
-          return 1;
-        }
+        auxv = this.evaluator.eval(this.funExpr);
+      }
+      catch (e) {
+        return 2;
+      }
 
-        var ab2=(a+b)/2;
-        this.evaluator.setVariable(X, ab2);
+      if (isNaN(auxv)) {
+        return 2;
+      }
 
-        var auxv = NaN;
+      if (Math.abs(vb-va)>e) {  // detectar saltos
+        var epsilon = 1E-12;
+        this.evaluator.setVariable(X, a-epsilon);
+        var _v = this.evaluator.eval(this.funExpr);
+        var _D = (va-_v)/epsilon;
 
-        try {
-          auxv = this.evaluator.eval(this.funExpr);
-        }
-        catch (e) {
-          return 2;
-        }
+        this.evaluator.setVariable(X, b+epsilon);
+        var v_ = this.evaluator.eval(this.funExpr);
+        var D_ = (v_-vb)/epsilon;
+        var Dj = (vb-va)/(b-a);
 
-        if (isNaN(auxv)) {
-          return 2;
-        }
-
-
-        if (Math.abs(vb-va)>e) {  // detectar saltos
-          var epsilon = 1E-12;
-          this.evaluator.setVariable(X, a-epsilon);
-          var _v = this.evaluator.eval(this.funExpr);
-          var _D = (va-_v)/epsilon;
-
-          this.evaluator.setVariable(X, b+epsilon);
-          var v_ = this.evaluator.eval(this.funExpr);
-          var D_ = (v_-vb)/epsilon;
-          var Dj = (vb-va)/(b-a);
-
-          if ( (Math.abs(D_) < 10) || (Math.abs(_D) < 10) ) {
-            if ( (D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
-              if (4*Math.abs(D_) < Math.abs(Dj)) {
-                this.evaluator.setVariable(X, saveX);
-                return 2;
-              }
+        if ( (Math.abs(D_) < 10) || (Math.abs(_D) < 10) ) {
+          if ( (D_ >= 0 && _D >= 0) || (D_ <= 0 && _D <= 0) ) {
+            if (4*Math.abs(D_) < Math.abs(Dj)) {
+              this.evaluator.setVariable(X, saveX);
+              return 2;
             }
           }
         }
-        if (isNaN(minmax.x) || isNaN(minmax.y) || (isNaN(auxv))){
-          return 2;
-        }
-        else if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
-          this.evaluator.setVariable(X, ab2);
-          minmax.x = Math.min(va, auxv);
-          minmax.y = Math.max(va, auxv);
-          var s1 = this.Singularity(e/2, X, F, a, va, ab2, auxv, minmax);
+      }
+
+      if (isNaN(minmax.x) || isNaN(minmax.y) || (isNaN(auxv))){
+        return 2;
+      }
+      else if (!((minmax.x <= auxv) && (auxv <= minmax.y))) {
+        this.evaluator.setVariable(X, ab2);
+        minmax.x = Math.min(va, auxv);
+        minmax.y = Math.max(va, auxv);
+        var s1 = this.Singularity(e/2, X, F, a, va, ab2, auxv, minmax);
 
           this.evaluator.setVariable(X, b);
           minmax.x = Math.min(vb, auxv);
@@ -718,301 +715,294 @@ descartesJS._debug_vez = 0;
           disc = Math.max(s1, s2);
         }
       }
-      catch (exc) {
-        disc = 1;
-      }
-
-      this.evaluator.setVariable(X, saveX)
-
-      return disc;
+    catch (exc) {
+      disc = 1;
     }
 
-    /**
-     * Auxiliary function for draw an equation of y
-     * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
-     * @param {String} fill the fill color of the equation
-     * @param {String} stroke the stroke color of the equation
-     */
-    descartesJS.Equation.prototype.drawAuxFun = function(ctx, fill, stroke) {
-      savex = this.evaluator.parser.getVariable("x");
-      savey = this.evaluator.parser.getVariable("y");
-      descartesJS.rangeOK = 1;
+    this.evaluator.setVariable(X, saveX)
 
-      var X = "x";
-      var Y = "y";
+    return disc;
+  }
 
-      if (this.of_y) {
-        X = "y";
-        Y = "x";
-      }
+  /**
+   * Auxiliary function for draw an equation of y
+   * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
+   * @param {String} fill the fill color of the equation
+   * @param {String} stroke the stroke color of the equation
+   */
+  descartesJS.Equation.prototype.drawAuxFun = function(ctx, fill, stroke) {
+    savex = this.evaluator.parser.getVariable("x");
+    savey = this.evaluator.parser.getVariable("y");
+    descartesJS.rangeOK = 1;
 
-      var F = 0;
-      var cond = (this.drawif);
-      var width = this.evaluator.eval(this.width);
+    var X = "x";
+    var Y = "y";
 
-      var defa = false;
-      var singa = 0;
-      var Or = new descartesJS.R2((this.space.w/2+this.space.Ox), (this.space.h/2+this.space.Oy));
-      var y0 = (this.of_y) ? Or.ix() : Or.iy();
+    if (this.of_y) {
+      X = "y";
+      Y = "x";
+    }
 
-      var y = 0;
-      var ya = 0;
-      var x = 0;
-      var xa = 0;
+    var F = 0;
+    var cond = (this.drawif);
+    var width = this.evaluator.eval(this.width);
 
-      var dx = 1/this.space.scale;
-      // var Xr = dx*((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
-      var Xr = dx* ((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
-      var va = 0;
+    var defa = false;
+    var singa = 0;
+    var Or = new descartesJS.R2((this.space.w/2+this.space.Ox), (this.space.h/2+this.space.Oy));
+    var y0 = (this.of_y) ? Or.ix() : Or.iy();
 
-      if (this.abs_coord) {
-        Xr = 0;
-        dx = 1;
-      }
+    var y = 0;
+    var ya = 0;
+    var x = 0;
+    var xa = 0;
 
-      var def;
-      var sing;
-      var v;
-      var min;
-      var max;
-      var minmax;
-      var nya;
-      var pn;
-      var pa;
+    var dx = 1/this.space.scale;
+    var Xr = dx*((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
+    var va = 0;
 
-      var condWhile = (this.of_y) ? this.space.h+4 : this.space.w+4;
-      while (x <= condWhile) {
-        def = true;
-        sing = 0;
-        this.evaluator.setVariable(X, Xr);
+    if (this.abs_coord) {
+      Xr = 0;
+      dx = 1;
+    }
 
-        try {
-          v = this.evaluator.eval(this.funExpr);
+    var def;
+    var sing;
+    var v;
+    var min;
+    var max;
+    var minmax;
+    var nya;
+    var pn;
+    var pa;
 
-          // if (!isNaN(v) && (abs(v) > -1e-14)) {
-          if (!isNaN(v)) {
-            this.evaluator.setVariable(Y, v);
+    var condWhile = (this.of_y) ? this.space.h+4 : this.space.w+4;
+    while (x <= condWhile) {
+      def = true;
+      sing = 0;
+      this.evaluator.setVariable(X, Xr);
 
-            if ((this.evaluator.eval(this.drawif) > 0) && (descartesJS.rangeOK)) {
-              if (defa) {
-                min = Math.min(va, v);
-                max = Math.max(va, v);
-                minmax = new descartesJS.R2(min, max);
+      try {
+        v = this.evaluator.eval(this.funExpr);
 
-                sing = this.Singularity(dx, X, F, Xr-dx, va, Xr, v, minmax);
-
-                if (sing === 0) {
-                  if (va <= v) {
-                    va = minmax.x;
-                    v =  minmax.y;
-                  }
-                  else {
-                    v = minmax.x;
-                    va = minmax.y;
-                  }
-
-                  nya = parseInt( (this.of_y) ? this.XX(width, va, this.abs_coord) : this.YY(width, va, this.abs_coord) );
-                  if (this.abs_coord) {
-                    y = Math.round(v);
-                  }
-                  else {
-                    y = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
-                  }
-
-                  // fill the equation (fill minus)
-                  if ((this.fillM) && (y>y0)) {
-                    ctx.lineWidth = 1;
-                    ctx.strokeStyle = this.fillM.getColor();
-                    ctx.beginPath();
-                    // Line(g[i],width,x,y0+1,x,y,of_y);
-                    if (this.of_y) {
-                      ctx.moveTo(y0+1, this.space.h-x+.5);
-                      ctx.lineTo(y, this.space.h-x+.5);
-                    }
-                    else {
-                      ctx.moveTo(x+.5, y0+1);
-                      ctx.lineTo(x+.5, y);
-                    }
-
-                    ctx.stroke();
-                  }
-                  // fill maximus
-                  if ((this.fillP) && (y<y0)) {
-                    ctx.lineWidth = 1;
-                    ctx.strokeStyle = this.fillP.getColor();
-                    // Line(g[i],width,x,y0-1,x,y,of_y);
-                    ctx.beginPath();
-                    if (this.of_y) {
-                      ctx.moveTo(y0-1, this.space.h-x+.5);
-                      ctx.lineTo(y, this.space.h-x+.5);
-                    }
-                    else {
-                      ctx.moveTo(x+.5, y0-1);
-                      ctx.lineTo(x+.5, y);
-                    }
-                    ctx.stroke();
-                  }
-
-                  ctx.lineWidth = width;
-                  ctx.strokeStyle = this.color.getColor();
-
-                  ctx.beginPath();
-                  // Line(g[i],width,xa,nya,x,y,of_y);
-                  if (this.of_y) {
-                    ctx.moveTo(nya+.5, this.space.h-xa);
-                    ctx.lineTo(y+.5, this.space.h-x);
-                  }
-                  else {
-                    ctx.moveTo(xa+.5, nya);
-                    ctx.lineTo(x+.5, y);
-                  }
-                  ctx.stroke();
-                }
-                // sing === 1
-                else if (sing === 1) {
-                  this.evaluator.setVariable(X, Xr-dx);
-                  pn = this.extrapolate(cond, X, Y, F, va, dx);
-                  y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
-                  //
-                  ctx.lineWidth = width;
-                  ctx.strokeStyle = this.color.getColor();
-
-                  ctx.beginPath();
-                  // Line(g[i],width,xa,ya, xa+(int)Math.round(pn.x),y,of_y);
-                  if (this.of_y) {
-                    ctx.moveTo(ya+.5, this.space.h-xa);
-                    ctx.lineTo(y+.5, this.space.h-xa+Math.round(pn.x));
-                  }
-                  else {
-                    ctx.moveTo(xa+.5, ya);
-                    ctx.lineTo(xa+Math.round(pn.x)+.5, y);
-                  }
-                  //////////////////////////////////////
-                  // quizas sea un error dibujar esto //
-                  //////////////////////////////////////
-                  // ctx.stroke();
-                  //
-
-                  this.evaluator.setVariable(X, Xr);
-                  pa = this.extrapolate(cond, X, Y, F, v, -dx);
-                  ya = this.YY(width, pa.y, this.abs_coord);
-                  y = this.YY(width, v, this.abs_coord);
-
-                  //
-                  ctx.lineWidth = width;
-                  ctx.strokeStyle = this.color.getColor();
-
-                  ctx.beginPath();
-                  // Line(g[i],width,x+(int)Math.round(pa.x),ya, x,y,of_y);
-                  if (this.of_y) {
-                    ctx.moveTo(ya+.5, this.space.h-x);
-                    ctx.lineTo(y+.5, this.space.h-x);
-                  }
-                  else {
-                    ctx.moveTo(x+.5, ya);
-                    ctx.lineTo(x+.5, y);
-                  }
-                  ctx.stroke();
-                  //
-
-               }
-                // sing === 2
-                else {
-                  y = parseInt( (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord) );
-
-                  //
-                  ctx.lineWidth = width;
-                  ctx.strokeStyle = this.color.getColor();
-
-                  ctx.beginPath();
-                  // Line(g[i],width,x, y,x,y,of_y);
-                  if (this.of_y) {
-                    ctx.moveTo(y+.5, this.space.h-x);
-                    ctx.lineTo(y+.5, this.space.h-x);
-                  }
-                  else {
-                    ctx.moveTo(x+.5, y);
-                    ctx.lineTo(x+.5, y);
-                  }
-                  ctx.stroke();
-                  //
-
-                }
-              }
-              // defa === false; extrapolate forward
-              else {
-                pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
-
-                ya = (this.of_y) ? this.XX(width, pa.y, this.abs_coord) : this.YY(width, pa.y, this.abs_coord);
-                y  = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
-
-                //
-                // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
-                ctx.lineWidth = width;
-                ctx.strokeStyle = this.color.getColor();
-                ctx.beginPath();
-
-                if (this.of_y) {
-                  ctx.moveTo(ya, this.space.h-(x+Math.round(pa.x))+.5);
-                  ctx.lineTo(y,  this.space.h-x+.5);
-                }
-                else {
-                  ctx.moveTo(x+Math.round(pa.x), ya);
-                  ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-                //
-              }
-
-              va = v;
-            }
-
-            else {
-              def = false;
-            }
-          }
-        }
-        catch(e) {
-          def = false;
-        }
-
-        if (defa && !def) {
-          this.evaluator.setVariable(X, Xr-dx);
-          this.evaluator.setVariable(Y, va);
-
-          pn = this.extrapolate(cond, X, Y, F, va, dx);
-          y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
+        // if (!isNaN(v) && (abs(v) > -1e-14)) {
+        if (!isNaN(v)) {
+          this.evaluator.setVariable(Y, v);
 
           if ((this.evaluator.eval(this.drawif) > 0) && (descartesJS.rangeOK)) {
-            //
-            // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
-            ctx.lineWidth = width;
-            ctx.strokeStyle = this.color.getColor();
-            ctx.beginPath();
-            if (this.of_y) {
-              ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
-              ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
+            if (defa) {
+              min = Math.min(va, v);
+              max = Math.max(va, v);
+              minmax = new descartesJS.R2(min, max);
+
+              sing = this.Singularity(dx, X, F, Xr-dx, va, Xr, v, minmax);
+
+              if (sing === 0) {
+                if (va <= v) {
+                  va = minmax.x;
+                  v =  minmax.y;
+                }
+                else {
+                  v = minmax.x;
+                  va = minmax.y;
+                }
+
+                nya = parseInt( (this.of_y) ? this.XX(width, va, this.abs_coord) : this.YY(width, va, this.abs_coord) );
+                if (this.abs_coord) {
+                  y = Math.round(v);
+                }
+                else {
+                  y = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
+                }
+
+                // fill the equation (fill minus)
+                if ((this.fillM) && (y>y0)) {
+                  ctx.lineWidth = 1;
+                  ctx.strokeStyle = this.fillM.getColor();
+                  ctx.beginPath();
+                  // Line(g[i],width,x,y0+1,x,y,of_y);
+                  if (this.of_y) {
+                    ctx.moveTo(y0+1, this.space.h-x+.5);
+                    ctx.lineTo(y, this.space.h-x+.5);
+                  }
+                  else {
+                    ctx.moveTo(x+.5, y0+1);
+                    ctx.lineTo(x+.5, y);
+                  }
+
+                  ctx.stroke();
+                }
+                // fill maximus
+                if ((this.fillP) && (y<y0)) {
+                  ctx.lineWidth = 1;
+                  ctx.strokeStyle = this.fillP.getColor();
+                  // Line(g[i],width,x,y0-1,x,y,of_y);
+                  ctx.beginPath();
+                  if (this.of_y) {
+                    ctx.moveTo(y0-1, this.space.h-x+.5);
+                    ctx.lineTo(y, this.space.h-x+.5);
+                  }
+                  else {
+                    ctx.moveTo(x+.5, y0-1);
+                    ctx.lineTo(x+.5, y);
+                  }
+                  ctx.stroke();
+                }
+
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,xa,nya,x,y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(nya+.5, this.space.h-xa);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(xa+.5, nya);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+              }
+              // sing === 1
+              else if (sing === 1) {
+                this.evaluator.setVariable(X, Xr-dx);
+                pn = this.extrapolate(cond, X, Y, F, va, dx);
+                y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,xa,ya, xa+(int)Math.round(pn.x),y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(ya+.5, this.space.h-xa);
+                  ctx.lineTo(y+.5, this.space.h-xa+Math.round(pn.x));
+                }
+                else {
+                  ctx.moveTo(xa+.5, ya);
+                  ctx.lineTo(xa+Math.round(pn.x)+.5, y);
+                }
+                //////////////////////////////////////
+                // quizas sea un error dibujar esto //
+                //////////////////////////////////////
+                // ctx.stroke();
+                //
+
+                this.evaluator.setVariable(X, Xr);
+                pa = this.extrapolate(cond, X, Y, F, v, -dx);
+                ya = this.YY(width, pa.y, this.abs_coord);
+                y = this.YY(width, v, this.abs_coord);
+
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,x+(int)Math.round(pa.x),ya, x,y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(ya+.5, this.space.h-x);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(x+.5, ya);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+              }
+              // sing === 2
+              else {
+                y = parseInt( (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord) );
+
+                //
+                ctx.lineWidth = width;
+                ctx.strokeStyle = this.color.getColor();
+
+                ctx.beginPath();
+                // Line(g[i],width,x,y,x,y,of_y);
+                if (this.of_y) {
+                  ctx.moveTo(ya+.5, this.space.h-x);
+                  ctx.lineTo(y+.5, this.space.h-x);
+                }
+                else {
+                  ctx.moveTo(x+.5, ya);
+                  ctx.lineTo(x+.5, y);
+                }
+                ctx.stroke();
+              }
             }
+            // defa === false; extrapolate forward
             else {
-              ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
-              ctx.lineTo((xa+Math.round(pn.x))+.5, y);
+              pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
+
+              ya = (this.of_y) ? this.XX(width, pa.y, this.abs_coord) : this.YY(width, pa.y, this.abs_coord);
+              y  = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
+
+              //
+              // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
+              ctx.lineWidth = width;
+              ctx.strokeStyle = this.color.getColor();
+              ctx.beginPath();
+
+              if (this.of_y) {
+                ctx.moveTo(ya, this.space.h-(x+Math.round(pa.x))+.5);
+                ctx.lineTo(y,  this.space.h-x+.5);
+              }
+              else {
+                ctx.moveTo(x+Math.round(pa.x), ya);
+                ctx.lineTo(x, y);
+              }
+              ctx.stroke();
             }
-            ctx.stroke();
-            //
+
+            va = v;
           }
 
-          this.evaluator.setVariable(X, Xr);
+          else {
+            def = false;
+          }
         }
-
-        defa = def;
-        singa = sing;
-        Xr += dx;
-        ya = y;
-        xa = x++;
+      }
+      catch(e) {
+        def = false;
       }
 
-      this.evaluator.parser.setVariable("x", savex);
-      this.evaluator.parser.setVariable("y", savey);
+      if (defa && !def) {
+        this.evaluator.setVariable(X, Xr-dx);
+        this.evaluator.setVariable(Y, va);
+
+        pn = this.extrapolate(cond, X, Y, F, va, dx);
+        y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
+
+        if ((this.evaluator.eval(this.drawif) > 0) && (descartesJS.rangeOK)) {
+          //
+          // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
+          ctx.lineWidth = width;
+          ctx.strokeStyle = this.color.getColor();
+          ctx.beginPath();
+          if (this.of_y) {
+            ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);
+            ctx.lineTo(y, this.space.h-(xa+Math.round(pn.x))+.5);
+          }
+          else {
+            ctx.moveTo((xa+Math.round(pn.x))+.5, ya);
+            ctx.lineTo((xa+Math.round(pn.x))+.5, y);
+          }
+          ctx.stroke();
+        }
+
+        this.evaluator.setVariable(X, Xr);
+      }
+
+      defa = def;
+      singa = sing;
+      Xr += dx;
+      ya = y;
+      xa = x++;
+    }
+
+    this.evaluator.parser.setVariable("x", savex);
+    this.evaluator.parser.setVariable("y", savey);
   }
 
   /**
@@ -1024,6 +1014,7 @@ descartesJS._debug_vez = 0;
     textField.disabled = !(this.editable);
 
     var self = this;
+    oncontextmenu = function (evt) { return false; };
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
         self.expresion = self.evaluator.parser.parse(this.value);

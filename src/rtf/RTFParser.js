@@ -607,35 +607,40 @@ var descartesJS = (function(descartesJS) {
    * Get a CSS style
    * {String} retur a CSS style for the font style
    */
-  descartesJS.FontStyle.prototype.toCSS = function() {
-    var cssRule = 'style="font-size:' + this.fontSize + 'px; font-family:' + this.fontType + ';';
+  descartesJS.FontStyle.prototype.toCSS = function(inFormula) {
+    var cssRule = ""; 
 
-    if (this.textUnderline && !this.textOverline) {
-      cssRule += 'text-decoration:underline;';
+    if (!inFormula) {
+      cssRule = 'font-size:' + this.fontSize + 'px; line-height:' + this.fontSize + 'px; font-family:' + this.fontType + ";";
+      
+      if (this.textUnderline && !this.textOverline) {
+        cssRule += 'text-decoration:underline;';
+      }
+      if (!this.textUnderline && this.textOverline) {
+        cssRule += 'text-decoration:overline;';
+      }
+      if (this.textUnderline && this.textOverline) {
+        cssRule += 'text-decoration:underline overline;';
+      }
+      if (this.textBold && !this.textItalic) {
+        cssRule += 'font-style:normal; font-weight:bold;';
+      }
+      if (!this.textBold && this.textItalic) {
+        cssRule += 'font-style:italic; font-weight:normal;';
+      }
+      if (this.textBold && this.textItalic) {
+        cssRule += 'font-style:italic; font-weight:bold;';
+      }
+      if (!this.textBold && !this.textItalic) {
+        cssRule += 'font-style:normal; font-weight:normal;';
+      }
     }
-    if (!this.textUnderline && this.textOverline) {
-      cssRule += 'text-decoration:overline;';
-    }
-    if (this.textUnderline && this.textOverline) {
-      cssRule += 'text-decoration:underline overline;';
-    }
-    if (this.textBold && !this.textItalic) {
-      cssRule += 'font-style:normal;font-weight:bold;';
-    }
-    if (!this.textBold && this.textItalic) {
-      cssRule += 'font-style:italic;font-weight:normal;';
-    }
-    if (this.textBold && this.textItalic) {
-      cssRule += 'font-style:italic;font-weight:bold;';
-    }
-    if (!this.textBold && !this.textItalic) {
-      cssRule += 'font-style:normal;font-weight:normal;';
-    }
+    
     if (this.textColor) {
       cssRule += 'color:' + this.textColor + ';';
     }
 
-    return cssRule + '"';
+    return cssRule;
   }
 
   /**

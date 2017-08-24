@@ -42,6 +42,12 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
+
+    // Descartes 2 visible
+    this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;
+    if (this.visible) {
+      this.registerTextField();
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -134,10 +140,33 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text of the sequence
     if (this.text != [""]) {
+      this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
+
       this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
 
     evaluator.setVariable("n", tmpValue);
+  }
+
+  /**
+   * Register a text field in case the equation expression is editable
+   */
+  descartesJS.Sequence.prototype.registerTextField = function() {
+    var textField = document.createElement("input");
+    textField.value = this.expresionString;
+    textField.disabled = !(this.editable);
+
+    var self = this;
+    oncontextmenu = function (evt) { return false; };
+    textField.onkeydown = function(evt) {
+      if (evt.keyCode == 13) {
+        self.expresion = self.evaluator.parser.parse(this.value);
+        self.parent.update();
+      }
+    }
+
+    this.parent.editableRegion.textFields.push(textField);
   }
 
   return descartesJS;

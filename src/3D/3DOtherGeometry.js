@@ -26,6 +26,9 @@ var descartesJS = (function(descartesJS) {
   var theta;
   var phi;
 
+  var R;
+  var r;
+
   var goldenRatio = 1.6180339887;
   var width_d_goldenRatio;
   var width_m_goldenRatio;
@@ -52,6 +55,8 @@ var descartesJS = (function(descartesJS) {
     this.width = parent.evaluator.parser.parse("2");
     this.height = parent.evaluator.parser.parse("2");
     this.length = parent.evaluator.parser.parse("2");
+    this.R = parent.evaluator.parser.parse("2");
+    this.r = parent.evaluator.parser.parse("1");
 
     vec4D = descartesJS.Vector4D;
 
@@ -95,6 +100,10 @@ var descartesJS = (function(descartesJS) {
 
       case("cylinder"):
         this.buildGeometry = buildCylinder;
+        break;
+
+      case("torus"):
+        this.buildGeometry = buildTorus;
         break;
 
       case("mesh"):
@@ -452,6 +461,48 @@ var descartesJS = (function(descartesJS) {
                           (j+1)%Nu +i*Nu,
                           (j+1)%Nu +(i+1)*Nu,
                           j +(i+1)*Nu
+                         ]
+                       );
+      }
+    }
+
+    this.updateValues(width, height, length, Nu, Nv);
+  }
+
+  /**
+   * Define the vertex and faces of a torus
+   */
+  function buildTorus(width, height, length, Nu, Nv) {
+    width  = width/2;
+    height = height/2;
+    length = length/2;
+
+    R = evaluator.eval(this.R);
+    r = evaluator.eval(this.r);
+
+    // if the geometry has to change
+    if (this.changeGeometry(width, height, length, Nu, Nv)) {
+      return;
+    }
+
+    this.vertices = [];
+
+    for (i=0; i<Nv+1; i++) {
+      for (j=0; j<Nu; j++) {
+        x = -(R + r * MathSin(Math2PI*j/Nu)) * MathSin(Math2PI*i/Nv);
+        y =  (R + r * MathSin(Math2PI*j/Nu))  * MathCos(Math2PI*i/Nv);
+        z = r * MathCos(Math2PI*j/Nu);
+        this.vertices.push(new vec4D(x, y, z, 1));
+      }
+    }
+    this.faces = [];
+
+    for (i=0; i<Nv; i++) {
+      for (j=0; j<Nu; j++) {
+        this.faces.push( [j +i*Nu,
+                          j +(i+1)*Nu,
+                          (j+1)%Nu +(i+1)*Nu,
+                          (j+1)%Nu +i*Nu
                          ]
                        );
       }

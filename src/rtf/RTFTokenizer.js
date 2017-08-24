@@ -50,12 +50,10 @@ var descartesJS = (function(descartesJS) {
       return [];
     }
 
-    tokens = [];
     inputLenght = input.length;
     tokens = [];
     tokenValue = "";
-    pos = 0;
-    blockNumber = 0;
+    pos = blockNumber = 0;
     nextChar = input.charAt(0);
     insideControlWord = false;
     lastTokenType = "text";

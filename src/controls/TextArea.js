@@ -9,6 +9,7 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var evaluator;
   var displaceY;
+  var newText;
 
   /**
    * Descartes scrollbar control
@@ -105,7 +106,7 @@ var descartesJS = (function(descartesJS) {
    * Init the text area
    */
   descartesJS.TextArea.prototype.init = function() {
-    displaceY = (this.answer) ? 28 : 8;
+    displaceY = (this.answer) ? 28 : 4;
     evaluator = this.evaluator;
 
     var newText;
@@ -124,9 +125,10 @@ var descartesJS = (function(descartesJS) {
 
     // text area
     this.textArea.setAttribute("class", "DescartesTextAreaContainer");
-    this.textArea.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
+    this.textArea.setAttribute("style", "padding: 5px; width: " + (this.w-4) + "px; height: " + (this.h-displaceY) + "px; left: 2px; top: 2px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
     this.textArea.setAttribute("contenteditable", "true");
-    this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
+    // this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
+    this.textArea.innerHTML = newText;
 
     // text area answer
     this.textAreaAnswer.setAttribute("class", "DescartesTextAreaContainer");
@@ -194,16 +196,25 @@ var descartesJS = (function(descartesJS) {
     this.activeIfValue = (evaluator.eval(this.activeif) > 0);
     this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
-    var newText;
+    // var newText;
+    // if (this.text.match(/<span/)) {
+    //   newText = this.rawText;
+    // }
+    // else {
+    //   newText = this.text;
+    // }
 
-    if (this.text.match(/<span/)) {
-      newText = this.rawText;
-    }
-    else {
-      newText = this.text;
+    if ((evaluator.getVariable(this.id) != this.oldValue) || ((this.textArea.innerText || "").replace(/\n/g, "\\n") == this.oldFieldValue)) {
+      this.textArea.innerText = (evaluator.getVariable(this.id) || "").replace(/\\n/g, "\n");
     }
 
+    newText = (this.textArea.innerText || "");
+    newText = (newText.charAt(newText.length-1) === "\n") ? newText.substring(0, newText.length-1) : newText;
+    newText = newText.replace(/\n/g, "\\n");
     evaluator.setVariable(this.id, newText);
+
+    this.oldFieldValue = newText;
+    this.oldValue = evaluator.getVariable(this.id);
 
     // enable or disable the control
     this.activeCover.style.display = (this.activeIfValue) ? "none" : "block";

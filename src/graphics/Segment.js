@@ -144,6 +144,8 @@ var descartesJS = (function(descartesJS) {
     ctx.beginPath();
     ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
     ctx.lineTo(coordX1+lineDesp, coordY1+lineDesp);
+
+    this.dashStyle();
     ctx.stroke();
 
     if (size > 0) {
@@ -153,8 +155,14 @@ var descartesJS = (function(descartesJS) {
       ctx.fill();
     }
 
+    // restor the dash style
+    ctx.setLineDash([]);
+
     // draw the text of the segment
     if (this.text != [""]) {
+      this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
+
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
 

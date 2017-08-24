@@ -41,7 +41,7 @@ var descartesJS = (function(descartesJS) {
     cssNode.id = "StyleDescartesApps";
     cssNode.type = "text/css";
     cssNode.setAttribute("rel", "stylesheet");
-    cssNode.innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
+    cssNode.innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:none;}";
 
     // add the style in the head of the document
     document.head.appendChild(cssNode);
@@ -51,14 +51,14 @@ var descartesJS = (function(descartesJS) {
    * Show the hidden applets
    */
   function showApplets() {
-    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:block;} applet {display:block;} ajs.DescartesJS {display:block;} ajs {display:block;}";
+    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:block;}";
   }
 
   /**
    * Shows applets that are not descartes
    */
   function showNoDescartesJSApplets() {
-    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS {display:none;} applet {display:none;} ajs.DescartesJS {display:none;} ajs {display:none;}";
+    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:none;}";
   }
 
   /**
@@ -70,7 +70,7 @@ var descartesJS = (function(descartesJS) {
     var applets = document.querySelectorAll("applet,ajs");
     var descartesRegExp = /Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i;
 
-    // se crea un arreglo donde guardar los applets encontrados
+    // create an array to hold the applets
     var tmpArrayApplets = [];
 
     for (var i=0, l=applets.length; i<l; i++) {
@@ -114,10 +114,7 @@ var descartesJS = (function(descartesJS) {
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // The following code is executed immediately
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  // if the variable debugDescartesJS exist and is true then hide the applets
-  if (!(window.hasOwnProperty('debugDescartesJS') && debugDescartesJS)) {
-    hideApplets();
-  }
+  hideApplets();
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   /**
@@ -156,7 +153,31 @@ var descartesJS = (function(descartesJS) {
                             '<span style="font-style:italic;">_</span>\n'+
                             '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
                         '</div>\n'+
-                        '<div style="font-family:descartesJS_extra;">\n'+
+                        '<div style="font-family:DJS_symbola;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:DJS_extra;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:DJS_sansserif;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:DJS_monospace;">\n'+
+                            '<span>_</span>\n'+
+                            '<span style="font-weight:bold;">_</span>\n'+
+                            '<span style="font-style:italic;">_</span>\n'+
+                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
+                        '</div>\n'+
+                        '<div style="font-family:DJS_serif;">\n'+
                             '<span>_</span>\n'+
                             '<span style="font-weight:bold;">_</span>\n'+
                             '<span style="font-style:italic;">_</span>\n'+
@@ -184,7 +205,6 @@ var descartesJS = (function(descartesJS) {
       showApplets();
     }
 
-    // setTimeout(function(){ document.body.removeChild(div); }, 1000);
     document.body.removeChild(div);
   }
 
@@ -196,9 +216,7 @@ var descartesJS = (function(descartesJS) {
     if (descartesJS.apps.length > 0) {
       var data = evt.data;
 
-      if (!data) {
-        return;
-      }
+      if (!data) { return; }
 
       // set a value to a variable
       if (data.type === "set") {
@@ -223,17 +241,8 @@ var descartesJS = (function(descartesJS) {
       // execute a function
       else if (data.type === "exec") {
         var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
-        var params = (data.value.toString()).split(",");
-        var _temp;
-
-        // for (var i=0,l=params.length; i<l; i++) {
-        //   if (!isNaN(parseFloat(params[i]))) {
-        //     params[i] = parseFloat(params[i]);
-        //   }
-        // }
-
         if (fun) {
-          fun.apply(descartesJS.apps[0].evaluator, params);
+          fun.apply(descartesJS.apps[0].evaluator, (data.value.toString()).split(","));
         }
       }
 
@@ -249,7 +258,7 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent version
+  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent versions
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 

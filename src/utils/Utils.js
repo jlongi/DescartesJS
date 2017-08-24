@@ -157,11 +157,8 @@ var descartesJS = (function(descartesJS) {
   function setNewToFixed() {
     var strNum;
     var indexOfDot;
-    var extraZero;
     var diff;
-
-    var indexOfE;
-    var exponentialNotationSplit;
+    var exponentialSplit;
     var exponentialNumber;
     var exponentialSign;
     var moveDotTo;
@@ -174,18 +171,17 @@ var descartesJS = (function(descartesJS) {
     Number.prototype.oToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
-      decimals = (decimals) ? decimals : 0;
-      decimals = (decimals<0) ? 0 : parseInt(decimals);
+      decimals = (decimals) || 0;
+      decimals = (decimals < 0) ? 0 : (decimals >> 0);
 
       strNum = this.toString();
-      indexOfE = strNum.indexOf("e");
 
-      if (indexOfE !== -1) {
-        exponentialNotationSplit = strNum.split("e");
-        exponentialSign = (exponentialNotationSplit[0][0] === "-") ? "-" : "";
-        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialNotationSplit[0].substring(1)).oToFixed(11) : parseFloat(exponentialNotationSplit[0]).oToFixed(11);
+      if (strNum.indexOf("e") !== -1) {
+        exponentialSplit = strNum.split("e");
+        exponentialSign = (exponentialSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialSplit[0].substring(1)).oToFixed(11) : parseFloat(exponentialSplit[0]).oToFixed(11);
 
-        moveDotTo = parseInt(exponentialNotationSplit[1]);
+        moveDotTo = (exponentialSplit[1] >> 0);
         indexOfDot = exponentialNumber.indexOf(".");
 
         if (indexOfDot+moveDotTo < 0) {
@@ -200,33 +196,27 @@ var descartesJS = (function(descartesJS) {
 
       indexOfDot = strNum.indexOf(".");
       extraZero = "";
-
+      
       // is a float number
       if (indexOfDot === -1) {
         if (decimals > 0) {
-          extraZero = ".";
+          strNum += ".";
         }
-
-        extraZero += (new Array(decimals+1)).join("0");
-
-        strNum = strNum + extraZero;
+        strNum += getStringExtraZeros(decimals);
       }
       else {
         diff = strNum.length - indexOfDot - 1;
-
+       
         if (diff >= decimals) {
           if (decimals <= 11) {
             strNum = parseFloat(strNum).oToFixed(decimals);
           }
-
-          strNum = (decimals>0) ? strNum.substring(0, indexOfDot +1 +decimals) : strNum.substring(0, indexOfDot);
+          else {
+            strNum = (decimals>0) ? strNum.substring(0, indexOfDot +decimals +1) : strNum.substring(0, indexOfDot);
+          }
         }
         else {
-          for (var i=0, l=decimals-diff; i<l; i++) {
-            extraZero += "0";
-          }
-
-          strNum = strNum + extraZero;
+          strNum += getStringExtraZeros(decimals-diff);
         }
       }
 
@@ -234,13 +224,13 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  var indexOfDot;
+  var decimalNumbers;
+
   /**
    *
    */
   descartesJS.removeNeedlessDecimals = function(num) {
-    var indexOfDot;
-    var decimalNumbers;
-
     if (typeof(num) == "string") {
       indexOfDot = num.indexOf(".");
 
@@ -257,8 +247,6 @@ var descartesJS = (function(descartesJS) {
             }
           }
         }
-
-        return num;
       }
     }
 
@@ -269,10 +257,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.returnValue = function(v) {
-    if (typeof(v) === "number") {
-      return parseFloat(v.toFixed(11));
-    }
-    return v;
+    return (typeof(v) === "number") ? parseFloat(v.toFixed(11)) : v;
   }
 
   /**
@@ -313,8 +298,8 @@ var descartesJS = (function(descartesJS) {
              y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
            }
   }
-  
 
+  // get the animation frame functions
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
   window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
@@ -385,51 +370,51 @@ var descartesJS = (function(descartesJS) {
   }
 
   var htmlAbout =
-  "<html>\n" +
-  "<head>\n" +
-  "<style>\n" +
-  "body{ text-align:center; }\n" +
-  "iframe{ width:650px; height:73px; overflow:hidden; border:1px solid black; }\n" +
-  "dt{ font-weight:bold; margin-top:10px; }\n" +
-  "</style>\n" +
-  "</head>\n" +
-  "<body>\n" +
-  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>\n" +
-  "<h2> <a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a> <br> <a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a> </h2>\n" +
-  "<dl>\n" +
-  "<dt> Dise&ntilde;o funcional:</dt>\n" +
-  "<dd>\n" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
-  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>\n" +
-  "<nobr>Juan Madrigal Muga</nobr>\n" +
-  "</dd>\n" +
-  "<dt>Autores del software:</dt>\n" +
-  "<dd>\n" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>\n" +
-  "<nobr>Marta Oliver&oacute; Serrat,</nobr>\n" +
-  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>\n" +
-  "<nobr>Joel Espinosa Longi</nobr>\n" +
-  "</dd>\n" +
-  "</dl>\n" +
-  "<p>\n" +
-  "El software en Java est&aacute; bajo la licencia\n" +
-  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1 </a>\n" +
-  "<br>\n" +
-  "El software en JavaScript est&aacute; bajo licencia\n" +
-  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>\n" +
-  "</p>\n" +
-  "<p>\n" +
-  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :\n" +
-  "<br>\n" +
-  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>\n" +
-  "</p>\n";
+  "<html>" +
+  "<head>" +
+  "<style>" +
+  "body{text-align:center;}" +
+  "iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}" +
+  "dt{font-weight:bold;margin-top:10px;}" +
+  "</style>" +
+  "</head>" +
+  "<body>" +
+  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>" +
+  "<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>" +
+  "<dl>" +
+  "<dt>Dise&ntilde;o funcional:</dt>" +
+  "<dd>" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
+  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>" +
+  "<nobr>Juan Madrigal Muga</nobr>" +
+  "</dd>" +
+  "<dt>Autores del software:</dt>" +
+  "<dd>" +
+  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
+  "<nobr>Marta Oliver&oacute; Serrat,</nobr>" +
+  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>" +
+  "<nobr>Joel Espinosa Longi</nobr>" +
+  "</dd>" +
+  "</dl>" +
+  "<p>" +
+  "El software en Java est&aacute; bajo la licencia" +
+  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>" +
+  "<br>" +
+  "El software en JavaScript est&aacute; bajo licencia" +
+  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>" +
+  "</p>" +
+  "<p>" +
+  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :" +
+  "<br>" +
+  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>" +
+  "</p>";
 
-  var htmlCreative = "<p>\n" +
-  "Este objeto, creado con Descartes, est&aacute; licenciado\n" +
-  "por sus autores como\n" +
-  "<a href='http://creativecommons.org/licenses/by-nc-sa/4.0/'><nobr>Creative Commons</nobr></a>\n" +
-  "<br>\n" +
-  "<a href='http://creativecommons.org/licenses/by-nc-sa/4.0/'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>\n" +
+  var htmlCreative = "<p>" +
+  "Este objeto, creado con Descartes, est&aacute; licenciado" +
+  "por sus autores como" +
+  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>" +
+  "<br>" +
+  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>" +
   "</p>";
 
   var htmlFinal = "</body> </html>";
@@ -440,13 +425,47 @@ var descartesJS = (function(descartesJS) {
   descartesJS.showAbout = function() {
     var content = htmlAbout;
     if (descartesJS.ccLicense) {
-      content+=htmlCreative;
+      content += htmlCreative;
     }
-    content+=htmlFinal;
+    content += htmlFinal;
 
     var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
     tmpW.document.write(content);
     tmpW.document.close();
+  }
+
+  /**
+   *
+   */
+  descartesJS.splitSeparator = function(value) {
+    value = value.replace(/\\n/g, "\n");
+
+    var inStr = false;
+    var charAt;
+    var valueArray = [];
+    var lastIndex = 0;
+
+    for (var i=0, l=value.length; i<l; i++) {
+      charAt = value.charAt(i);
+      // inside or outside of a string
+      if (charAt === "'") {
+        inStr = !inStr;
+      }
+
+      // if outside of a string then replace \\n and ; for a new line
+      if ((!inStr) && ( (charAt === ";") || (charAt === "\n") ) ) {
+        valueArray.push(value.substring(lastIndex, i).replace(/\n/g, "\\n"));
+        lastIndex = i+1;
+      }
+    }
+    valueArray.push(value.substring(lastIndex).replace(/\n/g, "\\n"));
+
+    return valueArray;
+  }
+
+  descartesJS.preventDefault = function(evt) {
+    evt.preventDefault();
+    return false;
   }
 
   return descartesJS;

@@ -15,10 +15,10 @@ var descartesJS = (function(descartesJS) {
   var tmpRotY;
 
   var width;
+  var height;
   var textLine;
   var w;
   var newText;
-  var height;
 
   var restText;
   var resultText;
@@ -28,6 +28,10 @@ var descartesJS = (function(descartesJS) {
   var decimals;
 
   var tmpString;
+
+  var fsize;
+  var posX;
+  var posY;
 
   /**
    * A Descartes text
@@ -45,15 +49,16 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
-
+    
     // alignment
     if (!this.align) {
-      this.align = "start";
+      this.align = "left";
     }
-
-    this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);
-    this.descent = descartesJS.getFontMetrics(this.font).descent
-    this.abs_coord = true;
+    
+    // anchor
+    if (!this.anchor) {
+      this.anchor = "top_left"
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +93,15 @@ var descartesJS = (function(descartesJS) {
       this.centered = true;
       this.exprW = expr[0][2];
       this.exprH = expr[0][3];
+      this.align = "left";
+      this.anchor = "center_center";
     }
+
+    this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+    this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
+    // this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);
+    this.ascent = descartesJS.getFontMetrics(this.font).ascent;
+    this.descent = descartesJS.getFontMetrics(this.font).descent;
   }
 
   /**
@@ -116,21 +129,65 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Text.prototype.drawAux = function(ctx, fill) {
     decimals = this.evaluator.eval(this.decimals);
 
+    var width;
+    var height;
+
     if (this.text.type === "rtfNode") {
       newText = this.text;
       this.ascent = 0;
+
+      // reposition the text
+      width = newText.w;
+      height = newText.h;
     }
     else {
       newText = this.splitText(this.text.toString(decimals, this.fixed).split("\\n"));
+
+      // reposition the text
+      width = this.getMaxWidth(newText);
+      height = (this.fontSize*1.2)*(newText.length);
     }
 
     // draw the text
     if (this.text != [""]) {
-      var posX = parseInt(this.exprX)+5;
-      var posY = parseInt(this.exprY)+this.ascent;
+      if (this.abs_coord) {
+        posX = parseInt(this.exprX);
+        posY = parseInt(this.exprY)+this.ascent;
+      }
+      else {
+        posX = parseInt( this.space.getAbsoluteX(this.exprX) );
+        posY = parseInt( this.space.getAbsoluteY(this.exprY) )+this.ascent;
+      }      
+    
+      //////////////////////////////////////////////////////////////////////
+      if (this.align === "right") {
+        posX = posX +width;
+      }
+      else if (this.align === "center") {
+        posX = posX +width/2;
+      }
+
+      // anchor
+      // horizontal left
+      if (this.anchor.match("right")) {
+        posX = posX -width;
+      }
+      // horizontal center
+      else if (this.anchor.match("_center")) {
+        posX = posX -width/2;
+      }
+
+      // vertical bottom
+      if (this.anchor.match("bottom")) {
+        posY = posY - height;
+      }
+      // vertical center
+      else if (this.anchor.match("center_")) {
+        posY = posY - height/2;
+      }
+      //////////////////////////////////////////////////////////////////////
 
       if (this.centered) {
-        var width = this.getMaxWidth(newText);
         posX = parseInt(this.exprX + (this.exprW - width)/2);
         posY = parseInt(this.exprY + this.descent + (this.exprH - (this.fontSize*1.2)*(newText.length-1))/2);
       }
@@ -165,11 +222,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       height = Math.floor(this.fontSize*1.2)*(newText.length);
-      evaluator.setVariable("_Text_H_", height);
+
       return newText;
     }
-
-    evaluator.setVariable("_Text_H_", 0);
 
     return text;
   }
@@ -213,7 +268,6 @@ var descartesJS = (function(descartesJS) {
         tempText = "";
         lastIndex = i+1;
       }
-
     }
     resultText.push( text.substring(lastIndex) );
 

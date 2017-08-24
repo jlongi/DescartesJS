@@ -15,33 +15,34 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the graphic
    */
   descartesJS.SpaceAP = function(parent, values) {
+    var self = this;
     // call the parent constructor
-    descartesJS.Space.call(this, parent, values);
+    descartesJS.Space.call(self, parent, values);
 
     // array for the parent public variables
-    this.iVars = null;
+    self.iVars = null;
     // array for the own public variables
-    this.eVars = null;
+    self.eVars = null;
 
     evaluator = parent.evaluator;
 
     // if the file name is an expression
-    if (this.file.match(/^\[/) && this.file.match(/\]$/)) {
-      this.file = evaluator.parser.parse(this.file.substring(1, this.file.length-1));
+    if (self.file.match(/^\[/) && self.file.match(/\]$/)) {
+      self.file = evaluator.parser.parse(self.file.substring(1, self.file.length-1));
     }
     // if the file name is a string
-    else if (this.file.match(/^\'/) && this.file.match(/\'$/)) {
-      this.file = evaluator.parser.parse(this.file);
+    else if (self.file.match(/^\'/) && self.file.match(/\'$/)) {
+      self.file = evaluator.parser.parse(self.file);
     }
     // if is not an expression or a string, then is a string without single quotes
     else {
-      this.file = evaluator.parser.parse("'" + this.file + "'");
+      self.file = evaluator.parser.parse("'" + self.file + "'");
     }
 
     // register which are the old open file
-    this.oldFile = evaluator.eval(this.file);
+    self.oldFile = evaluator.eval(self.file);
 
-    this.initFile();
+    self.initFile();
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -53,18 +54,20 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.SpaceAP.prototype.initFile = function() {
-    this.firstUpdate = true;
+    var self = this;
+
+    self.firstUpdate = true;
 
     var response;
 
-    if (this.oldFile) {
+    if (self.oldFile) {
       // if the content is embedded in the webpage
-      var spaceElement = document.getElementById(this.oldFile);
+      var spaceElement = document.getElementById(self.oldFile);
       if ((spaceElement) && (spaceElement.type == "descartes/spaceApFile")) {
         response = spaceElement.text;
       }
       else {
-        response = descartesJS.openExternalFile(this.oldFile);
+        response = descartesJS.openExternalFile(self.oldFile);
       }
 
       if (response != null) {
@@ -93,75 +96,74 @@ var descartesJS = (function(descartesJS) {
 
       var myApplet = document.createElement("div");
       myApplet.innerHTML = appletContent;
-      myApplet.firstChild.setAttribute("width", this.w);
-      myApplet.firstChild.setAttribute("height", this.h);
+      myApplet.firstChild.setAttribute("width", self.w);
+      myApplet.firstChild.setAttribute("height", self.h);
 
-      var oldContainer = (this.descApp) ? this.descApp.container : null;
+      var oldContainer = (self.descApp) ? self.descApp.container : null;
 
-      this.descApp = new descartesJS.DescartesApp(myApplet.firstChild);
-      this.descApp.container.setAttribute("class", "DescartesAppContainer");
-      this.descApp.container.setAttribute("style", "position:absolute;overflow:hidden;background-color:" + this.background + ";width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
+      self.descApp = new descartesJS.DescartesApp(myApplet.firstChild);
+      self.descApp.container.setAttribute("class", "DescartesAppContainer");
+      self.descApp.container.setAttribute("style", "position:absolute;overflow:hidden;background-color:" + self.background + ";width:" + self.w + "px;height:" + self.h + "px;left:" + self.x + "px;top:" + self.y + "px;z-index:" + self.zIndex + ";");
 
       // add the new space
       if (oldContainer) {
-        this.parent.container.replaceChild(this.descApp.container, oldContainer);
+        self.parent.container.replaceChild(self.descApp.container, oldContainer);
       }
       else {
-        this.parent.container.insertBefore(this.descApp.container, this.parent.loader);
+        self.parent.container.insertBefore(self.descApp.container, self.parent.loader);
       }
 
       // for every space find his offset
-      var tmpSpaces = this.descApp.spaces;
+      var tmpSpaces = self.descApp.spaces;
 
-      this.descApp.container.style.display = (this.evaluator.eval(this.drawif) > 0) ? "block" : "none";
+      self.descApp.container.style.display = (self.evaluator.eval(self.drawif) > 0) ? "block" : "none";
 
-      var self = this;
-      this.descApp.update = function() {
-        this.updateAuxiliaries();
-        this.updateEvents();
-        this.updateControls();
-        this.updateSpaces();
+      self.descApp.update = function() {
+        self.updateAuxiliaries();
+        self.updateEvents();
+        self.updateControls();
+        self.updateSpaces();
 
         self.exportar();
       }
     }
     // if cant read the file then create an empty container that has the background color and the background image
     else {
-      var oldContainer = (this.descApp) ? this.descApp.container : null;
+      var oldContainer = (self.descApp) ? self.descApp.container : null;
 
-      this.descApp = {};
-      this.descApp.container = document.createElement("div");
-      this.descApp.container.setAttribute("class", "DescartesAppContainer");
+      self.descApp = {};
+      self.descApp.container = document.createElement("div");
+      self.descApp.container.setAttribute("class", "DescartesAppContainer");
 
       // style container
-      var styleString = "position:absolute;overflow:hidden;background-color:" + this.background + ";width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";";
+      var styleString = "position:absolute;overflow:hidden;background-color:" + self.background + ";width:" + self.w + "px;height:" + self.h + "px;left:" + self.x + "px;top:" + self.y + "px;z-index:" + self.zIndex + ";";
 
-      if (this.image) {
-        if (this.bg_display == "topleft") {
-          styleString += "background-image: url(" + this.imageSrc + "); background-repeat:no-repeat;";
+      if (self.image) {
+        if (self.bg_display == "topleft") {
+          styleString += "background-image: url(" + self.imageSrc + "); background-repeat:no-repeat;";
         }
-        else if (this.bg_display == "stretch") {
-          styleString += "background-image: url(" + this.imageSrc + "); background-repeat:no-repeat; background-size: 100% 100%;";
+        else if (self.bg_display == "stretch") {
+          styleString += "background-image: url(" + self.imageSrc + "); background-repeat:no-repeat; background-size: 100% 100%;";
         }
-        else if (this.bg_display == "patch") {
-          styleString += "background-image: url(" + this.imageSrc + ");";
+        else if (self.bg_display == "patch") {
+          styleString += "background-image: url(" + self.imageSrc + ");";
         }
-        else if (this.bg_display == "imgcenter") {
-          styleString += "background-image: url(" + this.imageSrc + "); background-repeat:no-repeat; background-position: center center;";
+        else if (self.bg_display == "imgcenter") {
+          styleString += "background-image: url(" + self.imageSrc + "); background-repeat:no-repeat; background-position: center center;";
         }
       }
 
-      this.descApp.container.setAttribute("style", styleString);
+      self.descApp.container.setAttribute("style", styleString);
 
       // add the container to the principal container
       if (oldContainer) {
-        this.parent.container.replaceChild(this.descApp.container, oldContainer);
+        self.parent.container.replaceChild(self.descApp.container, oldContainer);
       }
       else {
-        this.parent.container.insertBefore(this.descApp.container, this.parent.loader);
+        self.parent.container.insertBefore(self.descApp.container, self.parent.loader);
       }
 
-      this.descApp.container.style.display = (this.evaluator.eval(this.drawif) > 0) ? "block" : "none";
+      self.descApp.container.style.display = (self.evaluator.eval(self.drawif) > 0) ? "block" : "none";
     }
   }
 

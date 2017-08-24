@@ -27,19 +27,8 @@ var descartesJS = (function(descartesJS) {
       this.parameter = this.parameter.substring(0, indexOfTarget-1);
     }
 
-    // ### PROMETEO ###
-    // if ( (this.target !== "_blank") && (this.target !== "_parent") && (this.target !== "_self") && (this.target !== "_top") ) {
-    //   this.actionExec = function() {
-    //     window.parent.postMessage({ type: "changeTarget", name: this.target, value: this.parameter }, '*');
-    //   }
-    //   return;
-    // }
-    // ### PROMETEO ###
-
     // if the parameter is JavaScript code
     if (this.parameter.substring(0,10) == "javascript") {
-      // this.javascript = true;
-
       // replace the &squot; with '
       this.parameter = (this.parameter.substring(11)).replace(/&squot;/g, "'");
       
@@ -47,11 +36,13 @@ var descartesJS = (function(descartesJS) {
         eval(this.parameter);
       }
     } 
+
     // if the paramater is a file name
     else {
       // if the parameter is a file name relative to the current page
       if (this.parameter.substring(0,7) != "http://") {
-        this.parameter = window.location.href.substring(0, window.location.href.lastIndexOf("/")+1) + this.parameter;
+        var location = window.__dirname || window.location.href;
+        this.parameter = location.substring(0, location.lastIndexOf("/")+1) + this.parameter;
       }
  
       // build an action to open a new page relative to the actual page
@@ -59,7 +50,6 @@ var descartesJS = (function(descartesJS) {
         window.open(this.parameter, this.target, "width=" + this.parent.width + ",height=" + this.parent.height + ",left=" + (window.screen.width - this.parent.width)/2 + ", top=" + (window.screen.height - this.parent.height)/2 + "location=0,menubar=0,scrollbars=0,status=0,titlebar=0,toolbar=0");
       }
     }
-
   }
   
   ////////////////////////////////////////////////////////////////////////////////////

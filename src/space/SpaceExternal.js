@@ -15,9 +15,6 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the graphic
    */
   descartesJS.SpaceExternal = function(parent) {
-    // call the parent constructor
-    // descartesJS.Space.call(this, parent, values);
-
     self = this;
     self.parent = parent;
 
@@ -36,11 +33,6 @@ var descartesJS = (function(descartesJS) {
     self.ctrs = [];
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Space
-  ////////////////////////////////////////////////////////////////////////////////////
-  // descartesJS.extend(descartesJS.SpaceExternal, descartesJS.Space);
-
   descartesJS.SpaceExternal.prototype.init = function() {
     document.body.appendChild(this.container);
 
@@ -56,49 +48,54 @@ var descartesJS = (function(descartesJS) {
     self.numCtr = l;
 
     // create the credits button
-    var btnAbout = new descartesJS.Button(self.parent, { region: "external",
-                                                         name: (self.language == "english") ? "about" : "cr\u00E9ditos",
-                                                         font_size: parser.parse(fontSizeDefaultButtons),
-                                                         expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)")
-                                                        });
+    var btnAbout = new descartesJS.Button(self.parent, { 
+      region: "external",
+      name: (self.language == "english") ? "about" : "cr\u00E9ditos",
+      font_size: parser.parse(fontSizeDefaultButtons),
+      expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)")
+    });
     btnAbout.actionExec = { execute: descartesJS.showAbout };
     btnAbout.update();
 
     // create the configuration button
-    var btnConfig = new descartesJS.Button(self.parent, { region: "external",
-                                                          name: "config",
-                                                          font_size: parser.parse(fontSizeDefaultButtons),
-                                                          action: "config",
-                                                          expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)")
-                                                        });
+    var btnConfig = new descartesJS.Button(self.parent, { 
+      region: "external",
+      name: "config",
+      font_size: parser.parse(fontSizeDefaultButtons),
+      action: "config",
+      expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)")
+    });
     btnConfig.update();
 
     // create the init button
-    var btnInit = new descartesJS.Button(self.parent, { region: "external",
-                                                        name: (self.language == "english") ? "init" : "inicio",
-                                                        font_size: parser.parse(fontSizeDefaultButtons),
-                                                        action: "init",
-                                                        expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
-                                                      });
+    var btnInit = new descartesJS.Button(self.parent, { 
+      region: "external",
+      name: (self.language == "english") ? "init" : "inicio",
+      font_size: parser.parse(fontSizeDefaultButtons),
+      action: "init",
+      expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
+    });
     btnInit.update();
 
     // create the clear button
-    var btnClear = new descartesJS.Button(self.parent, { region: "external",
-                                                         name: (self.language == "english") ? "clear" : "limpiar",
-                                                         font_size: parser.parse(fontSizeDefaultButtons),
-                                                         action: "clear",
-                                                         expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
-                                                       });
+    var btnClear = new descartesJS.Button(self.parent, { 
+      region: "external",
+      name: (self.language == "english") ? "clear" : "limpiar",
+      font_size: parser.parse(fontSizeDefaultButtons),
+      action: "clear",
+      expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
+    });
     btnClear.update();
 
     // create the clear button
-    var btnClose = new descartesJS.Button(self.parent, { region: "external",
-                                                         name: (self.language == "english") ? "close" : "cerrar",
-                                                         font_size: parser.parse(fontSizeDefaultButtons),
-                                                         expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)")
-                                                       });
+    var btnClose = new descartesJS.Button(self.parent, { 
+      region: "external",
+      name: (self.language == "english") ? "close" : "cerrar",
+      font_size: parser.parse(fontSizeDefaultButtons),
+      expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)")
+    });
     btnClose.update();
-    btnClose.canvas.addEventListener("click", function(evt) {
+    btnClose.btn.addEventListener("click", function(evt) {
       self.hide();
     });
 

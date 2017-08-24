@@ -6,7 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;\\f1\\fcharset0 Arial;\\f2\\fcharset0 Arial;\\f3\\fcharset0 Arial;\\f4\\fcharset0 Arial;}"+
+  var tmpVal;
+  var scaleToFitX;
+  var scaleToFitY;
+  var optimalRatio;
+  
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}"+
                  "{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22 "+
                  "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
                  "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
@@ -28,7 +33,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.applet = applet;
-    // this.externalVariables = {};
 
     /**
      * container of the java applet
@@ -57,7 +61,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.decimal_symbol = ".";
-    this.decimal_symbol_regexp = new RegExp("\\" + this.decimal_symbol, "g");
+    this.decimal_symbol_regexp = new RegExp("\\.", "g");
 
     /**
      * language of the lesson
@@ -73,11 +77,11 @@ var descartesJS = (function(descartesJS) {
      */
     this.children = applet.getElementsByTagName("param");
 
-    // se the license attribute
+    // set the license attribute
     descartesJS.ccLicense = true;
     for (var i=0,l=this.children.length; i<l; i++) {
       if (this.children[i].name === "CreativeCommonsLicense") {
-        descartesJS.ccLicense = (this.children[i].value === "no") ? false : true;
+        descartesJS.ccLicense = !(this.children[i].value === "no");
       }
     }
 
@@ -98,28 +102,14 @@ var descartesJS = (function(descartesJS) {
      * type {Array.<Image>}
      * @private
      */
-    this.images = {};
-
-    /**
-     * number of images used in the applet
-     * type {Number}
-     * @private
-     */
-    this.images.length = -1;
+    this.images = { length: -1 };
 
     /**
      * audios used in the applet
      * type {Array.<Audio>}
      * @private
      */
-    this.audios = {};
-
-    /**
-     * number of audios used in the applet
-     * type {Number}
-     * @private
-     */
-    this.audios.length = -1;
+    this.audios = { length: -1 };
 
     /**
      * variable to record if the applet is interpreted for the first time, used to show the loader screen
@@ -128,6 +118,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.firstRun = true;
 
+    // function to prevent undefined error
     this.scaleToFit = function() {};
 
     // init the interpretation
@@ -135,7 +126,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Init the variables needed for parsing and create the descartes lesson
+   * Init the variables needed for parsing and create the descartes scene
    */
   descartesJS.DescartesApp.prototype.init = function() {
     // stop the animation, if the action init executes maybe the animation is playing
@@ -148,6 +139,9 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluator = new descartesJS.Evaluator(this);
 
+    // get the url paremeter if any
+    this.getURLParameters();
+
     /**
      * parser of elements in the lesson
      * @type {LessonParser}
@@ -156,7 +150,7 @@ var descartesJS = (function(descartesJS) {
     this.lessonParser = new descartesJS.LessonParser(this);
 
     /**
-     * variable that tell us whether the lesson is an arquimedes lesson
+     * variable that tell whether the lesson is an arquimedes lesson
      * type {Boolean}
      * @private
      */
@@ -190,7 +184,7 @@ var descartesJS = (function(descartesJS) {
         this.imgLoader = children_i.value;
       }
 
-      // get image cover space
+      // get the cover of the scene
       if (children_i.name == "expand") {
         if (children_i.value == "cover") {
           this.expand = children_i.value;
@@ -221,7 +215,7 @@ var descartesJS = (function(descartesJS) {
     // configure an arquimedes lesson
     if (this.arquimedes) {
       this.ratio = 1;
-      // modify the lesson height if find rtf height
+      // modify the lesson height if has rtf height parameter
       if (heightRTF) {
         this.height =  heightRTF + heightButtons + licenceHeight; // 70 is the height of the licence image
       }
@@ -350,9 +344,9 @@ var descartesJS = (function(descartesJS) {
     this.container.setAttribute("class", "DescartesAppContainer");
     this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
 
-//
+    //
     this.scaleToFit();
-//
+    //
 
     // add the loader
     this.container.appendChild(this.loader);
@@ -366,8 +360,6 @@ var descartesJS = (function(descartesJS) {
       this.loader.style.backgroundColor = "rgba(0,0,0,0)";
     }
 
-    // this.adjustDimensions();
-
     // first time interpretation
     if (this.firstRun) {
       this.descartesLoader = new descartesJS.DescartesLoader(this);
@@ -377,12 +369,13 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Init the parse and creation of objects for the descartes lesson
+   * Init the parsing and creation of objects for the descartes lesson
    */
   descartesJS.DescartesApp.prototype.initBuildApp = function() {
     descartesJS.showConfig = true;
 
     var children = this.children;
+    var children_i;
     var lessonParser = this.lessonParser;
 
     var tmpSpaces = [];
@@ -392,8 +385,6 @@ var descartesJS = (function(descartesJS) {
     var tmp3DGraphics = [];
     var tmpAnimations = [];
 
-    var children_i;
-
     // check all the children
     for(var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
@@ -401,11 +392,13 @@ var descartesJS = (function(descartesJS) {
       // find if the scene is editable
       if (babel[children_i.name] == "editable") {
         descartesJS.showConfig = (babel[children_i.value] == 'false') ? false : true;
+        continue;
       }
 
       // find the language of the lesson
       if (babel[children_i.name] == "language") {
         this.language = children_i.value;
+        continue;
       }
 
       // find the parameters for the pleca
@@ -440,12 +433,6 @@ var descartesJS = (function(descartesJS) {
         this.language = children_i.value;
         continue;
       }
-
-      // // find if the applet is enable for the interaction
-      // if (babel[children_i.getAttribute("enable")] == "enable") {
-      //   this.enable = babel[children_i.getAttribute("enable")];
-      //   continue;
-      // }
 
       // ##ARQUIMEDES## //
       // find the rtf text of an arquimedes lesson
@@ -488,16 +475,7 @@ var descartesJS = (function(descartesJS) {
       // if the name of the children start with "G" then is a graphic
       if ((/^G_/).test(children_i.name)) {
         // prevenir usar un canvas pseudo retina
-        if ( (children_i.value.match("type='fill'")) ||
-             (children_i.value.match("tipo='relleno'")) ||
-             (children_i.value.match("tipus='ple'")) ||
-             (children_i.value.match("mota='betea'")) ||
-             (children_i.value.match("type='plein'")) ||
-             (children_i.value.match("tipo='recheo'")) ||
-             (children_i.value.match("tipo='curva_piena'")) ||
-             (children_i.value.match("tipo='preencher'")) ||
-             (children_i.value.match("tipus='ple'"))
-           ) {
+        if (children_i.value.match(/type='fill'|tipo='relleno'|tipus='ple'|mota='betea'|type='plein'|tipo='recheo'|tipo='curva_piena'|tipo='preencher'|tipus='ple'/)) {
           this.ratio = 1;
         }
         tmpGraphics.push(children_i.value);
@@ -552,12 +530,10 @@ var descartesJS = (function(descartesJS) {
     // init the graphics
     var tmpGraph;
     for (var i=0, l=tmpGraphics.length; i<l; i++) {
+      descartesJS.DEBUG.elemIndex = i;
       tmpGraph = lessonParser.parseGraphic(tmpGraphics[i]);
       if (tmpGraph) {
-        if (tmpGraph.visible) {
-          this.editableRegionVisible = true;
-        }
-
+        this.editableRegionVisible = (tmpGraph.visible);
         tmpGraph.space.addGraph(tmpGraph);
       }
     }
@@ -609,9 +585,6 @@ var descartesJS = (function(descartesJS) {
     else {
       this.finishInit();
     }
-
-// console.log(this.auxiliaries)
-
   }
 
   /**
@@ -623,17 +596,8 @@ var descartesJS = (function(descartesJS) {
 
     // hide the loader
     this.loader.style.display = "none";
-    // this.parentC.style.overflow = "hidden";
 
-    // // if the applet is disabled then put a div blocking the interacion
-    // if (this.enable) {
-    //   this.blocker = document.createElement("div");
-    //   this.blocker.setAttribute("class", "blocker");
-    //   this.blocker.setAttribute("style", "width:" + this.width + "px; height:" + this.height + "px");
-    //   this.container.appendChild(this.blocker);
-    // }
-
-    // if the window parent is diferente from the current window, then the lesson is embedded in an iFrame
+    // if the window parent is diferente from the current window, then is embedded in an iFrame
     if (window.parent !== window) {
       this.parentC.style.margin = "0px";
       this.parentC.style.padding = "0px";
@@ -652,87 +616,86 @@ var descartesJS = (function(descartesJS) {
     this.externalSpace.init();
 
     ////////////////////////////////////////////////////////////////
-    // new mathjax
+    // init arquimedes 
     ////////////////////////////////////////////////////////////////
-    // if ((this.arquimedes) && (MathJax)) {
-    //   var x = this.stage.stageSpace.container.style.left;
-    //   var y = this.stage.stageSpace.container.style.top;
-    //   var mathJaxstageSpace = document.createElement("div");
-    //   mathJaxstageSpace.setAttribute("style", "position:relative;left:" + x + ";top:" + y + ";text-align:left;margin:0;padding:18px 0 0 18px;");
-    //   var objectReferences = { ctrs: [], spaces: [] };
-    //   mathJaxstageSpace.innerHTML = this.stage.stageSpace.backGraphics[0].text.toHTML(objectReferences);
-    //   this.stage.stageSpace.container.style.visibility = "hidden";
-    //   this.stage.stageSpace.container.style.display = "none";
-    //   // this.stage.container.insertBefore(mathJaxstageSpace, this.stage.stageSpace.container);
-    //   this.stage.container.replaceChild(mathJaxstageSpace, this.stage.stageSpace.container);
-    //   this.stage.container.style.background = "#fff";
-    //   this.container.style.height = "100%";
-    //   this.stage.container.style.height = "100%";
-    //   this.container.style.overflow = "visible";
-    //
-    //   var tmpBottom = document.createElement("div");
-    //   tmpBottom.setAttribute("style", "padding-bottom:25px;");
-    //   tmpBottom.innerHTML = "<br/><hr style='border-width:2px;'>";
-    //
-    //   var tmpAnchor = document.createElement("a");
-    //   tmpAnchor.setAttribute("href", "https://creativecommons.org/licenses/by-nc-sa/4.0/");
-    //   tmpAnchor.setAttribute("target", "_blank");
-    //   tmpBottom.appendChild(tmpAnchor);
-    //
-    //   var tmpImage = descartesJS.getCCLImg();
-    //   tmpImage.setAttribute("style", "position:absolute;left:30px;padding-top:4px;");
-    //   tmpAnchor.appendChild(tmpImage);
-    //
-    //   var tmpBottomText = document.createElement("div");
-    //   tmpBottomText.setAttribute("style", "display:inline-block;width:100%;text-align:left;")
-    //   tmpBottomText.innerHTML = this.stage.stageSpace.backGraphics[1].text.toHTML();
-    //   tmpBottomText.removeChild(tmpBottomText.firstChild);
-    //   tmpBottomText.removeChild(tmpBottomText.firstChild);
-    //   tmpBottom.appendChild(tmpBottomText);
-    //   mathJaxstageSpace.appendChild(tmpBottom);
-    //
-    //   var spaces_i;
-    //   var dom_elem;
-    //   var tmpBorder;
-    //   for (var i=0; i<objectReferences.spaces.length; i++) {
-    //     spaces_i = objectReferences.spaces[i];
-    //     if (spaces_i.value.container) {
-    //       dom_elem = document.getElementById(spaces_i.cID);
-    //       tmpBorder = spaces_i.value.container.style.border;
-    //       tmpBorder = (tmpBorder != "") ? "border:" + tmpBorder + ";" : "";
-    //       spaces_i.value.container.setAttribute("style", tmpBorder);
-    //       dom_elem.appendChild(spaces_i.value.container);
-    //     }
-    //   }
-    //   var ctrs_i;
-    //   var ctr_container;
-    //   for (var i=0; i<objectReferences.ctrs.length; i++) {
-    //     ctrs_i = objectReferences.ctrs[i];
-    //     ctr_container = ctrs_i.value.containerControl || ctrs_i.value.container;
-    //     if (ctr_container) {
-    //       dom_elem = document.getElementById(ctrs_i.cID);
-    //       ctr_container.setAttribute("style", "width:" + ctrs_i.value.w + "px;height:" + ctrs_i.value.h + "px;");
-    //       dom_elem.appendChild(ctr_container);
-    //     }
-    //   }
-    //
-    //   MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    // }
-    ////////////////////////////////////////////////////////////////
+    if (this.arquimedes) {
+      var x = this.stage.stageSpace.container.style.left;
+      var y = this.stage.stageSpace.container.style.top;
+      var domStageSpace = document.createElement("div");
+      domStageSpace.setAttribute("style", "position:relative;left:" + x + ";top:" + y + ";text-align:left;margin:0;padding:18px 0 0 18px;");
+      var objectReferences = { ctrs: [], spaces: [] };
+      domStageSpace.appendChild(this.stage.stageSpace.backGraphics[0].text.toHTML(objectReferences));
+      var textBlock = domStageSpace.firstChild;
+      this.stage.stageSpace.container.style.visibility = "hidden";
+      this.stage.stageSpace.container.style.display = "none";
+      this.stage.container.replaceChild(domStageSpace, this.stage.stageSpace.container);
+      this.stage.container.style.background = "#fff";
+      this.container.style.height = "100%";
+      this.stage.container.style.height = "100%";
+      this.container.style.overflow = "visible";
+
+      var tmpBottomContainer = document.createElement("div");
+      tmpBottomContainer.setAttribute("style", "margin:auto;width:100%;padding:0;padding-bottom:30px;text-align:center;");
+
+      var tmpBottom = document.createElement("div");
+      tmpBottom.setAttribute("style", "position:relative;display:inline-block;"); 
+    
+      var tmpAnchor = document.createElement("a");
+      tmpAnchor.setAttribute("href", "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es");
+      tmpAnchor.setAttribute("target", "_blank");
+      tmpBottom.appendChild(tmpAnchor);
+    
+      var tmpImage = descartesJS.getCCLImg();
+      tmpImage.setAttribute("style", "position:absolute;left:15px;padding-top:20px;");
+      tmpAnchor.appendChild(tmpImage);
+    
+      var tmpBottomText = document.createElement("div");
+      tmpBottomText.setAttribute("style", "display:inline-block;width:100%;text-align:left;");
+      tmpBottomText.appendChild(this.stage.stageSpace.backGraphics[1].text.toHTML());
+      tmpBottom.appendChild(tmpBottomText);
+      tmpBottomContainer.appendChild(tmpBottom);
+      domStageSpace.appendChild(tmpBottomContainer);
+    
+      var spaces_i;
+      var dom_elem;
+      var tmpBorder;
+      for (var i=0; i<objectReferences.spaces.length; i++) {
+        spaces_i = objectReferences.spaces[i];
+        if (spaces_i.value.container) {
+          dom_elem = document.getElementById(spaces_i.cID);
+          tmpBorder = spaces_i.value.container.style.border;
+          tmpBorder = (tmpBorder != "") ? ("border:" + tmpBorder + ";") : "";
+          spaces_i.value.container.setAttribute("style", tmpBorder);
+          dom_elem.appendChild(spaces_i.value.container);
+        }
+      }
+      var ctrs_i;
+      var ctr_container;
+      for (var i=0; i<objectReferences.ctrs.length; i++) {
+        ctrs_i = objectReferences.ctrs[i];
+        ctr_container = ctrs_i.value.containerControl || ctrs_i.value.container;
+        if (ctr_container) {
+          dom_elem = document.getElementById(ctrs_i.cID);
+          ctr_container.setAttribute("style", "width:" + ctrs_i.value.w + "px;height:" + ctrs_i.value.h + "px;");
+          dom_elem.appendChild(ctr_container);
+        }
+      }
+
+      richTextEditor.adjustFormulaFontSize(textBlock);
+      richTextEditor.adjustHeight(textBlock);
+    }
     ////////////////////////////////////////////////////////////////
 
     // trigger descartesReady event
     var evt;
     try {
-        // custom event for other browsers
+        // custom event for majority of browsers
         evt = new CustomEvent("descartesReady", { "detail": "" });
     }
     catch(e) {
         // custom event for ie
         evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("descartesReady", false, false, {
-            "cmd": ""
-        });
+        evt.initCustomEvent("descartesReady", false, false, { "cmd": "" });
     }
     // send the event
     window.dispatchEvent(evt);
@@ -742,10 +705,7 @@ var descartesJS = (function(descartesJS) {
    * Adjust the size of the window if needed
    */
   descartesJS.DescartesApp.prototype.adjustSize = function() {
-    document.body.style.margin = "0px";
-    document.body.style.padding = "0px";
-    this.parentC.style.margin = "0px";
-    this.parentC.style.padding = "0px";
+    document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0px";
     var winWidth = parseInt(this.width)+30;
     var winHeight = parseInt(this.height)+90;
 
@@ -802,10 +762,7 @@ var descartesJS = (function(descartesJS) {
 
     // descartes 4
     var fontSizeDefaultButtons = "15";
-    var aboutWidth = 100;
-    var configWidth = 100;
-    var initWidth = 100;
-    var clearWidth = 100;
+    var aboutWidth = configWidth = initWidth = clearWidth = 100;
 
     // descartes 2
     if (this.version == 2) {
@@ -816,15 +773,7 @@ var descartesJS = (function(descartesJS) {
       clearWidth = 53;
     }
 
-    var northRegionHeight = 0;
-    var southRegionHeight = 0;
-    var eastRegionHeight = 0;
-    var westRegionHeight = 0;
-    var editableRegionHeight = 0;
-    var northRegionWidht = 0;
-    var southRegionWidht = 0;
-    var eastRegionWidth = 0;
-    var westRegionWidth = 0;
+    var northRegionHeight = southRegionHeight = eastRegionHeight = westRegionHeight = editableRegionHeight = northRegionWidht = southRegionWidht = eastRegionWidth = westRegionWidth = 0;
 
     var northSpaceControls = this.northSpace.controls;
     var southSpaceControls = this.southSpace.controls;
@@ -834,6 +783,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // north region
     if ((buttonsConfig.rowsNorth > 0) || ( northSpaceControls.length > 0) || (buttonsConfig.about) || (buttonsConfig.config)) {
+      // if the number of rows is zero but contains controls then the height is the specified height
       if (buttonsConfig.rowsNorth <= 0) {
         northRegionHeight = buttonsConfig.height;
         buttonsConfig.rowsNorth = 1;
@@ -845,7 +795,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.northSpace.container;
       container.setAttribute("id", "descartesJS_north");
-      container.setAttribute("style", "width:" + principalContainer.width + "px; height:" + northRegionHeight + "px; background:#c0c0c0; position:absolute; left:0px; top: " + this.plecaHeight + "px; z-index:100;")
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + this.plecaHeight + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -900,7 +850,6 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // south region
     if ((buttonsConfig.rowsSouth > 0) || (southSpaceControls.length > 0) || (buttonsConfig.init) || (buttonsConfig.clear)) {
-
       // if the number of rows is zero but contains controls then the height is the specified height
       if (buttonsConfig.rowsSouth <= 0) {
         southRegionHeight = buttonsConfig.height;
@@ -928,7 +877,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.southSpace.container;
       container.setAttribute("id", "descartesJS_south");
-      container.setAttribute("style", "width:" + principalContainer.width + "px; height:" + southRegionHeight + "px; background:#c0c0c0; position:absolute; left: 0px; top:" + (principalContainer.height-southRegionHeight) + "px; z-index:100;")
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + (principalContainer.height-southRegionHeight) + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -972,7 +921,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.eastSpace.container;
       container.setAttribute("id", "descartesJS_east");
-      container.setAttribute("style", "width:" + eastRegionWidth + "px; height:" + eastRegionHeight + "px; background:#c0c0c0; position:absolute; left:" + (principalContainer.width - eastRegionWidth) + "px; top:" + northRegionHeight + "px; z-index:100;");
+      container.setAttribute("style", "width:" + eastRegionWidth + "px;height:" + eastRegionHeight + "px;background:#c0c0c0;position:absolute;left:" + (principalContainer.width - eastRegionWidth) + "px;top:" + northRegionHeight + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -992,7 +941,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.westSpace.container;
       container.setAttribute("id", "descartesJS_west");
-      container.setAttribute("style", "width: " + westRegionWidth + "px; height: " + westRegionHeight + "px; background: #c0c0c0; position: absolute; left: 0px; top: " + northRegionHeight + "px; z-index: 100;");
+      container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + northRegionHeight + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -1010,7 +959,7 @@ var descartesJS = (function(descartesJS) {
       editableRegionHeight = buttonsConfig.height;
       var container = this.editableRegion.container;
       container.setAttribute("id", "descartesJS_editableRegion");
-      container.setAttribute("style", "width:" + principalContainer.width + "px; height:" + editableRegionHeight + "px; position:absolute; left:0px; top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px; z-index:100; background:#c0c0c0; overflow:hidden;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;position:absolute;left:0px;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;z-index:100;background:#c0c0c0;overflow:hidden;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -1025,13 +974,13 @@ var descartesJS = (function(descartesJS) {
 
           ////////////////////////////////////////////////////////////////
           // the container
-          editableRegionTextFields[i].container.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;width:" + (textFieldsWidth-4) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;");// border: 2px groove white;");
+          editableRegionTextFields[i].container.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";width:" + (textFieldsWidth-4) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;");
 
           ////////////////////////////////////////////////////////////////
           // the label
           var label = editableRegionTextFields[i].container.firstChild;
 
-          label.setAttribute("style", "font-family:descartesJS_sansserif,Arial,Sans-serif;font-size:" + fontSize + "px;padding-top:0%;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
+          label.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";font-size:" + fontSize + "px;padding-top:0px;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
           var labelWidth = label.offsetWidth;
           label.style.width = labelWidth + "px";
 
@@ -1041,13 +990,13 @@ var descartesJS = (function(descartesJS) {
           ////////////////////////////////////////////////////////////////
           // the text field
           var textfield = editableRegionTextFields[i].container.lastChild;
-          textfield.setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth-labelWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + (labelWidth) + "px;top:0;border:2px groove white;");
+          textfield.setAttribute("style", "font-family:"+ descartesJS.monospace_font +";font-size:" + fontSize + "px;width:" + (textFieldsWidth-labelWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + (labelWidth) + "px;top:0;border:2px groove white;");
         }
 
         else {
           container.appendChild(editableRegionTextFields[i]);
 
-          editableRegionTextFields[i].setAttribute("style", "font-family:descartesJS_monospace,'Courier New',Monospace;font-size:" + fontSize + "px;width:" + (textFieldsWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;border:2px groove white;");
+          editableRegionTextFields[i].setAttribute("style", "font-family:"+ descartesJS.monospace_font +";font-size:" + fontSize + "px;width:" + (textFieldsWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;border:2px groove white;");
         }
       }
     }
@@ -1055,11 +1004,8 @@ var descartesJS = (function(descartesJS) {
     this.displaceRegionNorth = northRegionHeight;
     this.displaceRegionSouth = southRegionHeight;
 
-    this.displaceRegionEast = eastRegionHeight;
+    this.displaceRegionEast = eastRegionWidth;
     this.displaceRegionWest = westRegionWidth;
-
-    // principalContainer.width = principalContainer.width - eastRegionWidth;
-    // principalContainer.height = principalContainer.height - southRegionHeight - editableRegionHeight;
 
     for (var i=0, l=this.spaces.length; i<l; i++) {
       this.spaces[i].init()
@@ -1275,15 +1221,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Control} return a control with a component identifier or a dummy control if not find
    */
   descartesJS.DescartesApp.prototype.getControlByCId = function(cID) {
-    var controls_i;
-    for (var i=0, l=this.controls.length; i<l; i++) {
-      controls_i = this.controls[i];
-      if (controls_i.cID == cID) {
-        return controls_i;
-      }
-    }
-
-    return {update: function() {}, w: 0};
+    return this.getControlById(cID, true);
   }
 
   /**
@@ -1291,16 +1229,17 @@ var descartesJS = (function(descartesJS) {
    * @param {String} id the identifier of the control
    * @return {Control} return a control with identifier or a dummy control if not find
    */
-  descartesJS.DescartesApp.prototype.getControlById = function(id) {
+  descartesJS.DescartesApp.prototype.getControlById = function(id, cID) {
+    var param = (cID) ? "cID" : "id";
     var controls_i;
     for (var i=0, l=this.controls.length; i<l; i++) {
       controls_i = this.controls[i];
-      if (controls_i.id == id) {
+      if (controls_i[param] == id) {
         return controls_i;
       }
     }
 
-    return {update: function() {}};
+    return { update: function() {}, w: 0, h: 0 };
   }
 
   /**
@@ -1309,15 +1248,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Space} return a space with the component identifier or a dummy space if not find
    */
   descartesJS.DescartesApp.prototype.getSpaceByCId = function(cID) {
-    var spaces_i;
-    for (var i=0, l=this.spaces.length; i<l; i++) {
-      spaces_i = this.spaces[i];
-      if (spaces_i.cID == cID) {
-        return spaces_i;
-      }
-    }
-
-    return {update: function() {}, w: 0};
+    return this.getSpaceById(cID, true);
   }
 
   /**
@@ -1325,19 +1256,44 @@ var descartesJS = (function(descartesJS) {
    * @param {String} cId the identifier of the space
    * @return {Space} return a space with the identifier or a dummy space if not find
    */
-  descartesJS.DescartesApp.prototype.getSpaceById = function(id) {
+  descartesJS.DescartesApp.prototype.getSpaceById = function(id, cID) {
+    var param = (cID) ? "cID" : "id";
     var spaces_i;
     for (var i=0, l=this.spaces.length; i<l; i++) {
       spaces_i = this.spaces[i];
-      if (spaces_i.id == id) {
+      if (spaces_i[param] == id) {
         return spaces_i;
       }
     }
 
-    return {update: function() {}, w: 0};
+    return { update: function() {}, w: 0, h: 0 };
   }
 
-  var tmpVal;
+  /**
+   * Get the parameters in the URL an set the values in the URL object
+   * ex. index.html?var1=0&var2=hi, creates URL.var1=0 y URL.var2='hi' 
+   */
+  descartesJS.DescartesApp.prototype.getURLParameters = function() {
+    var url = window.location.href;
+    var indexParams = url.indexOf("?");
+    var tmpParam;
+
+    if (indexParams != -1) {
+      url = decodeURIComponent(url.substring(indexParams+1)).split("&");
+      for (var i=0, l=url.length; i<l; i++) {
+        tmpParam = url[i].split("=");
+
+        if (tmpParam.length == 2) {
+          // is number
+          if (+tmpParam[1] == +tmpParam[1]) {
+            tmpParam[1] = parseFloat(tmpParam[1]);
+          }
+          this.evaluator.setVariable("URL." + tmpParam[0], tmpParam[1]);
+        }
+      }
+    }
+  }
+
   /**
    * Get a string representation of an array
    * @param {Array} array the array to get the string representation
@@ -1393,7 +1349,7 @@ var descartesJS = (function(descartesJS) {
           theValues = "'" + theValues + "'";
         }
 
-        // if the name of the variable is the name of an internal variable or is an object, the ignore it
+        // if the name of the variable is the name of an internal variable or is an object, then ignore it
         if ( (theValues != undefined) && (varName != "rnd") && (varName != "pi") && (varName != "e") && (varName != "Infinity") && (varName != "-Infinity") && (typeof(theValues) != "object") ) {
 
           state = (state != "") ? (state + "\n" + varName + "=" + theValues) : (varName + "=" + theValues);
@@ -1445,8 +1401,6 @@ var descartesJS = (function(descartesJS) {
         // the value of a matrix
         if (tmpParse[1].indexOf("[[") != -1) {
           this.evaluator.matrices[tmpParse[0]] = value;
-          // this.evaluator.variables[tmpParse[0] + ".filas"] = value.length;
-          // this.evaluator.variables[tmpParse[0] + ".columnas"] = value[0].length;
           this.evaluator.matrices[tmpParse[0]].rows = value.length;
           this.evaluator.matrices[tmpParse[0]].cols = value[0].length;
         }
@@ -1515,10 +1469,6 @@ var descartesJS = (function(descartesJS) {
     this.update();
   }
 
-  var scaleToFitX;
-  var scaleToFitY;
-  var currentScreenRatio;
-  var optimalRatio;
   /**
    *
    */
@@ -1526,22 +1476,18 @@ var descartesJS = (function(descartesJS) {
     scaleToFitX = window.innerWidth/this.width;
     scaleToFitY = window.innerHeight/this.height;
 
-    currentScreenRatio = window.innerWidth/window.innerHeight;
     optimalRatio = Math.min(scaleToFitX, scaleToFitY);
-    descartesJS.cssScale = optimalRatio.toFixed(3);
+    descartesJS.cssScale = optimalRatio;
 
     this.container.parentNode.setAttribute("align", "");
     this.container.style.transformOrigin = "0 0";
     if (scaleToFitX < scaleToFitY) {
-      // console.log("ancho")
-      this.container.style.left = "";
-      this.container.style.transform = "perspective(1px) scale("+optimalRatio+") translate3d(0, 0, 0)";
+      this.container.style.left = "0";
+      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+")";
     }
     else {
-      // console.log("alto")
       this.container.style.left = "50%";
-      this.container.style.transform = "perspective(1px) scale("+optimalRatio+") translate3d(-50%, 0, 0)";
-      // this.container.style.webkitFontSmoothing = "antialiased";
+      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
     }
   }
 

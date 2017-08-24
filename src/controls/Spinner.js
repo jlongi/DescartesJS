@@ -43,7 +43,7 @@ var descartesJS = (function(descartesJS) {
       this.name = "";
     }
 
-    // modification to change the name of the button with an expression
+    // change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
@@ -52,7 +52,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // control container
-    this.containerControl = document.createElement("div");
+    this.container = document.createElement("div");
     this.canvas = document.createElement("canvas");
     this.divUp = document.createElement("div");
     this.divDown = document.createElement("div");
@@ -60,22 +60,20 @@ var descartesJS = (function(descartesJS) {
 
     // the label
     this.label = document.createElement("label");
-    // this.txtLabel = document.createTextNode();
-    // this.label.appendChild(this.txtLabel);
 
-    this.containerControl.appendChild(this.label);
-    this.containerControl.appendChild(this.field);
-    this.containerControl.appendChild(this.canvas);
-    this.containerControl.appendChild(this.divUp);
-    this.containerControl.appendChild(this.divDown);
+    this.container.appendChild(this.label);
+    this.container.appendChild(this.field);
+    this.container.appendChild(this.canvas);
+    this.container.appendChild(this.divUp);
+    this.container.appendChild(this.divDown);
 
-    this.addControlContainer(this.containerControl);
+    this.addControlContainer(this.container);
 
     parseTrue = this.evaluator.parser.parse("1");
 
     // if the decimals are negative or zero
     this.originalIncr = this.incr;
-    if ( (this.evaluator.eval(this.decimals) <= 0) || (this.evaluator.eval(this.incr) == 0) ) {
+    if ( (this.evaluator.eval(this.decimals) < 0) || (this.evaluator.eval(this.incr) == 0) ) {
       var tmpIncr = this.evaluator.eval(this.incr);
 
       if (tmpIncr > 0) {
@@ -120,13 +118,13 @@ var descartesJS = (function(descartesJS) {
     // extra space added to the name
     var extraSpace = (this.parent.version !== 2) ? "__" : "_____";
 
-    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px Arial");
+    var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
-    // widths are calculated for each element
+    // for each element calculated width
     var canvasWidth = 2 + parseInt(this.h/2);
     var labelWidth = parseInt(this.w/2 - canvasWidth/2);
     var minTFWidth = fieldValueSize;
-    var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px Arial");
+    var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
     if (!this.visible) {
       labelWidth = this.w - canvasWidth;
@@ -151,25 +149,26 @@ var descartesJS = (function(descartesJS) {
 
     var fieldWidth = this.w - (labelWidth + canvasWidth);
 
-    this.containerControl.setAttribute("class", "DescartesSpinnerContainer");
-    this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
-    this.containerControl.setAttribute("id", this.id);
+    this.container.setAttribute("class", "DescartesSpinnerContainer");
+    this.container.setAttribute("style", "width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
+    this.container.setAttribute("id", this.id);
 
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
-    this.canvas.setAttribute("style", "position: absolute; left: " + labelWidth + "px; top: 0px;");
+    this.canvas.setAttribute("style", "position:absolute;left:" + labelWidth + "px;top:0;");
     this.ctx = this.canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
 
+    var divStyle = "opacity:0;cursor:pointer;position:absolute;width:" + canvasWidth + "px;height:" + this.h/2 + "px;left:" + labelWidth + "px;";
     this.divUp.setAttribute("class", "up");
-    this.divUp.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: 0px;");
+    this.divUp.setAttribute("style", divStyle+"top:0;");
     this.divDown.setAttribute("class", "down");
-    this.divDown.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + canvasWidth + "px; height : " + this.h/2 + "px; left: " + labelWidth + "px; top: " + this.h/2 + "px;");
+    this.divDown.setAttribute("style", divStyle+"top:" + this.h/2 + "px;");
 
     this.field.setAttribute("type", "text");
     this.field.setAttribute("id", this.id+"_spinner");
     this.field.setAttribute("class", "DescartesSpinnerField");
-    this.field.setAttribute("style", "font-family: Arial; font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + (canvasWidth + labelWidth) + "px;");
+    this.field.setAttribute("style", "font-family:" + descartesJS.sansserif_font + ";font-size:" + this.fieldFontSize + "px;width:" + fieldWidth + "px;height:" + this.h + "px;left:" + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
     if (!this.visible) {
@@ -177,7 +176,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.label.setAttribute("class", "DescartesSpinnerLabel");
-    this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
+    this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px;width:" + labelWidth + "px;height:" + this.h + "px;line-height:" + this.h + "px;");
 
     // register the control value
     evaluator.setVariable(this.id, this.value);
@@ -196,7 +195,7 @@ var descartesJS = (function(descartesJS) {
 
     this.label.innerHTML = evaluator.eval(this.name).toString();
 
-    if (evaluator.eval(this.decimals) <= 0) {
+    if (evaluator.eval(this.decimals) < 0) {
       tmpIncr = evaluator.eval(this.incr);
 
       if (tmpIncr > 0) {
@@ -208,7 +207,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
     else {
-      this.incr = (evaluator.eval(this.originalIncr) != 0) ? this.originalIncr : parseTrue;
+      this.incr = (evaluator.eval(this.originalIncr) !== 0) ? this.originalIncr : parseTrue;
     }
 
     // check if the control is active and visible
@@ -220,11 +219,12 @@ var descartesJS = (function(descartesJS) {
 
     // hide or show the spinner control
     if (this.drawIfValue) {
-      this.containerControl.style.display = "block"
+      this.container.style.display = "block"
       this.draw();
-    } else {
+    }
+    else {
       this.click = false;
-      this.containerControl.style.display = "none";
+      this.container.style.display = "none";
     }
 
     // update the position and size
@@ -253,6 +253,7 @@ var descartesJS = (function(descartesJS) {
    * Draw the spinner
    */
   descartesJS.Spinner.prototype.draw = function() {
+// return;
     ctx = this.ctx;
 
     w = this.canvas.width;
@@ -362,19 +363,12 @@ var descartesJS = (function(descartesJS) {
       evalMax = Infinity;
     }
 
-    // if is less than the lower limit
-    if (resultValue < evalMin) {
-      resultValue = evalMin;
-    }
-
-    // if si greater than the upper limit
-    if (resultValue > evalMax) {
-      resultValue = evalMax;
-    }
+    // if is less than the lower limit or greater than the upper limit
+    resultValue = Math.min( Math.max(resultValue, evalMin), evalMax );
 
     if (this.discrete) {
       incr = evaluator.eval(this.incr);
-      resultValue = (incr==0) ? 0 : (incr * Math.round(resultValue / incr));
+      resultValue = (incr == 0) ? 0 : (incr * Math.round(resultValue / incr));
     }
 
     decimals = evaluator.eval(this.decimals);
@@ -430,12 +424,8 @@ var descartesJS = (function(descartesJS) {
     self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
 
     // prevent the default events int the label
-    // if (hasTouchSupport) {
-      this.label.addEventListener("touchstart", function (evt) { evt.preventDefault(); return false; });
-    // }
-    // else {
-      this.label.addEventListener("mousedown", function (evt) { evt.preventDefault(); return false; });
-    // }
+    this.label.addEventListener("touchstart", descartesJS.preventDefault);
+    this.label.addEventListener("mousedown", descartesJS.preventDefault);
 
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -486,11 +476,8 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-    // } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
-    // }
+    this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
+    this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
 
     /**
      *
@@ -510,11 +497,9 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    // if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-    // } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
-    // }
+
+    this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
+    this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
 
     /**
      *
@@ -527,9 +512,8 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       evt.preventDefault();
     }
-    // if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
-    // }
+
+    this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
 
     /**
      *
@@ -542,9 +526,8 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       evt.preventDefault();
     }
-    // if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    // }
+
+    this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
 
     /**
      *
@@ -557,13 +540,11 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       // evt.preventDefault();
     }
-    // if (hasTouchSupport) {
-      this.divUp.addEventListener("touchend", onMouseUp_UpButton);
-      window.addEventListener("touchend", onMouseUp_UpButton);
-    // } else {
-      this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
-      window.addEventListener("mouseup", onMouseUp_UpButton);
-    // }
+
+    this.divUp.addEventListener("touchend", onMouseUp_UpButton);
+    window.addEventListener("touchend", onMouseUp_UpButton);
+    this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
+    window.addEventListener("mouseup", onMouseUp_UpButton);
 
     /**
      *
@@ -576,13 +557,11 @@ var descartesJS = (function(descartesJS) {
       self.draw();
       // evt.preventDefault();
     }
-    // if (hasTouchSupport) {
-      this.divDown.addEventListener("touchend", onMouseUp_DownButton);
-      window.addEventListener("touchend", onMouseUp_DownButton);
-    // } else {
-      this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
-      window.addEventListener("mouseup", onMouseUp_DownButton);
-    // }
+
+    this.divDown.addEventListener("touchend", onMouseUp_DownButton);
+    window.addEventListener("touchend", onMouseUp_DownButton);
+    this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
+    window.addEventListener("mouseup", onMouseUp_DownButton);
 
     /**
      *

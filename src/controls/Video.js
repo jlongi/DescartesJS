@@ -141,11 +141,9 @@ var descartesJS = (function(descartesJS) {
   descartesJS.extend(descartesJS.Video, descartesJS.Control);
 
   /**
-   * Init the audio
+   * Init the video
    */
   descartesJS.Video.prototype.init = function() {
-    // this.video.setAttribute("width", this.w);
-    // this.video.setAttribute("height", this.h);
     this.video.style.left = this.x + "px";
     this.video.style.top  = this.y + "px";
 
