@@ -1322,7 +1322,11 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     else if (this.nodeType === "componentNumCtrl") {
       objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
+<<<<<<< HEAD
       domNode = richTextEditor.newComponentNumCtrl(this.componentNumCtrl.w, this.componentNumCtrl.h, this.value);
+=======
+      domNode = richTextEditor.newComponentNumCtrl(this.componentSpace.w, this.componentSpace.h, this.value);
+>>>>>>> origin/master
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
     else {
@@ -1334,6 +1338,197 @@ var descartesJS = (function(descartesJS) {
 
     return htmlDom;
   }
+<<<<<<< HEAD
+=======
+
+  /**
+   *
+   */
+  function formulaToHTML(formula) {
+    var htmlDom = document.createDocumentFragment();
+    var children_i;
+    var domNode;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // for empty parameters
+    if (formula.children.length === 0) {
+      domNode = richTextEditor.newFormulaTextNode(richTextEditor.narrowSpace);
+      htmlDom.appendChild(domNode);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    for (var i=0; i<formula.children.length; i++) {
+      children_i = formula.children[i];
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      if (children_i.nodeType === "text") {
+        domNode = richTextEditor.newFormulaTextNode(children_i.value);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "dynamicText") {
+        domNode = richTextEditor.newDynamicTextNode(children_i);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      // ToDo: componer los signos matematicos, para que no se puedan editar
+      else if (children_i.nodeType === "mathSymbol") {
+        domNode = richTextEditor.newMathSymbolNode(children_i.value);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "superIndex") {
+        domNode = richTextEditor.newSuperIndexNode(formulaToHTML(children_i));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "subIndex") {
+        domNode = richTextEditor.newSubIndexNode(formulaToHTML(children_i));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "fraction") {
+        domNode = richTextEditor.newFractionNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "radical") {
+        domNode = richTextEditor.newRadicalNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "sum") {
+        domNode = richTextEditor.newSumNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "integral") {
+        domNode = richTextEditor.newIntegralNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "limit") {
+        domNode = richTextEditor.newLimitNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "matrix") {
+        var children = [];
+        for (var ci=0, cl=children_i.children.length; ci<cl; ci++) {
+          children.push( formulaToHTML(children_i.children[ci]) );
+        }
+        domNode = richTextEditor.newMatrixNode(children_i.rows, children_i.columns, children);
+      }
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "defparts") {
+        var children = [];
+        for (var ci=0; ci<children_i.parts; ci++) {
+          children.push( formulaToHTML(children_i.children[ci]) );
+        }
+        domNode = richTextEditor.newCasesElementNode(children_i.parts, children);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////
+      else {
+        domNode = document.createDocumentFragment();
+        console.log(">>>", children_i, "<<<");
+      }
+
+
+      htmlDom.appendChild(domNode);
+    }
+
+    return htmlDom;
+  }
+
+//   /**
+//    *
+//    */
+//   descartesJS.RTFNode.prototype.toHTML = function(objectReferences) {
+//     var htmlString = "";
+//     if ( (this.nodeType === "textLineBlock") || (this.nodeType === "textBlock") ) {
+//       for (var i=0, l=this.children.length; i<l; i++) {
+//         htmlString = htmlString + this.children[i].toHTML(objectReferences);
+//       }
+//     }
+//     else if (this.nodeType === "text") {
+//       htmlString = "<span " + this.style.toCSS() + ">" + this.value.replace(/ {2}/g, "&nbsp;&nbsp;").replace(/&nbsp; /g, "&nbsp;") + "</span>";
+//     }
+//     else if (this.nodeType === "newLine") {
+//       htmlString = "<span " + this.style.toCSS() + ">" + this.value + "<br /></span>";
+//     }
+//     else if (this.nodeType === "hyperlink") {
+//       htmlString = "<span " + this.style.toCSS() + "> <a target='_blank' href='" + this.URL + "'>"+ this.value + "</a></span>";
+//     }
+//     else if (this.nodeType === "formula") {
+//       // htmlString = "<span " + this.style.toCSS() + "> \\[" + formulaToHTML(this) + "\\] </span>";
+//       htmlString = "<span " + this.style.toCSS() + "> \\( \\displaystyle " + formulaToHTML(this) + "\\) </span>";
+//     }
+//     else if (this.nodeType === "componentSpace") {
+//       objectReferences.spaces.push({ cID: "cID_"+this.value, value: this.componentSpace} );
+//       htmlString = "<div style='display:inline-block; vertical-align:top; width:" + this.componentSpace.w + "px; height:0px;' id='cID_" + this.value + "'></div>";
+//     }
+//     else if (this.nodeType === "componentNumCtrl") {
+//       objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
+//       htmlString = "<div style='display:inline-block; vertical-align:middle; width:" + this.componentNumCtrl.w + "px; height:" + this.componentNumCtrl.h + "px;' id='cID_" + this.value + "'></div>";
+//     }
+//     else {
+//       console.log(">>>", this, "<<<");
+//     }
+
+//     return htmlString;
+//   }
+
+//   function formulaToHTML(formula) {
+//     var htmlString = "";
+//     var children_i;
+
+//     for (var i=0; i<formula.children.length; i++) {
+//       children_i = formula.children[i];
+//       if (children_i.nodeType === "text") {
+//         htmlString += children_i.value.replace(/\[/g, "\\left[").replace(/\]/g, "\\right]").replace(/_/g, "\\_").replace(/ /g, "\\;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+//       }
+//       else if (children_i.nodeType === "mathSymbol") {
+//         htmlString += children_i.value.replace(/\(/g, "\\left(").replace(/\)/g, "\\right)");
+//       }
+//       else if (children_i.nodeType === "superIndex") {
+//         htmlString += "^{" + formulaToHTML(children_i) + "}";
+//       }
+//       else if (children_i.nodeType === "subIndex") {
+//         htmlString += "_{" + formulaToHTML(children_i) + "}";
+//       }
+//       else if (children_i.nodeType === "fraction") {
+//         htmlString += "\\frac{" + formulaToHTML(children_i.children[0]) + "}{" + formulaToHTML(children_i.children[1]) + "}";
+//       }
+//       else if (children_i.nodeType === "radical") {
+//         htmlString += "\\sqrt[" + formulaToHTML(children_i.children[0]) + "]{" + formulaToHTML(children_i.children[1]) + "}";
+//       }
+//       else if (children_i.nodeType === "sum") {
+//         htmlString += "\\sum_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+//       }
+//       else if (children_i.nodeType === "integral") {
+//         htmlString += "\\int_{" + formulaToHTML(children_i.children[0]) + "}^{" + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+//       }
+//       else if (children_i.nodeType === "limit") {
+//         htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+//       }
+//       else if (children_i.nodeType === "matrix") {
+//         htmlString += "\\begin{bmatrix}"
+//         for (var ci=0; ci<children_i.rows; ci++) {
+//           for (var cj=0; cj<children_i.columns; cj++) {
+//             htmlString += formulaToHTML(children_i.children[cj +ci*children_i.columns]) + " &";
+//           }
+//           htmlString = htmlString.substring(0, htmlString.length-2) + "\\\\";
+//         }
+//         htmlString += "\\end{bmatrix}";
+//       }
+//       else if (children_i.nodeType === "defparts") {
+//         htmlString += "\\begin{cases}"
+//         for (var ci=0; ci<children_i.parts; ci++) {
+//           htmlString += formulaToHTML(children_i.children[ci]) + " \\\\";
+//         }
+//         htmlString += "\\end{cases}";
+//         // htmlString += "\\lim_{" + formulaToHTML(children_i.children[0]) + " \\to " + formulaToHTML(children_i.children[1]) + "}{" + formulaToHTML(children_i.children[2]) + "}";
+//       }
+//       else {
+//         console.log("<<", formula.children[i].nodeType, ">>")
+//       }
+//     }
+
+// // console.log(htmlString);
+//     return htmlString;
+//   }
+>>>>>>> origin/master
 
   /**
    *

@@ -21,7 +21,11 @@ var descartesJS = (function(descartesJS) {
   var tmpRotY;
 
   var lineDesp = .5;
+<<<<<<< HEAD
   var POS_LIMIT = 1000000;
+=======
+  var POS_LIMIT = 10000000;
+>>>>>>> origin/master
 
   /**
    * A Descartes curve
@@ -181,7 +185,10 @@ var descartesJS = (function(descartesJS) {
       ctx.fill("evenodd");
     }
 
+<<<<<<< HEAD
     this.dashStyle();
+=======
+>>>>>>> origin/master
     ctx.stroke();
 
     // restor the dash style

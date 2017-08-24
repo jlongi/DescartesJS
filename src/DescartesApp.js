@@ -616,8 +616,11 @@ var descartesJS = (function(descartesJS) {
     this.externalSpace.init();
 
     ////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
     // init arquimedes 
     ////////////////////////////////////////////////////////////////
+=======
+>>>>>>> origin/master
     if (this.arquimedes) {
       var x = this.stage.stageSpace.container.style.left;
       var y = this.stage.stageSpace.container.style.top;
@@ -664,7 +667,11 @@ var descartesJS = (function(descartesJS) {
         if (spaces_i.value.container) {
           dom_elem = document.getElementById(spaces_i.cID);
           tmpBorder = spaces_i.value.container.style.border;
+<<<<<<< HEAD
           tmpBorder = (tmpBorder != "") ? ("border:" + tmpBorder + ";") : "";
+=======
+          tmpBorder = (tmpBorder != "") ? "border:" + tmpBorder + ";" : "";
+>>>>>>> origin/master
           spaces_i.value.container.setAttribute("style", tmpBorder);
           dom_elem.appendChild(spaces_i.value.container);
         }
@@ -680,10 +687,17 @@ var descartesJS = (function(descartesJS) {
           dom_elem.appendChild(ctr_container);
         }
       }
+<<<<<<< HEAD
 
       richTextEditor.adjustFormulaFontSize(textBlock);
       richTextEditor.adjustHeight(textBlock);
     }
+=======
+    }
+
+    richTextEditor.adjustFormulaFontSize(textBlock);
+    richTextEditor.adjustHeight(textBlock);
+>>>>>>> origin/master
     ////////////////////////////////////////////////////////////////
 
     // trigger descartesReady event
