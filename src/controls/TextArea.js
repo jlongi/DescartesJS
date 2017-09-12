@@ -91,6 +91,29 @@ var descartesJS = (function(descartesJS) {
 
     this.drawButton();
 
+    var self = this;
+    var sel;
+    var range;
+    var newText;
+    this.evaluator.setFunction(this.id + ".insertAtCursor", function(str) {
+      sel = window.getSelection();
+      if (sel && sel.getRangeAt && sel.rangeCount) {
+        newText = document.createTextNode(str);
+        range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(newText);
+        
+        // move the caret to the end of the inserted text
+        range.setStart(newText, newText.length);
+        range.setEnd(newText, newText.length);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        self.textArea.focus();
+      }
+      return 0;
+    });
+
     // register the mouse and touch events
     this.addEvents();
 
@@ -186,25 +209,19 @@ var descartesJS = (function(descartesJS) {
     this.imagePush = canvas.toDataURL();
   }
 
+  var count = 0;
   /**
    * Update the text area
    */
   descartesJS.TextArea.prototype.update = function() {
     evaluator = this.evaluator;
-
+    
     // check if the control is active and visible
     this.activeIfValue = (evaluator.eval(this.activeif) > 0);
     this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
-    // var newText;
-    // if (this.text.match(/<span/)) {
-    //   newText = this.rawText;
-    // }
-    // else {
-    //   newText = this.text;
-    // }
-
-    if ((evaluator.getVariable(this.id) != this.oldValue) || ((this.textArea.innerText || "").replace(/\n/g, "\\n") == this.oldFieldValue)) {
+    if (evaluator.getVariable(this.id) != this.oldValue) {
+    // if ((evaluator.getVariable(this.id) != this.oldValue) || ((this.textArea.innerText || "").replace(/\n/g, "\\n") == this.oldFieldValue)) {
       this.textArea.innerText = (evaluator.getVariable(this.id) || "").replace(/\\n/g, "\n");
     }
 
@@ -255,6 +272,13 @@ var descartesJS = (function(descartesJS) {
     }
     this.showButton.addEventListener("mouseup",  onMouseUp);
     this.showButton.addEventListener("mouseout", onMouseUp);
+
+    function getSelection() {
+      var selection = window.getSelection();
+      self.cursorInd = selection.focusOffset;
+     
+    }
+    this.textArea.addEventListener("blur", getSelection)
   }
 
   return descartesJS;

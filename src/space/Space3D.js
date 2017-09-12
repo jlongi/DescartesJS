@@ -405,7 +405,7 @@ var Rb, c, s, umc, velo;
    */
   descartesJS.Space3D.prototype.rotateVertex = function(v) {
     // Z rotation
-    angle = -descartesJS.degToRad(self.evaluator.getVariable(self.rotZStr));
+    angle = descartesJS.degToRad(self.evaluator.getVariable(self.rotZStr));
     cosAngle = MathCos(angle);
     sinAngle = MathSin(angle);
 
@@ -528,7 +528,7 @@ var Rb, c, s, umc, velo;
     SE.v = SE.x*vx + SE.y*vy + SE.z*vz;
     SE.w = SE.x*wx + SE.y*wy + SE.z*wz;
     
-    var x0 = v.x;
+    var x0 = -v.x;
     var y0 = v.y;
     var z0 = v.z;
     var fixed = false;
@@ -542,7 +542,7 @@ var Rb, c, s, umc, velo;
 
     return {
       x: self.getAbsoluteX(x2),
-      y: self.getAbsoluteY(-y2),
+      y: self.getAbsoluteY(y2),
       z: z0
     };
   }

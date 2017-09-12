@@ -1002,7 +1002,6 @@ var descartesJS = (function(descartesJS, babel) {
         case("background"):
         // condition to use fixed notation in the text
         case("fixed"):
-<<<<<<< HEAD
         // condition to calculate the intersection edges of faces
         case("split"):
         // bold text contidition
@@ -1027,14 +1026,6 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
         }
         break;
-=======
-        // condition to draw the edges
-        case("edges"):
-        // condition to calculate the intersection edges of faces
-        case("split"):
-          graphicObj[babelValue] = (babel[values_i_1] === "true");
-          break;
->>>>>>> origin/master
 
         // color
         case("color"):
@@ -1106,12 +1097,8 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
             graphicObj["expresionString"] = values_i_1;
           } else {
-<<<<<<< HEAD
             // graphicObj["expresion"] = values_i_1.replace(/\\n/g, " ").replace(/;/g, " ");
             graphicObj["expresion"] = values_i_1.replace(/\\n/g, ";");
-=======
-            graphicObj["expresion"] = values_i_1.replace(/\\n/g, " ").replace(/;/g, " ");
->>>>>>> origin/master
           }
           break;
 

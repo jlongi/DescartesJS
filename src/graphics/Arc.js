@@ -334,7 +334,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text of the arc
     if (this.text != [""]) {
-      this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+      this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
       this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
       this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }

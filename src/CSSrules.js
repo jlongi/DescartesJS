@@ -71,7 +71,6 @@ var descartesJS = (function(descartesJS) {
     document.head.insertBefore(cssNode, document.head.firstChild);
 
     cssNode.innerHTML =
-<<<<<<< HEAD
                         "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:normal;font-weight:bold;}\n" +
                         "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
                         "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:italic;font-weight:normal;}\n" +
@@ -98,12 +97,6 @@ var descartesJS = (function(descartesJS) {
                         "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
                         
                         "div.DescartesAppContainer html,div.DescartesAppContainer *,div.DescartesAppContainer *:before,div.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-=======
-                        // "body{}\n" +
-                        "html{box-sizing:border-box;}\n" +
-                        "*,*:before,*:after {box-sizing:inherit;}\n" +
-                        "canvas {image-rendering:optimizeSpeed;image-rendering:crisp-edges;image-rendering:-moz-crisp-edges;image-rendering:-o-crisp-edges;image-rendering:-webkit-optimize-contrast;-ms-interpolation-mode:nearest-neighbor;}\n" +
->>>>>>> origin/master
                         "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
                         "div.DescartesAppContainer{border:0 solid #000;overflow:hidden;position:relative;top:0;left:0;}\n" +
                         "div.DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;}\n" +
@@ -127,7 +120,6 @@ var descartesJS = (function(descartesJS) {
                         "input.DescartesSpinnerField,input.DescartesTextFieldField,input.DescartesMenuField,input.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;top:0;}\n" +
                         "label.DescartesSpinnerLabel,label.DescartesCheckboxLabel,label.DescartesMenuLabel,label.DescartesScrollbarLabel,label.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
                         "div.DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
-<<<<<<< HEAD
                         "div.DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
                         "select.DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;}\n" +
                         "select.DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the aparence in internet explorer
@@ -136,15 +128,6 @@ var descartesJS = (function(descartesJS) {
                         // arquimedes html style
                         ".TextBlock tr, .TextBlocktd{margin:0;padding:0;}\n" +
                         ".TextBlock table{border-collapse:collapse;border-spacing:0;}\n" +
-=======
-                        "div.DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#c0d0d8;}\n" +
-                        "select.DescartesMenuSelect{font-family:descartesJS_sansserif,Arial,Helvetica,Sans-serif;padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:white;position:absolute;left:0;top:0;}\n" +
-                        "div.DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" +
-
-                        "tr,td{margin:0;padding:0;}\n" +
-                        "table{border-collapse:collapse;border-spacing:0;}\n" +
-
->>>>>>> origin/master
                         ".TextBlock{display:block;margin:0;padding:0;}\n" +
                         ".TextLine{display:block;white-space:nowrap;margin-bottom:3px;min-height:15px;}\n" +
                         ".TextNode,.DynamicTextNode{display:inline;white-space:pre;line-height:initial !important;}\n" +
@@ -182,16 +165,9 @@ var descartesJS = (function(descartesJS) {
                         ".MatrixElementNode{display:inline-block;margin:0 14px;}\n" +
                         ".CasesNode{display:inline-block;vertical-align:middle;margin:0 5px;padding:0;padding-right:10px;}\n" +
                         ".CasesElementNode{display:inline-block;}\n" +
-<<<<<<< HEAD
                         ".CurlyBracket{font-family:DescartesJS_symbola;width:auto;display:inline-flex;flex-direction:column;vertical-align:middle;}\n" +
                         ".CurlyBracket span{display:inline;font-weight:normal;font-style:normal;overflow:hidden;}\n";
   }
-=======
-                        ".CurlyBracket{width:auto;display:inline-flex;flex-direction:column;vertical-align:middle;}\n" +
-                        ".CurlyBracket span{display:inline;font-weight:normal;font-style:normal;overflow:hidden;}\n";
-
- }
->>>>>>> origin/master
 
   // immediately add the style to the document
   addCSSrules();

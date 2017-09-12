@@ -97,7 +97,7 @@ var descartesJS = (function(descartesJS) {
       this.anchor = "center_center";
     }
 
-    this.fontSize = Math.min(80, Math.max( 5, evaluator.eval(this.font_size) ) );
+    this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
     this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
     // this.ascent = this.fontSize -Math.ceil(this.fontSize/7) -((this.font.match("Courier")) ? 3 : 0);
     this.ascent = descartesJS.getFontMetrics(this.font).ascent;
