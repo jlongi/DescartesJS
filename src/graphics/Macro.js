@@ -6,7 +6,8 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = new String("-_-rnd-pi-e-sqr-raíz-sqrt-exp-log-log10-abs-ent-sgn-ind-sen-sin-cos-tan-cot-sec-csc-senh-sinh-cosh-tanh-coth-sech-csch-asen-asin-acos-atan-min-max-_Num_-_Trace_-_Stop_Audios_-esCorrecto-escorrecto-_NumToStr_-_NumACadena_-_charAt_-_letraEn_-_substring_-_subcadena_-_length_-_longitud_-_indexOf_-índiceDe-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-");
+  var regExpType = new String("-text-image-point-polygon-arc-segment-arrow-macro-curve-equation-sequence-rectangle-fill-");
+  
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var expr;
 
@@ -102,14 +103,16 @@ var descartesJS = (function(descartesJS, babel) {
       response = [];
 
       for(var i=0, l=tmpResponse.length; i<l; i++) {
-        indexOfEqual = tmpResponse[i].indexOf("=");
-
-        if(indexOfEqual !== -1) {
-          var tmpSplitLine = lessonParser.split(tmpResponse[i]);
-          for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
-            if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
-              if ((babel[tmpSplitLine[iT][0]] === "id") || (babel[tmpSplitLine[iT][0]] === "type")) {
-                response.push(tmpSplitLine);
+        if (tmpResponse[i].trim()) {
+          indexOfEqual = tmpResponse[i].indexOf("=");
+          if(indexOfEqual !== -1) {
+            var tmpSplitLine = lessonParser.split(tmpResponse[i]);
+            for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
+              if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
+                if ((babel[tmpSplitLine[iT][0]] === "id") || (babel[tmpSplitLine[iT][0]] === "type")) {
+                  response.push(tmpSplitLine);
+                  break;
+                }
               }
             }
           }
@@ -121,9 +124,7 @@ var descartesJS = (function(descartesJS, babel) {
       var dotIndex;
       var tmpTokens;
       var tmpTokensRespText;
-
       var isID;
-
       // add the macro name as a prefix, only in some expressions
       for (var i=0, l=response.length; i<l; i++) {
         respText = response[i] || [];
@@ -143,6 +144,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // if the expressions are different from this, then the cycle continues and is not replaced nothing
           if ( (babelResp === "font") ||
+               (babelResp === "font_family") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "border") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined))
@@ -164,7 +166,7 @@ var descartesJS = (function(descartesJS, babel) {
                 var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
 
                 for (var t=0, lt=tokens.length; t<lt; t++) {
-                  if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
+                  if ((tokens[t].type == "identifier")  && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
                 }
@@ -188,7 +190,7 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                 for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                  if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
+                  if ((tmpTokens[tt].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[tt].value + "-"))) {
                     tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                   }
                 }
@@ -208,7 +210,7 @@ var descartesJS = (function(descartesJS, babel) {
               tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
 
               for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-                if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
+                if ((tmpTokens[t].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[t].value + "-"))) {
                   tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
                 }
               }
@@ -218,9 +220,7 @@ var descartesJS = (function(descartesJS, babel) {
 
             respText[j][1] = tmpTokensArray.join(";");
           }
-
         }
-
       }
 
       var tempResp;
@@ -234,10 +234,14 @@ var descartesJS = (function(descartesJS, babel) {
 
           for (var j=0, k=response[i].length; j<k; j++) {
 
-            // if is a graphic object, add the corresponding space
-            if (babel[response[i][j][0]] === "type") {
-              tempResp = "espacio='" + this.spaceID + "' ";
+            // if the object has a type and is of the graphic type, then is a graphic object
+            if ( (babel[response[i][j][0]] === "type") && (regExpType.match("-" + babel[response[i][j][1]] + "-")) ) {
               isGraphic = true;
+            }
+
+            // set the space id to the space id of the macro
+            if (babel[response[i][j][0]] === "space") {
+              response[i][j][1] = this.spaceID;
             }
 
             tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";

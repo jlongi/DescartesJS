@@ -17,7 +17,7 @@ var descartesJS = (function(descartesJS) {
 
   var evaluator;
   var expr;
-  var radianAngle;
+  var macroAngle;
   var cosTheta;
   var senTheta;
   var tmpRotX;
@@ -123,13 +123,13 @@ var descartesJS = (function(descartesJS) {
     this.exprX = expr[0][0]; // the first value of the first expression
     this.exprY = expr[0][1]; // the second value of the first expression
 
-    radianAngle = 0;
+    macroAngle = 0;
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(radianAngle);
-      senTheta = Math.sin(radianAngle);
+      macroAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
+      cosTheta = Math.cos(macroAngle);
+      senTheta = Math.sin(macroAngle);
 
       tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
       tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
@@ -174,11 +174,10 @@ var descartesJS = (function(descartesJS) {
       w2 = 0;
 
       // find the angles
-      angulo1 = (u1 == 0) ? ((u2 < 0) ? -math_PI_2 : math_PI_2) : mathAcos( (u1*w1)/mathSqrt(u1*u1+u2*u2) );
-      angulo2 = (v1 == 0) ? ((v2 < 0) ? -math_PI_2 : math_PI_2) : mathAcos( (v1*w1)/mathSqrt(v1*v1+v2*v2) );
-
-      angulo1 += radianAngle;
-      angulo2 += radianAngle;
+      angulo1 = (u1 == 0) ? ((u2 < 0) ? 3*math_PI_2 : math_PI_2) : mathAcos( (u1*w1)/mathSqrt(u1*u1+u2*u2) );
+      angulo2 = (v1 == 0) ? ((v2 < 0) ? 3*math_PI_2 : math_PI_2) : mathAcos( (v1*w1)/mathSqrt(v1*v1+v2*v2) );
+      angulo1 += macroAngle;
+      angulo2 += macroAngle;
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
@@ -239,8 +238,8 @@ var descartesJS = (function(descartesJS) {
     }
     // arc expressed with angles
     else {
-      this.iniAng = descartesJS.degToRad(initVal) +radianAngle;
-      this.endAng = descartesJS.degToRad(endVal)  +radianAngle;
+      this.iniAng = descartesJS.degToRad(initVal) +macroAngle;
+      this.endAng = descartesJS.degToRad(endVal)  +macroAngle;
       this.drawAngle = true;
     }
 

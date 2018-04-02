@@ -43,6 +43,7 @@ var descartesJS = (function(descartesJS) {
   var checkName;
   var checkImageSrc;
   var checkBackColor;
+  var checkTextColor;
 
   var prefix;
   var sufix;
@@ -382,20 +383,23 @@ var descartesJS = (function(descartesJS) {
     this.activeIfValue = (evaluator.eval(this.activeif) > 0);
     this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
+    var cond = (this.space) ? this.space.drawIfValue : true;
+
     // hide or show the button control
-    if (this.drawIfValue) {
+    if ( cond && this.drawIfValue ) {
       container.style.display = "block";
       this.draw();
-    } else {
+
+      container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
+      // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
+ 
+      // update the position and size
+      this.updatePositionAndSize();
+    }
+    else {
       container.style.display = "none";
       this.buttonClick = false;
     }
-
-    container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-    container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
-
-    // update the position and size
-    this.updatePositionAndSize();
   }
 
   /**
@@ -410,7 +414,6 @@ var descartesJS = (function(descartesJS) {
     name = evaluator.eval(this.name);
     imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
 
-    // if ((!force) && (this.customStyle)) {
     if (!force) {
       checkOver = (this.over === this.oldOver);
       checkClick = (this.buttonClick === this.oldButtonClick);
@@ -419,6 +422,7 @@ var descartesJS = (function(descartesJS) {
       checkName = (name === this.oldName);
       checkImageSrc = (imageSrc === this.oldImageSrc);
       checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
+      checkTextColor = (this.color.getColor() === this.oldTextColor);
 
       this.oldOver = this.over;
       this.oldButtonClick = this.buttonClick;
@@ -427,8 +431,9 @@ var descartesJS = (function(descartesJS) {
       this.oldName = name;
       this.oldImageSrc = imageSrc;
       this.oldBackColor = this.colorInt.getColor();
+      this.oldTextColor = this.color.getColor();
 
-      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor) {
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor) {
         return;
       };
     }

@@ -43,6 +43,8 @@ var descartesJS = (function(descartesJS) {
 
     expr = evaluator.eval(this.expresion);
 
+    var tmpFrontColor = this.color.getColor();
+
     for (var i=0, l=expr.length-1; i<l; i++) {
       v1_x = expr[i][0];
       v1_y = expr[i][1];
@@ -56,7 +58,7 @@ var descartesJS = (function(descartesJS) {
                                                                        this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
                                                                      ],
                                                            type: "edge",
-                                                           frontColor: this.color.getColor(), 
+                                                           frontColor: tmpFrontColor, 
                                                            lineWidth: evaluator.eval(this.width)
                                                          },
                             this.space ));

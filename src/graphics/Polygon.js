@@ -139,7 +139,7 @@ var descartesJS = (function(descartesJS) {
     // draw the stroke
     ctx.stroke();
 
-    // restor the dash style
+    // restore the dash style
     ctx.setLineDash([]);
   }
 

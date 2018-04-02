@@ -533,7 +533,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.DEBUG.elemIndex = i;
       tmpGraph = lessonParser.parseGraphic(tmpGraphics[i]);
       if (tmpGraph) {
-        this.editableRegionVisible = (tmpGraph.visible);
+        this.editableRegionVisible = this.editableRegionVisible || (tmpGraph.visible);
         tmpGraph.space.addGraph(tmpGraph);
       }
     }
@@ -963,7 +963,7 @@ var descartesJS = (function(descartesJS) {
 
       principalContainer.insertBefore(container, this.loader);
 
-      var editableRegionTextFields = this.editableRegion.textFields
+      var editableRegionTextFields = this.editableRegion.textFields;
       var textFieldsWidth = (principalContainer.width)/editableRegionTextFields.length;
 
       var fontSize = descartesJS.getFieldFontSize(editableRegionHeight);

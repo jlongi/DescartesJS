@@ -106,7 +106,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Rectangle.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
+    this.uber.drawTrace.call(this, this.fill, this.trace, "trace");
   }
 
   /**
@@ -115,7 +115,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} fill the fill color of the Rectangle
    * @param {String} stroke the stroke color of the Rectangle
    */
-  descartesJS.Rectangle.prototype.drawAux = function(ctx, fill, stroke) {
+  descartesJS.Rectangle.prototype.drawAux = function(ctx, fill, stroke, msg) {
     evaluator = this.evaluator;
     space = this.space;
 
@@ -127,7 +127,7 @@ var descartesJS = (function(descartesJS) {
     ctx.lineCap = "round";
     ctx.lineJoin = "miter";
 
-    lineDesp = (tmpLineWidth > 0) ? .5 : 0;
+    lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
     x = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
     y = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
@@ -136,18 +136,18 @@ var descartesJS = (function(descartesJS) {
     r = evaluator.eval(this.border_radius);
     sign = (this.abs_coord) ? 1 : -1;
 
-    this.ctx.beginPath();
+    ctx.beginPath();
     if (r !== 0) {
-      this.ctx.moveTo(x + r, y);
-      this.ctx.lineTo(x + w - r, y);
-      this.ctx.quadraticCurveTo(x + w, y, x + w, y + sign*r);
-      this.ctx.lineTo(x + w, y + h - sign*r);
-      this.ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      this.ctx.lineTo(x + r, y + h);
-      this.ctx.quadraticCurveTo(x, y + h, x, y + h - sign*r);
-      this.ctx.lineTo(x, y + sign*r);
-      this.ctx.quadraticCurveTo(x, y, x + r, y);
-      this.ctx.closePath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + sign*r);
+      ctx.lineTo(x + w, y + h - sign*r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - sign*r);
+      ctx.lineTo(x, y + sign*r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
     }
     else {
       ctx.moveTo(x+lineDesp, y+lineDesp);

@@ -9,12 +9,11 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
   var MathRound = Math.round;
   var MathMax   = Math.max;
-  var MathMin   = Math.min;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
   var MathSqrt  = Math.sqrt;
   var MathPI_2  = Math.PI/2;
-  var tiltAngle = Math.PI*15/180;
+  var tiltAngle = 0;
   var cosTiltAngle = Math.cos(tiltAngle);
   var sinTiltAngle = Math.sin(tiltAngle);
   var tanTiltAngle = Math.tan(tiltAngle);
@@ -230,12 +229,10 @@ var descartesJS = (function(descartesJS) {
       x: -20.6*rescale,
       y: 0,
       z: 0,
-      u: 0,
-      v: 0,
-      w: 0
     };
     self.Ojo = {
       x: 3*self.w_2,
+      // x: 30*self.w_2,
       y: 0,
       z: 0
     };
@@ -243,44 +240,9 @@ var descartesJS = (function(descartesJS) {
     self.evaluator.setVariable(self.ojoYStr, self.Ojo.y);
     self.evaluator.setVariable(self.ojoZStr, self.Ojo.z);
 
-    self.VR = {
-      x: 0,
-      y: 0,
-      z: 1
-    };
-    self.VN = {
-      x: 0,
-      y: 0,
-      z: 1
-    };
-    self.Rf = [[],[],[]];
-    self.Rf[0][0] = 1;
-    self.Rf[0][1] = 0;
-    self.Rf[0][2] = 0;
-    self.Rf[1][0] = 0;
-    self.Rf[1][1] = 1;
-    self.Rf[1][2] = 0;
-    self.Rf[2][0] = 0;
-    self.Rf[2][1] = 0;
-    self.Rf[2][2] = 1;
-    self.Rn = [[],[],[]];
-    self.Rn[0][0] = 1;
-    self.Rn[0][1] = 0;
-    self.Rn[0][2] = 0;
-    self.Rn[1][0] = 0;
-    self.Rn[1][1] = 1;
-    self.Rn[1][2] = 0;
-    self.Rn[2][0] = 0;
-    self.Rn[2][1] = 0;
-    self.Rn[2][2] = 1;
-
-    self.dfi = 0;
-    self.dalfa = 0;
     ////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
   }
-var Ra = [[],[],[]];
-var Rb, c, s, umc, velo;
 
   /**
    * Update the space
@@ -292,10 +254,8 @@ var Rb, c, s, umc, velo;
     parent = self.parent;
 
     // prevents the change of the width and height from an external change
-    if (!self.resizable) {
-      evaluator.setVariable(self.wStr, self.w);
-      evaluator.setVariable(self.hStr, self.h);
-    }
+    evaluator.setVariable(self.wStr, self.w);
+    evaluator.setVariable(self.hStr, self.h);
 
     // check the draw if condition
     self.drawIfValue = evaluator.eval(self.drawif) > 0;
@@ -350,6 +310,26 @@ var Rb, c, s, umc, velo;
       self.scale = evaluator.getVariable(self.scaleStr);
       self.drawBefore = self.drawIfValue;
 
+      if ((firstTime) || (self.observer == undefined)) {
+        // check if the observer is the name of some control
+        for (var i=0, l=self.parent.controls.length; i<l; i++) {
+          if (self.parent.controls[i].id === self.obsStr) {
+            observerSet = true;
+          }
+        }
+
+        if (observerSet) {
+          self.observer = evaluator.getVariable(self.obsStr) || (self.w_plus_h) * 2.5;
+        }
+        else {
+          self.observer = (self.w_plus_h) * 2.5;
+        }
+
+        self.observer = MathMax(self.observer, 0.25*(self.w_plus_h));
+
+        evaluator.setVariable(self.obsStr, self.observer);
+      }
+
       // check if the scale is not below the lower limit
       if (self.scale < minScale) {
         self.scale = minScale;
@@ -398,6 +378,9 @@ var Rb, c, s, umc, velo;
     // self.eye.x = self.D/self.scale;
     // self.eye.y = 0;
     // self.eye.z = self.D/self.scale*tanTiltAngle;
+
+    this.eye = descartesJS.scalarProduct3D(this.Ojo, 1/this.scale);
+// console.log(this.eye, this.Ojo)
   }
 
   /**
@@ -433,125 +416,39 @@ var Rb, c, s, umc, velo;
   descartesJS.Space3D.prototype.project = function(v) {
     self = this;
 
-    velo = 0;
+    var oldProj = this.evaluator.getVariable("URL.oldProj");
+    oldProj = true;
 
-    Ra[0][0] = 0;
-    Ra[0][1] = -self.VR.z;
-    Ra[0][2] = self.VR.y;
-    Ra[1][0] = self.VR.z;
-    Ra[1][1] = 0;
-    Ra[1][2] = -self.VR.x;
-    Ra[2][0] = -self.VR.y;
-    Ra[2][1] = self.VR.x;
-    Ra[2][2] = 0;
-    Rb = multiplyMatrix(Ra, Ra);
-    c = Math.cos(self.dfi);
-    s = Math.sin(self.dfi);
-    umc = 1-c;
-    Ra[0][0] = 1 + s*Ra[0][0] + umc*Rb[0][0];
-    Ra[0][1] = 0 + s*Ra[0][1] + umc*Rb[0][1];
-    Ra[0][2] = 0 + s*Ra[0][2] + umc*Rb[0][2];
-    Ra[1][0] = 0 + s*Ra[1][0] + umc*Rb[1][0];
-    Ra[1][1] = 1 + s*Ra[1][1] + umc*Rb[1][1];
-    Ra[1][2] = 0 + s*Ra[1][2] + umc*Rb[1][2];
-    Ra[2][0] = 0 + s*Ra[2][0] + umc*Rb[2][0];
-    Ra[2][1] = 0 + s*Ra[2][1] + umc*Rb[2][1];
-    Ra[2][2] = 1 + s*Ra[2][2] + umc*Rb[2][2];
-    self.Rf = multiplyMatrix(self.Rf, Ra);
-    Ra[0][0] = 0;
-    Ra[0][1] = -self.VN.z;
-    Ra[0][2] = self.VN.y;
-    Ra[1][0] = self.VN.z;
-    Ra[1][1] = 0;
-    Ra[1][2] = -self.VN.x;
-    Ra[2][0] = -self.VN.y;
-    Ra[2][1] = self.VN.x;
-    Ra[2][2] = 0;
-    Rb = multiplyMatrix(Ra, Ra);
-    c = Math.cos(self.dalfa);
-    s = Math.sin(self.dalfa);
-    umc = 1-c;
-    Ra[0][0] = 1 + s*Ra[0][0] + umc*Rb[0][0];
-    Ra[0][1] = 0 + s*Ra[0][1] + umc*Rb[0][1];
-    Ra[0][2] = 0 + s*Ra[0][2] + umc*Rb[0][2];
-    Ra[1][0] = 0 + s*Ra[1][0] + umc*Rb[1][0];
-    Ra[1][1] = 1 + s*Ra[1][1] + umc*Rb[1][1];
-    Ra[1][2] = 0 + s*Ra[1][2] + umc*Rb[1][2];
-    Ra[2][0] = 0 + s*Ra[2][0] + umc*Rb[2][0];
-    Ra[2][1] = 0 + s*Ra[2][1] + umc*Rb[2][1];
-    Ra[2][2] = 1 + s*Ra[2][2] + umc*Rb[2][2];
-    self.Rn = multiplyMatrix(self.Rn, Ra);
-    var ux = -self.Rn[0][0];
-    var uy = -self.Rn[0][1];
-    var uz = -self.Rn[0][2];
-    var vx = -self.Rn[1][0];
-    var vy = -self.Rn[1][1];
-    var vz = -self.Rn[1][2];
-    var wx = -self.Rn[2][0];
-    var wy = -self.Rn[2][1];
-    var wz = -self.Rn[2][2];
-    Ra = multiplyMatrix(self.Rf, self.Rn);
-    var Ux = -Ra[0][0];
-    var Uy = -Ra[0][1];
-    var Uz = -Ra[0][2];
-    var Vx = -Ra[1][0];
-    var Vy = -Ra[1][1];
-    var Vz = -Ra[1][2];
-    var Wx = -Ra[2][0];
-    var Wy = -Ra[2][1];
-    var Wz = -Ra[2][2];
-
-    var _SE = Math.abs(self.Ojo.x/self.scale);
-    var obsx = (self.Ojo.x/self.scale)/_SE;
-    var obsy = (self.Ojo.y/self.scale)/_SE;
-    var obsz = (self.Ojo.z/self.scale)/_SE;
-    var obsy_displaced = (obsy!=0);
-    var obsz_displaced = (obsz!=0);
-    var SE = {};
-    SE.x = _SE*ux;
-    SE.y = _SE*uy;
-    SE.z = _SE*uz;
-    self.S.x = self.S.x - velo*ux;
-    self.S.y = self.S.y - velo*uy;
-    self.S.z = self.S.z - velo*uz;
-    var E = {};
-    E.x = self.S.x + SE.x;
-    E.y = self.S.y + SE.y;
-    E.z = self.S.z + SE.z;
-    E.u = E.x*ux + E.y*uy + E.z*uz;
-    E.v = E.x*vx + E.y*vy + E.z*vz;
-    E.w = E.x*wx + E.y*wy + E.z*wz;
-    self.S.u = self.S.x*ux + self.S.y*uy + self.S.z*uz;
-    self.S.v = self.S.x*vx + self.S.y*vy + self.S.z*vz;
-    self.S.w = self.S.x*wx + self.S.y*wy + self.S.z*wz;
-    SE.u = SE.x*ux + SE.y*uy + SE.z*uz;
-    SE.v = SE.x*vx + SE.y*vy + SE.z*vz;
-    SE.w = SE.x*wx + SE.y*wy + SE.z*wz;
-    
-    var x0 = -v.x;
-    var y0 = v.y;
-    var z0 = v.z;
-    var fixed = false;
-    var P = {};
-    P.u = (fixed) ? ux*x0 + uy*y0 + uz*z0 : Ux*x0 + Uy*y0 + Uz*z0;
-    P.v = (fixed) ? vx*x0 + vy*y0 + vz*z0 : Vx*x0 + Vy*y0 + Vz*z0;
-    P.w = (fixed) ? wx*x0 + wy*y0 + wz*z0 : Wx*x0 + Wy*y0 + Wz*z0;
-    var fctr = SE.u/(E.u-P.u);
-    var x2 = (obsy_displaced) ? fctr*(self.S.v - P.v + obsy*(self.S.u-P.u)) : fctr*(self.S.v - P.v);
-    var y2 = (obsz_displaced) ? fctr*(self.S.w - P.w + obsz*(self.S.u-P.u)) : fctr*(self.S.w - P.w);
-
-    return {
-      x: self.getAbsoluteX(x2),
-      y: self.getAbsoluteY(y2),
-      z: z0
-    };
+    if (oldProj) {
+    // old projection
+      var lambda = (self.eye.x) / (v.x - self.eye.x);
+      var pV = {
+        x: self.getAbsoluteX( lambda*( self.eye.y - v.y) ),
+        y: self.getAbsoluteY( lambda*( self.eye.z - v.z) ),
+        z: self.eye.x - v.x
+        // z: self.scale*(self.eye.x - v.x)
+      };
+  // console.log(v, pV)
+      return pV;
+    }
+    else {
+      // new projection
+      var _SE = (self.eye.x);
+      var fctr = _SE / (-self.S.x + _SE - v.x);
+      var pV = {
+        x: self.getAbsoluteX( fctr*(v.y - self.S.y) ),
+        y: self.getAbsoluteY( fctr*(v.z - self.S.z) ),
+        z: self.scale*(self.eye.x - v.x)
+      };
+  // console.log("nueva", v, pV);
+      return pV;
+    }
   }
 
   /**
    *
    */
   descartesJS.Space3D.prototype.computeColor = function(color, primitive, metal) {
-    var self = this;
     if (color.match("rgba")) {
       color = descartesJS.RGBAToHexColor(color);
     }
@@ -559,38 +456,41 @@ var Rb, c, s, umc, velo;
       color = new descartesJS.Color(color.substring(1));
     }
 
-    // toEye = descartesJS.subtract3D(self.eye, primitive.average);
-    toEye = descartesJS.subtract3D(self.Ojo, primitive.average);
+    toEye = descartesJS.subtract3D(this.eye, primitive.average);
     aveDistanceToEye = descartesJS.norm3D(toEye);
     unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
 
-    self.lights[3] = descartesJS.subtract3D(self.light3, primitive.average);
-    dl3 = descartesJS.norm3D(self.lights[3]);
+    this.lights[3] = descartesJS.subtract3D(this.light3, primitive.average);
+    dl3 = descartesJS.norm3D(this.lights[3]);
 
-    for (var i=0, l=self.intensity.length-1; i<l; i++) {
-      intensity[i] = self.intensity[i]*self.dim;
+    for (var i=0, l=this.intensity.length-1; i<l; i++) {
+      intensity[i] = this.intensity[i]*this.dim;
     }
-    intensity[3] = ((self.userIntensity*self.userIntensity)/dl3) || 0;
+    intensity[3] = ((this.userIntensity*this.userIntensity)/dl3) || 0;
 
-    I = (metal) ? self.dim/2 : self.dim/4;
+    I = (metal) ? this.dim/2 : this.dim/4;
     c = 0;
 
-    normal = (primitive.direction >= 0) ? primitive.normal : descartesJS.scalarProduct3D(primitive.normal, -1);
-    
-    for (var i=0, l=self.lights.length; i<l; i++) {
+    normal = (primitive.direction < 0) ? primitive.normal : descartesJS.scalarProduct3D(primitive.normal, -1);
+
+    for (var i=0, l=this.lights.length; i<l; i++) {
       if (metal) {
-        c = MathMax( 0, descartesJS.dotProduct3D(reflectedRay(self.lights[i], normal), unitToEye) );
+        c = Math.max( 0, descartesJS.dotProduct3D(reflectedRay(this.lights[i], normal), unitToEye) );
         c = c*c*c;
       }
       else {
-        c = MathMax(0, descartesJS.dotProduct3D(self.lights[i], normal));
+        c = Math.max(0, descartesJS.dotProduct3D(this.lights[i], normal));
       }
 
       I+= intensity[i]*c;
     }
-    I = MathMin(I, 1);
+    I = Math.min(I, 1);
 
-    return "rgba(" + MathFloor(color.r*I) + "," + MathFloor(color.g*I) + "," + MathFloor(color.b*I) + "," + color.a + ")";
+    r = MathFloor(color.r*I);
+    g = MathFloor(color.g*I);
+    b = MathFloor(color.b*I);
+
+    return "rgba(" + r + "," + g + "," + b + "," + color.a + ")";
   }
 
   /**
@@ -614,75 +514,89 @@ var Rb, c, s, umc, velo;
    * Draw the primitives of the graphics, the primitives are obtained from the update step
    */
   descartesJS.Space3D.prototype.draw = function() {
-    var self = this;
-
-    self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-    self.ctx.fillStyle = self.background.getColor();
-    self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = this.background.getColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // draw the background image if any
-    if ( (self.image) && (self.image.src != "") && (self.image.ready) && (self.image.complete) ) {
-      if (self.bg_display === "topleft") {
-        self.ctx.drawImage(self.image, 0, 0);
+    if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
+      if (this.bg_display === "topleft") {
+        this.ctx.drawImage(this.image, 0, 0);
       }
-      else if (self.bg_display === "stretch") {
-        self.ctx.drawImage(self.image, 0, 0, self.w, self.h);
+      else if (this.bg_display === "stretch") {
+        this.ctx.drawImage(this.image, 0, 0, this.w, this.h);
       }
-      else if (self.bg_display === "patch") {
-        self.ctx.fillStyle = ctx.createPattern(self.image, "repeat");
-        self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
+      else if (this.bg_display === "patch") {
+        this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       }
-      else if (self.bg_display === "center") {
-        self.ctx.drawImage(self.image, (self.w-self.image.width)/2, (self.h-self.image.height)/2);
+      else if (this.bg_display === "center") {
+        this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
       }
     }
 
     // if not interact with the space
-    if (!self.click) {
+    if (!this.click) {
       // update the graphics to build its primitives
-      for(var i=0, l=self.graphics.length; i<l; i++) {
-        self.graphics[i].update();
+      for(var i=0, l=this.graphics.length; i<l; i++) {
+        this.graphics[i].update();
       }
-
-      self.primitives = [];
+      
+      this.primitives = [];
       // split the primitives if needed
-      for (var i=0, l=self.graphics.length; i<l; i++) {
-        thisGraphics_i = self.graphics[i];
+      if (this.split) {
+        for (var i=0, l=this.graphics.length; i<l; i++) {
+          thisGraphics_i = this.graphics[i];
 
-        if ((thisGraphics_i.split) || (self.split)) {
           for (var j=i+1; j<l; j++) {
-            thisGraphicsNext = self.graphics[j];
+            thisGraphicsNext = this.graphics[j];
 
-            if ((thisGraphicsNext.split) || (self.split)) {
-              thisGraphics_i.splitFace(thisGraphicsNext);
+            thisGraphics_i.splitFace(thisGraphicsNext);
+            thisGraphicsNext.splitFace(thisGraphics_i);
+          }
+
+          this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+        }
+      }
+      else {
+        for (var i=0, l=this.graphics.length; i<l; i++) {
+          thisGraphics_i = this.graphics[i];
+
+          if (thisGraphics_i.split) {
+            for (var j=i+1; j<l; j++) {
+              thisGraphicsNext = this.graphics[j];
+
+              if (thisGraphicsNext.split) {
+                thisGraphics_i.splitFace(thisGraphicsNext);
+              }
             }
           }
-        }
 
-        self.primitives = self.primitives.concat( thisGraphics_i.primitives || [] );
+          this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+        }
       }
       // end split
     }
 
-    for(var i=0, l=self.primitives.length; i<l; i++) {
-      self.primitives[i].computeDepth(this);
+    for(var i=0, l=this.primitives.length; i<l; i++) {
+      this.primitives[i].computeDepth(this);
     }
 
-    this.primitives = self.primitives.sort(function (a, b) { return b.depth - a.depth; });
-
+    this.primitives = this.primitives.sort(function (a, b) { return b.depth - a.depth; });
+    
     // draw the primitives
-    if (self.render === "painter") {
-      self.drawPainter(self.primitives);
+    if (this.render === "painter") {
+      this.drawPainter(this.primitives);
     }
     else {
-      for(var i=0, l=self.primitives.length; i<l; i++) {
-        self.primitives[i].draw(self.ctx, this);
+      for(var i=0, l=this.primitives.length; i<l; i++) {
+        this.primitives[i].draw(this.ctx, this);
       }
     }
 
     // draw the graphic controls
-    for (var i=0, l=self.graphicsCtr.length; i<l; i++) {
-      self.graphicsCtr[i].draw();
+    for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
+      this.graphicsCtr[i].draw();
     }
   }
 
@@ -695,7 +609,7 @@ var Rb, c, s, umc, velo;
 
     for (var i=0; i<l; i++) {
       primitives[i].drawn = false;
-      primitives[i].draw(self.ctx, this);
+      primitives[i].draw(this.ctx, this);
     }
 
     var V = [];
@@ -755,7 +669,7 @@ var Rb, c, s, umc, velo;
 
     // draw the primitives
     for (var i=0; i<l; i++) {
-      drawface[i].draw(self.ctx, this);
+      drawface[i].draw(this.ctx, this);
     }
   }
 
@@ -782,9 +696,9 @@ var Rb, c, s, umc, velo;
     var self = this;
     var lastTime = 0;
 
-    self.canvas.oncontextmenu = function () { return false; };
+    this.canvas.oncontextmenu = function () { return false; };
 
-    self.canvas.addEventListener("touchstart", onTouchStart);
+    this.canvas.addEventListener("touchstart", onTouchStart);
 
     /**
      * @param {Event} evt
@@ -835,7 +749,7 @@ var Rb, c, s, umc, velo;
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    self.canvas.addEventListener("mousedown", onMouseDown);
+    this.canvas.addEventListener("mousedown", onMouseDown);
 
     /**
      *
@@ -950,7 +864,7 @@ var Rb, c, s, umc, velo;
       self.parent.update();
     }
 
-    self.disp = {x: 0, y: 0};
+    this.disp = {x: 0, y: 0};
 
     /**
      *
@@ -985,27 +899,6 @@ var Rb, c, s, umc, velo;
         evt.preventDefault();
       }
     }
-  }
-
-  /** 
-   * 
-   */
-  function multiplyMatrix(M1, M2) {
-    var R = [[], [], []];
-
-    R[0][0] = M1[0][0]*M2[0][0] + M1[0][1]*M2[1][0] + M1[0][2]*M2[2][0];
-    R[0][1] = M1[0][0]*M2[0][1] + M1[0][1]*M2[1][1] + M1[0][2]*M2[2][1];
-    R[0][2] = M1[0][0]*M2[0][2] + M1[0][1]*M2[1][2] + M1[0][2]*M2[2][2];
-
-    R[1][0] = M1[1][0]*M2[0][0] + M1[1][1]*M2[1][0] + M1[1][2]*M2[2][0];
-    R[1][1] = M1[1][0]*M2[0][1] + M1[1][1]*M2[1][1] + M1[1][2]*M2[2][1];
-    R[1][2] = M1[1][0]*M2[0][2] + M1[1][1]*M2[1][2] + M1[1][2]*M2[2][2];
-
-    R[2][0] = M1[2][0]*M2[0][0] + M1[2][1]*M2[1][0] + M1[2][2]*M2[2][0];
-    R[2][1] = M1[2][0]*M2[0][1] + M1[2][1]*M2[1][1] + M1[2][2]*M2[2][1];
-    R[2][2] = M1[2][0]*M2[0][2] + M1[2][1]*M2[1][2] + M1[2][2]*M2[2][2];
-
-    return R;
   }
 
   return descartesJS;

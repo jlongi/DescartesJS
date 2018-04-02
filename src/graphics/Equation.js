@@ -661,7 +661,7 @@ descartesJS._debug_vez = 0;
         return 1;
       }
 
-      var ab2=(a+b)/2;
+      var ab2 = (a+b)/2;
       this.evaluator.setVariable(X, ab2);
 
       var auxv = NaN;
@@ -674,7 +674,7 @@ descartesJS._debug_vez = 0;
       }
 
       if (isNaN(auxv)) {
-        return 2;
+        return 5;
       }
 
       if (Math.abs(vb-va)>e) {  // detectar saltos
@@ -758,7 +758,7 @@ descartesJS._debug_vez = 0;
     var xa = 0;
 
     var dx = 1/this.space.scale;
-    var Xr = dx*((this.of_y) ? Math.ceil(-this.space.h+(this.space.h/2+this.space.Oy)) : -Math.ceil(this.space.w/2+this.space.Ox));
+    var Xr = dx*((this.of_y) ? (-this.space.h+Or.y) : -Or.x);
     var va = 0;
 
     if (this.abs_coord) {
@@ -776,7 +776,7 @@ descartesJS._debug_vez = 0;
     var pn;
     var pa;
 
-    var condWhile = (this.of_y) ? this.space.h+4 : this.space.w+4;
+    var condWhile = (this.of_y) ? this.space.h+2 : this.space.w+2;
     while (x <= condWhile) {
       def = true;
       sing = 0;
@@ -785,7 +785,7 @@ descartesJS._debug_vez = 0;
       try {
         v = this.evaluator.eval(this.funExpr);
 
-        // if (!isNaN(v) && (abs(v) > -1e-14)) {
+        // if (!isNaN(v) && (Math.abs(v) > 1e-6)) {
         if (!isNaN(v)) {
           this.evaluator.setVariable(Y, v);
 
@@ -850,7 +850,7 @@ descartesJS._debug_vez = 0;
                 }
 
                 ctx.lineWidth = width;
-                ctx.strokeStyle = this.color.getColor();
+                ctx.strokeStyle = stroke.getColor();
 
                 ctx.beginPath();
                 // Line(g[i],width,xa,nya,x,y,of_y);
@@ -868,11 +868,11 @@ descartesJS._debug_vez = 0;
               else if (sing === 1) {
                 this.evaluator.setVariable(X, Xr-dx);
                 pn = this.extrapolate(cond, X, Y, F, va, dx);
-                y = parseInt( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
+                y = ( (this.of_y) ? this.XX(width, pn.y, this.abs_coord) : this.YY(width, pn.y, this.abs_coord) );
                 //
                 ctx.lineWidth = width;
-                ctx.strokeStyle = this.color.getColor();
-
+                ctx.strokeStyle = stroke.getColor();
+                
                 ctx.beginPath();
                 // Line(g[i],width,xa,ya, xa+(int)Math.round(pn.x),y,of_y);
                 if (this.of_y) {
@@ -883,21 +883,16 @@ descartesJS._debug_vez = 0;
                   ctx.moveTo(xa+.5, ya);
                   ctx.lineTo(xa+Math.round(pn.x)+.5, y);
                 }
-                //////////////////////////////////////
-                // quizas sea un error dibujar esto //
-                //////////////////////////////////////
-                // ctx.stroke();
-                //
 
                 this.evaluator.setVariable(X, Xr);
                 pa = this.extrapolate(cond, X, Y, F, v, -dx);
-                ya = this.YY(width, pa.y, this.abs_coord);
-                y = this.YY(width, v, this.abs_coord);
+                ya = ( (this.of_y) ? this.XX(width, pa.y, this.abs_coord) : this.YY(width, pa.y, this.abs_coord) );
+                y = ( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
 
                 //
                 ctx.lineWidth = width;
-                ctx.strokeStyle = this.color.getColor();
-
+                ctx.strokeStyle = stroke.getColor();
+                
                 ctx.beginPath();
                 // Line(g[i],width,x+(int)Math.round(pa.x),ya, x,y,of_y);
                 if (this.of_y) {
@@ -911,13 +906,13 @@ descartesJS._debug_vez = 0;
                 ctx.stroke();
               }
               // sing === 2
-              else {
-                y = parseInt( (this.of_y)?this.XX(width, v, this.abs_coord):this.YY(width, v, this.abs_coord) );
+              else if (sing === 2) {
+                y = ( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
 
                 //
                 ctx.lineWidth = width;
-                ctx.strokeStyle = this.color.getColor();
-
+                ctx.strokeStyle = stroke.getColor();
+                
                 ctx.beginPath();
                 // Line(g[i],width,x,y,x,y,of_y);
                 if (this.of_y) {
@@ -936,12 +931,13 @@ descartesJS._debug_vez = 0;
               pa = this.extrapolateOnSingularity(cond, X, Y, F, v, -dx);
 
               ya = (this.of_y) ? this.XX(width, pa.y, this.abs_coord) : this.YY(width, pa.y, this.abs_coord);
-              y  = parseInt( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
+              y  = ( (this.of_y) ? this.XX(width, v, this.abs_coord) : this.YY(width, v, this.abs_coord) );
 
               //
               // Line(g[i],width,x+(int)Math.round(pa.x),ya,x,y,of_y);
               ctx.lineWidth = width;
-              ctx.strokeStyle = this.color.getColor();
+              ctx.strokeStyle = stroke.getColor();
+              
               ctx.beginPath();
 
               if (this.of_y) {
@@ -978,7 +974,8 @@ descartesJS._debug_vez = 0;
           //
           // Line(g[i],width,xa,ya,xa+(int)Math.round(pn.x),y,of_y);
           ctx.lineWidth = width;
-          ctx.strokeStyle = this.color.getColor();
+          ctx.strokeStyle = stroke.getColor();
+          
           ctx.beginPath();
           if (this.of_y) {
             ctx.moveTo(ya, this.space.h-(xa+Math.round(pn.x))+.5);

@@ -998,6 +998,12 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj[babelValue] = babel[values_i_1];
           break;
 
+        // fill color of the curve
+        case("fill"):
+          // patch for catala
+          graphicObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
+          break;
+
         // condition to draw the graphic in the background
         case("background"):
         // condition to use fixed notation in the text

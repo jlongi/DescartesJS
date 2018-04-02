@@ -13,8 +13,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} text the content text
    */
   descartesJS.SimpleText = function(parent, text) {
-    text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
-    this.text = text;
+    this.text = text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
 
     this.textElements = [];
     this.textElementsMacros = [];
@@ -86,7 +85,7 @@ var descartesJS = (function(descartesJS) {
   var evalString;
 
   /**
-   * Get the string representation of the text, substituting the number taking into acount the number of decimals and the fixed value
+   * Get the string representation of the text, replacing the number taking into acount the number of decimals and the fixed value
    * @param {Number} decimal the number of decimal of the number in the text
    * @param {Boolean} fixed a condition to indicate if the number has a fixed representation
    * @return {String} return the string representation of te text
@@ -105,6 +104,15 @@ var descartesJS = (function(descartesJS) {
           // the evaluation is a string
           if (typeof(evalString) === "string") {
             txt += evalString;
+          }
+          else if (evalString == Infinity) {
+            txt += "Infinity";
+          }
+          else if (evalString == -Infinity) {
+            txt += "-Infinity";
+          }
+          else if (isNaN(evalString) || (evalString == "NaN")) {
+            txt += "NaN";
           }
           // the evaluation is a number
           else {

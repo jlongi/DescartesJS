@@ -33,7 +33,7 @@ var descartesJS = (function(descartesJS) {
    * 3D primitive (vertex, face, text, edge)
    * @constructor
    */
-  descartesJS.Primitive3D = function(values, space) {
+  descartesJS.Primitive3D = function (values, space) {
     this.space = space;
 
     // traverse the values to replace the defaults values of the object
@@ -74,7 +74,6 @@ var descartesJS = (function(descartesJS) {
         this.average = this.vertices[0];
       }
     }
-
   }
 
   /**
@@ -101,52 +100,61 @@ var descartesJS = (function(descartesJS) {
     }
     this.average = descartesJS.scalarProduct3D(this.average, 1/l);
     this.average_proy = space.project(this.average);
-    // this.depth = descartesJS.norm3D(descartesJS.subtract3D(space.eye, this.average));
-    this.depth = -descartesJS.norm3D(descartesJS.subtract3D(space.Ojo, this.average));
+    this.depth = descartesJS.norm3D(descartesJS.subtract3D(space.eye, this.average));
     // this.depth = this.average_proy.z;
 
     // triangles and faces
     if (this.vertices.length > 2) {
       this.normal = getNormal(this.spaceVertices[0], this.spaceVertices[1], this.spaceVertices[2]);
-      this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
+      // this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
+    // var t = 0.001;
     // project and store the vertices in the projVert array
     for (i=0, l=this.vertices.length; i<l; i++) {
+      // var v1 = descartesJS.scalarProduct3D(this.spaceVertices[i], (1-t));
+      // var v2 = descartesJS.scalarProduct3D(this.average, t);
+      // this.newSpaceVert[i] = descartesJS.add3D(v1, v2);
+      // this.newProjVert[i] = space.project(this.newSpaceVert[i]);
+      // this.projVert[i] = space.project(this.newSpaceVert[i]);
+
       this.newSpaceVert[i] = this.spaceVertices[i];
       this.projVert[i] = this.newProjVert[i] = space.project(this.spaceVertices[i]);
+    }
+
+    // // triangles and faces
+    if (this.vertices.length > 2) {
+      this.direction = getNormal(this.projVert[0], this.projVert[1], this.projVert[2]).z;
     }
 
     //////////////////////////////////////////////////
     this.minDistanceToEye =  Infinity;
     this.maxDistanceToEye = -Infinity;
     this.minx =  Infinity;
-    this.miny =  Infinity;
     this.maxx = -Infinity;
+    this.miny =  Infinity;
     this.maxy = -Infinity;
     
     for (i=0, l=this.vertices.length; i<l; i++) {
-      // d = descartesJS.norm3D(descartesJS.subtract3D(this.spaceVertices[i], space.eye));
-      d = descartesJS.norm3D(descartesJS.subtract3D(this.spaceVertices[i], space.Ojo));
+      d = descartesJS.norm3D(descartesJS.subtract3D(this.spaceVertices[i], space.eye));
       this.minDistanceToEye = Math.min(this.minDistanceToEye, d);
       this.maxDistanceToEye = Math.max(this.maxDistanceToEye, d);
     }
     for (i=0, l=this.vertices.length; i<l; i++) {
       if (this.minx > this.projVert[i].x) {
-        minx = this.projVert[i].x;
+        this.minx = this.projVert[i].x;
       }
       if (this.maxx < this.projVert[i].x) {
-        maxx = this.projVert[i].x;
+        this.maxx = this.projVert[i].x;
       }
+
       if (this.miny > this.projVert[i].y) {
-        miny = this.projVert[i].y;
+        this.miny = this.projVert[i].y;
       }
-      if (this.mixy < this.projVert[i].y) {
-        mixy = this.projVert[i].y;
+      if (this.maxy < this.projVert[i].y) {
+        this.maxy = this.projVert[i].y;
       }
     }
-// console.log(this.minDistanceToEye, this.maxDistanceToEye, this.minx, this.miny, this.maxx, this.maxy)
-    //////////////////////////////////////////////////
   }
 
   /**
@@ -239,7 +247,8 @@ var descartesJS = (function(descartesJS) {
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
       ctx.lineWidth = 1;
-      ctx.strokeStyle = this.edges.getColor();
+      // ctx.strokeStyle = this.edges.getColor();
+      ctx.strokeStyle = this.edges;
       ctx.stroke();
     }
   }
@@ -255,9 +264,9 @@ var descartesJS = (function(descartesJS) {
 
     tempParam = this.evaluator.getVariable(this.family);
     this.evaluator.setVariable(this.family, this.familyValue);
-    this.fontSize = Math.min(80, Math.max( 5, this.evaluator.eval(this.font_size) ) );
+    this.fontSize = Math.max( 5, this.evaluator.eval(this.font_size) );
     this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
-// console.log(descartesJS.getFontMetrics(this.font).ascent, this.fontSize)
+
     this.drawText(ctx, this.text, this.projVert[0].x, this.projVert[0].y+this.fontSize, this.frontColor, this.font, "left", "alphabetic", this.decimals, this.fixed, true);
 
     this.evaluator.setVariable(this.family, tempParam);
@@ -342,14 +351,13 @@ var descartesJS = (function(descartesJS) {
     }
 
     ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-
     ctx.font = font;
     ctx.textAlign = align;
     ctx.textBaseline = baseline;
 
     verticalDisplace = this.fontSize*1.2 || 0;
-    pointDisplace = (this.fromPoint) ? (verticalDisplace*l)/2 : 0;
     l = text.length;
+    pointDisplace = (this.fromPoint) ? (verticalDisplace*l)/2 : 0;
 
     for (i=0; i<l; i++) {
       theText = text[i];
@@ -517,6 +525,8 @@ var descartesJS = (function(descartesJS) {
                 return [p];
               }
             }
+
+            return fa;
           }
         }
       }
@@ -632,6 +642,7 @@ var descartesJS = (function(descartesJS) {
   var ray;
   var state;
   var k;
+  
   /**
    *
    */
@@ -652,8 +663,10 @@ var descartesJS = (function(descartesJS) {
       else {
         v = this.verticesContainedIn(F);
       }
-
+// console.log("state=", state, "v=", v)
+// return;
       if ((v != null) && (v.length > 0)) {
+// console.log("--------", state, "--------")
         for (k=0; k<v.length; k++) {
           V.push(v[k]);
         }
@@ -661,10 +674,12 @@ var descartesJS = (function(descartesJS) {
         for (i=0, l=v.length; i<l; i++) {
           p = v[i];
           ray = this.space.rayFromEye(p.x, p.y);
-
+          
           try {
             t = this.distanceToEyeAlong(ray) - F.distanceToEyeAlong(ray);
 
+// console.log(p.x, ",", p.y, v[i], "t=", t)
+            
             if (t <= -epsilon) {
               return true;
             }
@@ -674,7 +689,7 @@ var descartesJS = (function(descartesJS) {
           }
           catch(e) {
             console.log("Error: inFrontOf");
-            return false;
+            // return false;
           }
         }
       }
@@ -731,11 +746,10 @@ var descartesJS = (function(descartesJS) {
     var den = descartesJS.dotProduct3D(this.normal, ray);
 
     if (Math.abs(den) > 0.000001) {
-      // var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.eye), this.normal );
-      var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.Ojo), this.normal );
+      var normalToEye = descartesJS.dotProduct3D( descartesJS.subtract3D(this.average, this.space.eye), this.normal );
       return normalToEye/den;
     }
-//    throw new Exception("Face is invisible");
+    throw new Exception("Face is invisible");
   }
 
   /**

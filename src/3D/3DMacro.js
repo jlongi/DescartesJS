@@ -6,7 +6,8 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var reservedIdentifiers = new String("-rnd-pi-e-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-");
+  var regExpType = new String("-point-segment-polygon-curve-triangle-face-polireg-surface-text-cube-box-tetrahedron-octahedron-sphere-dodecahedron-icosahedron-ellipsoid-cone-cylinder-torus-mesh-macro-");
+
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;
@@ -110,7 +111,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     var filename = this.evaluator.eval(this.expresion);
     var response;
-    
+
     if (filename) {
       // the macro is embeded in the webpage
       var macroElement = document.getElementById(filename);
@@ -118,11 +119,10 @@ var descartesJS = (function(descartesJS, babel) {
       if ((macroElement) && (macroElement.type == "descartes/macro")) {
         response = macroElement.text;
       }
-
       // the macro is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
-        
+
         // verify the content is a Descartes macro
         if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
           response = null;
@@ -145,14 +145,18 @@ var descartesJS = (function(descartesJS, babel) {
         indexOfEqual = tmpResponse[i].indexOf("=");
 
         if(indexOfEqual !== -1) {
-          tmpIniti = tmpResponse[i].substring(0, indexOfEqual);
-        
-          if (babel[tmpIniti] === "id" || babel[tmpIniti] === "type") {
-            response.push( lessonParser.split( tmpResponse[i] ) );
+          var tmpSplitLine = lessonParser.split(tmpResponse[i]);
+          for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
+            if ((tmpSplitLine[iT]) && (tmpSplitLine.length >1)) {
+              if ((babel[tmpSplitLine[iT][0]] === "id") || (babel[tmpSplitLine[iT][0]] === "type")) {
+                response.push(tmpSplitLine);
+                break;
+              }
+            }
           }
         }
       }
-      
+
       var respText;
       var babelResp;
       var dotIndex;
@@ -167,7 +171,7 @@ var descartesJS = (function(descartesJS, babel) {
         isID = ((respText) && (respText[0]) && (respText[0][0] === "id"));
 
         for (var j=0, k=respText.length; j<k; j++) {
-          // if the parameters that have a dot
+          // if the parameters have a dot
           dotIndex = respText[j][0].indexOf(".");
           if ((dotIndex !== -1) && (!isID)) {
             babelResp = babel[respText[j][0].substring(dotIndex+1)];
@@ -177,14 +181,13 @@ var descartesJS = (function(descartesJS, babel) {
             babelResp = babel[respText[j][0]];
           }
 
-          // if the expressions are different from this, then the cycle continues and is not replaced nothing          
+          // if the expressions are different from this, then the cycle continues and is not replaced nothing        
           if ( (babelResp === "font") ||
+               (babelResp === "font_family") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "backcolor") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
              ) {
-
-               // ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) ||
               if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
                 continue;
               }
@@ -204,7 +207,7 @@ var descartesJS = (function(descartesJS, babel) {
                 var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
                 
                 for (var t=0, lt=tokens.length; t<lt; t++) {
-                  if ((tokens[t].type == "identifier")  && (!reservedIdentifiers.match("-" + tokens[t].value + "-"))) {
+                  if ((tokens[t].type == "identifier")  && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) {
                     tokens[t].value = self.name + "." + tokens[t].value;
                   }
                 }
@@ -215,8 +218,8 @@ var descartesJS = (function(descartesJS, babel) {
               }
               //////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
-              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
-              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.']*)/gi, funReplace);
+              textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
+              textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
               
               respText[j][1] = textTemp;
             }
@@ -228,7 +231,7 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                 for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                  if ((tmpTokens[tt].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[tt].value + "-"))) {
+                  if ((tmpTokens[tt].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[tt].value + "-"))) {
                     tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                   }
                 }
@@ -242,15 +245,21 @@ var descartesJS = (function(descartesJS, babel) {
           }
           // the token is not a text
           else {
-            tmpTokens = tokenizer.tokenize(respText[j][1]);
+            var tmpTokensArray = respText[j][1].replace(/\&squot;/g, "'").split(";");
 
-            for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-              if ((tmpTokens[t].type === "identifier") && (!reservedIdentifiers.match("-" + tmpTokens[t].value + "-"))) {
-                tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+            for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
+              tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
+
+              for (var t=0, lt=tmpTokens.length; t<lt; t++) {
+                if ((tmpTokens[t].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[t].value + "-"))) {
+                  tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
+                }
               }
+
+              tmpTokensArray[tmpI] = tokenizer.flatTokens(tmpTokens);
             }
 
-            respText[j][1] = tokenizer.flatTokens(tmpTokens);
+            respText[j][1] = tmpTokensArray.join(";");
           }
         }
       }
@@ -265,10 +274,15 @@ var descartesJS = (function(descartesJS, babel) {
           isGraphic = false;
 
           for (var j=0, k=response[i].length; j<k; j++) {
-            // if is a graphic object, add the corresponding space
-            if (babel[response[i][j][0]] === "type") {
-              tempResp = "espacio='" + this.spaceID + "' ";
+
+            // if the object has a type and is of the graphic3D type, then is a graphic object
+            if ( (babel[response[i][j][0]] === "type") && (regExpType.match("-" + babel[response[i][j][1]] + "-")) ) {
               isGraphic = true;
+            }
+
+            // set the space id to the space id of the macro
+            if (babel[response[i][j][0]] === "space") {
+              response[i][j][1] = this.spaceID;
             }
 
             tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
@@ -278,6 +292,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // build and add the graphic elements to the space
           if (isGraphic) {
+            //agregar algo mas para indicar que se viene de un macro
             this.graphics.push( lessonParser.parse3DGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           } 
           // build and add the axiliaries to the scene
@@ -298,11 +313,60 @@ var descartesJS = (function(descartesJS, babel) {
   // create an inheritance of Graphic
   ////////////////////////////////////////////////////////////////////////////////////
   descartesJS.extend(descartesJS.Macro3D, descartesJS.Graphic);
-    
+
+  /**
+   *
+   */
+  descartesJS.Macro3D.prototype.buildFamilyPrimitives = function() {
+    evaluator = this.evaluator;
+
+    // update the family values
+    this.getFamilyValues();
+
+    // save the last value of the family parameter
+    var tempParam = evaluator.getVariable(this.family);
+
+    if (this.fSteps >= 0) {
+      // build the primitives of the family
+      for(var i=0, l=this.fSteps; i<=l; i++) {
+        // update the value of the family parameter
+        evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
+
+        this.familyValue = this.familyInf+(i*this.family_sep);
+
+        // if the condition to draw is true then update and draw the graphic
+        if ( evaluator.eval(this.drawif) ) {
+          this.updateMacro();
+        }
+      }
+    }
+
+    evaluator.setVariable(this.family, tempParam);
+  }
+
   /**
    * Update the macro
    */
   descartesJS.Macro3D.prototype.update = function() {
+    this.primitives = [];
+
+    if (this.evaluator.eval(this.drawif)) {
+      // build the primitives of a single object
+      if (!this.family) {
+        this.updateMacro();
+      }
+    }
+
+    // build the primitives of the family
+    if (this.family) {
+      this.buildFamilyPrimitives();
+    }    
+  }
+
+  /**
+   * 
+   */
+  descartesJS.Macro3D.prototype.updateMacro = function() {
     this.updateTransformation();
 
     if (this.inipos) {
@@ -310,8 +374,6 @@ var descartesJS = (function(descartesJS, babel) {
       this.iniPosX = expr[0][0];
       this.iniPosY = expr[0][1];
     }
-
-    this.primitives = [];
 
     for (var i=0, l=this.graphics.length; i<l; i++) {
       thisGraphics_i = this.graphics[i];

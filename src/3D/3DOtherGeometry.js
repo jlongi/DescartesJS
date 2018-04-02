@@ -129,6 +129,10 @@ var descartesJS = (function(descartesJS) {
     // construct the vertices
     this.buildGeometry(evaluator.eval(this.width), evaluator.eval(this.height), evaluator.eval(this.length), evaluator.eval(this.Nu), evaluator.eval(this.Nv));
 
+    var tmpFrontColor = this.color.getColor();
+    var tmpBackColor = this.backcolor.getColor();
+    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+
     for (i=0, l=this.faces.length; i<l; i++) {
       v = [];
       for (j=0, k=this.faces[i].length; j<k; j++) {
@@ -137,9 +141,9 @@ var descartesJS = (function(descartesJS) {
 
       this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                            type: "face",
-                                                           frontColor: this.color.getColor(),
-                                                           backColor: this.backcolor.getColor(),
-                                                           edges: this.edges,
+                                                           frontColor: tmpFrontColor,
+                                                           backColor: tmpBackColor,
+                                                           edges: tmpEdgeColor,
                                                            model: this.model
                                                          },
                             this.space ));

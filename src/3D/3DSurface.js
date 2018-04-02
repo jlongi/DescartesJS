@@ -99,6 +99,10 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    var tmpFrontColor = this.color.getColor();
+    var tmpBackColor = this.backcolor.getColor();
+    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+
     for (ui=0; ui<Nu; ui++) {
       for (vi=0; vi<Nv; vi++) {
         v = [];
@@ -109,9 +113,9 @@ var descartesJS = (function(descartesJS) {
 
         this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
                                                              type: "face",
-                                                             frontColor: this.color.getColor(), 
-                                                             backColor: this.backcolor.getColor(),
-                                                             edges: this.edges, 
+                                                             frontColor: tmpFrontColor,
+                                                             backColor: tmpBackColor,
+                                                             edges: tmpEdgeColor,
                                                              model: this.model
                                                            },
                               this.space ));

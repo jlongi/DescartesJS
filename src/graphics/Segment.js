@@ -166,7 +166,7 @@ var descartesJS = (function(descartesJS) {
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
 
-      this.uber.drawText.call(this, ctx, this.text, midpX+desp, midpY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
+      this.uber.drawText.call(this, ctx, this.text, midpX+desp, midpY-desp, stroke, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
     }
   }
 

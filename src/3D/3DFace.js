@@ -46,14 +46,17 @@ var descartesJS = (function(descartesJS) {
       vertices.push( this.transformVertex(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
     }
 
-    this.primitives.push( new descartesJS.Primitive3D( { vertices: vertices,
-                                                         type: "face",
-                                                         frontColor: this.color.getColor(), 
-                                                         backColor: this.backcolor.getColor(), 
-                                                         edges: this.edges, 
-                                                         model: this.model
-                                                       },
-                          this.space ));
+    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+
+    this.primitives.push( new descartesJS.Primitive3D( { 
+      vertices: vertices,
+      type: "face",
+      frontColor: this.color.getColor(), 
+      backColor: this.backcolor.getColor(), 
+      edges: tmpEdgeColor, 
+      model: this.model
+    },
+    this.space ));
 
   }
   

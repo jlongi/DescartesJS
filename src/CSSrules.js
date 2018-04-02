@@ -96,6 +96,9 @@ var descartesJS = (function(descartesJS) {
                         "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff');font-style:italic;font-weight:normal;}\n" +
                         "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
                         
+                        "canvas{transform:translate3d(0,0,0);}\n" +
+                        // "select{transform:scale(1);}\n" +
+                        
                         "div.DescartesAppContainer html,div.DescartesAppContainer *,div.DescartesAppContainer *:before,div.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
                         "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
                         "div.DescartesAppContainer{border:0 solid #000;overflow:hidden;position:relative;top:0;left:0;}\n" +

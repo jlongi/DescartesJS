@@ -117,7 +117,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Text.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.color);
+    this.uber.drawTrace.call(this, this.trace);
   }
 
   /**

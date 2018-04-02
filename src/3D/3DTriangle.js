@@ -53,17 +53,20 @@ var descartesJS = (function(descartesJS) {
     v3_y = expr[2][1];
     v3_z = expr[2][2];
 
-    this.primitives.push( new descartesJS.Primitive3D( { vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                                                                     this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
-                                                                     this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                                                                   ],
-                                                         type: "face",
-                                                         frontColor: this.color.getColor(),
-                                                         backColor: this.backcolor.getColor(), 
-                                                         edges: this.edges, 
-                                                         model: this.model
-                                                       },
-                          this.space ));
+    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+
+    this.primitives.push( new descartesJS.Primitive3D( { 
+      vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+                  this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+                  this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+                ],
+      type: "face",
+      frontColor: this.color.getColor(),
+      backColor: this.backcolor.getColor(),
+      edges: tmpEdgeColor,
+      model: this.model
+    },
+    this.space ));
 
   }
 

@@ -384,6 +384,7 @@ var descartesJS = (function(descartesJS) {
         if (space_i.id === this.spaceID) {
           space_i.addCtr(this);
           this.zIndex = space_i.zIndex;
+          this.space = space_i;
           // this.space = space_i;
           return space_i.numericalControlContainer;
         }
@@ -536,6 +537,9 @@ var descartesJS = (function(descartesJS) {
       // update the scene
       this.parent.update();
     }
+
+    // update again the controls
+    this.parent.updateControls();
   }
 
   /**

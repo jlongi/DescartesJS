@@ -64,13 +64,33 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0, l=vertices.length-1; i<l; i++) {
-      this.primitives.push( new descartesJS.Primitive3D( { vertices: [ vertices[i], vertices[i+1] ],
-                                                           type: "edge",
-                                                           frontColor: this.color.getColor(), 
-                                                           lineWidth: evaluator.eval(this.width)
-                                                         },
-                            this.space ));
+      // this.primitives.push( new descartesJS.Primitive3D( { 
+      //   vertices: [ vertices[i], vertices[i+1] ],
+      //   type: "edge",
+      //   frontColor: this.color.getColor(), 
+      //   lineWidth: evaluator.eval(this.width)
+      // },
+      // this.space ));
 
+      this.primitives.push( new descartesJS.Primitive3D( { 
+        vertices: [ vertices[i], vertices[i+1] ],
+        type: "edge",
+        frontColor: this.color.getColor(), 
+        lineWidth: evaluator.eval(this.width)
+      },
+      this.space ));
+    }
+
+    if ((this.fill) && (vertices.length > 2)) {
+      this.primitives.push( new descartesJS.Primitive3D( { 
+        vertices: vertices,
+        type: "face",
+        frontColor: this.fill.getColor(), 
+        backColor: this.fill.getColor(), 
+        edges: "", 
+        model: this.model
+      },
+      this.space ));
     }
 
     evaluator.setVariable("x", tempParamX);
