@@ -17,13 +17,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.PlayAudio = function(parent, parameter) {
     // call the parent constructor
     descartesJS.Action.call(this, parent, parameter);
-    
-    if ((parameter) && (parameter.match(regExpAudio))) {
+   
+    parameter = parameter || '';
+    if (parameter.match(regExpAudio)) {
       this.filenameExpr = this.evaluator.parser.parse("'" + parameter.match(regExpAudio) + "'");
     }
     else {
       // if the parameter inits with braces [], extract the expression
-      if ((parameter!='') && (parameter[0]=='[') && (parameter[parameter.length-1]==']')) {
+      if ( (parameter !== '') && (parameter.charAt(0) === '[') && (parameter.charAt(parameter.length-1) === ']') ) {
         parameter = parameter.substring(1, parameter.length-1);
       }
       this.filenameExpr = this.evaluator.parser.parse(parameter);

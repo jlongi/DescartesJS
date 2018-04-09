@@ -126,4 +126,4 @@ end
 out.close
 
 # call the closure compiler
-exec("java -jar ../compiler-latest/compiler.jar --js=descartes.js --js_output_file=descartes-min.js", )
+exec("java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT5 --js=descartes.js --js_output_file=descartes-min.js", )

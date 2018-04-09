@@ -706,7 +706,8 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchStart(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
+      document.activeElement.blur();
 
       self.click = 1;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
@@ -735,7 +736,8 @@ var descartesJS = (function(descartesJS) {
      */
     function onTouchEnd(evt) {
       // remove the focus of the controls
-      document.body.focus();
+      window.focus();
+      document.activeElement.blur();
 
       self.click = 0;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
@@ -744,6 +746,8 @@ var descartesJS = (function(descartesJS) {
       window.removeEventListener("touchend", onTouchEnd, false);
 
       evt.preventDefault();
+
+      self.parent.update();
     }
 
     ///////////////////////////////////////////////////////////////////////////
