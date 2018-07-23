@@ -375,7 +375,9 @@ var descartesJS = (function(descartesJS) {
       ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
       ctx.textNode.pos = { x:x, y:y };
-      text.draw(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
+
+      // text.draw(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
+      text.update(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
 
       return;
     }

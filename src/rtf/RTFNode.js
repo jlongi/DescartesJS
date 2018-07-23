@@ -6,32 +6,49 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathMax = Math.max;
+  descartesJS.auxCtx = document.createElement("canvas").getContext("2d");
+  
+  var externalColor = "#000000";
   var externalDecimals = 2;
   var externalFixed = false;
-  var localColor;
+
+  var radicalPathStr = "m 759,1 c -8,0 -15,4 -20,14 L 325,878 153,500 c -5,-11 -11,-14 -17,-9 L 2,596 c -5,4 17,30 22,26 l 65,-47 193,422 c 3,6 27,6 32,-4 L 773,40 V 1 Z";
+  var radicalPath = new Path2D(radicalPathStr);
+  radicalPath.svgData = radicalPathStr;
+  var sigmaPathStr = "M 780,707 H 750 C 728,805 695,872 585,872 H 180 L 509,447 225,65 h 313 c 130,0 167,49 188,181 h 30 V 0 H 25 L 384,500 0,1000 h 729 z";
+  var sigmaPath = new Path2D(sigmaPathStr);
+  sigmaPath.svgData = sigmaPathStr;
+  var integralPathStr = "m 150,828 c -21,88 -42,144 -83,144 -6,0 -9,-2 -9,-6 0,-9 15,-8 15,-34 0,-14 -13,-22 -27,-22 -24,0 -45,22 -45,51 0,20 21,39 56,39 97,0 141,-105 159,-176 L 375,181 c 23,-91 45,-154 89,-153 6,0 9,2 9,6 0,7 -15,13 -15,35 0,14 13,20 27,20 24,0 45,-22 45,-51 C 530,18 508,0 473,0 368,0 326,120 309,190 Z";
+  var integralPath = new Path2D(integralPathStr);
+  integralPath.svgData = integralPathStr;
+
+  var factorMarginH = 0.075;
+  var factorMarginV = 0.05;
+  var factorPaddingH = 0.075;
+  var factorPaddingV = 0.05;
+
+
 
   /**
-   * A node of rtf text
-   * @constructor
+   *
    */
-  descartesJS.RTFNode = function(evaluator, value, nodeType, style) {
-    this.evaluator = evaluator;
-
+  descartesJS.TextNode = function(value, nodeType, style, evaluator) {
     this.type = "rtfNode";
-
-    this.value = value;
-    this.nodeType = nodeType;
-    this.style = style;
-    this.styleString = style.toString()
-    this.color = style.textColor;
-    this.underline = style.textUnderline;
-    this.overline = style.textOverline;
+    this.evaluator = evaluator;
 
     this.parent = null;
     this.children = [];
+    this.metrics = { ascent:0, descent:0, h:0, w:0, x:0, y:0, offsetX:0, offsetY:0, marginX:0, marginY:0, paddingX:0, paddingY:0 };
 
+    this.value = value;
+    this.style = style;
+    this.changeNodeType(nodeType);
+  }
+
+  descartesJS.TextNode.prototype.changeNodeType = function(nodeType) {
+    this.nodeType = nodeType;
+    this.draw = null;
+    
     switch(this.nodeType) {
       // the principal text block
       case ("textBlock"):
@@ -105,20 +122,26 @@ var descartesJS = (function(descartesJS) {
         this.draw = this.drawDefparts;
         break;
 
-      // a text or new line
+      // a text or new line or math symbol
       case ("text"):
       case ("newLine"):
+      case ("mathSymbol"):
         this.draw = this.drawText;
+        break;
+
+      // a black space 
+      case ("space"):
+        this.draw = this.drawSpace;
+        break;
+
+      // a word element
+      case ("word"):
+        this.draw = this.drawWord;
         break;
 
       // a hyperlink
       case ("hyperlink"):
         this.draw = this.drawHyperlink;
-        break;
-
-      // a math symbol
-      case ("mathSymbol"):
-        this.draw = this.drawMathSymbol;
         break;
 
       // an index of a root or contents of a root or from value of a root
@@ -143,739 +166,1470 @@ var descartesJS = (function(descartesJS) {
         this.draw = this.drawComponentSpace;
         break;
     }
+
   }
 
   /**
-   * Get the root of the tree of nodes
-   * return {RTFNode} return the root of the tree of nodes
+   *
    */
-  descartesJS.RTFNode.prototype.getRoot = function() {
-    if (this.parent == null) {
-      return this;
+  descartesJS.TextNode.prototype.clone = function() {
+    var cloneNode = new descartesJS.TextNode(this.value, this.nodeType, this.style.clone());
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      cloneNode.addChild(this.children[i].clone());
     }
-    return this.parent.getRoot();
+    
+    return cloneNode;
+  }
+  /**
+   *
+   */
+  descartesJS.TextNode.prototype.toStr = function() {
+    var str = this.value;
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      str += " " + this.children[i].toStr();
+    }
+    
+    return str;
+  }
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.stringify = function() {
+    var str = '{';
+
+    // if (this.children.length > 0) {
+      str += '"C":[';
+      for (var i=0, l=this.children.length; i<l; i++) {
+        str += this.children[i].stringify() + ((i==l-1)?'':',');
+      }
+      str += '],';
+    // }
+
+    // if (this.value) {
+      str += '"V":"' + this.value + '",';
+    // }
+
+    str += '"NT":"' + this.nodeType + '",';
+    str += '"S":' + JSON.stringify(this.style);
+
+    return str + '}';
   }
 
   /**
    * Add a child to the tree of nodes
-   * @param {descartesJS.RTFNode} child the child to add
+   * @param {descartesJS.TextNode} child the child to add
    */
-  descartesJS.RTFNode.prototype.addChild = function(child) {
-    child.parent = this;
-    this.children.push(child);
+  descartesJS.TextNode.prototype.addChild = function(node) {
+    if (node.parent !== null) {
+      node.parent.removeChild(node);
+    }
+    // add reference to the parent
+    node.parent = this;
+    this.children.push(node);
   }
 
-  // metric values, needed to calculate the super and sub indices
-  var prevMetric = { ascent: 0, descent: 0, h: 0 };
   /**
-   * Set the previous metric
-   * @param {Number} ascent the ascent value
-   * @param {Number} descent the descent value
-   * @param {Number} h the h value
+   * 
    */
-  function updatePrevMetric(ascent, descent, h) {
-    prevMetric.ascent = ascent;
-    prevMetric.descent = descent;
-    prevMetric.h = h;
+  descartesJS.TextNode.prototype.removeChild = function(node) {
+    var indexOf = this.children.indexOf(node);
+
+    if (indexOf !== -1) {
+      node.parent = null;
+      this.children.splice(indexOf, 1);
+    }
   }
-
-  var metric;
-
   /**
-   * Get the text metric of the rtf text
+   * 
    */
-  descartesJS.RTFNode.prototype.getTextMetrics = function() {
-    this.spaceWidth = descartesJS.getTextWidth(" ", this.styleString);
-    var prevAscent = prevMetric.ascent;
-    var prevDescent = prevMetric.descent;
-    var prevHeight = prevMetric.h;
+  descartesJS.TextNode.prototype.getFirstTextNode = function() {
+    var node = this;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    if (this.nodeType == "textBlock") {
-      this.w = this.h = 0;
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getTextMetrics();
-        this.w = Math.max(this.w, this.children[i].w);
-        this.h += this.children[i].h;
-      }
+    while (node.children.length > 0) {
+      node = node.children[0];
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "textLineBlock") {
-      this.getBlockMetric();
+    return node;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.getLastTextNode = function() {
+    var node = this;
+
+    while (node.children.length > 0) {
+      node = node.children[node.children.length-1];
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "newLine") {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.w = 0;
-      this.h = metric.h;
-      this.baseline = metric.baseline;
-      this.descent = metric.descent;
-      this.ascent = metric.ascent;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if ( (this.nodeType == "text") || (this.nodeType == "dynamicText")) {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.baseline = metric.baseline;
-      this.descent = metric.descent;
-      this.ascent = metric.ascent;
-
-      var textTemp = this.value;
-      var decimals;
-      var fixed;
-
-      // if the text is a dynamic text
-      if (typeof(this.value) != "string") {
-        decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.eval(this.decimals);
-        fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
-        textTemp = this.evaluator.eval(this.value, decimals, fixed);
-
-        // is a number
-        if (parseFloat(textTemp).toString() === textTemp.toString()) {
-          textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
-          textTemp = (""+textTemp).replace(".", this.decimal_symbol);
+    return node;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.nextSibling = function() {
+    if (this.parent) {
+      var current = null;
+      for (var i=0, l=this.parent.children.length; i<l; i++) {
+        if (current) {
+          return this.parent.children[i];
         }
 
-        textTemp += " ";
+        if (this.parent.children[i] === this) {
+          current = true;
+        }
       }
-
-      this.w = descartesJS.getTextWidth(textTemp, this.styleString);
-      this.h = metric.h;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "formula") {
-      this.getBlockMetric();
+    return null;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.prevSibling = function() {
+    if (this.parent) {
+      var current = null;
+      for (var i=0, l=this.parent.children.length-1; i<l; i++) {
+        if (this.parent.children[i+1] === this) {
+          return this.parent.children[i];
+        }
+      }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "hyperlink") {
-      metric = descartesJS.getFontMetrics(this.styleString);
+    return null;
+  }
 
-      this.w = descartesJS.getTextWidth(this.value, this.styleString);
-      this.h = metric.h;
-      this.baseline = metric.baseline;
-      this.descent = metric.descent;
-      this.ascent = metric.ascent;
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.querySelectorAll = function(nodeType) {
+    var elements = [];
 
-      this.clickCacher = document.createElement("div");
-      this.clickCacher.setAttribute("style", "position:absolute;width:" + this.w + "px;height:" + this.h + "px;cursor:pointer;");
-
-      var action = new descartesJS.OpenURL(this.evaluator.parent, this.URL);
-
-      var _self = this;
-      this.clickCacher.addEventListener("click", function(evt) {
-        _self.click = true;
-        action.actionExec();
-      })
+    for (var i=0, l=this.children.length; i<l; i++) {
+      elements = elements.concat( this.children[i].querySelectorAll(nodeType) );
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "superIndex") {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.getBlockMetric();
-
-      if (this.h < 0) {
-        this.ascent = metric.ascent;
-        this.descent = metric.descent;
-        this.h = this.ascent + this.descent;
-        this.w = this.spaceWidth*1.5;
-      }
-
-      var tmpAscent = prevHeight/2 - prevDescent + this.h;
-      this.superIndexPos = tmpAscent - this.ascent;
-
-      this.ascent = tmpAscent;
-      this.descent = prevDescent;
-      this.baseline = this.ascent;
-      this.h = this.ascent + this.descent;
+    if (this.nodeType === nodeType) {
+      elements.push(this);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "subIndex") {
-      metric = descartesJS.getFontMetrics(this.styleString);
+    return elements;
+  }
 
-      this.getBlockMetric();
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.insertBefore = function(referenceNode, newNode) {
+    var indexOf = this.children.indexOf(referenceNode);
 
-      if (this.h < 0) {
-        this.ascent = metric.ascent;
-        this.descent = metric.descent;
-        this.h = this.ascent + this.descent;
-        this.w = this.spaceWidth*1.5;
+    if (indexOf !== -1) {
+      newNode.parent = this;
+      this.children.splice(indexOf, 0, newNode);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.insertAfter = function(referenceNode, newNode) {
+    var indexOf = this.children.indexOf(referenceNode);
+
+    if (indexOf !== -1) {
+      newNode.parent = this;
+      this.children.splice(indexOf+1, 0, newNode);
+    }
+  }
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.normalize = function() {
+    var emptyNodes = this.querySelectorAll("textLineBlock").concat( this.querySelectorAll("formula") ).concat( this.querySelectorAll("numerator") ).concat( this.querySelectorAll("denominator") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("index") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radicand") ).concat( this.querySelectorAll("from") ).concat( this.querySelectorAll("to") ).concat( this.querySelectorAll("what") ).concat( this.querySelectorAll("element") );
+    
+    for (var i=0, l=emptyNodes.length; i<l; i++) {
+      if (emptyNodes[i].children.length === 0) {
+        emptyNodes[i].addChild(new descartesJS.TextNode("", "text", emptyNodes[i].style));
       }
-
-      this.subIndexPos = prevDescent +1;
-
-      this.ascent = prevAscent;
-      this.descent = this.subIndexPos + this.descent;
-      this.baseline = this.ascent;
-      this.h = this.ascent + this.descent;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "fraction") {
-      var num = this.children[0];
-      var den = this.children[1];
-      metric = descartesJS.getFontMetrics(num.styleString);
+    var nodesWhitoutSiblings = this.querySelectorAll("formula").concat( this.querySelectorAll("fraction") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radical") ).concat( this.querySelectorAll("sum") ).concat( this.querySelectorAll("integral") ).concat( this.querySelectorAll("limit") ).concat( this.querySelectorAll("matrix") ).concat( this.querySelectorAll("defparts") ).concat( this.querySelectorAll("dynamicText") );
 
-      num.getBlockMetric();
-      den.getBlockMetric();
-
-      if (num.h < 0) {
-        num.h = metric.h;
-        num.w = this.spaceWidth;
+    for (var i=0, l=nodesWhitoutSiblings.length; i<l; i++) {
+      if (nodesWhitoutSiblings[i].prevSibling() === null) {
+        nodesWhitoutSiblings[i].parent.insertBefore(nodesWhitoutSiblings[i], new descartesJS.TextNode("", "text", nodesWhitoutSiblings[i].parent.style));
       }
-      if (den.h < 0) {
-        den.h = metric.h;
-        den.w = this.spaceWidth;
+      if (nodesWhitoutSiblings[i].nextSibling() === null) {
+        nodesWhitoutSiblings[i].parent.insertAfter(nodesWhitoutSiblings[i], new descartesJS.TextNode("", "text", nodesWhitoutSiblings[i].parent.style));
       }
-
-      this.h = num.h + den.h -1;
-
-      this.ascent = num.h + Math.round( prevHeight/2 )-prevDescent;
-      this.descent = this.h - this.ascent;
-      this.baseline = this.ascent;
-
-      this.w = MathMax(num.w, den.w) +this.spaceWidth +8;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "radical") {
-      var index;
-      var radicand;
-      var tmpStyle = this.children[0].style.clone();
-      var tmpRadican;
+    return this;
+  }
 
-      // correction in the roots when has only one child (problem in some lessons of Arquimedes)
-      if (this.children.length === 1) {
-        // radican
-        this.children[1] = new descartesJS.RTFNode(this.evaluator, " ", "radicand", tmpStyle);
-        this.children[1].addChild(this.children[0]);
-        // index
-        this.children[0] = new descartesJS.RTFNode(this.evaluator, " ", "index", tmpStyle);
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.removeEmptyText = function() {
+    var textNodes = this.querySelectorAll("text");
+    for (var i=0, l=textNodes.length; i<l; i++) {
+      if (textNodes[i].value === "") {
+        textNodes[i].parent.removeChild(textNodes[i]);
       }
-      // if has more than one child
+    }
+  }
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.adjustFontSize = function() {
+    var fontSize = this.style.size;
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      if (this.children[i].nodeType === "text") {
+        this.children[i].style.size = fontSize;
+        this.children[i].styleString = this.children[i].style.toString();
+      }
+
+      else if (this.children[i].nodeType === "index") {
+        this.children[i].style.size = Math.max( parseInt(fontSize - fontSize*0.5), 8 );
+        this.children[i].styleString = this.children[i].style.toString();
+        this.children[i].adjustFontSize();
+      }
+
+      else if (
+        (this.children[i].nodeType === "to") ||
+        (this.children[i].nodeType === "from")
+      ) {
+        this.children[i].style.size = Math.max( parseInt(fontSize - fontSize*0.2), 8 );
+        this.children[i].styleString = this.children[i].style.toString();
+        this.children[i].adjustFontSize();
+      }
+
+      else if (
+        (this.children[i].nodeType === "numerator") ||
+        (this.children[i].nodeType === "denominator")
+      ) {
+        this.children[i].style.size = Math.max( parseInt(fontSize - fontSize*0.1), 8 );
+        this.children[i].styleString = this.children[i].style.toString();
+        this.children[i].adjustFontSize();
+      }      
+
+      else if (
+        (this.children[i].nodeType === "subIndex") ||
+        (this.children[i].nodeType === "superIndex")
+      ) {
+        this.children[i].style.size = Math.max( parseInt(fontSize - fontSize*0.33), 8 );
+        this.children[i].styleString = this.children[i].style.toString();
+        this.children[i].adjustFontSize();
+      }
+
       else {
-        // if the first two children not are an index and radicand, then is a problem in Arquimedes
-        // and is necesary to add all the children in the radicand value
-        if ( (this.children[0].nodeType !== "index") || (this.children[1].nodeType !== "radicand") ) {
-          // radicand
-          tmpRadican = new descartesJS.RTFNode(this.evaluator, "", "radicand", tmpStyle);
-          for (var i=0, l=this.children.length; i<l; i++) {
-            tmpRadican.addChild(this.children[i]);
-          }
-          this.children = [];
-
-          this.children[0] = new descartesJS.RTFNode(this.evaluator, "", "index", tmpStyle);
-          this.children[1] = tmpRadican;
-        }
+        this.children[i].style.size = fontSize;
+        this.children[i].styleString = this.children[i].style.toString();
+        this.children[i].adjustFontSize();
       }
+    }
+  }
 
-      index    = this.children[0];
-      radicand = this.children[1];
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.propagateStyle = function(prop, value) {
+    this.style[prop] = value;
+    this.styleString = this.style.toString();
 
-      if (index.children.length <= 0) {
-        var tmpStyle = this.style.clone();
-        tmpStyle.fontSize = parseInt(tmpStyle.fontSize - tmpStyle.fontSize*.2);
-        index.addChild( new descartesJS.RTFNode(this.evaluator, " ", "text", tmpStyle) );
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].propagateStyle(prop, value);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.update = function(x, y, decimals, fixed, align, anchor, color, width) {
+    externalDecimals = decimals;
+    externalFixed = fixed;
+    externalColor = color;
+
+    this.metrics.w = this.metrics.h = 0;
+
+    var oldY = y;
+
+    // word wrap, find the new lines of the text
+    if (width >= 20) {
+      for (var i=0; i<this.children.length; i++) {
+        this.children[i].breakLines(width);
       }
-      if (radicand.children.length <= 0) {
-        radicand.addChild( new descartesJS.RTFNode(this.evaluator, " ", "text", this.style.clone()) );
-      }
-
-      index.getBlockMetric();
-      radicand.getBlockMetric();
-
-      this.ascent = (radicand.h/2 < index.h) ? (radicand.h/2 + index.h+2 - radicand.descent) : radicand.ascent +4;
-      this.descent = radicand.descent;
-      this.baseline = this.ascent;
-      this.h = this.ascent + this.descent;
-
-      this.w = index.w + radicand.w +4*this.spaceWidth;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if ((this.nodeType == "sum") || (this.nodeType == "integral")) {
-      var from = this.children[0];
-      var to   = this.children[1];
-      var what = this.children[2]
-      var tmpMetric;
+    var self = this;
+    var lineSep;
+    var line;
 
-      from.getBlockMetric();
-      to.getBlockMetric();
-      what.getBlockMetric();
+    for (var i=0, l=this.children.length; i<l; i++) {
+      line = this.children[i];
+      line.updateLine();
 
-      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (from.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(from.styleString);
-        from.ascent = tmpMetric.ascent;
-        from.descent = tmpMetric.descent;
-        from.h = tmpMetric.h;
-      }
-      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (to.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(to.styleString);
-        to.ascent = tmpMetric.ascent;
-        to.descent = tmpMetric.descent;
-        to.h = tmpMetric.h;
-      }
+      line.metrics.offsetX = x;
 
-      metric = descartesJS.getFontMetrics(this.styleString);
+      line.metrics.y = y;
+      y += parseInt(line.metrics.ascent +0.5);
+      line.metrics.offsetY = y;
+      
+      lineSep = parseInt(line.metrics.descent +0.5) +parseInt(1.5 + line.style.size*0.05);
+      y += lineSep;
 
-      // the ascent
-      if (metric.h+to.h > what.ascent) {
-        this.ascent = metric.h-metric.descent +to.h;
-      } else {
-        this.ascent = what.ascent;
-      }
+      self.metrics.h += line.metrics.h;
+      self.metrics.w = Math.max(self.metrics.w, line.metrics.w);
+    };
 
-      // the descent
-      if (from.h > what.descent) {
-        this.descent = from.h + metric.descent;
-      } else {
-        this.descent = what.descent;
-      }
-
-      this.baseline = this.ascent;
-      this.h = this.ascent + this.descent;
-
-      var symbolStyle = this.style.clone();
-      symbolStyle.fontType = descartesJS.serif_font;
-      symbolStyle.Bold = "bold";
-
-      if (this.nodeType == "sum") {
-        symbolStyle = symbolStyle.toString();
-
-        var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(931), symbolStyle);
-
-        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceWidth) +this.spaceWidth;
-      }
-      else if (this.nodeType == "integral") {
-        symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
-        symbolStyle = symbolStyle.toString();
-
-        var symbolWidth = descartesJS.getTextWidth(String.fromCharCode(8747), symbolStyle);
-
-        this.w = MathMax(from.w, to.w, symbolWidth) + MathMax(what.w, this.spaceWidth) +2*this.spaceWidth;
-      }
-
+    y = oldY;
+    ////////////////////////////////////////////////////
+    // anchor
+    // horizontal left
+    if (anchor.match("right")) {
+      x -= this.metrics.w;
+    }
+    // horizontal center
+    else if (anchor.match("_center")) {
+      x -= this.metrics.w/2;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "limit") {
-      var from = this.children[0];
-      var to   = this.children[1];
-      var what = this.children[2]
-      var tmpMetric;
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      from.getBlockMetric();
-      to.getBlockMetric();
-      what.getBlockMetric();
-
-      // if "from" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (from.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(from.styleString);
-        from.ascent = tmpMetric.ascent;
-        from.descent = tmpMetric.descent;
-        from.h = tmpMetric.h;
-      }
-      // if "to" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (to.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(to.styleString);
-        to.ascent = tmpMetric.ascent;
-        to.descent = tmpMetric.descent;
-        to.h = tmpMetric.h;
-      }
-      // if "what" is empty then the ascent is -1, but is necesary to calculate the space which would occupy
-      if (what.ascent == -1) {
-        tmpMetric = descartesJS.getFontMetrics(what.styleString);
-        what.ascent = tmpMetric.ascent;
-        what.descent = tmpMetric.descent;
-        what.h = tmpMetric.h;
-      }
-
-      this.ascent = what.ascent;
-      this.descent = MathMax(metric.h, from.h, to.h, what.descent);
-      this.baseline = this.ascent;
-      this.h = this.ascent + this.descent;
-
-      var limitWidth = descartesJS.getTextWidth(" " + String.fromCharCode(8594), this.styleString);
-
-      if (from.w == 0) {
-        from.w = this.spaceWidth;
-      }
-      if (to.w == 0) {
-        to.w = this.spaceWidth;
-      }
-      if (what.w == 0) {
-        what.w = this.spaceWidth;
-      }
-
-      this.w = to.w + from.w + what.w + limitWidth + this.spaceWidth;
+    // vertical bottom
+    if (anchor.match("bottom")) {
+      y -= this.metrics.h;
     }
+    // vertical center
+    else if (anchor.match("center_")) {
+      y -= this.metrics.h/2;
+    }
+    ////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "matrix") {
-      metric = descartesJS.getFontMetrics(this.styleString);
 
-      var maxAscenderHeight = metric.ascent;
-      var maxDescenderHeight = metric.descent;
-      var maxHeight = metric.h;
-      var maxWidth = this.spaceWidth;
+    var lines = this.children;
+    for (var i=0, l=lines.length; i<l; i++) {
+      if (lines[i].style.align === "left") {
+        lines[i].metrics.offsetX = x;
+      }
+      else if (lines[i].style.align === "right") {
+        lines[i].metrics.offsetX = x + this.metrics.w - lines[i].metrics.w;
+      }
+      else if (lines[i].style.align === "center") {
+        lines[i].metrics.offsetX = x + (this.metrics.w - lines[i].metrics.w)/2;
+      }
+      else if ((lines[i].style.align === "justify") && (width >= 20)) {
+        lineValue = (i<l-1) ? lines[i+1].value : null;
+        lines[i].metrics.offsetX = x;
 
-      var childHeight;
-      var childWidth;
-
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getBlockMetric();
-
-        childHeight = this.children[i].h;
-        childWidth = this.children[i].w;
-
-        if (maxHeight < childHeight) {
-          maxHeight = childHeight;
-          maxAscenderHeight = this.children[i].ascent;
-          maxDescenderHeight = this.children[i].descent;
+        if (lineValue === "wrap") {
+          lines[i].justifyAux(width);
         }
 
-        if (maxWidth < childWidth) {
-          maxWidth = childWidth;
-        }
       }
 
-      this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childHeight = maxHeight;
-      this.childAscent = maxAscenderHeight;
-      this.childDescent = maxDescenderHeight;
-
-      this.h = this.rows * maxHeight;
-      this.ascent = this.h/2;
-      this.descent = this.h/2;
-      this.w = this.columns * this.childWidth +this.spaceWidth;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "defparts") {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      var maxAscenderHeight = metric.ascent;
-      var maxDescenderHeight = metric.descent;
-      var maxHeight = metric.h;
-      var maxWidth = this.spaceWidth;
-
-      var childHeight;
-      var childWidth;
-
-      for (var i=0, l=this.children.length; i<l; i++) {
-        this.children[i].getBlockMetric();
-
-        childHeight = this.children[i].h;
-        childWidth = this.children[i].w;
-
-        if (maxHeight < childHeight) {
-          maxHeight = childHeight;
-          maxAscenderHeight = this.children[i].ascent;
-          maxDescenderHeight = this.children[i].descent;
-        }
-
-        if (maxWidth < childWidth) {
-          maxWidth = childWidth;
-        }
-      }
-
-      this.childWidth = maxWidth + 2*this.spaceWidth;
-      this.childHeight = maxHeight;
-      this.childAscent = maxAscenderHeight;
-      this.childDescent = maxDescenderHeight;
-
-      this.h = this.parts * maxHeight;
-      this.ascent = this.h/2 + prevDescent;
-      this.descent = this.h - this.ascent;
-      this.w = this.childWidth +  +this.spaceWidth/2;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType == "mathSymbol") {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.baseline = metric.baseline;
-      this.descent = metric.descent;
-      this.ascent = metric.ascent;
-
-      this.w = descartesJS.getTextWidth(this.value, this.styleString) + this.spaceWidth;
-      this.h = metric.h;
-    }
-
-    else if (this.nodeType == "componentNumCtrl") {
-      metric = descartesJS.getFontMetrics(this.styleString);
-
-      this.componentNumCtrl = this.evaluator.parent.getControlByCId(this.value);
-
-      this.baseline = metric.baseline-2;
-      this.descent = metric.descent-2;
-      this.ascent = metric.ascent+2;
-
-      this.h = this.componentNumCtrl.h || 1;
-      this.w = this.componentNumCtrl.w || 1;
-    }
-
-    else if (this.nodeType == "componentSpace") {
-      this.componentSpace = this.evaluator.parent.getSpaceByCId(this.value);
-
-      this.baseline = 0;
-      this.descent = 0;
-      this.ascent = 0;
-
-      this.h = 0;
-      this.w = this.componentSpace.w;
-    }
-
-    else {
-      console.log("Element i=unknown", this.nodeType);
+      lines[i].metrics.y = y;
+      y += parseInt(lines[i].metrics.ascent +0.5);
+      lines[i].metrics.offsetY = y;
+      
+      lineSep = parseInt(lines[i].metrics.descent +0.5) +parseInt(1.5 + lines[i].style.size*0.05);
+      y += lineSep;
     }
 
   }
 
   /**
-   * Get the metric of a block
+   * 
    */
-  descartesJS.RTFNode.prototype.getBlockMetric = function() {
-    this.w = 0;
-    var maxDescenderHeight = -1;
-    var maxAscenderHeight = -1;
-    var childHeight;
+  descartesJS.TextNode.prototype.breakLines = function(width) {
+    var thisLine = this;
     var children_i;
+    var lineWidth = 0;
+    var finish = false;
+    var childrenArray = [];
 
-    // loops throught all the children of a text line to determine which is the width and the height
     for (var i=0, l=this.children.length; i<l; i++) {
       children_i = this.children[i];
-      children_i.getTextMetrics();
 
-      childAscent = children_i.ascent;
-      childDescent = children_i.descent;
+      if (!finish) {
+        if ((children_i.nodeType === "text") || (children_i.nodeType === "space")) {
+          descartesJS.auxCtx.font = children_i.style.toString();
+          children_i.metrics.w = descartesJS.auxCtx.measureText(children_i.value).width;
+        }
+        else if (children_i.nodeType === "word") {
+          children_i.updateLine();
+        }
+        else if (children_i.nodeType === "formula") {
+          children_i.updateFormula();
+        }
 
-      this.w += children_i.w;
+        lineWidth += children_i.metrics.w;
 
-      // update the previous metric
-      updatePrevMetric(childAscent, childDescent, children_i.h);
-
-      if (maxAscenderHeight < childAscent) {
-        maxAscenderHeight = childAscent;
-      }
-
-      if (maxDescenderHeight < childDescent) {
-        maxDescenderHeight = childDescent;
-      }
-    }
-
-    this.ascent = maxAscenderHeight;
-    this.descent = maxDescenderHeight;
-    this.baseline = this.ascent;
-    this.h = this.ascent + this.descent;
-  }
-
-  /**
-   * Draw a text block
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   * @param {Number} decimals the number of decimals of the text
-   * @param {Boolean} fixed the number of significant digits of the number in the text
-   * @param {String} align the alignment of the text
-   * @param {Boolean} displaceY a flag to indicate if the text needs a displace in the y position
-   */
-  descartesJS.RTFNode.prototype.drawTextBlock = function(ctx, x, y, decimals, fixed, align, displaceY, color) {
-    localColor = color;
-
-    ctx.textAlign = "start";
-    ctx.textBaseline = "alphabetic";
-
-    // if the text has a dynamic text, then is necesary to calculate the width of the elements
-    if (!this.stableWidth) {
-      externalDecimals = decimals;
-      externalFixed = fixed;
-      this.getTextMetrics();
-    }
-
-    displaceY = (displaceY) ? -this.children[0].ascent : 0;
-
-    var desp = 0;
-    var previousChildPos = 0;
-
-    for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        previousChildPos += this.children[i-1].h;
-      }
-
-      // if the text align is center
-      if (align == "center") {
-        desp = -this.children[i].w/2;
-      }
-      // if the text align is right
-      else if (align == "right") {
-        desp =-this.children[i].w;
-      }
-
-      this.children[i].draw(ctx, x+desp, y+displaceY+previousChildPos);
-    }
-  }
-
-  /**
-   * Draw a text line block
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawTextLineBlock = function(ctx, x, y) {
-    var antChildX = 0;
-
-    for (var i=0, l=this.children.length; i<l; i++) {
-      ctx.strokeStyle = ctx.fillStyle = localColor;
-
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-
-        if ((this.children[i-1].nodeType == "formula")) {
-          antChildX += 2*this.children[i-1].spaceWidth;
+        if ((lineWidth > width) && (children_i.nodeType !== "space") && (i>0)) {
+          finish = true;
+          childrenArray.push(children_i);
         }
       }
 
-      this.children[i].draw(ctx, x+antChildX, y+this.baseline);
+      else {
+        childrenArray.push(children_i);
+      }
     }
 
+    if (childrenArray.length > 0) {
+      var newLine = new descartesJS.TextNode("wrap", "textLineBlock", this.style.clone(), null);
+      this.parent.insertAfter(thisLine, newLine);
+
+      for (var i=0, l=childrenArray.length; i<l; i++) {
+        newLine.addChild(childrenArray[i]);
+      }
+    }
   }
 
   /**
-   * Draw a formula
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawFormula = function(ctx, x, y) {
-    var antChildX = 0;
+  descartesJS.TextNode.prototype.updateLine = function(spaceWidth) {
+    var thisLine = this;
+
+    if ((this.nodeType === "textLineBlock") || (this.nodeType === "word")) {
+      this.metrics.w = 0;
+      this.metrics.ascent = 0;
+      this.metrics.descent = 0;
+
+      var displaceX = 0;
+      var children = this.children;
+      var children_i;
+
+      for (var i=0, l=children.length; i<l; i++) {
+        children_i = children[i];
+
+        //////////////////////////////////////////////////////////
+        if (children_i.nodeType === "text") {
+          descartesJS.auxCtx.font = children_i.style.toString();
+          var value = (children_i.value !== "") ? children_i.value : "\u200A";
+          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+
+          children_i.metrics.offsetX = displaceX;
+
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return thisLine.metrics.offsetX + this.offsetX } },
+            "y" : { get : function() { return thisLine.metrics.offsetY + this.offsetY; } }
+          });
+        }
+
+        //////////////////////////////////////////////////////////
+        if (children_i.nodeType === "space") {
+          descartesJS.auxCtx.font = children_i.style.toString();
+          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          if (i === l-1) {
+            children_i.metrics.w = 0;
+          }
+          else if (spaceWidth) {
+            children_i.metrics.w = spaceWidth;
+          }
+          else {
+            children_i.metrics.w = descartesJS.auxCtx.measureText(" ").width;
+          }
+  
+          children_i.metrics.offsetX = displaceX;
+          
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return thisLine.metrics.offsetX + this.offsetX; } },
+            "y" : { get : function() { return thisLine.metrics.offsetY + this.offsetY; } }
+          });
+        }
+
+        //////////////////////////////////////////////////////////
+        else if (children_i.nodeType === "word") {
+          children_i.updateLine();
+  
+          children_i.metrics.offsetX_aux = displaceX;
+  
+          Object.defineProperties(children_i.metrics, {
+            "offsetX" : { get : function() { return thisLine.metrics.offsetX + this.offsetX_aux; } },
+            "offsetY" : { get : function() { return thisLine.metrics.offsetY; } },
+          });
+        }
+
+        //////////////////////////////////////////////////////////
+        if (children_i.nodeType === "hyperlink") {
+          descartesJS.auxCtx.font = children_i.styleString;
+          var value = (children_i.value !== "") ? children_i.value : "\u200A";
+          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+
+          children_i.metrics.offsetX = displaceX;
+
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return thisLine.metrics.offsetX + this.offsetX } },
+            "y" : { get : function() { return thisLine.metrics.offsetY; } }
+          });
+
+          ////
+          children_i.clickCacher = document.createElement("div");
+          children_i.clickCacher.setAttribute("style", "position:absolute;width:" + children_i.metrics.w + "px;height:" + children_i.metrics.h + "px;cursor:pointer;");
+          children_i.clickCacher.rtfNode = children_i;
+          children_i.clickCacher.action = new descartesJS.OpenURL(this.evaluator.parent, children_i.URL);
+      
+          children_i.clickCacher.addEventListener("click", function(evt) {
+            this.rtfNode.click = true;
+            this.action.execute();
+            this.rtfNode.draw(this.rtfNode.ctx);
+          });
+          ////
+        }
+
+        //////////////////////////////////////////////////////////
+        if (children_i.nodeType === "componentNumCtrl") {
+          children_i.componentNumCtrl = this.evaluator.parent.getControlByCId(children_i.value);
+
+          descartesJS.auxCtx.font = children_i.styleString;
+          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          children_i.metrics.w = children_i.componentNumCtrl.w;
+          children_i.metrics.h = children_i.componentNumCtrl.h;
+
+          children_i.metrics.offsetX = displaceX;
+
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return thisLine.metrics.offsetX + this.offsetX } },
+            "y" : { get : function() { return thisLine.metrics.offsetY; } }
+          });
+        }
+
+        //////////////////////////////////////////////////////////
+        if (children_i.nodeType === "componentSpace") {
+          children_i.componentSpace = this.evaluator.parent.getSpaceByCId(children_i.value);
+
+          descartesJS.auxCtx.font = children_i.styleString;
+          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          children_i.metrics.w = children_i.componentSpace.w;
+          children_i.metrics.h = children_i.componentSpace.h;
+
+          children_i.metrics.offsetX = displaceX;
+
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return thisLine.metrics.offsetX + this.offsetX } },
+            "y" : { get : function() { return thisLine.metrics.offsetY; } }
+          });
+        }
+
+        //////////////////////////////////////////////////////////
+        else if (children_i.nodeType === "formula") {
+          children_i.updateFormula();
+
+// children_i.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+// children_i.metrics.marginY = parseInt(1.5 + this.style.size*factorMarginV);
+
+// children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+// children_i.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+          children_i.metrics.offsetX_aux = displaceX;
+
+          Object.defineProperties(children_i.metrics, {
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+
+            "offsetX" : { get : function() { return thisLine.metrics.offsetX +this.marginX +this.offsetX_aux; } },
+            "offsetY" : { get : function() { return thisLine.metrics.offsetY; } }
+          });
+
+          children_i.metrics.w += 2*children_i.metrics.paddingX;
+          children_i.metrics.ascent += children_i.metrics.paddingY;
+          children_i.metrics.descent += children_i.metrics.paddingY;
+          children_i.metrics.h += 2*children_i.metrics.paddingY;
+
+          displaceX += 2*children_i.metrics.marginX;
+        }
+
+        // line metrics
+        this.metrics.w += children_i.metrics.w +2*children_i.metrics.marginX;
+        this.metrics.ascent = Math.max(this.metrics.ascent, children_i.metrics.ascent);
+        this.metrics.descent = Math.max(this.metrics.descent, children_i.metrics.descent);
+        displaceX += children_i.metrics.w;
+      }
+
+      this.metrics.h = this.metrics.ascent + this.metrics.descent;
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.updateFormula = function() {
+    var thisFormula = this;
+
+    this.metrics = { ascent:0, descent:0, h:0, w:0, x:0, y:0, offsetX:0, offsetY:0, marginX:0, marginY:0, paddingX:0, paddingY:0 };
+
+    var children = this.children;
+    var children_i;
+    var displaceX = 0;
+
+    var prevChild = { metrics : { ascent:0, descent:0, h:0, w:0, x:0, y:0, offsetX:0, offsetY:0, marginX:0, marginY:0, paddingX:0, paddingY:0 } };
+
+    for (var i=0, l=children.length; i<l; i++) {
+      children_i = children[i];
+
+      //////////////////////////////////////////////////////////
+      if (children_i.nodeType === "text") {
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var value = (children_i.value !== "") ? children_i.value : "\u200A";
+        children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+        children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+
+        children_i.metrics.offsetX = displaceX;
+
+        Object.defineProperties(children_i.metrics, {
+          "x" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.offsetX ; } },
+          "y" : { get : function() { return thisFormula.metrics.offsetY; } }
+        });
+
+        displaceX += thisFormula.metrics.marginX;
+      }
+
+      
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "dynamicText") {
+        var decimals = (children_i.decimals === undefined) ? externalDecimals : children_i.evaluator.eval(children_i.decimals);
+        var fixed = (children_i.fixed === undefined) ? externalFixed : children_i.fixed;
+    
+        var textTemp = children_i.evaluator.eval(children_i.value);
+    
+        // if the text is a number
+        if (parseFloat(textTemp).toString() === textTemp.toString()) {
+          textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
+          textTemp = (""+textTemp).replace(".", children_i.decimal_symbol);
+        }
+        
+        children_i.evalValue = textTemp;
+
+        descartesJS.auxCtx.font = children_i.style.toString();
+        children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+
+        children_i.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+
+        children_i.metrics.w = descartesJS.auxCtx.measureText(textTemp).width + 2*children_i.metrics.paddingX;
+
+        children_i.metrics.offsetX_aux = displaceX;
+
+        Object.defineProperties(children_i.metrics, {
+          "x" : { get : function() { return this.offsetX; } }, 
+          "y" : { get : function() { return this.offsetY; } }, 
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.offsetX_aux +this.marginX; } }, 
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        displaceX += 2*children_i.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      if (children_i.nodeType === "superIndex") {
+        var superIndex = children_i;
+        superIndex.updateFormula();
+
+        superIndex.metrics.marginX = 0*parseInt(1.5 + this.style.size*factorMarginH);
+        superIndex.metrics.paddingX = 0*parseInt(1.5 + this.style.size*factorPaddingH);
+        superIndex.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        superIndex.metrics.offsetX_aux = displaceX;
+
+        superIndex.metrics.prevChild = prevChild;
+
+        Object.defineProperties(superIndex.metrics, {
+          "x" : { get : function() { return this.offsetX; } }, 
+          "y" : { get : function() { return this.offsetY; } }, 
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.offsetX_aux +this.marginX; } }, 
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY -this.descent +this.prevChild.metrics.descent -parseInt(2*this.prevChild.metrics.h/7); } },
+        });
+
+        superIndex.metrics.w += 2*superIndex.metrics.paddingX;
+        superIndex.metrics.ascent += superIndex.metrics.paddingY;
+        superIndex.metrics.descent += superIndex.metrics.paddingY;
+        superIndex.metrics.h += 2*superIndex.metrics.paddingY;
+
+        this.metrics.ascent = superIndex.metrics.descent - superIndex.metrics.prevChild.metrics.descent + parseInt(2*superIndex.metrics.prevChild.metrics.h/7) + superIndex.metrics.ascent;
+
+        displaceX += 2*superIndex.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "subIndex") {
+        var subIndex = children_i;
+        subIndex.updateFormula();
+
+        subIndex.metrics.marginX = parseInt(1.5 + 1.25*this.style.size*factorMarginH);
+        subIndex.metrics.paddingX = 0*parseInt(1.5 + 0.25*this.style.size*factorPaddingH);
+        subIndex.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        subIndex.metrics.offsetX_aux = displaceX;
+
+        subIndex.metrics.prevChild = prevChild;
+
+        Object.defineProperties(subIndex.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.offsetX_aux +0*this.marginX; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY +this.ascent +subIndex.metrics.prevChild.metrics.descent -parseInt(4*subIndex.metrics.prevChild.metrics.h/7); } },
+        });
+
+        // subIndex.metrics.w += 2*subIndex.metrics.paddingX;
+        subIndex.metrics.w += subIndex.metrics.paddingX;
+        subIndex.metrics.ascent += subIndex.metrics.paddingY;
+        subIndex.metrics.descent += subIndex.metrics.paddingY;
+        subIndex.metrics.h += 2*subIndex.metrics.paddingY;
+
+        this.metrics.descent = subIndex.metrics.ascent +subIndex.metrics.prevChild.metrics.descent -parseInt(4*subIndex.metrics.prevChild.metrics.h/7) +subIndex.metrics.descent;
+
+        // displaceX += 2*subIndex.metrics.marginX;
+        displaceX += subIndex.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "fraction") {
+        var fraction = children_i;
+
+        fraction.updateFormula();
+
+        var components = fraction.children;
+        var num = components[0];
+        var den = components[1];
+
+        fraction.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        fraction.metrics.paddingX = 0* parseInt(1.5 + this.style.size*factorPaddingH);
+        fraction.metrics.paddingY = 0* parseInt(1.5 + this.style.size*factorPaddingV);
+
+        var maxWidth = Math.max(num.metrics.w, den.metrics.w) +2*fraction.metrics.paddingX;
+
+        fraction.metrics.prevChild = prevChild;
+
+        fraction.metrics.offsetX_aux = displaceX;
+        var offsetY = parseInt(-prevChild.metrics.descent +4*prevChild.metrics.h/9);
+
+        // fraction position
+        Object.defineProperties(fraction.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY +offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY -offsetY; } },
+        });
+
+        // num position
+        Object.defineProperties(num.metrics, {
+          "parent" : { value : fraction },
+          "maxWidth" : { value : maxWidth },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + parseInt((this.maxWidth - this.w)/2); } },
+          "offsetY" : { get : function() { return this.parent.metrics.offsetY - this.descent -this.parent.metrics.paddingY; } },
+        });
+
+        // den position
+        Object.defineProperties(den.metrics, {
+          "parent" : { value : fraction },
+          "maxWidth" : { value : maxWidth },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + parseInt((this.maxWidth - this.w)/2); } },
+          "offsetY" : { get : function() { return this.parent.metrics.offsetY + this.ascent + this.parent.metrics.paddingY; } },
+        });
+
+        fraction.metrics.w = maxWidth;
+        fraction.metrics.ascent = num.metrics.h +offsetY +2*fraction.metrics.paddingY;
+        fraction.metrics.descent = den.metrics.h -offsetY +2*fraction.metrics.paddingY;
+        fraction.metrics.h = num.metrics.h + den.metrics.h +4*fraction.metrics.paddingY;
+
+        displaceX += 2*fraction.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "radical") {
+        var radical = children_i;
+
+        radical.updateFormula();
+
+        var components = radical.children;
+        var index = components[0];
+        var radicand = components[1];
+
+        radical.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        radical.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        radical.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        radical.metrics.offsetX_aux = displaceX;
+        // radical position
+        Object.defineProperties(radical.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        //////////////////////////////////
+        // w=772, h=1000 radicalSign
+        var fontSize = radical.style.size;
+        radical.radicalSign = {
+          w : fontSize,
+          scaleX : fontSize/722,
+          scaleY : radicand.metrics.h/1000,
+        };
+        var displaceIndex = parseInt(index.metrics.w - 2*radical.radicalSign.w/3);
+
+        Object.defineProperties(radical.radicalSign, {
+          "parent" : { value : radical },
+          "displaceIndex" : { value : displaceIndex },
+
+          "x" : { get: function() { return this.parent.metrics.offsetX +this.parent.metrics.paddingX + Math.max(this.displaceIndex, 0); } },
+          "y" : { get: function() { return thisFormula.metrics.offsetY -radicand.metrics.ascent; } },
+        });
+
+        // index position
+        Object.defineProperties(index.metrics, {
+          "parent" : { value : radical },
+          "displaceIndex" : { value : displaceIndex },
+          "fontSize" : { value : fontSize },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX +this.parent.metrics.paddingX + Math.max(this.displaceIndex, 0) -this.displaceIndex; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY -this.descent -2*this.fontSize/5; } },
+        });
+
+        // radicand position
+        Object.defineProperties(radicand.metrics, {
+          "parent" : { value : radical },
+          "displaceIndex" : { value : displaceIndex },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX +this.parent.metrics.paddingX +this.parent.radicalSign.w +Math.max(this.displaceIndex, 0) } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+        
+        var indexWidth = (index.metrics.w < 2*radical.radicalSign.w/3) ? radical.radicalSign.w : parseInt(index.metrics.w+radical.radicalSign.w/3);
+
+        radical.metrics.w = indexWidth +2*radical.metrics.paddingX + radicand.metrics.w;
+        radical.metrics.ascent = Math.max(radicand.metrics.ascent, (index.metrics.h +2*fontSize/5)) +radical.metrics.paddingY;
+        radical.metrics.descent = radicand.metrics.descent +radical.metrics.paddingY;
+        radical.metrics.h = radical.metrics.ascent + radical.metrics.descent;
+
+        displaceX += 2*radical.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "sum") {
+        var sum = children_i;
+
+        sum.updateFormula();
+
+        var components = sum.children;
+        var sumFrom = components[0];
+        var sumTo = components[1];
+        var sumWhat = components[2];
+
+        sum.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        sum.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        sum.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        sum.metrics.offsetX_aux = displaceX;
+
+        // sum position
+        Object.defineProperties(sum.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        //////////////////////////////////
+        // w=780, h=1000
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        
+        var sigmaHeight = parseInt(tmpMetric.h*1.2);
+        var sigmaWidth = parseInt(0.5 +sigmaHeight*780/1000);
+        sum.sigmaSign = {
+          w : sigmaWidth,
+          h : sigmaHeight,
+          scale : sigmaHeight/1000,
+        };
+        var sumWidth = Math.max(sumTo.metrics.w, sumFrom.metrics.w, sum.sigmaSign.w);
+
+        sum.sigmaSign.parent = sum;
+        Object.defineProperties(sum.sigmaSign, {
+          "sumWidth" : { value : sumWidth },
+
+          "x" : { get: function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.sumWidth - this.w)/2); } },
+          "y" : { get: function() { return thisFormula.metrics.offsetY +tmpMetric.descent -(this.h +tmpMetric.h)/2; } },
+        });
+
+        var newBaselineTo = tmpMetric.descent -sumTo.metrics.descent -(sigmaHeight +tmpMetric.h)/2 -sum.metrics.paddingY;
+
+        // sumTo position
+        Object.defineProperties(sumTo.metrics, {
+          "parent" : { value : sum },
+          "sumWidth" : { value : sumWidth },
+          "newBaselineTo" : { value : newBaselineTo },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.sumWidth - this.w)/2); } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineTo; } },
+        });
+
+        var newBaselineFrom = sumFrom.metrics.ascent +tmpMetric.descent +(sigmaHeight -tmpMetric.h)/2 +sum.metrics.paddingY;
+
+        // sumFrom position
+        Object.defineProperties(sumFrom.metrics, {
+          "parent" : { value : sum },
+          "sumWidth" : { value : sumWidth },
+          "newBaselineFrom" : { value : newBaselineFrom },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.sumWidth - this.w)/2); } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineFrom; } },
+        });
+
+        // sumWhat position
+        Object.defineProperties(sumWhat.metrics, {
+          "parent" : { value : sum },
+          "sumWidth" : { value : sumWidth },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + 2*this.parent.metrics.paddingX +this.sumWidth; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        sum.metrics.w = sumWidth + sumWhat.metrics.w +3*sum.metrics.paddingX;
+        sum.metrics.ascent = Math.max( sumWhat.metrics.ascent, (-newBaselineTo +sumTo.metrics.ascent) ) +sum.metrics.paddingY;
+        sum.metrics.descent = Math.max( sumWhat.metrics.descent, (newBaselineFrom +sumFrom.metrics.descent) ) +sum.metrics.paddingY;
+        sum.metrics.h = sum.metrics.ascent + sum.metrics.descent;
+
+        displaceX += 2*sum.metrics.marginX;
+      }
+      
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "integral") {
+        var integral = children_i;
+
+        integral.updateFormula();
+
+        var components = integral.children;
+        var integralFrom = components[0];
+        var integralTo = components[1];
+        var integralWhat = components[2];
+
+        integral.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        integral.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        integral.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        integral.metrics.offsetX_aux = displaceX;
+        // integral position
+        Object.defineProperties(integral.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        //////////////////////////////////
+        // w=529, h=1000
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+
+        var integralHeight = parseInt(tmpMetric.h*1.2);
+        var integralWidth = parseInt(10.5 +integralHeight*529/1000);
+        integral.sign = {
+          w : integralWidth,
+          h : integralHeight,
+          scale : integralHeight/1000,
+        };
+
+        integral.sign.parent = integral;
+        Object.defineProperties(integral.sign, {
+          "x" : { get: function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX; } },
+          "y" : { get: function() { return thisFormula.metrics.offsetY +tmpMetric.descent -(this.h +tmpMetric.h)/2; } },
+        });
+
+        var newBaselineTo = tmpMetric.descent -(integralHeight + tmpMetric.h)/2 -integralTo.metrics.descent +integralHeight/3;
+
+        // integralTo position
+        Object.defineProperties(integralTo.metrics, {
+          "parent" : { value : integral },
+          "integralWidth" : { value : integralWidth },
+          "newBaselineTo" : { value : newBaselineTo },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt(4*this.integralWidth/5); } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineTo; } },
+        });
+
+        var newBaselineFrom = tmpMetric.descent +integralFrom.metrics.ascent/2;
+
+        // integralFrom position
+        Object.defineProperties(integralFrom.metrics, {
+          "parent" : { value : integral },
+          "integralWidth" : { value : integralWidth },
+          "newBaselineFrom" : { value : newBaselineFrom },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt(2*this.integralWidth/5); } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineFrom; } },
+        });
+
+        var whatDisplace = Math.max( parseInt(4*integralWidth/5) + integralTo.metrics.w, parseInt(2*integralWidth/5 + integralFrom.metrics.w) ) +integral.metrics.paddingX;
+
+        // integralWhat position
+        Object.defineProperties(integralWhat.metrics, {
+          "parent" : { value : integral },
+          "whatDisplace" : { value : whatDisplace },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +this.whatDisplace; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        integral.metrics.w = whatDisplace + integralWhat.metrics.w +2*integral.metrics.paddingX;
+        integral.metrics.ascent = Math.max( integralWhat.metrics.ascent, (-newBaselineTo +integralTo.metrics.ascent) ) +integral.metrics.paddingY;
+        integral.metrics.descent = Math.max( integralWhat.metrics.descent, (newBaselineFrom +integralFrom.metrics.descent), integralHeight -integral.metrics.ascent ) +integral.metrics.paddingY;
+        integral.metrics.h = Math.max(integral.metrics.ascent + integral.metrics.descent, integralHeight);
+
+        displaceX += 2*integral.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "limit") {
+        var limit = children_i;
+
+        limit.updateFormula();
+
+        var components = limit.children;
+        var limitFrom = components[0];
+        var limitTo = components[1];
+        var limitWhat = components[2];
+
+        limit.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        limit.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        limit.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        limit.metrics.offsetX_aux = displaceX;
+        // limit position
+        Object.defineProperties(limit.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        //////////////////////////////////
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        var limitTextWidth = parseInt(0.5 + descartesJS.auxCtx.measureText("lím").width);
+        var arrowWidth = parseInt(0.5 + descartesJS.auxCtx.measureText("→").width);
+
+        limitWidth = Math.max(limitTextWidth, limitFrom.metrics.w + arrowWidth + limitTo.metrics.w);
+
+        limit.limitText = {
+          parent: limit,
+        };
+        Object.defineProperties(limit.limitText, {
+          "limitWidth" : { value : limitWidth },
+          "limitTextWidth" : { value : limitTextWidth },
+
+          "x" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX + (this.limitWidth - this.limitTextWidth)/2 } },
+        });
+
+        var newBaseline = tmpMetric.descent +Math.max(limitFrom.metrics.ascent, limitTo.metrics.ascent, 2*tmpMetric.ascent/3) +limit.metrics.paddingY;
+
+        limit.limitArrow = {
+          parent: limit,
+        };
+        Object.defineProperties(limit.limitArrow, {
+          "newBaseline" : { value : newBaseline },
+
+          "x" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +limitFrom.metrics.w} },
+          "y" : { get : function() { return thisFormula.metrics.offsetY + this.newBaseline; } },
+        });
+
+        // limitFrom position
+        Object.defineProperties(limitFrom.metrics, {
+          "parent" : { value : limit },
+          "newBaseline" : { value : newBaseline },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaseline; } },
+        });
+
+        // limitTo position
+        Object.defineProperties(limitTo.metrics, {
+          "parent" : { value : limit },
+          "arrowWidth" : { value : arrowWidth },
+          "newBaseline" : { value : newBaseline },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+          
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX + limitFrom.metrics.w + this.arrowWidth; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaseline; } },
+        });
+
+        // limitWhat position
+        Object.defineProperties(limitWhat.metrics, {
+          "parent" : { value : limit },
+          "limitWidth" : { value : limitWidth },
+
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+          
+          "offsetX" : { get : function() { return this.parent.metrics.offsetX + 2*this.parent.metrics.paddingX + this.limitWidth; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        limit.metrics.w = limitWidth + limitWhat.metrics.w +3*limit.metrics.paddingX;
+        limit.metrics.ascent = Math.max(limitWhat.metrics.ascent, tmpMetric.ascent) +limit.metrics.paddingY;
+        limit.metrics.descent = newBaseline + Math.max(limitFrom.metrics.descent, limitTo.metrics.descent) +limit.metrics.paddingY;
+        limit.metrics.h = limit.metrics.ascent + limit.metrics.descent;
+
+        displaceX += 2*limit.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "matrix") {
+        var matrix = children_i;
+
+        matrix.updateFormula();
+        
+        var components = matrix.children;
+        var rows = matrix.rows;
+        var cols = matrix.columns;
+
+        matrix.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        matrix.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        matrix.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        matrix.metrics.offsetX_aux = displaceX;
+        // matrix position
+        Object.defineProperties(matrix.metrics, {
+          "x" : { get : function() { return this.offsetX; } },
+          "y" : { get : function() { return this.offsetY; } },
+
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+        
+        //////////////////////////////////
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+
+        var rowsH = [];
+        var colsW = [];
+
+        var index_row;
+        var index_col;
+
+        // get the max height of the rows and the max width of the columns
+        for (var j=0, k=rows*cols; j<k; j++) {
+          index_row = parseInt(j/cols);
+          index_col = j % cols;
+          
+          rowsH[index_row] = Math.max(rowsH[index_row] || 0, components[j].metrics.h);
+
+          colsW[index_col] = Math.max(colsW[index_col] || 0, components[j].metrics.w);
+        }
+
+        var matrixW = (1+cols)*matrix.metrics.paddingX;
+        for (var j=0; j<cols; j++) { matrixW += colsW[j]; };
+
+        var matrixH = (1+rows)*matrix.metrics.paddingY;
+        for (var j=0; j<rows; j++) { matrixH += rowsH[j]; };
+        
+        var dispY = tmpMetric.descent - tmpMetric.h/2;
+
+        for (var j=0, k=rows*cols; j<k; j++) {
+          index_row = parseInt(j/cols);
+          index_col = j % cols;
+
+          components[j].metrics.offsetX_aux = partialSum(colsW, index_col) + (colsW[index_col] - components[j].metrics.w)/2 +index_col*matrix.metrics.paddingX;
+          components[j].metrics.offsetY_aux = partialSum(rowsH, index_row) + (rowsH[index_row] - components[j].metrics.h)/2 +(1+index_row)*matrix.metrics.paddingY;
+
+          Object.defineProperties(components[j].metrics, {
+            "parent" : { value : matrix },
+            "matrixH" : { value : matrixH },
+            "dispY" : { value : dispY },
+
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+
+            "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX + this.offsetX_aux; } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY - this.matrixH/2 + this.ascent + this.offsetY_aux + this.dispY; } },
+          });
+        }
+
+        matrix.metrics.w = matrixW ;
+        matrix.metrics.ascent = matrixH/2 -dispY;
+        matrix.metrics.descent = matrixH/2 +dispY;
+        matrix.metrics.h = matrix.metrics.ascent + matrix.metrics.descent;
+
+        displaceX += 2*matrix.metrics.marginX;
+      }
+      
+      //////////////////////////////////////////////////////////
+      else if (children_i.nodeType === "defparts") {
+        var defparts = children_i;
+
+        defparts.updateFormula();
+
+        var components = children_i.children;
+        var parts = children_i.parts;
+
+        defparts.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+        defparts.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        defparts.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        defparts.metrics.offsetX_aux = displaceX;
+        // defparts position
+        Object.defineProperties(defparts.metrics, {
+          "parent" : { value : thisFormula },
+
+          "x" : { get : function() { return this.offsetX -2*this.marginX; } },
+          "y" : { get : function() { return this.offsetY; } },
+          
+          "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +3*this.marginX +this.offsetX_aux; } },
+          "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+        });
+
+        //////////////////////////////////
+        descartesJS.auxCtx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+
+        var defpartsW = 0;
+        var defpartsH = defparts.metrics.paddingY;
+        var dispY = tmpMetric.descent - tmpMetric.h/2;
+
+        for (var j=0; j<parts; j++) {
+          components[j].metrics.offsetY_aux = defpartsH;
+
+          defpartsW = Math.max(defpartsW, components[j].metrics.w);
+          defpartsH += components[j].metrics.h +defparts.metrics.paddingY;
+          
+          Object.defineProperties(components[j].metrics, {
+            "parent" : { value : defparts },
+            "dispY" : { value : dispY },
+
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+            
+            "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX; } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY - this.parent.metrics.defpartsH/2 +this.ascent +this.offsetY_aux + this.dispY; } },
+          });
+        }
+        defparts.metrics.defpartsH = defpartsH;
+
+        defparts.metrics.w = defpartsW +4*defparts.metrics.paddingX;
+        defparts.metrics.ascent = defpartsH/2 -dispY;
+        defparts.metrics.descent = defpartsH/2 +dispY;
+        defparts.metrics.h = defparts.metrics.ascent + defparts.metrics.descent;
+
+        displaceX += 2*defparts.metrics.marginX;
+      }
+
+      //////////////////////////////////////////////////////////
+      else if ( 
+        (children_i.nodeType === "numerator") || 
+        (children_i.nodeType === "denominator") ||
+        (children_i.nodeType === "index") ||
+        (children_i.nodeType === "radicand") ||
+        (children_i.nodeType === "from") ||
+        (children_i.nodeType === "to") ||
+        (children_i.nodeType === "what") ||
+        (children_i.nodeType === "element")
+      ) {
+        children_i.updateFormula();
+
+        children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+        children_i.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+
+        children_i.metrics.w += 2*children_i.metrics.paddingX;
+        children_i.metrics.ascent += children_i.metrics.paddingY;
+        children_i.metrics.descent += children_i.metrics.paddingY;
+        children_i.metrics.h = children_i.metrics.ascent + children_i.metrics.descent;
+      }
+
+      //////////////////////////////////////////////////////////
+      // asign the previous child
+      prevChild = children_i;
+
+      //////////////////////////////////////////////////////////
+      this.metrics.ascent = Math.max(this.metrics.ascent, children_i.metrics.ascent);
+      this.metrics.descent = Math.max(this.metrics.descent, children_i.metrics.descent);
+
+      this.metrics.w += children_i.metrics.w +2*children_i.metrics.marginX;
+      this.metrics.h = this.metrics.ascent + this.metrics.descent;
+      displaceX += children_i.metrics.w;
+    }
+  }
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.justifyAux = function(width) {
+    // count the space children
+    var spaces = 0;
+    var textWidth = 0;
+    for (var i=0, l=this.children.length; i<l-1; i++) {
+      if (this.children[i].nodeType === "space") {
+        spaces++;
+      }
+      else {
+        textWidth += this.children[i].metrics.w;
+      }
+    }
+    // var spaceWidth = parseInt((width - textWidth)/spaces);
+    var spaceWidth = (width - textWidth)/spaces;
+    this.updateLine(spaceWidth);
+  }
+
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawTextBlock = function(ctx) {
+    ctx.fillStyle = externalColor;
 
     for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-      }
-      this.children[i].draw(ctx, x + this.spaceWidth + antChildX, y);
+      this.children[i].draw(ctx);
     }
   }
-
   /**
-   * Draw a text
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawText = function(ctx, x, y) {
-    if (this.color != null) {
-      ctx.fillStyle = this.color;
-    }
-    ctx.font = this.styleString;
-
-    ctx.fillText(this.value, x-1, y);
-
-    if (this.underline) {
-      var isBold = this.style.textBold == "bold";
-      var sep = isBold ? 1 : .5;
-
-      ctx.lineWidth = isBold ? 2 : 1;
-      if (this.color != null) {
-        ctx.strokeStyle = this.color;
-      }
-      ctx.beginPath();
-      ctx.moveTo(x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(x-1+this.w, parseInt(y+this.descent/2) +sep);
-      ctx.stroke();
-    }
-
-    if (this.overline) {
-      var isBold = this.style.textBold == "bold";
-      var sep = isBold ? 2 : 1.5;
-
-      ctx.lineWidth = isBold ? 2 : 1;
-      if (this.color != null) {
-        ctx.strokeStyle = this.color;
-      }
-      ctx.beginPath();
-      ctx.moveTo(x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(x-1+this.w, parseInt(y-this.ascent) +sep);
-      ctx.stroke();
+  descartesJS.TextNode.prototype.drawTextLineBlock = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
     }
   }
-
   /**
-   * Draw a dynamic text
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawDynamicText = function(ctx, x, y) {
-    var spaceWidth = MathFloor(this.spaceWidth*.5);
+  descartesJS.TextNode.prototype.drawText = function(ctx) {
+    if (this.value === "") return;
 
-    var decimals = (this.decimals == undefined) ? externalDecimals : this.evaluator.eval(this.decimals);
-    var fixed = (this.fixed == undefined) ? externalFixed : this.fixed;
+    var x = this.metrics.x;
+    var y = this.metrics.y;
 
-    var textTemp = this.evaluator.eval(this.value);
-    // the text is a number
-    if (parseFloat(textTemp).toString() === textTemp.toString()) {
-      textTemp = (fixed) ? parseFloat(textTemp).toFixed(decimals) : descartesJS.removeNeedlessDecimals((parseFloat(textTemp).toFixed(decimals)));
-      textTemp = (""+textTemp).replace(".", this.decimal_symbol);
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+
+    ctx.font = this.style.toString();
+
+    ctx.beginPath();
+
+    if (this.style.overline) {
+      ctx.rect(x, y -this.metrics.ascent +parseInt(1 +this.style.size/25), this.metrics.w, parseInt(1 +this.style.size/25) );
+      ctx.fill();
+    }
+    if (this.style.underline) {
+      ctx.rect(x, y +parseInt(1 +this.style.size/10), this.metrics.w, parseInt(1 +this.style.size/25) );
+      ctx.fill();
+    }
+    if (this.style.border) {
+      var tmpStroke = ctx.strokeStyle;
+      ctx.lineWidth = 1 + parseInt(this.style.size/13);
+      ctx.lineJoin = "round";
+      ctx.miterLimit = 2;
+      ctx.strokeStyle = this.style.border.getColor();
+      ctx.strokeText(this.value, x, y);
+      ctx.strokeStyle = tmpStroke;
     }
 
-    if (this.color != null) {
-      ctx.fillStyle = this.color;
-    }
-    ctx.font = this.styleString;
+    ctx.fillText(this.value, x, y);
 
-    this.w = descartesJS.getTextWidth(textTemp, this.styleString);
-    ctx.fillText(textTemp, spaceWidth + x, y);
+    // drawBorder
+    // ctx.beginPath();
+    // ctx.strokeStyle = "#ff0000";
+    // ctx.lineWidth = 1;
+    // ctx.rect(parseInt(this.metrics.x) +0.5, parseInt(this.metrics.y -this.metrics.ascent) +0.5, this.metrics.w, this.metrics.h);
+    // ctx.stroke();
 
-    if (this.underline) {
-      var isBold = this.style.textBold == "bold";
-      var sep = isBold ? 1 : .5;
+    // ctx.beginPath();
+    // ctx.strokeStyle = "#0000ff";
+    // ctx.lineWidth = 1;
+    // ctx.moveTo(parseInt(this.metrics.x), parseInt(this.metrics.y));
+    // ctx.lineTo(parseInt(this.metrics.x + this.metrics.w), parseInt(this.metrics.y));
+    // ctx.stroke();
 
-      ctx.lineWidth = isBold ? 2 : 1;
-      if (this.color != null) {
-        ctx.strokeStyle = this.color;
-      }
-      ctx.beginPath();
-      ctx.moveTo(spaceWidth + x-1, parseInt(y+this.descent/2) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.w, parseInt(y+this.descent/2) +sep);
-      ctx.stroke();
-    }
-
-    if (this.overline) {
-      var isBold = this.style.textBold == "bold";
-      var sep = isBold ? 2 : 1.5;
-
-      ctx.lineWidth = isBold ? 2 : 1;
-      if (this.color != null) {
-        ctx.strokeStyle = this.color;
-      }
-      ctx.beginPath();
-      ctx.moveTo(spaceWidth + x-1, parseInt(y-this.ascent) +sep);
-      ctx.lineTo(spaceWidth + x-1+this.w, parseInt(y-this.ascent) +sep);
-      ctx.stroke();
-    }
-
-    this.w += 2*spaceWidth;
   }
-
   /**
-   * Draw a hyperlink
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawHyperlink = function(ctx, x, y) {
+  descartesJS.TextNode.prototype.drawWord = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawSpace = function(ctx) { }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawDynamicText = function(ctx) {
+    var x = this.metrics.x +this.metrics.paddingX;
+    var y = this.metrics.y;
+
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+    ctx.font = this.style.toString();
+
+    ctx.beginPath();
+
+    if (this.style.overline) {
+      ctx.rect(x, y -this.metrics.ascent +parseInt(1 +this.style.size/25), this.metrics.w, parseInt(1 +this.style.size/25) );
+      ctx.fill();
+    }
+    if (this.style.underline) {
+      ctx.rect(x, y +parseInt(1 +this.style.size/10), this.metrics.w, parseInt(1 +this.style.size/25) );
+      ctx.fill();
+    }
+
+    ctx.fillText(this.evalValue, x, y);
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawHyperlink = function(ctx) {
+    var x = this.metrics.x;
+    var y = this.metrics.y;
+
+    this.ctx = ctx;
+
     // add and position of the click cacher div
     if (!this.clickCacher.parentNode) {
       // ctx.canvas.parentNode.appendChild(this.clickCacher);
@@ -886,543 +1640,644 @@ var descartesJS = (function(descartesJS) {
         ctx.canvas.parentNode.insertBefore(this.clickCacher, ctx.canvas.nextSibling);
       }
       this.clickCacher.style.left = (x -2) + "px";
-      this.clickCacher.style.top  = (y - this.ascent -2) + "px";
+      this.clickCacher.style.top  = (y - this.metrics.ascent -2) + "px";
     }
 
-    ctx.save();
+    ctx.fillStyle = "blue";
 
     if (this.click) {
+      // cover the previous text when click
+      ctx.fillStyle = "white";
+      ctx.fillRect(x, y -this.metrics.ascent, this.metrics.w, this.metrics.h);
+
       ctx.fillStyle = "red";
-      ctx.strokeStyle = "red";
-    }
-    else {
-      ctx.fillStyle = "blue";
-      ctx.strokeStyle = "blue";
     }
 
-    ctx.font = this.styleStr;
+    ctx.font = this.style.toString();
 
-    ctx.fillText(this.value, x-1, y);
-
-    var isBold = this.style.textBold == "bold";
-    var sep = isBold ? 1 : .5;
-    ctx.lineWidth = isBold ? 2 : 1;
     ctx.beginPath();
-    ctx.moveTo(x-1, Math.ceil(y+this.descent/2) +sep -2);
-    ctx.lineTo(x-1+this.w, Math.ceil(y+this.descent/2) +sep -2);
-    ctx.stroke();
+    ctx.rect(x, y +parseInt(1 +this.style.size/10), this.metrics.w, parseInt(1 +this.style.size/25) );
+    ctx.fill();
+
+    ctx.fillText(this.value, x, y);
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawFormula = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawFraction = function(ctx) {
+    ctx.lineWidth = 6;
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+    ctx.beginPath();
+    var hSeg = parseInt(1 +this.style.size/20);
+    ctx.rect(this.metrics.x, this.metrics.offsetY -parseInt(hSeg/2), this.metrics.w, hSeg);
+    ctx.fill();
+
+    this.children[0].draw(ctx);
+    this.children[1].draw(ctx);
+
+    // drawBorder
+    // ctx.beginPath();
+    // ctx.strokeStyle = "#ff0000";
+    // ctx.lineWidth = 1;
+    // ctx.rect(parseInt(this.metrics.x) +0.5, parseInt(this.metrics.y -this.metrics.ascent) +0.5, this.metrics.w, this.metrics.h);
+    // ctx.stroke();
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawNumDen = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawSuperIndex = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawSubIndex = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawRadical = function(ctx) {
+    ctx.save();
+    ctx.translate(this.radicalSign.x, this.radicalSign.y);
+    ctx.scale(this.radicalSign.scaleX, this.radicalSign.scaleY);
+    (descartesJS.isMsEdge) ? this.drawRadicalSign(ctx) : ctx.fill(radicalPath);
     ctx.restore();
-  }
 
-  /**
-   * Draw a radical
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawRadical = function(ctx, x, y) {
-    var spaceWidth = MathFloor(this.spaceWidth);
-
-    this.children[0].draw(ctx, x, MathFloor(y +this.children[1].descent -this.children[1].h/2 -this.children[0].descent));
-    this.children[1].draw(ctx, x+1.5*spaceWidth+(this.children[0].w), y);
-
-    ctx.lineWidth = 1;
-    if (this.color != null) {
-      ctx.strokeStyle = this.color;
-    }
-    ctx.beginPath()
-
-    ctx.moveTo(x, MathFloor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].w, MathFloor(y +this.children[1].descent -this.children[1].h/2));
-    ctx.lineTo(x+this.children[0].w +.5*spaceWidth, y+this.children[1].descent);
-    ctx.lineTo(x+this.children[0].w +1*spaceWidth, y-this.children[1].ascent);
-    ctx.lineTo(x+this.children[0].w +2*spaceWidth+this.children[1].w, y-this.children[1].ascent);
-
-    ctx.stroke();
-  }
-
-  /**
-   * Draw a fraction
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawFraction = function(ctx, x, y) {
-    this.children[0].draw(ctx, x+(this.w-this.children[0].w)/2, y -this.ascent);
-    this.children[1].draw(ctx, x+(this.w-this.children[1].w)/2, y -this.ascent + this.children[0].h -1);
-
-    var spaceWidth = MathFloor(this.spaceWidth*.5);
-
-    ctx.lineWidth = 1;
-    if (this.color != null) {
-      ctx.strokeStyle = this.color;
-    }
-    ctx.beginPath()
-    ctx.moveTo(x+spaceWidth, parseInt(y -this.ascent + this.children[0].h) -.5);
-    ctx.lineTo(x-spaceWidth+this.w-1, parseInt(y -this.ascent + this.children[0].h) -.5);
-    ctx.stroke();
-  }
-
-  /**
-   * Draw a numerator or denominator
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawNumDen = function(ctx, x, y) {
-    var antChildX = 0;
-    for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-      }
-      this.children[i].draw(ctx, x+antChildX, y+this.baseline);
-    }
-  }
-
-  /**
-   * Draw a sub index
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawSubIndex = function(ctx, x, y) {
-    var antChildX = 0;
-    for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-      }
-      this.children[i].draw(ctx, x+antChildX, y +this.subIndexPos);
-    }
-  }
-
-  /**
-   * Draw a super index
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawSuperIndex = function(ctx, x, y) {
-    var antChildX = 0;
-    for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-      }
-      this.children[i].draw(ctx, x+antChildX, y -this.superIndexPos);
-    }
-  }
-
-  /**
-   * Draw a limit
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawLimit = function(ctx, x, y) {
-    var metric = descartesJS.getFontMetrics(this.styleString);
-
-    var symbolString = " " + String.fromCharCode(parseInt(8594));
-    var symbolWidth = descartesJS.getTextWidth(symbolString, this.styleString);
-
-    // from
-    this.children[0].draw(ctx, x, y +metric.descent +this.children[0].ascent);
-
-    // to
-    this.children[1].draw(ctx, x +this.children[0].w +symbolWidth, y +metric.descent +this.children[1].ascent);
-
-    //what
-    this.children[2].draw(ctx, x +symbolWidth +this.children[0].w +this.children[1].w, y);
-
-    if (this.color != null) {
-      ctx.fillStyle = this.color;
-    }
-    ctx.font = this.styleString
-    ctx.fillText("lím", x +this.children[0].w, y);
-
-    ctx.fillText(symbolString, x+this.children[0].w, y +metric.descent +this.children[0].ascent);
-  }
-
-  /**
-   * Draw an integral
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawIntegral = function(ctx, x, y) {
-    var symbolStyle = this.style.clone();
-    symbolStyle.fontSize = 1.5*symbolStyle.fontSize;
-    symbolStyle.fontType = descartesJS.serif_font;
-    symbolStyle.Bold = "bold";
-    symbolStyle = symbolStyle.toString();
-
-    var symbolWidth = 2*descartesJS.getTextWidth(String.fromCharCode(8747), symbolStyle)/3 ;
-    var symbolMetric = descartesJS.getFontMetrics(symbolStyle);
-
-    var maxWidth = MathMax(this.children[0].w, this.children[1].w, MathFloor(1.5*symbolWidth));
-
-    // from
-    this.children[0].draw(ctx, x +symbolWidth, y +symbolMetric.descent +this.children[0].ascent);
-
-    // to
-    this.children[1].draw(ctx, x +symbolWidth +this.spaceWidth/2, y -this.ascent +this.children[1].ascent);
-
-    // what
-    this.children[2].draw(ctx, x +maxWidth +symbolWidth, y);
-
-    // integral character
-    if (this.color != null) {
-      ctx.fillStyle = this.color;
-    }
-    ctx.font = symbolStyle;
-
-    ctx.fillText(String.fromCharCode(8747), x, y +symbolMetric.descent/2);
-  }
-
-  /**
-   * Draw a sum
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawSum = function(ctx, x, y) {
-    var symbolStyle = this.style.clone();
-    var fntSz = symbolStyle.fontSize;
-    symbolStyle.fontSize = 1.5*fntSz;
-    symbolStyle.fontType = descartesJS.serif_font;
-    symbolStyle.Bold = "bold";
-    symbolStyle = symbolStyle.toString();
-
-    var symbolWidth = 2*descartesJS.getTextWidth(String.fromCharCode(931), symbolStyle)/3 ;
-    var symbolMetric = descartesJS.getFontMetrics(this.styleString);
-
-    var maxWidth = MathMax(this.children[0].w, this.children[1].w, symbolWidth);
-
-    // from
-    this.children[0].draw(ctx, x +(maxWidth-this.children[0].w)/2, y +symbolMetric.descent +this.children[0].ascent);
-
-    // to
-    this.children[1].draw(ctx, x +(maxWidth-this.children[1].w)/2, y -symbolMetric.ascent -this.children[1].descent);
-
-    // what
-    this.children[2].draw(ctx, x +maxWidth  +parseInt(fntSz/3), y);
-
-    // sigma character
-    if (this.color != null) {
-      ctx.fillStyle = this.color;
-    }
-    ctx.font = symbolStyle;
-
-    ctx.fillText(String.fromCharCode(931), x +MathFloor( (maxWidth-symbolWidth)/2 -symbolWidth/5 ), y +parseInt(fntSz/8));
-  }
-
-  /**
-   * Draw a matrix
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawMatrix = function(ctx, x, y) {
-    var columnIndex;
-    var rowIndex;
-
-    for (var i=0, l=this.children.length; i<l; i++) {
-      columnIndex = i%this.columns;
-      rowIndex = MathFloor(i/this.columns);
-
-      this.children[i].draw(ctx, 2*this.spaceWidth + x + columnIndex*this.childWidth, y-this.ascent+this.childAscent + rowIndex*this.childHeight);
-    }
-
-    ctx.lineWidth = 1.5;
-    if (this.color != null) {
-      ctx.strokeStyle = this.color;
-    }
-    ctx.beginPath()
-    ctx.moveTo(MathFloor(x +this.spaceWidth) +.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceWidth/2) +.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceWidth/2) +.5, y +this.descent +.5);
-    ctx.lineTo(MathFloor(x +this.spaceWidth) +.5, y +this.descent +.5);
-
-    ctx.moveTo(MathFloor(x +this.w -this.spaceWidth) -.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceWidth/2) -.5, y -this.ascent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceWidth/2) -.5, y +this.descent +.5);
-    ctx.lineTo(MathFloor(x +this.w -this.spaceWidth) -.5, y +this.descent +.5);
-
-    ctx.stroke();
-  }
-
-  /**
-   * Draw a def parts
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawDefparts = function(ctx, x, y) {
-    for (var i=0, l=this.children.length; i<l; i++) {
-      this.children[i].draw(ctx, x + this.style.fontSize/2, y-this.ascent+this.childAscent + (i%this.parts)*this.childHeight);
-    }
-    ctx.lineWidth = 1;
-    if (this.color != null) {
-      ctx.strokeStyle = this.color;
-    }
     ctx.beginPath();
-    ctx.moveTo(parseInt(x +this.style.fontSize*0.4) +0.5, y -this.ascent -1.5);
-    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y -this.ascent +3.5);
-    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -this.h/2 -4.5);
-    ctx.lineTo(x, y +this.descent -this.h/2);
-    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -this.h/2 +4.5);
-    ctx.lineTo(parseInt(x +this.style.fontSize*0.18) +0.5, y +this.descent -3.5);
-    ctx.lineTo(parseInt(x +this.style.fontSize*0.4) +0.5, y +this.descent +1.5);
+    ctx.fillRect(this.children[1].metrics.x+2.5, this.radicalSign.y -0.5, this.children[1].metrics.w -1.5, parseInt(1+this.style.size/18));
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawSum = function(ctx) {
+    ctx.save();
+    ctx.translate(this.sigmaSign.x, this.sigmaSign.y);
+    ctx.scale(this.sigmaSign.scale, this.sigmaSign.scale);
+    (descartesJS.isMsEdge) ? this.drawSigmaSign(ctx) : ctx.fill(sigmaPath);
+    ctx.restore();
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawIntegral = function(ctx) {
+    ctx.save();
+    ctx.translate(this.sign.x, this.sign.y);
+    ctx.scale(this.sign.scale, this.sign.scale);
+    (descartesJS.isMsEdge) ? this.drawIntegralSign(ctx) : ctx.fill(integralPath);
+    ctx.restore();
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawLimit = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+
+    ctx.font = this.style.toString();
+
+    ctx.fillText("lím", this.limitText.x, this.metrics.y);
+    ctx.fillText("→", this.limitArrow.x, this.limitArrow.y);
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawMatrix = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
+    }
+
+    var w = parseInt(1.5 + this.style.size/25);
+    var w_2 = w/2;
+    ctx.lineWidth = w;
+    ctx.strokeStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+
+    ctx.beginPath();
+
+    ctx.moveTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+    ctx.lineTo(this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent);
+    ctx.lineTo(this.metrics.x +w_2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h);
+    ctx.lineTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h);
+
+    ctx.moveTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+    ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent);
+    ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
+    ctx.lineTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
 
     ctx.stroke();
   }
-
   /**
-   * Draw a math symbol
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawMathSymbol = function(ctx, x, y) {
-    ctx.lineWidth = 1;
-    if (this.color != null) {
-      ctx.strokeStyle = this.color;
-      ctx.fillStyle = this.color;
-    }
-    ctx.beginPath()
-
-    var spaceW_2 = this.spaceWidth/2;
-
-    if (this.value == "(") {
-      ctx.font = this.styleString;
-
-      ctx.fillText("(", x+spaceW_2, y);
-      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.h/10);
-      // ctx.quadraticCurveTo(x +this.spaceWidth/5, y +this.parent.descent -this.parent.h/2,
-      //                      x +this.spaceWidth, y +this.parent.descent -this.h/10);
-      // ctx.stroke();
-    }
-    else if (this.value == ")") {
-      ctx.font = this.styleString;
-
-      ctx.fillText(")", x+spaceW_2, y);
-      // ctx.moveTo(x +this.spaceWidth +.1, y -this.parent.ascent +this.h/10);
-      // ctx.quadraticCurveTo(x +this.spaceWidth +4*this.spaceWidth/5, y +this.parent.descent -this.parent.h/2,
-      //                      x +this.spaceWidth, y +this.parent.descent -this.h/10);
-      // ctx.stroke();
-    }
-    else {
-      ctx.font = this.styleString;
-
-      ctx.fillText(this.value, x+spaceW_2, y);
-    }
-  }
-
-  /**
-   * Draw a generic block, that do not need to modify the position of its components
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawGenericBlock = function(ctx, x, y) {
-    var antChildX = 0;
+  descartesJS.TextNode.prototype.drawDefparts = function(ctx) {
     for (var i=0, l=this.children.length; i<l; i++) {
-      if (i>0) {
-        antChildX += this.children[i-1].w;
-      }
-      this.children[i].draw(ctx, x+antChildX, y);
+      this.children[i].draw(ctx);
+    }
+
+    var w = parseInt(1.5 + this.style.size/25);
+    var w_2 = w/2;
+    ctx.lineWidth = w;
+    ctx.strokeStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+    ctx.beginPath();
+
+    var x1 = 3*this.metrics.marginX;
+    var x2 = x1/2;
+
+    ctx.moveTo(this.metrics.x +w_2 +x1, this.metrics.y +w_2 -this.metrics.ascent);
+    ctx.bezierCurveTo(
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent, 
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent,
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +2*this.metrics.marginX
+    );
+    ctx.lineTo(this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 -5*this.metrics.marginX);
+    ctx.bezierCurveTo(
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+      this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2
+    );
+    ctx.bezierCurveTo(
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+      this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 +5*this.metrics.marginX
+    );
+    ctx.lineTo(this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h -2*this.metrics.marginX);
+    ctx.bezierCurveTo(
+      this.metrics.x +w_2 +x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+      this.metrics.x +w_2 +x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+      this.metrics.x +w_2 +x1, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h
+    );
+    
+    ctx.stroke();
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawGenericBlock = function(ctx) {
+    for (var i=0, l=this.children.length; i<l; i++) {
+      this.children[i].draw(ctx);
     }
   }
-
   /**
-   * Draw a control componet
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.drawComponentNumCtrl = function(ctx, x, y) {
-    // update the metric of the parent
-    this.parent.getTextMetrics();
-    // this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + x + "," + (y-this.parent.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
-    this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + x + "," + (y-this.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
+  descartesJS.TextNode.prototype.drawComponentNumCtrl = function(ctx) {
+    // ctx.fillStyle = "#ff0000";
+    // ctx.fillRect(this.metrics.x, this.metrics.y -this.metrics.ascent, this.metrics.w, this.metrics.h);
+
+    this.componentNumCtrl.expresion = this.evaluator.parser.parse("(" + this.metrics.x + "," + (this.metrics.y-this.metrics.ascent) + "," + this.componentNumCtrl.w + "," + this.componentNumCtrl.h + ")");
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawComponentSpace = function(ctx) {
+    // ctx.fillStyle = "#ff0000";
+    // ctx.fillRect(this.metrics.x, this.metrics.y -this.metrics.ascent, this.metrics.w, this.metrics.h);
+
+    this.componentSpace.xExpr = this.evaluator.parser.parse(this.metrics.x.toString());
+    this.componentSpace.yExpr = this.evaluator.parser.parse((this.metrics.y-this.metrics.ascent).toString());
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawRadicalSign = function(ctx) {
+    ctx.strokeStyle = 'rgba(0,0,0,0)';
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+    ctx.miterLimit = 4;
+    ctx.beginPath();
+    ctx.moveTo(759,1);
+    ctx.bezierCurveTo(751,1,744,5,739,15);
+    ctx.lineTo(325,878);
+    ctx.lineTo(153,500);
+    ctx.bezierCurveTo(148,489,142,486,136,491);
+    ctx.lineTo(2,596);
+    ctx.bezierCurveTo(-3,600,19,626,24,622);
+    ctx.lineTo(89,575);
+    ctx.lineTo(282,997);
+    ctx.bezierCurveTo(285,1003,309,1003,314,993);
+    ctx.lineTo(773,40);
+    ctx.lineTo(773,1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawSigmaSign = function(ctx) {
+    ctx.strokeStyle = 'rgba(0,0,0,0)';
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+    ctx.miterLimit = 4;
+    ctx.beginPath();
+    ctx.moveTo(780,707);
+    ctx.lineTo(750,707);
+    ctx.bezierCurveTo(728,805,695,872,585,872);
+    ctx.lineTo(180,872);
+    ctx.lineTo(509,447);
+    ctx.lineTo(225,65);
+    ctx.lineTo(538,65);
+    ctx.bezierCurveTo(668,65,705,114,726,246);
+    ctx.lineTo(756,246);
+    ctx.lineTo(756,0);
+    ctx.lineTo(25,0);
+    ctx.lineTo(384,500);
+    ctx.lineTo(0,1000);
+    ctx.lineTo(729,1000);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.drawIntegralSign = function(ctx) {
+    ctx.strokeStyle = 'rgba(0,0,0,0)';
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'miter';
+    ctx.miterLimit = 4;
+    ctx.beginPath();
+    ctx.moveTo(150,828);
+    ctx.bezierCurveTo(129,916,108,972,67,972);
+    ctx.bezierCurveTo(61,972,58,970,58,966);
+    ctx.bezierCurveTo(58,957,73,958,73,932);
+    ctx.bezierCurveTo(73,918,60,910,46,910);
+    ctx.bezierCurveTo(22,910,1,932,1,961);
+    ctx.bezierCurveTo(1,981,22,1000,57,1000);
+    ctx.bezierCurveTo(154,1000,198,895,216,824);
+    ctx.lineTo(375,181);
+    ctx.bezierCurveTo(398,90,420,27,464,28);
+    ctx.bezierCurveTo(470,28,473,30,473,34);
+    ctx.bezierCurveTo(473,41,458,47,458,69);
+    ctx.bezierCurveTo(458,83,471,89,485,89);
+    ctx.bezierCurveTo(509,89,530,67,530,38);
+    ctx.bezierCurveTo(530,18,508,0,473,0);
+    ctx.bezierCurveTo(368,0,326,120,309,190);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
   }
 
-  /**
-   * Draw a space component
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
-   */
-  descartesJS.RTFNode.prototype.drawComponentSpace = function(ctx, x, y) {
-    this.getTextMetrics();
-
-    this.componentSpace.xExpr = this.evaluator.parser.parse(x.toString());
-    this.componentSpace.yExpr = this.evaluator.parser.parse((y-this.parent.ascent).toString());
-  }
 
   /**
-   * Draw a unknown element
-   * @param {2DContext} ctx the context to draw the text
-   * @param {Number} x the x position of the text
-   * @param {Number} y the y position of the text
+   * 
    */
-  descartesJS.RTFNode.prototype.draw = function(ctx, x, y) {
-    console.log(">>> Dibujo desconocido ", this.nodeType);
-    // this.children[0].draw(ctx, x, y);
-  }
+  descartesJS.TextNode.prototype.toRTF = function() {
+    var fontTable = [];
+    var colorTable = [];
 
-  /**
-   *
-   */
-  descartesJS.RTFNode.prototype.toHTML = function(objectReferences) {
-    return this.toHTMLAux(objectReferences);
-  }  
-
-  /**
-   *
-   */
-  descartesJS.RTFNode.prototype.toHTMLAux = function(objectReferences) {
-    var htmlDom = document.createDocumentFragment();
-    var css = (this.style) ? this.style.toCSS() : "";
-    var domNode;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    if (this.nodeType === "textBlock") {
-      domNode = richTextEditor.newTextBlock();
-      for (var i=0, l=this.children.length; i<l; i++) {
-        domNode.appendChild( this.children[i].toHTMLAux(objectReferences) );
-      }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "textLineBlock") {
-      domNode = richTextEditor.newTextLineBlock();
-      for (var i=0, l=this.children.length; i<l; i++) {
-        domNode.appendChild( this.children[i].toHTMLAux(objectReferences) );
-      }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "text") {
-      domNode = richTextEditor.newTextNode(css, this.value);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "newLine") {
-      domNode = richTextEditor.newNewLine(css);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "hyperlink") {
-      domNode = richTextEditor.newHyperLink(css, this.value, this.URL);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "formula") {
-      domNode = richTextEditor.newFormula(css, formulaToHTML(this));
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "componentSpace") {
-      objectReferences.spaces.push({ cID: "cID_"+this.value, value: this.componentSpace} );
-      domNode = richTextEditor.newComponentSpace(this.componentSpace.w, this.value);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else if (this.nodeType === "componentNumCtrl") {
-      objectReferences.ctrs.push({ cID: "cID_"+this.value, value: this.componentNumCtrl} );
-      domNode = richTextEditor.newComponentNumCtrl(this.componentNumCtrl.w, this.componentNumCtrl.h, this.value);
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    else {
-      domNode = document.createDocumentFragment();
-      console.log(">>>", this, "<<<");
-    }
-
-    htmlDom.appendChild(domNode);
-
-    return htmlDom;
-  }
-
-  /**
-   *
-   */
-  function formulaToHTML(formula) {
-    var htmlDom = document.createDocumentFragment();
     var children_i;
-    var domNode;
+    var output = "";
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // for empty parameters
-    if (formula.children.length === 0) {
-      domNode = richTextEditor.newFormulaTextNode(richTextEditor.narrowSpace);
-      htmlDom.appendChild(domNode);
+    for (var i=0, l=this.children.length; i<l; i++) {
+      children_i = this.children[i];
+
+      if (children_i.nodeType === "textLineBlock") {
+        output += children_i.toRTFAux(fontTable, colorTable) + (((l>1)&&(i<l-1))? "\\par" : "");
+      }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    for (var i=0; i<formula.children.length; i++) {
-      children_i = formula.children[i];
+    var fontTableStr = "{\\fonttbl";
+    for (var i=0, l=fontTable.length; i<l; i++) {
+      fontTableStr += "\\f" + i + "\\fcharset0 " + fontTable[i] + ";";
+    }
+    fontTableStr += "}";
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////
+    var colorTableStr = "";
+    if (colorTable.length > 0) {
+      colorTableStr = "{\\colortbl";
+      for (var i=0, l=colorTable.length; i<l; i++) {
+        colorTableStr += colorTable[i];
+      }
+      colorTableStr += "}";
+    }
+
+    output = "{\\rtf1\\uc0" + fontTableStr + colorTableStr + output + "}";
+
+    return output;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.toRTFAux = function(fontTable, colorTable) {
+    var children_i;
+    var lastFontFamily;
+    var lastFontSize;
+    var lastColor = null;
+
+    var output = "";
+    var open;
+    var close;
+    var tmpFontFamily;
+    var tmpFontSize;
+    var tmpColor;
+
+    var tmpRTF;
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      open = close = "";
+
+      children_i = this.children[i];
+
+      tmpFontFamily = this.addToFontTable(children_i.style.family, fontTable);
+      tmpFontSize = children_i.style.size;
+      tmpColor = this.addToColorTable(children_i.style.color, colorTable);
+
+      if ((tmpColor === null) && (colorTable.length > 0)) {
+        tmpColor = this.addToColorTable(externalColor, colorTable);
+      }
+
+      if (tmpFontFamily !== lastFontFamily) {
+        open += "\\f" + tmpFontFamily;
+        lastFontFamily = tmpFontFamily;
+      }
+      if (tmpFontSize !== lastFontSize) {
+        open += "\\fs" + (tmpFontSize*2);
+        lastFontSize = tmpFontSize;
+      }
+      if (tmpColor !== lastColor) {
+        open += "\\cf" + tmpColor;
+        lastColor = tmpColor;
+      }
+
+      if (children_i.style.italic) {
+        open += "\\i";
+        close = "\\i0" + close;
+      }
+      if (children_i.style.bold) {
+        open += "\\b";
+        close = "\\b0" + close;
+      }
+      if (children_i.style.underline) {
+        open += "\\ul";
+        close = "\\ulnone" + close;
+      }
+      if (children_i.style.overline) {
+        open += "\\ol";
+        close = "\\olnone" + close;
+      }
+
       if (children_i.nodeType === "text") {
-        domNode = richTextEditor.newFormulaTextNode(children_i.value);
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "dynamicText") {
-        domNode = richTextEditor.newDynamicTextNode(children_i);
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      // ToDo: componer los signos matematicos, para que no se puedan editar
-      else if (children_i.nodeType === "mathSymbol") {
-        domNode = richTextEditor.newMathSymbolNode(children_i.value);
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "superIndex") {
-        domNode = richTextEditor.newSuperIndexNode(formulaToHTML(children_i));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "subIndex") {
-        domNode = richTextEditor.newSubIndexNode(formulaToHTML(children_i));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "fraction") {
-        domNode = richTextEditor.newFractionNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "radical") {
-        domNode = richTextEditor.newRadicalNode(formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[1]));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "sum") {
-        domNode = richTextEditor.newSumNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "integral") {
-        domNode = richTextEditor.newIntegralNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "limit") {
-        domNode = richTextEditor.newLimitNode(formulaToHTML(children_i.children[1]), formulaToHTML(children_i.children[0]), formulaToHTML(children_i.children[2]));
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "matrix") {
-        var children = [];
-        for (var ci=0, cl=children_i.children.length; ci<cl; ci++) {
-          children.push( formulaToHTML(children_i.children[ci]) );
+        if (open !== "") {
+          tmpRTF = open + " " + children_i.value + close;
         }
-        domNode = richTextEditor.newMatrixNode(children_i.rows, children_i.columns, children);
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else if (children_i.nodeType === "defparts") {
-        var children = [];
-        for (var ci=0; ci<children_i.parts; ci++) {
-          children.push( formulaToHTML(children_i.children[ci]) );
+        else {
+          tmpRTF = open + children_i.value + close;
         }
-        domNode = richTextEditor.newCasesElementNode(children_i.parts, children);
+        if (tmpRTF.charAt(0) !== "\\") {
+          tmpRTF = " " + tmpRTF;
+        }
+
+        output += tmpRTF;
       }
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////
-      else {
-        domNode = document.createDocumentFragment();
-        console.log(">>>", children_i, "<<<");
+      else if (children_i.nodeType === "formula") {
+        output += "{\\*\\mjaformula" + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
       }
-
-
-      htmlDom.appendChild(domNode);
     }
 
-    return htmlDom;
+    return output;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.formulaToRTF = function(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) {
+    var children_i;
+
+    var output = "";
+    var open;
+    var close;
+    var tmpFontFamily;
+    var tmpFontSize;
+    var tmpColor;
+
+    for (var i=0, l=this.children.length; i<l; i++) {
+      open = close = "";
+
+      children_i = this.children[i];
+
+      tmpFontFamily = this.addToFontTable(children_i.style.fontType, fontTable);
+      tmpColor = this.addToColorTable(children_i.style.color, colorTable);
+      if ((tmpColor === null) && (colorTable.length > 0)) {
+        tmpColor = this.addToColorTable(externalColor, colorTable);
+      }
+
+      if (tmpFontFamily !== lastFontFamily) {
+        open += "\\f" + tmpFontFamily;
+        lastFontFamily = tmpFontFamily;
+      }
+      if (tmpColor !== lastColor) {
+        open += "\\cf" + tmpColor;
+        lastColor = tmpColor;
+      }
+
+      if (children_i.style.italic) {
+        open += "\\i";
+        close = "\\i0" + close;
+      }
+      if (children_i.style.bold) {
+        open += "\\b";
+        close = "\\b0" + close;
+      }
+      if (children_i.style.underline) {
+        open += "\\ul";
+        close = "\\ulnone" + close;
+      }
+      if (children_i.style.overline) {
+        open += "\\ol";
+        close = "\\olnone" + close;
+      }
+
+      if ((children_i.nodeType === "text") && (children_i.value !== "")) {
+        output += open + " " + children_i.value + close;
+      }
+      else if (children_i.nodeType === "dynamicText") {
+        output += open + "{\\expr" + " " + children_i.value + "\\decimals " + (children_i.decimals || 2) + "\\fixed" + ((children_i.fixed) ? 1 : 0) + "}" + close;
+      }
+      else if (
+        (children_i.nodeType === "fraction") ||
+        (children_i.nodeType === "radical") ||
+        (children_i.nodeType === "index") ||
+        (children_i.nodeType === "radicand") ||
+        (children_i.nodeType === "sum") ||
+        (children_i.nodeType === "integral") ||
+        (children_i.nodeType === "limit") ||
+        (children_i.nodeType === "from") ||
+        (children_i.nodeType === "to") ||
+        (children_i.nodeType === "what") ||
+        (children_i.nodeType === "element")
+
+      ) {
+        output += "{\\" + children_i.nodeType + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "numerator") {
+        output += "{\\num" + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "denominator") {
+        output += "{\\den" + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "superIndex") {
+        output += "{\\supix" + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "subIndex") {
+        output += "{\\subix" + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "matrix") {
+        output += "{\\matrix\\rows "+ (children_i.rows || 2) +"\\columns "+ (children_i.columns || 2) + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+      else if (children_i.nodeType === "defparts") {
+        output += "{\\defparts\\parts "+ (children_i.parts || 2) + children_i.formulaToRTF(lastFontFamily, lastFontSize, lastColor, fontTable, colorTable) + "}";
+      }
+
+      
+// console.log(children_i.nodeType, children_i, open + children_i.value + close)
+    }
+
+    return output;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.addToFontTable = function(fontType, fontTable) {
+    var family;
+
+    if (fontType.match(/times/i)) {
+      family = "Times New Roman";
+    }
+    else if (fontType.match(/courier/i)) {
+      family = "Courier New";
+    }
+    else if (fontType.match(/arial/i)) {
+      family = "Arial";
+    }
+
+    var indexFamily = fontTable.indexOf(family);
+    if (indexFamily === -1) {
+      indexFamily = fontTable.length;
+      fontTable.push(family);
+    }
+
+    return indexFamily;
+  }
+  /**
+   * 
+   */
+  descartesJS.TextNode.prototype.addToColorTable = function(textColor, colorTable) {
+    if (textColor) {
+      var color = "\\red" + parseInt(textColor.substring(1,3), 16) + "\\green" + parseInt(textColor.substring(3,5), 16) + "\\blue" + parseInt(textColor.substring(5,7), 16) + ";";
+
+      var colorIndex = colorTable.indexOf(color);
+      if (colorIndex === -1) {
+        colorIndex = colorTable.length;
+        colorTable.push(color);
+      }
+  
+      return colorIndex;
+    }
+    return null;
+  }
+
+
+
+
+  function partialSum(array, index) {
+    var result = 0;
+    for (var i=0; i<index; i++) {
+      result += array[i];
+    }
+    return result;
+  }
+
+
+  var fontMetrics = {
+    "sansserif" : {
+      ascent: 1854,
+      descent: -434,
+      lineGap: 67,
+      capHeight: 1409,
+      xHeight: 1082,
+      unitsPerEm: 2048
+    },
+    "serif" : {
+      ascent: 1825,
+      descent: -443,
+      lineGap: 87,
+      capHeight: 1341,
+      xHeight: 940,
+      unitsPerEm: 2048
+    },
+    "monospace" : {
+      ascent: 1705,
+      descent: -615,
+      lineGap: 0,
+      capHeight: 1349,
+      xHeight: 1082,
+      unitsPerEm: 2048
+    }
+  };
+
+  // https://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html/
+
+  function getFontMetrics(font) {
+    // var result = { ascent:0, descent:0, lineGap:0, capHeight:0, xHeight:0, unitsPerEm:0, h:0 };
+    var result = { ascent:0, descent:0, h:0, w:0, x:0, y:0, offsetX:0, offsetY:0, marginX:0, marginY:0, paddingX:0, paddingY:0 };
+
+    if (font.trim() == "") {
+      return result;
+    }
+
+    var fontSize = parseInt( font .match(/(\d+\.*)+px/)[0] );
+    var fontName = (font.match("sansserif")) ? "sansserif" : ((font.match("serif")) ? "serif" : "monospace");
+
+    // result.lineGap = fontMetrics[fontName].lineGap * fontSize / fontMetrics[fontName].unitsPerEm;
+
+    result.ascent = Math.ceil( (fontMetrics[fontName].ascent+25) * fontSize / fontMetrics[fontName].unitsPerEm );
+
+    result.descent = Math.ceil( Math.abs( (fontMetrics[fontName].descent-25) * fontSize / fontMetrics[fontName].unitsPerEm ) );
+
+    result.h = result.ascent + result.descent;
+
+    // result.lineGap = Math.ceil( fontMetrics[fontName].lineGap * fontSize / fontMetrics[fontName].unitsPerEm );
+
+    // result.capHeight = Math.ceil( fontMetrics[fontName].capHeight * fontSize / fontMetrics[fontName].unitsPerEm );
+
+    // result.xHeight = Math.ceil( fontMetrics[fontName].xHeight * fontSize / fontMetrics[fontName].unitsPerEm );
+
+    return result;
   }
 
   return descartesJS;

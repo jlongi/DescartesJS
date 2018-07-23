@@ -804,7 +804,8 @@ var descartesJS = (function(descartesJS, babel) {
 
           // text
           case("text"):
-            graphicObj["text"] = this.parseText(values_i_1);
+            // graphicObj["text"] = this.parseText(values_i_1);
+            graphicObj["text"] = values_i_1;
             break;
 
           // file name
@@ -1110,12 +1111,14 @@ var descartesJS = (function(descartesJS, babel) {
 
         // text
         case("text"):
-          var tmpText = this.parseText(values_i_1);
+          graphicObj["text"] = values_i_1;
 
-          for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
-            tmpText[ii] = this.parser.parse(tmpText[ii], false);
-          }
-          graphicObj["text"] = tmpText;
+          // var tmpText = this.parseText(values_i_1);
+
+          // for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
+          //   tmpText[ii] = this.parser.parse(tmpText[ii], false);
+          // }
+          // graphicObj["text"] = tmpText;
           break;
 
         // file name
@@ -1696,7 +1699,8 @@ var descartesJS = (function(descartesJS, babel) {
     }
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
+      // plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
+      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
     }
 
     // creates the container for the title and the content is added

@@ -189,6 +189,14 @@ var descartesJS = (function(descartesJS) {
     });
     //
 
+    if(self.resizable) {
+      self.wModExpr = parent.evaluator.parser.parse(self.wModExpr);
+      self.hModExpr = parent.evaluator.parser.parse(self.hModExpr);
+    }
+    // self.ratio = parent.ratio;
+    self.ratio = 1;
+
+
     // register the mouse and touch events
     self.addEvents();
   }
@@ -266,7 +274,7 @@ var descartesJS = (function(descartesJS) {
       if (self.resizable) {
         wModExpr = self.evaluator.eval(self.wModExpr);
         hModExpr = self.evaluator.eval(self.hModExpr);
-        
+
         if ((self.old_w != wModExpr) || (self.old_h != hModExpr)) {
           self.w = wModExpr;
           self.h = hModExpr;
@@ -281,6 +289,23 @@ var descartesJS = (function(descartesJS) {
           self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
           self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
           firstTime = true;
+
+          var rescale = (self.h/1080)*(40/self.scale);
+          self.S = { 
+            x: -20.6*rescale,
+            y: 0,
+            z: 0,
+          };
+          self.Ojo = {
+            x: 3*self.w_2,
+            // x: 30*self.w_2,
+            y: 0,
+            z: 0
+          };
+          self.evaluator.setVariable(self.ojoXStr, self.Ojo.x);
+          self.evaluator.setVariable(self.ojoYStr, self.Ojo.y);
+          self.evaluator.setVariable(self.ojoZStr, self.Ojo.z);
+
         }
       }
       //////////////////////////////////////////////////////////////////////////////////
@@ -903,6 +928,13 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
       }
     }
+
+    /**
+     * dbclick
+     */
+    this.canvas.addEventListener("dblclick", function(evt) {
+      // self.parent.externalSpace.show();
+    });
   }
 
   return descartesJS;

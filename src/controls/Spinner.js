@@ -439,7 +439,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.up || self.down) {
         fun.call(self);
-        delayTime = (firstTime) ? delayTime : 30;
+        delayTime = (firstTime) ? delayTime : 10;
         timer = descartesJS.setTimeout(function() { repeat(delayTime, fun); }, delayTime);
       }
     }

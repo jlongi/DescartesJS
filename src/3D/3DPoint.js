@@ -67,7 +67,7 @@ var descartesJS = (function(descartesJS) {
         decimals: evaluator.eval(this.decimals),
         fixed: this.fixed,
         evaluator: evaluator,
-        text: this.text,
+        text: new descartesJS.TextObject(this, this.text),
         family: this.family,
         familyValue: this.familyValue,
         offset_dist: this.offset_dist,

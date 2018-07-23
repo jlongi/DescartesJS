@@ -15,6 +15,7 @@ var descartesJS = (function(descartesJS) {
   var v2;
   var evaluator;
   var verticalDisplace;
+  var horizontalDisplace;
   var pointDisplace;
   var theText;
 
@@ -101,23 +102,14 @@ var descartesJS = (function(descartesJS) {
     this.average = descartesJS.scalarProduct3D(this.average, 1/l);
     this.average_proy = space.project(this.average);
     this.depth = descartesJS.norm3D(descartesJS.subtract3D(space.eye, this.average));
-    // this.depth = this.average_proy.z;
 
     // triangles and faces
     if (this.vertices.length > 2) {
       this.normal = getNormal(this.spaceVertices[0], this.spaceVertices[1], this.spaceVertices[2]);
-      // this.direction = descartesJS.dotProduct3D( this.normal, descartesJS.normalize3D(space.eye) );
     }
 
-    // var t = 0.001;
     // project and store the vertices in the projVert array
     for (i=0, l=this.vertices.length; i<l; i++) {
-      // var v1 = descartesJS.scalarProduct3D(this.spaceVertices[i], (1-t));
-      // var v2 = descartesJS.scalarProduct3D(this.average, t);
-      // this.newSpaceVert[i] = descartesJS.add3D(v1, v2);
-      // this.newProjVert[i] = space.project(this.newSpaceVert[i]);
-      // this.projVert[i] = space.project(this.newSpaceVert[i]);
-
       this.newSpaceVert[i] = this.spaceVertices[i];
       this.projVert[i] = this.newProjVert[i] = space.project(this.spaceVertices[i]);
     }
@@ -208,7 +200,6 @@ var descartesJS = (function(descartesJS) {
 
     ctx.lineCap = lineCap;
     ctx.lineJoin = lineJoin;
-//    ctx.lineWidth = ((this.backColor.charAt(0) == "#") || (this.frontColor.charAt(0) == "#")) ? 1 : 0.5;
     ctx.lineWidth = 0.4;
 
     // set the path to draw
@@ -221,7 +212,6 @@ var descartesJS = (function(descartesJS) {
 
     // color render
     if (this.model === "color") {
-      // ctx.fillStyle = (this.direction >= 0) ? this.backColor : this.frontColor;
       ctx.fillStyle = (this.direction < 0) ? this.backColor : this.frontColor;
       ctx.strokeStyle = ctx.fillStyle;
 
@@ -230,7 +220,6 @@ var descartesJS = (function(descartesJS) {
     }
     // light and metal render
     else if ( (this.model === "light") || (this.model === "metal") ) {
-      // ctx.fillStyle = space.computeColor( ((this.direction >= 0) ? this.backColor : this.frontColor), this, (this.model === "metal"));
       ctx.fillStyle = space.computeColor( ((this.direction < 0) ? this.backColor : this.frontColor), this, (this.model === "metal"));
       ctx.strokeStyle = ctx.fillStyle;
 
@@ -247,7 +236,6 @@ var descartesJS = (function(descartesJS) {
     // draw the edges
     if ((this.edges) && (this.model !== "wire")) {
       ctx.lineWidth = 1;
-      // ctx.strokeStyle = this.edges.getColor();
       ctx.strokeStyle = this.edges;
       ctx.stroke();
     }
@@ -267,7 +255,7 @@ var descartesJS = (function(descartesJS) {
     this.fontSize = Math.max( 5, this.evaluator.eval(this.font_size) );
     this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
 
-    this.drawText(ctx, this.text, this.projVert[0].x, this.projVert[0].y+this.fontSize, this.frontColor, this.font, "left", "alphabetic", this.decimals, this.fixed, true);
+    this.drawText(ctx, this.text, this.projVert[0].x, this.projVert[0].y, this.frontColor, this.font, "left", "alphabetic", this.decimals, this.fixed, true);
 
     this.evaluator.setVariable(this.family, tempParam);
   }
@@ -327,45 +315,22 @@ var descartesJS = (function(descartesJS) {
     ctx.textNode = text;
 
     //
-    align = (this.fromPoint) ? "center" : align;
     var offset_dist = evaluator.eval(this.offset_dist);
     var offset_angle = -descartesJS.degToRad( evaluator.eval(this.offset_angle) );
     x += offset_dist*Math.cos(offset_angle);
     y += offset_dist*Math.sin(offset_angle);
+    ctx.textNode.pos = { x:x, y:y };
     //
+   
+    if (text.hasContent) {
+      // update the metrics, the true means that the text isn't draw
+      text.draw(ctx, fill, x, y, true);
+      
+      pointDisplace = (this.fromPoint) ? text.textNodes.metrics.w/2 : 0;
+      verticalDisplace = (this.fromPoint) ? text.textNodes.metrics.h/2 : 0;
 
-    // rtf text
-    if (text.type == "rtfNode") {
-      ctx.fillStyle = fill;
-      ctx.strokeStyle = fill;
-      ctx.textBaseline = "alphabetic";
-      ctx.textNode.pos = { x:x, y:y };
-      pointDisplace = (this.fromPoint) ? text.h/2 : 0;
-      text.draw(ctx, x+1, y-pointDisplace, decimals, fixed, align, displaceY);
-      return;
-    }
-
-    // simple text (none rtf text)
-    if (text.type === "simpleText") {
-      text = text.toString(decimals, fixed).split("\\n");
-    }
-
-    ctx.fillStyle = descartesJS.getColor(evaluator, fill);
-    ctx.font = font;
-    ctx.textAlign = align;
-    ctx.textBaseline = baseline;
-
-    verticalDisplace = this.fontSize*1.2 || 0;
-    l = text.length;
-    pointDisplace = (this.fromPoint) ? (verticalDisplace*l)/2 : 0;
-
-    for (i=0; i<l; i++) {
-      theText = text[i];
-
-      if (this.border) {
-        ctx.strokeText(theText, x, y+(verticalDisplace*i) -pointDisplace);
-      }
-      ctx.fillText(theText, x, y+(verticalDisplace*i) -pointDisplace);
+      // text 
+      text.draw(ctx, fill, x -pointDisplace, y -verticalDisplace);
     }
   }
 
@@ -526,7 +491,7 @@ var descartesJS = (function(descartesJS) {
               }
             }
 
-            return fa;
+            // return fa;
           }
         }
       }

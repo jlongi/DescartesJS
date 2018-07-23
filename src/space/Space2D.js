@@ -159,6 +159,7 @@ var descartesJS = (function(descartesJS) {
       self.addEvents();
     }
     else {
+      self.stage_height = 0;
       self.canvas.oncontextmenu = function (evt) { return false; };
     }
 
@@ -412,6 +413,31 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=self.backGraphics.length; i<l; i++) {
       self.backGraphics[i].draw();
     }
+
+    // set the height of a Arquimedes scene
+    if (self.id === "descartesJS_stage") {
+      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.metrics.h !== self.stage_height)) {
+        self.stage_height = self.backGraphics[0].text.metrics.h;
+        self.h = self.stage_height + 75;
+
+        if (self.backGraphics.length > 1) {
+          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + self.stage_height + "]");
+        }
+        if (self.backGraphics.length > 2) {
+          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+25) + "]");
+        }
+
+        self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+        self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+        self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+        self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+
+        self.parent.container.style.height = (self.h + self.plecaHeight) + "px";
+
+        self.update(true);
+      }
+    }
+
   }
 
   /**
@@ -441,6 +467,7 @@ var descartesJS = (function(descartesJS) {
 
     // draw the text showing the mouse postion
     if ((self.text != "") && (self.click) && (self.whichBtn === "L")) {
+      ctx.save();
       ctx.fillStyle = self.text.getColor();
       ctx.strokeStyle = ctx.fillStyle;
       ctx.lineWidth = 1;
@@ -476,6 +503,7 @@ var descartesJS = (function(descartesJS) {
       ctx.beginPath();
       ctx.arc(mouseX, mouseY, 2.5, 0, PI2, true);
       ctx.stroke();
+      ctx.restore();
     }
   }
 
@@ -633,6 +661,13 @@ var descartesJS = (function(descartesJS) {
     this.canvas.addEventListener("mousedown", onMouseDown);
 
     /**
+     * dbclick
+     */
+    this.canvas.addEventListener("dblclick", function(evt) {
+      // self.parent.externalSpace.show();
+    });
+
+    /**
      * @param {Event} evt
      * @private
      */
@@ -684,8 +719,8 @@ var descartesJS = (function(descartesJS) {
      */
     function onMouseUp(evt) {
       // remove the focus of the controls
-      window.focus();
       document.activeElement.blur();
+      window.focus();
 
       evt.stopPropagation();
       evt.preventDefault();

@@ -78,7 +78,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // rtf answer
-    if ((parseAnswer) && (parseAnswer.type != "simpleText")) {
+    if ((parseAnswer) && (parseAnswer.type !== "simpleText")) {
       if (!this.text.hasFormula) {
         this.answer = parseAnswer.toHTML();
       }
@@ -220,14 +220,14 @@ var descartesJS = (function(descartesJS) {
     this.activeIfValue = (evaluator.eval(this.activeif) > 0);
     this.drawIfValue = (evaluator.eval(this.drawif) > 0);
 
-    if (evaluator.getVariable(this.id) != this.oldValue) {
-    // if ((evaluator.getVariable(this.id) != this.oldValue) || ((this.textArea.innerText || "").replace(/\n/g, "\\n") == this.oldFieldValue)) {
+    if (evaluator.getVariable(this.id) !== this.oldValue) {
       this.textArea.innerText = (evaluator.getVariable(this.id) || "").replace(/\\n/g, "\n");
     }
 
     newText = (this.textArea.innerText || "");
     newText = (newText.charAt(newText.length-1) === "\n") ? newText.substring(0, newText.length-1) : newText;
-    newText = newText.replace(/\n/g, "\\n");
+    newText = newText.replace(/\n/g, "\\n").replace(/\s/g, " ");
+
     evaluator.setVariable(this.id, newText);
 
     this.oldFieldValue = newText;
@@ -276,7 +276,6 @@ var descartesJS = (function(descartesJS) {
     function getSelection() {
       var selection = window.getSelection();
       self.cursorInd = selection.focusOffset;
-     
     }
     this.textArea.addEventListener("blur", getSelection)
   }

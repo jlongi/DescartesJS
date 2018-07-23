@@ -106,6 +106,8 @@ var descartesJS = (function(descartesJS) {
 
     this.initExpr = parent.evaluator.parser.parse(this.init);
     this.endExpr = parent.evaluator.parser.parse(this.end);
+
+    this.text = new descartesJS.TextObject(this, this.text);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -332,10 +334,8 @@ var descartesJS = (function(descartesJS) {
     ctx.stroke();
 
     // draw the text of the arc
-    if (this.text != [""]) {
-      this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
-      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
-      this.uber.drawText.call(this, ctx, this.text, coordX+4, coordY-2, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
+    if (this.text.hasContent) {
+      this.text.draw(ctx, this.color, coordX, coordY);
     }
   }
 

@@ -700,6 +700,20 @@ var descartesJS = (function(descartesJS) {
     self.variables["-Infinity"] = -Infinity;
     self.variables["isTouch"] = self.variables["esT\u00E1ctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
 
+    // screen variables
+    Object.defineProperties(self.variables, {
+      "screenOrientation" : { 
+        get : function() { 
+          if ( window.matchMedia("(orientation: landscape)").matches ) {
+            return "landscape";
+          }
+          return "portrait";
+        }
+      },
+      "screenWidth" : { get : function() { return window.innerWidth; } },
+      "screenHeight" : { get : function() { return window.innerHeight; } },
+    });
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default funtions
     self.functions["sqr"]   = function(x) { return (x*x) };

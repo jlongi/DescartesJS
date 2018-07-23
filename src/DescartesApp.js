@@ -428,7 +428,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      // find the language of the lesson, needed for arquimedes
+      // find the language of the lesson
       if (babel[children_i.name] == "language") {
         this.language = children_i.value;
         continue;
@@ -614,77 +614,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.externalSpace.init();
-
-    ////////////////////////////////////////////////////////////////
-    // init arquimedes 
-    ////////////////////////////////////////////////////////////////
-    if (this.arquimedes) {
-      var x = this.stage.stageSpace.container.style.left;
-      var y = this.stage.stageSpace.container.style.top;
-      var domStageSpace = document.createElement("div");
-      domStageSpace.setAttribute("style", "position:relative;left:" + x + ";top:" + y + ";text-align:left;margin:0;padding:18px 0 0 18px;");
-      var objectReferences = { ctrs: [], spaces: [] };
-      domStageSpace.appendChild(this.stage.stageSpace.backGraphics[0].text.toHTML(objectReferences));
-      var textBlock = domStageSpace.firstChild;
-      this.stage.stageSpace.container.style.visibility = "hidden";
-      this.stage.stageSpace.container.style.display = "none";
-      this.stage.container.replaceChild(domStageSpace, this.stage.stageSpace.container);
-      this.stage.container.style.background = "#fff";
-      this.container.style.height = "100%";
-      this.stage.container.style.height = "100%";
-      this.container.style.overflow = "visible";
-
-      var tmpBottomContainer = document.createElement("div");
-      tmpBottomContainer.setAttribute("style", "margin:auto;width:100%;padding:0;padding-bottom:30px;text-align:center;");
-
-      var tmpBottom = document.createElement("div");
-      tmpBottom.setAttribute("style", "position:relative;display:inline-block;"); 
-    
-      var tmpAnchor = document.createElement("a");
-      tmpAnchor.setAttribute("href", "https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es");
-      tmpAnchor.setAttribute("target", "_blank");
-      tmpBottom.appendChild(tmpAnchor);
-    
-      var tmpImage = descartesJS.getCCLImg();
-      tmpImage.setAttribute("style", "position:absolute;left:15px;padding-top:20px;");
-      tmpAnchor.appendChild(tmpImage);
-    
-      var tmpBottomText = document.createElement("div");
-      tmpBottomText.setAttribute("style", "display:inline-block;width:100%;text-align:left;");
-      tmpBottomText.appendChild(this.stage.stageSpace.backGraphics[1].text.toHTML());
-      tmpBottom.appendChild(tmpBottomText);
-      tmpBottomContainer.appendChild(tmpBottom);
-      domStageSpace.appendChild(tmpBottomContainer);
-    
-      var spaces_i;
-      var dom_elem;
-      var tmpBorder;
-      for (var i=0; i<objectReferences.spaces.length; i++) {
-        spaces_i = objectReferences.spaces[i];
-        if (spaces_i.value.container) {
-          dom_elem = document.getElementById(spaces_i.cID);
-          tmpBorder = spaces_i.value.container.style.border;
-          tmpBorder = (tmpBorder != "") ? ("border:" + tmpBorder + ";") : "";
-          spaces_i.value.container.setAttribute("style", tmpBorder);
-          dom_elem.appendChild(spaces_i.value.container);
-        }
-      }
-      var ctrs_i;
-      var ctr_container;
-      for (var i=0; i<objectReferences.ctrs.length; i++) {
-        ctrs_i = objectReferences.ctrs[i];
-        ctr_container = ctrs_i.value.containerControl || ctrs_i.value.container;
-        if (ctr_container) {
-          dom_elem = document.getElementById(ctrs_i.cID);
-          ctr_container.setAttribute("style", "width:" + ctrs_i.value.w + "px;height:" + ctrs_i.value.h + "px;");
-          dom_elem.appendChild(ctr_container);
-        }
-      }
-
-      richTextEditor.adjustFormulaFontSize(textBlock);
-      richTextEditor.adjustHeight(textBlock);
-    }
-    ////////////////////////////////////////////////////////////////
 
     // trigger descartesReady event
     var evt;

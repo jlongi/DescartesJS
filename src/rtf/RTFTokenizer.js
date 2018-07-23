@@ -7,7 +7,6 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var StringFromCharCode = String.fromCharCode;
-  var tokens;
   var inputLenght;
   var tokens;
   var tokenType;
@@ -34,7 +33,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RTFTokenizer.prototype.tokenize = function(input) {
     if (input) {
-      // input = input.replace(/\\'(\w{2})/g, function(str, m1){ return StringFromCharCode(parseInt(m1, 16)); });
       input = input.replace(/\&gt;/g, ">")
                    .replace(/\&lt;/g, "<")
                    .replace(/\&quote;/g, "''")
@@ -53,7 +51,8 @@ var descartesJS = (function(descartesJS) {
     inputLenght = input.length;
     tokens = [];
     tokenValue = "";
-    pos = blockNumber = 0;
+    pos = 0;
+    blockNumber = 0;
     nextChar = input.charAt(0);
     insideControlWord = false;
     lastTokenType = "text";
@@ -72,9 +71,8 @@ var descartesJS = (function(descartesJS) {
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
             lastTokenType = "text";
+            tokenValue = "";
           }
-
-          tokenValue = "";
         }
         // open block
         else if (currentChar === "{") {
@@ -83,9 +81,8 @@ var descartesJS = (function(descartesJS) {
           // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
+            tokenValue = "";
           }
-
-          tokenValue = "";
 
           tokens.push({ type: "openBlock", value: blockNumber });
           lastTokenType = "openBlock";
@@ -95,9 +92,8 @@ var descartesJS = (function(descartesJS) {
           // save a text node if readed
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue })
+            tokenValue = "";
           }
-
-          tokenValue = "";
 
           tokens.push({ type: "closeBlock", value: blockNumber });
           lastTokenType = "closeBlock";
@@ -154,7 +150,7 @@ var descartesJS = (function(descartesJS) {
             else {
               // escaped characters
               if ((tokenValue === "{") || (tokenValue === "}") || (currentChar == "\\")) {
-                tokens.push({ type: "text", value: tokenValue +((spaceFlag)?" ":"") });
+                tokens.push({ type: "text", value: tokenValue +((spaceFlag)? " " : "") });
                 lastTokenType = "text";
               }
               else {

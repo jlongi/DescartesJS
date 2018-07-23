@@ -51,7 +51,7 @@ var descartesJS = (function(descartesJS) {
       displace: 0,
       isText: true,
       evaluator: evaluator,
-      text: this.text,
+      text: new descartesJS.TextObject(this, this.text),
       family: this.family,
       familyValue: this.familyValue
     },

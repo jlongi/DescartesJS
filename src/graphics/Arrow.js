@@ -67,6 +67,8 @@ var descartesJS = (function(descartesJS) {
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
+
+    this.text = new descartesJS.TextObject(this, this.text);
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -199,14 +201,10 @@ var descartesJS = (function(descartesJS) {
     ctx.restore();
 
     // draw the text of the arrow
-    if (this.text != [""]) {
-      this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
-      this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
-
+    if (this.text.hasContent) {
       midpX = parseInt((coordX + coordX1)/2) -3;
       midpY = parseInt((coordY + coordY1)/2) +3;
-
-      this.uber.drawText.call(this, ctx, this.text, midpX, midpY, stroke, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
+      this.text.draw(ctx, stroke, midpX, midpY);
     }
   }
 

@@ -131,6 +131,7 @@ var descartesJS = (function(descartesJS) {
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
     descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
+    descartesJS.isMsEdge = (/Edge/).test(navigator.userAgent);
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');
