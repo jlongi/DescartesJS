@@ -91,7 +91,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Remove extra data included in an previous interpretation
+   * Remove extra data included in a previous interpretation
    */
   function removeDescartesAppContainers() {
     // remove elements with "DescartesAppContainer" class
@@ -133,8 +133,8 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
-    var div = document.createElement("div");
-    div.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
+    var fontDiv = document.createElement("div");
+    fontDiv.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
                         '<div style="font-family:descartesJS_serif;">\n'+
                             '<span>_</span>\n'+
                             '<span style="font-weight:bold;">_</span>\n'+
@@ -184,7 +184,7 @@ var descartesJS = (function(descartesJS) {
                             '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
                         '</div>\n'+
                     '</div>';
-    document.body.appendChild(div);
+    document.body.appendChild(fontDiv);
 
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
@@ -205,7 +205,7 @@ var descartesJS = (function(descartesJS) {
       showApplets();
     }
 
-    document.body.removeChild(div);
+    document.body.removeChild(fontDiv);
   }
 
   /**

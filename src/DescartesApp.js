@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
-    this.animation = { playing:false, stop:function(){} };
+    this.animation = { playing:false, play:function(){}, stop:function(){},  reinit:function(){} };
 
     this.ratio = descartesJS._ratio;
 
@@ -165,7 +165,7 @@ var descartesJS = (function(descartesJS) {
     var heightButtons = 0;
     var licenceHeight = (descartesJS.ccLicense) ? 90 : 0;
 
-    for(var i=0, l=children.length; i<l; i++) {
+    for (var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
 
       // get the rtf height
@@ -338,7 +338,8 @@ var descartesJS = (function(descartesJS) {
     this.loader = document.createElement("div");
 
     // append the lesson container to the java applet container
-    this.parentC.appendChild(this.container);
+    // this.parentC.appendChild(this.container);
+    this.parentC.insertBefore(this.container, this.parentC.firstChild);
     this.container.width = this.width;
     this.container.height = this.height;
     this.container.setAttribute("class", "DescartesAppContainer");
@@ -619,12 +620,13 @@ var descartesJS = (function(descartesJS) {
     var evt;
     try {
         // custom event for majority of browsers
-        evt = new CustomEvent("descartesReady", { "detail": "" });
+        evt = new CustomEvent("descartesReady", { "detail":this });
     }
     catch(e) {
+      console.warn("CustomEvents not supported in this browser");
         // custom event for ie
-        evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("descartesReady", false, false, { "cmd": "" });
+        // evt = document.createEvent("CustomEvent");
+        // evt.initCustomEvent("descartesReady", false, false, { "cmd":this });
     }
     // send the event
     window.dispatchEvent(evt);
@@ -1028,27 +1030,21 @@ var descartesJS = (function(descartesJS) {
    * Play the animation
    */
   descartesJS.DescartesApp.prototype.play = function() {
-    if (this.animation) {
-      this.animation.play();
-    }
+    this.animation.play();
   }
 
   /**
    * Stop the animation
    */
   descartesJS.DescartesApp.prototype.stop = function() {
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.animation.stop();
   }
 
   /**
    * Reinit the animation
    */
   descartesJS.DescartesApp.prototype.reinitAnimation = function() {
-    if (this.animation) {
-      this.animation.reinit();
-    }
+    this.animation.reinit();
   }
 
   /**

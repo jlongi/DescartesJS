@@ -249,9 +249,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     else {
+      // remove focus of the iframe
       this.MyIFrame.contentWindow.blur();
     }
-
   }
   
   return descartesJS;

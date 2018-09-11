@@ -3,7 +3,7 @@
  * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2018-06-29
+ * 2018-09-11
  */
 
 /**
@@ -3451,10 +3451,6 @@ var descartesJS = (function(descartesJS) {
       vectorElement = document.getElementById(this.file);
       if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
         response = vectorElement.text;
-        
-        // if (response[0] == '\n') {
-        //   response = response.substring(1);
-        // }
       }
       // read the vector data from a file
       else {
@@ -19816,7 +19812,7 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-_Trace_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-_NumToStr_-_NumACadena_-_charAt_-_letraEn_-_substring_-_subcadena_-_length_-_longitud_-_indexOf_-índiceDe-_replace_-_reemplazar_-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
+  descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-ceil-round-min-max-_Trace_-_Print_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
 
 
   /**
@@ -20550,6 +20546,10 @@ var descartesJS = (function(descartesJS) {
     self.functions["asin"]  = self.functions["asen"] = Math.asin;
     self.functions["acos"]  = Math.acos;
     self.functions["atan"]  = Math.atan;
+    self.functions["atan2"] = Math.atan2;
+    self.functions["floor"] = Math.floor;
+    self.functions["ceil"] = Math.ceil; 
+    self.functions["round"] = Math.round;
     self.functions["min"]   = Math.min;
     self.functions["max"]   = Math.max;
     self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.info.apply(console, arguments); return 0; };
@@ -20593,7 +20593,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
+     self.functions["toFixed"] = self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
       num = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
       dec = dec || 0;
       return num.toFixed(parseInt(dec));
@@ -20604,7 +20604,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
+    self.functions["charAt"] = self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
       str = (str || "").toString();
       n = (isNaN(parseInt(n))) ? 0 : parseInt(n);
       return str.charAt(n);
@@ -20612,7 +20612,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
+    self.functions["substring"] = self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
       str = (str || "").toString();
       i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
       j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
@@ -20635,19 +20635,25 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
+    self.functions["strLength"] = self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
       return ((str || "").toString()).length;
     };
     /**
      *
      */
-    self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
+    self.functions["indexOf"] = self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
       return ((str || "").toString()).indexOf( (word || "").toString() );
     };
     /**
      *
      */
-    self.functions["_replace_"] = self.functions["_reemplazar_"] = function(str, strTo, strWith) {
+    self.functions["lastIndexOf"] = function(str, word) {
+      return ((str || "").toString()).lastIndexOf( (word || "").toString() );
+    };
+    /**
+     *
+     */
+    self.functions["replace"] = self.functions["_replace_"] = self.functions["_reemplazar_"] = function(str, strTo, strWith) {
       str = (str || "").toString();
       strTo = (strTo || "").toString();
       strWith = (strWith || "").toString();
@@ -20660,6 +20666,19 @@ var descartesJS = (function(descartesJS) {
       
       return str;
     };
+    /**
+     *
+     */
+    self.functions["toLowerCase"] = function(str) {
+      return ((str || "").toString()).toLowerCase();
+    };
+    /**
+     *
+     */
+    self.functions["toUpperCase"] = function(str) {
+      return ((str || "").toString()).toUpperCase();
+    };
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // read external values
@@ -20729,6 +20748,7 @@ var descartesJS = (function(descartesJS) {
     self.functions["_StrToMatrix_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      var findMatrix = false;
       values.type = "matrix";
 
       var tmpValue;
@@ -20739,6 +20759,8 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
           if (response[i].match("<" + name + ">")) {
+            findMatrix = true;
+
             tmpValue = response[i].trim().split("<" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
@@ -20758,7 +20780,7 @@ var descartesJS = (function(descartesJS) {
             }
 
             storeValues = false;
-            continue;
+            i = response.length;
           }
 
           // add elementes in between
@@ -20768,11 +20790,13 @@ var descartesJS = (function(descartesJS) {
         }
 
         self.matrices[name] = values;
-        self.setVariable(name + ".filas", values[0].length);
-        self.setVariable(name + ".columnas", values.length);
+        self.matrices[name].rows = (values && values[0] && values[0].length) ? values[0].length : 0;
+        self.matrices[name].cols = (values && values.length) ? values.length : 0;
+        self.setVariable(name + ".filas", self.matrices[name].rows);
+        self.setVariable(name + ".columnas", self.matrices[name].cols);
       }
 
-      return 'OK';
+      return (findMatrix) ? "OK" : "ERROR";
     }
     /**
      *
@@ -20819,9 +20843,8 @@ var descartesJS = (function(descartesJS) {
     self.functions["_StrToVector_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      var findVector = false;
       values.type = "vector";
-
-      var tmpValue;
 
       if (response) {
         response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
@@ -20829,6 +20852,7 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
           if (response[i].match("<" + name + ">")) {
+            findVector = true;
             storeValues = true;
             continue;
           }
@@ -20836,7 +20860,7 @@ var descartesJS = (function(descartesJS) {
           // final position of the values
           if (response[i].match("</" + name + ">")) {
             storeValues = false;
-            continue;
+            i = response.length;
           }
 
           // add elementes in between
@@ -20851,7 +20875,7 @@ var descartesJS = (function(descartesJS) {
         self.setVariable(name + ".long_usada", values.length);
       }
 
-      return "OK";
+      return (findVector) ? "OK" : "ERROR";
     }
     /**
      *
@@ -21449,6 +21473,8 @@ var descartesJS = (function(descartesJS) {
       var currentChar;
       var nextChar = input.charAt(0);
       var isCommand = false;
+      var inMath = false;
+      var brackets_open = 0;
 
       // replace the operators _ and ^, for the commands \subindex{} and \superindex{} respectively
       newInput = "";
@@ -21456,22 +21482,41 @@ var descartesJS = (function(descartesJS) {
         currentChar = input.charAt(i);
         nextChar = input.charAt(i+1);
 
-        if (currentChar === "_") {
-          if (nextChar === "{") {
-            newInput += "\\subindex";
-          }
-          else {
-            newInput += "\\subindex{" + nextChar + "}";
-            i++;
+        if ((currentChar === "\\") && (nextChar === "$")) {
+          inMath = true;
+        }
+
+        if (currentChar === "{") {
+          brackets_open++;
+        }
+        else if (currentChar === "}") {
+          brackets_open--;
+          if (inMath && brackets_open === 0) {
+            inMath = false;
           }
         }
-        else if (currentChar === "^") {
-          if (nextChar === "{") {
-            newInput += "\\superindex";
+
+        if (inMath) {
+          if (currentChar === "_") {
+            if (nextChar === "{") {
+              newInput += "\\subindex";
+            }
+            else {
+              newInput += "\\subindex{" + nextChar + "}";
+              i++;
+            }
+          }
+          else if (currentChar === "^") {
+            if (nextChar === "{") {
+              newInput += "\\superindex";
+            }
+            else {
+              newInput += "\\superindex{" + nextChar + "}";
+              i++;
+            }
           }
           else {
-            newInput += "\\superindex{" + nextChar + "}";
-            i++;
+            newInput += currentChar;
           }
         }
         else {
@@ -21517,14 +21562,14 @@ var descartesJS = (function(descartesJS) {
           lastToken = { type: "close", value: currentChar};
           tokens.push(lastToken);
         }
-        else if (!isCommand && (currentChar === "_")) {
-          lastToken = { type: "command", value: "subindex" };
-          tokens.push(lastToken);
-        }
-        else if (!isCommand && (currentChar === "^")) {
-          lastToken = { type: "command", value: "superindex" };
-          tokens.push(lastToken);
-        }
+        // else if (!isCommand && (currentChar === "_")) {
+        //   lastToken = { type: "command", value: "subindex" };
+        //   tokens.push(lastToken);
+        // }
+        // else if (!isCommand && (currentChar === "^")) {
+        //   lastToken = { type: "command", value: "superindex" };
+        //   tokens.push(lastToken);
+        // }
 
         else if (!isCommand) {
           if (lastToken && (lastToken.type === "text")) {
@@ -24656,17 +24701,17 @@ var descartesJS = (function(descartesJS) {
 
         // init overline text
         else if (tokens[i].value == "ol") {
-          styleStackTop.set({ underline: true });
+          styleStackTop.set({ overline: true });
           if (formulaStack.length > 0) {
-            formulaStack[formulaStack.length-1].style.set({ underline: true });
+            formulaStack[formulaStack.length-1].style.set({ overline: true });
           }
         }
 
         // end overline text
         else if (tokens[i].value == "olnone") {
-          styleStackTop.set({ underline: false });
+          styleStackTop.set({ overline: false });
           if (formulaStack.length > 0) {
-            formulaStack[formulaStack.length-1].style.set({ underline: false });
+            formulaStack[formulaStack.length-1].style.set({ overline: false });
           }
         }
 
@@ -27784,9 +27829,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
     else {
+      // remove focus of the iframe
       this.MyIFrame.contentWindow.blur();
     }
-
   }
   
   return descartesJS;
@@ -28136,7 +28181,7 @@ var descartesJS = (function(descartesJS) {
    * @param {<applet>} applet the applet to interpret
    */
   descartesJS.DescartesApp = function(applet) {
-    this.animation = { playing:false, stop:function(){} };
+    this.animation = { playing:false, play:function(){}, stop:function(){},  reinit:function(){} };
 
     this.ratio = descartesJS._ratio;
 
@@ -28278,7 +28323,7 @@ var descartesJS = (function(descartesJS) {
     var heightButtons = 0;
     var licenceHeight = (descartesJS.ccLicense) ? 90 : 0;
 
-    for(var i=0, l=children.length; i<l; i++) {
+    for (var i=0, l=children.length; i<l; i++) {
       children_i = children[i];
 
       // get the rtf height
@@ -28451,7 +28496,8 @@ var descartesJS = (function(descartesJS) {
     this.loader = document.createElement("div");
 
     // append the lesson container to the java applet container
-    this.parentC.appendChild(this.container);
+    // this.parentC.appendChild(this.container);
+    this.parentC.insertBefore(this.container, this.parentC.firstChild);
     this.container.width = this.width;
     this.container.height = this.height;
     this.container.setAttribute("class", "DescartesAppContainer");
@@ -28732,12 +28778,13 @@ var descartesJS = (function(descartesJS) {
     var evt;
     try {
         // custom event for majority of browsers
-        evt = new CustomEvent("descartesReady", { "detail": "" });
+        evt = new CustomEvent("descartesReady", { "detail":this });
     }
     catch(e) {
+      console.warn("CustomEvents not supported in this browser");
         // custom event for ie
-        evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("descartesReady", false, false, { "cmd": "" });
+        // evt = document.createEvent("CustomEvent");
+        // evt.initCustomEvent("descartesReady", false, false, { "cmd":this });
     }
     // send the event
     window.dispatchEvent(evt);
@@ -29141,27 +29188,21 @@ var descartesJS = (function(descartesJS) {
    * Play the animation
    */
   descartesJS.DescartesApp.prototype.play = function() {
-    if (this.animation) {
-      this.animation.play();
-    }
+    this.animation.play();
   }
 
   /**
    * Stop the animation
    */
   descartesJS.DescartesApp.prototype.stop = function() {
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.animation.stop();
   }
 
   /**
    * Reinit the animation
    */
   descartesJS.DescartesApp.prototype.reinitAnimation = function() {
-    if (this.animation) {
-      this.animation.reinit();
-    }
+    this.animation.reinit();
   }
 
   /**
@@ -29679,7 +29720,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Remove extra data included in an previous interpretation
+   * Remove extra data included in a previous interpretation
    */
   function removeDescartesAppContainers() {
     // remove elements with "DescartesAppContainer" class
@@ -29721,8 +29762,8 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
-    var div = document.createElement("div");
-    div.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
+    var fontDiv = document.createElement("div");
+    fontDiv.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
                         '<div style="font-family:descartesJS_serif;">\n'+
                             '<span>_</span>\n'+
                             '<span style="font-weight:bold;">_</span>\n'+
@@ -29772,7 +29813,7 @@ var descartesJS = (function(descartesJS) {
                             '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
                         '</div>\n'+
                     '</div>';
-    document.body.appendChild(div);
+    document.body.appendChild(fontDiv);
 
     // get the features for interpreting descartes applets
     descartesJS.getFeatures();
@@ -29793,7 +29834,7 @@ var descartesJS = (function(descartesJS) {
       showApplets();
     }
 
-    document.body.removeChild(div);
+    document.body.removeChild(fontDiv);
   }
 
   /**

@@ -28,6 +28,8 @@ var descartesJS = (function(descartesJS) {
       var currentChar;
       var nextChar = input.charAt(0);
       var isCommand = false;
+      var inMath = false;
+      var brackets_open = 0;
 
       // replace the operators _ and ^, for the commands \subindex{} and \superindex{} respectively
       newInput = "";
@@ -35,22 +37,41 @@ var descartesJS = (function(descartesJS) {
         currentChar = input.charAt(i);
         nextChar = input.charAt(i+1);
 
-        if (currentChar === "_") {
-          if (nextChar === "{") {
-            newInput += "\\subindex";
-          }
-          else {
-            newInput += "\\subindex{" + nextChar + "}";
-            i++;
+        if ((currentChar === "\\") && (nextChar === "$")) {
+          inMath = true;
+        }
+
+        if (currentChar === "{") {
+          brackets_open++;
+        }
+        else if (currentChar === "}") {
+          brackets_open--;
+          if (inMath && brackets_open === 0) {
+            inMath = false;
           }
         }
-        else if (currentChar === "^") {
-          if (nextChar === "{") {
-            newInput += "\\superindex";
+
+        if (inMath) {
+          if (currentChar === "_") {
+            if (nextChar === "{") {
+              newInput += "\\subindex";
+            }
+            else {
+              newInput += "\\subindex{" + nextChar + "}";
+              i++;
+            }
+          }
+          else if (currentChar === "^") {
+            if (nextChar === "{") {
+              newInput += "\\superindex";
+            }
+            else {
+              newInput += "\\superindex{" + nextChar + "}";
+              i++;
+            }
           }
           else {
-            newInput += "\\superindex{" + nextChar + "}";
-            i++;
+            newInput += currentChar;
           }
         }
         else {
@@ -96,14 +117,14 @@ var descartesJS = (function(descartesJS) {
           lastToken = { type: "close", value: currentChar};
           tokens.push(lastToken);
         }
-        else if (!isCommand && (currentChar === "_")) {
-          lastToken = { type: "command", value: "subindex" };
-          tokens.push(lastToken);
-        }
-        else if (!isCommand && (currentChar === "^")) {
-          lastToken = { type: "command", value: "superindex" };
-          tokens.push(lastToken);
-        }
+        // else if (!isCommand && (currentChar === "_")) {
+        //   lastToken = { type: "command", value: "subindex" };
+        //   tokens.push(lastToken);
+        // }
+        // else if (!isCommand && (currentChar === "^")) {
+        //   lastToken = { type: "command", value: "superindex" };
+        //   tokens.push(lastToken);
+        // }
 
         else if (!isCommand) {
           if (lastToken && (lastToken.type === "text")) {

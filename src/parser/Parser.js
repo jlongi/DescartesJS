@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-min-max-_Trace_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-_NumToStr_-_NumACadena_-_charAt_-_letraEn_-_substring_-_subcadena_-_length_-_longitud_-_indexOf_-índiceDe-_replace_-_reemplazar_-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
+  descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-ceil-round-min-max-_Trace_-_Print_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
 
 
   /**
@@ -740,6 +740,10 @@ var descartesJS = (function(descartesJS) {
     self.functions["asin"]  = self.functions["asen"] = Math.asin;
     self.functions["acos"]  = Math.acos;
     self.functions["atan"]  = Math.atan;
+    self.functions["atan2"] = Math.atan2;
+    self.functions["floor"] = Math.floor;
+    self.functions["ceil"] = Math.ceil; 
+    self.functions["round"] = Math.round;
     self.functions["min"]   = Math.min;
     self.functions["max"]   = Math.max;
     self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.info.apply(console, arguments); return 0; };
@@ -783,7 +787,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
+     self.functions["toFixed"] = self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
       num = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
       dec = dec || 0;
       return num.toFixed(parseInt(dec));
@@ -794,7 +798,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
+    self.functions["charAt"] = self.functions["_charAt_"] = self.functions["_letraEn_"] = function(str, n) {
       str = (str || "").toString();
       n = (isNaN(parseInt(n))) ? 0 : parseInt(n);
       return str.charAt(n);
@@ -802,7 +806,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
+    self.functions["substring"] = self.functions["_substring_"] = self.functions["_subcadena_"] = function(str, i, j) {
       str = (str || "").toString();
       i = (isNaN(parseInt(i))) ? 0 : parseInt(i);
       j = (isNaN(parseInt(j))) ? 0 : parseInt(j);
@@ -825,19 +829,25 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
+    self.functions["strLength"] = self.functions["_length_"] = self.functions["_longitud_"] = function(str) {
       return ((str || "").toString()).length;
     };
     /**
      *
      */
-    self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
+    self.functions["indexOf"] = self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
       return ((str || "").toString()).indexOf( (word || "").toString() );
     };
     /**
      *
      */
-    self.functions["_replace_"] = self.functions["_reemplazar_"] = function(str, strTo, strWith) {
+    self.functions["lastIndexOf"] = function(str, word) {
+      return ((str || "").toString()).lastIndexOf( (word || "").toString() );
+    };
+    /**
+     *
+     */
+    self.functions["replace"] = self.functions["_replace_"] = self.functions["_reemplazar_"] = function(str, strTo, strWith) {
       str = (str || "").toString();
       strTo = (strTo || "").toString();
       strWith = (strWith || "").toString();
@@ -850,6 +860,19 @@ var descartesJS = (function(descartesJS) {
       
       return str;
     };
+    /**
+     *
+     */
+    self.functions["toLowerCase"] = function(str) {
+      return ((str || "").toString()).toLowerCase();
+    };
+    /**
+     *
+     */
+    self.functions["toUpperCase"] = function(str) {
+      return ((str || "").toString()).toUpperCase();
+    };
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // read external values
@@ -919,6 +942,7 @@ var descartesJS = (function(descartesJS) {
     self.functions["_StrToMatrix_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      var findMatrix = false;
       values.type = "matrix";
 
       var tmpValue;
@@ -929,6 +953,8 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
           if (response[i].match("<" + name + ">")) {
+            findMatrix = true;
+
             tmpValue = response[i].trim().split("<" + name + ">");
 
             if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
@@ -948,7 +974,7 @@ var descartesJS = (function(descartesJS) {
             }
 
             storeValues = false;
-            continue;
+            i = response.length;
           }
 
           // add elementes in between
@@ -958,11 +984,13 @@ var descartesJS = (function(descartesJS) {
         }
 
         self.matrices[name] = values;
-        self.setVariable(name + ".filas", values[0].length);
-        self.setVariable(name + ".columnas", values.length);
+        self.matrices[name].rows = (values && values[0] && values[0].length) ? values[0].length : 0;
+        self.matrices[name].cols = (values && values.length) ? values.length : 0;
+        self.setVariable(name + ".filas", self.matrices[name].rows);
+        self.setVariable(name + ".columnas", self.matrices[name].cols);
       }
 
-      return 'OK';
+      return (findMatrix) ? "OK" : "ERROR";
     }
     /**
      *
@@ -1009,9 +1037,8 @@ var descartesJS = (function(descartesJS) {
     self.functions["_StrToVector_"] = function(response, name) {
       var values = [];
       var storeValues = false;
+      var findVector = false;
       values.type = "vector";
-
-      var tmpValue;
 
       if (response) {
         response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
@@ -1019,6 +1046,7 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=response.length; i<l; i++) {
           // initial position of the values
           if (response[i].match("<" + name + ">")) {
+            findVector = true;
             storeValues = true;
             continue;
           }
@@ -1026,7 +1054,7 @@ var descartesJS = (function(descartesJS) {
           // final position of the values
           if (response[i].match("</" + name + ">")) {
             storeValues = false;
-            continue;
+            i = response.length;
           }
 
           // add elementes in between
@@ -1041,7 +1069,7 @@ var descartesJS = (function(descartesJS) {
         self.setVariable(name + ".long_usada", values.length);
       }
 
-      return "OK";
+      return (findVector) ? "OK" : "ERROR";
     }
     /**
      *

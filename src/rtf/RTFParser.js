@@ -197,17 +197,17 @@ var descartesJS = (function(descartesJS) {
 
         // init overline text
         else if (tokens[i].value == "ol") {
-          styleStackTop.set({ underline: true });
+          styleStackTop.set({ overline: true });
           if (formulaStack.length > 0) {
-            formulaStack[formulaStack.length-1].style.set({ underline: true });
+            formulaStack[formulaStack.length-1].style.set({ overline: true });
           }
         }
 
         // end overline text
         else if (tokens[i].value == "olnone") {
-          styleStackTop.set({ underline: false });
+          styleStackTop.set({ overline: false });
           if (formulaStack.length > 0) {
-            formulaStack[formulaStack.length-1].style.set({ underline: false });
+            formulaStack[formulaStack.length-1].style.set({ overline: false });
           }
         }
 

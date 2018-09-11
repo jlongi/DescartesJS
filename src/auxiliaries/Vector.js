@@ -66,10 +66,6 @@ var descartesJS = (function(descartesJS) {
       vectorElement = document.getElementById(this.file);
       if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
         response = vectorElement.text;
-        
-        // if (response[0] == '\n') {
-        //   response = response.substring(1);
-        // }
       }
       // read the vector data from a file
       else {
