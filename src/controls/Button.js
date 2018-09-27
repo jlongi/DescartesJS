@@ -28,10 +28,6 @@ var descartesJS = (function(descartesJS) {
   var _text_pos_x;
   var _text_pos_y;
 
-  var _i_h;
-  var _font_h;
-  var newButtonCondition;
-
   var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   var container;
@@ -44,6 +40,7 @@ var descartesJS = (function(descartesJS) {
   var checkImageSrc;
   var checkBackColor;
   var checkTextColor;
+  var checkImageReady;
 
   var prefix;
   var sufix;
@@ -109,7 +106,6 @@ var descartesJS = (function(descartesJS) {
     }
     this.text_align = this.text_align.split("_");
     this.image_align = this.image_align.split("_");
-
 
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
@@ -423,6 +419,7 @@ var descartesJS = (function(descartesJS) {
       checkImageSrc = (imageSrc === this.oldImageSrc);
       checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
       checkTextColor = (this.color.getColor() === this.oldTextColor);
+checkImageReady = (this.image.ready === this.oldImageReady);
 
       this.oldOver = this.over;
       this.oldButtonClick = this.buttonClick;
@@ -432,8 +429,9 @@ var descartesJS = (function(descartesJS) {
       this.oldImageSrc = imageSrc;
       this.oldBackColor = this.colorInt.getColor();
       this.oldTextColor = this.color.getColor();
+this.oldImageReady = this.image.ready;
 
-      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor) {
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor && checkImageReady) {
         return;
       };
     }

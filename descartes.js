@@ -3,7 +3,7 @@
  * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2018-09-11
+ * 2018-09-27
  */
 
 /**
@@ -1022,10 +1022,6 @@ var descartesJS = (function(descartesJS) {
   var dosPiEntreTrecientosSesenta = PI2/360;
   var MathFloor = Math.floor;
 
-  var fontTokens;
-  var fontCanvas;
-  var fontName;
-
   var colorExpr;
   var red;
   var green;
@@ -1382,52 +1378,52 @@ var descartesJS = (function(descartesJS) {
   }
 
   var htmlAbout =
-  "<html>" +
-  "<head>" +
-  "<style>" +
-  "body{text-align:center;}" +
-  "iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}" +
-  "dt{font-weight:bold;margin-top:10px;}" +
-  "</style>" +
-  "</head>" +
-  "<body>" +
-  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>" +
-  "<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>" +
-  "<dl>" +
-  "<dt>Dise&ntilde;o funcional:</dt>" +
-  "<dd>" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
-  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>" +
-  "<nobr>Juan Madrigal Muga</nobr>" +
-  "</dd>" +
-  "<dt>Autores del software:</dt>" +
-  "<dd>" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
-  "<nobr>Marta Oliver&oacute; Serrat,</nobr>" +
-  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>" +
-  "<nobr>Joel Espinosa Longi</nobr>" +
-  "</dd>" +
-  "</dl>" +
-  "<p>" +
-  "El software en Java est&aacute; bajo la licencia" +
-  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>" +
-  "<br>" +
-  "El software en JavaScript est&aacute; bajo licencia" +
-  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>" +
-  "</p>" +
-  "<p>" +
-  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :" +
-  "<br>" +
-  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>" +
-  "</p>";
+`<html>
+<head>
+<style>
+body{text-align:center;}
+iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}
+dt{font-weight:bold;margin-top:10px;}
+</style>
+</head>
+<body>
+<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
+<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
+<dl>
+<dt>Dise&ntilde;o funcional:</dt>
+<dd>
+<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
+<nobr>Jos&eacute; R. Galo Sanchez,</nobr>
+<nobr>Juan Madrigal Muga</nobr>
+</dd>
+<dt>Autores del software:</dt>
+<dd>
+<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
+<nobr>Marta Oliver&oacute; Serrat,</nobr>
+<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>
+<nobr>Joel Espinosa Longi</nobr>
+</dd></dl>
+<p>
+El software en Java est&aacute; bajo la licencia
+<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>
+<br>
+El software en JavaScript est&aacute; bajo licencia
+<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>
+</p>
+<p>
+La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :
+<br>
+<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>
+</p>`;
 
-  var htmlCreative = "<p>" +
-  "Este objeto, creado con Descartes, est&aacute; licenciado" +
-  "por sus autores como" +
-  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>" +
-  "<br>" +
-  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>" +
-  "</p>";
+  var htmlCreative = 
+`<p>
+Este objeto, creado con Descartes, est&aacute; licenciado
+por sus autores como
+<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>
+<br>
+<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>
+</p>`;
 
   var htmlFinal = "</body> </html>";
 
@@ -1858,7 +1854,7 @@ var descartesJS = (function(descartesJS) {
    *  DescartesJS loader image
    */
   descartesJS.loaderImg = new Image();
-  descartesJS.loaderImg.src = "data:image/svg+xml;base64,PHN2ZyB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgaGVpZ2h0PSI4NDAiIHZpZXdCb3g9IjAgMCA4ODAgODQwIiB3aWR0aD0iODgwIiB2ZXJzaW9uPSIxLjEiIHk9IjAiIHg9IjAiPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQouZm9uZG97ZmlsbDpub25lO30NCi5zaW1ib2xve2ZpbGw6IzJEQUFFNDt9DQouZGVzY2FydGVze2ZpbGw6Izg2ODY4Njt9DQoubWF0ZW1hdGljYXN7ZmlsbDojMkRBQUU0O30NCjwvc3R5bGU+PGcgY2xhc3M9InNpbWJvbG8iPjxwYXRoIGQ9Im00NDAgODBjLTEzMi41IDAtMjQwIDEwNy41LTI0MCAyNDBzMTA3LjUgMjQwIDI0MCAyNDAgMjQwLTEwNy41IDI0MC0yNDAtMTA3LjUtMjQwLTI0MC0yNDB6bS0xMS4xIDQ2Mi4yYy0xMjIuNyAwLTIyNC40LTk5LjUtMjI0LjQtMjIyLjJzMTAxLjctMjIyLjIgMjI0LjQtMjIyLjIgMjIyLjIgOTkuNSAyMjIuMiAyMjIuMi05OS41IDIyMi4yLTIyMi4yIDIyMi4yeiIvPjxwYXRoIGQ9Im00MTcuOCAxMTUuNmMtMTEyLjkgMC0yMDguOSA5MS41LTIwOC45IDIwNC40czk2IDIwNC40IDIwOC45IDIwNC40IDIwNC40LTkxLjUgMjA0LjQtMjA0LjQtOTEuNS0yMDQuNC0yMDQuNC0yMDQuNHptLTExLjEgMzkxLjFjLTEwMy4xIDAtMTkzLjMtODMuNi0xOTMuMy0xODYuN3M5MC4yLTE4Ni43IDE5My4zLTE4Ni43IDE4Ni42IDgzLjYgMTg2LjYgMTg2LjctODMuNSAxODYuNy0xODYuNiAxODYuN3oiLz48cGF0aCBkPSJtMzk1LjYgMTUxLjFjLTkzLjMgMC0xNzcuOCA3NS42LTE3Ny44IDE2OC45czg0LjUgMTY4LjkgMTc3LjggMTY4LjkgMTY4LjgtNzUuNiAxNjguOC0xNjguOWMwLTkzLjMtNzUuNi0xNjguOS0xNjguOC0xNjguOXptLTExLjIgMzIwYy04My41IDAtMTYyLjItNjcuNy0xNjIuMi0xNTEuMXM3OC44LTE1MS4xIDE2Mi4yLTE1MS4xIDE1MS4yIDY3LjYgMTUxLjIgMTUxLjEtNjcuNyAxNTEuMS0xNTEuMiAxNTEuMXoiLz48cGF0aCBkPSJtMzczLjMgMTg2LjdjLTczLjYgMC0xNDYuNyA1OS43LTE0Ni43IDEzMy4zczczIDEzMy4zIDE0Ni43IDEzMy4zIDEzMy40LTU5LjcgMTMzLjQtMTMzLjMtNTkuNy0xMzMuMy0xMzMuNC0xMzMuM3ptLTExLjEgMjQ4LjljLTYzLjggMC0xMzEuMS01MS43LTEzMS4xLTExNS42czY3LjMtMTE1LjYgMTMxLjEtMTE1LjYgMTE1LjYgNTEuOCAxMTUuNiAxMTUuNi01MS44IDExNS42LTExNS42IDExNS42eiIvPjxwYXRoIGQ9Im0zNTEuMSAyMjIuMmMtNTQgMC0xMTUuNiA0My44LTExNS42IDk3LjhzNjEuNiA5Ny44IDExNS42IDk3LjhjNTQgMCA5Ny44LTQzLjggOTcuOC05Ny44cy00My44LTk3LjgtOTcuOC05Ny44em0tMTEuMSAxNzcuOGMtNDQuMiAwLTEwMC0zNS44LTEwMC04MHM1NS44LTgwIDEwMC04MCA4MCAzNS44IDgwIDgwLTM1LjggODAtODAgODB6Ii8+PC9nPjxnIGNsYXNzPSJkZXNjYXJ0ZXMiPjxwYXRoIGQ9Im0xMTUuOCA2MDAuN2MzMi41IDAgNDguOCAyNC44IDQ4LjggNDkuN3MtMTYuMiA0OS42LTQ4LjggNDkuNmgtMzUuNnYtOTkuM2gzNS42em0wIDg1YzIzIDAgMzQuNi0xNy42IDM0LjYtMzUuMnMtMTEuNi0zNS40LTM0LjYtMzUuNGgtMjEuM3Y3MC42aDIxLjN6Ii8+PHBhdGggZD0ibTE4Ny44IDY4NS43aDQ2LjJ2MTQuM2gtNjAuNnYtOTkuM2g2MC41djE0LjNoLTQ2djI4aDQ1djE0LjVoLTQ1djI4LjJ6Ii8+PHBhdGggZD0ibTI5NiA2MjYuM2MtMi04LjktMTEuNi0xMi44LTIwLjMtMTIuNi02LjcgMC4xLTE0LjEgMi40LTE4IDcuNS0yIDIuNi0yLjcgNS44LTIuNCA5LjIgMC43IDEwLjIgMTEuOSAxMS41IDIyLjYgMTIuNSAxMy42IDEuNyAzMC41IDUuMyAzNC40IDIxLjIgMC40IDIuMSAwLjcgNC41IDAuNyA2LjUgMCAxOS4yLTE5IDMwLjItMzYuOSAzMC4yLTE1LjMgMC0zMy45LTkuMS0zNS44LTI2LjhsLTAuMS0yLjcgMTQuNS0wLjMgMC4xIDIuMXYtMC42YzEgOS4yIDEyLjIgMTQuMSAyMS40IDE0LjEgMTAuNiAwIDIyLjMtNiAyMi4zLTE2LjIgMC0xLTAuMS0yLjEtMC40LTMuNC0xLjctNy41LTExLjktOC44LTIxLjktOS44LTE1LjUtMS42LTMzLjctNS0zNS4yLTI1Ljd2MC4xYy0wLjYtNi43IDEuMS0xMy4zIDUuNC0xOC45IDYuNy04LjcgMTguNi0xMy4yIDMwLjEtMTMuMiAxNS4zIDAgMzEuMiA4IDMzLjggMjYuMWwtMTQuMyAwLjd6Ii8+PHBhdGggZD0ibTMzNC4yIDYxNC45YzguNy04LjkgMjAuOS0xNC44IDM0LjQtMTQuOCAyMi43IDAgNDAuNiAxNC4yIDQ2LjMgMzYuNmgtMTQuMmMtNS4zLTE0LjktMTcuNS0yMi40LTMyLjEtMjIuNC05LjUgMC0xOC4yIDQuMS0yNC40IDEwLjctNi4yIDYuNS0xMC4yIDE1LjMtMTAuMiAyNS42IDAgOS45IDQgMTguNyAxMC4yIDI1LjNzMTQuOSAxMC42IDI0LjQgMTAuNmMxNS4xIDAgMjcuOC04LjcgMzIuOS0yMy43aDE0LjFjLTUuNyAyMi42LTIzLjkgMzcuOS00NyAzNy45LTEzLjUgMC0yNS43LTUuNy0zNC40LTE0LjgtOC41LTkuMS0xNC4yLTIxLjYtMTQuMi0zNS40IDAtMTQgNS43LTI2LjUgMTQuMi0zNS42eiIvPjxwYXRoIGQ9Im00NzguOCA2NzAuN2gtMzUuNmMtMy44IDkuMS04LjggMjEtMTEuOSAyOS4zaC0xNS41bDM5LjktMTAwLjdoMTAuNWwzOS44IDEwMC43aC0xNS4zbC0xMS45LTI5LjN6bS0zMC4zLTEzLjRoMjQuN2wtMTIuMi0zNS4xLTEyLjUgMzUuMXoiLz48cGF0aCBkPSJtNTI4LjYgNjQ5LjZoMTYuOGMxMi4xIDAgMTgtOC43IDE4LTE3LjMgMC04LjUtNi0xNy4yLTE4LTE3LjJoLTIydjg0LjloLTE0LjJ2LTk5LjRoMzYuMmMyMS42IDAgMzIuNCAxNS45IDMyLjQgMzEuNyAwIDE0LjEtOC43IDI3LjQtMjUuNyAzMC40bDMxLjQgMzcuM2gtMTguNmwtMzYuMi00My42di02Ljh6Ii8+PHBhdGggZD0ibTYxMC4zIDcwMC40di04NS4zaC0zMC4xdi0xNC41aDc0LjR2MTQuNWgtMzB2ODUuM2gtMTQuM3oiLz48cGF0aCBkPSJtNjc2LjQgNjg1LjdoNDYuMXYxNC4zaC02MC41di05OS4zaDYwLjV2MTQuM2gtNDZ2MjhoNDV2MTQuNWgtNDV2MjguMnoiLz48cGF0aCBkPSJtNzg0LjYgNjI2LjNjLTItOC45LTExLjYtMTIuOC0yMC4zLTEyLjYtNi43IDAuMS0xNC4xIDIuNC0xOCA3LjUtMiAyLjYtMi43IDUuOC0yLjQgOS4yIDAuNyAxMC4yIDExLjkgMTEuNSAyMi42IDEyLjUgMTMuNiAxLjcgMzAuNSA1LjMgMzQuNCAyMS4yIDAuNCAyLjEgMC43IDQuNSAwLjcgNi41IDAgMTkuMi0xOSAzMC4yLTM2LjkgMzAuMi0xNS4zIDAtMzMuOS05LjEtMzUuOC0yNi44bC0wLjEtMi43IDE0LjUtMC4zIDAuMSAyLjF2LTAuNmMxIDkuMiAxMi4yIDE0LjEgMjEuNCAxNC4xIDEwLjYgMCAyMi4zLTYgMjIuMy0xNi4yIDAtMS0wLjEtMi4xLTAuNC0zLjQtMS43LTcuNS0xMS45LTguOC0yMS45LTkuOC0xNS41LTEuNi0zMy43LTUtMzUuMi0yNS43djAuMWMtMC42LTYuNyAxLjEtMTMuMyA1LjQtMTguOSA2LjctOC43IDE4LjYtMTMuMiAzMC4xLTEzLjIgMTUuMyAwIDMxLjIgOCAzMy44IDI2LjFsLTE0LjMgMC43eiIvPjwvZz48L3N2Zz4=";
+  descartesJS.loaderImg.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4ODAiIGhlaWdodD0iODQwIj48ZyBmaWxsPSIjMmRhYWU0Ij48cGF0aCBkPSJNNDQwIDgwYy0xMzIuNSAwLTI0MCAxMDcuNS0yNDAgMjQwczEwNy41IDI0MCAyNDAgMjQwIDI0MC0xMDcuNSAyNDAtMjQwUzU3Mi41IDgwIDQ0MCA4MHptLTExLjEgNDYyLjJjLTEyMi43IDAtMjI0LjQtOTkuNS0yMjQuNC0yMjIuMlMzMDYuMiA5Ny44IDQyOC45IDk3LjggNjUxLjEgMTk3LjMgNjUxLjEgMzIwcy05OS41IDIyMi4yLTIyMi4yIDIyMi4yeiIvPjxwYXRoIGQ9Ik00MTcuOCAxMTUuNmMtMTEyLjkgMC0yMDguOSA5MS41LTIwOC45IDIwNC40czk2IDIwNC40IDIwOC45IDIwNC40UzYyMi4yIDQzMi45IDYyMi4yIDMyMHMtOTEuNS0yMDQuNC0yMDQuNC0yMDQuNHptLTExLjEgMzkxLjFjLTEwMy4xIDAtMTkzLjMtODMuNi0xOTMuMy0xODYuN3M5MC4yLTE4Ni43IDE5My4zLTE4Ni43UzU5My4zIDIxNi45IDU5My4zIDMyMHMtODMuNSAxODYuNy0xODYuNiAxODYuN3oiLz48cGF0aCBkPSJNMzk1LjYgMTUxLjFjLTkzLjMgMC0xNzcuOCA3NS42LTE3Ny44IDE2OC45czg0LjUgMTY4LjkgMTc3LjggMTY4LjlTNTY0LjQgNDEzLjMgNTY0LjQgMzIwYzAtOTMuMy03NS42LTE2OC45LTE2OC44LTE2OC45em0tMTEuMiAzMjBjLTgzLjUgMC0xNjIuMi02Ny43LTE2Mi4yLTE1MS4xUzMwMSAxNjguOSAzODQuNCAxNjguOSA1MzUuNiAyMzYuNSA1MzUuNiAzMjBzLTY3LjcgMTUxLjEtMTUxLjIgMTUxLjF6Ii8+PHBhdGggZD0iTTM3My4zIDE4Ni43Yy03My42IDAtMTQ2LjcgNTkuNy0xNDYuNyAxMzMuM3M3MyAxMzMuMyAxNDYuNyAxMzMuM1M1MDYuNyAzOTMuNiA1MDYuNyAzMjAgNDQ3IDE4Ni43IDM3My4zIDE4Ni43em0tMTEuMSAyNDguOWMtNjMuOCAwLTEzMS4xLTUxLjctMTMxLjEtMTE1LjZzNjcuMy0xMTUuNiAxMzEuMS0xMTUuNlM0NzcuOCAyNTYuMiA0NzcuOCAzMjAgNDI2IDQzNS42IDM2Mi4yIDQzNS42eiIvPjxwYXRoIGQ9Ik0zNTEuMSAyMjIuMmMtNTQgMC0xMTUuNiA0My44LTExNS42IDk3LjhzNjEuNiA5Ny44IDExNS42IDk3LjhjNTQgMCA5Ny44LTQzLjggOTcuOC05Ny44cy00My44LTk3LjgtOTcuOC05Ny44ek0zNDAgNDAwYy00NC4yIDAtMTAwLTM1LjgtMTAwLTgwczU1LjgtODAgMTAwLTgwIDgwIDM1LjggODAgODAtMzUuOCA4MC04MCA4MHoiLz48L2c+PGcgZmlsbD0iIzg2ODY4NiI+PHBhdGggZD0iTTExNS44IDYwMC43YzMyLjUgMCA0OC44IDI0LjggNDguOCA0OS43UzE0OC40IDcwMCAxMTUuOCA3MDBIODAuMnYtOTkuM2gzNS42em0wIDg1YzIzIDAgMzQuNi0xNy42IDM0LjYtMzUuMnMtMTEuNi0zNS40LTM0LjYtMzUuNEg5NC41djcwLjZoMjEuM3pNMTg3LjggNjg1LjdIMjM0VjcwMGgtNjAuNnYtOTkuM2g2MC41VjYxNWgtNDZ2MjhoNDV2MTQuNWgtNDV2MjguMnpNMjk2IDYyNi4zYy0yLTguOS0xMS42LTEyLjgtMjAuMy0xMi42LTYuNy4xLTE0LjEgMi40LTE4IDcuNS0yIDIuNi0yLjcgNS44LTIuNCA5LjIuNyAxMC4yIDExLjkgMTEuNSAyMi42IDEyLjUgMTMuNiAxLjcgMzAuNSA1LjMgMzQuNCAyMS4yLjQgMi4xLjcgNC41LjcgNi41IDAgMTkuMi0xOSAzMC4yLTM2LjkgMzAuMi0xNS4zIDAtMzMuOS05LjEtMzUuOC0yNi44bC0uMS0yLjcgMTQuNS0uMy4xIDIuMXYtLjZjMSA5LjIgMTIuMiAxNC4xIDIxLjQgMTQuMSAxMC42IDAgMjIuMy02IDIyLjMtMTYuMiAwLTEtLjEtMi4xLS40LTMuNC0xLjctNy41LTExLjktOC44LTIxLjktOS44LTE1LjUtMS42LTMzLjctNS0zNS4yLTI1Ljd2LjFjLS42LTYuNyAxLjEtMTMuMyA1LjQtMTguOSA2LjctOC43IDE4LjYtMTMuMiAzMC4xLTEzLjIgMTUuMyAwIDMxLjIgOCAzMy44IDI2LjFsLTE0LjMuN3pNMzM0LjIgNjE0LjljOC43LTguOSAyMC45LTE0LjggMzQuNC0xNC44IDIyLjcgMCA0MC42IDE0LjIgNDYuMyAzNi42aC0xNC4yYy01LjMtMTQuOS0xNy41LTIyLjQtMzIuMS0yMi40LTkuNSAwLTE4LjIgNC4xLTI0LjQgMTAuNy02LjIgNi41LTEwLjIgMTUuMy0xMC4yIDI1LjYgMCA5LjkgNCAxOC43IDEwLjIgMjUuM3MxNC45IDEwLjYgMjQuNCAxMC42YzE1LjEgMCAyNy44LTguNyAzMi45LTIzLjdoMTQuMWMtNS43IDIyLjYtMjMuOSAzNy45LTQ3IDM3LjktMTMuNSAwLTI1LjctNS43LTM0LjQtMTQuOC04LjUtOS4xLTE0LjItMjEuNi0xNC4yLTM1LjQgMC0xNCA1LjctMjYuNSAxNC4yLTM1LjZ6TTQ3OC44IDY3MC43aC0zNS42Yy0zLjggOS4xLTguOCAyMS0xMS45IDI5LjNoLTE1LjVsMzkuOS0xMDAuN2gxMC41TDUwNiA3MDBoLTE1LjNsLTExLjktMjkuM3ptLTMwLjMtMTMuNGgyNC43TDQ2MSA2MjIuMmwtMTIuNSAzNS4xek01MjguNiA2NDkuNmgxNi44YzEyLjEgMCAxOC04LjcgMTgtMTcuMyAwLTguNS02LTE3LjItMTgtMTcuMmgtMjJWNzAwaC0xNC4ydi05OS40aDM2LjJjMjEuNiAwIDMyLjQgMTUuOSAzMi40IDMxLjcgMCAxNC4xLTguNyAyNy40LTI1LjcgMzAuNGwzMS40IDM3LjNoLTE4LjZsLTM2LjItNDMuNnYtNi44ek02MTAuMyA3MDAuNHYtODUuM2gtMzAuMXYtMTQuNWg3NC40djE0LjVoLTMwdjg1LjNoLTE0LjN6TTY3Ni40IDY4NS43aDQ2LjFWNzAwSDY2MnYtOTkuM2g2MC41VjYxNWgtNDZ2MjhoNDV2MTQuNWgtNDV2MjguMnpNNzg0LjYgNjI2LjNjLTItOC45LTExLjYtMTIuOC0yMC4zLTEyLjYtNi43LjEtMTQuMSAyLjQtMTggNy41LTIgMi42LTIuNyA1LjgtMi40IDkuMi43IDEwLjIgMTEuOSAxMS41IDIyLjYgMTIuNSAxMy42IDEuNyAzMC41IDUuMyAzNC40IDIxLjIuNCAyLjEuNyA0LjUuNyA2LjUgMCAxOS4yLTE5IDMwLjItMzYuOSAzMC4yLTE1LjMgMC0zMy45LTkuMS0zNS44LTI2LjhsLS4xLTIuNyAxNC41LS4zLjEgMi4xdi0uNmMxIDkuMiAxMi4yIDE0LjEgMjEuNCAxNC4xIDEwLjYgMCAyMi4zLTYgMjIuMy0xNi4yIDAtMS0uMS0yLjEtLjQtMy40LTEuNy03LjUtMTEuOS04LjgtMjEuOS05LjgtMTUuNS0xLjYtMzMuNy01LTM1LjItMjUuN3YuMWMtLjYtNi43IDEuMS0xMy4zIDUuNC0xOC45IDYuNy04LjcgMTguNi0xMy4yIDMwLjEtMTMuMiAxNS4zIDAgMzEuMiA4IDMzLjggMjYuMWwtMTQuMy43eiIvPjwvZz48L3N2Zz4=";
 
   /**
    * Get the embedded image of the license used in Arquimedes
@@ -1866,7 +1862,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getCCLImg = function() {
     var img = new Image();
-    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAMAAABUFvrSAAABC1BMVEUAAAC1urSEhYRDREMNDg2EhoR5fHkpKSmRk5EbGxuRlJGVmZQoKShAQEBwcHCTmJNQUVAQEBBgYGCAgIC/v78ODg5QUFDf39/////v7++fn5+Rj49aV1jj4+PIx8cwMDB9f3zW1dUyMTGamJkZGRkNDA12c3SjoaEjHyC6ubkpKikoJSY/OzxoZWaHhoesq6s/NzljX2HPz891cnN4dXbx8fGflpqOh4uenZ0xLS4kJCQoKCjo5+ePj4+1tbUtLS3g3+Cvr6/JyMggICAqKip+e3wfGxyEgYIqJyeYlpd/gX5ubGyMiovLyst6fXmeoJ18f3xdXl2ChYJwcm81NjWWmZYyMzE+Pz6JjIk4KLQtAAACdUlEQVR4AdWVBXvbOhiFj8OcGBp/YU5UZrq0cse83f3/X7IvkS0rKnd8ym/8vFWOCD8u1g/JTxHH4glwEvGkZSSVBiedegCJxJksVLI5XZsvAMVSqQgUypKU7yZKXAFgO67nuY4NoKKJF1D1ieNXsVC+LwEQem23RjJ1VheUNw2HGTB9QeLCjDSaBmm12y1FAATejk8qtU405i6qvVBMVXCHKfQH7B2Oxi1F+JmJ4CxKEooz7A2Hq8xBz0vwI+4jPX0Ly2JlFe4a1hXxqS02NsdCNCQJxFnYWzSXmo2sFKNIHAdwiFPElGzvCCHGrV5EaHdP7BMdiENJpDgGuGSkDiSluEQccIhTgiTtMYBxLyK7f4m/uWYh/mESiuOwuQivWiy68se/RGQjfouYHeNDIZqLivz3xJuJjzRxAg4LMU3xGJzp3w4S11chye4B9QRnJSSLkxOidSH0KgAeYgenvnda76DjH5/WZ13MxGdy8gBt8pg0xeEhxuvnFyE5EOLy8ql4pk8e4BEFPau6vUD8HFUylxuT1uVw1NjVyaXgvNiV5E4xZynaICV9g7xsGuTV+npPErOK2tapy1VMf8gqvnFLy8kLZk1NXgmJaFOj45Q60ZFjFe4iUlyBTWq5HRdnP+gUcSvM60cemxnu4toN8g1RW9q/Zkt/u/jNdYdQ5lvFeGtZ79isHUO+PDbf4xvzYf6gr7k28NGy3uKb052O2byaPiGM3B+QXxz1B3PjIbpqfqNfphndCwo+KSLyb+NfhcBow8qE13/Omu8hPDY1EnxoCY8TGPlszeV/aDGLkITMARpA5f8vofWLrr1+xEpuzgPhj81XdrZiwA3vh8AAAAAASUVORK5CYII=";
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAMAAABUFvrSAAABC1BMVEUAAAC1urSEhYRDREMNDg2EhoR5fHkpKSmRk5EbGxuRlJGVmZQoKShAQEBwcHCTmJNQUVAQEBBgYGCAgIC/v78ODg5QUFDf39/////v7++fn5+Rj49aV1jj4+PIx8cwMDB9f3zW1dUyMTGamJkZGRkNDA12c3SjoaEjHyC6ubkpKikoJSY/OzxoZWaHhoesq6s/NzljX2HPz891cnN4dXbx8fGflpqOh4uenZ0xLS4kJCQoKCjo5+ePj4+1tbUtLS3g3+Cvr6/JyMggICAqKip+e3wfGxyEgYIqJyeYlpd/gX5ubGyMiovLyst6fXmeoJ18f3xdXl2ChYJwcm81NjWWmZYyMzE+Pz6JjIk4KLQtAAACcklEQVR4AbyVhXbjMBREx2UIGWq/MCcqMy2Wu8z0/1+yz5ElKyrjlG99bpQR4eniPEmeRTwyOgbO2Oi4Y2ViEpzJiTuQVDw1DZ3pGVM7mwGyuVwWyOQlyd9MtLgAwPX8IPA9F0DBEM8hjIgThZjL35YAUF7XL5JMidUZ7Z2ExwyI/yFxZkDKFYtUa7WqJgASbz0inWI9HXMDYVOJKcQEt4lWm72dbq+qCT/TF5x5SZR4ir1quNqc9LyAKOURJuO3sCiWluGvYFWTiGpibb0nRFmSRDwNd4OGUnQxLcXIEscDPOJkEZPNLSFEr9pMCW3viF2iPbEviRSPAD5ZKQFy1SFHHEB2kYMktR6AXjMl2y/ES65ZiFdMlHgULhcRhNmsL3+8JiIXo9eI2dHbF6Iyr8mbt8FAfGCIx+CxEHGyh+DEf3sYu7wKSbb3qCk4S4rM94+IVoUwqwB4iHUcR8FxqY56dHhcGnQxEJ/IyQOMyWNSEfv76K2enimyJ8T5+Tvx3pw8ICBKetZ1B4n4A0KylxuT6nmnW942ybngfNyW5EYxZyHdIDlzg3yqWOTz6mpTEruK4saxz1XEP2QVD9zScvKSWdOTl8NYuqlR93J1dcBwMjcRKS7AJb3cDrODH3SMUUflyz2PzSnu4tIN8oDoLR1dvqUfKP562SE09VAxvjnOdzYbx1Akj80feGB+Dh/0Rd8FfjnONzw4jXjM9tX0Gypyf0B+cfQfzK2H6KL5q3mZTpleUPJJKZF/Wy+lgNWGM6Wu/xlnuAd1bBok+TCijhNY+eMM5S+M2EVIQvYALaDz95+y/jO1l49Yy+15IPzfkAUAdrZiwIT3fTYAAAAASUVORK5CYII=";
 
     return img;
   }
@@ -1875,14 +1871,14 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.getSvgMenu = function() {
-    return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNIDYuNjQwMzMzNCw4IDExLjk5OTk5OSwxMi45NjI0NjMgMTcuMzU5NjY2LDggMTksOS41MTg3Njg2IDExLjk5OTk5OSwxNiA1LDkuNTE4NzY4NiBaIiBzdHlsZT0iZmlsbDojMDAwMDAwIi8+PC9zdmc+";
+    return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTYuNjQgOEwxMiAxMi45NjIgMTcuMzYgOCAxOSA5LjUxOSAxMiAxNiA1IDkuNTE5eiIvPjwvc3ZnPg==";
   }
 
   /**
    *
    */
   descartesJS.getSvgCheckbox = function() {
-    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDUiIGhlaWdodD0iNDUiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDQ1IDQ1IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0gMzcuMDk0NTk0LDYuMjgzNzg0IDE1LjQ3Mjk3LDI3LjkwNTQwNSA3LjkwNTQwNDMsMjAuMzM3ODM4IDIuNDk5OTk5NSwyNS43NDMyNDQgMTUuNDcyOTcsMzguNzE2MjE1IDQyLjUsMTEuNjg5MTg4IFoiIGNvbG9yPSIjMDAwMDAwIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGZpbGwtcnVsZT0iZXZlbm9kZCIgaW1hZ2UtcmVuZGVyaW5nPSJhdXRvIiBzaGFwZS1yZW5kZXJpbmc9ImF1dG8iIHNvbGlkLWNvbG9yPSIjMDAwMDAwIiBzdHlsZT0iYmxvY2stcHJvZ3Jlc3Npb246dGI7aXNvbGF0aW9uOmF1dG87bWl4LWJsZW5kLW1vZGU6bm9ybWFsO3RleHQtZGVjb3JhdGlvbi1jb2xvcjojMDAwMDAwO3RleHQtZGVjb3JhdGlvbi1saW5lOm5vbmU7dGV4dC1kZWNvcmF0aW9uLXN0eWxlOnNvbGlkO3RleHQtaW5kZW50OjA7dGV4dC10cmFuc2Zvcm06bm9uZTt3aGl0ZS1zcGFjZTpub3JtYWwiLz48L3N2Zz4NCg";
+    return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzcuMDk1IDYuMjg0TDE1LjQ3MyAyNy45MDVsLTcuNTY4LTcuNTY3TDIuNSAyNS43NDNsMTIuOTczIDEyLjk3M0w0Mi41IDExLjY5eiIgY29sb3I9IiMwMDAiIHNvbGlkLWNvbG9yPSIjMDAwMDAwIiBzdHlsZT0iYmxvY2stcHJvZ3Jlc3Npb246dGI7aXNvbGF0aW9uOmF1dG87bWl4LWJsZW5kLW1vZGU6bm9ybWFsO3RleHQtZGVjb3JhdGlvbi1jb2xvcjojMDAwO3RleHQtZGVjb3JhdGlvbi1saW5lOm5vbmU7dGV4dC1kZWNvcmF0aW9uLXN0eWxlOnNvbGlkO3RleHQtaW5kZW50OjA7dGV4dC10cmFuc2Zvcm06bm9uZSIgd2hpdGUtc3BhY2U9Im5vcm1hbCIvPjwvc3ZnPg==";
   }
 
   /**
@@ -12189,10 +12185,6 @@ var descartesJS = (function(descartesJS) {
   var _text_pos_x;
   var _text_pos_y;
 
-  var _i_h;
-  var _font_h;
-  var newButtonCondition;
-
   var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   var container;
@@ -12205,6 +12197,7 @@ var descartesJS = (function(descartesJS) {
   var checkImageSrc;
   var checkBackColor;
   var checkTextColor;
+  var checkImageReady;
 
   var prefix;
   var sufix;
@@ -12270,7 +12263,6 @@ var descartesJS = (function(descartesJS) {
     }
     this.text_align = this.text_align.split("_");
     this.image_align = this.image_align.split("_");
-
 
     // modification to change the name of the button with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
@@ -12584,6 +12576,7 @@ var descartesJS = (function(descartesJS) {
       checkImageSrc = (imageSrc === this.oldImageSrc);
       checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
       checkTextColor = (this.color.getColor() === this.oldTextColor);
+checkImageReady = (this.image.ready === this.oldImageReady);
 
       this.oldOver = this.over;
       this.oldButtonClick = this.buttonClick;
@@ -12593,8 +12586,9 @@ var descartesJS = (function(descartesJS) {
       this.oldImageSrc = imageSrc;
       this.oldBackColor = this.colorInt.getColor();
       this.oldTextColor = this.color.getColor();
+this.oldImageReady = this.image.ready;
 
-      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor) {
+      if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor && checkImageReady) {
         return;
       };
     }
@@ -19813,7 +19807,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-ceil-round-min-max-_Trace_-_Print_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
-
+  var lastTime = Date.now();
+  var waitTime = 1500;
 
   /**
    * Descartes parser
@@ -20957,21 +20952,25 @@ var descartesJS = (function(descartesJS) {
      *
      */
     self.functions["_Save_"] = function(filename, data) {
-      document.body.appendChild(anchor);
-      blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
+      self.evaluator.parent.removeButtonClick();
+      if ((Date.now() - lastTime) > waitTime) {
+        lastTime = Date.now();
 
-      blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
-      anchor.setAttribute("href", window.URL.createObjectURL(blob));
-      anchor.setAttribute("download", filename);
-      // anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(blobContent))
+        document.body.appendChild(anchor);
+        blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
 
-      if (blobContent != descartesJS.newBlobContent) {
-        anchor.click();
-        descartesJS.newBlobContent = blobContent;
+        blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
+        anchor.setAttribute("href", window.URL.createObjectURL(blob));
+        anchor.setAttribute("download", filename);
+        // anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(blobContent))
+
+        if (blobContent != descartesJS.newBlobContent) {
+          anchor.click();
+          descartesJS.newBlobContent = blobContent;
+        }
+
+        document.body.removeChild(anchor);
       }
-
-      document.body.removeChild(anchor);
-
       return 0;
     };
     // window.addEventListener("visibilitychange", function(evt) { descartesJS.newBlobContent = null; });
@@ -20983,7 +20982,7 @@ var descartesJS = (function(descartesJS) {
     var input = document.createElement("input");
     input.setAttribute("type", "file");
 
-    onHandleFileSelect = function(evt) {
+    input.addEventListener("change", function(evt) {
       files = evt.target.files;
 
       reader = new FileReader();
@@ -21004,19 +21003,21 @@ var descartesJS = (function(descartesJS) {
         input.value = "";
       }
 
-      if (files.length >0) {
+      if (files.length > 0) {
         reader.readAsText(files[0]);
       }
-    }
-    input.addEventListener("change", onHandleFileSelect);
+    });
 
     /**
      *
      */
     self.functions["_Open_"] = function(callback) {
-      self._callback = callback;
-      input.click();
-
+      self.evaluator.parent.removeButtonClick();
+      if ((Date.now() - lastTime) > waitTime) {
+        self._callback = callback;
+        input.click();
+        lastTime = Date.now();
+      }
       return 0;
     }
 
@@ -25935,7 +25936,8 @@ var descartesJS = (function(descartesJS) {
     // ### ARQUIMEDES ###
     // the default arquimedes add a border to the container
     if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
-      self.container.style.border = "1px solid #b8c4c8";
+      // self.container.style.border = "1px solid #b8c4c8";
+      self.container.style.boxShadow = "0 0 5px 0 #b8c4c8";
     }
     // ### ARQUIMEDES ###
 
@@ -26242,15 +26244,21 @@ var descartesJS = (function(descartesJS) {
 
     // set the height of a Arquimedes scene
     if (self.id === "descartesJS_stage") {
-      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.metrics.h !== self.stage_height)) {
-        self.stage_height = self.backGraphics[0].text.metrics.h;
-        self.h = self.stage_height + 75;
+      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
+        self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
 
+        var bottom = 0;
         if (self.backGraphics.length > 1) {
-          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + self.stage_height + "]");
+          bottom = self.backGraphics[1].text.textNodes.metrics.h +25;
+        }
+        self.h = self.stage_height + bottom + 75;
+
+        // creative commons banner
+        if (self.backGraphics.length > 1) {
+          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + (self.stage_height+bottom) + "]");
         }
         if (self.backGraphics.length > 2) {
-          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+25) + "]");
+          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+bottom+25) + "]");
         }
 
         self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
@@ -29119,6 +29127,14 @@ var descartesJS = (function(descartesJS) {
   descartesJS.DescartesApp.prototype.clearClick = function() {
     for (var i=0, l=this.spaces.length; i<l; i++) {
       this.spaces[i].clearClick()
+    }
+  }
+
+  /** */
+  descartesJS.DescartesApp.prototype.removeButtonClick = function() {
+    descartesJS.newBlobContent = null;
+    for (var i=0, l=this.controls.length; i<l; i++) {
+      this.controls[i].buttonClick = false;
     }
   }
 

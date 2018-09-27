@@ -109,7 +109,8 @@ var descartesJS = (function(descartesJS) {
     // ### ARQUIMEDES ###
     // the default arquimedes add a border to the container
     if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
-      self.container.style.border = "1px solid #b8c4c8";
+      // self.container.style.border = "1px solid #b8c4c8";
+      self.container.style.boxShadow = "0 0 5px 0 #b8c4c8";
     }
     // ### ARQUIMEDES ###
 
@@ -416,15 +417,21 @@ var descartesJS = (function(descartesJS) {
 
     // set the height of a Arquimedes scene
     if (self.id === "descartesJS_stage") {
-      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.metrics.h !== self.stage_height)) {
-        self.stage_height = self.backGraphics[0].text.metrics.h;
-        self.h = self.stage_height + 75;
+      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
+        self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
 
+        var bottom = 0;
         if (self.backGraphics.length > 1) {
-          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + self.stage_height + "]");
+          bottom = self.backGraphics[1].text.textNodes.metrics.h +25;
+        }
+        self.h = self.stage_height + bottom + 75;
+
+        // creative commons banner
+        if (self.backGraphics.length > 1) {
+          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + (self.stage_height+bottom) + "]");
         }
         if (self.backGraphics.length > 2) {
-          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+25) + "]");
+          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+bottom+25) + "]");
         }
 
         self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;

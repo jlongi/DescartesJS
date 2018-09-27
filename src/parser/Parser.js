@@ -7,7 +7,8 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-ceil-round-min-max-_Trace_-_Print_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
-
+  var lastTime = Date.now();
+  var waitTime = 1500;
 
   /**
    * Descartes parser
@@ -1151,21 +1152,25 @@ var descartesJS = (function(descartesJS) {
      *
      */
     self.functions["_Save_"] = function(filename, data) {
-      document.body.appendChild(anchor);
-      blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
+      self.evaluator.parent.removeButtonClick();
+      if ((Date.now() - lastTime) > waitTime) {
+        lastTime = Date.now();
 
-      blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
-      anchor.setAttribute("href", window.URL.createObjectURL(blob));
-      anchor.setAttribute("download", filename);
-      // anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(blobContent))
+        document.body.appendChild(anchor);
+        blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
 
-      if (blobContent != descartesJS.newBlobContent) {
-        anchor.click();
-        descartesJS.newBlobContent = blobContent;
+        blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
+        anchor.setAttribute("href", window.URL.createObjectURL(blob));
+        anchor.setAttribute("download", filename);
+        // anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(blobContent))
+
+        if (blobContent != descartesJS.newBlobContent) {
+          anchor.click();
+          descartesJS.newBlobContent = blobContent;
+        }
+
+        document.body.removeChild(anchor);
       }
-
-      document.body.removeChild(anchor);
-
       return 0;
     };
     // window.addEventListener("visibilitychange", function(evt) { descartesJS.newBlobContent = null; });
@@ -1177,7 +1182,7 @@ var descartesJS = (function(descartesJS) {
     var input = document.createElement("input");
     input.setAttribute("type", "file");
 
-    onHandleFileSelect = function(evt) {
+    input.addEventListener("change", function(evt) {
       files = evt.target.files;
 
       reader = new FileReader();
@@ -1198,19 +1203,21 @@ var descartesJS = (function(descartesJS) {
         input.value = "";
       }
 
-      if (files.length >0) {
+      if (files.length > 0) {
         reader.readAsText(files[0]);
       }
-    }
-    input.addEventListener("change", onHandleFileSelect);
+    });
 
     /**
      *
      */
     self.functions["_Open_"] = function(callback) {
-      self._callback = callback;
-      input.click();
-
+      self.evaluator.parent.removeButtonClick();
+      if ((Date.now() - lastTime) > waitTime) {
+        self._callback = callback;
+        input.click();
+        lastTime = Date.now();
+      }
       return 0;
     }
 

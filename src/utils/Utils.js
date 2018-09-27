@@ -11,10 +11,6 @@ var descartesJS = (function(descartesJS) {
   var dosPiEntreTrecientosSesenta = PI2/360;
   var MathFloor = Math.floor;
 
-  var fontTokens;
-  var fontCanvas;
-  var fontName;
-
   var colorExpr;
   var red;
   var green;
@@ -371,52 +367,52 @@ var descartesJS = (function(descartesJS) {
   }
 
   var htmlAbout =
-  "<html>" +
-  "<head>" +
-  "<style>" +
-  "body{text-align:center;}" +
-  "iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}" +
-  "dt{font-weight:bold;margin-top:10px;}" +
-  "</style>" +
-  "</head>" +
-  "<body>" +
-  "<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>" +
-  "<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>" +
-  "<dl>" +
-  "<dt>Dise&ntilde;o funcional:</dt>" +
-  "<dd>" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
-  "<nobr>Jos&eacute; R. Galo Sanchez,</nobr>" +
-  "<nobr>Juan Madrigal Muga</nobr>" +
-  "</dd>" +
-  "<dt>Autores del software:</dt>" +
-  "<dd>" +
-  "<nobr>Jos&eacute; Luis Abreu Leon,</nobr>" +
-  "<nobr>Marta Oliver&oacute; Serrat,</nobr>" +
-  "<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>" +
-  "<nobr>Joel Espinosa Longi</nobr>" +
-  "</dd>" +
-  "</dl>" +
-  "<p>" +
-  "El software en Java est&aacute; bajo la licencia" +
-  "<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>" +
-  "<br>" +
-  "El software en JavaScript est&aacute; bajo licencia" +
-  "<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>" +
-  "</p>" +
-  "<p>" +
-  "La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :" +
-  "<br>" +
-  "<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>" +
-  "</p>";
+`<html>
+<head>
+<style>
+body{text-align:center;}
+iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}
+dt{font-weight:bold;margin-top:10px;}
+</style>
+</head>
+<body>
+<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
+<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
+<dl>
+<dt>Dise&ntilde;o funcional:</dt>
+<dd>
+<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
+<nobr>Jos&eacute; R. Galo Sanchez,</nobr>
+<nobr>Juan Madrigal Muga</nobr>
+</dd>
+<dt>Autores del software:</dt>
+<dd>
+<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
+<nobr>Marta Oliver&oacute; Serrat,</nobr>
+<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>
+<nobr>Joel Espinosa Longi</nobr>
+</dd></dl>
+<p>
+El software en Java est&aacute; bajo la licencia
+<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>
+<br>
+El software en JavaScript est&aacute; bajo licencia
+<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>
+</p>
+<p>
+La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :
+<br>
+<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>
+</p>`;
 
-  var htmlCreative = "<p>" +
-  "Este objeto, creado con Descartes, est&aacute; licenciado" +
-  "por sus autores como" +
-  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>" +
-  "<br>" +
-  "<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>" +
-  "</p>";
+  var htmlCreative = 
+`<p>
+Este objeto, creado con Descartes, est&aacute; licenciado
+por sus autores como
+<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>
+<br>
+<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>
+</p>`;
 
   var htmlFinal = "</body> </html>";
 

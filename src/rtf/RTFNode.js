@@ -488,6 +488,7 @@ var descartesJS = (function(descartesJS) {
     y = oldY;
     ////////////////////////////////////////////////////
     // anchor
+    anchor = anchor || "";
     // horizontal left
     if (anchor.match("right")) {
       x -= this.metrics.w;

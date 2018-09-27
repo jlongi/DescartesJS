@@ -21,6 +21,7 @@ out.write(
 "/**
  * @preserve Joel Espinosa Longi
  * jlongi@im.unam.mx
+ * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
  * " + Date.today.to_s() + "
  */\n\n")
@@ -32,4 +33,4 @@ end
 out.close
 
 # call the closure compiler
-exec("java -jar ../compiler-latest/compiler.jar --js=descartes_editor.js --js_output_file=descartes_editor-min.js", )
+exec("java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT6 --js=descartes_editor.js --js_output_file=descartes_editor-min.js", )

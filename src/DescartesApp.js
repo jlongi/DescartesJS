@@ -964,6 +964,14 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  /** */
+  descartesJS.DescartesApp.prototype.removeButtonClick = function() {
+    descartesJS.newBlobContent = null;
+    for (var i=0, l=this.controls.length; i<l; i++) {
+      this.controls[i].buttonClick = false;
+    }
+  }
+
   /**
    * Deactivate the graphic controls
    */
