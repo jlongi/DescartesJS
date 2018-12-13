@@ -276,9 +276,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    if (descartesJS.Editor) {
-      this.editor = new descartesJS.Editor(this);
-    }
+    if (descartesJS.Editor) { this.editor = new descartesJS.Editor(this); }
 
     /**
      * array to store the lesson controls
@@ -499,7 +497,9 @@ var descartesJS = (function(descartesJS) {
     // the scenario region is only visible in arquimedes lessons
     this.stage = {container: document.createElement("div"), scroll: 0};
     this.stage.container.setAttribute("id", "descartesJS_Stage");
-    this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='blanco' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
+
+    // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
+    this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
     this.stage.container.appendChild(this.stage.stageSpace.container);
 
     // ##ARQUIMEDES## //
@@ -630,6 +630,8 @@ var descartesJS = (function(descartesJS) {
     }
     // send the event
     window.dispatchEvent(evt);
+
+    this.readyApp = true;
   }
 
   /**

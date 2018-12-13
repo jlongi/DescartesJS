@@ -7,10 +7,12 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var mathRound = Math.round;
+  var mathMin = Math.min;
+  var mathMax = Math.max;
+  var mathAbs = Math.abs;
 
   var evaluator;
   var space;
-  var points;
   var radianAngle;
   var cosTheta;
   var senTheta;
@@ -91,6 +93,9 @@ var descartesJS = (function(descartesJS) {
       this.w = expr[1][0];
       this.h = expr[1][1];
     }
+
+    this.w = mathMax(0, this.w);
+    this.h = mathMax(0, this.h);
   }
 
   /**
@@ -129,11 +134,11 @@ var descartesJS = (function(descartesJS) {
 
     lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
-    x = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-    y = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+    x = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) ) +lineDesp;
+    y = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) ) +lineDesp;
     w = (this.abs_coord) ? this.w : this.w*space.scale;
     h = (this.abs_coord) ? this.h : -this.h*space.scale;
-    r = evaluator.eval(this.border_radius);
+    r = mathMin( mathMax(0, evaluator.eval(this.border_radius)), mathAbs(w)*0.5, mathAbs(h)*0.5 );
     sign = (this.abs_coord) ? 1 : -1;
 
     ctx.beginPath();
@@ -150,10 +155,10 @@ var descartesJS = (function(descartesJS) {
       ctx.closePath();
     }
     else {
-      ctx.moveTo(x+lineDesp, y+lineDesp);
-      ctx.lineTo(x+lineDesp + w, y+lineDesp);
-      ctx.lineTo(x+lineDesp + w, y+lineDesp + h);
-      ctx.lineTo(x+lineDesp, y+lineDesp + h);
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x, y + h);
     }
     ctx.closePath();
     

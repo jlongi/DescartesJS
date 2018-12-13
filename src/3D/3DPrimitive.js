@@ -653,7 +653,7 @@ var descartesJS = (function(descartesJS) {
             }
           }
           catch(e) {
-            console.log("Error: inFrontOf");
+            // console.log("Error: inFrontOf");
             // return false;
           }
         }

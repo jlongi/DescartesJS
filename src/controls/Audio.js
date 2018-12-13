@@ -42,7 +42,14 @@ var descartesJS = (function(descartesJS) {
     }
 
     self.audio = self.parent.getAudio(self.file);
+    self.oldFile = self.file;
 
+
+    if (self.file.charAt(self.file.length-1) === "]") {
+      self.file = self.evaluator.parser.parse(self.file.substring(1, self.file.length-1));
+    }
+
+    
     if (self.autoplay) {
       self.audio.setAttribute("autoplay", "autoplay");
       self.audio.play();
@@ -119,6 +126,15 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Audio.prototype.update = function() {
     evaluator = this.evaluator;
+
+    // the file name is variable
+    if (typeof(this.file) !== "string") {
+      this.tmpFile = evaluator.eval(this.file);
+      if (this.oldFile !== this.tmpFile) {
+        this.audio.src = this.tmpFile;
+        this.oldFile = this.tmpFile;
+      }
+    }
 
     drawif = evaluator.eval(this.drawif) > 0;
 

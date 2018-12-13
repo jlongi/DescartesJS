@@ -33,7 +33,7 @@ var descartesJS = (function(descartesJS) {
     this.align = "left";
     this.border = null;
     
-    this.familyIndex = null;
+    // this.familyIndex = null;
 
     // if the style is null or undefined then pass an empty object
     style = style || {};
@@ -85,20 +85,15 @@ var descartesJS = (function(descartesJS) {
    * @return {String} return the string representation of the style
    */
   descartesJS.TextStyle.prototype.toString = function() {
-    if (this.familyIndex === null) {
-      if ((/arial/i).test(this.family) || (/sansserif/i).test(this.family)) {
-        this.familyIndex = 0;
-      }
-      else if ((/times/i).test(this.family) || (/serif/i).test(this.family)) {
-        this.familyIndex = 1;
-      }
-      else if ((/courier/i).test(this.family) || (/monospaced/i).test(this.family)) {
-        this.familyIndex = 2;
-      }
+    if ((/arial|sansserif/i).test(this.family)) {
+      family = familyArray[0];
     }
-
-    family = familyArray[this.familyIndex];
-// console.log(family, this.familyIndex === null)
+    else if ((/times|serif/i).test(this.family)) {
+      family = familyArray[1];
+    }
+    else if ((/courier|monospaced/i).test(this.family)) {
+      family = familyArray[2];
+    }
 
     return ((this.bold ? 'bold' : '') + " " + (this.italic ? 'italic' : '') + " " + this.size + "px " + family).trim();
   }

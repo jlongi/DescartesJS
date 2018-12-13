@@ -34,9 +34,10 @@ var descartesJS = (function(descartesJS) {
       var newColor;
       var tmpNode;
       var mathMode = false;
-
+// console.log(tokens);
       for (var i=0, l=tokens.length; i<l; i++) {
-// console.log(tokens[i], tokens[i].type, lastCommand)
+// console.log(tokens[i], "lastCommand:"+lastCommand, "tokens.type:"+tokens[i].type, "mathMode:"+mathMode);
+// console.log(commandStack);
         if (tokens[i].type === "text") {
           if (lastNode.nodeType === "textLineBlock") {
             if (lastCommand === "color_parameter") {
@@ -113,6 +114,27 @@ var descartesJS = (function(descartesJS) {
           commandStack.push(lastCommand);
           mathMode = true;
         }
+
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "sum") ) {
+          lastCommand = "sum";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "int") ) {
+          lastCommand = "integral";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "lim") ) {
+          lastCommand = "limit";
+          commandStack.push(lastCommand);
+        }
+
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "sqrt") ) {
+          lastCommand = "radical";
+          commandStack.push(lastCommand);
+        }
+        
+
+        
         else if ( (tokens[i].type === "command") && (tokens[i].value === "subindex") ) {
           lastCommand = "subIndex";
           commandStack.push(lastCommand);
@@ -186,6 +208,79 @@ var descartesJS = (function(descartesJS) {
               lastNode.addChild( new descartesJS.TextNode(((lastCommand === "subIndex") ? "_" : "^" ), "text", lastStyle.clone(), null) );
             }
           }
+
+          else if (lastCommand === "radical") {
+            if (mathMode) {
+              tmpNode = new descartesJS.TextNode("", "radical", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              newStyle = lastStyle.clone();
+              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              styleStack.push( newStyle );
+              lastStyle = newStyle;
+
+              tmpNode = new descartesJS.TextNode("", "index", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              lastCommand = "index";
+            }
+          }
+          else if (lastCommand === "index") {
+            if (mathMode) {
+              styleStack.pop();
+              lastStyle = styleStack[styleStack.length -1];
+
+              tmpNode = new descartesJS.TextNode("", "radicand", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              lastCommand = "radicand";
+            }
+          }
+
+
+          else if ((lastCommand === "sum") || (lastCommand === "integral") || (lastCommand === "limit")) {
+            if (mathMode) {
+              tmpNode = new descartesJS.TextNode("", lastCommand, lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              newStyle = lastStyle.clone();
+              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              styleStack.push( newStyle );
+              lastStyle = newStyle;
+
+              tmpNode = new descartesJS.TextNode("", "from", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              lastCommand = "from";
+            }
+          }
+          else if (lastCommand === "from") {
+            if (mathMode) {
+              tmpNode = new descartesJS.TextNode("", "to", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              lastCommand = "to";
+            }
+          }
+          else if (lastCommand === "to") {
+            if (mathMode) {
+              styleStack.pop();
+              lastStyle = styleStack[styleStack.length -1];
+
+              tmpNode = new descartesJS.TextNode("", "what", lastStyle.clone(), null);
+              lastNode.addChild(tmpNode);
+              lastNode = tmpNode;
+
+              lastCommand = "what";
+            }
+          }
+
           else if (lastCommand === "numerator") {
             if (mathMode) {
               tmpNode = new descartesJS.TextNode("", "fraction", lastStyle.clone(), null);
@@ -211,7 +306,7 @@ var descartesJS = (function(descartesJS) {
           }
         }
 
-        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand !== null) ) {
           if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "color_text") || (lastCommand === "color") ) {
             styleStack.pop();
@@ -251,7 +346,7 @@ var descartesJS = (function(descartesJS) {
             lastNode = lastNode.parent;
           }
 
-          if ( (lastNode.nodeType === "subIndex") || (lastNode.nodeType === "superIndex") ) {
+          else if ( (lastNode.nodeType === "subIndex") || (lastNode.nodeType === "superIndex") ) {
             if (mathMode) {
               styleStack.pop();
               lastStyle = styleStack[styleStack.length -1];
@@ -261,11 +356,32 @@ var descartesJS = (function(descartesJS) {
             }
           }
 
-          if (lastNode.nodeType === "numerator") {
+          else if (lastNode.nodeType === "index") {
+            lastNode = lastNode.parent;
+          }
+          else if (lastNode.nodeType === "radicand") {
+            commandStack.pop();
+            lastCommand = commandStack[commandStack.length -1];
+            lastNode = lastNode.parent.parent;
+          }
+
+          else if (lastNode.nodeType === "from") {
+            lastNode = lastNode.parent;
+          }
+          else if (lastNode.nodeType === "to") {
+            lastNode = lastNode.parent;
+          }
+          else if (lastNode.nodeType === "what") {
+            commandStack.pop();
+            lastCommand = commandStack[commandStack.length -1];
+            lastNode = lastNode.parent.parent;
+          }
+
+          else if (lastNode.nodeType === "numerator") {
             lastCommand = "denominator";
             lastNode = lastNode.parent;
           }
-          if (lastNode.nodeType === "denominator") {
+          else if (lastNode.nodeType === "denominator") {
             styleStack.pop();
             lastStyle = styleStack[styleStack.length -1];
             commandStack.pop();

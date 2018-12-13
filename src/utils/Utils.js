@@ -143,6 +143,7 @@ var descartesJS = (function(descartesJS) {
       //                         descartesJS.ctx.backingStorePixelRatio || 1;
       // descartesJS._ratio = (window.devicePixelRatio || 1) / backingStoreRatio;
       descartesJS._ratio = 1.5;
+      // descartesJS._ratio = 1;
     }
 
     setNewToFixed();

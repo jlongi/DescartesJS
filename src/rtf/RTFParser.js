@@ -288,7 +288,7 @@ var descartesJS = (function(descartesJS) {
           formulaStack[formulaStack.length-1] = newNode;
         }
 
-        // root index, limits of sum and integral
+        // limits of sum and integral
         else if (
           (tokens[i].value == "to") ||
           (tokens[i].value == "from") 

@@ -288,13 +288,14 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    self.init();
+    // self.init();
+    self.initSpace();
   }
 
   /**
    * Init the values of the space
    */
-  descartesJS.Space.prototype.init = function() {
+  descartesJS.Space.prototype.initSpace = function() {
     var self = this;
 
     parent = self.parent;

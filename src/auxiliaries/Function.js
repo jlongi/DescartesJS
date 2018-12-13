@@ -46,7 +46,7 @@ var descartesJS = (function(descartesJS) {
     var self = this;
 
     this.functionExec = function() {
-      this.iterations = 0;
+      self.iterations = 0;
 
       if (self.numberOfParams <= arguments.length) {
 
@@ -75,7 +75,7 @@ var descartesJS = (function(descartesJS) {
             evaluator.eval(self.doExpr[i]);
           }
 
-          if (++this.iterations > 100000) {
+          if (++self.iterations > 100000) {
             console.log("se ha excedido el límite de 100000 repeticiones en la función << " + self.name + " >>");
             return 0;
           }

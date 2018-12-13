@@ -78,8 +78,8 @@ var descartesJS = (function(descartesJS) {
 
     evaluator.setVariable("u", 0);
     evaluator.setVariable("v", 0);
-    Nu = evaluator.eval(this.Nu);
-    Nv = evaluator.eval(this.Nv);
+    Nu = parseInt(evaluator.eval(this.Nu));
+    Nv = parseInt(evaluator.eval(this.Nv));
 
     // array to store the computed vertices 
     vertices = [];
@@ -118,7 +118,7 @@ var descartesJS = (function(descartesJS) {
                                                              edges: tmpEdgeColor,
                                                              model: this.model
                                                            },
-                              this.space ));
+                                                          this.space ));
 
       }
     }

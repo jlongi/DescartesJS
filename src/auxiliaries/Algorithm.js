@@ -19,25 +19,27 @@ var descartesJS = (function(descartesJS) {
     var evaluator = this.evaluator;
     this.parseExpressions(evaluator.parser);
     
+    var self = this;
+
     // create the function to exec when the algorithm evaluates
     this.algorithmExec = function() {
-      this.iterations = 0;
+      self.iterations = 0;
 
-      for (var i=0, l=this.init.length; i<l; i++) {
-        evaluator.eval(this.init[i]);
+      for (var i=0, l=self.init.length; i<l; i++) {
+        evaluator.eval(self.init[i]);
       }
       
       do {
-        for (var i=0, l=this.doExpr.length; i<l; i++) {
-          evaluator.eval(this.doExpr[i]);
+        for (var i=0, l=self.doExpr.length; i<l; i++) {
+          evaluator.eval(self.doExpr[i]);
         }
 
-        if (++this.iterations > 100000) {
+        if (++self.iterations > 100000) {
           console.log("se ha excedido el límite de 100000 repeticiones en el algoritmo << " + self.name + " >>");
           return 0;
         }
       }
-      while (evaluator.eval(this.whileExpr) > 0);
+      while (evaluator.eval(self.whileExpr) > 0);
     }
   }
   

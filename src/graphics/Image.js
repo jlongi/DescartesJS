@@ -109,9 +109,13 @@ var descartesJS = (function(descartesJS) {
       this.scaleY = 0.00001;
     }
 
+    var self = this;
     imgFile = evaluator.eval(this.file);
     if ((imgFile) || (imgFile == "")) {
       this.img = this.parent.getImage(imgFile);
+      this.img.addEventListener("load", function(evt) {
+        self.space.update(true);
+      });
     }
   }
 

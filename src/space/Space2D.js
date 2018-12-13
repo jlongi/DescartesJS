@@ -163,7 +163,6 @@ var descartesJS = (function(descartesJS) {
       self.stage_height = 0;
       self.canvas.oncontextmenu = function (evt) { return false; };
     }
-
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +177,8 @@ var descartesJS = (function(descartesJS) {
     self = this;
 
     // call the init of the parent
-    self.uber.init.call(self);
+    // self.uber.init.call(self);
+    this.initSpace();
 
     // update the size of the canvas if has some regions
     if (self.canvas) {
@@ -188,6 +188,31 @@ var descartesJS = (function(descartesJS) {
       self.canvas.height = self.backCanvas.height = self.h *self.ratio;
       self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
       self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+    }
+
+    if (self.id === "descartesJS_stage") {
+      self.setArquimedesHeight();
+
+      if ((descartesJS.TextController) && (!self.textController)) {
+        var textNodes = null;
+        if ((self.backGraphics[0]) && (self.backGraphics[0].text) && (self.backGraphics[0].text.textNodes)) {
+          textNodes = self.backGraphics[0].text.textNodes;
+        }
+
+        if (textNodes) {
+          var defaultStyle = { fontFamily:"Times New Roman", fontSize:"30px",fontStyle:"normal", fontWeight:"normal", textDecoration:"none", decimals:2, fixed:false };
+
+          self.textController = new descartesJS.TextController(
+            this,
+            self.container,
+            self.backCanvas,
+            textNodes,
+            defaultStyle,
+            "000000"
+          );
+        }
+      }
+
     }
   }
 
@@ -411,41 +436,44 @@ var descartesJS = (function(descartesJS) {
     }
 
     // draw the background graphics
-    for (var i=0, l=self.backGraphics.length; i<l; i++) {
-      self.backGraphics[i].draw();
+    for (var i=0, l=this.backGraphics.length; i<l; i++) {
+      this.backGraphics[i].draw();
     }
-
-    // set the height of a Arquimedes scene
-    if (self.id === "descartesJS_stage") {
-      if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
-        self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
-
-        var bottom = 0;
-        if (self.backGraphics.length > 1) {
-          bottom = self.backGraphics[1].text.textNodes.metrics.h +25;
-        }
-        self.h = self.stage_height + bottom + 75;
-
-        // creative commons banner
-        if (self.backGraphics.length > 1) {
-          self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + (self.stage_height+bottom) + "]");
-        }
-        if (self.backGraphics.length > 2) {
-          self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+bottom+25) + "]");
-        }
-
-        self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
-        self.canvas.height = self.backCanvas.height = self.h *self.ratio;
-        self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
-        self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
-
-        self.parent.container.style.height = (self.h + self.plecaHeight) + "px";
-
-        self.update(true);
-      }
-    }
-
   }
+
+  descartesJS.Space2D.prototype.setArquimedesHeight = function() {
+    var self = this;
+
+    self.update(true);
+
+    if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
+      self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
+
+      var bottom = 0;
+      if (self.backGraphics.length > 1) {
+        bottom = self.backGraphics[1].text.textNodes.metrics.h +25;
+      }
+      self.h = self.stage_height + bottom + 75;
+
+      // creative commons banner
+      if (self.backGraphics.length > 1) {
+        self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + (self.stage_height+bottom) + "]");
+      }
+      if (self.backGraphics.length > 2) {
+        self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+bottom+25) + "]");
+      }
+
+      self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+      self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+      self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+      self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+
+      self.parent.container.style.height = (self.h + self.plecaHeight) + "px";
+
+      self.update(true);
+    }
+  }
+
 
   /**
    * Draw the space
