@@ -7,10 +7,12 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var regExpType = new String("-point-segment-polygon-curve-triangle-face-polireg-surface-text-cube-box-tetrahedron-octahedron-sphere-dodecahedron-icosahedron-ellipsoid-cone-cylinder-torus-mesh-macro-");
-
+  var regExpSurface = new String("-x-y-z-u-v-w-");
+  
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;
+  var macros_count = 0;
 
   /**
    * A Descartes macro
@@ -55,6 +57,11 @@ var descartesJS = (function(descartesJS, babel) {
      * @private
      */
     this.endpos = parent.evaluator.parser.parse("(0,0,0)");
+
+    /**
+     * 
+     */
+    this.name = "_descartes_empty_name_" + (macros_count++)
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -122,11 +129,10 @@ var descartesJS = (function(descartesJS, babel) {
       // the macro is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
-
-        // verify the content is a Descartes macro
-        if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
-          response = null;
-        }
+        // // verify the content is a Descartes macro
+        // if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
+        //   response = null;
+        // }
       }
     }
 
@@ -163,12 +169,14 @@ var descartesJS = (function(descartesJS, babel) {
       var tmpTokens;
       var tmpTokensRespText;
       var isID;
+      var isSurface;
 
       // add the macro name as a prefix, only in some expressions
       for (var i=0, l=response.length; i<l; i++) {
         respText = response[i] || [];
 
         isID = ((respText) && (respText[0]) && (respText[0][0] === "id"));
+        isSurface = false;
 
         for (var j=0, k=respText.length; j<k; j++) {
           // if the parameters have a dot
@@ -181,16 +189,21 @@ var descartesJS = (function(descartesJS, babel) {
             babelResp = babel[respText[j][0]];
           }
 
+          if ( (babelResp === "type") && (babel[respText[j][1]] === "surface") ) {
+            isSurface = true;
+          }
+
           // if the expressions are different from this, then the cycle continues and is not replaced nothing        
           if ( (babelResp === "font") ||
                (babelResp === "font_family") ||
                (((babelResp === "fill") || (babelResp === "color") || (babelResp === "backcolor") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
-               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) 
+               ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) ||
+               (isSurface && babelResp === "expresion")
              ) {
-              if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
+               if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
                 continue;
-              }
+               }
           }
 
           // is a text
@@ -225,7 +238,8 @@ var descartesJS = (function(descartesJS, babel) {
             }
             // simple text
             else {
-              tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacro3Ds;
+              // tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacro3Ds;
+              tmpTokensRespText = lessonParser.parseText(respText[j][1]).textElementsMacros;
 
               for (var ttrt=0, lttrt=tmpTokensRespText.length; ttrt<lttrt; ttrt++) {
                 tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
@@ -274,21 +288,15 @@ var descartesJS = (function(descartesJS, babel) {
           isGraphic = false;
 
           for (var j=0, k=response[i].length; j<k; j++) {
-
             // if the object has a type and is of the graphic3D type, then is a graphic object
             if ( (babel[response[i][j][0]] === "type") && (regExpType.match("-" + babel[response[i][j][1]] + "-")) ) {
               isGraphic = true;
             }
 
-            // set the space id to the space id of the macro
-            if (babel[response[i][j][0]] === "space") {
-              response[i][j][1] = this.spaceID;
-            }
-
             tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
           }
 
-          response[i] = tempResp;
+          response[i] = tempResp + ((isGraphic) ? " space='" + this.spaceID + "'" : "");
 
           // build and add the graphic elements to the space
           if (isGraphic) {

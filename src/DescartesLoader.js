@@ -79,7 +79,6 @@ var descartesJS = (function(descartesJS) {
     var imageFilename;
     var imageTmp;
     var audioFilename;
-    var vec;
     var i, j, l, il, al;
     // check all children in the applet
     for (i=0, l=children.length; i<l; i++) {
@@ -274,7 +273,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx) {
     ctx.beginPath();
-      ctx.strokeStyle = "#f2f2f2";
+    ctx.strokeStyle = "#f2f2f2";
     ctx.moveTo(-barWidth, 0);
     ctx.lineTo( barWidth, 0);
     ctx.stroke();

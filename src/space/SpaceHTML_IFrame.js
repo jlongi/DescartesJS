@@ -121,6 +121,31 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setFunction(self.id + ".exec", iframeExec);
 
       //
+      function iframeChangeConfig(filename) {
+        if (filename) {
+          let content;
+
+          if (descartesJS.cacheFiles[filename]) {
+            content = descartesJS.cacheFiles[filename];
+          }
+          else {
+            let embedElement = document.getElementById(filename);
+            if ((embedElement) && (embedElement.type === "descartes/embed")) {
+              content = embedElement.textContent;
+            }
+            else {
+              content = descartesJS.openExternalFile(filename);
+            }
+            descartesJS.cacheFiles[filename] = content = (new DOMParser()).parseFromString(content, "text/html").querySelector("ajs").innerHTML;;
+          }
+
+          iframe.contentWindow.postMessage({ type: "change_config", filename:filename, content: content }, "*");
+        }
+        return 0;
+      }
+      self.evaluator.setFunction(self.id + ".changeConf", iframeChangeConfig);
+
+      //
       self.ImReady = !self.isFirefox;
       if (!self.isFirefox) {
         self.container.style.visibility = "visible";

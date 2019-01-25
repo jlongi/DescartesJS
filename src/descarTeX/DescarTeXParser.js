@@ -196,7 +196,7 @@ var descartesJS = (function(descartesJS) {
           else if ( (lastCommand === "subIndex") || (lastCommand === "superIndex") ) {
             if (mathMode) {
               newStyle = lastStyle.clone();
-              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              // newStyle.size = Math.max( Math.floor(newStyle.size*0.33), 8 );
               styleStack.push( newStyle );
               lastStyle = newStyle;
 
@@ -216,7 +216,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               newStyle = lastStyle.clone();
-              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              // newStyle.size = Math.max( Math.floor(newStyle.size*0.5), 8 );
               styleStack.push( newStyle );
               lastStyle = newStyle;
 
@@ -248,7 +248,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               newStyle = lastStyle.clone();
-              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              // newStyle.size = Math.max( Math.floor(newStyle.size*0.2), 8 );
               styleStack.push( newStyle );
               lastStyle = newStyle;
 
@@ -288,7 +288,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               newStyle = lastStyle.clone();
-              newStyle.size = Math.max( Math.floor(newStyle.size*0.666), 8 );
+              // newStyle.size = Math.max( Math.floor(newStyle.size*0.1), 8 );
               styleStack.push( newStyle );
               lastStyle = newStyle;
 
@@ -437,6 +437,7 @@ var descartesJS = (function(descartesJS) {
       });
 // console.log(textNodes, textNodes.normalize())
 
+      textNodes.adjustFontSize();
       return textNodes.normalize();
     }
   

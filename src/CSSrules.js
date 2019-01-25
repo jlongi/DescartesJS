@@ -71,30 +71,30 @@ var descartesJS = (function(descartesJS) {
     document.head.insertBefore(cssNode, document.head.firstChild);
 
     cssNode.innerHTML =
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff');font-style:normal;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBFont()  +"') format('woff');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBIFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoIFont()  +"') format('woff');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBFont()  +"') format('woff');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBIFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineIFont()  +"') format('woff');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBFont()  +"') format('woff');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBIFont() +"') format('woff');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff');font-style:normal;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
                         
                         "canvas{transform:translate3d(0,0,0);}\n" +
                         // "select{transform:scale(1);}\n" +

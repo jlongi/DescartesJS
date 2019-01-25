@@ -1255,6 +1255,8 @@ var descartesJS = (function(descartesJS, babel) {
       switch(babelValue) {
         // information
         case("info"):
+        // code
+        case("code"):
           auxiliarObj[babelValue] = values_i_1;
           break;
 
@@ -1306,6 +1308,14 @@ var descartesJS = (function(descartesJS, babel) {
         case("rows"):
         // number of columns in a matrix
         case("columns"):
+        // x
+        case("x"):
+        // y
+        case("y"):
+        // width
+        case("width"):
+        // height
+        case("height"):
           auxiliarObj[babelValue] = this.parser.parse(values_i_1);
           break;
 
@@ -1322,17 +1332,6 @@ var descartesJS = (function(descartesJS, babel) {
         // type
         case("type"):
           auxiliarObj[babelValue] = babel[values_i_1];
-          break;
-
-        // x
-        case("x"):
-        // y
-        case("y"):
-        // width
-        case("width"):
-        // height
-        case("height"):
-          auxiliarObj[babelValue] = this.parser.parse(values_i_1);
           break;
         //////////////////////////////
 
@@ -1378,6 +1377,9 @@ var descartesJS = (function(descartesJS, babel) {
     else if (auxiliarObj.type === "library") {
       auxiliarObj.type = "library";
     }
+    else if (auxiliarObj.type === "jsfun") {
+      auxiliarObj.type = "jsfun";
+    }
     else {
       if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
         auxiliarObj.type = "function";
@@ -1387,8 +1389,6 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
     descartesJS.DEBUG.typeName = auxiliarObj.type;
-
-
 
     switch(auxiliarObj.type) {
       case("sequence"):
@@ -1443,6 +1443,10 @@ var descartesJS = (function(descartesJS, babel) {
 
       case("variable"):
         new descartesJS.Variable(this.parent, auxiliarObj);
+        break;
+
+      case("jsfun"):
+        new descartesJS.JsFunction(this.parent, auxiliarObj);
         break;
 
       default:

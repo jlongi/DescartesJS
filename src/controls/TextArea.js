@@ -114,6 +114,10 @@ var descartesJS = (function(descartesJS) {
       return 0;
     });
 
+    this.evaluator.setFunction(this.id + ".update", function() {
+      self.update();
+    })
+
     // register the mouse and touch events
     this.addEvents();
 

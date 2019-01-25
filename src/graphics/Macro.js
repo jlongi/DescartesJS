@@ -84,10 +84,10 @@ var descartesJS = (function(descartesJS, babel) {
       else {
         response = descartesJS.openExternalFile(filename);
 
-        // verify the content is a Descartes macro
-        if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
-          response = null;
-        }
+        // // verify the content is a Descartes macro
+        // if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
+        //   response = null;
+        // }
       }
     }
 
@@ -233,21 +233,15 @@ var descartesJS = (function(descartesJS, babel) {
           isGraphic = false;
 
           for (var j=0, k=response[i].length; j<k; j++) {
-
             // if the object has a type and is of the graphic type, then is a graphic object
             if ( (babel[response[i][j][0]] === "type") && (regExpType.match("-" + babel[response[i][j][1]] + "-")) ) {
               isGraphic = true;
             }
 
-            // set the space id to the space id of the macro
-            if (babel[response[i][j][0]] === "space") {
-              response[i][j][1] = this.spaceID;
-            }
-
             tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
           }
 
-          response[i] = tempResp;
+          response[i] = tempResp + ((isGraphic) ? " space='" + this.spaceID + "'" : "");
 
           // build and add the graphic elements to the space
           if (isGraphic) {

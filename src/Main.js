@@ -134,56 +134,13 @@ var descartesJS = (function(descartesJS) {
    */
   function onLoad(evt) {
     var fontDiv = document.createElement("div");
-    fontDiv.innerHTML = '<div style="font-size:12px;visibility:hidden;">\n'+
-                        '<div style="font-family:descartesJS_serif;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:descartesJS_sansserif;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:descartesJS_monospace;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:DJS_symbola;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:DJS_extra;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:DJS_sansserif;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:DJS_monospace;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                        '<div style="font-family:DJS_serif;">\n'+
-                            '<span>_</span>\n'+
-                            '<span style="font-weight:bold;">_</span>\n'+
-                            '<span style="font-style:italic;">_</span>\n'+
-                            '<span style="font-weight:bold;font-style:italic;">_</span>\n'+
-                        '</div>\n'+
-                    '</div>';
+    var str = '<div style="font-size:12px;visibility:hidden;">\n';
+    var font_names = ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbola", "DJS_extra", "DJS_sansserif", "DJS_serif", "DJS_monospace"];
+    for (let i=0,l=font_names.length; i<l; i++) {
+      str += '<div style="font-family:'+ font_names[i] +';">\n<span>_</span>\n<span style="font-weight:bold;">_</span>\n<span style="font-style:italic;">_</span>\n<span style="font-weight:bold;font-style:italic;">_</span>\n</div>\n';
+    }
+    fontDiv.innerHTML = str + '</div>';
+
     document.body.appendChild(fontDiv);
 
     // get the features for interpreting descartes applets
@@ -208,6 +165,7 @@ var descartesJS = (function(descartesJS) {
     document.body.removeChild(fontDiv);
   }
 
+  var applets_cache = {};
   /**
    * Function to handle the message between frames
    * @param {Event} evt the evt of receive a message
@@ -254,6 +212,22 @@ var descartesJS = (function(descartesJS) {
         if (descartesJS.apps.length > 0) {
           descartesJS.apps[0].adjustSize();
         }
+      }
+
+      else if (data.type === "change_config") {
+        let new_applets;
+
+        if (applets_cache[data.filename]) {
+          new_applets = applets_cache[data.filename];
+        }
+        else {
+          new_applets = document.createElement("div");
+          new_applets.innerHTML = data.content;
+          applets_cache[data.filename] = new_applets;
+        }
+
+        descartesJS.apps[0].children = new_applets.getElementsByTagName("param");
+        descartesJS.apps[0].init();
       }
     }
   }

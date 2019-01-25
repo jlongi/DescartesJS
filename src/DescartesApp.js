@@ -18,7 +18,7 @@ var descartesJS = (function(descartesJS) {
                  "}";
 
   /**
-   * Descartes application interprete with javascript
+   * Descartes application interpreted with JavaScript
    * @constructor
    * @param {<applet>} applet the applet to interpret
    */
@@ -943,7 +943,6 @@ var descartesJS = (function(descartesJS) {
     for (var i=0, l=this.spaces.length; i<l; i++) {
       this.spaces[i].init()
     }
-
   }
 
   /**

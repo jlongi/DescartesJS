@@ -404,6 +404,9 @@ var babel = (function(babel) {
   babel["expand"] = "expand";
   babel["cover"] = babel["cubrir"] = "expand";
   babel["fit"] = babel["escalar"] = "fit";
+  babel["code"] = "code";
+  babel["jsfun"] = "jsfun";
+  
 
   return babel;
 })(babel || {});
