@@ -73,6 +73,7 @@ var descartesJS = (function(descartesJS) {
       this.endPoints[i] = {x: points[i][0], y: points[i][1]};
     }
 
+    // MACRO //
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
@@ -86,6 +87,7 @@ var descartesJS = (function(descartesJS) {
         this.endPoints[i].y = tmpRotY;
       }
     }
+    // MACRO //
   }
 
   /**

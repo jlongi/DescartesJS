@@ -127,6 +127,7 @@ var descartesJS = (function(descartesJS) {
 
     macroAngle = 0;
 
+    // MACRO //
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       macroAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
@@ -138,6 +139,7 @@ var descartesJS = (function(descartesJS) {
       this.exprX = tmpRotX;
       this.exprY = tmpRotY;
     }
+    // MACRO //
 
     var initVal = evaluator.eval(this.initExpr);
     var endVal  = evaluator.eval(this.endExpr);

@@ -146,10 +146,10 @@ var descartesJS = (function(descartesJS) {
       cosTheta = Math.cos(radianAngle);
       senTheta = Math.sin(radianAngle);
 
-      tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
-      tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
-      this.exprX = tmpRotX;
-      this.exprY = tmpRotY;
+      tmpRotX = expr[0][0]*cosTheta - expr[0][1]*senTheta;
+      tmpRotY = expr[0][0]*senTheta + expr[0][1]*cosTheta;
+      this.exprX = mathRound( (this.abs_coord) ? tmpRotX : space.getAbsoluteX(tmpRotX) );
+      this.exprY = mathRound( (this.abs_coord) ? tmpRotY : space.getAbsoluteY(tmpRotY) );
     }
     // MACRO //
 
@@ -158,16 +158,16 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable( this.parameter, (this.paraInf+(i*this.paraSep)) );
 
       expr = evaluator.eval(this.expresion);
-      this.exprX = (this.abs_coord) ? mathRound(expr[0][0]) : mathRound(space.getAbsoluteX(expr[0][0]));
-      this.exprY = (this.abs_coord) ? mathRound(expr[0][1]) : mathRound(space.getAbsoluteY(expr[0][1]));
-
+      this.exprX = mathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
+      this.exprY = mathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
+  
       // MACRO //
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
-        tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
-        tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
-        this.exprX = tmpRotX;
-        this.exprY = tmpRotY;
+        tmpRotX = expr[0][0]*cosTheta - expr[0][1]*senTheta;
+        tmpRotY = expr[0][0]*senTheta + expr[0][1]*cosTheta;
+        this.exprX = mathRound( (this.abs_coord) ? tmpRotX : space.getAbsoluteX(tmpRotX) );
+        this.exprY = mathRound( (this.abs_coord) ? tmpRotY : space.getAbsoluteY(tmpRotY) );  
       }
       // MACRO //
 

@@ -83,11 +83,6 @@ var descartesJS = (function(descartesJS, babel) {
       // the macro is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
-
-        // // verify the content is a Descartes macro
-        // if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
-        //   response = null;
-        // }
       }
     }
 
@@ -149,7 +144,9 @@ var descartesJS = (function(descartesJS, babel) {
                ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined))
              ) {
-            continue;
+              if (babelResp !== "radius") {
+                continue;
+              }
           }
 
           // is a text
@@ -237,7 +234,6 @@ var descartesJS = (function(descartesJS, babel) {
             if ( (babel[response[i][j][0]] === "type") && (regExpType.match("-" + babel[response[i][j][1]] + "-")) ) {
               isGraphic = true;
             }
-
             tempResp = tempResp + response[i][j][0] + "='" + response[i][j][1] + "' ";
           }
 

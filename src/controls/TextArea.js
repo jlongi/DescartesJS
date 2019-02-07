@@ -18,10 +18,18 @@ var descartesJS = (function(descartesJS) {
    * @param {String} values the values of the scrollbar control
    */
   descartesJS.TextArea = function(parent, values){
-    this.font = "Monospaced,PLAIN,12";
+    this.font_family = "Monospaced";
+    this.style = ",PLAIN,";
+    this.font_size = 12;
 
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
+
+    if (typeof(this.font_size !== "number")) {
+      this.font_size = this.evaluator.eval(this.font_size);
+    }
+ 
+    this.font = this.font_family + this.style + this.font_size;
 
     // always show in the interior region
     this.region = "interior";
@@ -152,7 +160,7 @@ var descartesJS = (function(descartesJS) {
 
     // text area
     this.textArea.setAttribute("class", "DescartesTextAreaContainer");
-    this.textArea.setAttribute("style", "padding: 5px; width: " + (this.w-4) + "px; height: " + (this.h-displaceY) + "px; left: 2px; top: 2px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
+    this.textArea.setAttribute("style", "padding: 5px; width: " + (this.w-4) + "px; height: " + (this.h-displaceY) + "px; left: 2px; top: 2px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";line-height:"+ this.font_size +"px;");
     this.textArea.setAttribute("contenteditable", "true");
     // this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
     this.textArea.innerHTML = newText;

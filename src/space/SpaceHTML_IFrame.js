@@ -136,7 +136,9 @@ var descartesJS = (function(descartesJS) {
             else {
               content = descartesJS.openExternalFile(filename);
             }
-            descartesJS.cacheFiles[filename] = content = (new DOMParser()).parseFromString(content, "text/html").querySelector("ajs").innerHTML;;
+            content = (new DOMParser()).parseFromString(content, "text/html").querySelector("ajs");
+            content = (content) ? content.innerHTML : "";
+            descartesJS.cacheFiles[filename] = content;
           }
 
           iframe.contentWindow.postMessage({ type: "change_config", filename:filename, content: content }, "*");

@@ -426,7 +426,7 @@ var descartesJS = (function(descartesJS) {
 
       else {
         if (insideFormula) {
-          this.children[i].style.fontSize = fontSize;
+          this.children[i].style.size = fontSize;
           this.children[i].styleString = this.children[i].style.toString();
         }
         this.children[i].adjustFontSize(insideFormula);
@@ -1683,10 +1683,11 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.drawFraction = function(ctx) {
-    ctx.lineWidth = 6;
+    // ctx.lineWidth = 6;
+    ctx.lineWidth = 5;
     ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
     ctx.beginPath();
-    var hSeg = parseInt(1 +this.style.size/20);
+    var hSeg = parseInt(1 +this.style.size/24);
     ctx.rect(this.metrics.x, this.metrics.offsetY -parseInt(hSeg/2), this.metrics.w, hSeg);
     ctx.fill();
 
