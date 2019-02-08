@@ -6,58 +6,22 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Simplify ajax requests
-   * @return return an ajax object ready for requests
-   */
-  function newXMLHttpRequest() {
-    var xhr = false;
-
-    // all browsers
-    if (window.XMLHttpRequest) {
-      try {
-        xhr = new XMLHttpRequest();
-      }
-      catch (e) {
-        xhr = false;
-      }
-    }
-    // IE do not have an XMLHttpRequest native object, so try an activeX object
-    else if (window.ActiveXObject) {
-      try {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-      }
-      catch(e) {
-        try {
-          xhr = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        catch(e) {
-          xhr = false;
-        }
-      }
-    }
-
-    return xhr;
-  }
-
   var response;
   var xhr;
   descartesJS.cacheFiles = {};
+
   /**
-   * Open an external file using an ajax request
-   * Abre un archivo externo
-   * @param {String} filename el nombre del archivo que se quiere abrir
-   * @return the content of the file if readed or null if not
+   * Open an external file using an xml http request
+   * @param {String} filename the filename of the file to open
+   * @return {*} the content of the file if readed or null if not
    */
   descartesJS.openExternalFile = function(filename) {
-    //////////////////////////////////////////////////////////
     if (descartesJS.cacheFiles[filename]) {
       return descartesJS.cacheFiles[filename];
     }
-    //////////////////////////////////////////////////////////
 
     response = null;
-    xhr = newXMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);
@@ -68,14 +32,14 @@ var descartesJS = (function(descartesJS) {
       // patch to read ISO-8859-1 text files
       if (response.match(String.fromCharCode(65533))) {
 	      xhr.open("GET", filename, false);
-	      xhr.overrideMimeType("text/plain; charset=ISO-8859-1");
+	      xhr.overrideMimeType("text/plain;charset=ISO-8859-1");
 	      xhr.send(null);
 	      response = xhr.responseText;
       }
       ////////////////////////////////////////////////////////////////////////
     }
     catch (e) {
-      console.log("Error to load the file :", filename);
+      // console.log("Error to load the file :", filename);
       response = null;
     }
 

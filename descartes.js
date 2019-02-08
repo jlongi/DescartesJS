@@ -3,7 +3,7 @@
  * jlongi@im.unam.mx
  * https://github.com/jlongi/DescartesJS
  * LGPL - http://www.gnu.org/licenses/lgpl.html
- * 2019-02-07
+ * 2019-02-08
  */
 
 /**
@@ -1063,58 +1063,22 @@ por sus autores como
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Simplify ajax requests
-   * @return return an ajax object ready for requests
-   */
-  function newXMLHttpRequest() {
-    var xhr = false;
-
-    // all browsers
-    if (window.XMLHttpRequest) {
-      try {
-        xhr = new XMLHttpRequest();
-      }
-      catch (e) {
-        xhr = false;
-      }
-    }
-    // IE do not have an XMLHttpRequest native object, so try an activeX object
-    else if (window.ActiveXObject) {
-      try {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-      }
-      catch(e) {
-        try {
-          xhr = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-        catch(e) {
-          xhr = false;
-        }
-      }
-    }
-
-    return xhr;
-  }
-
   var response;
   var xhr;
   descartesJS.cacheFiles = {};
+
   /**
-   * Open an external file using an ajax request
-   * Abre un archivo externo
-   * @param {String} filename el nombre del archivo que se quiere abrir
-   * @return the content of the file if readed or null if not
+   * Open an external file using an xml http request
+   * @param {String} filename the filename of the file to open
+   * @return {*} the content of the file if readed or null if not
    */
   descartesJS.openExternalFile = function(filename) {
-    //////////////////////////////////////////////////////////
     if (descartesJS.cacheFiles[filename]) {
       return descartesJS.cacheFiles[filename];
     }
-    //////////////////////////////////////////////////////////
 
     response = null;
-    xhr = newXMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);
@@ -1125,14 +1089,14 @@ var descartesJS = (function(descartesJS) {
       // patch to read ISO-8859-1 text files
       if (response.match(String.fromCharCode(65533))) {
 	      xhr.open("GET", filename, false);
-	      xhr.overrideMimeType("text/plain; charset=ISO-8859-1");
+	      xhr.overrideMimeType("text/plain;charset=ISO-8859-1");
 	      xhr.send(null);
 	      response = xhr.responseText;
       }
       ////////////////////////////////////////////////////////////////////////
     }
     catch (e) {
-      console.log("Error to load the file :", filename);
+      // console.log("Error to load the file :", filename);
       response = null;
     }
 
@@ -1272,19 +1236,6 @@ var descartesJS = (function(descartesJS) {
     cond2 = (answer_1.type == ")") || (answer_1.type == "]");
 
     return ( (cond1 && (value > limInf)) && (cond2 && (value <= limSup)) ) ? 1 : 0;
-
-    // cond1 = (answer_0.type == "(");
-    // cond2 = (answer_0.type == "[");
-    // cond3 = (answer_1.type == ")");
-    // cond4 = (answer_1.type == "]");
-
-    // if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
-    //     ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
-    //    ) {
-    //   return 1;
-    // }
-
-    // return 0;
   }
 
   /**
@@ -1735,9 +1686,12 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   /**
-   * Add meta tags needed for tablets
+   * Add CSS rules for the lesson
    */
-  function addMetaTag() {
+  (function() {
+    ////////////////////////////////////////////////////////////////////
+    // add metadata for tablets
+    ////////////////////////////////////////////////////////////////////
     var head = document.head;
 
     // try chrome frame // <meta http-equiv="X-UA-Compatible" content="chrome=1">
@@ -1750,6 +1704,7 @@ var descartesJS = (function(descartesJS) {
     meta = document.createElement("meta");
     meta.setAttribute("name", "viewport");
     meta.setAttribute("content", "width=device-width,initial-scale=1.0,user-scalable=yes");
+
     // add the metadata to the head of the document
     if (!document.querySelector("meta[name=viewport]")) {
       head.appendChild(meta);
@@ -1770,17 +1725,10 @@ var descartesJS = (function(descartesJS) {
     meta = document.createElement("meta");
     meta.setAttribute("name", "DescartesJS_author");
     meta.setAttribute("content", "Joel Espinosa Longi");
+
     // add the metadata to the head of the document
     head.appendChild(meta);
-
-  }
-
-  /**
-   * Add CSS rules for the interpreted lesson
-   */
-  function addCSSrules() {
-    // add metadata for tablets
-    addMetaTag();
+    ////////////////////////////////////////////////////////////////////
 
     // try to get the style
     var cssNode = document.getElementById("StyleDescartesApps2");
@@ -1788,7 +1736,7 @@ var descartesJS = (function(descartesJS) {
     // if the style exists, then the lesson was saved before, then remove the style
     if (cssNode) {
       (cssNode.parentNode).removeChild(cssNode);
-   }
+    }
 
     cssNode = document.createElement("style");
     cssNode.type = "text/css";
@@ -1799,66 +1747,70 @@ var descartesJS = (function(descartesJS) {
     document.head.insertBefore(cssNode, document.head.firstChild);
 
     cssNode.innerHTML =
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_monospace';src:url('"+ descartesJS.cousineRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-                        "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
-                        
-                        "canvas{transform:translate3d(0,0,0);}\n" +
-                        // "select{transform:scale(1);}\n" +
-                        
-                        "div.DescartesAppContainer html,div.DescartesAppContainer *,div.DescartesAppContainer *:before,div.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-                        "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
-                        "div.DescartesAppContainer{border:0 solid #000;overflow:hidden;position:relative;top:0;left:0;}\n" +
-                        "div.DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;}\n" +
-                        "div.DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;}\n" +
-                        "canvas.DescartesLoaderBar{position:absolute;overflow:hidden;top:0;left:0;}\n" +
-                        "canvas.DescartesSpace2DCanvas,canvas.DescartesSpace3DCanvas,div.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
-                        "div.DescartesSpace2DContainer,div.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" +
+      "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      
+      ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-apearance:none;apearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
+      ".PBL::-moz-progress-bar{background:#2daae4;border-radius:inherit;}\n" +
+      ".PBL::-webkit-progress-bar{background:#f2f2f2;border-radius:100vw;}\n" +
+      ".PBL::-webkit-progress-value{background:#2daae4;border-radius:inherit;}\n" +
+      ".PBL::-ms-fill{background:#2daae4;border-radius:inherit;}\n" +
 
-                        // style for check box
-                        ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
-                        ".DescartesCheckboxContainer input[type=checkbox]+label::after,.DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;}\n" +
-                        ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after,.DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
+      "canvas{transform:translate3d(0,0,0);}\n" +
+      // "select{transform:scale(1);}\n" +
+      
+      "div.DescartesAppContainer html,div.DescartesAppContainer *,div.DescartesAppContainer *:before,div.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
+      "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
+      "div.DescartesAppContainer{border:0 solid #000;overflow:hidden;position:relative;top:0;left:0;}\n" +
+      "div.DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;}\n" +
+      "div.DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;width:100%;height:100%;}\n" +
+      "canvas.DescartesLoaderBar{position:absolute;overflow:hidden;top:0;left:0;}\n" +
+      "canvas.DescartesSpace2DCanvas,canvas.DescartesSpace3DCanvas,div.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
+      "div.DescartesSpace2DContainer,div.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" +
 
-                        "canvas.DescartesButton{position:absolute;cursor:pointer;}\n" +
-                        "div.DescartesButtonContainer{position:absolute;overflow:hidden;}\n" +
-                        "div.DescartesButtonContainer div{display:inline-flex;justify-content:center;align-items:center;width:100%;height:100%;}\n" +
-                        "div.DescartesButtonContainer[data-active='false']::after{content:' ';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(240,240,240,0.6);pointer-events:none;}\n" +
-                        "div.DescartesSpinnerContainer,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer,div.DescartesMenuContainer{background:lightgray;position:absolute;overflow:hidden;}\n" +
-                        "div.DescartesSpinnerContainer input,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer input,div.DescartesMenuContainer select{border-radius:0;}\n" +
-                        ".DescartesCheckbox{position:absolute;}\n" +
-                        "input.DescartesSpinnerField,input.DescartesTextFieldField,input.DescartesMenuField,input.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;top:0;}\n" +
-                        "label.DescartesSpinnerLabel,label.DescartesCheckboxLabel,label.DescartesMenuLabel,label.DescartesScrollbarLabel,label.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
-                        "div.DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
-                        "div.DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
-                        "select.DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;}\n" +
-                        "select.DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the aparence in internet explorer
-                        "div.DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n";
-  }
+      // style for check box
+      ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]+label::after,.DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after,.DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
 
+      "canvas.DescartesButton{position:absolute;cursor:pointer;}\n" +
+      "div.DescartesButtonContainer{position:absolute;overflow:hidden;}\n" +
+      "div.DescartesButtonContainer div{display:inline-flex;justify-content:center;align-items:center;width:100%;height:100%;}\n" +
+      "div.DescartesButtonContainer[data-active='false']::after{content:' ';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(240,240,240,0.6);pointer-events:none;}\n" +
+      "div.DescartesSpinnerContainer,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer,div.DescartesMenuContainer{background:lightgray;position:absolute;overflow:hidden;}\n" +
+      "div.DescartesSpinnerContainer input,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer input,div.DescartesMenuContainer select{border-radius:0;}\n" +
+      ".DescartesCheckbox{position:absolute;}\n" +
+      "input.DescartesSpinnerField,input.DescartesTextFieldField,input.DescartesMenuField,input.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;top:0;}\n" +
+      "label.DescartesSpinnerLabel,label.DescartesCheckboxLabel,label.DescartesMenuLabel,label.DescartesScrollbarLabel,label.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
+      "div.DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
+      "div.DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
+      "select.DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;}\n" +
+      "select.DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the aparence in internet explorer
+      "div.DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n";
+  })();
   // immediately add the style to the document
-  addCSSrules();
 
   return descartesJS;
 })(descartesJS || {});
@@ -27797,11 +27749,12 @@ var descartesJS = (function(descartesJS) {
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var scale;
+  var scale = 1;
+  var original_scale = 1.3;
   var original_w = 880;
   var original_h = 840;
-  var original_scale = 1.3;
-  var barWidth = 356;
+  var barWidth = 726;
+  var barHeight = 14;
 
 
   /**
@@ -27820,31 +27773,31 @@ var descartesJS = (function(descartesJS) {
     this.audios.length = descartesApp.audios.length;
     this.descartesApp = descartesApp;
 
-    var imageURL = (descartesApp.imgLoader) ? descartesApp.imgLoader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height, descartesApp.ratio);
+    this.imgLoader = document.createElement("div");
+    this.imgLoader.setAttribute("class", "DescartesLoaderImage")
 
-    this.imageLoader = document.createElement("div");
-    this.imageLoader.width = descartesApp.width;
-    this.imageLoader.height = descartesApp.height;
-    this.imageLoader.setAttribute("class", "DescartesLoaderImage")
-    this.imageLoader.setAttribute("style", "background-image:url(" + imageURL + ");background-size:cover;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+    this.progress = document.createElement("progress");
+    this.progress.setAttribute("class", "PBL");
+    this.progress.setAttribute("value", 0);
+    this.progress.setAttribute("max", 100);
 
-    descartesApp.loader.appendChild(this.imageLoader);
+    // has a value in the parameter image_loader
+    if (descartesApp.imgLoader) {
+      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+      this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
+    }
+    else {
+      scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
+      scale = (scale > 2.5) ? 2.5 : scale;
 
-    this.loaderBar = document.createElement("canvas");
-    this.loaderBar.width = descartesApp.width;
-    this.loaderBar.height = descartesApp.height;
-    this.loaderBar.setAttribute("class", "DescartesLoaderBar");
-    this.loaderBar.setAttribute("style", "width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
-    this.loaderBar.ctx = this.loaderBar.getContext("2d");
+      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+      this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
 
-    this.loaderBar.ctx.lineCap = "round";
-    this.loaderBar.ctx.lineWidth = 14;
-    this.loaderBar.ctx.translate(descartesApp.width/2, (descartesApp.height-(original_h*scale))/3 +(original_h-80)*scale);
-    this.loaderBar.ctx.scale(scale, scale);
+      this.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
+    }
 
-    descartesApp.loader.appendChild(this.loaderBar);
-
-    this.timer = descartesJS.setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, barWidth); }, 10);
+    descartesApp.loader.appendChild(this.imgLoader);
+    descartesApp.loader.appendChild(this.progress);
 
     descartesApp.firstRun = false;
 
@@ -27861,7 +27814,7 @@ var descartesJS = (function(descartesJS) {
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
-    // if arquimedes then add the license image
+    // add the license image for arquimedes lessons
     var licenceFile = "lib/DescartesCCLicense.png";
     images[licenceFile] = descartesJS.getCCLImg();
     images[licenceFile].addEventListener('load', function() { this.ready = 1; });
@@ -27877,7 +27830,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      // macro patch
+      // macro patch, search images inside the macro
       if (children[i].value.match(/'macro'|'makro'/g)) {
         var filename = "";
         var response;
@@ -27899,11 +27852,6 @@ var descartesJS = (function(descartesJS) {
           // the macro is in an external file
           else {
             response = descartesJS.openExternalFile(filename);
-
-            // verify the content is a Descartes macro
-            if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
-              response = null;
-            }
           }
         }
 
@@ -27964,14 +27912,16 @@ var descartesJS = (function(descartesJS) {
 
     // count how many audios
     for (var propName in audios) {
-      if ((audios).hasOwnProperty(propName)) {
+      if (audios.hasOwnProperty(propName)) {
         this.audios.length++;
       }
     }
 
     var self = this;
     var total = this.images.length + this.audios.length;
-    this.sep = (2*barWidth)/(total-1);
+    if (total > 0) {
+      this.progress.setAttribute("max", total);
+    }
 
     /**
      * Function that checks if all the media are loaded
@@ -27997,9 +27947,12 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
+      // update the progress bar
+      self.progress.setAttribute("value", self.readys);
+
       // if the number of count elements is different to the total then execute again checkLoader
       if (self.readys != total) {
-        descartesJS.setTimeout(checkLoader, 30);
+        descartesJS.setTimeout(checkLoader, 1);
       }
       // if the number of count elements is equal to the total, then clear the timer and init the build of the app
       else {
@@ -28055,55 +28008,6 @@ var descartesJS = (function(descartesJS) {
     } else {
       audios[file].load();
     }
-  }
-  /**
-   * Draw the loader bar
-   * @param {CanvasContextRendering2D} ctx the context render where to draw
-   * @param {Number} w the width of the canvas
-   * @param {Number} h the height of the canvas
-   */
-  descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx) {
-    ctx.beginPath();
-    ctx.strokeStyle = "#f2f2f2";
-    ctx.moveTo(-barWidth, 0);
-    ctx.lineTo( barWidth, 0);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.strokeStyle = "#2daae4";
-    ctx.moveTo(-barWidth, 0);
-    ctx.lineTo(-barWidth +this.readys*this.sep, 0);
-    ctx.stroke();
-  }
-
-  /**
-   * Draw the descartesJS logo
-   * @param {Number} w space width
-   * @param {Number} h space height
-   * @return {Image} return the image corresponding to the logo
-   */
-  var drawDescartesLogo = function(w, h, ratio) {
-    var canvas = document.createElement("canvas");
-    var ratio = ((w*this.ratio * h*this.ratio) > 5000000) ? 1 : ratio;
-
-    canvas.width  = w * ratio;
-    canvas.height = h * ratio;
-    canvas.style.width  = w + "px";
-    canvas.style.height = h + "px";
-
-    var ctx = canvas.getContext("2d");
-
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-    scale = (w < h) ? (w/(original_w*original_scale)) : (h/(original_h*original_scale));
-    scale = (scale > 2.5) ? 2.5 : scale;
-
-    ctx.translate((w-(original_w*scale))/2, (h-(original_h*scale))/3);
-    ctx.scale(scale, scale);
-
-    ctx.drawImage(descartesJS.loaderImg, 0, 0);
-
-    return canvas.toDataURL();
   }
 
   return descartesJS;
@@ -28469,7 +28373,7 @@ var descartesJS = (function(descartesJS) {
       this.loader.style.backgroundColor = "rgba(0,0,0,0)";
     }
 
-    // first time interpretation
+    // first run
     if (this.firstRun) {
       this.descartesLoader = new descartesJS.DescartesLoader(this);
     } else {

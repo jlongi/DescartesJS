@@ -359,7 +359,7 @@ var descartesJS = (function(descartesJS) {
       this.loader.style.backgroundColor = "rgba(0,0,0,0)";
     }
 
-    // first time interpretation
+    // first run
     if (this.firstRun) {
       this.descartesLoader = new descartesJS.DescartesLoader(this);
     } else {

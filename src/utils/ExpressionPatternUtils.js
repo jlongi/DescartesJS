@@ -122,19 +122,6 @@ var descartesJS = (function(descartesJS) {
     cond2 = (answer_1.type == ")") || (answer_1.type == "]");
 
     return ( (cond1 && (value > limInf)) && (cond2 && (value <= limSup)) ) ? 1 : 0;
-
-    // cond1 = (answer_0.type == "(");
-    // cond2 = (answer_0.type == "[");
-    // cond3 = (answer_1.type == ")");
-    // cond4 = (answer_1.type == "]");
-
-    // if (((cond1 && (value > limInf)) || (cond2 && (value >= limInf))) &&
-    //     ((cond3 && (value < limSup)) || (cond4 && (value <= limSup)))
-    //    ) {
-    //   return 1;
-    // }
-
-    // return 0;
   }
 
   /**

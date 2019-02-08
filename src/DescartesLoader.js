@@ -6,11 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var scale;
+  var scale = 1;
+  var original_scale = 1.3;
   var original_w = 880;
   var original_h = 840;
-  var original_scale = 1.3;
-  var barWidth = 356;
+  var barWidth = 726;
+  var barHeight = 14;
 
 
   /**
@@ -29,31 +30,31 @@ var descartesJS = (function(descartesJS) {
     this.audios.length = descartesApp.audios.length;
     this.descartesApp = descartesApp;
 
-    var imageURL = (descartesApp.imgLoader) ? descartesApp.imgLoader : drawDescartesLogo(descartesApp.loader.width, descartesApp.loader.height, descartesApp.ratio);
+    this.imgLoader = document.createElement("div");
+    this.imgLoader.setAttribute("class", "DescartesLoaderImage")
 
-    this.imageLoader = document.createElement("div");
-    this.imageLoader.width = descartesApp.width;
-    this.imageLoader.height = descartesApp.height;
-    this.imageLoader.setAttribute("class", "DescartesLoaderImage")
-    this.imageLoader.setAttribute("style", "background-image:url(" + imageURL + ");background-size:cover;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+    this.progress = document.createElement("progress");
+    this.progress.setAttribute("class", "PBL");
+    this.progress.setAttribute("value", 0);
+    this.progress.setAttribute("max", 100);
 
-    descartesApp.loader.appendChild(this.imageLoader);
+    // has a value in the parameter image_loader
+    if (descartesApp.imgLoader) {
+      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+      this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
+    }
+    else {
+      scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
+      scale = (scale > 2.5) ? 2.5 : scale;
 
-    this.loaderBar = document.createElement("canvas");
-    this.loaderBar.width = descartesApp.width;
-    this.loaderBar.height = descartesApp.height;
-    this.loaderBar.setAttribute("class", "DescartesLoaderBar");
-    this.loaderBar.setAttribute("style", "width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
-    this.loaderBar.ctx = this.loaderBar.getContext("2d");
+      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
+      this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
 
-    this.loaderBar.ctx.lineCap = "round";
-    this.loaderBar.ctx.lineWidth = 14;
-    this.loaderBar.ctx.translate(descartesApp.width/2, (descartesApp.height-(original_h*scale))/3 +(original_h-80)*scale);
-    this.loaderBar.ctx.scale(scale, scale);
+      this.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
+    }
 
-    descartesApp.loader.appendChild(this.loaderBar);
-
-    this.timer = descartesJS.setInterval(function() { self.drawLoaderBar(self.loaderBar.ctx, barWidth); }, 10);
+    descartesApp.loader.appendChild(this.imgLoader);
+    descartesApp.loader.appendChild(this.progress);
 
     descartesApp.firstRun = false;
 
@@ -70,7 +71,7 @@ var descartesJS = (function(descartesJS) {
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
-    // if arquimedes then add the license image
+    // add the license image for arquimedes lessons
     var licenceFile = "lib/DescartesCCLicense.png";
     images[licenceFile] = descartesJS.getCCLImg();
     images[licenceFile].addEventListener('load', function() { this.ready = 1; });
@@ -86,7 +87,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      // macro patch
+      // macro patch, search images inside the macro
       if (children[i].value.match(/'macro'|'makro'/g)) {
         var filename = "";
         var response;
@@ -108,11 +109,6 @@ var descartesJS = (function(descartesJS) {
           // the macro is in an external file
           else {
             response = descartesJS.openExternalFile(filename);
-
-            // verify the content is a Descartes macro
-            if ( (response) && (!response.match(/tipo_de_macro/g)) ) {
-              response = null;
-            }
           }
         }
 
@@ -173,14 +169,16 @@ var descartesJS = (function(descartesJS) {
 
     // count how many audios
     for (var propName in audios) {
-      if ((audios).hasOwnProperty(propName)) {
+      if (audios.hasOwnProperty(propName)) {
         this.audios.length++;
       }
     }
 
     var self = this;
     var total = this.images.length + this.audios.length;
-    this.sep = (2*barWidth)/(total-1);
+    if (total > 0) {
+      this.progress.setAttribute("max", total);
+    }
 
     /**
      * Function that checks if all the media are loaded
@@ -206,9 +204,12 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
+      // update the progress bar
+      self.progress.setAttribute("value", self.readys);
+
       // if the number of count elements is different to the total then execute again checkLoader
       if (self.readys != total) {
-        descartesJS.setTimeout(checkLoader, 30);
+        descartesJS.setTimeout(checkLoader, 1);
       }
       // if the number of count elements is equal to the total, then clear the timer and init the build of the app
       else {
@@ -264,55 +265,6 @@ var descartesJS = (function(descartesJS) {
     } else {
       audios[file].load();
     }
-  }
-  /**
-   * Draw the loader bar
-   * @param {CanvasContextRendering2D} ctx the context render where to draw
-   * @param {Number} w the width of the canvas
-   * @param {Number} h the height of the canvas
-   */
-  descartesJS.DescartesLoader.prototype.drawLoaderBar = function(ctx) {
-    ctx.beginPath();
-    ctx.strokeStyle = "#f2f2f2";
-    ctx.moveTo(-barWidth, 0);
-    ctx.lineTo( barWidth, 0);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.strokeStyle = "#2daae4";
-    ctx.moveTo(-barWidth, 0);
-    ctx.lineTo(-barWidth +this.readys*this.sep, 0);
-    ctx.stroke();
-  }
-
-  /**
-   * Draw the descartesJS logo
-   * @param {Number} w space width
-   * @param {Number} h space height
-   * @return {Image} return the image corresponding to the logo
-   */
-  var drawDescartesLogo = function(w, h, ratio) {
-    var canvas = document.createElement("canvas");
-    var ratio = ((w*this.ratio * h*this.ratio) > 5000000) ? 1 : ratio;
-
-    canvas.width  = w * ratio;
-    canvas.height = h * ratio;
-    canvas.style.width  = w + "px";
-    canvas.style.height = h + "px";
-
-    var ctx = canvas.getContext("2d");
-
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-    scale = (w < h) ? (w/(original_w*original_scale)) : (h/(original_h*original_scale));
-    scale = (scale > 2.5) ? 2.5 : scale;
-
-    ctx.translate((w-(original_w*scale))/2, (h-(original_h*scale))/3);
-    ctx.scale(scale, scale);
-
-    ctx.drawImage(descartesJS.loaderImg, 0, 0);
-
-    return canvas.toDataURL();
   }
 
   return descartesJS;
