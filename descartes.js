@@ -714,23 +714,18 @@ var descartesJS = (function(descartesJS) {
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
     descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
-    descartesJS.isMsEdge = (/Edge/).test(navigator.userAgent);
+    descartesJS.isMsEdge = (/Edge/i).test(navigator.userAgent);
 
     // detects if the browser has canvas support
     var elem = document.createElement('canvas');
-    descartesJS.hasCanvas = (elem.getContext && elem.getContext('2d'));
+    descartesJS.hasCanvas = (elem.getContext && elem.getContext("2d"));
+
     if (descartesJS.hasCanvas) {
       // render context used to measuere text
-      descartesJS.ctx = document.createElement("canvas").getContext("2d");
+      descartesJS.ctx = descartesJS.hasCanvas;
 
-      // var backingStoreRatio = descartesJS.ctx.webkitBackingStorePixelRatio ||
-      //                         descartesJS.ctx.mozBackingStorePixelRatio ||
-      //                         descartesJS.ctx.msBackingStorePixelRatio ||
-      //                         descartesJS.ctx.oBackingStorePixelRatio ||
-      //                         descartesJS.ctx.backingStorePixelRatio || 1;
-      // descartesJS._ratio = (window.devicePixelRatio || 1) / backingStoreRatio;
-      descartesJS._ratio = 1.5;
-      // descartesJS._ratio = 1;
+      // descartesJS._ratio = 1.5;
+      descartesJS._ratio = window.devicePixelRatio || 1;
     }
 
     setNewToFixed();
@@ -748,16 +743,12 @@ var descartesJS = (function(descartesJS) {
     var exponentialSign;
     var moveDotTo;
 
-    function getStringExtraZeros(n) {
-      return new Array(n+1).join("0");
-    }
-
     // maintain the original toFixed function
     Number.prototype.oToFixed = Number.prototype.toFixed;
 
     Number.prototype.toFixed = function(decimals) {
       decimals = (decimals) || 0;
-      decimals = (decimals < 0) ? 0 : (decimals >> 0);
+      decimals = (decimals < 0) ? 0 : parseInt(decimals);
 
       strNum = this.toString();
 
@@ -766,28 +757,26 @@ var descartesJS = (function(descartesJS) {
         exponentialSign = (exponentialSplit[0][0] === "-") ? "-" : "";
         exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialSplit[0].substring(1)).oToFixed(11) : parseFloat(exponentialSplit[0]).oToFixed(11);
 
-        moveDotTo = (exponentialSplit[1] >> 0);
+        moveDotTo = parseInt(exponentialSplit[1]);
         indexOfDot = exponentialNumber.indexOf(".");
+        exponentialNumber = exponentialNumber.replace(".", "");
 
         if (indexOfDot+moveDotTo < 0) {
           indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
-          strNum = exponentialSign + "0." + getStringExtraZeros(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber.replace(".", "");
+          strNum = exponentialSign + "0." + ("0").repeat(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber;
         }
         else {
-          exponentialNumber = exponentialNumber.replace(".", "");
-          strNum = exponentialSign + exponentialNumber + getStringExtraZeros(moveDotTo-exponentialNumber.length+1);
+          strNum = exponentialSign + exponentialNumber + ("0").repeat(moveDotTo-exponentialNumber.length+1);
         }
       }
 
       indexOfDot = strNum.indexOf(".");
-      extraZero = "";
       
       // is a float number
       if (indexOfDot === -1) {
         if (decimals > 0) {
-          strNum += ".";
+          strNum += "." + ("0").repeat(decimals);
         }
-        strNum += getStringExtraZeros(decimals);
       }
       else {
         diff = strNum.length - indexOfDot - 1;
@@ -797,11 +786,12 @@ var descartesJS = (function(descartesJS) {
             strNum = parseFloat(strNum).oToFixed(decimals);
           }
           else {
-            strNum = (decimals>0) ? strNum.substring(0, indexOfDot +decimals +1) : strNum.substring(0, indexOfDot);
+            // strNum = (decimals > 0) ? strNum.substring(0, indexOfDot +decimals +1) : strNum.substring(0, indexOfDot);
+            strNum = strNum.substring(0, indexOfDot +decimals +1);
           }
         }
         else {
-          strNum += getStringExtraZeros(decimals-diff);
+          strNum += ("0").repeat(decimals-diff);
         }
       }
 
@@ -819,7 +809,7 @@ var descartesJS = (function(descartesJS) {
     if (typeof(num) == "string") {
       indexOfDot = num.indexOf(".");
 
-      if (indexOfDot != -1) {
+      if (indexOfDot !== -1) {
         decimalNumbers = num.substring(indexOfDot);
 
         if (parseFloat(decimalNumbers) == 0) {
@@ -827,7 +817,7 @@ var descartesJS = (function(descartesJS) {
         }
         else {
           for (var i=decimalNumbers.length; i>0; i--) {
-            if (decimalNumbers.charAt(i) != 0) {
+            if (decimalNumbers.charAt(i) !== 0) {
               return num.substring(0, indexOfDot+i+1);
             }
           }
@@ -849,12 +839,7 @@ var descartesJS = (function(descartesJS) {
    * Get which mouse button is pressed
    */
   descartesJS.whichBtn = function(evt) {
-    // all browsers
-    if (evt.which !== null) {
-      return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
-    }
-    // IE
-    return (evt.button < 2) ? "L" : ((evt.button === 4) ? "M" : "R");
+    return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
   }
 
   /**
@@ -879,9 +864,10 @@ var descartesJS = (function(descartesJS) {
     boundingRect = container.getBoundingClientRect();
 
     // considerar para la escala por transformacion de css
-    return { x: (mouseX -window.pageXOffset -boundingRect.left)/descartesJS.cssScale,
-             y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
-           }
+    return { 
+      x: (mouseX -window.pageXOffset -boundingRect.left)/descartesJS.cssScale,
+      y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
+    }
   }
 
   // get the animation frame functions
@@ -900,7 +886,7 @@ var descartesJS = (function(descartesJS) {
     var handle = {};
 
     function loop() {
-      if(((new Date().getTime()) - start) >= delay) {
+      if (((new Date().getTime()) - start) >= delay) {
         fun.call();
         start = new Date().getTime();
       }
@@ -27783,14 +27769,12 @@ var descartesJS = (function(descartesJS) {
 
     // has a value in the parameter image_loader
     if (descartesApp.imgLoader) {
-      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
       this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
     }
     else {
       scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
       scale = (scale > 2.5) ? 2.5 : scale;
 
-      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
       this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
 
       this.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
@@ -27923,17 +27907,18 @@ var descartesJS = (function(descartesJS) {
       this.progress.setAttribute("max", total);
     }
 
+    var readys;
     /**
      * Function that checks if all the media are loaded
      */
     var checkLoader = function() {
-      self.readys = 0;
+      readys = 0;
 
       // how many images are loaded
       for (var propName in images) {
         if (images.hasOwnProperty(propName)) {
           if ( (images[propName].ready) || (images[propName].errorload) ) {
-            self.readys++;
+            readys++;
           }
         }
       }
@@ -27942,21 +27927,20 @@ var descartesJS = (function(descartesJS) {
       for (var propName in audios) {
         if (audios.hasOwnProperty(propName)) {
           if ( (audios[propName].ready) || (audios[propName].errorload) ) {
-            self.readys++;
+            readys++;
           }
         }
       }
 
       // update the progress bar
-      self.progress.setAttribute("value", self.readys);
+      self.progress.setAttribute("value", readys);
 
       // if the number of count elements is different to the total then execute again checkLoader
-      if (self.readys != total) {
-        descartesJS.setTimeout(checkLoader, 1);
+      if (readys != total) {
+        self.timer = descartesJS.setTimeout(checkLoader, 1);
       }
-      // if the number of count elements is equal to the total, then clear the timer and init the build of the app
+      // if the number of count elements is equal to the total init the build of the app
       else {
-        descartesJS.clearInterval(self.timer);
         self.descartesApp.initBuildApp();
       }
     }

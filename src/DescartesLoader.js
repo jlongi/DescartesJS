@@ -40,14 +40,12 @@ var descartesJS = (function(descartesJS) {
 
     // has a value in the parameter image_loader
     if (descartesApp.imgLoader) {
-      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
       this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
     }
     else {
       scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
       scale = (scale > 2.5) ? 2.5 : scale;
 
-      // this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;width:" + descartesApp.width + "px;height:" + descartesApp.height + "px;");
       this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
 
       this.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
@@ -180,17 +178,18 @@ var descartesJS = (function(descartesJS) {
       this.progress.setAttribute("max", total);
     }
 
+    var readys;
     /**
      * Function that checks if all the media are loaded
      */
     var checkLoader = function() {
-      self.readys = 0;
+      readys = 0;
 
       // how many images are loaded
       for (var propName in images) {
         if (images.hasOwnProperty(propName)) {
           if ( (images[propName].ready) || (images[propName].errorload) ) {
-            self.readys++;
+            readys++;
           }
         }
       }
@@ -199,21 +198,20 @@ var descartesJS = (function(descartesJS) {
       for (var propName in audios) {
         if (audios.hasOwnProperty(propName)) {
           if ( (audios[propName].ready) || (audios[propName].errorload) ) {
-            self.readys++;
+            readys++;
           }
         }
       }
 
       // update the progress bar
-      self.progress.setAttribute("value", self.readys);
+      self.progress.setAttribute("value", readys);
 
       // if the number of count elements is different to the total then execute again checkLoader
-      if (self.readys != total) {
-        descartesJS.setTimeout(checkLoader, 1);
+      if (readys != total) {
+        self.timer = descartesJS.setTimeout(checkLoader, 1);
       }
-      // if the number of count elements is equal to the total, then clear the timer and init the build of the app
+      // if the number of count elements is equal to the total init the build of the app
       else {
-        descartesJS.clearInterval(self.timer);
         self.descartesApp.initBuildApp();
       }
     }
