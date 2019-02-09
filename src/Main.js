@@ -223,10 +223,11 @@ var descartesJS = (function(descartesJS) {
         else {
           new_applets = document.createElement("div");
           new_applets.innerHTML = data.content;
+          new_applets = new_applets.getElementsByTagName("param");
           applets_cache[data.filename] = new_applets;
         }
 
-        descartesJS.apps[0].children = new_applets.getElementsByTagName("param");
+        descartesJS.apps[0].children = new_applets;
         descartesJS.apps[0].init();
       }
     }
@@ -243,12 +244,11 @@ var descartesJS = (function(descartesJS) {
     window.addEventListener("message", descartesJS.onMessage);
 
     // add event listener to transitions of spaces
-    var trasitionEvents = ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"];
-    for (var i=0,l=trasitionEvents.length; i<l; i++) {
-      window.addEventListener(trasitionEvents[i], function(evt) {
+    ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"].forEach(function(element) {
+      window.addEventListener(element, function(evt) {
         descartesJS.onResize(evt);
       });
-    }
+    });
   }
 
   return descartesJS;

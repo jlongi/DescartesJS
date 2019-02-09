@@ -12,10 +12,6 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
 
   var colorExpr;
-  var red;
-  var green;
-  var blue;
-  var alpha;
 
   var touch;
   var mouseX;
@@ -109,12 +105,7 @@ var descartesJS = (function(descartesJS) {
     // if the color has an expression, then evaluate the string and return the corresponding color
     else {
       colorExpr = evaluator.eval(color);
-      red   = MathFloor(colorExpr[0][0]*255);
-      green = MathFloor(colorExpr[0][1]*255);
-      blue  = MathFloor(colorExpr[0][2]*255);
-      alpha = (1-colorExpr[0][3]);
-
-      return "rgba(" + red + "," + green + "," + blue + "," + alpha + ")";
+      return "rgba(" + MathFloor(colorExpr[0][0]*255) + "," + MathFloor(colorExpr[0][1]*255) + "," + MathFloor(colorExpr[0][2]*255) + "," + (1-colorExpr[0][3]) + ")";
     }
   }
 
@@ -366,35 +357,35 @@ dt{font-weight:bold;margin-top:10px;}
 <iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
 <h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
 <dl>
-<dt>Dise&ntilde;o funcional:</dt>
+<dt>Diseño funcional:</dt>
 <dd>
-<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
-<nobr>Jos&eacute; R. Galo Sanchez,</nobr>
+<nobr>José Luis Abreu Leon,</nobr>
+<nobr>José R. Galo Sanchez,</nobr>
 <nobr>Juan Madrigal Muga</nobr>
 </dd>
 <dt>Autores del software:</dt>
 <dd>
-<nobr>Jos&eacute; Luis Abreu Leon,</nobr>
-<nobr>Marta Oliver&oacute; Serrat,</nobr>
-<nobr>Oscar Escamilla Gonz&aacute;lez,</nobr>
+<nobr>José Luis Abreu Leon,</nobr>
+<nobr>Marta Oliverá Serrat,</nobr>
+<nobr>Oscar Escamilla González,</nobr>
 <nobr>Joel Espinosa Longi</nobr>
 </dd></dl>
 <p>
-El software en Java est&aacute; bajo la licencia
+El software en Java está bajo la licencia
 <a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>
 <br>
-El software en JavaScript est&aacute; bajo licencia
+El software en JavaScript está bajo licencia
 <a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>
 </p>
 <p>
-La documentaci&oacute;n y el c&oacute;digo fuente se encuentran en :
+La documentación y el código fuente se encuentran en :
 <br>
-<a href='http://arquimedes.matem.unam.mx/Descartes5/'>http://arquimedes.matem.unam.mx/Descartes5/</a>
+<a href='http://descartes.matem.unam.mx/'>http://descartes.matem.unam.mx/</a>
 </p>`;
 
   var htmlCreative = 
 `<p>
-Este objeto, creado con Descartes, est&aacute; licenciado
+Este objeto, creado con Descartes, está licenciado
 por sus autores como
 <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>
 <br>

@@ -11,11 +11,7 @@ var descartesJS = (function(descartesJS) {
   var scaleToFitY;
   var optimalRatio;
   
-  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}"+
-                 "{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22 "+
-                 "                                       Los contenidos de esta unidad did\u00e1ctica interactiva est\u00e1n bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par "+
-                 "                                       La unidad did\u00e1ctica fue creada con Arqu\u00edmedes, que es un producto de c\u00f3digo abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par "+
-                 "}";
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
   /**
    * Descartes application interpreted with JavaScript
@@ -68,7 +64,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.language = "espa\u00F1ol";
+    this.language = "español";
 
     /**
      * parameters of the applet
@@ -121,17 +117,6 @@ var descartesJS = (function(descartesJS) {
     // function to prevent undefined error
     this.scaleToFit = function() {};
 
-    // init the interpretation
-    this.init()
-  }
-
-  /**
-   * Init the variables needed for parsing and create the descartes scene
-   */
-  descartesJS.DescartesApp.prototype.init = function() {
-    // stop the animation, if the action init executes maybe the animation is playing
-    this.stop();
-
     /**
      * evaluator and parser of expressions
      * type {Evaluator}
@@ -148,6 +133,18 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.lessonParser = new descartesJS.LessonParser(this);
+
+
+    // init the interpretation
+    this.init()
+  }
+
+  /**
+   * Init the variables needed for parsing and create the descartes scene
+   */
+  descartesJS.DescartesApp.prototype.init = function() {
+    // stop the animation, if the action init executes maybe the animation is playing
+    this.stop();
 
     /**
      * variable that tell whether the lesson is an arquimedes lesson
@@ -205,11 +202,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     // cover space
-    if (this.expand) {
-      if (this.expand == "cover") {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
-      }
+    if (this.expand === "cover") {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
     }
 
     // configure an arquimedes lesson
@@ -272,11 +267,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.editableRegion = {container: document.createElement("div"), textFields: []};
-
-    /**
-     *
-     */
-    if (descartesJS.Editor) { this.editor = new descartesJS.Editor(this); }
 
     /**
      * array to store the lesson controls
@@ -352,7 +342,7 @@ var descartesJS = (function(descartesJS) {
     this.loader.width = this.width;
     this.loader.height = this.height;
     this.loader.setAttribute("class", "DescartesLoader");
-    this.loader.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;z-index:1000;");
+    this.loader.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;z-index:1000;display:none;");
 
     // if have an image, the background is transparent
     if (this.imgLoader) {
@@ -361,6 +351,7 @@ var descartesJS = (function(descartesJS) {
 
     // first run
     if (this.firstRun) {
+      this.loader.style.display = "block";
       this.descartesLoader = new descartesJS.DescartesLoader(this);
     } else {
       this.initBuildApp();
@@ -494,17 +485,17 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // the scenario region is only visible in arquimedes lessons
-    this.stage = {container: document.createElement("div"), scroll: 0};
-    this.stage.container.setAttribute("id", "descartesJS_Stage");
-
-    // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
-    this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
-    this.stage.container.appendChild(this.stage.stageSpace.container);
-
     // ##ARQUIMEDES## //
     // if arquimedes then add the container of the scenario region
     if (this.arquimedes) {
+      // the scenario region is only visible in arquimedes lessons
+      this.stage = {container: document.createElement("div"), scroll: 0};
+      this.stage.container.setAttribute("id", "descartesJS_Stage");
+
+      // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
+      this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
+      this.stage.container.appendChild(this.stage.stageSpace.container);
+
       this.container.appendChild(this.stage.container);
       this.spaces.push(this.stage.stageSpace);
     }
@@ -540,7 +531,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     // init the tridimensional graphics
-    var tmp3DGraph;
     for (var i=0, l=tmp3DGraphics.length; i<l; i++) {
       tmpGraph = lessonParser.parse3DGraphic(tmp3DGraphics[i]);
       if (tmpGraph) {
@@ -600,8 +590,8 @@ var descartesJS = (function(descartesJS) {
 
     // if the window parent is diferente from the current window, then is embedded in an iFrame
     if (window.parent !== window) {
-      this.parentC.style.margin = "0px";
-      this.parentC.style.padding = "0px";
+      this.parentC.style.margin = "0";
+      this.parentC.style.padding = "0";
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
       window.parent.postMessage({ type: "ready", value: window.location.href }, '*');
@@ -638,7 +628,7 @@ var descartesJS = (function(descartesJS) {
    * Adjust the size of the window if needed
    */
   descartesJS.DescartesApp.prototype.adjustSize = function() {
-    document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0px";
+    document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0";
     var winWidth = parseInt(this.width)+30;
     var winHeight = parseInt(this.height)+90;
 
@@ -1238,15 +1228,12 @@ var descartesJS = (function(descartesJS) {
 
     for (var i=0, l=array.length; i<l; i++) {
       // nested array
-      if (array[i] instanceof Array) {
+      if (Array.isArray(array[i])) {
         result += arrayToString(array[i]);
       }
       // value
       else {
-        tmpVal = array[i];
-        if ( (typeof(tmpVal) == "undefined") || (!tmpVal)) {
-          tmpVal = 0;
-        }
+        tmpVal = array[i] || 0;
 
         if (typeof(tmpVal) == "string") {
           tmpVal = "'" + tmpVal + "'";
@@ -1256,7 +1243,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // add commas to the string
-      if (i<l-1) {
+      if (i < l-1) {
         result += ",";
       }
     }
@@ -1284,8 +1271,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         // if the name of the variable is the name of an internal variable or is an object, then ignore it
-        if ( (theValues != undefined) && (varName != "rnd") && (varName != "pi") && (varName != "e") && (varName != "Infinity") && (varName != "-Infinity") && (typeof(theValues) != "object") ) {
-
+        if ( (theValues != undefined) && (varName != "rnd") && (varName != "π") && (varName != "pi") && (varName != "e") && (varName != "Infinity") && (varName != "-Infinity") && (typeof(theValues) != "object") ) {
           state = (state != "") ? (state + "\n" + varName + "=" + theValues) : (varName + "=" + theValues);
         }
       }
@@ -1295,9 +1281,7 @@ var descartesJS = (function(descartesJS) {
     // check all the vectors
     for (var vecName in theVectors) {
       if (theVectors.hasOwnProperty(vecName)) {
-        theValues = theVectors[vecName];
-
-        state = state + "\n" + vecName + "=" + arrayToString(theValues);
+        state += "\n" + vecName + "=" + arrayToString(theVectors[vecName]);
       }
     }
 
@@ -1305,9 +1289,7 @@ var descartesJS = (function(descartesJS) {
     // check all the matrices
     for (var matName in theMatrices) {
       if (theMatrices.hasOwnProperty(matName)) {
-        theValues = theMatrices[matName];
-
-        state = state + "\n" + matName + "=" + arrayToString(theValues);
+        state += "\n" + matName + "=" + arrayToString(theMatrices[matName]);
       }
     }
 
@@ -1361,9 +1343,7 @@ var descartesJS = (function(descartesJS) {
    * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 o 1 \n control2=respuestaAlumno|0 o 1
    */
   descartesJS.DescartesApp.prototype.getEvaluation = function() {
-    var questions = 0;
-    var correct = 0;
-
+    var questions = correct = 0;
     var answers = "";
 
     for (var i=0, l=this.controls.length; i<l; i++) {

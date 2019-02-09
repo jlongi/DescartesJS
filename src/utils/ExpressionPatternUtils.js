@@ -9,7 +9,6 @@ var descartesJS = (function(descartesJS) {
   var tmpAnswer;
   var regExpPattern_i;
   var answerArray;
-  var regExpPattern;
   var answerValue;
 
   var answer_0;
@@ -18,8 +17,6 @@ var descartesJS = (function(descartesJS) {
   var limSup;
   var cond1;
   var cond2;
-  var cond3;
-  var cond4;
 
   var indexOfRadial;
 

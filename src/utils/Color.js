@@ -51,26 +51,26 @@ var descartesJS = (function(descartesJS) {
 
       color = babel[color];
 
-      self.r = parseInt("0x"+color.substring(1,3), 16);
-      self.g = parseInt("0x"+color.substring(3,5), 16);
-      self.b = parseInt("0x"+color.substring(5,7), 16);
+      self.r = descartesJS.toHex(color.substring(1,3));
+      self.g = descartesJS.toHex(color.substring(3,5));
+      self.b = descartesJS.toHex(color.substring(5,7));
       self.colorStr = color;
     }
 
     // the color is six hexadecimals digits #RRGGBB
     if (color.length === 6) {
-      self.r = parseInt("0x"+color.substring(0,2), 16);
-      self.g = parseInt("0x"+color.substring(2,4), 16);
-      self.b = parseInt("0x"+color.substring(4,6), 16);
+      self.r = descartesJS.toHex(color.substring(0,2));
+      self.g = descartesJS.toHex(color.substring(2,4));
+      self.b = descartesJS.toHex(color.substring(4,6));
       self.colorStr = "#" + color;
     }
 
     // the color is eight hexadecimals digits #RRGGBBAA
     if (color.length === 8) {
-      self.r = parseInt("0x"+color.substring(2,4), 16);
-      self.g = parseInt("0x"+color.substring(4,6), 16);
-      self.b = parseInt("0x"+color.substring(6,8), 16);
-      self.a = (1-parseInt("0x"+color.substring(0,2), 16)/255);
+      self.r = descartesJS.toHex(color.substring(2,4));
+      self.g = descartesJS.toHex(color.substring(4,6));
+      self.b = descartesJS.toHex(color.substring(6,8));
+      self.a = (1-descartesJS.toHex(color.substring(0,2))/255);
       self.colorStr = "rgba("+ self.r +","+ self.g +","+ self.b +","+ self.a + ")";
     }
 
@@ -172,6 +172,13 @@ var descartesJS = (function(descartesJS) {
     return (this.r + this.g + this.b < 380) ? "#ffffff" : "#000000";
   }
 
+  /**
+   *
+   */
+  descartesJS.toHex = function(color) {
+    return parseInt("0x"+color, 16);
+  }
+  
   /**
    *
    */

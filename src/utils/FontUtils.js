@@ -9,7 +9,7 @@ var descartesJS = (function(descartesJS) {
   var fontTokens;
   var fontCanvas;
   var name;
-  var style;
+  var fontStyleMap = { "bold":"Bold", "italic":"Italic", "italics":"Italic", "bold+italic":"Italic Bold" };
 
   descartesJS.serif_font     = "descartesJS_serif,DJS_symbola,DJS_extra,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
   descartesJS.sansserif_font = "descartesJS_sansserif,DJS_symbola,DJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
@@ -65,23 +65,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.getFontStyle = function(fontStyle) {
-    style = "";
-    fontStyle = fontStyle.toLowerCase();
-
-    // bold text
-    if (fontStyle == "bold") {
-      style += "Bold ";
-    } 
-    // italic text
-    else if ( (fontStyle == "italic") || (fontStyle == "italics")) {
-      style += "Italic ";
-    }
-    // bold and italic text
-    else if (fontStyle == "bold+italic") {
-      style += "Italic Bold ";
-    }
-
-    return style;
+    return fontStyleMap[fontStyle.toLowerCase()];
   }
 
   /**
@@ -98,7 +82,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Get the font size give the height of an element
-   * @param {Number} the height of an element
+   * @param {Number} height the height of an element
    * @return {Number} return the best font size of the text that fits in the element
    */
   descartesJS.getFieldFontSize = function(height) {

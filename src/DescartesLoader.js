@@ -13,7 +13,6 @@ var descartesJS = (function(descartesJS) {
   var barWidth = 726;
   var barHeight = 14;
 
-
   /**
    * Descartes loader
    * @constructor
@@ -22,50 +21,52 @@ var descartesJS = (function(descartesJS) {
   descartesJS.DescartesLoader = function(descartesApp) {
     var self = this;
 
-    this.children = descartesApp.children;
-    this.lessonParser = descartesApp.lessonParser;
-    this.images = descartesApp.images;
-    this.images.length = descartesApp.images.length;
-    this.audios = descartesApp.audios;
-    this.audios.length = descartesApp.audios.length;
-    this.descartesApp = descartesApp;
+    self.children = descartesApp.children;
+    self.lessonParser = descartesApp.lessonParser;
+    self.images = descartesApp.images;
+    self.images.length = descartesApp.images.length;
+    self.audios = descartesApp.audios;
+    self.audios.length = descartesApp.audios.length;
+    self.descartesApp = descartesApp;
 
-    this.imgLoader = document.createElement("div");
-    this.imgLoader.setAttribute("class", "DescartesLoaderImage")
+    self.imgLoader = document.createElement("div");
+    self.imgLoader.setAttribute("class", "DescartesLoaderImage")
 
-    this.progress = document.createElement("progress");
-    this.progress.setAttribute("class", "PBL");
-    this.progress.setAttribute("value", 0);
-    this.progress.setAttribute("max", 100);
+    self.progress = document.createElement("progress");
+    self.progress.setAttribute("class", "PBL");
+    self.progress.setAttribute("value", 0);
+    self.progress.setAttribute("max", 100);
 
     // has a value in the parameter image_loader
     if (descartesApp.imgLoader) {
-      this.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
+      self.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
     }
     else {
       scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
       scale = (scale > 2.5) ? 2.5 : scale;
 
-      this.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
+      self.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
 
-      this.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
+      self.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
     }
 
-    descartesApp.loader.appendChild(this.imgLoader);
-    descartesApp.loader.appendChild(this.progress);
+    descartesApp.loader.appendChild(self.imgLoader);
+    descartesApp.loader.appendChild(self.progress);
 
     descartesApp.firstRun = false;
 
-    this.initPreloader();
+    self.initPreloader();
   }
 
   /**
    * Init the preload of images and audios
    */
   descartesJS.DescartesLoader.prototype.initPreloader = function() {
-    var children = this.children;
-    var images = this.images;
-    var audios = this.audios;
+    var self = this;
+
+    var children = self.children;
+    var images = self.images;
+    var audios = self.audios;
     var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
     var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
@@ -90,7 +91,7 @@ var descartesJS = (function(descartesJS) {
         var filename = "";
         var response;
 
-        var values = this.lessonParser.split(children[i].value);
+        var values = self.lessonParser.split(children[i].value);
         for (var v_i=0, v_l=values.length; v_i<v_l; v_i++) {
           if (babel[values[v_i][0]] === "expresion") {
             filename = values[v_i][1];
@@ -153,7 +154,7 @@ var descartesJS = (function(descartesJS) {
       // if audioFilename has a match then add the audios
       if (audioFilename) {
         for (j=0, al=audioFilename.length; j<al; j++) {
-          this.initAudio(audioFilename[j]);
+          self.initAudio(audioFilename[j]);
         }
       }
     }
@@ -161,21 +162,20 @@ var descartesJS = (function(descartesJS) {
     // count how many images
     for (var propName in images) {
       if (images.hasOwnProperty(propName)) {
-        this.images.length++;
+        self.images.length++;
       }
     }
 
     // count how many audios
     for (var propName in audios) {
       if (audios.hasOwnProperty(propName)) {
-        this.audios.length++;
+        self.audios.length++;
       }
     }
 
-    var self = this;
-    var total = this.images.length + this.audios.length;
+    var total = self.images.length + self.audios.length;
     if (total > 0) {
-      this.progress.setAttribute("max", total);
+      self.progress.setAttribute("max", total);
     }
 
     var readys;

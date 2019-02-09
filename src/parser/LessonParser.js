@@ -62,9 +62,7 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.LessonParser = function(parent) {
     this.parent = parent;
-
     this.parser = parent.evaluator.parser;
-
     this.RTFparser = new descartesJS.RTFParser(parent.evaluator);
   }
 
