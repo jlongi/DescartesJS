@@ -6,29 +6,21 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
   var Math2PI = 2*Math.PI;
   var lineCap = "round";
   var lineJoin = "round";
+  var epsilon = 0.00000001;
 
-  var v1;
-  var v2;
   var evaluator;
   var verticalDisplace;
-  var horizontalDisplace;
   var pointDisplace;
-  var theText;
 
   var tempParam;
-
-  var epsilon = 0.00000001;
+  var tmpVertices;
 
   var i;
   var l;
   var d;
-
-  var tmpVertices;
-
 
   /**
    * 3D primitive (vertex, face, text, edge)

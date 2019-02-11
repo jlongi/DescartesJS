@@ -7,19 +7,14 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  var mathRound = Math.round;
+  var MathRound = Math.round;
 
   var evaluator;
   var points;
   var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
   var space;
   var midpX;
   var midpY;
-  var desp;
   var width1;
   var width2;
   var scale;
@@ -92,14 +87,9 @@ var descartesJS = (function(descartesJS) {
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(radianAngle);
-      senTheta = Math.sin(radianAngle);
 
       for (var i=0, l=this.endPoints.length; i<l; i++) {
-        tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
-        tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
-        this.endPoints[i].x = tmpRotX;
-        this.endPoints[i].y = tmpRotY;
+        this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
       }
     }
 
@@ -131,7 +121,6 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    desp = 10 + evaluator.eval(this.size);
     width1 = evaluator.eval(this.width);
     if (width1 < 0) {
       width1 = 0;
@@ -149,20 +138,20 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = 2.0;
 
     if (this.abs_coord) {
-      coordX =  mathRound(this.endPoints[0].x);
-      coordY =  mathRound(this.endPoints[0].y);
+      coordX =  MathRound(this.endPoints[0].x);
+      coordY =  MathRound(this.endPoints[0].y);
 
-      coordX1 = mathRound(this.endPoints[1].x);
-      coordY1 = mathRound(this.endPoints[1].y);
+      coordX1 = MathRound(this.endPoints[1].x);
+      coordY1 = MathRound(this.endPoints[1].y);
     } else {
-      coordX =  mathRound(space.getAbsoluteX(this.endPoints[0].x));
-      coordY =  mathRound(space.getAbsoluteY(this.endPoints[0].y));
+      coordX =  MathRound(space.getAbsoluteX(this.endPoints[0].x));
+      coordY =  MathRound(space.getAbsoluteY(this.endPoints[0].y));
 
-      coordX1 = mathRound(space.getAbsoluteX(this.endPoints[1].x));
-      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));
+      coordX1 = MathRound(space.getAbsoluteX(this.endPoints[1].x));
+      coordY1 = MathRound(space.getAbsoluteY(this.endPoints[1].y));
     }
 
-    var spear = evaluator.eval(this.spear);
+    spear = evaluator.eval(this.spear);
     if (spear < 0) {
       spear = 0
     }

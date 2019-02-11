@@ -15,10 +15,7 @@ var descartesJS = (function(descartesJS) {
   var tempParam;
   var expr;
   var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
+  var tmpRot;
 
   var lineDesp = .5;
   var POS_LIMIT = 1000000;
@@ -143,13 +140,10 @@ var descartesJS = (function(descartesJS) {
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(radianAngle);
-      senTheta = Math.sin(radianAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
 
-      tmpRotX = expr[0][0]*cosTheta - expr[0][1]*senTheta;
-      tmpRotY = expr[0][0]*senTheta + expr[0][1]*cosTheta;
-      this.exprX = mathRound( (this.abs_coord) ? tmpRotX : space.getAbsoluteX(tmpRotX) );
-      this.exprY = mathRound( (this.abs_coord) ? tmpRotY : space.getAbsoluteY(tmpRotY) );
+      this.exprX = mathRound( (this.abs_coord) ? tmpRot.x : space.getAbsoluteX(tmpRot.x) );
+      this.exprY = mathRound( (this.abs_coord) ? tmpRot.y : space.getAbsoluteY(tmpRot.y) );
     }
     // MACRO //
 
@@ -158,18 +152,18 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable( this.parameter, (this.paraInf+(i*this.paraSep)) );
 
       expr = evaluator.eval(this.expresion);
-      this.exprX = mathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
-      this.exprY = mathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
   
       // MACRO //
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
-        tmpRotX = expr[0][0]*cosTheta - expr[0][1]*senTheta;
-        tmpRotY = expr[0][0]*senTheta + expr[0][1]*cosTheta;
-        this.exprX = mathRound( (this.abs_coord) ? tmpRotX : space.getAbsoluteX(tmpRotX) );
-        this.exprY = mathRound( (this.abs_coord) ? tmpRotY : space.getAbsoluteY(tmpRotY) );  
+        tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
+        expr[0][0] = tmpRot.x;
+        expr[0][1] = tmpRot.y;
       }
       // MACRO //
+
+      this.exprX = mathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
+      this.exprY = mathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
 
       if ( !isNaN(this.exprX) && !isNaN(this.exprY) && (this.exprX > -POS_LIMIT) && (this.exprX < POS_LIMIT) && (this.exprY > -POS_LIMIT) && (this.exprY < POS_LIMIT) ) {
         ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
@@ -202,8 +196,8 @@ var descartesJS = (function(descartesJS) {
     textField.oncontextmenu = function (evt) { return false; };
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
-      self.expresion = self.evaluator.parser.parse(this.value);
-      self.parent.update();
+        self.expresion = self.evaluator.parser.parse(this.value);
+        self.parent.update();
       }
     }
 

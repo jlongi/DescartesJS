@@ -7,8 +7,6 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var regExpType = new String("-point-segment-polygon-curve-triangle-face-polireg-surface-text-cube-box-tetrahedron-octahedron-sphere-dodecahedron-icosahedron-ellipsoid-cone-cylinder-torus-mesh-macro-");
-  var regExpSurface = new String("-x-y-z-u-v-w-");
-  
   var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;

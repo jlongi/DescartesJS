@@ -121,15 +121,15 @@ var descartesJS = (function(descartesJS) {
     descartesJS.isMsEdge = (/Edge/i).test(navigator.userAgent);
 
     // detects if the browser has canvas support
-    var elem = document.createElement('canvas');
+    var elem = document.createElement("canvas");
     descartesJS.hasCanvas = (elem.getContext && elem.getContext("2d"));
 
     if (descartesJS.hasCanvas) {
       // render context used to measuere text
       descartesJS.ctx = descartesJS.hasCanvas;
 
-      // descartesJS._ratio = 1.5;
-      descartesJS._ratio = window.devicePixelRatio || 1;
+      // descartesJS._ratio = window.devicePixelRatio || 1;
+      descartesJS._ratio = 1.25;
     }
 
     setNewToFixed();

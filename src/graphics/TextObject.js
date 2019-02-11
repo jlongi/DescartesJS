@@ -7,6 +7,22 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var decimals;
+  var width;
+  var size;
+  var color;
+  var newTextStr;
+  var style;
+
+  var textElements;
+  var txt;
+  var pos;
+  var lastPos;
+  var ignoreSquareBracket;
+  var charAt;
+  var charAtAnt;
+  var textLength;
+
+  var evalString;
 
   /**
    * A Descartes plain text (not RTF)
@@ -23,17 +39,11 @@ var descartesJS = (function(descartesJS) {
     this.anchor = parent.anchor || "a_top_left"
     this.decimal_symbol = parent.parent.decimal_symbol;
 
-    this.w = 100;
-    this.h = 100;
+    this.w = this.h = 100;
 
     this.hasContent = (text !== "");
     this.textStr = (text || "").replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
-    this.oldTextStr = null;
-    this.oldWidth = null;
-    this.oldSize = null;
-    this.oldColor = null;
-    this.oldPosX = null;
-    this.oldPoxY = null;
+    this.oldTextStr = this.oldWidth = this.oldSize = this.oldColor = this.oldPosX = this.oldPoxY = null;
 
     // is a RTF text
     if (text.match(/^\{\\rtf1/)) {
@@ -66,12 +76,12 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextObject.prototype.drawText = function(ctx, fill, posX, posY, onlyUpdate) {
-    var decimals = this.evaluator.eval(this.decimals);
-    var width = this.evaluator.eval(this.parent.width);
-    var size = this.evaluator.eval(this.parent.font_size);
-    var color = (fill.getColor) ? fill.getColor() : fill;
+    decimals = this.evaluator.eval(this.decimals);
+    width = this.evaluator.eval(this.parent.width);
+    size = this.evaluator.eval(this.parent.font_size);
+    color = (fill.getColor) ? fill.getColor() : fill;
 
-    var newTextStr = this.textToString(this.text, decimals, this.fixed).replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
+    newTextStr = this.textToString(this.text, decimals, this.fixed).replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
 
     // check if the newTextStr contains an expression
     if (newTextStr.indexOf("[") >= 0) {
@@ -86,7 +96,7 @@ var descartesJS = (function(descartesJS) {
       (this.oldPosX !== posX) || 
       (this.oldPoxY !== posY) 
     ) {
-      var style = new descartesJS.TextStyle({ 
+      style = new descartesJS.TextStyle({ 
         size: size,
         family: this.parent.font_family || "arial",
         italic: this.parent.italics || false,
@@ -133,21 +143,21 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+
+
   /**
    * 
    */
   descartesJS.TextObject.prototype.parseSimpleText = function(text) {
     text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
 
-    var textElements = [];
+    textElements = [];
+    txt = "'";
+    pos = 0;
+    lastPos = 0;
+    ignoreSquareBracket = -1;
 
-    var txt = "'";
-    var pos = 0;
-    var lastPos = 0;
-    var ignoreSquareBracket = -1;
-    var charAt;
-    var charAtAnt;
-    var textLength = text.length;
+    textLength = text.length;
 
     while (pos < textLength) {
       charAt = text.charAt(pos);
@@ -204,11 +214,9 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextObject.prototype.textToString = function(text, decimals, fixed) {
-    var txt = "";
+    txt = "";
 
     if (text.type !== "rtfNode") {
-      var evalString;
-
       for(var i=0, l=text.length; i<l; i++) {
         if (typeof(text[i]) === "string") {
           txt += text[i];

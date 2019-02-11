@@ -11,10 +11,7 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var expr;
   var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
+  var tmpRot;
   var imgFile;
   var space;
   var despX;
@@ -25,7 +22,6 @@ var descartesJS = (function(descartesJS) {
 
   var w;
   var h;
-
 
   /**
    * A Descartes image
@@ -53,8 +49,7 @@ var descartesJS = (function(descartesJS) {
 
     this.img = new Image();
 
-    this.scaleX = 1;
-    this.scaleY = 1;
+    this.scaleX = this.scaleY = 1;
 
     this.ratio = parent.ratio;
 
@@ -79,13 +74,10 @@ var descartesJS = (function(descartesJS) {
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(radianAngle);
-      senTheta = Math.sin(radianAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
 
-      tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
-      tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
-      this.exprX = tmpRotX;
-      this.exprY = tmpRotY;
+      this.exprX = tmpRot.x;
+      this.exprY = tmpRot.y;
     }
 
     // configuration of the form (x,y,ew,eh)

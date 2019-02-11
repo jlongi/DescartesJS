@@ -6,8 +6,6 @@
 var descartesJS = (function(descartesJS) {
     if (descartesJS.loadLib) { return descartesJS; }
   
-    var operatorRegExp = /^[\_\^]/;
-
     /**
      * A rtf tokenizer
      * @constructor

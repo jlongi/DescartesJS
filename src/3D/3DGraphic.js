@@ -11,12 +11,7 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var expr;
   var tempParam;
-  var theText;
-  var verticalDisplace;
-
   var tmpVertex;
-  var lastIndexOfSpace;
-
   var degToRad = descartesJS.degToRad;
 
   /**

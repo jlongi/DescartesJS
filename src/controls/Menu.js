@@ -10,25 +10,14 @@ var descartesJS = (function(descartesJS) {
 
   var parser;
   var evaluator;
-
-  var expr
-  var val;
   var tempInd;
   var diff;
   var rest;
-  var resultValue;
-  var decimals;
-  var indexDot;
-  var subS;
-  var hasTouchSupport;
-
   var closeBracket;
   var tmpText;
   var pos;
-  var lastPos;
   var ignoreSquareBracket;
   var charAt;
-  var charAtAnt;
 
   /**
    * Descartes menu control
@@ -326,12 +315,10 @@ var descartesJS = (function(descartesJS) {
     closeBracket = false;
     tmpText = "";
     pos = 0;
-    lastPos = 0;
     ignoreSquareBracket = -1;
 
     while (pos < op.length) {
       charAt = op.charAt(pos);
-      charAtAnt = op.charAt(pos-1);
 
       // find a open square bracket
       if ((charAt === "[") && (ignoreSquareBracket === -1)) {
@@ -339,7 +326,6 @@ var descartesJS = (function(descartesJS) {
           tmpText += "¦";
         }
 
-        lastPos = pos;
         ignoreSquareBracket++;
 
       }
@@ -350,7 +336,6 @@ var descartesJS = (function(descartesJS) {
       // if find a close square bracket add the strin +'
       else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
         closeBracket = true;
-        lastPos = pos+1;
         ignoreSquareBracket--;
       }
 
@@ -404,8 +389,6 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Menu.prototype.addEvents = function() {
-    hasTouchSupport = descartesJS.hasTouchSupport;
-
     var self = this;
 
     // prevent the context menu display

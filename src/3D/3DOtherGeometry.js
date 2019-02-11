@@ -14,11 +14,6 @@ var descartesJS = (function(descartesJS) {
   var vec4D;
 
   var evaluator;
-  var width;
-  var height;
-  var length;
-  var Nu;
-  var Nv;
   var v;
   var x;
   var y;
@@ -37,13 +32,11 @@ var descartesJS = (function(descartesJS) {
 
   var currentLine;
   var tempValue;
-  var tempFace;
 
   var i;
   var l;
   var j;
   var k;
-
 
   /**
    * A Descartes 3D face

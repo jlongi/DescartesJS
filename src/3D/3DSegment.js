@@ -6,8 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var PI2 = Math.PI*2;
-
   var v1_x;
   var v1_y;
   var v1_z;

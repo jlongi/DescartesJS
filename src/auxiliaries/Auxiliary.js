@@ -21,8 +21,6 @@ var descartesJS = (function(descartesJS) {
     this.parent = parent;
     this.evaluator = this.parent.evaluator;
 
-    var parser = parent.evaluator.parser;
-
     /**
      * identifier of the auxiliary
      * type {String}
@@ -79,7 +77,7 @@ var descartesJS = (function(descartesJS) {
 
     expression = (expression) ? descartesJS.splitSeparator(expression) : [""];
 
-    // add only the instructions that execute something, i.e. instructions whit parsing different of null
+    // add only the instructions that execute something, i.e. instructions with parsing different of null
     for (var i=0, l=expression.length; i<l; i++) {
       descartesJS.DEBUG.lineCount = i;
       tmp = parser.parse(expression[i], true);
@@ -97,11 +95,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Auxiliary.prototype.getPrivateVariables = function(parser, expression) {
     tmpExpression = [];
 
-    if (expression) {
-      expression = expression.split(/;|,/);
-    } else {
-      expression = [""];
-    }
+    expression = (expression) ? expression.split(/;|,/) : [""];
 
     // add only the instructions tha execute something, i.e. instructions whit parsing different of null
     for (var i=0, l=expression.length; i<l; i++) {

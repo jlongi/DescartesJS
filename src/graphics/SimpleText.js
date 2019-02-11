@@ -6,6 +6,15 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var txt;
+  var evalString;
+
+  var pos;
+  var lastPos;
+  var ignoreSquareBracket;
+  var charAt;
+  var charAtAnt;
+
   /**
    * A Descartes plain text (not RTF)
    * @constructor
@@ -21,12 +30,10 @@ var descartesJS = (function(descartesJS) {
     this.evaluator = parent.evaluator;
     this.type = "simpleText"
 
-    var txt = "'";
-    var pos = 0;
-    var lastPos = 0;
-    var ignoreSquareBracket = -1;
-    var charAt;
-    var charAtAnt;
+    txt = "'";
+    pos = 0;
+    lastPos = 0;
+    ignoreSquareBracket = -1;
 
     while (pos < text.length) {
       charAt = text.charAt(pos);
@@ -80,9 +87,6 @@ var descartesJS = (function(descartesJS) {
     this.textElements.push(text.substring(lastPos, pos));
     this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
   }
-
-  var txt;
-  var evalString;
 
   /**
    * Get the string representation of the text, replacing the number taking into acount the number of decimals and the fixed value

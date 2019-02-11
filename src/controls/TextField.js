@@ -10,25 +10,8 @@ var descartesJS = (function(descartesJS) {
   var oldFieldValue;
   var oldValue;
   var resultValue;
-  var decimals;
-  var indexDot;
-  var value;
-  var limInf;
-  var limSup;
-  var cond1;
-  var cond2;
-  var cond3;
-  var cond4;
-  var answer_i_0;
-  var answer_i_1;
-  var tmpValue;
-  var tmpAnswer;
-  var regExpPattern;
-  var answerValue;
   var evalMin;
   var evalMax;
-
-  var hasTouchSupport;
 
   /**
    * Descartes text field control
@@ -49,12 +32,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.valueExprString === undefined) {
-      if (this.onlyText) {
-        this.valueExprString = '0';
-      }
-      else {
-        this.valueExprString = "";
-      }
+      this.valueExprString = (this.onlyText) ? '0' : "";
     }
 
     // an empty string
@@ -239,11 +217,7 @@ var descartesJS = (function(descartesJS) {
     this.field.disabled = !this.activeIfValue;
 
     // hide or show the text field control
-    if (this.drawIfValue) {
-      this.containerControl.style.display = "block";
-    } else {
-      this.containerControl.style.display = "none";
-    }
+    this.containerControl.style.display = (this.drawIfValue) ? "block" : "none";
 
     if ( !(this.parent.animation.playing) || (document.activeElement != this.field)) {
       oldFieldValue = this.field.value;
@@ -301,7 +275,6 @@ var descartesJS = (function(descartesJS) {
     if (evalMin === "") {
       evalMin = -Infinity;
     }
-    evalMax = evaluator.eval(this.max);
     if (evalMax === "") {
       evalMax = Infinity;
     }
@@ -311,7 +284,7 @@ var descartesJS = (function(descartesJS) {
       resultValue = evalMin;
     }
 
-    // if si greater than the upper limit
+    // if is greater than the upper limit
     if (resultValue > evalMax) {
       resultValue = evalMax;
     }
@@ -343,9 +316,8 @@ var descartesJS = (function(descartesJS) {
   /**
    * Change the text field value
    * @param {String} value is the new value to update the text field
-   * @param {Boolean} update is a condition to update the parent or not
    */
-  descartesJS.TextField.prototype.changeValue = function(value, update) {
+  descartesJS.TextField.prototype.changeValue = function(value) {
     if (this.activeIfValue) {
       this.value = this.validateValue(value);
       this.field.value = this.formatOutputValue(this.value);
@@ -395,8 +367,6 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.TextField.prototype.addEvents = function() {
-    hasTouchSupport = descartesJS.hasTouchSupport;
-
     var self = this;
 
     // prevent the context menu display

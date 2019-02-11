@@ -15,10 +15,11 @@ var descartesJS = (function(descartesJS) {
   var ctx;
   var backCtx;
   var constraintPosition;
-
   var hasTouchSupport;
-  var boundingRect;
   var tmp;
+
+  var radioTouch = 48;
+  var radioTouchImage = 32;
 
   /**
    * Descartes graphic control
@@ -173,10 +174,7 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.xStr, this.x);
     evaluator.setVariable(this.yStr, this.y);
 
-    var radioTouch = 48;
-    var radioTouchImage = 32;
-
-    this.mouseCacher.setAttribute("style", "cursor:pointer;background-color:rgba(255, 255, 255, 0);z-index:" + this.zIndex + ";");
+    this.mouseCacher.setAttribute("style", "cursor:pointer;background-color:rgba(255,255,255,0);z-index:" + this.zIndex + ";");
 
     // if the control has an image name
     if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
@@ -543,9 +541,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     var posNew;
-    var tmpX;
-    var tmpY;
-    var cpos;
 
     /**
      *

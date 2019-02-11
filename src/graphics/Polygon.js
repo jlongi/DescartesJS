@@ -12,10 +12,6 @@ var descartesJS = (function(descartesJS) {
   var space;
   var points;
   var radianAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
   var tmpLineWidth;
   var lineDesp;
   var coordX;
@@ -68,14 +64,9 @@ var descartesJS = (function(descartesJS) {
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(radianAngle);
-      senTheta = Math.sin(radianAngle);
 
       for (var i=0, l=this.endPoints.length; i<l; i++) {
-        tmpRotX = this.endPoints[i].x*cosTheta - this.endPoints[i].y*senTheta;
-        tmpRotY = this.endPoints[i].x*senTheta + this.endPoints[i].y*cosTheta;
-        this.endPoints[i].x = tmpRotX;
-        this.endPoints[i].y = tmpRotY;
+        this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
       }
     }
   }
@@ -111,8 +102,7 @@ var descartesJS = (function(descartesJS) {
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.strokeStyle = stroke.getColor();
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = ctx.lineJoin = "round";
 
     lineDesp = (tmpLineWidth > 0) ? .5 : 0;
 

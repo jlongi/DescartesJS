@@ -6,7 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var PI2 = Math.PI*2;
   var evaluator;
   var expr;
   var exprX;

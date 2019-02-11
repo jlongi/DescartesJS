@@ -8,7 +8,6 @@ var descartesJS = (function(descartesJS) {
 
   var evaluator;
   var tmpIncr;
-  var expr;
   var oldFieldValue;
   var oldValue;
   var ctx;
@@ -253,7 +252,6 @@ var descartesJS = (function(descartesJS) {
    * Draw the spinner
    */
   descartesJS.Spinner.prototype.draw = function() {
-// return;
     ctx = this.ctx;
 
     w = this.canvas.width;

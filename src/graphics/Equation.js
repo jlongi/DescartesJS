@@ -13,7 +13,6 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var parser;
   var space;
-  var color;
   var width;
   var savex;
   var savey;
@@ -38,29 +37,6 @@ var descartesJS = (function(descartesJS) {
   var i;
   var j;
 
-  var theZeroX;
-  var theZeroY;
-  var initX;
-  var initY;
-  var tmpX;
-  var tmpY;
-  var actualTmpAbsoluteX;
-  var actualTmpAbsoluteY;
-  var previousTmpAbsoluteX;
-  var previousTmpAbsoluteY;
-  var min;
-  var max;
-  var minmax;
-  var va;
-  var colorFillM;
-  var colorFillP;
-  var disc;
-  var saveX;
-  var Xr;
-  var auxv;
-
-descartesJS._debug_vez = 0;
-
   /**
    * A Descartes equation
    * @constructor
@@ -80,14 +56,14 @@ descartesJS._debug_vez = 0;
      * type {String}
      * @private
      */
-    this.fillP = "";//new descartesJS.Color("00ff80");
+    this.fillP = "";
 
     /**
      * the condition and the color of the fill-
      * type {String}
      * @private
      */
-    this.fillM = "";//new descartesJS.Color("ffc800");
+    this.fillM = "";
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -191,7 +167,6 @@ descartesJS._debug_vez = 0;
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
 
-        // // if the condition to draw if true then update and draw the graphic
         // update the values of the graphic
         this.update();
         // draw the graphic
@@ -238,7 +213,6 @@ descartesJS._debug_vez = 0;
     space = this.space;
     width = evaluator.eval(this.width);
 
-    // ctx.fillStyle = stroke.getColor();
     ctx.strokeStyle = this.color.getColor();
     ctx.lineWidth = width;
 
@@ -923,7 +897,9 @@ descartesJS._debug_vez = 0;
                   ctx.moveTo(x+.5, ya);
                   ctx.lineTo(x+.5, y);
                 }
-                ctx.stroke();
+                ////////////////////
+                // ctx.stroke(); //
+                ////////////////////
               }
             }
             // defa === false; extrapolate forward

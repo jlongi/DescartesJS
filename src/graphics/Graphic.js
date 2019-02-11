@@ -12,6 +12,8 @@ var descartesJS = (function(descartesJS) {
   var theText;
   var verticalDisplace;
   var ctx;
+  var cosTheta;
+  var senTheta;
 
   /**
    * Descartes graphics
@@ -192,7 +194,7 @@ var descartesJS = (function(descartesJS) {
     this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
 
     this.font_style = descartesJS.getFontStyle(this.font_str.split(",")[1]);
-    if ((typeof this.bold === "boolean") || (typeof this.italics === "boolean")) {
+    if ((typeof(this.bold) === "boolean") || (typeof(this.italics) === "boolean")) {
       if (this.bold && !this.italics) {
         this.font_style = "Bold ";
       }
@@ -222,19 +224,21 @@ var descartesJS = (function(descartesJS) {
    * return {Space} return the space to which the graphic belongs
    */
   descartesJS.Graphic.prototype.getSpace = function() {
-    var spaces = this.parent.spaces;
-    var space_i;
+    return (this.parent.spaces.find( (element) => { return element.id === this.spaceID; } )) || this.parent.spaces[0];
 
-    // find in the spaces
-    for (var i=0, l=spaces.length; i<l; i++) {
-      space_i = spaces[i];
-      if (space_i.id == this.spaceID) {
-        return space_i;
-      }
-    }
+    // var spaces = this.parent.spaces;
+    // var space_i;
 
-    // if do not find the identifier, return the first space
-    return spaces[0];
+    // // find in the spaces
+    // for (var i=0, l=spaces.length; i<l; i++) {
+    //   space_i = spaces[i];
+    //   if (space_i.id == this.spaceID) {
+    //     return space_i;
+    //   }
+    // }
+
+    // // if do not find the identifier, return the first space
+    // return this.parent.spaces[0];
   }
 
   /**
@@ -328,6 +332,19 @@ var descartesJS = (function(descartesJS) {
         this.drawAux(this.traceCtx, fill, stroke);
       }
     }
+  }
+
+  /**
+   * 
+   */
+  descartesJS.Graphic.prototype.rotate = function(x, y, angle) {
+    cosTheta = Math.cos(angle);
+    senTheta = Math.sin(angle);
+
+    return {
+      x : x*cosTheta - y*senTheta,
+      y : x*senTheta + y*cosTheta
+    };
   }
 
   /**

@@ -113,7 +113,7 @@ files = [ "Babel.js",
           "Debug.js",
           "Main.js"]
 
-# add the header to the malted-min.js file
+# add the header to the descartes-min.js file
 out.write(
 "/**
  * @preserve Joel Espinosa Longi
@@ -130,4 +130,4 @@ end
 out.close
 
 # call the closure compiler
-exec("java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT6 --js=descartes.js --js_output_file=descartes-min.js", )
+exec("java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartes-min.js", )

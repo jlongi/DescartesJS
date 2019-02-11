@@ -23,21 +23,12 @@ var descartesJS = (function(descartesJS) {
   var smw;
   var resultValue;
   var incr;
-  var decimals;
-  var indexDot;
-  var subS;
   var newValue;
   var limInf;
   var limSup;
   var min;
   var max;
   var name;
-  // var hasTouchSupport;
-
-  var tmpContainer;
-  var boundingRect;
-  var tmpDisplay;
-  var pos;
 
   /**
    * Descartes scrollbar control
@@ -608,10 +599,7 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Scrollbar.prototype.addEvents = function() {
-    // hasTouchSupport = descartesJS.hasTouchSupport;
-
     var self = this;
-    // var delay = (hasTouchSupport) ? 500 : 200;
     var delay = 350;
     var timer;
 
@@ -682,11 +670,9 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    // if (hasTouchSupport) {
-      this.canvas.addEventListener("touchstart", onMouseDown_canvas);
-    // } else {
-      this.canvas.addEventListener("mousedown", onMouseDown_canvas);
-    // }
+
+    this.canvas.addEventListener("touchstart", onMouseDown_canvas);
+    this.canvas.addEventListener("mousedown", onMouseDown_canvas);
 
     /**
      *
@@ -698,9 +684,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.clearTimeout(timer);
       evt.preventDefault();
     }
-    // if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    // }
+    this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
 
     /**
      *
@@ -710,13 +694,9 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_Canvas(evt) {
       self.canvasClick = false;
       descartesJS.clearTimeout(timer);
-      // evt.preventDefault();
     }
-    // if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_Canvas);
-    // } else {
-      window.addEventListener("mouseup", onMouseUp_Canvas);
-    // }
+    window.addEventListener("touchend", onMouseUp_Canvas);
+    window.addEventListener("mouseup", onMouseUp_Canvas);
 
     /**
      *
@@ -729,11 +709,8 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
       }
     }
-    // if (hasTouchSupport) {
-      this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
-    // } else {
-      this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
-    // }
+    this.canvas.addEventListener("touchmove", onMouseMove_Canvas);
+    this.canvas.addEventListener("mousemove", onMouseMove_Canvas);
 
     /**
      *
@@ -771,11 +748,8 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // if (hasTouchSupport) {
-      this.scrollHandler.addEventListener("touchstart", onTouchStart_scrollHandler);
-    // } else {
-      this.scrollHandler.addEventListener("mousedown", onMouseDown_scrollHandler);
-    // }
+    this.scrollHandler.addEventListener("touchstart", onTouchStart_scrollHandler);
+    this.scrollHandler.addEventListener("mousedown", onMouseDown_scrollHandler);
 
     /**
      *
@@ -828,7 +802,7 @@ var descartesJS = (function(descartesJS) {
           self.pos =  self.limSup;
         }
 
-        self.scrollHandler.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.scrollHandlerW + "px; height : " + self.h + "px; left: " + self.pos + "px; top: 0px;");
+        self.scrollHandler.setAttribute("style", "background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;width:" + self.scrollHandlerW + "px;height:" + self.h + "px;left:" + self.pos + "px;top:0;");
       } else {
         self.pos = self.prePos - (self.initPos.y - newPos.y);
 
@@ -840,7 +814,7 @@ var descartesJS = (function(descartesJS) {
           self.pos =  self.limSup;
         }
 
-        self.scrollHandler.setAttribute("style", "background-color: rgba(255, 255, 255, 0); cursor: pointer; position: absolute; width : " + self.w + "px; height : " + self.scrollHandlerH + "px; left: 0px; top: " + self.pos + "px;");
+        self.scrollHandler.setAttribute("style", "background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;width:" + self.w + "px;height:" + self.scrollHandlerH + "px;left:0;top:" + self.pos + "px;");
       }
 
       self.changeValueForScrollMovement();
@@ -865,11 +839,8 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    // if (hasTouchSupport) {
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-    // } else {
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
-    // }
+    this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
+    this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
 
     /**
      *
@@ -888,11 +859,8 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-    // if (hasTouchSupport) {
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-    // } else {
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
-    // }
+    this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
+    this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
 
     /**
      *
@@ -904,9 +872,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.clearTimeout(timer);
       evt.preventDefault();
     }
-    // if (!hasTouchSupport) {
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
-    // }
+    this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
 
     /**
      *
@@ -918,9 +884,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.clearTimeout(timer);
       evt.preventDefault();
     }
-    // if (!hasTouchSupport) {
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
-    // }
+    this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
 
     /**
      *
@@ -930,14 +894,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_UpButton(evt) {
       self.up = false;
       descartesJS.clearTimeout(timer);
-      // evt.preventDefault();
       self.draw();
     }
-    // if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_UpButton);
-    // } else {
-      window.addEventListener("mouseup", onMouseUp_UpButton);
-    // }
+    window.addEventListener("touchend", onMouseUp_UpButton);
+    window.addEventListener("mouseup", onMouseUp_UpButton);
 
     /**
      *
@@ -947,14 +907,10 @@ var descartesJS = (function(descartesJS) {
     function onMouseUp_DownButton(evt) {
       self.down = false;
       descartesJS.clearTimeout(timer);
-      // evt.preventDefault();
       self.draw();
     }
-    // if (hasTouchSupport) {
-      window.addEventListener("touchend", onMouseUp_DownButton);
-    // } else {
-      window.addEventListener("mouseup", onMouseUp_DownButton);
-    // }
+    window.addEventListener("touchend", onMouseUp_DownButton);
+    window.addEventListener("mouseup", onMouseUp_DownButton);
 
   }
 

@@ -21,7 +21,6 @@ var descartesJS = (function(descartesJS) {
   var ll;
 
   var n;
-  var k;
   var a;
   var b;
   var c;
@@ -37,8 +36,7 @@ var descartesJS = (function(descartesJS) {
    * @constructor 
    * @param {String} key the key of encryptation
    */
-  descartesJS.Krypto = function(key){
-    key = key || 0;
+  descartesJS.Krypto = function(key = 0){
     this.key = key.toString();
   }
 
@@ -90,11 +88,7 @@ var descartesJS = (function(descartesJS) {
    * @return {String}
    */
   descartesJS.Krypto.prototype.encriptaAux = function(OrigMeu) {
-    if (OrigMeu == null) {
-      return null;
-    }
-    
-    if (this.key == null) {
+    if ((OrigMeu == null) || (this.key == null)) {
       return null;
     }
     
@@ -125,10 +119,7 @@ var descartesJS = (function(descartesJS) {
    * @return {String}
    */
   descartesJS.Krypto.prototype.desencriptaAux = function(OrigMeu) {
-    if (OrigMeu == null) {
-      return null;
-    }
-    if (this.key == null) {
+    if ((OrigMeu == null) || (this.key == null)) {
       return null;
     }
 
@@ -154,12 +145,7 @@ var descartesJS = (function(descartesJS) {
    * @return Number {Array<Number>}
    */
   descartesJS.Krypto.prototype.alfanum = function(k) {
-    k = MathFloor(k);
-    if (k<10) {
-      return 48 + k;
-    } else {
-      return 87 + k;
-    }
+    return ((k < 10) ? 48 : 87) + MathFloor(k);
   }
   
   /**
@@ -167,11 +153,7 @@ var descartesJS = (function(descartesJS) {
    * @return Number {Array<Number>}
    */
   descartesJS.Krypto.prototype.numalfa = function(b) {
-    if (b<58) {
-      return b-48;
-    } else {
-      return b-87;
-    }
+    return b - ((b < 58) ? 48 : 87);
   }
   
   /**
@@ -179,10 +161,10 @@ var descartesJS = (function(descartesJS) {
    * @return {Array<Number>}
    */
   descartesJS.Krypto.prototype.stringToBytes = function(OrigMeu) {
-    b = new Array(OrigMeu.length);
+    b = [];
     
     for (var i=0, l=OrigMeu.length; i<l; i++) {
-      b[i] = OrigMeu.charCodeAt(i);
+      b.push( OrigMeu.charCodeAt(i) );
     }
     
     return b;

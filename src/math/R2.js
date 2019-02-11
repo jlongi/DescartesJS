@@ -40,14 +40,14 @@ var descartesJS = (function(descartesJS) {
    * @param {Number} x the x position
    * @param {Number} y the y position
    */
-  descartesJS.R2 = function(x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
+  descartesJS.R2 = function(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
   }
 
-  descartesJS.R2.prototype.set = function(x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
+  descartesJS.R2.prototype.set = function(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
     return this;
   }
 

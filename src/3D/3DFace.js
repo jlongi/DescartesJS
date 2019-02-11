@@ -6,12 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var v1_x;
-  var v1_y;
-  var v1_z;
-  var v2_x;
-  var v2_y;
-  var v2_z;
   var vertices;
 
   /**

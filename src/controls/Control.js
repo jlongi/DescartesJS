@@ -23,14 +23,6 @@ var descartesJS = (function(descartesJS) {
   var subS;
   var parent;
 
-  var canvas;
-  var ctx;
-  var self;
-  var _left;
-  var _top;
-  var _width;
-  var _height;
-
   /**
    * Descartes control
    * @constructor
@@ -75,20 +67,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.region = "south";
-
-    /**
-     * space name
-     * type {String}
-     * @private
-     */
-//     this.space = "E0";
-
-    /**
-     * name
-     * type {String}
-     * @private
-     */
-//     this.name = "";
 
     /**
      * x position
@@ -492,7 +470,7 @@ var descartesJS = (function(descartesJS) {
 
     if (this.fixed) {
       // ## patch for Descartes 2 ##
-      // in a version diferente to 2, then fixed stays as it should
+      // in a different version than 2, then fixed stays as it should
       // if the version is 2 but do not use exponential notation
       if ( (parent.version !== 2) || ((parent.version === 2) && (!this.exponentialif)) ) {
         resultValue = parseFloat(value).toFixed(decimals);
@@ -559,18 +537,18 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  descartesJS.Control.prototype.createCSSGradient = function(h) {
-    var gradientStr = "linear-gradient(";
-    hh = h*h;
+  // descartesJS.Control.prototype.createCSSGradient = function(h) {
+  //   var gradientStr = "linear-gradient(";
+  //   hh = h*h;
 
-    for (var i=0; i<h; i++) {
-      di = MathFloor(i-(35*h)/100);
-      gradientStr += "rgba(0,0,0,"+ ((di*di*200)/hh)/255 +") "+ (i*100/(h-1)) +"%,";
-    }
-    gradientStr = gradientStr.substring(0, gradientStr.length-1);
+  //   for (var i=0; i<h; i++) {
+  //     di = MathFloor(i-(35*h)/100);
+  //     gradientStr += "rgba(0,0,0,"+ ((di*di*200)/hh)/255 +") "+ (i*100/(h-1)) +"%,";
+  //   }
+  //   gradientStr = gradientStr.substring(0, gradientStr.length-1);
 
-    return gradientStr + ")";
-  }
+  //   return gradientStr + ")";
+  // }
 
   return descartesJS;
 })(descartesJS || {});

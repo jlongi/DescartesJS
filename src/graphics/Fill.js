@@ -55,7 +55,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Fill.prototype.drawTrace = function() {
     // call the drawTrace function of the father (uber instead of super as it is reserved word)
     this.uber.drawTrace.call(this, this.trace, this.trace);
-    // console.log("hola")
   }
 
   /**
@@ -122,11 +121,12 @@ var descartesJS = (function(descartesJS) {
   function getPixel(imageData, x, y) {
     index = (x + y*imageData.width) *4;
 
-    return { r: imageData.data[index],
-             g: imageData.data[index+1],
-             b: imageData.data[index+2],
-             a: imageData.data[index+3]
-           }
+    return { 
+      r: imageData.data[index],
+      g: imageData.data[index+1],
+      b: imageData.data[index+2],
+      a: imageData.data[index+3]
+    }
   }
 
   /**

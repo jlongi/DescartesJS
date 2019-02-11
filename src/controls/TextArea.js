@@ -6,7 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
   var evaluator;
   var displaceY;
   var newText;
@@ -221,7 +220,6 @@ var descartesJS = (function(descartesJS) {
     this.imagePush = canvas.toDataURL();
   }
 
-  var count = 0;
   /**
    * Update the text area
    */

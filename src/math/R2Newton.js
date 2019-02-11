@@ -151,12 +151,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if (is_graphic_control) {
-      return q;
-    }
-    else {
-      return null;
-    }
+    return (is_graphic_control) ? q : null;
   }
 
   return descartesJS;

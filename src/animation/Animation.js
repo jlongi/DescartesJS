@@ -22,7 +22,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.parent = parent;
 
-    var tmp;
     var evaluator = parent.evaluator;
     var parser = evaluator.parser;
     var algorithmAuxiliary = new descartesJS.Auxiliary(parent);
