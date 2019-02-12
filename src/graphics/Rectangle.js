@@ -6,10 +6,10 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
-  var mathMin = Math.min;
-  var mathMax = Math.max;
-  var mathAbs = Math.abs;
+  var MathRound = Math.round;
+  var MathMin = Math.min;
+  var MathMax = Math.max;
+  var MathAbs = Math.abs;
 
   var evaluator;
   var space;
@@ -88,8 +88,8 @@ var descartesJS = (function(descartesJS) {
       this.h = expr[1][1];
     }
 
-    this.w = mathMax(0, this.w);
-    this.h = mathMax(0, this.h);
+    this.w = MathMax(0, this.w);
+    this.h = MathMax(0, this.h);
   }
 
   /**
@@ -119,7 +119,7 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.eval(this.width) );
+    tmpLineWidth = MathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.strokeStyle = stroke.getColor();
@@ -128,11 +128,11 @@ var descartesJS = (function(descartesJS) {
 
     lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
-    x = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) ) +lineDesp;
-    y = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) ) +lineDesp;
+    x = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) ) +lineDesp;
+    y = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) ) +lineDesp;
     w = (this.abs_coord) ? this.w : this.w*space.scale;
     h = (this.abs_coord) ? this.h : -this.h*space.scale;
-    r = mathMin( mathMax(0, evaluator.eval(this.border_radius)), mathAbs(w)*0.5, mathAbs(h)*0.5 );
+    r = MathMin( MathMax(0, evaluator.eval(this.border_radius)), MathAbs(w)*0.5, MathAbs(h)*0.5 );
     sign = (this.abs_coord) ? 1 : -1;
 
     ctx.beginPath();
@@ -146,15 +146,15 @@ var descartesJS = (function(descartesJS) {
       ctx.quadraticCurveTo(x, y + h, x, y + h - sign*r);
       ctx.lineTo(x, y + sign*r);
       ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
+      ctx.lineTo(x + r, y);
     }
     else {
       ctx.moveTo(x, y);
       ctx.lineTo(x + w, y);
       ctx.lineTo(x + w, y + h);
       ctx.lineTo(x, y + h);
+      ctx.lineTo(x, y);
     }
-    ctx.closePath();
     
     // draw the fill
     if (this.fill) {

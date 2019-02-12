@@ -15,10 +15,7 @@ var descartesJS = (function(descartesJS) {
   var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
 
-  var elapsedTime = 10;
-
   var self;
-
   var evaluator;
   var parent;
   var ctx;
@@ -26,7 +23,6 @@ var descartesJS = (function(descartesJS) {
   var changeX;
   var changeY;
   var thisGraphics_i;
-  var thisCtrs_i;
 
   var rsc;
   var dec;
@@ -150,7 +146,7 @@ var descartesJS = (function(descartesJS) {
 
     self.click = 0;
 
-    if(self.resizable) {
+    if (self.resizable) {
       self.wModExpr = parent.evaluator.parser.parse(self.wModExpr);
       self.hModExpr = parent.evaluator.parser.parse(self.hModExpr);
     }
@@ -177,7 +173,6 @@ var descartesJS = (function(descartesJS) {
     self = this;
 
     // call the init of the parent
-    // self.uber.init.call(self);
     this.initSpace();
 
     // update the size of the canvas if has some regions
@@ -449,10 +444,7 @@ var descartesJS = (function(descartesJS) {
     if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
       self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
 
-      var bottom = 0;
-      if (self.backGraphics.length > 1) {
-        bottom = self.backGraphics[1].text.textNodes.metrics.h +25;
-      }
+      var bottom = (self.backGraphics.length > 1) ? self.backGraphics[1].text.textNodes.metrics.h +25 : 0;
       self.h = self.stage_height + bottom + 75;
 
       // creative commons banner

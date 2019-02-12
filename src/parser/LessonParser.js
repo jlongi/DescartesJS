@@ -25,18 +25,7 @@ var descartesJS = (function(descartesJS, babel) {
   var i;
   var initToken;
   var initPosToken;
-  var endPosToken;
   var stringToken;
-  var valueToken;
-  var charAt;
-
-  var splitString;
-  var parenthesesStack;
-  var lastSplitIndex;
-
-  var tmpColor;
-  var splitColor;
-  var hexColor;
 
   var subtitleFontSize;
   var plecaObj;
@@ -52,8 +41,6 @@ var descartesJS = (function(descartesJS, babel) {
   var tempDecrement;
   var tmpIndexEqual;
   var tmpIndexSpace;
-
-  var charAt;
 
   /**
    * Parser of principal elements of descartes
@@ -1774,7 +1761,7 @@ var descartesJS = (function(descartesJS, babel) {
     values = values.replace(/\\'/g, "’");
 
     splitValues = [];
-    pos = i = initPosToken = endPosToken = 0;
+    pos = i = initPosToken = 0;
     initToken = stringToken = valueToken = false;
 
     // traverse the string to split

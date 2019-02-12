@@ -129,7 +129,7 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = descartesJS.hasCanvas;
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
-      descartesJS._ratio = 1.25;
+      descartesJS._ratio = 1.5;
     }
 
     setNewToFixed();

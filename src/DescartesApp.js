@@ -183,12 +183,7 @@ var descartesJS = (function(descartesJS) {
 
       // get the cover of the scene
       if (children_i.name == "expand") {
-        if (children_i.value == "cover") {
-          this.expand = children_i.value;
-        }
-        else if (children_i.value == "fit") {
-          this.scaleToFit = scaleToFit;
-        }
+        this.expand = children_i.value;
       }
 
       // set the docBase for the elements in the resources
@@ -205,6 +200,12 @@ var descartesJS = (function(descartesJS) {
     if (this.expand === "cover") {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
+    }
+    else if (this.expand === "fit") {
+      this.scaleToFit = scaleToFit;
+    }
+    else if (this.expand === "resizable") {
+      this.scaleToFit = resizable;
     }
 
     // configure an arquimedes lesson
@@ -590,8 +591,9 @@ var descartesJS = (function(descartesJS) {
 
     // if the window parent is diferente from the current window, then is embedded in an iFrame
     if (window.parent !== window) {
-      this.parentC.style.margin = "0";
-      this.parentC.style.padding = "0";
+      this.parentC.style.margin = this.parentC.style.padding = 0;
+      // window.document.body.style.position = "fixed";
+      // window.document.body.style.left = window.document.body.style.top = 0;
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
       window.parent.postMessage({ type: "ready", value: window.location.href }, '*');
@@ -622,6 +624,12 @@ var descartesJS = (function(descartesJS) {
     window.dispatchEvent(evt);
 
     this.readyApp = true;
+
+    ////////////////////////////////////////////////////////
+    if (this.expand === "resizable") {
+      this.scaleToFit();
+    }
+    ////////////////////////////////////////////////////////
   }
 
   /**
@@ -718,7 +726,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.northSpace.container;
       container.setAttribute("id", "descartesJS_north");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + this.plecaHeight + "px;z-index:100;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + this.plecaHeight + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -751,7 +759,7 @@ var descartesJS = (function(descartesJS) {
       // create the credits button
       if (buttonsConfig.about) {
         var btnAbout = new descartesJS.Button(this, {region: "north",
-                                                     name: (this.language == "english") ? "about" : "cr\u00E9ditos",
+                                                     name: (this.language == "english") ? "about" : "créditos",
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
                                                     });
@@ -800,7 +808,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.southSpace.container;
       container.setAttribute("id", "descartesJS_south");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + (principalContainer.height-southRegionHeight) + "px;z-index:100;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + (principalContainer.height-southRegionHeight) + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -864,7 +872,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.westSpace.container;
       container.setAttribute("id", "descartesJS_west");
-      container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;background:#c0c0c0;position:absolute;left:0px;top:" + northRegionHeight + "px;z-index:100;");
+      container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + northRegionHeight + "px;z-index:100;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -882,7 +890,7 @@ var descartesJS = (function(descartesJS) {
       editableRegionHeight = buttonsConfig.height;
       var container = this.editableRegion.container;
       container.setAttribute("id", "descartesJS_editableRegion");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;position:absolute;left:0px;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;z-index:100;background:#c0c0c0;overflow:hidden;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;position:absolute;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;z-index:100;background:#c0c0c0;overflow:hidden;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -903,7 +911,7 @@ var descartesJS = (function(descartesJS) {
           // the label
           var label = editableRegionTextFields[i].container.firstChild;
 
-          label.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";font-size:" + fontSize + "px;padding-top:0px;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
+          label.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";font-size:" + fontSize + "px;padding-top:0;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
           var labelWidth = label.offsetWidth;
           label.style.width = labelWidth + "px";
 
@@ -1106,8 +1114,6 @@ var descartesJS = (function(descartesJS) {
       else {
         var lastIndexOfDot = name.lastIndexOf(".");
         lastIndexOfDot = (lastIndexOfDot === -1) ? name.lenght : lastIndexOfDot;
-        var namename = name.substring(0, lastIndexOfDot);
-
         audios[name] = new Audio(name);
 
         var onCanPlayThrough = function(evt) {
@@ -1402,6 +1408,85 @@ var descartesJS = (function(descartesJS) {
     else {
       this.container.style.left = "50%";
       this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
+    }
+  }
+
+  /**
+   * 
+   */
+  function resizable() {
+    let space;
+    let w = h = x = y = 0;
+
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.container.style.width = window.innerWidth +"px";
+    this.container.style.height = window.innerHeight +"px";
+
+    for (var i=0, l=this.spaces.length; i<l; i++) {
+      space = this.spaces[i];
+
+      if ( space.wExpr && (space.wExpr.match(/%$/)) ) {
+        w = parseFloat(space.wExpr)/100;
+        space.w = this.width * w;
+
+        if (space.type === "HTMLIFrame") {
+          space.MyIFrame.style.width  = space.container.style.width = space.w + "px";
+        }
+        else {
+          space.canvas.width = space.backCanvas.width = space.w *space.ratio;
+          space.canvas.style.width = space.backCanvas.style.width = space.w + "px";
+        }
+
+        space.update(true);
+        this.evaluator.setVariable(space.wStr, space.w);
+      }
+
+      if ( space.hExpr && (space.hExpr.match(/%$/)) ) {
+        h = parseFloat(space.hExpr)/100;
+        space.h = this.height * h;
+
+        if (space.type === "HTMLIFrame") {
+          space.MyIFrame.style.height = space.container.style.height = space.h + "px";
+        }
+        else {
+          space.canvas.height = space.backCanvas.height = space.h *space.ratio;
+          space.canvas.style.height = space.backCanvas.style.height = space.h + "px";
+        }
+
+        space.update(true);
+        this.evaluator.setVariable(space.hStr, space.h);
+      }
+
+      if (space.xPercentExpr) {
+        x = parseFloat(space.xPercentExpr)/100;
+        space.x = this.width * x;
+        space.xExpr = this.evaluator.parser.parse( ""+space.x );
+
+        if (space.type === "HTMLIFrame") {
+          space.MyIFrame.style.left = space.container.style.left = space.x + "px";
+        }
+        else {
+          space.container.style.left = space.x + "px";
+        }
+
+        space.update(true);
+      }
+
+      if (space.yPercentExpr) {
+        y = parseFloat(space.yPercentExpr)/100;
+        space.y = this.height * y;
+        space.yExpr = this.evaluator.parser.parse( ""+space.y );
+
+        if (space.type === "HTMLIFrame") {
+          space.MyIFrame.style.top = space.container.style.top = space.y + "px";
+        }
+        else {
+          space.container.style.top = space.y + "px";
+        }
+
+        space.update(true);
+      }
     }
   }
 
