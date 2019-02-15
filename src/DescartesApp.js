@@ -7,9 +7,6 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var tmpVal;
-  var scaleToFitX;
-  var scaleToFitY;
-  var optimalRatio;
   
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
@@ -196,18 +193,6 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // cover space
-    if (this.expand === "cover") {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-    }
-    else if (this.expand === "fit") {
-      this.scaleToFit = scaleToFit;
-    }
-    else if (this.expand === "resizable") {
-      this.scaleToFit = resizable;
-    }
-
     // configure an arquimedes lesson
     if (this.arquimedes) {
       this.ratio = 1;
@@ -331,24 +316,30 @@ var descartesJS = (function(descartesJS) {
     this.parentC.insertBefore(this.container, this.parentC.firstChild);
     this.container.width = this.width;
     this.container.height = this.height;
-    this.container.setAttribute("class", "DescartesAppContainer");
-    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
 
-    //
-    this.scaleToFit();
-    //
+    this.container.setAttribute("class", "DescartesAppContainer");
+    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;min-width:" + this.width + "px;min-height:" + this.height + "px;");
+
+    //////////////////////////////////////////////////////////////
+    // cover space
+    if (this.expand === "cover") {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+    }
+    else if (this.expand === "fit") {
+      this.scaleToFit = scaleToFit;
+      document.body.style.overflow = "hidden";
+      this.container.parentNode.removeAttribute("align");
+      this.container.parentNode.setAttribute("is-flex", true);
+      this.scaleToFit();
+    }
+    //////////////////////////////////////////////////////////////
 
     // add the loader
     this.container.appendChild(this.loader);
     this.loader.width = this.width;
     this.loader.height = this.height;
     this.loader.setAttribute("class", "DescartesLoader");
-    this.loader.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;z-index:1000;display:none;");
-
-    // if have an image, the background is transparent
-    if (this.imgLoader) {
-      this.loader.style.backgroundColor = "rgba(0,0,0,0)";
-    }
 
     // first run
     if (this.firstRun) {
@@ -624,12 +615,6 @@ var descartesJS = (function(descartesJS) {
     window.dispatchEvent(evt);
 
     this.readyApp = true;
-
-    ////////////////////////////////////////////////////////
-    if (this.expand === "resizable") {
-      this.scaleToFit();
-    }
-    ////////////////////////////////////////////////////////
   }
 
   /**
@@ -644,43 +629,6 @@ var descartesJS = (function(descartesJS) {
     window.resizeTo(winWidth, winHeight);
 
     descartesJS.onResize();
-  }
-
-  /**
-   *
-   */
-  descartesJS.DescartesApp.prototype.adjustDimensions = function() {
-    var appletsAJS_i = this;
-    var init_w;
-    var w;
-    var percent;
-
-    if ((appletsAJS_i.init_w == undefined) || (appletsAJS_i.init_h == undefined)) {
-      appletsAJS_i.init_w = parseInt( appletsAJS_i.container.style.width );
-      appletsAJS_i.init_h = parseInt( appletsAJS_i.container.style.height );
-    }
-
-    w = parseInt(appletsAJS_i.parentC.offsetWidth);
-    init_w = appletsAJS_i.init_w;
-    percent = w/init_w;
-
-    if (init_w > w) {
-      if (appletsAJS_i.parentC != document.body) {
-        appletsAJS_i.parentC.style.height = appletsAJS_i.init_h*percent + "px";
-      }
-      appletsAJS_i.percent = percent;
-      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "scale(" +percent+ ")";
-      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "top left";
-    }
-    else {
-      if (appletsAJS_i.parentC != document.body) {
-        appletsAJS_i.parentC.style.height = "auto";
-      }
-      appletsAJS_i.percent = 1;
-
-      appletsAJS_i.container.style.webkitTransform = appletsAJS_i.container.style.MozTransform = "";
-      appletsAJS_i.container.style.webkitTransformOrigin = appletsAJS_i.container.style.MozTransformOrigin = "";
-    }
   }
 
   /**
@@ -726,7 +674,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.northSpace.container;
       container.setAttribute("id", "descartesJS_north");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + this.plecaHeight + "px;z-index:100;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;left:0;top:" + this.plecaHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -808,7 +756,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.southSpace.container;
       container.setAttribute("id", "descartesJS_south");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + (principalContainer.height-southRegionHeight) + "px;z-index:100;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;left:0;bottom:0;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -852,7 +800,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.eastSpace.container;
       container.setAttribute("id", "descartesJS_east");
-      container.setAttribute("style", "width:" + eastRegionWidth + "px;height:" + eastRegionHeight + "px;background:#c0c0c0;position:absolute;left:" + (principalContainer.width - eastRegionWidth) + "px;top:" + northRegionHeight + "px;z-index:100;");
+      container.setAttribute("style", "width:" + eastRegionWidth + "px;height:" + eastRegionHeight + "px;right:0;top:" + northRegionHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -872,7 +820,7 @@ var descartesJS = (function(descartesJS) {
 
       var container = this.westSpace.container;
       container.setAttribute("id", "descartesJS_west");
-      container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;background:#c0c0c0;position:absolute;left:0;top:" + northRegionHeight + "px;z-index:100;");
+      container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;left:0;top:" + northRegionHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -890,7 +838,7 @@ var descartesJS = (function(descartesJS) {
       editableRegionHeight = buttonsConfig.height;
       var container = this.editableRegion.container;
       container.setAttribute("id", "descartesJS_editableRegion");
-      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;position:absolute;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;z-index:100;background:#c0c0c0;overflow:hidden;");
+      container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;");
 
       principalContainer.insertBefore(container, this.loader);
 
@@ -1393,101 +1341,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function scaleToFit() {
-    scaleToFitX = window.innerWidth/this.width;
-    scaleToFitY = window.innerHeight/this.height;
-
-    optimalRatio = Math.min(scaleToFitX, scaleToFitY);
-    descartesJS.cssScale = optimalRatio;
-
-    this.container.parentNode.setAttribute("align", "");
-    this.container.style.transformOrigin = "0 0";
-    if (scaleToFitX < scaleToFitY) {
-      this.container.style.left = "0";
-      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+")";
-    }
-    else {
-      this.container.style.left = "50%";
-      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
-    }
-  }
-
-  /**
-   * 
-   */
-  function resizable() {
-    let space;
-    let w = h = x = y = 0;
-
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.container.style.width = window.innerWidth +"px";
-    this.container.style.height = window.innerHeight +"px";
-
-    for (var i=0, l=this.spaces.length; i<l; i++) {
-      space = this.spaces[i];
-
-      if ( space.wExpr && (space.wExpr.match(/%$/)) ) {
-        w = parseFloat(space.wExpr)/100;
-        space.w = this.width * w;
-
-        if (space.type === "HTMLIFrame") {
-          space.MyIFrame.style.width  = space.container.style.width = space.w + "px";
-        }
-        else {
-          space.canvas.width = space.backCanvas.width = space.w *space.ratio;
-          space.canvas.style.width = space.backCanvas.style.width = space.w + "px";
-        }
-
-        space.update(true);
-        this.evaluator.setVariable(space.wStr, space.w);
-      }
-
-      if ( space.hExpr && (space.hExpr.match(/%$/)) ) {
-        h = parseFloat(space.hExpr)/100;
-        space.h = this.height * h;
-
-        if (space.type === "HTMLIFrame") {
-          space.MyIFrame.style.height = space.container.style.height = space.h + "px";
-        }
-        else {
-          space.canvas.height = space.backCanvas.height = space.h *space.ratio;
-          space.canvas.style.height = space.backCanvas.style.height = space.h + "px";
-        }
-
-        space.update(true);
-        this.evaluator.setVariable(space.hStr, space.h);
-      }
-
-      if (space.xPercentExpr) {
-        x = parseFloat(space.xPercentExpr)/100;
-        space.x = this.width * x;
-        space.xExpr = this.evaluator.parser.parse( ""+space.x );
-
-        if (space.type === "HTMLIFrame") {
-          space.MyIFrame.style.left = space.container.style.left = space.x + "px";
-        }
-        else {
-          space.container.style.left = space.x + "px";
-        }
-
-        space.update(true);
-      }
-
-      if (space.yPercentExpr) {
-        y = parseFloat(space.yPercentExpr)/100;
-        space.y = this.height * y;
-        space.yExpr = this.evaluator.parser.parse( ""+space.y );
-
-        if (space.type === "HTMLIFrame") {
-          space.MyIFrame.style.top = space.container.style.top = space.y + "px";
-        }
-        else {
-          space.container.style.top = space.y + "px";
-        }
-
-        space.update(true);
-      }
-    }
+    this.container.style.transform = "scale("+ (Math.min(window.innerWidth/this.width, window.innerHeight/this.height)) + ")";
   }
 
   return descartesJS;

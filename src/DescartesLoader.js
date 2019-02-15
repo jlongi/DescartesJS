@@ -39,6 +39,7 @@ var descartesJS = (function(descartesJS) {
 
     // has a value in the parameter image_loader
     if (descartesApp.imgLoader) {
+      descartesApp.loader.style.backgroundColor = "rgba(0,0,0,0)";
       self.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
     }
     else {

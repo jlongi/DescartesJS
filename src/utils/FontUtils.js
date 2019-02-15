@@ -65,7 +65,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.getFontStyle = function(fontStyle) {
-    return fontStyleMap[fontStyle.toLowerCase()];
+    return fontStyleMap[fontStyle.toLowerCase()] || "";
   }
 
   /**

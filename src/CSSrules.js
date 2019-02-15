@@ -68,17 +68,7 @@ var descartesJS = (function(descartesJS) {
     document.head.insertBefore(cssNode, document.head.firstChild);
 
     cssNode.innerHTML =
-      "body{-webkit-overflow-scrolling:touch;}\n" +
-      
-      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
-
-      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+      "body{-webkit-overflow-scrolling:touch;width:100vw;height:100vh;}\n" +
 
       "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
       "@font-face{font-family:'DJS_sansserif';src:url('"+ descartesJS.arimoBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
@@ -95,21 +85,31 @@ var descartesJS = (function(descartesJS) {
       "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
       "@font-face{font-family:'DJS_serif';src:url('"+ descartesJS.tinosRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
       
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_symbola';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBFont()  +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraBIFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
+      "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
+
+      "div[is-flex]{display:flex;width:100vw;height:100vh;align-items:center;justify-content:center;}\n" +
+      "#descartesJS_north,#descartesJS_south,#descartesJS_east,#descartesJS_west{background:#c0c0c0;position:absolute;z-index:100;}\n"+
+
+      // progress bar style
       ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-apearance:none;apearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
       ".PBL::-moz-progress-bar{background:#2daae4;border-radius:inherit;}\n" +
       ".PBL::-webkit-progress-bar{background:#f2f2f2;border-radius:100vw;}\n" +
       ".PBL::-webkit-progress-value{background:#2daae4;border-radius:inherit;}\n" +
       ".PBL::-ms-fill{background:#2daae4;border-radius:inherit;}\n" +
 
-      "canvas{transform:translate3d(0,0,0);}\n" +
-      // "select{transform:scale(1);}\n" +
-      
       "div.DescartesAppContainer html,div.DescartesAppContainer *,div.DescartesAppContainer *:before,div.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
-      "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
       "div.DescartesAppContainer{border:0 solid #000;overflow:hidden;position:relative;top:0;left:0;}\n" +
-      "div.DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;}\n" +
-      "div.DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;width:100%;height:100%;}\n" +
-      "canvas.DescartesLoaderBar{position:absolute;overflow:hidden;top:0;left:0;}\n" +
+      "div.DescartesCatcher{background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;}\n" +
+      ".DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;z-index:1000;display:none;width:100%;height:100%;}\n" +
+      ".DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;width:100%;height:100%;}\n" +
       "canvas.DescartesSpace2DCanvas,canvas.DescartesSpace3DCanvas,div.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
       "div.DescartesSpace2DContainer,div.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" +
 
@@ -117,14 +117,12 @@ var descartesJS = (function(descartesJS) {
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]+label::after,.DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after,.DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
+      ".DescartesCheckbox{position:absolute;}\n" +
 
       "canvas.DescartesButton{position:absolute;cursor:pointer;}\n" +
       "div.DescartesButtonContainer{position:absolute;overflow:hidden;}\n" +
-      "div.DescartesButtonContainer div{display:inline-flex;justify-content:center;align-items:center;width:100%;height:100%;}\n" +
-      "div.DescartesButtonContainer[data-active='false']::after{content:' ';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(240,240,240,0.6);pointer-events:none;}\n" +
       "div.DescartesSpinnerContainer,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer,div.DescartesMenuContainer{background:lightgray;position:absolute;overflow:hidden;}\n" +
       "div.DescartesSpinnerContainer input,div.DescartesCheckboxContainer,div.DescartesTextFieldContainer input,div.DescartesMenuContainer select{border-radius:0;}\n" +
-      ".DescartesCheckbox{position:absolute;}\n" +
       "input.DescartesSpinnerField,input.DescartesTextFieldField,input.DescartesMenuField,input.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;top:0;}\n" +
       "label.DescartesSpinnerLabel,label.DescartesCheckboxLabel,label.DescartesMenuLabel,label.DescartesScrollbarLabel,label.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
       "div.DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +

@@ -387,7 +387,6 @@ var descartesJS = (function(descartesJS) {
       this.draw();
 
       container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-      // container.setAttribute("data-active", ((this.activeIfValue) ? "true" : "false"));
  
       // update the position and size
       this.updatePositionAndSize();

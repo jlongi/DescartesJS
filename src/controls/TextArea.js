@@ -153,6 +153,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.containerControl.setAttribute("class", "DescartesTextAreaContainer");
+    this.containerControl.setAttribute("id", this.id);
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
     this.containerControl.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
     this.containerControl.setAttribute("spellcheck", "false");

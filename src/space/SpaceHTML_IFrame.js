@@ -207,7 +207,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (this.drawIfValue) {
-      this.MyIFrame.contentWindow.focus();
+      // this.MyIFrame.contentWindow.focus();
 
       if (firstTime) {
         this.x = Infinity;
