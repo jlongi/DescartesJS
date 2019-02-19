@@ -95,7 +95,7 @@ var descartesJS = (function(descartesJS) {
       "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraIFont()  +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
       "@font-face{font-family:'DJS_extra';src:url('"+ descartesJS.extraRFont()  +"') format('woff2');font-style:normal;font-weight:normal;}\n" +
 
-      "div[is-flex]{display:flex;width:100vw;height:100vh;align-items:center;justify-content:center;}\n" +
+      "*[is-flex]{display:flex;width:100vw;height:100vh;align-items:center;justify-content:center;}\n" +
       "#descartesJS_north,#descartesJS_south,#descartesJS_east,#descartesJS_west{background:#c0c0c0;position:absolute;z-index:100;}\n"+
 
       // progress bar style

@@ -314,10 +314,6 @@ var descartesJS = (function(descartesJS, babel) {
 
     // construct the space
     switch(spaceObj.type) {
-      case("R2"):
-        return new descartesJS.Space2D(this.parent, spaceObj);
-        break;
-
       case("R3"):
         return new descartesJS.Space3D(this.parent, spaceObj);
         break;
@@ -330,7 +326,6 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.SpaceHTML_IFrame(this.parent, spaceObj);
         break;
 
-      // Descartes 2
       default:
         return new descartesJS.Space2D(this.parent, spaceObj);
         break;
@@ -588,10 +583,6 @@ var descartesJS = (function(descartesJS, babel) {
 
     if (controlObj.type === "numeric") {
       switch (controlObj.gui) {
-        case("spinner"):
-          return new descartesJS.Spinner(this.parent, controlObj);
-          break;
-
         case("button"):
           return new descartesJS.Button(this.parent, controlObj);
           break;
@@ -894,10 +885,6 @@ var descartesJS = (function(descartesJS, babel) {
         return new descartesJS.Image(this.parent, graphicObj);
         break;
 
-      case("point"):
-        return new descartesJS.Point(this.parent, graphicObj);
-        break;
-
       case("polygon"):
         return new descartesJS.Polygon(this.parent, graphicObj);
         break;
@@ -939,6 +926,7 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       default:
+        return new descartesJS.Point(this.parent, graphicObj);
         break;
     }
 
@@ -1148,10 +1136,6 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
     switch(graphicObj.type) {
-      case("point"):
-        return new descartesJS.Point3D(this.parent, graphicObj);
-        break;
-
       case("segment"):
         return new descartesJS.Segment3D(this.parent, graphicObj);
         break;
@@ -1204,7 +1188,7 @@ var descartesJS = (function(descartesJS, babel) {
         break;
 
       default:
-        // console.log(graphicObj.type);
+        return new descartesJS.Point3D(this.parent, graphicObj);
         break;
     }
   }
@@ -1430,11 +1414,8 @@ var descartesJS = (function(descartesJS, babel) {
         new descartesJS.Variable(this.parent, auxiliarObj);
         break;
 
-      case("jsfun"):
-        new descartesJS.JsFunction(this.parent, auxiliarObj);
-        break;
-
       default:
+        new descartesJS.JsFunction(this.parent, auxiliarObj);
         break;
       
     }
@@ -1453,11 +1434,6 @@ var descartesJS = (function(descartesJS, babel) {
     // if has some action then create it
     if (theAction_action) {
       switch (theAction_action) {
-        // show a message
-        case("message"):
-          return (new descartesJS.Message(theAction_parent, theAction_parameter));
-          break;
-
         // performs calculations
         case("calculate"):
           return (new descartesJS.Calculate(theAction_parent, theAction_parameter));
@@ -1508,8 +1484,9 @@ var descartesJS = (function(descartesJS, babel) {
           return (new descartesJS.PlayAudio(theAction_parent, theAction_parameter));
           break;
 
+        // show a message
         default:
-          console.log("Accion no soportada: <" + theAction_action + ">");
+          return (new descartesJS.Message(theAction_parent, theAction_parameter));
           break;
       }
     }
@@ -1681,7 +1658,6 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
-      // plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;height:"+ (imageHeight-16) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:100;");
       plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + w + "px;height:"+ imageHeight + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:1;");
 
       image.setAttribute("style", "position: absolute;left:0;top:0;z-index:-1;width:100%;height:100%;");
@@ -1689,7 +1665,6 @@ var descartesJS = (function(descartesJS, babel) {
     }
     // if there is not an image, the the height is not specified and the contaier guest the height
     else {
-      // plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + (w-2*paddingSides) + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
       plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + w + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
     }
 

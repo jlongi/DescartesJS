@@ -695,7 +695,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default variables
     self.variables["rnd"] = Math.random;
-    self.variables["pi"] = self.variables["\u03C0"] = descartesJS.returnValue(Math.PI);
+    self.variables["pi"] = self.variables["π"] = descartesJS.returnValue(Math.PI);
     self.variables["e"] = descartesJS.returnValue(Math.E);
     self.variables["Infinity"] = Infinity;
     self.variables["-Infinity"] = -Infinity;

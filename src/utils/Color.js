@@ -28,9 +28,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Color = function(color, evaluator) {
     var self = this;
-    self.r = 0;
-    self.g = 0;
-    self.b = 0;
+    self.r = self.g = self.b = 0;
     self.a = 1;
 
     self.evaluator = evaluator;
@@ -39,7 +37,7 @@ var descartesJS = (function(descartesJS) {
 
     // construct a simple color
     if (!color) {
-      self.colorStr = "rgba("+ self.r +","+ self.g +","+ self.b +","+ self.a + ")";
+      self.colorStr = "rgba("+self.r+","+self.g+","+self.b+","+self.a+")";
       return;
     }
 
@@ -185,10 +183,10 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RGBAToHexColor = function(color) {
     color = color.substring(5, color.length-1).split(",");
 
-    r = (color[0] >> 0).toString(16);
-    g = (color[1] >> 0).toString(16);
-    b = (color[2] >> 0).toString(16);
-    a = (255 - ((parseFloat(color[3])*255) >> 0)).toString(16);
+    r = parseInt(color[0]).toString(16);
+    g = parseInt(color[1]).toString(16);
+    b = parseInt(color[2]).toString(16);
+    a = (255 - (parseInt(parseFloat(color[3])*255))).toString(16);
 
     if (r.length === 1) r = "0"+r;
     if (g.length === 1) g = "0"+g;

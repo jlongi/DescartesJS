@@ -342,7 +342,7 @@ var descartesJS = (function(descartesJS) {
           }
           // matrix operation
           else {
-            return divisionMatriz(op1, op2);
+            return divisionMatrix(op1, op2);
           }
         }
       }
@@ -710,7 +710,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function inverseMatriz(T) {
+  function inverseMatrix(T) {
     var S = createMatrix(T.length, T.length);
     var det = determinant(T);
 
@@ -741,8 +741,8 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function divisionMatriz(op1, op2) {
-    var inverse = inverseMatriz(op2);
+  function divisionMatrix(op1, op2) {
+    var inverse = inverseMatrix(op2);
 
     if (inverse === 0) {
       return createMatrix(op1.rows, op1.cols);

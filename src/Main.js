@@ -227,6 +227,13 @@ var descartesJS = (function(descartesJS) {
           applets_cache[data.filename] = new_applets;
         }
 
+        let base = document.querySelector("base");
+        if (!base) {
+          base = document.createElement("base");
+          document.body.appendChild(base);
+        }
+        base.setAttribute("href", data.filename);
+        
         descartesJS.apps[0].children = new_applets;
         descartesJS.apps[0].init();
       }

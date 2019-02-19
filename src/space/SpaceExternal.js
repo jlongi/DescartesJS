@@ -23,10 +23,10 @@ var descartesJS = (function(descartesJS) {
 
     // create the principal container
     self.container = document.createElement("div");
-    self.container.setAttribute("style", "box-sizing:border-box;border-style:ridge;border-width:5px;border-color:gray;box-shadow:#000 0 0 25px 5px;overflow-y:scroll;overflow-x:hidden;position:fixed;left:0;top:0;z-index:10000;width:" + (self.width +27) + "px;height:460px;background-color:#63b4fb");
+    self.container.setAttribute("style", "box-sizing:border-box;border-style:ridge;border-width:5px;border-color:gray;box-shadow:#000 0 0 25px 5px;overflow-y:scroll;overflow-x:hidden;position:fixed;left:0;top:0;z-index:10000;width:" + (self.width +27) + "px;height:460px;background-color:#63b4fb;");
 
     self.movable = document.createElement("div");
-    self.movable.setAttribute("style", " position:absolute;left:0;top:0;width:" + (self.width +27) + "px;height:" + self.vSpace + "px;line-height:" + self.vSpace + "px;background-color:#ddd;cursor:move;padding-left:75px;font-family:Sans-Serif;font-size:18px;");
+    self.movable.setAttribute("style", "position:absolute;left:0;top:0;width:" + (self.width +27) + "px;height:" + self.vSpace + "px;line-height:" + self.vSpace + "px;background-color:#ddd;cursor:move;padding-left:75px;font-family:"+ descartesJS.sansserif_font +";font-size:18px;");
     self.movable.innerHTML = "Descartes";
     self.container.appendChild(self.movable);
 
@@ -50,7 +50,7 @@ var descartesJS = (function(descartesJS) {
     // create the credits button
     var btnAbout = new descartesJS.Button(self.parent, { 
       region: "external",
-      name: (self.language == "english") ? "about" : "cr\u00E9ditos",
+      name: (self.language == "english") ? "about" : "créditos",
       font_size: parser.parse(fontSizeDefaultButtons),
       expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)")
     });
