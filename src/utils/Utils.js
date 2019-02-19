@@ -135,13 +135,14 @@ var descartesJS = (function(descartesJS) {
     setNewToFixed();
   }
 
-  /**
-   * Function that changes the definition of the function toFixed of the Number object
-   */
   function setNewToFixed() {
     var strNum;
     var indexOfDot;
     var diff;
+    var exponentialSplit;
+    var exponentialNumber;
+    var exponentialSign;
+    var moveDotTo;
     var config = { useGrouping: false, minimumFractionDigits: 20 };
 
     // maintain the original toFixed function
@@ -151,31 +152,46 @@ var descartesJS = (function(descartesJS) {
       decimals = (decimals) || 0;
       decimals = (decimals < 0) ? 0 : parseInt(decimals);
 
-      // if decimals is less than 20, then the function toLocaleString can convert the number
-      if (decimals <= 20) {
-        config.minimumFractionDigits = decimals;
-        return this.toLocaleString("fullwide", config);
+      strNum = this.toString();
+      if (strNum.indexOf("e") !== -1) {
+        exponentialSplit = strNum.split("e");
+        exponentialSign = (exponentialSplit[0][0] === "-") ? "-" : "";
+        exponentialNumber = (exponentialSign === "-") ? parseFloat(exponentialSplit[0].substring(1)).oToFixed(11) : parseFloat(exponentialSplit[0]).oToFixed(11);
+
+        moveDotTo = parseInt(exponentialSplit[1]);
+        indexOfDot = exponentialNumber.indexOf(".");
+        exponentialNumber = exponentialNumber.replace(".", "");
+
+        if (indexOfDot+moveDotTo < 0) {
+          indexOfDot = (indexOfDot < 0) ? 1 : indexOfDot;
+          strNum = exponentialSign + "0." + ("0").repeat(Math.abs(indexOfDot+moveDotTo)) + exponentialNumber;
+        }
+        else {
+          strNum = exponentialSign + exponentialNumber + ("0").repeat(moveDotTo-exponentialNumber.length+1);
+        }
       }
 
-      config.minimumFractionDigits = 20;
-      strNum = this.toLocaleString("fullwide", config);
       indexOfDot = strNum.indexOf(".");
       
-      // is a integer number
+      // is a float number
       if (indexOfDot === -1) {
         if (decimals > 0) {
           strNum += "." + ("0").repeat(decimals);
         }
       }
-      // is a float number
       else {
         diff = strNum.length - indexOfDot - 1;
-
+       
         if (diff >= decimals) {
-          strNum = strNum.substring(0, indexOfDot +decimals +1);
+          if (decimals <= 11) {
+            strNum = parseFloat(strNum).oToFixed(decimals);
+          }
+          else {
+            strNum = strNum.substring(0, indexOfDot +decimals +1);
+          }
         }
         else {
-          strNum += ("0").repeat(decimals - diff);
+          strNum += ("0").repeat(decimals-diff);
         }
       }
 
