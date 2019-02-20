@@ -314,11 +314,6 @@ var descartesJS = (function(descartesJS) {
     // append the lesson container to the java applet container
     // this.parentC.appendChild(this.container);
     this.parentC.insertBefore(this.container, this.parentC.firstChild);
-    this.container.width = this.width;
-    this.container.height = this.height;
-
-    this.container.setAttribute("class", "DescartesAppContainer");
-    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;min-width:" + this.width + "px;min-height:" + this.height + "px;");
 
     //////////////////////////////////////////////////////////////
     // cover space
@@ -335,10 +330,13 @@ var descartesJS = (function(descartesJS) {
     }
     //////////////////////////////////////////////////////////////
 
+    this.loader.width = this.container.width = this.width;
+    this.loader.height = this.container.height = this.height;
+    this.container.setAttribute("class", "DescartesAppContainer");
+    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;min-width:" + this.width + "px;min-height:" + this.height + "px;");
+
     // add the loader
     this.container.appendChild(this.loader);
-    this.loader.width = this.width;
-    this.loader.height = this.height;
     this.loader.setAttribute("class", "DescartesLoader");
 
     // first run
