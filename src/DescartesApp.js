@@ -7,6 +7,9 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var tmpVal;
+  var scaleToFitX;
+  var scaleToFitY;
+  var optimalRatio;
   
   var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
@@ -131,7 +134,6 @@ var descartesJS = (function(descartesJS) {
      */
     this.lessonParser = new descartesJS.LessonParser(this);
 
-
     // init the interpretation
     this.init()
   }
@@ -191,6 +193,12 @@ var descartesJS = (function(descartesJS) {
         base.setAttribute("href", this.docBase);
         document.head.appendChild(base);
       }
+    }
+
+    // cover space
+    if (this.expand == "cover") {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
     }
 
     // configure an arquimedes lesson
@@ -305,44 +313,47 @@ var descartesJS = (function(descartesJS) {
 
     // code needed for reinit the lesson
     if (this.container != undefined) {
+      this.container.querySelectorAll("canvas").forEach((canvas) => {
+        canvas.width = canvas.height = 0;
+        canvas.style.width = canvas.style.height = "0px";
+      });
+
       this.parentC.removeChild(this.container);
+
+      delete(this.container);
+      delete(this.loader);
     }
 
     this.container = document.createElement("div");
     this.loader = document.createElement("div");
 
     // append the lesson container to the java applet container
-    // this.parentC.appendChild(this.container);
     this.parentC.insertBefore(this.container, this.parentC.firstChild);
-
-    //////////////////////////////////////////////////////////////
-    // cover space
-    if (this.expand === "cover") {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-    }
-    else if (this.expand === "fit") {
-      this.scaleToFit = scaleToFit;
-      document.body.style.overflow = "hidden";
-      this.container.parentNode.removeAttribute("align");
-      this.container.parentNode.setAttribute("is-flex", true);
-      this.scaleToFit();
-    }
-    //////////////////////////////////////////////////////////////
-
-    this.loader.width = this.container.width = this.width;
-    this.loader.height = this.container.height = this.height;
+    this.container.width = this.loader.width = this.width;
+    this.container.height = this.loader.height = this.height;
     this.container.setAttribute("class", "DescartesAppContainer");
-    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;min-width:" + this.width + "px;min-height:" + this.height + "px;");
+    this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
 
     // add the loader
     this.container.appendChild(this.loader);
     this.loader.setAttribute("class", "DescartesLoader");
 
+    //
+    // fit space
+    if (this.expand == "fit") {
+      this.container.parentNode.setAttribute("align", "");
+      this.container.parentNode.style.overflow = "hidden";
+      this.container.parentNode.style.width = "100vw";
+      this.container.parentNode.style.height = "100vh";
+      this.scaleToFit = scaleToFit;
+      this.scaleToFit();
+    }
+    //
+
     // first run
     if (this.firstRun) {
       this.loader.style.display = "block";
-      this.descartesLoader = new descartesJS.DescartesLoader(this);
+      new descartesJS.DescartesLoader(this);
     } else {
       this.initBuildApp();
     }
@@ -475,17 +486,17 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
+    // the scenario region is only visible in arquimedes lessons
+    this.stage = {container: document.createElement("div"), scroll: 0};
+    this.stage.container.setAttribute("id", "descartesJS_Stage");
+
+    // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
+    this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
+    this.stage.container.appendChild(this.stage.stageSpace.container);
+
     // ##ARQUIMEDES## //
     // if arquimedes then add the container of the scenario region
     if (this.arquimedes) {
-      // the scenario region is only visible in arquimedes lessons
-      this.stage = {container: document.createElement("div"), scroll: 0};
-      this.stage.container.setAttribute("id", "descartesJS_Stage");
-
-      // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
-      this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
-      this.stage.container.appendChild(this.stage.stageSpace.container);
-
       this.container.appendChild(this.stage.container);
       this.spaces.push(this.stage.stageSpace);
     }
@@ -580,9 +591,13 @@ var descartesJS = (function(descartesJS) {
 
     // if the window parent is diferente from the current window, then is embedded in an iFrame
     if (window.parent !== window) {
-      this.parentC.style.margin = this.parentC.style.padding = 0;
-      // window.document.body.style.position = "fixed";
-      // window.document.body.style.left = window.document.body.style.top = 0;
+      this.parentC.style.margin = this.parentC.style.padding = "0px";
+
+      // iOS fix to the scroll in iframes
+      // if the scene is in an iframe and expands to the container then prevent the scroll in the document
+      if (this.expand == "fit") {
+        document.ontouchmove = function(event) { event.preventDefault(); }
+      }
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
       window.parent.postMessage({ type: "ready", value: window.location.href }, '*');
@@ -619,7 +634,7 @@ var descartesJS = (function(descartesJS) {
    * Adjust the size of the window if needed
    */
   descartesJS.DescartesApp.prototype.adjustSize = function() {
-    document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0";
+    document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0px";
     var winWidth = parseInt(this.width)+30;
     var winHeight = parseInt(this.height)+90;
 
@@ -1339,7 +1354,21 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function scaleToFit() {
-    this.container.style.transform = "scale("+ (Math.min(window.innerWidth/this.width, window.innerHeight/this.height)) + ")";
+    scaleToFitX = window.innerWidth/this.width;
+    scaleToFitY = window.innerHeight/this.height;
+
+    descartesJS.cssScale = optimalRatio = Math.min(scaleToFitX, scaleToFitY);
+
+    this.container.style.transformOrigin = "0 0";
+
+    if (scaleToFitX < scaleToFitY) {
+      this.container.style.left = "0";
+      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+")";
+    }
+    else {
+      this.container.style.left = "50%";
+      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
+    }
   }
 
   return descartesJS;
