@@ -699,7 +699,7 @@ var descartesJS = (function(descartesJS) {
     self.variables["e"] = descartesJS.returnValue(Math.E);
     self.variables["Infinity"] = Infinity;
     self.variables["-Infinity"] = -Infinity;
-    self.variables["isTouch"] = self.variables["esT\u00E1ctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
+    self.variables["isTouch"] = self.variables["esTáctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
 
     // screen variables
     Object.defineProperties(self.variables, {
@@ -718,7 +718,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // register the default funtions
     self.functions["sqr"]   = function(x) { return (x*x) };
-    self.functions["sqrt"]  = self.functions["ra\u00EDz"] = Math.sqrt;
+    self.functions["sqrt"]  = self.functions["raíz"] = Math.sqrt;
     self.functions["exp"]   = Math.exp;
     self.functions["log"]   = Math.log;
     self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10) };
@@ -836,7 +836,7 @@ var descartesJS = (function(descartesJS) {
     /**
      *
      */
-    self.functions["indexOf"] = self.functions["_indexOf_"] = self.functions["_\u00EDndiceDe_"] = function(str, word) {
+    self.functions["indexOf"] = self.functions["_indexOf_"] = self.functions["_índiceDe_"] = function(str, word) {
       return ((str || "").toString()).indexOf( (word || "").toString() );
     };
     /**

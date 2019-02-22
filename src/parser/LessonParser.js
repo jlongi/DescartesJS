@@ -1304,10 +1304,6 @@ var descartesJS = (function(descartesJS, babel) {
           break;
         //////////////////////////////
 
-        // library documentation
-        case("doc"):
-          break;
-
         // any variable missing
         default:
           var ind    = values_i_0.indexOf(".");

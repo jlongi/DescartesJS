@@ -343,8 +343,6 @@ var descartesJS = (function(descartesJS) {
     if (this.expand == "fit") {
       this.container.parentNode.setAttribute("align", "");
       this.container.parentNode.style.overflow = "hidden";
-      this.container.parentNode.style.width = "100vw";
-      this.container.parentNode.style.height = "100vh";
       this.scaleToFit = scaleToFit;
       this.scaleToFit();
     }
@@ -1360,6 +1358,9 @@ var descartesJS = (function(descartesJS) {
     descartesJS.cssScale = optimalRatio = Math.min(scaleToFitX, scaleToFitY);
 
     this.container.style.transformOrigin = "0 0";
+
+    this.container.parentNode.style.width = window.innerWidth + "px";
+    this.container.parentNode.style.height = window.innerHeight + "px";
 
     if (scaleToFitX < scaleToFitY) {
       this.container.style.left = "0";

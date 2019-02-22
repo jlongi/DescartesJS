@@ -19,20 +19,20 @@ var descartesJS = (function(descartesJS) {
     var filename = values.file;
 
     if (filename) {
-      // the macro is embeded in the webpage
-      var macroElement = document.getElementById(filename);
+      // the lib is embeded in the webpage
+      var libElement = document.getElementById(filename);
 
-      if ((macroElement) && (macroElement.type == "descartes/library")) {
-        response = macroElement.text;
+      if ((libElement) && (libElement.type == "descartes/library")) {
+        response = libElement.text;
       }
-      // the macro is in an external file
+      // the lib is in an external file
       else {
         response = descartesJS.openExternalFile(filename);
       }
     }
 
     if (response) {
-      response = ( response.replace(/&aacute;/g, "\u00e1").replace(/&eacute;/g, "\u00e9").replace(/&iacute;/g, "\u00ed").replace(/&oacute;/g, "\u00f3").replace(/&uacute;/g, "\u00fa").replace(/&Aacute;/g, "\u00c1").replace(/&Eacute;/g, "\u00c9").replace(/&Iacute;/g, "\u00cd").replace(/&Oacute;/g, "\u00d3").replace(/&Uacute;/g, "\u00da").replace(/&ntilde;/g, "\u00f1").replace(/&Ntilde;/g, "\u00d1").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      response = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
 
       // create the elements
       for (var i=0,l=response.length; i<l; i++){

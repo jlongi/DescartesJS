@@ -122,12 +122,12 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Remove the accents in a string and change the \u00f1 for n
+   * Remove the accents in a string and change the ñ for n
    * @param {String} value the string to remove the accents
    * @return {String} return ths string with the accents remove
    */
   function removeAccents(value) {
-    return value.toString().replace(/\u00e1/g, "a").replace(/\u00e9/g, "e").replace(/\u00ed/g, "i").replace(/\u00f3/g, "o").replace(/\u00fa/g, "u").replace(/\u00c1/g, "A").replace(/\u00c9/g, "E").replace(/\u00cd/g, "I").replace(/\u00d3/g, "O").replace(/\u00da/g, "U").replace(/\u00f1/g, "n").replace(/\u00d1/g, "N");
+    return value.toString().replace(/á/g, "a").replace(/é/g, "e").replace(/í/g, "i").replace(/ó/g, "o").replace(/ú/g, "u").replace(/Á/g, "A").replace(/É/g, "E").replace(/Í/g, "I").replace(/Ó/g, "O").replace(/Ú/g, "U").replace(/ñ/g, "n").replace(/Ñ/g, "N");
   }
 
   /**
