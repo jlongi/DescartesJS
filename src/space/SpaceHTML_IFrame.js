@@ -79,7 +79,7 @@ var descartesJS = (function(descartesJS) {
     this.MyIFrame.setAttribute("style", "position:static;left:0;top:0;");
 
     this.container = document.createElement("div");
-    this.container.setAttribute("id", this.id);
+    this.container.id = this.id;
 
     var strStyle = (descartesJS.isIOS) ? "overflow:scroll;-webkit-overflow-scrolling:touch;overflow-scrolling:touch;" : "";
     this.container.setAttribute("style", strStyle + "position:absolute;width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";background-repeat:no-repeat;background-position:center;");

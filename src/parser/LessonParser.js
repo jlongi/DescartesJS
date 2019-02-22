@@ -1650,7 +1650,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // create the container
     plecaObj.divPleca = document.createElement("div");
-    plecaObj.divPleca.setAttribute("id", "descartesPleca");
+    plecaObj.divPleca.id = "descartesPleca";
 
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {

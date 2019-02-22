@@ -7,16 +7,9 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  var MathRound = Math.round;
   var MathMax   = Math.max;
   var MathCos   = Math.cos;
   var MathSin   = Math.sin;
-  var MathSqrt  = Math.sqrt;
-  var MathPI_2  = Math.PI/2;
-  var tiltAngle = 0;
-  var cosTiltAngle = Math.cos(tiltAngle);
-  var sinTiltAngle = Math.sin(tiltAngle);
-  var tanTiltAngle = Math.tan(tiltAngle);
   var minScale = 0.000001;
   var maxScale = 1000000;
 
@@ -25,17 +18,10 @@ var descartesJS = (function(descartesJS) {
   var self;
   var thisGraphics_i;
   var thisGraphicsNext;
-  var primitives;
-  var primitivesLength;
   var changeX;
   var changeY;
   var dispX;
   var dispY;
-
-  var dx;
-  var dy;
-  var dz;
-  var t;
 
   var angle;
   var cosAngle;
@@ -60,9 +46,6 @@ var descartesJS = (function(descartesJS) {
 
   var observerSet;
 
-  // :-/
-  var cfactor = 3;
-
   var auxVertex;
 
   /**
@@ -79,15 +62,15 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas
     self.backCanvas = document.createElement("canvas");
-    self.backCanvas.setAttribute("id", self.id + "_background");
+    self.backCanvas.id = self.id + "_background";
     self.backCanvas.setAttribute("width", self.w + "px");
     self.backCanvas.setAttribute("height", self.h + "px");
   
     self.canvas = document.createElement("canvas");
-    self.canvas.setAttribute("id", self.id + "_canvas");
+    self.canvas.id = self.id + "_canvas";
     self.canvas.setAttribute("width", self.w + "px");
     self.canvas.setAttribute("height", self.h + "px");
-    self.canvas.setAttribute("class", "DescartesSpace3DCanvas");
+    self.canvas.className = "DescartesSpace3DCanvas";
     self.canvas.setAttribute("style", "z-index: " + self.zIndex + ";");
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
@@ -102,18 +85,18 @@ var descartesJS = (function(descartesJS) {
 
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
-    self.graphicControlContainer.setAttribute("id", self.id + "_graphicControls");
+    self.graphicControlContainer.id = self.id + "_graphicControls";
     self.graphicControlContainer.setAttribute("style", "position:absolute;left:0px;top:0px;z-index:" + self.zIndex + ";");
 
     // create a control container
     self.numericalControlContainer = document.createElement("div");
-    self.numericalControlContainer.setAttribute("id", self.id + "_numericalControls");
+    self.numericalControlContainer.id = self.id + "_numericalControls";
     self.numericalControlContainer.setAttribute("style", "position:absolute;left:0px;top:0px;z-index:" + self.zIndex + ";");
 
     // create the principal container
     self.container = document.createElement("div");
-    self.container.setAttribute("id", self.id);
-    self.container.setAttribute("class", "DescartesSpace3DContainer");
+    self.container.id = self.id;
+    self.container.className = "DescartesSpace3DContainer";
     self.container.setAttribute("style", "left:" + self.x + "px;top:" + self.y + "px;z-index:" + self.zIndex + ";");
 
     // add the elements to the container
@@ -630,7 +613,6 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.Space3D.prototype.drawPainter = function(primitives) {
-    var self = this;
     var l = primitives.length;
 
     for (var i=0; i<l; i++) {
@@ -720,7 +702,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Space3D.prototype.addEvents = function() {
     var self = this;
-    var lastTime = 0;
 
     this.canvas.oncontextmenu = function () { return false; };
 
@@ -871,10 +852,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
 
       // limit the number of updates in the lesson
-      // if (Date.now() - lastTime > 70) {
-        self.parent.update();
-        lastTime = Date.now();
-      // }
+      self.parent.update();
     }
 
     /**

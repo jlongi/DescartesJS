@@ -69,11 +69,11 @@ var descartesJS = (function(descartesJS) {
 
     // create the canvas
     self.canvas = document.createElement("canvas");
-    self.canvas.setAttribute("id", self.id + "_canvas");
-    self.canvas.setAttribute("class", "DescartesSpace2DCanvas");
+    self.canvas.id = self.id + "_canvas";
+    self.canvas.className = "DescartesSpace2DCanvas";
 
     self.backCanvas = document.createElement("canvas");
-    self.backCanvas.setAttribute("id", self.id + "_background");
+    self.backCanvas.id = self.id + "_background";
 
     self.canvas.style.zIndex = self.zIndex;
     self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
@@ -88,18 +88,18 @@ var descartesJS = (function(descartesJS) {
 
     // create a graphic control container
     self.graphicControlContainer = document.createElement("div");
-    self.graphicControlContainer.setAttribute("id", self.id + "_graphicControls");
+    self.graphicControlContainer.id = self.id + "_graphicControls";
     self.graphicControlContainer.setAttribute("style", "position:absolute;left:0;top:0;z-index:" + self.zIndex + ";");
 
     // create a control container
     self.numericalControlContainer = document.createElement("div");
-    self.numericalControlContainer.setAttribute("id", self.id + "_numericalControls");
+    self.numericalControlContainer.id = self.id + "_numericalControls";
     self.numericalControlContainer.setAttribute("style", "position:absolute;left:0;top:0;z-index:" + self.zIndex + ";");
 
     // create the principal container
     self.container = document.createElement("div");
-    self.container.setAttribute("id", self.id);
-    self.container.setAttribute("class", "DescartesSpace2DContainer");
+    self.container.id = self.id;
+    self.container.className = "DescartesSpace2DContainer";
     self.container.setAttribute("style", "left:" + self.x + "px;top:" + self.y + "px;z-index:" + self.zIndex + ";");
 
     // ### ARQUIMEDES ###

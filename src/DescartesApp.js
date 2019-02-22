@@ -189,7 +189,7 @@ var descartesJS = (function(descartesJS) {
       if (children_i.name == "docBase") {
         this.docBase = children_i.value;
         var base = document.createElement("base");
-        base.setAttribute("id", "descartesJS_base");
+        base.id = "descartesJS_base";
         base.setAttribute("href", this.docBase);
         document.head.appendChild(base);
       }
@@ -331,12 +331,12 @@ var descartesJS = (function(descartesJS) {
     this.parentC.insertBefore(this.container, this.parentC.firstChild);
     this.container.width = this.loader.width = this.width;
     this.container.height = this.loader.height = this.height;
-    this.container.setAttribute("class", "DescartesAppContainer");
+    this.container.className = "DescartesAppContainer";
     this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
 
     // add the loader
     this.container.appendChild(this.loader);
-    this.loader.setAttribute("class", "DescartesLoader");
+    this.loader.className = "DescartesLoader";
 
     //
     // fit space
@@ -486,7 +486,7 @@ var descartesJS = (function(descartesJS) {
 
     // the scenario region is only visible in arquimedes lessons
     this.stage = {container: document.createElement("div"), scroll: 0};
-    this.stage.container.setAttribute("id", "descartesJS_Stage");
+    this.stage.container.id = "descartesJS_Stage";
 
     // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
     this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
@@ -684,7 +684,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       var container = this.northSpace.container;
-      container.setAttribute("id", "descartesJS_north");
+      container.id = "descartesJS_north";
       container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;left:0;top:" + this.plecaHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
@@ -766,7 +766,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       var container = this.southSpace.container;
-      container.setAttribute("id", "descartesJS_south");
+      container.id = "descartesJS_south";
       container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;left:0;bottom:0;");
 
       principalContainer.insertBefore(container, this.loader);
@@ -810,7 +810,7 @@ var descartesJS = (function(descartesJS) {
       eastRegionWidth = buttonsConfig.widthEast;
 
       var container = this.eastSpace.container;
-      container.setAttribute("id", "descartesJS_east");
+      container.id = "descartesJS_east";
       container.setAttribute("style", "width:" + eastRegionWidth + "px;height:" + eastRegionHeight + "px;right:0;top:" + northRegionHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
@@ -830,7 +830,7 @@ var descartesJS = (function(descartesJS) {
       westRegionWidth = buttonsConfig.widthWest;
 
       var container = this.westSpace.container;
-      container.setAttribute("id", "descartesJS_west");
+      container.id = "descartesJS_west";
       container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;left:0;top:" + northRegionHeight + "px;");
 
       principalContainer.insertBefore(container, this.loader);
@@ -848,7 +848,7 @@ var descartesJS = (function(descartesJS) {
     if (this.editableRegionVisible) {
       editableRegionHeight = buttonsConfig.height;
       var container = this.editableRegion.container;
-      container.setAttribute("id", "descartesJS_editableRegion");
+      container.id = "descartesJS_editableRegion";
       container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;");
 
       principalContainer.insertBefore(container, this.loader);

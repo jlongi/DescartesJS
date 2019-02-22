@@ -255,15 +255,15 @@ var descartesJS = (function(descartesJS) {
     }
 
     this.container = document.createElement("div");
-    this.container.setAttribute("class", "DescartesButtonContainer" + this.classContainer);
-    this.container.setAttribute("id", this.id);
+    this.container.className = "DescartesButtonContainer" + this.classContainer;
+    this.container.id = this.id;
     this.container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + ";");
 
     // create the btn and the rendering context
     this.btn = document.createElement("canvas");
     this.btn.width  = this.w *this.ratio;
     this.btn.height = this.h *this.ratio;
-    this.btn.setAttribute("style", "position:absolute; left:0; top:0; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
+    this.btn.setAttribute("style", "position:absolute;left:0;top:0;width:" + this.w +"px;height:" + this.h + "px;");
     this.ctx = this.btn.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
 

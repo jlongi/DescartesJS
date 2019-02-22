@@ -148,9 +148,9 @@ var descartesJS = (function(descartesJS) {
 
     var fieldWidth = this.w - (labelWidth + canvasWidth);
 
-    this.container.setAttribute("class", "DescartesSpinnerContainer");
+    this.container.className = "DescartesSpinnerContainer";
     this.container.setAttribute("style", "width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
-    this.container.setAttribute("id", this.id);
+    this.container.id = this.id;
 
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
@@ -159,14 +159,14 @@ var descartesJS = (function(descartesJS) {
     this.ctx.imageSmoothingEnabled = false;
 
     var divStyle = "opacity:0;cursor:pointer;position:absolute;width:" + canvasWidth + "px;height:" + this.h/2 + "px;left:" + labelWidth + "px;";
-    this.divUp.setAttribute("class", "up");
+    this.divUp.className = "up";
     this.divUp.setAttribute("style", divStyle+"top:0;");
-    this.divDown.setAttribute("class", "down");
+    this.divDown.className = "down";
     this.divDown.setAttribute("style", divStyle+"top:" + this.h/2 + "px;");
 
     this.field.setAttribute("type", "text");
-    this.field.setAttribute("id", this.id+"_spinner");
-    this.field.setAttribute("class", "DescartesSpinnerField");
+    this.field.id = this.id+"_spinner";
+    this.field.className = "DescartesSpinnerField";
     this.field.setAttribute("style", "font-family:" + descartesJS.sansserif_font + ";font-size:" + this.fieldFontSize + "px;width:" + fieldWidth + "px;height:" + this.h + "px;left:" + (canvasWidth + labelWidth) + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
@@ -174,7 +174,7 @@ var descartesJS = (function(descartesJS) {
       this.field.style.display = "none";
     }
 
-    this.label.setAttribute("class", "DescartesSpinnerLabel");
+    this.label.className = "DescartesSpinnerLabel";
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px;width:" + labelWidth + "px;height:" + this.h + "px;line-height:" + this.h + "px;");
 
     // register the control value

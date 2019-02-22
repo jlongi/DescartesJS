@@ -239,8 +239,8 @@ var descartesJS = (function(descartesJS) {
       self.limSup = sbx+self.canvasWidth-self.downW -self.scrollHandlerW;
     }
 
-    self.container.setAttribute("class", "DescartesScrollbarContainer");
-    self.container.setAttribute("id", self.id);
+    self.container.className = "DescartesScrollbarContainer";
+    self.container.id = self.id;
     self.container.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
 
     self.canvas.setAttribute("width", self.w+"px");
@@ -249,20 +249,20 @@ var descartesJS = (function(descartesJS) {
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
 
-    self.divUp.setAttribute("class", "DescartesCatcher up");
+    self.divUp.className = "DescartesCatcher up";
     self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
-    self.divDown.setAttribute("class", "DescartesCatcher down");
+    self.divDown.className = "DescartesCatcher down";
     self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
 
-    self.scrollHandler.setAttribute("class", "DescartesCatcher manipulator");
+    self.scrollHandler.className = "DescartesCatcher manipulator";
     self.scrollHandler.setAttribute("style", "width : " + self.scrollHandlerW + "px; height : " + self.scrollHandlerH + "px;");
     self.scrollHandler.style.top = ((self.orientation === VERTICAL) ? self.limInf : 0) + "px";
     self.scrollHandler.style.left = ((self.orientation === VERTICAL) ? 0 : self.limInf) + "px";
 
     // style the text field
     self.field.setAttribute("type", "text");
-    self.field.setAttribute("id", self.id+"scrollbar");
-    self.field.setAttribute("class", "DescartesScrollbarField");
+    self.field.id = self.id + "scrollbar";
+    self.field.className = "DescartesScrollbarField";
     self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + self.fieldWidth + "px; height : " + self.fieldHeight + "px; left: " + self.fieldX + "px; top: 0px;");
     self.field.value = fieldValue;
     if (self.fieldHeight === 0) {
@@ -270,7 +270,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     // style the label
-    self.label.setAttribute("class", "DescartesScrollbarLabel");
+    self.label.className = "DescartesScrollbarLabel";
     self.label.setAttribute("style", "font-size:" + self.fieldFontSize + "px; width: " + self.labelWidth + "px; height: " + self.labelHeight + "px; line-height: " + self.labelHeight + "px; left: 0px; top:" + self.labelY + "px;");
 
   }

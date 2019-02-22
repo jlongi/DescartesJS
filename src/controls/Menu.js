@@ -233,22 +233,22 @@ var descartesJS = (function(descartesJS) {
 
     var fieldValue = this.formatOutputValue( evaluator.eval(this.strValue[this.indexValue]) );
 
-    this.containerControl.setAttribute("class", "DescartesMenuContainer");
+    this.containerControl.className = "DescartesMenuContainer";
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index:" + this.zIndex + ";");
 
-    this.label.setAttribute("class", "DescartesMenuLabel");
+    this.label.className = "DescartesMenuLabel";
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width:" + labelWidth + "px; height:" + this.h + "px; line-height:" + this.h + "px;");
 
     this.field.setAttribute("type", "text");
-    this.field.setAttribute("id", this.id+"_menuField");
+    this.field.id = this.id + "_menuField";
     this.field.value = fieldValue;
 
-    this.field.setAttribute("class", "DescartesMenuField");
+    this.field.className = "DescartesMenuField";
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width: " + fieldWidth + "px; height: " + this.h + "px; left:" + TFx + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
 
-    this.select.setAttribute("id", this.id+"_menuSelect");
-    this.select.setAttribute("class", "DescartesMenuSelect");
+    this.select.id = this.id + "_menuSelect";
+    this.select.className = "DescartesMenuSelect";
     this.select.setAttribute("style", "text-align:left; font-size:" + this.fieldFontSize + "px; width: " + chw + "px; height: " + this.h + "px; left: " + chx + "px;");
     this.select.setAttribute("tabindex", this.tabindex);
     this.select.selectedIndex = this.indexValue;

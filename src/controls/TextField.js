@@ -174,17 +174,17 @@ var descartesJS = (function(descartesJS) {
 
     var fieldWidth = this.w - (labelWidth);
 
-    this.containerControl.setAttribute("class", "DescartesTextFieldContainer");
+    this.containerControl.className = "DescartesTextFieldContainer";
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
 
     this.field.setAttribute("type", "text");
-    this.field.setAttribute("id", this.id+"TextField");
-    this.field.setAttribute("class", "DescartesTextFieldField");
+    this.field.id = this.id + "TextField";
+    this.field.className = "DescartesTextFieldField";
     this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + labelWidth + "px;");
     this.field.setAttribute("tabindex", this.tabindex);
     this.field.value = fieldValue;
 
-    this.label.setAttribute("class", "DescartesTextFieldLabel");
+    this.label.className = "DescartesTextFieldLabel";
     this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
 
     // if the text field evaluates, get the ok value

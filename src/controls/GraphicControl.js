@@ -127,8 +127,8 @@ var descartesJS = (function(descartesJS) {
 
     // dom element for catch the mouse events
     this.mouseCacher = document.createElement("div");
-    this.mouseCacher.setAttribute("class", "DescartesGraphicControl");
-    this.mouseCacher.setAttribute("id", this.id);
+    this.mouseCacher.className = "DescartesGraphicControl";
+    this.mouseCacher.id = this.id;
     this.mouseCacher.setAttribute("dragged", true);
     this.mouseCacher.setAttribute("tabindex", "-1");
 

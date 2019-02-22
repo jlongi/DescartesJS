@@ -30,10 +30,10 @@ var descartesJS = (function(descartesJS) {
     self.descartesApp = descartesApp;
 
     self.imgLoader = document.createElement("div");
-    self.imgLoader.setAttribute("class", "DescartesLoaderImage")
+    self.imgLoader.className = "DescartesLoaderImage";
 
     self.progress = document.createElement("progress");
-    self.progress.setAttribute("class", "PBL");
+    self.progress.className = "PBL";
     self.progress.setAttribute("value", 0);
     self.progress.setAttribute("max", 100);
 

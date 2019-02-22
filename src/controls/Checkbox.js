@@ -92,20 +92,20 @@ var descartesJS = (function(descartesJS) {
       self.labelFontSize = descartesJS.getFieldFontSize(self.h);
       var labelWidth = Math.max(self.w - self.h, 0);
 
-      self.containerControl.setAttribute("class", "DescartesCheckboxContainer");
+      self.containerControl.className = "DescartesCheckboxContainer";
       self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
 
       self.dummyLabel.setAttribute("style", "position:absolute; width : " + self.h + "px; height : " + self.h + "px; left: " + labelWidth + "px;");
       self.dummyLabel.setAttribute("for", self.id+self.typeCtr);
 
       self.checkbox.setAttribute("type", self.typeCtr);
-      self.checkbox.setAttribute("id", self.id+self.typeCtr);
-      self.checkbox.setAttribute("class", "DescartesCheckbox");
+      self.checkbox.id = self.id + self.typeCtr;
+      self.checkbox.className = "DescartesCheckbox";
       self.checkbox.setAttribute("style", "width : " + self.h + "px; height : " + self.h + "px; left: " + labelWidth + "px;");
       self.checkbox.setAttribute("tabindex", self.tabindex);
       self.checkbox.checked = (self.value != 0);
 
-      self.label.setAttribute("class", "DescartesCheckboxLabel");
+      self.label.className = "DescartesCheckboxLabel";
       self.label.setAttribute("style", "font-size:" + self.labelFontSize + "px; width: " + labelWidth + "px; height: " + self.h + "px; line-height: " + self.h + "px;");
       
       // register the control value

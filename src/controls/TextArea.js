@@ -152,21 +152,21 @@ var descartesJS = (function(descartesJS) {
       newText = this.text.replace(/\\n/g, "<br/>");
     }
 
-    this.containerControl.setAttribute("class", "DescartesTextAreaContainer");
-    this.containerControl.setAttribute("id", this.id);
+    this.containerControl.className = "DescartesTextAreaContainer";
+    this.containerControl.id = this.id;
     this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
     this.containerControl.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
     this.containerControl.setAttribute("spellcheck", "false");
 
     // text area
-    this.textArea.setAttribute("class", "DescartesTextAreaContainer");
+    this.textArea.className = "DescartesTextAreaContainer";
     this.textArea.setAttribute("style", "padding: 5px; width: " + (this.w-4) + "px; height: " + (this.h-displaceY) + "px; left: 2px; top: 2px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";line-height:"+ this.font_size +"px;");
     this.textArea.setAttribute("contenteditable", "true");
     // this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
     this.textArea.innerHTML = newText;
 
     // text area answer
-    this.textAreaAnswer.setAttribute("class", "DescartesTextAreaContainer");
+    this.textAreaAnswer.className = "DescartesTextAreaContainer";
     this.textAreaAnswer.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
     this.textAreaAnswer.style.display = (this.showAnswer) ? "block" : "none";
     this.textAreaAnswer.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;'>" + this.answer + "</span>";
