@@ -303,11 +303,15 @@ var descartesJS = (function(descartesJS) {
   descartesJS.TextNode.prototype.querySelectorAll = function(nodeType) {
     var elements = [];
 
+    if (typeof(nodeType) === "string") {
+      nodeType = new RegExp(nodeType);
+    }
+
     for (var i=0, l=this.children.length; i<l; i++) {
       elements = elements.concat( this.children[i].querySelectorAll(nodeType) );
     }
 
-    if (this.nodeType === nodeType) {
+    if (this.nodeType.match(nodeType)) {
       elements.push(this);
     }
 
@@ -341,7 +345,8 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.normalize = function() {
-    var emptyNodes = this.querySelectorAll("textLineBlock").concat( this.querySelectorAll("formula") ).concat( this.querySelectorAll("numerator") ).concat( this.querySelectorAll("denominator") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("index") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radicand") ).concat( this.querySelectorAll("from") ).concat( this.querySelectorAll("to") ).concat( this.querySelectorAll("what") ).concat( this.querySelectorAll("element") );
+    // var emptyNodes = this.querySelectorAll("textLineBlock").concat( this.querySelectorAll("formula") ).concat( this.querySelectorAll("numerator") ).concat( this.querySelectorAll("denominator") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("index") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radicand") ).concat( this.querySelectorAll("from") ).concat( this.querySelectorAll("to") ).concat( this.querySelectorAll("what") ).concat( this.querySelectorAll("element") );
+    var emptyNodes = this.querySelectorAll(/textLineBlock|formula|numerator|denominator|superIndex|subIndex|index|subIndex|radicand|from|to|what|element/);
     
     for (var i=0, l=emptyNodes.length; i<l; i++) {
       if (emptyNodes[i].children.length === 0) {
@@ -349,7 +354,8 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    var nodesWhitoutSiblings = this.querySelectorAll("formula").concat( this.querySelectorAll("fraction") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radical") ).concat( this.querySelectorAll("sum") ).concat( this.querySelectorAll("integral") ).concat( this.querySelectorAll("limit") ).concat( this.querySelectorAll("matrix") ).concat( this.querySelectorAll("defparts") ).concat( this.querySelectorAll("dynamicText") ).concat( this.querySelectorAll("componentNumCtrl") ).concat( this.querySelectorAll("componentSpace") );
+    // var nodesWhitoutSiblings = this.querySelectorAll("formula").concat( this.querySelectorAll("fraction") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radical") ).concat( this.querySelectorAll("sum") ).concat( this.querySelectorAll("integral") ).concat( this.querySelectorAll("limit") ).concat( this.querySelectorAll("matrix") ).concat( this.querySelectorAll("defparts") ).concat( this.querySelectorAll("dynamicText") ).concat( this.querySelectorAll("componentNumCtrl") ).concat( this.querySelectorAll("componentSpace") );
+    var nodesWhitoutSiblings = this.querySelectorAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
 
     for (var i=0, l=nodesWhitoutSiblings.length; i<l; i++) {
       if ( (nodesWhitoutSiblings[i].prevSibling() === null) || ((nodesWhitoutSiblings[i].prevSibling() !== null) && (nodesWhitoutSiblings[i].prevSibling().nodeType !== "text")) ) {
@@ -367,7 +373,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.removeEmptyText = function() {
-    var textNodes = this.querySelectorAll("text");
+    var textNodes = this.querySelectorAll(/text/);
     for (var i=0, l=textNodes.length; i<l; i++) {
       if ((textNodes[i].value === "") && (textNodes[i].parent)) {
         textNodes[i].parent.removeChild(textNodes[i]);
@@ -1731,6 +1737,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextNode.prototype.drawRadical = function(ctx) {
     ctx.save();
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
     ctx.translate(this.radicalSign.x, this.radicalSign.y);
     ctx.scale(this.radicalSign.scaleX, this.radicalSign.scaleY);
     (descartesJS.isMsEdge) ? this.drawRadicalSign(ctx) : ctx.fill(radicalPath);
@@ -1750,6 +1757,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextNode.prototype.drawSum = function(ctx) {
     ctx.save();
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
     ctx.translate(this.sigmaSign.x, this.sigmaSign.y);
     ctx.scale(this.sigmaSign.scale, this.sigmaSign.scale);
     (descartesJS.isMsEdge) ? this.drawSigmaSign(ctx) : ctx.fill(sigmaPath);
@@ -1766,9 +1774,11 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextNode.prototype.drawIntegral = function(ctx) {
     ctx.save();
+    ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
     ctx.translate(this.sign.x, this.sign.y);
     ctx.scale(this.sign.scale, this.sign.scale);
     (descartesJS.isMsEdge) ? this.drawIntegralSign(ctx) : ctx.fill(integralPath);
+
     ctx.restore();
 
     for (var i=0, l=this.children.length; i<l; i++) {

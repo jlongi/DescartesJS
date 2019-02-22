@@ -55,13 +55,6 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Shows applets that are not descartes
-   */
-  function showNoDescartesJSApplets() {
-    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:none;}";
-  }
-
-  /**
    * Find and get the descartes applets in the document
    * @return {Array.<applet>} the descartes applets in the document
    */
