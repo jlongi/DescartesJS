@@ -6,7 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
   var parent;
   var evaluator;
   var parser;
@@ -18,12 +17,6 @@ var descartesJS = (function(descartesJS) {
   var temp;
   var OxExpr;
   var OyExpr;
-
-  var tmpContainer;
-  var boundingRect;
-  var tmpDisplay;
-  var containerClass;
-  var pos;
 
   /**
    * Descartes space
@@ -280,13 +273,8 @@ var descartesJS = (function(descartesJS) {
     self.displaceRegionNorth = parent.displaceRegionNorth || 0;
     self.displaceRegionWest = parent.displaceRegionWest || 0;
 
-    // traverse the values to replace the defaults values of the object
-    for (var propName in values) {
-      // verify the own properties of the object
-      if (values.hasOwnProperty(propName)) {
-        self[propName] = values[propName];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(self, values);
 
     // self.init();
     self.initSpace();
@@ -498,7 +486,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the X axis
    */
   descartesJS.Space.prototype.getRelativeX = function(x) {
-    return ((x >> 0) - this.w_2 - this.Ox)/this.scale;
+    return (parseInt(x) - this.w_2 - this.Ox)/this.scale;
   }
 
   /**
@@ -507,7 +495,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the position relative to the Y axis
    */
   descartesJS.Space.prototype.getRelativeY = function(y) {
-    return (-(y >> 0) + this.h_2 + this.Oy)/this.scale;
+    return (-parseInt(y) + this.h_2 + this.Oy)/this.scale;
   }
 
   /**

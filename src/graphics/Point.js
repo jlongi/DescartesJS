@@ -15,7 +15,6 @@ var descartesJS = (function(descartesJS) {
   var tmpRot;
   var coordX;
   var coordY;
-  var size;
 
   /**
    * A Descartes point
@@ -30,7 +29,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.size = parent.evaluator.parser.parse("2");
-    
+
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
@@ -86,15 +85,13 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Point.prototype.drawAux = function(ctx, fill){
     space = this.space;
 
-    size = MathRound(this.evaluator.eval(this.size));
-
     ctx.fillStyle = fill.getColor();
 
     coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
     coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
 
     ctx.beginPath();
-    ctx.arc(coordX, coordY, size, 0, PI2, true);
+    ctx.arc(coordX, coordY, MathRound(this.evaluator.eval(this.size)), 0, PI2, true);
     ctx.fill()
 
     // draw the text of the text

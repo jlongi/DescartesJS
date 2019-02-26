@@ -44,13 +44,8 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluate = "onlyOnce";
 
-    // traverse the values to replace the defaults values of the object
-    for (var propName in values) {
-      // verify the own properties of the object
-      if (values.hasOwnProperty(propName)) {
-        this[propName] = values[propName];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(this, values);
   }  
   
   /**

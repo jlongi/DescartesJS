@@ -45,7 +45,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.id = (values.type !== "graphic") ? "C" : "G";
+    this.id = (values.type !== "GraphicControl") ? "C" : "G";
 
     /**
      * type (numeric or graphic)
@@ -87,22 +87,22 @@ var descartesJS = (function(descartesJS) {
      * type {Number}
      * @private
      */
-    this.w = (values.type !== "video") ? 100 : 350;
+    this.w = (values.type !== "Video") ? 100 : 350;
 
     /**
      * height
      * type {Number}
      * @private
      */
-    this.h = (values.type !== "video") ? 23 : 120;
+    this.h = (values.type !== "Video") ? 23 : 120;
 
     /**
      * position and size expression
      * type {String}
      * @private
      */
-    if ((values.type !== "graphic") && (values.type !== "audio") && (values.type !== "video")) {
-      if (values.type !== "text") {
+    if ((values.type !== "GraphicControl") && (values.type !== "Audio") && (values.type !== "Video")) {
+      if (values.type !== "TextArea") {
         this.expresion = parser.parse("(0,0,100,23)");
       } else {
         this.expresion = parser.parse("(0,0,300,200)");
@@ -140,7 +140,7 @@ var descartesJS = (function(descartesJS) {
      * type {String}
      * @private
      */
-    this.colorInt = new descartesJS.Color((values.type !== "graphic") ? "f0f8ff" : "cc0022");
+    this.colorInt = new descartesJS.Color((values.type !== "GraphicControl") ? "f0f8ff" : "cc0022");
 
     /**
      * bold text condition
@@ -303,16 +303,11 @@ var descartesJS = (function(descartesJS) {
      */
     this.zIndex = -1;
 
-    // traverse the values to replace the defaults values of the object
-    for (var propName in values) {
-      // verify the own properties of the object
-      if (values.hasOwnProperty(propName)) {
-        this[propName] = values[propName];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(this, values);
 
     // move the video and audio controls to the interior region
-    if (((this.type === "video") || (this.type === "audio")) && (this.region !== "interior")) {
+    if (((this.type === "Video") || (this.type === "Audio")) && (this.region !== "interior")) {
       this.region = "interior";
     }
 
@@ -534,21 +529,6 @@ var descartesJS = (function(descartesJS) {
       this.linearGradient.addColorStop(i/h, "rgba(0,0,0,"+ ((di*di*192)/hh)/255 +")");
     }
   }
-  /**
-   *
-   */
-  // descartesJS.Control.prototype.createCSSGradient = function(h) {
-  //   var gradientStr = "linear-gradient(";
-  //   hh = h*h;
-
-  //   for (var i=0; i<h; i++) {
-  //     di = MathFloor(i-(35*h)/100);
-  //     gradientStr += "rgba(0,0,0,"+ ((di*di*200)/hh)/255 +") "+ (i*100/(h-1)) +"%,";
-  //   }
-  //   gradientStr = gradientStr.substring(0, gradientStr.length-1);
-
-  //   return gradientStr + ")";
-  // }
 
   return descartesJS;
 })(descartesJS || {});

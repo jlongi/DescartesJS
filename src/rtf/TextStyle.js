@@ -46,25 +46,15 @@ var descartesJS = (function(descartesJS) {
    * @return {TextStyle} return a clone font style
    */
   descartesJS.TextStyle.prototype.clone = function() {
-    var style = {};
-    for (var property in this) {
-      if (this.hasOwnProperty(property)) {
-        style[property] = this[property];
-      }
-    }
-
-    return new descartesJS.TextStyle(style);
+    return new descartesJS.TextStyle(Object.assign({}, this));
   }
 
   /**
    * 
    */
   descartesJS.TextStyle.prototype.set = function(style) {
-    for (var property in style) {
-      if (style.hasOwnProperty(property)) {
-        this[property] = style[property];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(this, style);
   }
 
   /**

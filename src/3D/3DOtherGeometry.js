@@ -44,7 +44,7 @@ var descartesJS = (function(descartesJS) {
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the triangle
    */
-  descartesJS.OtherGeometry = function(parent, values) {
+  descartesJS.OtherGeometry3D = function(parent, values) {
     this.width = parent.evaluator.parser.parse("2");
     this.height = parent.evaluator.parser.parse("2");
     this.length = parent.evaluator.parser.parse("2");
@@ -56,7 +56,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic3D.call(this, parent, values);
 
-    switch (this.type) {
+    switch (this.subType) {
       case("cube"):
         this.buildGeometry = buildCube;
         break;
@@ -109,12 +109,12 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Graphic3D
   ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.OtherGeometry, descartesJS.Graphic3D);
+  descartesJS.extend(descartesJS.OtherGeometry3D, descartesJS.Graphic3D);
 
   /**
    * Build the primitives corresponding to the face
    */
-  descartesJS.OtherGeometry.prototype.buildPrimitives = function() {
+  descartesJS.OtherGeometry3D.prototype.buildPrimitives = function() {
     evaluator = this.evaluator;
 
     this.updateMVMatrix();
@@ -203,14 +203,6 @@ var descartesJS = (function(descartesJS) {
     ];
 
     this.faces = [[1, 3, 2], [0, 1, 2], [0, 2, 3], [0, 3, 1]];
-
-    // this.vertices = [ new vec4D(          0,           0,       width, 1), //0
-    //                   new vec4D(-0.49*width, -0.86*width, -0.32*width, 1), //1
-    //                   new vec4D(-0.49*width,  0.86*width, -0.32*width, 1), //2
-    //                   new vec4D(    1*width,           0, -0.32*width, 1)  //3
-    //            ];
-
-    // this.faces = [[3, 2, 1], [1, 2, 0], [2, 3, 0], [3, 1, 0]];
 
     this.updateValues(width, height, length, Nu, Nv);
   }
@@ -529,19 +521,16 @@ var descartesJS = (function(descartesJS) {
     this.vertices = [];
     this.faces = [];
 
-    function toInt(x) { return parseInt(x); };
-    function toFloat(x) { return parseFloat(x); };
-
     for (i=0, l=this.fileData.length; i<l; i++) {
       currentLine = this.fileData[i];
 
       if (currentLine.match(/^V\(/)) {
-        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(toFloat);
+        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(parseFloats);
         this.vertices.push( new vec4D(tempValue[0] || 0, tempValue[1] || 0, tempValue[2] || 0, 1) );
       }
 
       else if (currentLine.match(/^F\(/)) {
-        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(toInt);
+        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(parseInt);
         this.faces.push(tempValue.reverse());
       }
     }
@@ -550,14 +539,14 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  descartesJS.OtherGeometry.prototype.changeGeometry = function(width, height, length, Nu, Nv) {
+  descartesJS.OtherGeometry3D.prototype.changeGeometry = function(width, height, length, Nu, Nv) {
     return (this.oldWidth  === width) && (this.oldHeight === height) && (this.oldLength === length) && (this.oldNu === Nu) && (this.oldNv === Nv);
   }
 
   /**
    *
    */
-  descartesJS.OtherGeometry.prototype.updateValues = function(width, height, length, Nu, Nv) {
+  descartesJS.OtherGeometry3D.prototype.updateValues = function(width, height, length, Nu, Nv) {
     this.oldWidth = width;
     this.oldHeight = height;
     this.oldLength = length;

@@ -265,7 +265,7 @@ var babel = (function(babel) {
   babel["cover"] = babel["cubrir"] = "expand";
   babel["fit"] = babel["escalar"] = "fit";
   babel["code"] = "code";
-  babel["jsfun"] = "jsfun";
+  babel["doc"] = "doc";
 
   return babel;
 })(babel || {});

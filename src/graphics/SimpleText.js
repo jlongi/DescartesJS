@@ -31,7 +31,8 @@ var descartesJS = (function(descartesJS) {
     this.type = "simpleText"
 
     txt = "'";
-    pos = lastPos = 0;
+    pos = 0;
+    lastPos = 0;
     ignoreSquareBracket = -1;
 
     while (pos < text.length) {

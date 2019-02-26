@@ -30,9 +30,9 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Graphic.call(this, parent, values);
     
     // alignment
-    this.align = this.align || "left";
+    if (!this.align) this.align = "left";
     // anchor
-    this.anchor = this.anchor || "top_left";
+    if (!this.anchor) this.anchor = "top_left";
 
     this.text = new descartesJS.TextObject(this, this.text);
   }

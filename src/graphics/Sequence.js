@@ -130,7 +130,7 @@ var descartesJS = (function(descartesJS) {
     ctx.fill();
 
     // draw the text of the sequence
-    if (this.text !== [""]) {
+    if (this.text != [""]) {
       this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
       this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
 

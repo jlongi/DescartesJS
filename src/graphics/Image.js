@@ -86,24 +86,25 @@ var descartesJS = (function(descartesJS) {
     }
 
     // configuration of the form (x,y)(ew,eh)
-    if ((expr[1]) && (expr[1].length === 2)) {
+    if ((expr[1]) && (expr[1].length == 2)) {
       this.centered = true;
       this.scaleX = expr[1][0];
       this.scaleY = expr[1][1];
     }
 
-    if (this.scaleX === 0) {
+    if (this.scaleX == 0) {
       this.scaleX = 0.00001;
     }
-    if (this.scaleY === 0) {
+    if (this.scaleY == 0) {
       this.scaleY = 0.00001;
     }
 
+    var self = this;
     imgFile = evaluator.eval(this.file);
     if ((imgFile) || (imgFile == "")) {
       this.img = this.parent.getImage(imgFile);
-      this.img.addEventListener("load", () => {
-        this.space.update(true);
+      this.img.addEventListener("load", function(evt) {
+        self.space.update(true);
       });
     }
   }

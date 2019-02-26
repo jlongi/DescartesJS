@@ -29,24 +29,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Object} parent is the objecto to extends
    */
   descartesJS.extend = function(child, parent) {
-    // updated method
-    if (typeof Object.create == "function") {
-      child.prototype = Object.create(parent.prototype);
-    }
-    // old method
-    else {
-      if (child.prototype.__proto__) {
-        child.prototype.__proto__ = parent.prototype;
-      }
-      else {
-        // copy all the functions of the parent
-        for( var i in parent.prototype ) {
-          if (parent.prototype.hasOwnProperty(i)) {
-            child.prototype[i] = parent.prototype[i];
-          }
-        }
-      }
-    }
+    child.prototype = Object.create(parent.prototype);
 
     // add the uber (super) property to execute functions of the parent
     child.prototype.uber = parent.prototype;
@@ -99,7 +82,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getColor = function(evaluator, color) {
     // if the color is a string then return that string color
-    if ( typeof(color) == "string" ) {
+    if ( typeof(color) === "string" ) {
       return color;
     }
     // if the color has an expression, then evaluate the string and return the corresponding color
@@ -129,7 +112,8 @@ var descartesJS = (function(descartesJS) {
       descartesJS.ctx = descartesJS.hasCanvas;
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
-      descartesJS._ratio = 1.5;
+      // descartesJS._ratio = 1.5;
+      descartesJS._ratio = (descartesJS.isIOS) ? 1.2 : 1.5;
     }
 
     setNewToFixed();
@@ -143,7 +127,6 @@ var descartesJS = (function(descartesJS) {
     var exponentialNumber;
     var exponentialSign;
     var moveDotTo;
-    var config = { useGrouping: false, minimumFractionDigits: 20 };
 
     // maintain the original toFixed function
     Number.prototype.oToFixed = Number.prototype.toFixed;
@@ -282,13 +265,13 @@ var descartesJS = (function(descartesJS) {
       return setInterval(fun, delay);
     }
 
-    var start = new Date().getTime();
+    var start = Date.now();
     var handle = {};
 
     function loop() {
-      if (((new Date().getTime()) - start) >= delay) {
+      if ((Date.now() - start) >= delay) {
         fun.call();
-        start = new Date().getTime();
+        start = Date.now();
       }
 
       handle.value = requestAnimationFrame(loop);
@@ -315,11 +298,11 @@ var descartesJS = (function(descartesJS) {
       return setTimeout(fun, delay);
     }
 
-    var start = new Date().getTime();
+    var start = Date.now();
     var handle = {};
 
     function loop() {
-      if (((new Date().getTime()) - start) >= delay) {
+      if ((Date.now() - start) >= delay) {
         fun.call();
       }
       else {

@@ -19,7 +19,7 @@ var descartesJS = (function(descartesJS) {
    * @param {DescartesApp} parent the Descartes application
    * @param {String} values the values of the graphic
    */
-  descartesJS.SpaceHTML_IFrame = function(parent, values) {
+  descartesJS.SpaceHTMLIFrame = function(parent, values) {
     // call the parent constructor
     descartesJS.Space.call(this, parent, values);
 
@@ -168,12 +168,12 @@ var descartesJS = (function(descartesJS) {
   ////////////////////////////////////////////////////////////////////////////////////
   // create an inheritance of Space
   ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.SpaceHTML_IFrame, descartesJS.Space);
+  descartesJS.extend(descartesJS.SpaceHTMLIFrame, descartesJS.Space);
   
   /**
    * Init the space
    */
-  descartesJS.SpaceHTML_IFrame.prototype.init = function() {
+  descartesJS.SpaceHTMLIFrame.prototype.init = function() {
     self = this;
     
     // call the init of the parent
@@ -192,7 +192,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Update the space
    */
-  descartesJS.SpaceHTML_IFrame.prototype.iframeUpdate = function(firstTime) {
+  descartesJS.SpaceHTMLIFrame.prototype.iframeUpdate = function(firstTime) {
     evaluator = this.evaluator;
 
     this.drawIfValue = evaluator.eval(this.drawif) > 0;

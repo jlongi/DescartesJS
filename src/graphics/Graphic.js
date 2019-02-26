@@ -166,13 +166,8 @@ var descartesJS = (function(descartesJS) {
      */
     self.decimals = parser.parse("2");
 
-    // traverse the values to replace the defaults values of the object
-    for (var propName in values) {
-      // verify the own properties of the object
-      if (values.hasOwnProperty(propName)) {
-        self[propName] = values[propName];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(this, values);
 
     // get the space of the graphic
     self.space = self.getSpace();

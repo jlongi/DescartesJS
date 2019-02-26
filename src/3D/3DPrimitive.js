@@ -7,8 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var Math2PI = 2*Math.PI;
-  var lineCap = "round";
-  var lineJoin = "round";
+  var lineCap = lineJoin = "round";
   var epsilon = 0.00000001;
 
   var evaluator;
@@ -29,13 +28,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Primitive3D = function (values, space) {
     this.space = space;
 
-    // traverse the values to replace the defaults values of the object
-    for (var propName in values) {
-      // verify the own properties of the object
-      if (values.hasOwnProperty(propName)) {
-        this[propName] = values[propName];
-      }
-    }
+    // assign the values to replace the defaults values of the object
+    Object.assign(this, values);
 
     this.projVert = [];
     this.spaceVertices = [];

@@ -6,6 +6,9 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var paddingSides = 15;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+
   var temp;
   var babelValue;
   var values_i_0;
@@ -14,7 +17,6 @@ var descartesJS = (function(descartesJS, babel) {
   var controlObj;
   var graphicObj;
   var auxiliarObj;
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
 
   var theAction_action;
   var theAction_parent;
@@ -29,7 +31,6 @@ var descartesJS = (function(descartesJS, babel) {
 
   var subtitleFontSize;
   var plecaObj;
-  var paddingSides = 15;
   var image;
   var imageHeight;
   var divTitle;
@@ -125,6 +126,13 @@ var descartesJS = (function(descartesJS, babel) {
       //////////////////////////////////////////
 
       switch(babelValue) {
+        // the type of the space (2D, 3D or another)
+        case("type"):
+          if (values_i_1 === "R2") { values_i_1 = "2D"; }
+          if (values_i_1 === "R3") { values_i_1 = "3D"; }
+          spaceObj[babelValue] = values_i_1;
+          break;
+
         // identifier
         case("id"):
           // get the id for the debug
@@ -133,9 +141,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("x_axis"):
         // text of the Y axis
         case("y_axis"):
-        // the type of the space (2D, 3D or another)
-        case("type"):
-        // control identifier (for rtf positioning)
+        // control identifier (for arquimedes positioning)
         case("cID"):
         // file name of an external space
         case("file"):
@@ -312,24 +318,7 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    // construct the space
-    switch(spaceObj.type) {
-      case("R3"):
-        return new descartesJS.Space3D(this.parent, spaceObj);
-        break;
-
-      case("AP"):
-        return new descartesJS.SpaceAP(this.parent, spaceObj);
-        break;
-
-      case("HTMLIFrame"):
-        return new descartesJS.SpaceHTML_IFrame(this.parent, spaceObj);
-        break;
-
-      default:
-        return new descartesJS.Space2D(this.parent, spaceObj);
-        break;
-    }
+    return new descartesJS["Space" + spaceObj.type](this.parent, spaceObj);
   }
 
   /**
@@ -339,7 +328,7 @@ var descartesJS = (function(descartesJS, babel) {
    */
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
-    controlObj = { type: "numeric" };
+    controlObj = { type: "Numeric", gui: "Spinner" };
 
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
@@ -357,6 +346,26 @@ var descartesJS = (function(descartesJS, babel) {
       //////////////////////////////////////////
 
       switch(babelValue) {
+        case("type"):
+          temp = babel[values_i_1.trim()];
+          if (temp === "graphic") {
+            temp = "GraphicControl";
+          }
+          else if (temp === "text") {
+            temp = "TextArea";
+          }
+          controlObj["type"] = firstLetterUpercase(temp);
+          break;
+
+        // interface (spinner, button, etc)
+        case("gui"):
+          temp = babel[values_i_1];
+          if (temp === "textfield") {
+            temp = "TextField";
+          }
+          controlObj[babelValue] = firstLetterUpercase(temp);
+          break;
+
         // identifier
         case("id"):
           // get the id for the debug
@@ -394,8 +403,6 @@ var descartesJS = (function(descartesJS, babel) {
           controlObj[babelValue] = values_i_1;
           break;
 
-        // interface (spinner, button, etc)
-        case("gui"):
         // region
         case("region"):
         // action
@@ -473,11 +480,6 @@ var descartesJS = (function(descartesJS, babel) {
         // id of the containing space
         case("space"):
           controlObj["spaceID"] = values_i_1;
-          break;
-
-        // type
-        case("type"):
-          controlObj["type"] = babel[values_i_1.trim()];
           break;
 
         // expresion of the position and size
@@ -581,50 +583,7 @@ var descartesJS = (function(descartesJS, babel) {
       }
     }
 
-    if (controlObj.type === "numeric") {
-      switch (controlObj.gui) {
-        case("button"):
-          return new descartesJS.Button(this.parent, controlObj);
-          break;
-
-        case("textfield"):
-          return new descartesJS.TextField(this.parent, controlObj);
-          break;
-
-        case("menu"):
-          return new descartesJS.Menu(this.parent, controlObj);
-          break;
-
-        case("scrollbar"):
-          return new descartesJS.Scrollbar(this.parent, controlObj);
-          break;
-
-        default:
-          return new descartesJS.Spinner(this.parent, controlObj);
-          break;
-      }
-    }
-
-    else if (controlObj.type === "video") {
-      return new descartesJS.Video(this.parent, controlObj);
-    }
-
-    else if (controlObj.type === "audio") {
-      return new descartesJS.Audio(this.parent, controlObj);
-    }
-
-    else if (controlObj.type === "graphic") {
-      return new descartesJS.GraphicControl(this.parent, controlObj);
-    }
-
-    else if (controlObj.type === "text") {
-      return new descartesJS.TextArea(this.parent, controlObj);
-    }
-
-    else if (controlObj.type === "checkbox") {
-      return new descartesJS.Checkbox(this.parent, controlObj);
-    }
-
+    return new descartesJS[(controlObj.type === "Numeric") ? controlObj.gui : controlObj.type](this.parent, controlObj);
   }
 
   /**
@@ -660,6 +619,9 @@ var descartesJS = (function(descartesJS, babel) {
           case("type"):
             // get the type for the debug
             descartesJS.DEBUG.idName = values_i_1;
+            graphicObj[babelValue] = firstLetterUpercase( babel[values_i_1] );
+            break;
+
           // text alignment
           case("align"):
           // ancho text
@@ -756,7 +718,7 @@ var descartesJS = (function(descartesJS, babel) {
           case("range"):
           // font size
           case("font_size"):
-            if (values_i_1 != "") {
+            if (values_i_1 !== "") {
               graphicObj[babelValue] = this.parser.parse(values_i_1);
             }
             break;
@@ -768,8 +730,8 @@ var descartesJS = (function(descartesJS, babel) {
 
           // expression
           case("expresion"):
-            if (values_i_1 != "") {
-              if (graphicObj.type != "macro") {
+            if (values_i_1 !== "") {
+              if (graphicObj.type !== "Macro") {
                 graphicObj["expresion"] = this.parser.parse(values_i_1);
                 graphicObj["expresionString"] = values_i_1;
               } else {
@@ -876,60 +838,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
     // MACRO //
 
-    switch(graphicObj.type) {
-      case("text"):
-        return new descartesJS.Text(this.parent, graphicObj);
-        break;
-
-      case("image"):
-        return new descartesJS.Image(this.parent, graphicObj);
-        break;
-
-      case("polygon"):
-        return new descartesJS.Polygon(this.parent, graphicObj);
-        break;
-
-      case("arc"):
-        return new descartesJS.Arc(this.parent, graphicObj);
-        break;
-
-      case("segment"):
-        return new descartesJS.Segment(this.parent, graphicObj);
-        break;
-
-      case("arrow"):
-        return new descartesJS.Arrow(this.parent, graphicObj);
-        break;
-
-      case("macro"):
-        return new descartesJS.Macro(this.parent, graphicObj);
-        break;
-
-      case("curve"):
-        return new descartesJS.Curve(this.parent, graphicObj);
-        break;
-
-      case("equation"):
-        return new descartesJS.Equation(this.parent, graphicObj);
-        break;
-
-      case("sequence"):
-        return new descartesJS.Sequence(this.parent, graphicObj);
-        break;
-
-      case("rectangle"):
-        return new descartesJS.Rectangle(this.parent, graphicObj);
-        break;
-
-      case("fill"):
-        return new descartesJS.Fill(this.parent, graphicObj);
-        break;
-
-      default:
-        return new descartesJS.Point(this.parent, graphicObj);
-        break;
-    }
-
+    return new descartesJS[graphicObj.type](this.parent, graphicObj);
   }
 
   /**
@@ -963,8 +872,30 @@ var descartesJS = (function(descartesJS, babel) {
       switch(babelValue) {
         // type
         case("type"):
-        // get the type for the debug
-        descartesJS.DEBUG.idName = values_i_1;
+          // get the type for the debug
+          descartesJS.DEBUG.idName = values_i_1;
+          temp = babel[values_i_1];
+
+          switch(temp) {
+            case("cube"):
+            case("box"):
+            case("tetrahedron"):
+            case("octahedron"):
+            case("sphere"):
+            case("dodecahedron"):
+            case("icosahedron"):
+            case("ellipsoid"):
+            case("cone"):
+            case("cylinder"):
+            case("torus"):
+            case("mesh"):
+              graphicObj.subType = temp;
+              temp = "OtherGeometry";
+          }
+
+          graphicObj[babelValue] = firstLetterUpercase( temp );
+          break;
+
         // ilumination model
         case("model"):
         // linedash
@@ -1073,11 +1004,10 @@ var descartesJS = (function(descartesJS, babel) {
 
         // expression
         case("expresion"):
-          if ((graphicObj.type != "macro") && (graphicObj.type != "curve") && (graphicObj.type != "surface")) {
+          if ((graphicObj.type != "Macro") && (graphicObj.type != "Curve") && (graphicObj.type != "Surface")) {
             graphicObj["expresion"] = this.parser.parse(values_i_1);
             graphicObj["expresionString"] = values_i_1;
           } else {
-            // graphicObj["expresion"] = values_i_1.replace(/\\n/g, " ").replace(/;/g, " ");
             graphicObj["expresion"] = values_i_1.replace(/\\n/g, ";");
           }
           break;
@@ -1085,13 +1015,6 @@ var descartesJS = (function(descartesJS, babel) {
         // text
         case("text"):
           graphicObj["text"] = values_i_1;
-
-          // var tmpText = this.parseText(values_i_1);
-
-          // for (var ii=0, ll=tmpText.length; ii<ll; ii++) {
-          //   tmpText[ii] = this.parser.parse(tmpText[ii], false);
-          // }
-          // graphicObj["text"] = tmpText;
           break;
 
         // file name
@@ -1135,62 +1058,8 @@ var descartesJS = (function(descartesJS, babel) {
           break;
       }
     }
-    switch(graphicObj.type) {
-      case("segment"):
-        return new descartesJS.Segment3D(this.parent, graphicObj);
-        break;
 
-      case("polygon"):
-        return new descartesJS.Polygon3D(this.parent, graphicObj);
-        break;
-
-      case("curve"):
-        return new descartesJS.Curve3D(this.parent, graphicObj);
-        break;
-
-      case("triangle"):
-        return new descartesJS.Triangle3D(this.parent, graphicObj);
-        break;
-
-      case("face"):
-        return new descartesJS.Face3D(this.parent, graphicObj);
-        break;
-
-      case("polireg"):
-        return new descartesJS.Polireg3D(this.parent, graphicObj);
-        break;
-
-      case("surface"):
-        return new descartesJS.Surface3D(this.parent, graphicObj);
-        break;
-
-      case("text"):
-        return new descartesJS.Text3D(this.parent, graphicObj);
-        break;
-
-      case("cube"):
-      case("box"):
-      case("tetrahedron"):
-      case("octahedron"):
-      case("sphere"):
-      case("dodecahedron"):
-      case("icosahedron"):
-      case("ellipsoid"):
-      case("cone"):
-      case("cylinder"):
-      case("torus"):
-      case("mesh"):
-        return new descartesJS.OtherGeometry(this.parent, graphicObj);
-        break;
-
-      case("macro"):
-        return new descartesJS.Macro3D(this.parent, graphicObj);
-        break;
-
-      default:
-        return new descartesJS.Point3D(this.parent, graphicObj);
-        break;
-    }
+    return new descartesJS[graphicObj.type + "3D"](this.parent, graphicObj);
   }
 
   /**
@@ -1226,7 +1095,8 @@ var descartesJS = (function(descartesJS, babel) {
         case("info"):
         // code
         case("code"):
-          auxiliarObj[babelValue] = values_i_1;
+        // doc
+        case("doc"):
           break;
 
         // identifier
@@ -1342,9 +1212,6 @@ var descartesJS = (function(descartesJS, babel) {
     else if (auxiliarObj.type === "library") {
       auxiliarObj.type = "library";
     }
-    else if (auxiliarObj.type === "jsfun") {
-      auxiliarObj.type = "jsfun";
-    }
     else {
       if (auxiliarObj.id.charAt(auxiliarObj.id.length-1) === ")") {
         auxiliarObj.type = "function";
@@ -1357,7 +1224,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     switch(auxiliarObj.type) {
       case("sequence"):
-        var auxS = new descartesJS.Function(this.parent, auxiliarObj);
+        new descartesJS.Function(this.parent, auxiliarObj);
         break;
 
       case("constant"):
@@ -1402,18 +1269,13 @@ var descartesJS = (function(descartesJS, babel) {
         new descartesJS.Library(this.parent, auxiliarObj);
         break;
 
-      case("function"):
-        new descartesJS.Function(this.parent, auxiliarObj);
-        break;
-
       case("variable"):
         new descartesJS.Variable(this.parent, auxiliarObj);
         break;
 
       default:
-        new descartesJS.JsFunction(this.parent, auxiliarObj);
+        new descartesJS.Function(this.parent, auxiliarObj);
         break;
-      
     }
   }
 
@@ -1429,62 +1291,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if has some action then create it
     if (theAction_action) {
-      switch (theAction_action) {
-        // performs calculations
-        case("calculate"):
-          return (new descartesJS.Calculate(theAction_parent, theAction_parameter));
-          break;
-
-        // open an URL
-        case("openURL"):
-          return (new descartesJS.OpenURL(theAction_parent, theAction_parameter));
-          break;
-
-        // open a scene
-        case("openScene"):
-          return (new descartesJS.OpenScene(theAction_parent, theAction_parameter));
-          break;
-
-        // show credits
-        case("about"):
-          return (new descartesJS.About(theAction_parent, theAction_parameter));
-          break;
-
-        // show the editor
-        case("config"):
-          return (new descartesJS.Config(theAction_parent, theAction_parameter));
-          break;
-
-        // init the scene
-        case("init"):
-          return (new descartesJS.Init(theAction_parent, theAction_parameter));
-          break;
-
-        // clear the trace
-        case("clear"):
-          return (new descartesJS.Clear(theAction_parent, theAction_parameter));
-          break;
-
-        // start the animation
-        case("animate"):
-          return (new descartesJS.Animate(theAction_parent, theAction_parameter));
-          break;
-
-        // init the animation
-        case("initAnimation"):
-          return (new descartesJS.InitAnimation(theAction_parent, theAction_parameter));
-          break;
-
-        // play audio
-        case("playAudio"):
-          return (new descartesJS.PlayAudio(theAction_parent, theAction_parameter));
-          break;
-
-        // show a message
-        default:
-          return (new descartesJS.Message(theAction_parent, theAction_parameter));
-          break;
-      }
+      return new descartesJS[firstLetterUpercase(theAction_action)](theAction_parent, theAction_parameter);
     }
     // if has not some action then return a function that does nothing
     else {
@@ -1724,11 +1531,11 @@ var descartesJS = (function(descartesJS, babel) {
    * @return {Array<Array<String>>} return the array of name and value pairs
    */
   descartesJS.LessonParser.prototype.split = function(values) {
-    if (typeof(values) != "string") {
+    if (typeof(values) !== "string") {
       return [];
     }
 
-    values = values || "";
+    values = (values || "").replace(/\\'/g, "’");
     values = values.replace(/\\'/g, "’");
 
     splitValues = [];
@@ -1823,6 +1630,10 @@ var descartesJS = (function(descartesJS, babel) {
 
     // is a simple text
     return new descartesJS.SimpleText(this.parent, text);
+  }
+
+  function firstLetterUpercase(str) {
+    return str.charAt(0).toUpperCase() + str.substring(1);
   }
 
   return descartesJS;
