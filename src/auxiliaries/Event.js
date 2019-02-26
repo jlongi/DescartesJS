@@ -40,8 +40,8 @@ var descartesJS = (function(descartesJS) {
         var cond = (this.evaluator.eval(this.condition) > 0);
         //////////////////////////////////////////////////////////////////
         // DESCARTES 3
-        if (this.parent.version == 3) {
-          if (cond != this.lastEvaluation) {
+        if (this.parent.version === 3) {
+          if (cond !== this.lastEvaluation) {
             this.action.execute();
             this.lastEvaluation = (cond) ? true : false;
           }

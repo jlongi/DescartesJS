@@ -51,19 +51,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.width = parent.evaluator.parser.parse("1");
 
-    /**
-     * the condition and the color of the fill+
-     * type {String}
-     * @private
-     */
-    this.fillP = "";
-
-    /**
-     * the condition and the color of the fill-
-     * type {String}
-     * @private
-     */
-    this.fillM = "";
+    this.fillP = this.fillM = "";
 
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
@@ -72,7 +60,7 @@ var descartesJS = (function(descartesJS) {
     this.parseExpression();
 
     // Descartes 2 visible
-    this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;
+    this.visible = ((this.parent.version === 2) && (this.visible === undefined)) ? true : this.visible;
     if (this.visible) {
       this.registerTextField();
     }
@@ -99,22 +87,22 @@ var descartesJS = (function(descartesJS) {
       var left = this.expresion.childs[0];
       var right = this.expresion.childs[1];
 
-      if ( (left.type == "identifier") && (left.value == "y") && (!right.contains("y")) ) {
+      if ( (left.type === "identifier") && (left.value === "y") && (!right.contains("y")) ) {
         this.funExpr = right;
         this.of_y = false;
         this.drawAux = this.drawAuxFun;
       }
-      else if ( (right.type == "identifier") && (right.value == "y") && (!left.contains("y")) ) {
+      else if ( (right.type === "identifier") && (right.value === "y") && (!left.contains("y")) ) {
         this.funExpr = left;
         this.of_y = false;
         this.drawAux = this.drawAuxFun;
       }
-      else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
+      else if ( (left.type === "identifier") && (left.value === "x") && (!right.contains("x")) ) {
         this.funExpr = right;
         this.of_y = true;
         this.drawAux = this.drawAuxFun;
       }
-      else if ( (right.type == "identifier") && (right.value == "x") && (!left.contains("x")) ) {
+      else if ( (right.type === "identifier") && (right.value === "x") && (!left.contains("x")) ) {
         this.funExpr = right;
         this.of_y = true;
         this.drawAux = this.drawAuxFun;
@@ -134,7 +122,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Equation.prototype.draw = function() {
     // if the equation has a family
-    if (this.family != "") {
+    if (this.family !== "") {
       this.drawFamilyAux(this.ctx, this.fill, this.color);
     }
     // if the equation has not a family
@@ -211,10 +199,9 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     parser = evaluator.parser;
     space = this.space;
-    width = evaluator.eval(this.width);
+    ctx.lineWidth = width = evaluator.eval(this.width);
 
     ctx.strokeStyle = this.color.getColor();
-    ctx.lineWidth = width;
 
     savex = parser.getVariable("x");
     savey = parser.getVariable("y");
@@ -233,7 +220,7 @@ var descartesJS = (function(descartesJS) {
       dy = 3;
     }
 
-    if (this.cInd == 0) {
+    if (this.cInd === 0) {
       b = [];
       this.cInd++;
     }
@@ -245,9 +232,8 @@ var descartesJS = (function(descartesJS) {
     qb.set(0, 0);
     t.set(0, 0);
 
-    np = 8;
     dist = 0.25;
-    ds = np;
+    ds = np = 8;;
     if (!this.abs_coord) {
       dist = dist/space.scale;
       ds = ds/space.scale;
@@ -297,14 +283,12 @@ var descartesJS = (function(descartesJS) {
           ctx.lineTo(Qx, Qy);
         }
 
-        q0.x = q.x;
-        q0.y = q.y;
-        qb.x = q.x;
-        qb.y = q.y;
+        q0.x = qb.x = q.x;
+        q0.y = qb.y = q.y;
 
         // t=t0= Unit Tangent Vector
         t0 = this.newt.getUnitNormal();
-        if (t0.x==0 && t0.y==0) {
+        if ((t0.x === 0) && (t0.y === 0)) {
           continue; /* Zero normal vector */
         }
 
@@ -312,8 +296,7 @@ var descartesJS = (function(descartesJS) {
         t.x = t0.x;
         t.y = t0.y;
 
-        zeroVisited = 0;
-        side = 0;
+        zeroVisited = side = 0;
         changeSide = false;
 
         while (side < 2)  {
@@ -322,11 +305,8 @@ var descartesJS = (function(descartesJS) {
             t.x = -t0.x;
             t.y = -t0.y;
 
-            q.x = q0.x;
-            q.y = q0.y;
-
-            qb.x = q.x;
-            qb.y = q.y;
+            qb.x = q.x = q0.x;
+            qb.y = q.y = q0.y;
 
             if (this.abs_coord) {
               Q.set(q.x, q.y);
@@ -341,8 +321,8 @@ var descartesJS = (function(descartesJS) {
             zeroVisited = 0;
           }
 
-          q.x+=ds*t.x;
-          q.y+=ds*t.y;
+          q.x += ds*t.x;
+          q.y += ds*t.y;
 
           q = this.newt.findZero(q, dist);
           if (q == null) {
@@ -356,7 +336,7 @@ var descartesJS = (function(descartesJS) {
           t.y = q.y-qb.y;
           t.normalize(); // update Unit Tangent Vector
 
-          if ((t.x==0) && (t.y==0)) {
+          if ((t.x === 0) && (t.y === 0)) {
             break; /* Zero tangent vector */
           }
 
@@ -372,7 +352,7 @@ var descartesJS = (function(descartesJS) {
           Px = parseInt(Q.ix());
           Py = parseInt(Q.iy());
 
-          if ((Px!=Qx) || (Py!=Qy)) {
+          if ((Px !== Qx) || (Py !== Qy)) {
             Qxa = Qx;
             Qya = Qy;
             Qx = Px;
@@ -390,7 +370,7 @@ var descartesJS = (function(descartesJS) {
               for (var s=1; s<np; s++) {
                 Qsx = Qxa + Math.round((Qx-Qxa)*s/np);
                 Qsy = Qya + Math.round((Qy-Qya)*s/np);
-                if ((0<=Qsx) && (Qsx<w) && (0<=Qsy) && (Qsy<h)) {
+                if ((0 <= Qsx) && (Qsx < w) && (0 <= Qsy) && (Qsy < h)) {
                   // b[Qsx + Qsy*space.w] = true;
                   b[Qsx+12 + (Qsy+12)*space.w] = this.cInd;
                 }
@@ -484,9 +464,9 @@ var descartesJS = (function(descartesJS) {
     var minmax;
     var sing;
 
-    while (Math.abs(dxx)>1E-15) {
+    while (Math.abs(dxx) > 1E-15) {
       xa = this.evaluator.getVariable(X);
-      x  = this.evaluator.getVariable(X) + dxx;
+      x  = xa + dxx;
 
       this.evaluator.setVariable(X, x);
 
@@ -507,6 +487,7 @@ var descartesJS = (function(descartesJS) {
           else {
             sing = this.Singularity(Math.abs(dxx), X, F, x, vv, xa, vva, minmax);
           }
+
           if (sing > 0) {
             ok = false;
           }
@@ -545,7 +526,7 @@ var descartesJS = (function(descartesJS) {
     var ok;
     var vva;
 
-    while (Math.abs(dxx)>1E-15) {
+    while (Math.abs(dxx) > 1E-15) {
       this.evaluator.setVariable(X, this.evaluator.getVariable(X) +dxx);
       ok = true;
 
@@ -582,7 +563,7 @@ var descartesJS = (function(descartesJS) {
       Dx = dx;
       vv = v;
 
-      while (Math.abs(dxx)>1E-15) {
+      while (Math.abs(dxx) > 1E-15) {
         this.evaluator.setVariable(X, this.evaluator.getVariable(X)-dxx);
 
         var ok = true;
@@ -624,6 +605,7 @@ var descartesJS = (function(descartesJS) {
     if (a >= b) {
       return 2;
     }
+    
     var saveX = this.evaluator.getVariable(X);
     var disc = 0;
 

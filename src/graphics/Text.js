@@ -8,7 +8,6 @@ var descartesJS = (function(descartesJS) {
 
   var evaluator;
   var expr;
-  var radianAngle;
   var tmpRot;
   var posX;
   var posY;
@@ -31,9 +30,9 @@ var descartesJS = (function(descartesJS) {
     descartesJS.Graphic.call(this, parent, values);
     
     // alignment
-    if (!this.align) this.align = "left";
+    this.align = this.align || "left";
     // anchor
-    if (!this.anchor) this.anchor = "top_left";
+    this.anchor = this.anchor || "top_left";
 
     this.text = new descartesJS.TextObject(this, this.text);
   }
@@ -55,8 +54,7 @@ var descartesJS = (function(descartesJS) {
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
       this.exprX = tmpRot.x;
       this.exprY = tmpRot.y;

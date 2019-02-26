@@ -22,7 +22,7 @@ var descartesJS = (function(descartesJS) {
       // the lib is embeded in the webpage
       var libElement = document.getElementById(filename);
 
-      if ((libElement) && (libElement.type == "descartes/library")) {
+      if ((libElement) && (libElement.type === "descartes/library")) {
         response = libElement.text;
       }
       // the lib is in an external file

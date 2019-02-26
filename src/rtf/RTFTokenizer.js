@@ -7,9 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var StringFromCharCode = String.fromCharCode;
-  var inputLenght;
   var tokens;
-  var tokenType;
   var tokenValue;
   var pos;
   var blockNumber;
@@ -48,7 +46,6 @@ var descartesJS = (function(descartesJS) {
       return [];
     }
 
-    inputLenght = input.length;
     tokens = [];
     tokenValue = "";
     pos = 0;
@@ -57,7 +54,7 @@ var descartesJS = (function(descartesJS) {
     insideControlWord = false;
     lastTokenType = "text";
 
-    while (pos < inputLenght) {
+    while (pos < input.length) {
       currentChar = nextChar;
       nextChar = input.charAt(pos+1);
 

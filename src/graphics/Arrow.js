@@ -135,7 +135,7 @@ var descartesJS = (function(descartesJS) {
 
     ctx.fillStyle = fill.getColor();
     ctx.strokeStyle = stroke.getColor();
-    ctx.lineWidth = 2.0;
+    ctx.lineWidth = 2;
 
     if (this.abs_coord) {
       coordX =  MathRound(this.endPoints[0].x);
@@ -160,19 +160,21 @@ var descartesJS = (function(descartesJS) {
     ctx.translate(coordX, coordY, vlength);
 
     if (this.abs_coord) {
-      if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
-        ctx.rotate(this.angle)
-      } else {
-        ctx.rotate(-this.angle)
-      }
+      // if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
+      //   ctx.rotate(this.angle)
+      // } else {
+      //   ctx.rotate(-this.angle)
+      // }
+      ctx.rotate( this.angle * ((this.vect.y >= 0) ? 1 : -1) );
     } else {
       vlength = vlength*scale;
 
-      if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
-        ctx.rotate(-this.angle)
-      } else {
-        ctx.rotate(this.angle)
-      }
+      // if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
+      //   ctx.rotate(-this.angle)
+      // } else {
+      //   ctx.rotate(this.angle)
+      // }
+      ctx.rotate( this.angle * ((this.vect.y >= 0) ? -1 : 1) );
     }
 
     ctx.beginPath();

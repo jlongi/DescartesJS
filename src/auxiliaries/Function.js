@@ -24,7 +24,7 @@ var descartesJS = (function(descartesJS) {
     this.params = this.id.substring(parPos+1, this.id.indexOf(")"));
     this.domain = (this.range) ? parser.parse(this.range) : parser.parse("1");
 
-    if (this.params == "") {
+    if (this.params === "") {
       this.params = [];
     } else {
       this.params = this.params.split(",");

@@ -35,14 +35,14 @@ var descartesJS = (function(descartesJS) {
      */
     this.expresion = "";
 
+    this.local = "";
+
     /**
      * type of evaluation of the auxiliary
      * type {String}
      * @private
      */
     this.evaluate = "onlyOnce";
-
-    this.local = "";
 
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {

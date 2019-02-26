@@ -30,13 +30,13 @@ var descartesJS = (function(descartesJS) {
     this.evaluator = evaluator;
     this.constraint = constraint;
     
-    if ((this.constraint.value == "==") || (this.constraint.value == "<") || (this.constraint.value == "<=") || (this.constraint.value == ">") || (this.constraint.value == ">=")) {
+    if ((this.constraint.value === "==") || (this.constraint.value === "<") || (this.constraint.value === "<=") || (this.constraint.value === ">") || (this.constraint.value === ">=")) {
       
-      if ((this.constraint.value == "<") || (this.constraint.value == "<=")) {
+      if ((this.constraint.value === "<") || (this.constraint.value === "<=")) {
         this.sign = "menor";
       }
       
-      else if ((this.constraint.value == ">") || (this.constraint.value == ">=")) {
+      else if ((this.constraint.value === ">") || (this.constraint.value === ">=")) {
         this.sign = "mayor";
       }
       
@@ -70,8 +70,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.R2Newton.prototype.gradient = function(q0) {
     evaluator = this.evaluator;
     
-    newQ.x = 0;
-    newQ.y = 0;
+    newQ.x = newQ.y = 0;
 
     savex = evaluator.getVariable("x");
     savey = evaluator.getVariable("y");
@@ -119,10 +118,7 @@ var descartesJS = (function(descartesJS) {
     
     this.f0 = evaluator.eval(this.constraint);
     
-    if ((this.sign === "menor") && (this.f0 <= 0)) {
-      return q;
-    } 
-    else if ((this.sign === "mayor") && (this.f0 >= 0)) {
+    if ( ((this.sign === "menor") && (this.f0 <= 0)) || ((this.sign === "mayor") && (this.f0 >= 0)) ) {
       return q;
     }
     
@@ -135,7 +131,7 @@ var descartesJS = (function(descartesJS) {
 
       this.normal = this.gradient(q);
 
-      if (this.normal.norm2() != 0) {
+      if (this.normal.norm2() !== 0) {
         this.normal.mul(-this.f0/this.normal.norm2());
       }
 

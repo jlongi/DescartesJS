@@ -122,6 +122,7 @@ var descartesJS = (function(descartesJS) {
     return this.functions[name];
   }
 
+  var clic_regex = /(\w*)\.mouse_x|(\w*)\.mouse_y|(\w*)\.mouse_pressed|(\w*)\.mouse_clicked|(\w*)\.clic_izquierdo/;
   var parenthesesType = "parentheses";
   var squareBracketType = "square_bracket";
   var asignType = "asign";
@@ -138,8 +139,6 @@ var descartesJS = (function(descartesJS) {
   var tokens;
   var lastNode;
   var node;
-  var asignation;
-  var count;
   var openParentesis;
   var openSquareBracket;
   var openConditional;
@@ -195,7 +194,7 @@ var descartesJS = (function(descartesJS) {
         }
         // the identifier is a variable
         else {
-          var scrollable = tokens_i_value.match(/(\w*)\.mouse_x|(\w*)\.mouse_y|(\w*)\.mouse_pressed|(\w*)\.mouse_clicked|(\w*)\.clic_izquierdo/);
+          var scrollable = tokens_i_value.match(clic_regex);
           if (scrollable) {
             this.variables[(scrollable[1] || scrollable[2] || scrollable[3] || scrollable[4] || scrollable[5]) + ".DESCARTESJS_no_fixed"] = 1;
           }
@@ -822,9 +821,7 @@ var descartesJS = (function(descartesJS) {
         else if ( (j < 0) && (i >= 0)) {
           return str.substring(i);
         }
-        else {
-          return "";
-        }
+        return "";
       }
     };
     /**
@@ -1245,10 +1242,10 @@ var descartesJS = (function(descartesJS) {
    */
   function myMapFun(x) {
     if (isNaN(parseFloat(x))) {
-      return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+      return x.replace(/^\s|\s$|^'|'$/g, "");
     }
     else {
-      return (parseFloat(x) == x) ? parseFloat(x) : x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
+      return (parseFloat(x) == x) ? parseFloat(x) : x.replace(/^\s|\s$|^'|'$/g, "");
     }
   }
 

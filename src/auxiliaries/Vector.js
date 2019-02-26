@@ -59,7 +59,6 @@ var descartesJS = (function(descartesJS) {
       this.file = newFile;
     }
 
-    var response;
     // if has an asociate file then read it
     if (this.file) {
       // if the vector is embedded in the page

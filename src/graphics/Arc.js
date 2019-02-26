@@ -15,13 +15,13 @@ var descartesJS = (function(descartesJS) {
   var math_PI_2 = mathPI/2;
   var math_2_PI = 2*mathPI;
 
+  var open_parenthesis_regex = /^_\(/;
+  var parenthesized_expr = /^(\(|\[)expr(\)|\])$/i;
+
   var evaluator;
   var expr;
   var macroAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
+  var tmpRot;
   var iniAng;
   var endAng;
   var u1;
@@ -41,6 +41,9 @@ var descartesJS = (function(descartesJS) {
   var tempAng;
   var clockwise;
   var tmpLineWidth;
+
+  var initVal;
+  var endVal;
 
   /**
    * A Descartes arc
@@ -95,11 +98,11 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
-    if (this.init.match(/^_\(/)) {
+    if (this.init.match(open_parenthesis_regex)) {
       this.initFlag = true;
       this.init = this.init.substring(1);
     }
-    if (this.end.match(/^_\(/)) {
+    if (this.end.match(open_parenthesis_regex)) {
       this.endFlag = true;
       this.end = this.end.substring(1);
     }
@@ -131,21 +134,18 @@ var descartesJS = (function(descartesJS) {
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
       macroAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      cosTheta = Math.cos(macroAngle);
-      senTheta = Math.sin(macroAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], macroAngle);
 
-      tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
-      tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
-      this.exprX = tmpRotX;
-      this.exprY = tmpRotY;
+      this.exprX = tmpRot.x;
+      this.exprY = tmpRot.y;
     }
     // MACRO //
 
-    var initVal = evaluator.eval(this.initExpr);
-    var endVal  = evaluator.eval(this.endExpr);
+    initVal = evaluator.eval(this.initExpr);
+    endVal  = evaluator.eval(this.endExpr);
 
     // if the expression of the initial and final angle are parenthesized expressions
-    if ( (/^(\(|\[)expr(\)|\])$/i).test(this.initExpr.type) && (/^(\(|\[)expr(\)|\])$/i).test(this.endExpr.type) ) {
+    if ( parenthesized_expr.test(this.initExpr.type) && parenthesized_expr.test(this.endExpr.type) ) {
       u1 = initVal[0][0];
       u2 = initVal[0][1];
       v1 = endVal[0][0];
@@ -184,32 +184,40 @@ var descartesJS = (function(descartesJS) {
       angulo2 += macroAngle;
 
       // change considering the quadrant for the first angle
-      if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
-      }
-      if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
-      }
-      if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
-      }
-      if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
+      if ( ((u1 !== 0) && (u2 > 0) && this.abs_coord) || ((u1 !== 0) && (u2 < 0) && !this.abs_coord) ) {
+        angulo1 = math_2_PI - angulo1;
       }
 
+      // if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
+      //   angulo1 = math_2_PI-angulo1;
+      // }
+      // if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
+      //   angulo1 = math_2_PI-angulo1;
+      // }
+      // if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
+      //   angulo1 = math_2_PI-angulo1;
+      // }
+      // if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
+      //   angulo1 = math_2_PI-angulo1;
+      // }
+
       // change considering the quadrant for the second angle
-      if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
+      if ( ((v1 !== 0) && (v2 > 0) && this.abs_coord) || ((v1 !== 0) && (v2 < 0) && !this.abs_coord) ) {
+        angulo2 = math_2_PI - angulo2;
       }
-      if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
-      }
-      if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
-      }
-      if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
-      }
+
+      // if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
+      //   angulo2 = math_2_PI-angulo2;
+      // }
+      // if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
+      //   angulo2 = math_2_PI-angulo2;
+      // }
+      // if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
+      //   angulo2 = math_2_PI-angulo2;
+      // }
+      // if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
+      //   angulo2 = math_2_PI-angulo2;
+      // }
 
       if (this.initFlag) {
         tmpAngulo1 = angulo1;
@@ -297,8 +305,8 @@ var descartesJS = (function(descartesJS) {
         coordX = mathRound(space.getAbsoluteX(this.exprX));
         coordY = mathRound(space.getAbsoluteY(this.exprY));
         radius = radius*space.scale;
-        this.iniAng = -this.iniAng;
-        this.endAng = -this.endAng;
+        this.iniAng *= -1;
+        this.endAng *= -1;
       }
 
       if (this.iniAng > this.endAng) {
@@ -317,8 +325,8 @@ var descartesJS = (function(descartesJS) {
         coordX = mathRound(space.getAbsoluteX(this.exprX));
         coordY = mathRound(space.getAbsoluteY(this.exprY));
         radius = radius*space.scale;
-        this.iniAng = -this.iniAng;
-        this.endAng = -this.endAng;
+        this.iniAng *= -1;
+        this.endAng *= -1;
       }
     }
 

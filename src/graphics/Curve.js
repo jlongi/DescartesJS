@@ -122,8 +122,7 @@ var descartesJS = (function(descartesJS) {
     tmpLineWidth = mathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    ctx.lineCap = ctx.lineJoin = "round";
     ctx.strokeStyle = stroke.getColor();
 
     tempParam = evaluator.getVariable(this.parameter);
@@ -193,7 +192,7 @@ var descartesJS = (function(descartesJS) {
     textField.disabled = !(this.editable);
 
     var self = this;
-    textField.oncontextmenu = function (evt) { return false; };
+    textField.oncontextmenu = function () { return false; };
     textField.onkeydown = function(evt) {
       if (evt.keyCode == 13) {
         self.expresion = self.evaluator.parser.parse(this.value);

@@ -345,7 +345,6 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.normalize = function() {
-    // var emptyNodes = this.querySelectorAll("textLineBlock").concat( this.querySelectorAll("formula") ).concat( this.querySelectorAll("numerator") ).concat( this.querySelectorAll("denominator") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("index") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radicand") ).concat( this.querySelectorAll("from") ).concat( this.querySelectorAll("to") ).concat( this.querySelectorAll("what") ).concat( this.querySelectorAll("element") );
     var emptyNodes = this.querySelectorAll(/textLineBlock|formula|numerator|denominator|superIndex|subIndex|index|subIndex|radicand|from|to|what|element/);
     
     for (var i=0, l=emptyNodes.length; i<l; i++) {
@@ -354,7 +353,6 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // var nodesWhitoutSiblings = this.querySelectorAll("formula").concat( this.querySelectorAll("fraction") ).concat( this.querySelectorAll("superIndex") ).concat( this.querySelectorAll("subIndex") ).concat( this.querySelectorAll("radical") ).concat( this.querySelectorAll("sum") ).concat( this.querySelectorAll("integral") ).concat( this.querySelectorAll("limit") ).concat( this.querySelectorAll("matrix") ).concat( this.querySelectorAll("defparts") ).concat( this.querySelectorAll("dynamicText") ).concat( this.querySelectorAll("componentNumCtrl") ).concat( this.querySelectorAll("componentSpace") );
     var nodesWhitoutSiblings = this.querySelectorAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
 
     for (var i=0, l=nodesWhitoutSiblings.length; i<l; i++) {

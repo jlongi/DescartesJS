@@ -91,23 +91,23 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.R2.prototype.mul = function(m) {
-    this.x*=m;
-    this.y*=m; 
+    this.x *= m;
+    this.y *= m; 
   }
 
   descartesJS.R2.prototype.div = function(d) {
-    this.x/=d;
-    this.y/=d; 
+    this.x /= d;
+    this.y /= d; 
   }
 
   descartesJS.R2.prototype.add = function(p) {
-    this.x+=p.x;
-    this.y+=p.y; 
+    this.x += p.x;
+    this.y += p.y; 
   }
 
   descartesJS.R2.prototype.sub = function(p) {
-    this.x-=p.x;
-    this.y-=p.y; 
+    this.x -= p.x;
+    this.y -= p.y; 
   }
 
   descartesJS.R2.prototype.normalize = function() {
@@ -142,15 +142,15 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.R2.prototype.intersection = function(p1, p2, q1, q2) {
-    A11 = (p2.x-p1.x);
-    A12 = (q1.x-q2.x);
-    B1 = q1.x-p1.x;
+    A11 = p2.x - p1.x;
+    A12 = q1.x - q2.x;
+    B1  = q1.x - p1.x;
     
-    A21 = (p2.y-p1.y);
-    A22 = (q1.y-q2.y);
-    B2 = q1.y-p1.y;
+    A21 = p2.y - p1.y;
+    A22 = q1.y - q2.y;
+    B2  = q1.y - p1.y;
 
-    Det = A11*A22-A12*A21;
+    Det = A11*A22 - A12*A21;
     if (MathAbs(Det) > 0.000001) {
       s = ( B1*A22-B2*A12)/Det;
       t = (-B1*A21+B2*A11)/Det;

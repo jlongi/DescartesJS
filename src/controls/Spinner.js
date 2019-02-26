@@ -72,7 +72,7 @@ var descartesJS = (function(descartesJS) {
 
     // if the decimals are negative or zero
     this.originalIncr = this.incr;
-    if ( (this.evaluator.eval(this.decimals) < 0) || (this.evaluator.eval(this.incr) == 0) ) {
+    if ( (this.evaluator.eval(this.decimals) < 0) || (this.evaluator.eval(this.incr) === 0) ) {
       var tmpIncr = this.evaluator.eval(this.incr);
 
       if (tmpIncr > 0) {
@@ -149,8 +149,8 @@ var descartesJS = (function(descartesJS) {
     var fieldWidth = this.w - (labelWidth + canvasWidth);
 
     this.container.className = "DescartesSpinnerContainer";
-    this.container.setAttribute("style", "width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
     this.container.id = this.id;
+    this.container.setAttribute("style", "width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
 
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");

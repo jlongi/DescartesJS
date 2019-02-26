@@ -44,12 +44,12 @@ var descartesJS = (function(descartesJS, babel) {
 
     // traverse the values to replace the defaults values of the object
     for (var propName in values) {
-      if (propName == "expresion") {
-        this.hasExpresion = true;
-      }
-
       // verify the own properties of the object
       if (values.hasOwnProperty(propName)) {
+        if (propName === "expresion") {
+          this.hasExpresion = true;
+        }
+
         this[propName] = values[propName];
       }
     }
@@ -99,6 +99,7 @@ var descartesJS = (function(descartesJS, babel) {
       for(var i=0, l=tmpResponse.length; i<l; i++) {
         if (tmpResponse[i].trim()) {
           indexOfEqual = tmpResponse[i].indexOf("=");
+
           if(indexOfEqual !== -1) {
             var tmpSplitLine = lessonParser.split(tmpResponse[i]);
             for (var iT=0,lT=tmpSplitLine.length; iT<lT; iT++) {
@@ -112,6 +113,25 @@ var descartesJS = (function(descartesJS, babel) {
           }
         }
       }
+
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      var self = this;
+
+      // function to replace expresions
+      var funReplace = function(str, m1) {
+        var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
+
+        for (var t=0, lt=tokens.length; t<lt; t++) {
+          if ((tokens[t].type == "identifier")  && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) {
+            tokens[t].value = self.name + "." + tokens[t].value;
+          }
+        }
+
+        var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
+
+        return prefix + tokenizer.flatTokens(tokens);
+      }
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       var respText;
       var babelResp;
@@ -153,25 +173,6 @@ var descartesJS = (function(descartesJS, babel) {
             // if the text is rtf must processing it diferent
             if (respText[j][1].match(/\{\\rtf1/)) {
               var textTemp = respText[j][1];
-
-              //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-              var self = this;
-
-              // function to replace expresions
-              var funReplace = function(str, m1) {
-                var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
-
-                for (var t=0, lt=tokens.length; t<lt; t++) {
-                  if ((tokens[t].type == "identifier")  && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) {
-                    tokens[t].value = self.name + "." + tokens[t].value;
-                  }
-                }
-
-                var prefix = (str.match(/^\\expr/)) ? "\\expr " : "\\decimals ";
-
-                return prefix + tokenizer.flatTokens(tokens);
-              }
-              //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
               textTemp = textTemp.replace(/\\expr ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);
               textTemp = textTemp.replace(/\\decimals ([a-zA-Z_0-9\u00C0-\u021B+*/%|&^#!?:()><.'\+\-]*)/gi, funReplace);

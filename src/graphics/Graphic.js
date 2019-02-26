@@ -225,20 +225,6 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic.prototype.getSpace = function() {
     return (this.parent.spaces.find( (element) => { return element.id === this.spaceID; } )) || this.parent.spaces[0];
-
-    // var spaces = this.parent.spaces;
-    // var space_i;
-
-    // // find in the spaces
-    // for (var i=0, l=spaces.length; i<l; i++) {
-    //   space_i = spaces[i];
-    //   if (space_i.id == this.spaceID) {
-    //     return space_i;
-    //   }
-    // }
-
-    // // if do not find the identifier, return the first space
-    // return this.parent.spaces[0];
   }
 
   /**
@@ -297,7 +283,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.Graphic.prototype.draw = function(fill, stroke) {
     // if the graphic has a family
-    if (this.family != "") {
+    if (this.family !== "") {
       this.drawFamilyAux(this.ctx, fill, stroke);
     }
     // if the graphic has not a family
@@ -388,8 +374,7 @@ var descartesJS = (function(descartesJS) {
 
     // rtf text
     if (text.type === "rtfNode") {
-      ctx.fillStyle = fill.getColor();
-      ctx.strokeStyle = fill.getColor();
+      ctx.fillStyle = ctx.strokeStyle = fill.getColor();
       ctx.textBaseline = "alphabetic";
       ctx.textNode.pos = { x:x, y:y };
 

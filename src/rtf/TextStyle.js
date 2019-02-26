@@ -30,8 +30,8 @@ var descartesJS = (function(descartesJS) {
     this.underline = false;
     this.overline = false;
     this.color = null;
-    this.align = "left";
     this.border = null;
+    this.align = "left";
     
     // this.familyIndex = null;
 

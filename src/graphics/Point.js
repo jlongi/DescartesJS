@@ -12,7 +12,6 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var space;
   var expr;
-  var radianAngle;
   var tmpRot;
   var coordX;
   var coordY;
@@ -31,7 +30,7 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.size = parent.evaluator.parser.parse("2");
-
+    
     // call the parent constructor
     descartesJS.Graphic.call(this, parent, values);
 
@@ -56,8 +55,7 @@ var descartesJS = (function(descartesJS) {
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
       this.exprX = tmpRot.x;
       this.exprY = tmpRot.y;
@@ -86,10 +84,9 @@ var descartesJS = (function(descartesJS) {
    * @param {String} fill the fill color of the point
    */
   descartesJS.Point.prototype.drawAux = function(ctx, fill){
-    evaluator = this.evaluator;
     space = this.space;
 
-    size = MathRound(evaluator.eval(this.size));
+    size = MathRound(this.evaluator.eval(this.size));
 
     ctx.fillStyle = fill.getColor();
 

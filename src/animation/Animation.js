@@ -6,8 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathMax = Math.max;
-
   /**
    * Descartes animation
    * @constructor 
@@ -81,7 +79,7 @@ var descartesJS = (function(descartesJS) {
 
       this.playing = true;
       this.pause = false;
-      this.timer = descartesJS.setTimeout(this.animExec, MathMax(10, this.parent.evaluator.eval(this.delay)));
+      this.timer = descartesJS.setTimeout(this.animExec, Math.max(10, this.parent.evaluator.eval(this.delay)));
     } 
     else {
       this.pause = true;

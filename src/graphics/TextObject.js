@@ -63,13 +63,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextObject.prototype.draw = function(ctx, fill, posX, posY, onlyUpdate) {
-    // draw rtfText
-    if (this.type === "rtfNode") {
-      this.drawRTF(ctx, fill, posX, posY, onlyUpdate);
-    }
-    else {
-      this.drawText(ctx, fill, posX, posY, onlyUpdate);
-    }
+    this[(this.type === "rtfNode") ? "drawRTF" : "drawText"](ctx, fill, posX, posY, onlyUpdate);
   }
 
   /**
@@ -128,8 +122,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.TextObject.prototype.drawRTF = function(ctx, fill, posX, posY, onlyUpdate) {
     fill = (fill.getColor) ? fill.getColor() : fill;
-    ctx.fillStyle = fill;
-    ctx.strokeStyle = fill;
+    ctx.fillStyle = ctx.strokeStyle = fill;
     ctx.textBaseline = "alphabetic";
 
     if (this.textNodes.style.align !== this.align) {
@@ -143,8 +136,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-
-
   /**
    * 
    */
@@ -153,8 +144,7 @@ var descartesJS = (function(descartesJS) {
 
     textElements = [];
     txt = "'";
-    pos = 0;
-    lastPos = 0;
+    pos = lastPos = 0;
     ignoreSquareBracket = -1;
 
     textLength = text.length;

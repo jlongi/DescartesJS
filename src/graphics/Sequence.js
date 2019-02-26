@@ -12,7 +12,6 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var space;
   var expr;
-  var radianAngle;
   var tmpRot;
   var coordX;
   var coordY;
@@ -64,8 +63,7 @@ var descartesJS = (function(descartesJS) {
 
     // rotate the elements in case the graphic is part of a macro
     if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-      tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
+      tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
       this.exprX = tmpRot.x;
       this.exprY = tmpRot.y;
@@ -101,8 +99,7 @@ var descartesJS = (function(descartesJS) {
     evaluator = this.evaluator;
     space = this.space;
 
-    size = Math.ceil(evaluator.eval(this.size)-.4);
-    desp = size;
+    desp = size = Math.ceil(evaluator.eval(this.size) - 0.4);
 
     ctx.fillStyle = fill.getColor();
 
@@ -133,7 +130,7 @@ var descartesJS = (function(descartesJS) {
     ctx.fill();
 
     // draw the text of the sequence
-    if (this.text != [""]) {
+    if (this.text !== [""]) {
       this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
       this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
 
