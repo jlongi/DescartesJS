@@ -68,7 +68,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} name the name of the vector to get the value
    */
   descartesJS.Evaluator.prototype.getVector = function(name, pos) {
-    pos = (pos<0) ? 0 : MathFloor(pos);
+    pos = (pos < 0) ? 0 : MathFloor(pos);
     return this.vectors[name][pos];
   }
 
@@ -80,8 +80,11 @@ var descartesJS = (function(descartesJS) {
    * @param {Object} value the value of the matrix to set
    */
   descartesJS.Evaluator.prototype.setMatrix = function(name, pos1, pos2, value) {
-    pos1 = (pos1<0) ? 0 : MathFloor(pos1);
-    pos2 = (pos2<0) ? 0 : MathFloor(pos2);
+    pos1 = (pos1 < 0) ? 0 : MathFloor(pos1);
+    pos2 = (pos2 < 0) ? 0 : MathFloor(pos2);
+    if (this.matrices[name][pos1] == undefined) {
+      this.matrices[name][pos1] = [];
+    }
     this.matrices[name][pos1][pos2] = value;
   }
 

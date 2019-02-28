@@ -6,15 +6,16 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evalArgument;
   var evalCache = {};
-
-  var mathFloor = Math.floor;
+  var MathFloor = Math.floor;
+  var evalArgument;
   var lastChildIndex;
   var newRoot;
   var root;
-  var right;
-  descartesJS.fullDecimals = false;
+  var rows;
+  var cols;
+  var result;
+  var i, j, k, l;
 
   /**
    * Nodes of a parse tree
@@ -94,10 +95,9 @@ var descartesJS = (function(descartesJS) {
       this.value = "-";
 
       root = new descartesJS.Node("compOperator", "==");
-      right = new descartesJS.Node("number", "0");
 
       root.addChild(this);
-      root.addChild(right);
+      root.addChild(new descartesJS.Node("number", "0"));
 
       newRoot = this.getRoot();
       newRoot.setAllEvalFun();
@@ -126,22 +126,22 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Node.prototype.setEvalFun = function() {
     // number
     if (this.type === "number") {
-      this.evaluate = function(evaluator) {
+      this.evaluate = function() {
         return parseFloat(this.value);
       }
     }
 
     // string
     else if (this.type === "string") {
-      this.evaluate = function(evaluator) {
+      this.evaluate = function() {
         return this.value.replace(/\\u0027/g, "'");
       }
     }
 
     // variable
     else if ( (this.type === "identifier") && (this.childs.length === 0) ) {
-      if (this.value == "rnd") {
-        this.evaluate = function(evaluator) {
+      if (this.value === "rnd") {
+        this.evaluate = function() {
           return Math.random();
         }
       }
@@ -154,11 +154,6 @@ var descartesJS = (function(descartesJS) {
           if ((typeof(variableValue) === "object") && (variableValue.length == undefined)) {
             return variableValue.evaluate(evaluator);
           }
-
-          // if the name of the variable is the name of a matrix, for matrix operations
-          // if ((getMatrix) && (evaluator.matrices[this.value])) {
-          //   variableValue = evaluator.matrices[this.value];
-          // }
 
           if (variableValue == undefined) {
             if (getMatrix || evaluator.matrices[this.value]) {
@@ -176,13 +171,10 @@ var descartesJS = (function(descartesJS) {
 
     // vector
     else if ( (this.type === "identifier") && (this.childs[0].type === "square_bracket") && (this.childs[0].childs.length === 1)) {
-      var pos;
       var value;
       this.evaluate = function(evaluator) {
-        pos = this.childs[0].childs[0].evaluate(evaluator);
-
         try {
-          value = evaluator.vectors[this.value][(pos<0) ? 0 : mathFloor(pos)];
+          value = evaluator.getVector(this.value, this.childs[0].childs[0].evaluate(evaluator));
           return (value !== undefined) ? value : 0;
         }
         catch(e) {
@@ -193,15 +185,10 @@ var descartesJS = (function(descartesJS) {
 
     // matrix
     else if ( (this.type === "identifier") && (this.childs[0].type === "square_bracket") && (this.childs[0].childs.length > 1)) {
-      var pos1;
-      var pos2;
       var value;
       this.evaluate = function(evaluator) {
-        pos1 = this.childs[0].childs[0].evaluate(evaluator);
-        pos2 = this.childs[0].childs[1].evaluate(evaluator);
-
         try {
-          value = evaluator.matrices[this.value][(pos1<0) ? 0 : mathFloor(pos1)][(pos2<0) ? 0 : mathFloor(pos2)];
+          value = evaluator.getMatrix( this.value, this.childs[0].childs[0].evaluate(evaluator), this.childs[0].childs[1].evaluate(evaluator) );
           return (value !== undefined) ? value : 0;
         }
         catch(e) {
@@ -350,7 +337,7 @@ var descartesJS = (function(descartesJS) {
         this.evaluate = function(evaluator) {
           var op1 = this.childs[0].evaluate(evaluator);
           var op2 = this.childs[1].evaluate(evaluator);
-          return op1 - mathFloor(op1/op2)*op2;
+          return op1 - MathFloor(op1/op2)*op2;
         }
       }
       else if (this.value === "^") {
@@ -371,32 +358,32 @@ var descartesJS = (function(descartesJS) {
     else if (this.type === "compOperator") {
       if (this.value === "<") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) < this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) < this.childs[1].evaluate(evaluator));
         }
       }
       else if (this.value === "<=") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) <= this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) <= this.childs[1].evaluate(evaluator));
         }
       }
       else if (this.value === ">") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) > this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) > this.childs[1].evaluate(evaluator));
         }
       }
       else if (this.value === ">=") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) >= this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) >= this.childs[1].evaluate(evaluator));
         }
       }
       else if (this.value === "==") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) === this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) === this.childs[1].evaluate(evaluator));
         }
       }
       else if (this.value === "!=") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) !== this.childs[1].evaluate(evaluator)) ? 1 : 0;
+          return +(this.childs[0].evaluate(evaluator) !== this.childs[1].evaluate(evaluator));
         }
       }
     }
@@ -405,8 +392,7 @@ var descartesJS = (function(descartesJS) {
     else if (this.type === "boolOperator") {
       if (this.value === "&") {
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
-          if (op1) {
+          if (this.childs[0].evaluate(evaluator)) {
             return (this.childs[1].evaluate(evaluator)) ? 1 : 0;
           }
           else {
@@ -417,8 +403,7 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "|") {
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
-          if (op1) {
+          if (this.childs[0].evaluate(evaluator)) {
             return 1;
           }
           else {
@@ -429,8 +414,7 @@ var descartesJS = (function(descartesJS) {
 
       else if (this.value === "!") {
         this.evaluate = function(evaluator) {
-          var op1 = this.childs[0].evaluate(evaluator) ? 1 : 0;
-          return (!op1) ? 1 : 0;
+          return +(!(this.childs[0].evaluate(evaluator)));
         }
       }
     }
@@ -438,9 +422,7 @@ var descartesJS = (function(descartesJS) {
     // conditional
     else if (this.type === "conditional") {
       this.evaluate = function(evaluator) {
-        var op1 = this.childs[0].evaluate(evaluator);
-
-        return (op1 > 0) ? this.childs[1].evaluate(evaluator) : this.childs[2].evaluate(evaluator);
+        return (this.childs[0].evaluate(evaluator) > 0) ? this.childs[1].evaluate(evaluator) : this.childs[2].evaluate(evaluator);
       }
     }
 
@@ -491,42 +473,25 @@ var descartesJS = (function(descartesJS) {
 
     // assignation
     else if (this.type === "asign") {
-      var tmpPos;
-      var tmpPos0;
-      var tmpPos1;
       var assignation;
 
       var ide = this.childs[0];
       var expre = this.childs[1];
-      var type = (ide.childs[0]) ? ide.childs[0].type : null
       var pos = (ide.childs[0]) ? ide.childs[0].childs : null;
 
       // vector assignation
       if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket") && (pos.length === 1)) {
         this.evaluate = function(evaluator) {
-          tmpPos = pos[0].evaluate(evaluator);
-          tmpPos = (tmpPos < 0) ? 0 : mathFloor(tmpPos);
-
           assignation = expre.evaluate(evaluator);
-          evaluator.vectors[ide.value][tmpPos] = assignation
+          evaluator.setVector(ide.value, pos[0].evaluate(evaluator), assignation);
           return assignation;
         }
       }
       // matrix assignation
       else if ((ide.childs.length === 1) && (ide.childs[0].type === "square_bracket") && (pos.length === 2)) {
         this.evaluate = function(evaluator) {
-          tmpPos0 = pos[0].evaluate(evaluator);
-          tmpPos1 = pos[1].evaluate(evaluator);
-          tmpPos0 = (tmpPos0 < 0) ? 0 : mathFloor(tmpPos0);
-          tmpPos1 = (tmpPos1 < 0) ? 0 : mathFloor(tmpPos1);
-
-          // condition to handle wrong matrix access
-          if (!evaluator.matrices[ide.value][tmpPos0]) {
-            evaluator.matrices[ide.value][tmpPos0] = [];
-          }
-
           assignation = expre.evaluate(evaluator);
-          evaluator.matrices[ide.value][tmpPos0][tmpPos1] = assignation;
+          evaluator.setMatrix(ide.value, pos[0].evaluate(evaluator), pos[1].evaluate(evaluator), assignation);
           return assignation;
         }
       }
@@ -564,12 +529,12 @@ var descartesJS = (function(descartesJS) {
     if (y < 0) {
       return NaN;
     }
-    if ((x >= 0) || (Math.floor(y) === y)) {
+    if ((x >= 0) || (MathFloor(y) === y)) {
       return Math.pow(x, y);
     }
     if (x < 0) {
       var yinv = 1/y;
-      var q = Math.floor(yinv);
+      var q = MathFloor(yinv);
       if (q === yinv) {
         if (q%2 === 1) {
           return -Math.pow(-x, y);
@@ -578,11 +543,6 @@ var descartesJS = (function(descartesJS) {
     }
     return NaN;
   }
-
-  var rows;
-  var cols;
-  var result;
-  var i, j, k, l;
 
   /**
    *
@@ -593,13 +553,8 @@ var descartesJS = (function(descartesJS) {
     result.rows = rows;
     result.cols = cols;
 
-    var vectInit;
     for (j=0, k=cols; j<k; j++) {
-      vectInit = [];
-      for (i=0, l=rows; i<l; i++) {
-        vectInit.push(0);
-      }
-      result[j] = vectInit;
+      result[j] = (Array(rows)).fill(0);
     }
 
     return result;
@@ -752,18 +707,18 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   *
+   * Used only in debug
    */
-  descartesJS.Node.prototype.toString = function() {
-    var str = "tipo: " + this.type + ", valor: " + this.value + "\n";
+  // descartesJS.Node.prototype.toString = function() {
+  //   var str = "tipo: " + this.type + ", valor: " + this.value + "\n";
 
-    this.sep = "   " + ((this.parent) ? (this.parent.sep) : "");
-    for (var i=0, l=this.childs.length; i<l; i++) {
-      str += this.sep +this.childs[i].toString();
-    }
+  //   this.sep = "   " + ((this.parent) ? (this.parent.sep) : "");
+  //   for (var i=0, l=this.childs.length; i<l; i++) {
+  //     str += this.sep +this.childs[i].toString();
+  //   }
 
-    return str;
-  }
+  //   return str;
+  // }
 
   return descartesJS;
 })(descartesJS || {});

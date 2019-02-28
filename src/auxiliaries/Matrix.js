@@ -42,13 +42,8 @@ var descartesJS = (function(descartesJS) {
     var mat = [];
     mat.type = "matrix";
     
-    var vectInit;
     for (var j=0, k=cols; j<k; j++) {
-      vectInit = [];
-      for (var i=0, l=rows; i<l; i++) {
-        vectInit.push(0);
-      }
-      mat[j] = vectInit;
+      mat[j] = (Array(rows)).fill(0);
     }
     evaluator.matrices[this.id] = mat;
     

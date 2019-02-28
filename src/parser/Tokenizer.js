@@ -79,8 +79,8 @@ var descartesJS = (function(descartesJS) {
     tokens = [];
     exit = false;
     pos = 0;
-    str = input;
     count = 0;
+    str = input;
     lastTokenType = "";
 
     /**

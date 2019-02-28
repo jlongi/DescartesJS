@@ -88,7 +88,7 @@ var descartesJS = (function(descartesJS) {
       // if the file has no content or could not be read
       if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
         response = [];
-        this.size = parser.parse( "0" );
+        this.size = parser.parse("0");
       }
       // if the file has content and could be read
       else {
@@ -115,13 +115,9 @@ var descartesJS = (function(descartesJS) {
       newExpression.push( tmpExp );
     }
 
-    var vectInit = [];
-    vectInit._size_ = evaluator.eval(this.size);
-    for (var i=0, l=this._size_; i<l; i++) {
-      vectInit.push(0);
-    }
+    var vectInit = (Array(evaluator.eval(this.size))).fill(0);
+    vectInit._size_ = vectInit.length;
     evaluator.vectors[this.id] = vectInit;
-
     evaluator.setVariable(this.id + ".long", vectInit._size_);
 
     for(var i=0, l=newExpression.length; i<l; i++) {
