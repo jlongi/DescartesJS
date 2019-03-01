@@ -6,8 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.auxCtx = document.createElement("canvas").getContext("2d");
-  
   var externalColor = "#000000";
   var externalDecimals = 2;
   var externalFixed = false;
@@ -560,8 +558,8 @@ var descartesJS = (function(descartesJS) {
 
       if (!finish) {
         if ((children_i.nodeType === "text") || (children_i.nodeType === "space")) {
-          descartesJS.auxCtx.font = children_i.style.toString();
-          children_i.metrics.w = descartesJS.auxCtx.measureText(children_i.value).width;
+          descartesJS.ctx.font = children_i.style.toString();
+          children_i.metrics.w = descartesJS.ctx.measureText(children_i.value).width;
         }
         else if (children_i.nodeType === "word") {
           children_i.updateLine();
@@ -616,10 +614,10 @@ var descartesJS = (function(descartesJS) {
 
         //////////////////////////////////////////////////////////
         if (children_i.nodeType === "text") {
-          descartesJS.auxCtx.font = children_i.style.toString();
+          descartesJS.ctx.font = children_i.style.toString();
           var value = (children_i.value !== "") ? children_i.value : "\u200A";
-          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
-          children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+          children_i.metrics = getFontMetrics(descartesJS.ctx.font);
+          children_i.metrics.w = descartesJS.ctx.measureText(value).width;
 
           children_i.metrics.offsetX = displaceX;
 
@@ -631,8 +629,8 @@ var descartesJS = (function(descartesJS) {
 
         //////////////////////////////////////////////////////////
         if (children_i.nodeType === "space") {
-          descartesJS.auxCtx.font = children_i.style.toString();
-          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          descartesJS.ctx.font = children_i.style.toString();
+          children_i.metrics = getFontMetrics(descartesJS.ctx.font);
           if (i === l-1) {
             children_i.metrics.w = 0;
           }
@@ -640,7 +638,7 @@ var descartesJS = (function(descartesJS) {
             children_i.metrics.w = spaceWidth;
           }
           else {
-            children_i.metrics.w = descartesJS.auxCtx.measureText(" ").width;
+            children_i.metrics.w = descartesJS.ctx.measureText(" ").width;
           }
   
           children_i.metrics.offsetX = displaceX;
@@ -665,10 +663,10 @@ var descartesJS = (function(descartesJS) {
 
         //////////////////////////////////////////////////////////
         if (children_i.nodeType === "hyperlink") {
-          descartesJS.auxCtx.font = children_i.styleString;
+          descartesJS.ctx.font = children_i.styleString;
           var value = (children_i.value !== "") ? children_i.value : "\u200A";
-          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
-          children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+          children_i.metrics = getFontMetrics(descartesJS.ctx.font);
+          children_i.metrics.w = descartesJS.ctx.measureText(value).width;
 
           children_i.metrics.offsetX = displaceX;
 
@@ -697,8 +695,8 @@ var descartesJS = (function(descartesJS) {
         if (children_i.nodeType === "componentNumCtrl") {
           children_i.componentNumCtrl = this.evaluator.parent.getControlByCId(children_i.value);
 
-          descartesJS.auxCtx.font = children_i.styleString;
-          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          descartesJS.ctx.font = children_i.styleString;
+          children_i.metrics = getFontMetrics(descartesJS.ctx.font);
           children_i.metrics.w = children_i.componentNumCtrl.w;
           children_i.metrics.h = children_i.componentNumCtrl.h;
 
@@ -714,8 +712,8 @@ var descartesJS = (function(descartesJS) {
         if (children_i.nodeType === "componentSpace") {
           children_i.componentSpace = this.evaluator.parent.getSpaceByCId(children_i.value);
 
-          descartesJS.auxCtx.font = children_i.styleString;
-          children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+          descartesJS.ctx.font = children_i.styleString;
+          children_i.metrics = getFontMetrics(descartesJS.ctx.font);
           children_i.metrics.w = children_i.componentSpace.w;
           children_i.metrics.h = children_i.componentSpace.h;
 
@@ -784,10 +782,10 @@ var descartesJS = (function(descartesJS) {
 
       //////////////////////////////////////////////////////////
       if (children_i.nodeType === "text") {
-        descartesJS.auxCtx.font = children_i.style.toString();
+        descartesJS.ctx.font = children_i.style.toString();
         var value = (children_i.value !== "") ? children_i.value : "\u200A";
-        children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
-        children_i.metrics.w = descartesJS.auxCtx.measureText(value).width;
+        children_i.metrics = getFontMetrics(descartesJS.ctx.font);
+        children_i.metrics.w = descartesJS.ctx.measureText(value).width;
 
         children_i.metrics.offsetX = displaceX;
 
@@ -815,13 +813,13 @@ var descartesJS = (function(descartesJS) {
         
         children_i.evalValue = textTemp;
 
-        descartesJS.auxCtx.font = children_i.style.toString();
-        children_i.metrics = getFontMetrics(descartesJS.auxCtx.font);
+        descartesJS.ctx.font = children_i.style.toString();
+        children_i.metrics = getFontMetrics(descartesJS.ctx.font);
 
         children_i.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
         children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
 
-        children_i.metrics.w = descartesJS.auxCtx.measureText(textTemp).width + 2*children_i.metrics.paddingX;
+        children_i.metrics.w = descartesJS.ctx.measureText(textTemp).width + 2*children_i.metrics.paddingX;
 
         children_i.metrics.offsetX_aux = displaceX;
 
@@ -1067,8 +1065,8 @@ var descartesJS = (function(descartesJS) {
 
         //////////////////////////////////
         // w=780, h=1000
-        descartesJS.auxCtx.font = children_i.style.toString();
-        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        descartesJS.ctx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.ctx.font);
         
         var sigmaHeight = parseInt(tmpMetric.h*1.2);
         var sigmaWidth = parseInt(0.5 +sigmaHeight*780/1000);
@@ -1164,8 +1162,8 @@ var descartesJS = (function(descartesJS) {
 
         //////////////////////////////////
         // w=529, h=1000
-        descartesJS.auxCtx.font = children_i.style.toString();
-        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        descartesJS.ctx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.ctx.font);
 
         var integralHeight = parseInt(tmpMetric.h*1.2);
         var integralWidth = parseInt(10.5 +integralHeight*529/1000);
@@ -1259,10 +1257,10 @@ var descartesJS = (function(descartesJS) {
         });
 
         //////////////////////////////////
-        descartesJS.auxCtx.font = children_i.style.toString();
-        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
-        var limitTextWidth = parseInt(0.5 + descartesJS.auxCtx.measureText("lím").width);
-        var arrowWidth = parseInt(0.5 + descartesJS.auxCtx.measureText("→").width);
+        descartesJS.ctx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.ctx.font);
+        var limitTextWidth = parseInt(0.5 + descartesJS.ctx.measureText("lím").width);
+        var arrowWidth = parseInt(0.5 + descartesJS.ctx.measureText("→").width);
 
         limitWidth = Math.max(limitTextWidth, limitFrom.metrics.w + arrowWidth + limitTo.metrics.w);
 
@@ -1358,8 +1356,8 @@ var descartesJS = (function(descartesJS) {
         });
         
         //////////////////////////////////
-        descartesJS.auxCtx.font = children_i.style.toString();
-        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        descartesJS.ctx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.ctx.font);
 
         var rowsH = [];
         var colsW = [];
@@ -1439,8 +1437,8 @@ var descartesJS = (function(descartesJS) {
         });
 
         //////////////////////////////////
-        descartesJS.auxCtx.font = children_i.style.toString();
-        var tmpMetric = getFontMetrics(descartesJS.auxCtx.font);
+        descartesJS.ctx.font = children_i.style.toString();
+        var tmpMetric = getFontMetrics(descartesJS.ctx.font);
 
         var defpartsW = 0;
         var defpartsH = defparts.metrics.paddingY;

@@ -225,36 +225,34 @@ var descartesJS = (function(descartesJS) {
       evaluator.setVariable(self.wStr, self.w);
       evaluator.setVariable(self.hStr, self.h);
     }
+    // change in the space size
+    else {
+      wModExpr = self.evaluator.eval(self.wModExpr);
+      hModExpr = self.evaluator.eval(self.hModExpr);
+      
+      if ((self.old_w != wModExpr) || (self.old_h != hModExpr)) {
+        self.w = wModExpr;
+        self.h = hModExpr;
+        self.w_2 = self.w/2;
+        self.h_2 = self.h/2;
+        evaluator.setVariable(self.wStr, self.w);
+        evaluator.setVariable(self.hStr, self.h);
+        self.old_w = self.w;
+        self.old_h = self.h;
+        self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+        self.canvas.height = self.backCanvas.height = self.h *self.ratio;
+        self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
+        self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
+        firstTime = true;
+      }
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+
     // check the draw if condition
     self.drawIfValue = evaluator.eval(self.drawif) > 0;
 
     // draw the space
     if (self.drawIfValue) {
-
-      //////////////////////////////////////////////////////////////////////////////////
-      // change in the space size
-      if (self.resizable) {
-        wModExpr = self.evaluator.eval(self.wModExpr);
-        hModExpr = self.evaluator.eval(self.hModExpr);
-        
-        if ((self.old_w != wModExpr) || (self.old_h != hModExpr)) {
-          self.w = wModExpr;
-          self.h = hModExpr;
-          self.w_2 = self.w/2;
-          self.h_2 = self.h/2;
-          evaluator.setVariable(self.wStr, self.w);
-          evaluator.setVariable(self.hStr, self.h);
-          self.old_w = self.w;
-          self.old_h = self.h;
-          self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
-          self.canvas.height = self.backCanvas.height = self.h *self.ratio;
-          self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
-          self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
-          firstTime = true;
-        }
-      }
-      //////////////////////////////////////////////////////////////////////////////////
-
       changeX = (self.x !== (evaluator.eval(self.xExpr) + self.displaceRegionWest));
       changeY = (self.y !== (evaluator.eval(self.yExpr) + parent.plecaHeight  + self.displaceRegionNorth));
 

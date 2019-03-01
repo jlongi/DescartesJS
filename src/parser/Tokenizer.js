@@ -160,8 +160,10 @@ var descartesJS = (function(descartesJS) {
       if (val) {
         var tempVal = val[0];
 
-        if (tempVal == "#") { tempVal = "!="; }
-          addToken("compOperator", tempVal, val[0].length);
+        if (tempVal == "#") { 
+          tempVal = "!="; 
+        }
+        addToken("compOperator", tempVal, val[0].length);
         continue;
       }
 
@@ -169,9 +171,15 @@ var descartesJS = (function(descartesJS) {
       val = str.match(boolOperatorRegExp);
       if (val) {
         var tempVal = val[0];
-        if (tempVal == "||") { tempVal = "|"; }
-        else if (tempVal == "&&") { tempVal = "&"; }
-        else if (tempVal == "~") { tempVal = "!"; }
+        if (tempVal == "||") { 
+          tempVal = "|"; 
+        }
+        else if (tempVal == "&&") { 
+          tempVal = "&"; 
+        }
+        else if (tempVal == "~") { 
+          tempVal = "!"; 
+        }
 
         addToken("boolOperator", tempVal, val[0].length);
         continue;

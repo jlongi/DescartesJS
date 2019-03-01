@@ -211,13 +211,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     * array to store the lesson spaces
-     * type {Array.<Space>}
-     * @private
-     */
-    this.spaces = [];
-
-    /**
      * external region
      * type {Space}
      * @private
@@ -313,11 +306,7 @@ var descartesJS = (function(descartesJS) {
 
     // code needed for reinit the lesson
     if (this.container != undefined) {
-      this.container.querySelectorAll("canvas").forEach((canvas) => {
-        canvas.width = canvas.height = 0;
-        canvas.style.width = canvas.style.height = "0px";
-      });
-
+      this.cleanCanvasImages();
       this.parentC.removeChild(this.container);
 
       delete(this.container);
@@ -341,12 +330,21 @@ var descartesJS = (function(descartesJS) {
     //
     // fit space
     if (this.expand == "fit") {
-      this.container.parentNode.setAttribute("align", "");
+      this.container.parentNode.removeAttribute("align");
       this.container.parentNode.style.overflow = "hidden";
+      this.container.parentNode.style.width = "100vw";
+      this.container.parentNode.style.height = "100vh";
       this.scaleToFit = scaleToFit;
       this.scaleToFit();
     }
     //
+
+    /**
+     * array to store the lesson spaces
+     * type {Array.<Space>}
+     * @private
+     */
+    this.spaces = [];
 
     // first run
     if (this.firstRun) {
@@ -484,17 +482,17 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // the scenario region is only visible in arquimedes lessons
-    this.stage = {container: document.createElement("div"), scroll: 0};
-    this.stage.container.id = "descartesJS_Stage";
-
-    // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
-    this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
-    this.stage.container.appendChild(this.stage.stageSpace.container);
-
     // ##ARQUIMEDES## //
     // if arquimedes then add the container of the scenario region
     if (this.arquimedes) {
+      // the scenario region is only visible in arquimedes lessons
+      this.stage = {container: document.createElement("div"), scroll: 0};
+      this.stage.container.id = "descartesJS_Stage";
+
+      // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
+      this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
+      this.stage.container.appendChild(this.stage.stageSpace.container);
+
       this.container.appendChild(this.stage.container);
       this.spaces.push(this.stage.stageSpace);
     }
@@ -594,7 +592,7 @@ var descartesJS = (function(descartesJS) {
       // iOS fix to the scroll in iframes
       // if the scene is in an iframe and expands to the container then prevent the scroll in the document
       if (this.expand == "fit") {
-        document.ontouchmove = function(event) { event.preventDefault(); }
+        window.addEventListener("touchmove", evt => { evt.preventDefault(); evt.stopPropagation(); });
       }
 
       window.parent.postMessage({ type: "reportSize", href: window.location.href, width: this.width, height: this.height }, '*');
@@ -613,17 +611,13 @@ var descartesJS = (function(descartesJS) {
     // trigger descartesReady event
     var evt;
     try {
-        // custom event for majority of browsers
-        evt = new CustomEvent("descartesReady", { "detail":this });
+      evt = new CustomEvent("descartesReady", { "detail":this });
+      // send the event
+      window.dispatchEvent(evt);
     }
     catch(e) {
       console.warn("CustomEvents not supported in this browser");
-        // custom event for ie
-        // evt = document.createEvent("CustomEvent");
-        // evt.initCustomEvent("descartesReady", false, false, { "cmd":this });
     }
-    // send the event
-    window.dispatchEvent(evt);
 
     this.readyApp = true;
   }
@@ -1349,6 +1343,31 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
+   * 
+   */
+  descartesJS.DescartesApp.prototype.cleanCanvasImages = function() {
+    this.container.querySelectorAll("canvas").forEach((canvas) => {
+      canvas.width = canvas.height = 1;
+      canvas.style.width = canvas.style.height = "1px";
+    });
+
+    this.spaces.forEach((space) => {
+      if (space.canvas) {
+        space.canvas = space.ctx = null;
+      }
+      if (space.backCanvas) {
+        space.backCanvas = space.backCtx = null;
+      }
+    });
+
+    for (let image_name in this.images) {
+      if ( (this.images[image_name].nodeName) && (this.images[image_name].nodeName.toLowerCase() === "canvas") ) {
+        delete this.images[image_name];
+      }
+    }
+  }
+
+  /**
    *
    */
   function scaleToFit() {
@@ -1358,9 +1377,6 @@ var descartesJS = (function(descartesJS) {
     descartesJS.cssScale = optimalRatio = Math.min(scaleToFitX, scaleToFitY);
 
     this.container.style.transformOrigin = "0 0";
-
-    this.container.parentNode.style.width = window.innerWidth + "px";
-    this.container.parentNode.style.height = window.innerHeight + "px";
 
     if (scaleToFitX < scaleToFitY) {
       this.container.style.left = "0";

@@ -34,9 +34,10 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.SpaceExternal.prototype.init = function() {
+    self = this;
+
     document.body.appendChild(this.container);
 
-    self = this;
     var parser = self.parent.evaluator.parser;
     var fontSizeDefaultButtons = "15";
 

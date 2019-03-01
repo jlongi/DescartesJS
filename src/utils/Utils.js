@@ -108,12 +108,12 @@ var descartesJS = (function(descartesJS) {
     descartesJS.hasCanvas = (elem.getContext && elem.getContext("2d"));
 
     if (descartesJS.hasCanvas) {
+      elem.width = elem.height = 1;
       // render context used to measuere text
       descartesJS.ctx = descartesJS.hasCanvas;
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
-      descartesJS._ratio = 1.5;
-      // descartesJS._ratio = (descartesJS.isIOS) ? 1.2 : 1.5;
+      descartesJS._ratio = (descartesJS.isIOS) ? 1.25 : 1.5;
     }
 
     setNewToFixed();
