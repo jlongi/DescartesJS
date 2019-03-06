@@ -66,7 +66,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables of the button configuration
+    // traverse all values and assign to variables of the button configuration
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -104,7 +104,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Parse and create a space
    * @param {String} values is the string containing the values ​​that define the space
-   * @return {Space} return a space constructed with the correspondign values
+   * @return {Space} return a space constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseSpace = function(values) {
     // object containing all the values ​​found in values
@@ -113,7 +113,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables to the space
+    // traverse all values and assign to variables to the space
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -297,7 +297,7 @@ var descartesJS = (function(descartesJS, babel) {
           temp = parseFloat(values_i_1);
 
           // whether to convert the value to a number the values ​​are different, then use the default value
-          // this case ocurrs when the scale has a no valid value
+          // this case occurs when the scale has a no valid value
           // if (temp.toString() != values_i_1) {
           if (isNaN(temp)) {
             temp =  48; // default value
@@ -324,7 +324,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Parse and create a control
    * @param {String} values is the string containing the values ​​that define the control
-   * @return {Control} return a control constructed with the correspondign values
+   * @return {Control} return a control constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseControl = function(values) {
     // object containing all the values ​​found in values
@@ -333,7 +333,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables to the control
+    // traverse all values and assign to variables to the control
     for (var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -407,7 +407,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("region"):
         // action
         case("action"):
-        // relative position of control mesagges
+        // relative position of control messages
         case("msg_pos"):
         // video control poster image
         case("poster"):
@@ -482,7 +482,7 @@ var descartesJS = (function(descartesJS, babel) {
           controlObj["spaceID"] = values_i_1;
           break;
 
-        // expresion of the position and size
+        // expression of the position and size
         case("expresion"):
           controlObj["expresion"] = this.parser.parse(values_i_1.replace(")(", ","));
           break;
@@ -492,7 +492,7 @@ var descartesJS = (function(descartesJS, babel) {
           controlObj[babelValue] = (babel[values_i_1] === "false") ? "" : values_i_1;
           break;
 
-        // bold text contidition
+        // bold text condition
         case("bold"):
           if (babel[values_i_1] != "false") {
             controlObj["bold"] = "bold";
@@ -540,7 +540,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // condition to show the text content in exponential notation
         case("exponentialif"):
-          controlObj["exponentialif"] = parseFloat(values_i_1); // parse the posible expression
+          controlObj["exponentialif"] = parseFloat(values_i_1); // parse the possible expression
           break;
 
         // control graphic text
@@ -562,7 +562,7 @@ var descartesJS = (function(descartesJS, babel) {
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
 
-          // find the font of the paramether
+          // find the font of the parameter
           if ((prefix === "parameter") && (sufix === "font")) {
             controlObj["parameterFont"] = values_i_1;
             break;
@@ -592,7 +592,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Boolean} abs_coord is a boolean specifying the use of absolute coordinate in macro graphics
    * @param {Boolena} background is a boolean specifying that draw in the background the macro graphics
    * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
-   * @return {Graphic} return a graphic constructed with the correspondign values
+   * @return {Graphic} return a graphic constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseGraphic = function(values, abs_coord, background, rotateExp) {
     // object containing all the values ​​found in values
@@ -601,7 +601,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables del graphic
+    // traverse all values and assign to variables del graphic
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -624,7 +624,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // text alignment
           case("align"):
-          // ancho text
+          // anchor text
           case("anchor"):
           // linedash
           case("lineDash"):
@@ -643,7 +643,7 @@ var descartesJS = (function(descartesJS, babel) {
           case("fixed"):
           // arc condition to use vectors
           case("vectors"):
-          // bold text contidition
+          // bold text condition
           case("bold"):
           // italic text condition
           case("italics"):
@@ -847,7 +847,7 @@ var descartesJS = (function(descartesJS, babel) {
    * @param {Boolean} abs_coord is a boolean specifying the use of absolute coordinate in macro graphics
    * @param {Boolena} background is a boolean specifying that draw in the background the macro graphics
    * @param {Node} rotateExp is a expression that specify a rotation for the macro graphics
-   * @return {3DGraphic} return a 3D graphic constructed with the correspondign values
+   * @return {3DGraphic} return a 3D graphic constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parse3DGraphic = function(values, abs_coord, background, rotateExp) {
     // object containing all the values ​​found in values
@@ -857,7 +857,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables del graphic
+    // traverse all values and assign to variables del graphic
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -896,7 +896,7 @@ var descartesJS = (function(descartesJS, babel) {
           graphicObj[babelValue] = firstLetterUpercase( temp );
           break;
 
-        // ilumination model
+        // illumination model
         case("model"):
         // linedash
         case("lineDash"):
@@ -915,7 +915,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("fixed"):
         // condition to calculate the intersection edges of faces
         case("split"):
-        // bold text contidition
+        // bold text condition
         case("bold"):
         // italic text condition
         case("italics"):
@@ -949,7 +949,7 @@ var descartesJS = (function(descartesJS, babel) {
         case("drawif"):
         // width
         case("width"):
-        // lenght
+        // length
         case("length"):
         // height
         case("height"):
@@ -1065,7 +1065,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Parse and create an auxiliar
    * @param {String} values is the string containing the values ​​that define the auxiliar
-   * @return {Auxiliary} return a auxiliar constructed with the correspondign values
+   * @return {Auxiliary} return a auxiliar constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseAuxiliar = function(values) {
     // object containing all the values ​​found in values
@@ -1078,7 +1078,7 @@ var descartesJS = (function(descartesJS, babel) {
       values[i][1] = (values[i][1]).replace(/&squot;/g, "'");
     }
 
-    // traverse all values and asign to variables del auxiliar
+    // traverse all values and assign to variables del auxiliar
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -1164,7 +1164,7 @@ var descartesJS = (function(descartesJS, babel) {
         // case("event"):
         // execution expression of an event
         case("execution"):
-        // relative position of event mesagges
+        // relative position of event messages
         case("msg_pos"):
         // event action
         case("action"):
@@ -1180,7 +1180,7 @@ var descartesJS = (function(descartesJS, babel) {
           var prefix = babel[values_i_0.substring(0,ind)];
           var sufix  = babel[values_i_0.substring(ind+1)];
 
-          // find the font of the paramether
+          // find the font of the parameter
           if ((prefix === "parameter") && (sufix === "font")) {
             auxiliarObj["parameterFont"] = values_i_1;
             break;
@@ -1282,7 +1282,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Parse and create an action
    * @param {String} theAction is the string containing the values ​​that define the action
-   * @return {Action} return a action constructed with the correspondign values
+   * @return {Action} return a action constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseAction = function(theAction) {
     theAction_action = theAction.action;
@@ -1302,7 +1302,7 @@ var descartesJS = (function(descartesJS, babel) {
   /**
    * Parse and create an animation
    * @param {String} values is the string containing the values ​​that define the animation
-   * @return {Animation} return a animation constructed with the correspondign values
+   * @return {Animation} return a animation constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseAnimation = function(values) {
     // object containing all the values ​​found in values
@@ -1311,7 +1311,7 @@ var descartesJS = (function(descartesJS, babel) {
     // remove the single quotation marks of the string of values, and divides the values in parameter name and value
     values = this.split(values);
 
-    // traverse all values and asign to variables of the animation
+    // traverse all values and assign to variables of the animation
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -1376,7 +1376,7 @@ var descartesJS = (function(descartesJS, babel) {
                 subtitlefont: "SansSerif,PLAIN,18"
              };
 
-    // traverse all values and asign to variables of the pleca
+    // traverse all values and assign to variables of the pleca
     for(var i=0, l=values.length; i<l; i++) {
       values_i_0 = values[i][0];
       values_i_1 = values[i][1];
@@ -1535,10 +1535,10 @@ var descartesJS = (function(descartesJS, babel) {
       return [];
     }
 
-    values = (values || "").replace(/\\'/g, "’");
-    values = values.replace(/\\'/g, "’");
-
     splitValues = [];
+
+    values = (values || "").replace(/\\'/g, "’");
+
     pos = i = initPosToken = 0;
     initToken = stringToken = valueToken = false;
 

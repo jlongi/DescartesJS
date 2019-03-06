@@ -32,8 +32,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Vector2D.AXIS_Y = new descartesJS.Vector2D(0, 1);
 
   /**
-   * Get the lenght of a 2D vector
-   * @return {Number} return the lenght of a 2D vector
+   * Get the length of a 2D vector
+   * @return {Number} return the length of a 2D vector
    */
   descartesJS.Vector2D.prototype.vectorLength = function() {
     return Math.sqrt(this.x*this.x + this.y*this.y);

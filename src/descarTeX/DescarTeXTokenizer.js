@@ -22,7 +22,7 @@ var descartesJS = (function(descartesJS) {
       var tokens = [];
       var lastToken = null;
       var pos = 0;
-      var inputLenght = input.length;
+      var inputLength = input.length;
       var currentChar;
       var nextChar = input.charAt(0);
       var isCommand = false;
@@ -31,7 +31,7 @@ var descartesJS = (function(descartesJS) {
 
       // replace the operators _ and ^, for the commands \subindex{} and \superindex{} respectively
       newInput = "";
-      for (var i=0; i<inputLenght; i++) {
+      for (var i=0; i<inputLength; i++) {
         currentChar = input.charAt(i);
         nextChar = input.charAt(i+1);
 
@@ -79,9 +79,9 @@ var descartesJS = (function(descartesJS) {
 
       input = newInput;
       nextChar = input.charAt(0);
-      inputLenght = input.length;
+      inputLength = input.length;
 
-      while (pos < inputLenght) {
+      while (pos < inputLength) {
         currentChar = nextChar;
         nextChar = input.charAt(pos+1);
 

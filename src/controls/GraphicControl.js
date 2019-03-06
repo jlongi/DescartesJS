@@ -87,7 +87,7 @@ var descartesJS = (function(descartesJS) {
     // get the Descartes font
     this.font = descartesJS.convertFont(this.font);
 
-    // build the contraint
+    // build the constraint
     if (this.constraintExpr) {
       this.constraint = parser.parse(this.constraintExpr);
 
@@ -365,7 +365,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Add the control to a espace and get the space container
+   * Add the control to a space and get the space container
    * @return {HTMLDiv} return the space container
    */
   descartesJS.GraphicControl.prototype.getContainer = function() {
@@ -438,7 +438,7 @@ var descartesJS = (function(descartesJS) {
 
       if (self.whichBtn == "L") {
         if ((self.activeIfValue) && (self.over)) {
-          self.parent.deactivateGraphiControls();
+          self.parent.deactivateGraphicControls();
           self.click = self.active = true;
 
           self.evaluator.setVariable(self.activoStr, 1);
@@ -463,7 +463,7 @@ var descartesJS = (function(descartesJS) {
 
     /**
      *
-     * @param {Event} evt el evento lanzado por la accion de presionar un boton
+     * @param {Event} evt event launched by the action of pressing a button
      * @private
      */
     function onTouchStart(evt) {
@@ -473,7 +473,7 @@ var descartesJS = (function(descartesJS) {
       evt.preventDefault();
 
       if (self.activeIfValue) {
-        self.parent.deactivateGraphiControls();
+        self.parent.deactivateGraphicControls();
         self.click = self.active = true;
 
         self.evaluator.setVariable(self.activoStr, 1);
@@ -537,7 +537,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // deactivate control
-      self.parent.deactivateGraphiControls();
+      self.parent.deactivateGraphicControls();
     }
 
     var posNew;

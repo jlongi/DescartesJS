@@ -19,7 +19,7 @@ var descartesJS = (function(descartesJS) {
     var filename = values.file;
 
     if (filename) {
-      // the lib is embeded in the webpage
+      // the lib is embedded in the webpage
       var libElement = document.getElementById(filename);
 
       if ((libElement) && (libElement.type === "descartes/library")) {
@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (response) {
-      response = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      response = (descartesJS.convertHTMLEntities(response)).replace(/\r/g, "").split("\n");
 
       // create the elements
       for (var i=0,l=response.length; i<l; i++){

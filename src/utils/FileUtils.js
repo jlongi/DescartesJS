@@ -13,7 +13,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Open an external file using an xml http request
    * @param {String} filename the filename of the file to open
-   * @return {*} the content of the file if readed or null if not
+   * @return {*} the content of the file if reader or null if not
    */
   descartesJS.openExternalFile = function(filename) {
     if (descartesJS.cacheFiles[filename]) {

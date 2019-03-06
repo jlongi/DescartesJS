@@ -173,7 +173,7 @@ var descartesJS = (function(descartesJS) {
     self.container.style.left = Math.max((parseInt(window.innerWidth - self.width)/2), 0) + "px";
     self.container.style.top = "5px";
 
-    // minimun space
+    // minimum space
     if (window.innerHeight < (self.vSpace + 75)) {
       self.container.style.height = (self.vSpace + 75) + "px";
     }

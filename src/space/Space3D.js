@@ -719,8 +719,8 @@ var descartesJS = (function(descartesJS) {
       self.click = 1;
       self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
-      // se desactivan los controles graficos
-      self.parent.deactivateGraphiControls();
+      // deactivate the graphic controls
+      self.parent.deactivateGraphicControls();
 
       self.posAnte = descartesJS.getCursorPosition(evt, self.container);
       self.oldMouse.x = self.getRelativeX(self.posAnte.x);
@@ -774,7 +774,7 @@ var descartesJS = (function(descartesJS) {
       self.click = 1;
 
       // se desactivan los controles graficos
-      self.parent.deactivateGraphiControls();
+      self.parent.deactivateGraphicControls();
 
       self.whichBtn = descartesJS.whichBtn(evt);
 

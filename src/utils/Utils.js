@@ -26,7 +26,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Extends an object with inheritance
    * @param {Object} child is the object that extends
-   * @param {Object} parent is the objecto to extends
+   * @param {Object} parent is the object to extends
    */
   descartesJS.extend = function(child, parent) {
     child.prototype = Object.create(parent.prototype);
@@ -38,7 +38,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Converts radians to degrees
    * @param {Number} r the radian to convert
-   * @return {Number} return the convertion to degrees of the number r
+   * @return {Number} return the conversion to degrees of the number r
    */
   descartesJS.radToDeg = function(r) {
     return r*trecientosSesentaEntreDosPi;
@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Converts degrees to radians
    * @param {Number} d the degree to convert
-   * @return {Number} return the convertion to radians of the number d
+   * @return {Number} return the conversion to radians of the number d
    */
   descartesJS.degToRad = function(d) {
     return d*dosPiEntreTrecientosSesenta;
@@ -76,8 +76,8 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Get a color string from a Descartes color
-   * @param {DescartesJS.Evaluator} evaluator the evaluator needed for evaluate the posible expressions
-   * @param {String|Object} color Descartes color especification
+   * @param {DescartesJS.Evaluator} evaluator the evaluator needed for evaluate the possible expressions
+   * @param {String|Object} color Descartes color specification
    * @return {String} return a string corresponding to the color
    */
   descartesJS.getColor = function(evaluator, color) {
@@ -88,7 +88,7 @@ var descartesJS = (function(descartesJS) {
     // if the color has an expression, then evaluate the string and return the corresponding color
     else {
       colorExpr = evaluator.eval(color);
-      return "rgba(" + MathFloor(colorExpr[0][0]*255) + "," + MathFloor(colorExpr[0][1]*255) + "," + MathFloor(colorExpr[0][2]*255) + "," + (1-colorExpr[0][3]) + ")";
+      return `rgba(${MathFloor(colorExpr[0][0]*255)},${MathFloor(colorExpr[0][1]*255)},${MathFloor(colorExpr[0][2]*255)},${(1-colorExpr[0][3])})`;
     }
   }
 
@@ -109,11 +109,11 @@ var descartesJS = (function(descartesJS) {
 
     if (descartesJS.hasCanvas) {
       elem.width = elem.height = 1;
-      // render context used to measuere text
+      // render context used to measure text
       descartesJS.ctx = descartesJS.hasCanvas;
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
-      descartesJS._ratio = (descartesJS.isIOS) ? 1.25 : 1.5;
+      descartesJS._ratio = (descartesJS.isIOS) ? 1.25 : Math.min(1.25, window.devicePixelRatio);
     }
 
     setNewToFixed();
@@ -227,7 +227,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Get the cursor position in absolute coordinates
-   * @param {Event} evt the event that has the cursor postion
+   * @param {Event} evt the event that has the cursor position
    * @return {Object} return the position of the mouse in absolute coordinates
    */
   descartesJS.getCursorPosition = function(evt, container) {
@@ -246,7 +246,7 @@ var descartesJS = (function(descartesJS) {
 
     boundingRect = container.getBoundingClientRect();
 
-    // considerar para la escala por transformacion de css
+    // consider for the scale by css transformation
     return { 
       x: (mouseX -window.pageXOffset -boundingRect.left)/descartesJS.cssScale,
       y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
@@ -420,6 +420,12 @@ por sus autores como
   descartesJS.preventDefault = function(evt) {
     evt.preventDefault();
     return false;
+  }
+
+  descartesJS.convertHTMLEntities = function(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
   }
 
   return descartesJS;

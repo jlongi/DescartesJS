@@ -149,10 +149,10 @@ var descartesJS = (function(descartesJS) {
   /**
    * Function that parses a string
    * @param {String} input the input to parse
-   * @param {Boolean} asignation identify if the input is treated like an asignation
+   * @param {Boolean} assignation identify if the input is treated like an assignation
    * @return {Node} return a parse tree from the parses input
    */
-  descartesJS.Parser.prototype.parse = function(input, asignation) {
+  descartesJS.Parser.prototype.parse = function(input, assignation) {
     tokens = this.tokenizer.tokenize(input);
 
     // tokens is undefined
@@ -160,7 +160,7 @@ var descartesJS = (function(descartesJS) {
       tokens = [];
     }
     lastNode = null;
-    asignation = !asignation || false;
+    assignation = !assignation || false;
     count = 0;
 
     openParentesis = 0;
@@ -205,10 +205,10 @@ var descartesJS = (function(descartesJS) {
 
       ////////////////////////////////////////////////////////////////////////////////
       //
-      // Asignation (one equal sign)
+      // assignation (one equal sign)
       //
       ////////////////////////////////////////////////////////////////////////////////
-      if ( (tokens_i_type === asignType) && (asignation) && (tokens_i_value != ":=") ) {
+      if ( (tokens_i_type === asignType) && (assignation) && (tokens_i_value != ":=") ) {
         tokens_i_type = compOperatorType;
         tokens_i_value = "==";
       }
@@ -225,20 +225,20 @@ var descartesJS = (function(descartesJS) {
 
             node.addChild(lastNode);
             lastNode = node;
-            asignation = true;
+            assignation = true;
           }
           // the last element of the tree is a square bracket
           else if (lastNode.type === squareBracketType) {
             node.addChild(lastNode.parent);
             lastNode = node;
-            asignation = true;
+            assignation = true;
           }
 
           // otherwise
           else {
             node.type = compOperatorType;
             node.value = "==";
-            asignation = true;
+            assignation = true;
 
             // find an element in the tree having a higher precedence to the node to be added
             while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
@@ -261,7 +261,7 @@ var descartesJS = (function(descartesJS) {
 
         // do not have last element
         else {
-          console.info("Error1: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error1: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -345,7 +345,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.info("Error2: en la expresion 《 " + input + " 》, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error2: en la expresión 《 " + input + " 》, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -361,12 +361,12 @@ var descartesJS = (function(descartesJS) {
 
         // the first element of the tree
         if (lastNode === null) {
-          console.info("Error3: en la expresion 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+          console.info("Error3: en la expresión 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
 
         // the tree has some element
         else {
-          // find the correspondign open parentheses
+          // find the corresponding open parentheses
           while (lastNode && lastNode.parent && ((lastNode.value != "(")  || ((lastNode.value == "(") && (lastNode.type != parenthesesType)))) {
             lastNode = lastNode.parent;
           }
@@ -378,7 +378,7 @@ var descartesJS = (function(descartesJS) {
 
           // if not find the parentheses match
           else {
-            // console.info("Error4: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            // console.info("Error4: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -394,12 +394,12 @@ var descartesJS = (function(descartesJS) {
 
         // the first element of the tree
         if (lastNode === null) {
-          console.info("Error5: en la expresion 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+          console.info("Error5: en la expresión 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
         }
 
         // the tree has some element
         else {
-          // find the correspondign square brackets
+          // find the corresponding square brackets
           while (lastNode && lastNode.parent && ((lastNode.value != "[")  || ((lastNode.value == "[") && (lastNode.type != squareBracketType)))) {
             lastNode = lastNode.parent;
           }
@@ -411,7 +411,7 @@ var descartesJS = (function(descartesJS) {
 
           // if not find the square brackets
           else {
-            console.info("Error6: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error6: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -440,7 +440,7 @@ var descartesJS = (function(descartesJS) {
 
         // the tree has some element
         else {
-          // the last element of the tree is an operator, an open parentheses, a sign or an asignation
+          // the last element of the tree is an operator, an open parentheses, a sign or an assignation
           if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || ((lastNode.type === parenthesesType) && (lastNode.value === "(")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[")) || (lastNode.type === signType)  || (lastNode.type === conditionalType) || (lastNode.type === asignType)) {
             lastNode.addChild(node);
             lastNode = node;
@@ -449,7 +449,7 @@ var descartesJS = (function(descartesJS) {
           // otherwise
           else {
             descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, input);
-            // console.info("Error7: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            // console.info("Error7: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -482,7 +482,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.info("Error8: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");  //throw("Error: no se puede iniciar una expresion con un operador 《 " + input + " 》")
+            console.info("Error8: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");  //throw("Error: no se puede iniciar una expresion con un operador 《 " + input + " 》")
             break;
           }
         }
@@ -524,7 +524,7 @@ var descartesJS = (function(descartesJS) {
 
           // otherwise
           else {
-            console.info("Error9: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            console.info("Error9: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
             break;
           }
         }
@@ -566,7 +566,7 @@ var descartesJS = (function(descartesJS) {
           } else {
             openConditional--;
 
-            // find the correspondign signo ? correspondiente
+            // find the corresponding ?
             while (lastNode && lastNode.parent && ((lastNode.value != "?")  || ((lastNode.value == "?") && (lastNode.type != conditionalType)))) {
               lastNode = lastNode.parent;
             }
@@ -577,7 +577,7 @@ var descartesJS = (function(descartesJS) {
 
             // if can not find the ?
             else {
-              console.info("Error10: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              console.info("Error10: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
               break;
             }
           }
@@ -585,7 +585,7 @@ var descartesJS = (function(descartesJS) {
 
         // last element do not exist
         else {
-          console.info("Error11: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error11: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -608,7 +608,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         else {
-          console.info("Error12: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+          console.info("Error12: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
           break;
         }
 
@@ -616,7 +616,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      console.info("Error13: en la expresion 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+      console.info("Error13: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
       break;
     }
 
@@ -714,7 +714,7 @@ var descartesJS = (function(descartesJS) {
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // register the default funtions
+    // register the default functions
     self.functions["sqr"]   = function(x) { return (x*x) };
     self.functions["sqrt"]  = self.functions["raíz"] = Math.sqrt;
     self.functions["exp"]   = Math.exp;
@@ -761,7 +761,7 @@ var descartesJS = (function(descartesJS) {
     self.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
     self.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
-    // if the lesson is inside a iframe then register the comunication functions with the parent
+    // if the lesson is inside a iframe then register the communication functions with the parent
     if (window.parent !== window) {
       // function to set a variable value to the parent
       self.functions["parent.set"] = function(varName, value) {
@@ -975,7 +975,7 @@ var descartesJS = (function(descartesJS) {
             i = response.length;
           }
 
-          // add elementes in between
+          // add elements in between
           if (storeValues) {
             values.push(response[i].split(String.fromCharCode("166")).map(myMapFun));
           }
@@ -1055,7 +1055,7 @@ var descartesJS = (function(descartesJS) {
             i = response.length;
           }
 
-          // add elementes in between
+          // add elements in between
           if (storeValues) {
             values.push( myMapFun(response[i]) );
           }
@@ -1112,7 +1112,7 @@ var descartesJS = (function(descartesJS) {
             continue;
           }
 
-          // add elementes in between
+          // add elements in between
           if (storeValues) {
             values = values.concat(response[i].split(String.fromCharCode("166")));
           }

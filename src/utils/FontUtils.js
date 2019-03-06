@@ -29,7 +29,7 @@ var descartesJS = (function(descartesJS) {
     fontCanvas = "";
 
     // font style
-    fontCanvas += descartesJS.getFontStyle(fontTokens[1]);
+    fontCanvas += descartesJS.getFontStyle(fontTokens[1]) + " ";
 
     // font size
     fontCanvas += fontTokens[2] + "px ";

@@ -115,7 +115,7 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of resize the browser
    */
   descartesJS.onResize = function(evt) {
-    // if is adaptative then scale it
+    // if is adaptive then scale it
     if (descartesJS.apps.length > 0) {
       descartesJS.apps[0].scaleToFit();
     }
@@ -233,7 +233,7 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  // if the DescartesJS library is loaded multiple times, prevent the collision of diferent versions
+  // if the DescartesJS library is loaded multiple times, prevent the collision of different versions
   if (descartesJS.loadLib == undefined) {
     descartesJS.loadLib = true;
 

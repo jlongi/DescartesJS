@@ -49,7 +49,7 @@ var descartesJS = (function(descartesJS) {
   }  
   
   /**
-   * Set the first run of an algotithm
+   * Set the first run of an algorithm
    */
   descartesJS.Auxiliary.prototype.firstRun = function() { };
 
@@ -65,7 +65,7 @@ var descartesJS = (function(descartesJS) {
    * Split the expression using the semicolon as separator, ignoring the empty expressions
    * @param {Parser} parser a Descartes parser object
    * @param {String} expression the expression to split
-   * @return {Array<Node>} return an array of nodes correspoding to the expression split
+   * @return {Array<Node>} return an array of nodes corresponding to the expression split
    */
   descartesJS.Auxiliary.prototype.splitInstructions = function(parser, expression) {
     tmpExpression = [];

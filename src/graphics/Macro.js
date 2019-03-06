@@ -66,7 +66,7 @@ var descartesJS = (function(descartesJS, babel) {
     var response;
 
     if (filename) {
-      // the macro is embeded in the webpage
+      // the macro is embedded in the webpage
       var macroElement = document.getElementById(filename);
 
       if ((macroElement) && (macroElement.type == "descartes/macro")) {
@@ -81,9 +81,9 @@ var descartesJS = (function(descartesJS, babel) {
     var indexOfEqual;
     var tmpResponse;
 
-    // if it was posible to read the macro
+    // if it was possible to read the macro
     if (response) {
-      tmpResponse = ( response.replace(/&aacute;/g, "á").replace(/&eacute;/g, "é").replace(/&iacute;/g, "í").replace(/&oacute;/g, "ó").replace(/&uacute;/g, "ú").replace(/&Aacute;/g, "Á").replace(/&Eacute;/g, "É").replace(/&Iacute;/g, "Í").replace(/&Oacute;/g, "Ó").replace(/&Uacute;/g, "Ú").replace(/&ntilde;/g, "ñ").replace(/&Ntilde;/g, "Ñ").replace(/\&gt;/g, ">").replace(/\&lt;/g, "<").replace(/\&amp;/g, "&").replace(/\r/g, "") ).split("\n");
+      tmpResponse = (descartesJS.convertHTMLEntities(tmpResponse)).replace(/\r/g, "").split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];
@@ -109,7 +109,7 @@ var descartesJS = (function(descartesJS, babel) {
       //////////////////////////////////////////////////////////////////////////////////////////////////////////////
       var self = this;
 
-      // function to replace expresions
+      // function to replace expressions
       var funReplace = function(str, m1) {
         var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
 
@@ -162,7 +162,7 @@ var descartesJS = (function(descartesJS, babel) {
 
           // is a text
           if (babelResp == "text") {
-            // if the text is rtf must processing it diferent
+            // if the text is rtf must processing it different
             if (respText[j][1].match(/\{\\rtf1/)) {
               var textTemp = respText[j][1];
 
@@ -215,7 +215,7 @@ var descartesJS = (function(descartesJS, babel) {
       var tempResp;
       var isGraphic;
 
-      // flat the expresions to obtain a string
+      // flat the expressions to obtain a string
       for (var i=0, l=response.length; i<l; i++) {
         if (response[i][0]) {
           tempResp = "";
@@ -233,10 +233,10 @@ var descartesJS = (function(descartesJS, babel) {
 
           // build and add the graphic elements to the space
           if (isGraphic) {
-            //agregar algo mas para indicar que se viene de un macro
+            // add something to indicate that it comes from a macro
             this.graphics.push( lessonParser.parseGraphic(response[i], this.abs_coord, this.background, this.inirot) );
           }
-          // build and add the axiliaries to the scene
+          // build and add the auxiliaries to the scene
           else {
             lessonParser.parseAuxiliar(response[i]);
           }

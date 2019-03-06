@@ -48,10 +48,10 @@ var descartesJS = (function(descartesJS) {
   var posX;
   var posY;
 
-  var disp;
-
   var wModExpr;
   var hModExpr;
+
+  var displace = {};
 
   /**
    * Descartes 2D space
@@ -156,7 +156,7 @@ var descartesJS = (function(descartesJS) {
       self.addEvents();
     }
     else {
-      self.stage_height = 0;
+      stage_height = 0;
       self.canvas.oncontextmenu = function (evt) { return false; };
     }
   }
@@ -183,31 +183,6 @@ var descartesJS = (function(descartesJS) {
       self.canvas.height = self.backCanvas.height = self.h *self.ratio;
       self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
       self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
-    }
-
-    if (self.id === "descartesJS_stage") {
-      self.setArquimedesHeight();
-
-      if ((descartesJS.TextController) && (!self.textController)) {
-        var textNodes = null;
-        if ((self.backGraphics[0]) && (self.backGraphics[0].text) && (self.backGraphics[0].text.textNodes)) {
-          textNodes = self.backGraphics[0].text.textNodes;
-        }
-
-        if (textNodes) {
-          var defaultStyle = { fontFamily:"Times New Roman", fontSize:"30px",fontStyle:"normal", fontWeight:"normal", textDecoration:"none", decimals:2, fixed:false };
-
-          self.textController = new descartesJS.TextController(
-            this,
-            self.container,
-            self.backCanvas,
-            textNodes,
-            defaultStyle,
-            "000000"
-          );
-        }
-      }
-
     }
   }
 
@@ -353,7 +328,7 @@ var descartesJS = (function(descartesJS) {
       self.drawMarks(ctx, rsc/10, -1);
     }
 
-    // draw the finnest net
+    // draw the finest net
     if ( ((self.parent.version !== 2) && (self.net10 !== "")) ||
          ((self.parent.version === 2) && (self.net !== "") && (self.net10 !== ""))
        ) {
@@ -434,37 +409,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  descartesJS.Space2D.prototype.setArquimedesHeight = function() {
-    var self = this;
-
-    self.update(true);
-
-    if ((self.backGraphics.length > 0) && (self.backGraphics[0].text.textNodes.metrics.h !== self.stage_height)) {
-      self.stage_height = self.backGraphics[0].text.textNodes.metrics.h;
-
-      var bottom = (self.backGraphics.length > 1) ? self.backGraphics[1].text.textNodes.metrics.h +25 : 0;
-      self.h = self.stage_height + bottom + 75;
-
-      // creative commons banner
-      if (self.backGraphics.length > 1) {
-        self.backGraphics[1].expresion = self.evaluator.parser.parse("[" + self.backGraphics[1].exprX + "," + (self.stage_height+bottom) + "]");
-      }
-      if (self.backGraphics.length > 2) {
-        self.backGraphics[2].expresion = self.evaluator.parser.parse("[" + self.backGraphics[2].exprX + "," + (self.stage_height+bottom+25) + "]");
-      }
-
-      self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
-      self.canvas.height = self.backCanvas.height = self.h *self.ratio;
-      self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
-      self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
-
-      self.parent.container.style.height = (self.h + self.plecaHeight) + "px";
-
-      self.update(true);
-    }
-  }
-
-
   /**
    * Draw the space
    */
@@ -490,7 +434,7 @@ var descartesJS = (function(descartesJS) {
       self.graphicsCtr[i].draw();
     }
 
-    // draw the text showing the mouse postion
+    // draw the text showing the mouse position
     if ((self.text != "") && (self.click) && (self.whichBtn === "L")) {
       ctx.save();
       ctx.fillStyle = self.text.getColor();
@@ -519,7 +463,7 @@ var descartesJS = (function(descartesJS) {
       if ((posY+1) > self.h) {
         posY = self.h;
       }
-      else if ((posY-14) < 0) { // 14 is aproximately the text height
+      else if ((posY-14) < 0) { // 14 is approximately the text height
         posY = 15;
       }
 
@@ -609,7 +553,7 @@ var descartesJS = (function(descartesJS) {
     self.canvas.oncontextmenu = function (evt) { return false; };
 
     ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de touch
+    // touch events
     ///////////////////////////////////////////////////////////////////////////
     if (this.sensitive_to_mouse_movements) {
       this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
@@ -638,7 +582,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.mclickIzqStr, 0);
 
       // deactivate the graphic controls
-      self.parent.deactivateGraphiControls();
+      self.parent.deactivateGraphicControls();
 
       onSensitiveToMouseMovements(evt);
 
@@ -678,7 +622,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Registro de eventos de mouse
+    // mouse events
     ///////////////////////////////////////////////////////////////////////////
     if (this.sensitive_to_mouse_movements) {
       this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
@@ -686,7 +630,7 @@ var descartesJS = (function(descartesJS) {
     this.canvas.addEventListener("mousedown", onMouseDown);
 
     /**
-     * dbclick
+     * double click
      */
     this.canvas.addEventListener("dblclick", function(evt) {
       // self.parent.externalSpace.show();
@@ -709,7 +653,7 @@ var descartesJS = (function(descartesJS) {
       self.click = 1;
 
       // deactivate the graphic controls
-      self.parent.deactivateGraphiControls();
+      self.parent.deactivateGraphicControls();
 
       self.whichBtn = descartesJS.whichBtn(evt);
 
@@ -770,7 +714,7 @@ var descartesJS = (function(descartesJS) {
       window.removeEventListener("mouseup", onMouseUp);
 
       // deactivate control
-      self.parent.deactivateGraphiControls();
+      self.parent.deactivateGraphicControls();
 
       self.parent.update();
     }
@@ -818,11 +762,11 @@ var descartesJS = (function(descartesJS) {
       // if the space is not fixed, then change the origin coordinates
       if (!self.fixed) {
         self.posNext = descartesJS.getCursorPosition(evt, self.container);
-        disp = { x: (self.posAnte.x - self.posNext.x),
-                 y: (self.posAnte.y - self.posNext.y) };
+        displace.x = self.posAnte.x - self.posNext.x;
+        displace.y = self.posAnte.y - self.posNext.y;
 
-        self.evaluator.setVariable(self.OxStr, (self.Ox - disp.x));
-        self.evaluator.setVariable(self.OyStr, (self.Oy - disp.y));
+        self.evaluator.setVariable(self.OxStr, (self.Ox - displace.x));
+        self.evaluator.setVariable(self.OyStr, (self.Oy - displace.y));
       }
 
       onSensitiveToMouseMovements(evt);

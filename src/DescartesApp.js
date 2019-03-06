@@ -11,7 +11,7 @@ var descartesJS = (function(descartesJS) {
   var scaleToFitY;
   var optimalRatio;
   
-  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una {\\*\\hyperlink licencia Creative Commons|http://creativecommons.org/licenses/by-nc-sa/4.0/}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una licencia {\\*\\hyperlink Creative Commons|https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
   /**
    * Descartes application interpreted with JavaScript
@@ -124,7 +124,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.evaluator = new descartesJS.Evaluator(this);
 
-    // get the url paremeter if any
+    // get the url parameter if any
     this.getURLParameters();
 
     /**
@@ -152,7 +152,7 @@ var descartesJS = (function(descartesJS) {
      */
     this.arquimedes = (/DescartesWeb2_0|Arquimedes|Discurso/i).test(this.code);
 
-    // licences for arquimedes
+    // arquimedes license 
     this.licenseA = (descartesJS.ccLicense) ? licenseA : "";
 
     var children = this.children;
@@ -166,7 +166,7 @@ var descartesJS = (function(descartesJS) {
 
       // get the rtf height
       if (children_i.name == "rtf_height") {
-        heightRTF = parseInt(children_i.value) || this.height;
+        heightRTF = (parseInt(children_i.value) + 120) || this.height;
       }
 
       // get the buttons height
@@ -427,8 +427,8 @@ var descartesJS = (function(descartesJS) {
         var posX = (this.width-780)/2;
         var posY = (parseInt(this.height) -this.plecaHeight -this.buttonsConfig.height -45);
 
-        tmpGraphics.push("space='descartesJS_stage' type='text' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
-        tmpGraphics.push("space='descartesJS_stage' type='text' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
+        tmpGraphics.push("space='descartesJS_stage' type='text' abs_coord='yes' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
+        tmpGraphics.push("space='descartesJS_stage' type='text' abs_coord='yes' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
         if (descartesJS.ccLicense) {
           tmpGraphics.push("space='descartesJS_stage' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
         }
@@ -461,7 +461,7 @@ var descartesJS = (function(descartesJS) {
 
       // if the name of the children start with "G" then is a graphic
       if ((/^G_/).test(children_i.name)) {
-        // prevenir usar un canvas pseudo retina
+        // prevent the use of a retina canvas
         if (children_i.value.match(/type='fill'|tipo='relleno'|tipus='ple'|mota='betea'|type='plein'|tipo='recheo'|tipo='curva_piena'|tipo='preencher'|tipus='ple'/)) {
           this.ratio = 1;
         }
@@ -489,7 +489,7 @@ var descartesJS = (function(descartesJS) {
       this.stage = {container: document.createElement("div"), scroll: 0};
       this.stage.container.id = "descartesJS_Stage";
 
-      // if descartesJS.TextController exist then make trasparent the color of the canvas, because the selection canvas is white
+      // if descartesJS.TextController exist then make transparent the color of the canvas, because the selection canvas is white
       this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
       this.stage.container.appendChild(this.stage.stageSpace.container);
 
@@ -585,7 +585,7 @@ var descartesJS = (function(descartesJS) {
     // hide the loader
     this.loader.style.display = "none";
 
-    // if the window parent is diferente from the current window, then is embedded in an iFrame
+    // if the window parent is different from the current window, then is embedded in an iFrame
     if (window.parent !== window) {
       this.parentC.style.margin = this.parentC.style.padding = "0px";
 
@@ -641,7 +641,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.DescartesApp.prototype.configRegions = function() {
     var parser = this.evaluator.parser;
-    var buttonsConfig = this.buttonsConfig;
+    var buttonsConfig = this.buttonsConfig || {};
     var principalContainer = this.container;
 
     // descartes 4
@@ -657,7 +657,7 @@ var descartesJS = (function(descartesJS) {
       clearWidth = 53;
     }
 
-    var northRegionHeight = southRegionHeight = eastRegionHeight = westRegionHeight = editableRegionHeight = northRegionWidht = southRegionWidht = eastRegionWidth = westRegionWidth = 0;
+    var northRegionHeight = southRegionHeight = eastRegionHeight = westRegionHeight = editableRegionHeight = northRegionWidth = southRegionWidth = eastRegionWidth = westRegionWidth = 0;
 
     var northSpaceControls = this.northSpace.controls;
     var southSpaceControls = this.southSpace.controls;
@@ -672,7 +672,7 @@ var descartesJS = (function(descartesJS) {
         northRegionHeight = buttonsConfig.height;
         buttonsConfig.rowsNorth = 1;
       }
-      // if the number of rows is diferent of zero then the height is the number of rows
+      // if the number of rows is different of zero then the height is the number of rows
       else {
         northRegionHeight = buttonsConfig.height * buttonsConfig.rowsNorth;
       }
@@ -683,24 +683,24 @@ var descartesJS = (function(descartesJS) {
 
       principalContainer.insertBefore(container, this.loader);
 
-      northRegionWidht = principalContainer.width;
+      northRegionWidth = principalContainer.width;
       var displaceButton = 0;
 
       // show the credits button
       if (buttonsConfig.about) {
         displaceButton = aboutWidth;
-        northRegionWidht -= displaceButton;
+        northRegionWidth -= displaceButton;
       }
       else {
         aboutWidth = 0;
       }
       // show the configuration button
       if (buttonsConfig.config) {
-        northRegionWidht -= configWidth;
+        northRegionWidth -= configWidth;
       }
 
       var numberOfControlsPerRow = Math.ceil(northSpaceControls.length / buttonsConfig.rowsNorth);
-      var controlWidth = northRegionWidht/numberOfControlsPerRow;
+      var controlWidth = northRegionWidth/numberOfControlsPerRow;
 
       // configure the controls in the region
       for (var i=0, l=northSpaceControls.length; i<l; i++) {
@@ -725,7 +725,7 @@ var descartesJS = (function(descartesJS) {
                                                       name: "config",
                                                       font_size: parser.parse(fontSizeDefaultButtons),
                                                       action: "config",
-                                                      expresion: parser.parse("(" + (northRegionWidht + aboutWidth)  + ", 0, " + configWidth + ", " + northRegionHeight + ")")
+                                                      expresion: parser.parse("(" + (northRegionWidth + aboutWidth)  + ", 0, " + configWidth + ", " + northRegionHeight + ")")
                                                      });
         btnConfig.update();
       }
@@ -739,24 +739,24 @@ var descartesJS = (function(descartesJS) {
         southRegionHeight = buttonsConfig.height;
         buttonsConfig.rowsSouth = 1;
       }
-      // if the number of rows is diferent of zero then the height is the number of rows
+      // if the number of rows is different of zero then the height is the number of rows
       else {
         southRegionHeight = buttonsConfig.height * buttonsConfig.rowsSouth;
       }
 
-      southRegionWidht = principalContainer.width;
+      southRegionWidth = principalContainer.width;
       var displaceButton = 0;
       // show the init button
       if (buttonsConfig.init) {
         displaceButton = initWidth;
-        southRegionWidht -= displaceButton;
+        southRegionWidth -= displaceButton;
       }
       else {
         initWidth = 0;
       }
       // show the clear button
       if (buttonsConfig.clear) {
-        southRegionWidht -= clearWidth;
+        southRegionWidth -= clearWidth;
       }
 
       var container = this.southSpace.container;
@@ -766,7 +766,7 @@ var descartesJS = (function(descartesJS) {
       principalContainer.insertBefore(container, this.loader);
 
       var numberOfControlsPerRow = Math.ceil(southSpaceControls.length / buttonsConfig.rowsSouth);
-      var controlWidth = southRegionWidht/numberOfControlsPerRow;
+      var controlWidth = southRegionWidth/numberOfControlsPerRow;
 
       // configure the controls in the region
       for (var i=0, l=southSpaceControls.length; i<l; i++) {
@@ -791,7 +791,7 @@ var descartesJS = (function(descartesJS) {
                                                      name: (this.language == "english") ? "clear" : "limpiar",
                                                      font_size: parser.parse(fontSizeDefaultButtons),
                                                      action: "clear",
-                                                     expresion: parser.parse("(" + (southRegionWidht + initWidth) + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
+                                                     expresion: parser.parse("(" + (southRegionWidth + initWidth) + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
                                                      });
         btnClear.update();
       }
@@ -927,7 +927,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Deactivate the graphic controls
    */
-  descartesJS.DescartesApp.prototype.deactivateGraphiControls = function() {
+  descartesJS.DescartesApp.prototype.deactivateGraphicControls = function() {
     var controls_i;
     for (var i=0, l=this.controls.length; i<l; i++) {
       controls_i = this.controls[i];
@@ -1066,7 +1066,7 @@ var descartesJS = (function(descartesJS) {
       // if do not exist then create a new audio
       else {
         var lastIndexOfDot = name.lastIndexOf(".");
-        lastIndexOfDot = (lastIndexOfDot === -1) ? name.lenght : lastIndexOfDot;
+        lastIndexOfDot = (lastIndexOfDot === -1) ? name.length : lastIndexOfDot;
         audios[name] = new Audio(name);
 
         var onCanPlayThrough = function(evt) {

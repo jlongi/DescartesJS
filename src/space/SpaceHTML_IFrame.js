@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
     }
     //
 
-    // if the web browser is firefox then a problem ocurrs with a none visible iframe
+    // if the web browser is firefox then a problem occurs with a none visible iframe
     this.isFirefox = (/firefox/i).test(window.navigator.userAgent);
 
     this.file = (this.file) ? this.file.trim() : "";
@@ -93,7 +93,7 @@ var descartesJS = (function(descartesJS) {
 
     this.parent.container.insertBefore(this.container, this.parent.loader);
 
-    // register the comunication functions
+    // register the communication functions
     var self = this;
 
     this.MyIFrame.onload = function(evt) {
@@ -113,7 +113,7 @@ var descartesJS = (function(descartesJS) {
       }      
       self.evaluator.setFunction(self.id + ".update", iframeUpdate);
       
-      // exec a funcion of the scene
+      // exec a function of the scene
       function iframeExec(functionName, functionParameters) {
         iframe.contentWindow.postMessage({ type: "exec", name: functionName, value: functionParameters }, "*");
         return 0;

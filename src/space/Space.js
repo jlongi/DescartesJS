@@ -207,7 +207,7 @@ var descartesJS = (function(descartesJS) {
     self.y_axis = self.x_axis;
 
     /**
-     * sensitive to mose movements condition
+     * sensitive to mouse movements condition
      * type {Boolean}
      * @private
      */

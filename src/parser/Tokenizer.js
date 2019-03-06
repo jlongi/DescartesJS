@@ -55,7 +55,7 @@ var descartesJS = (function(descartesJS) {
         return str; 
       });
 
-      // superindex numbers codified with &sup#;
+      // super index numbers codified with &sup#;
       input = input.replace(/\&sup(.+);/g, "^ $1 ");
 
       // single quotation marks
@@ -84,7 +84,7 @@ var descartesJS = (function(descartesJS) {
     lastTokenType = "";
 
     /**
-     * Auxiliar function to add tokens and move the character position
+     * Auxiliary function to add tokens and move the character position
      * @param {String} type the type of the token
      * @param {String} value the value of the token
      * @param {Number} size the length of the value of the token
@@ -185,7 +185,7 @@ var descartesJS = (function(descartesJS) {
         continue;
       }
 
-      // equal (asign)
+      // equal (assign)
       val = str.match(asignRegExp);
       if ((val) && !(str.match( /^==/))) {
         addToken("asign", val[0], val[0].length);
@@ -266,7 +266,7 @@ var descartesJS = (function(descartesJS) {
   var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
 
   /**
-   * Auxiliary funtion for the macros that take a list of tokens and get a string representation
+   * Auxiliary function for the macros that take a list of tokens and get a string representation
    * @param {Array<Object>} tokens the tokens to be flat
    * @return {String} return a string representation of the tokens
    */
