@@ -37,7 +37,7 @@ var descartesJS = (function(descartesJS) {
     this.newProjVert = [];
     this.newSpaceVert = [];
 
-    // asign the corresponding drawing function
+    // assign the corresponding drawing function
     if (this.type === "vertex") {
       this.draw = drawVertex;
     }

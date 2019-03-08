@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
+  var MathRound = Math.round;
 
   var evaluator;
   var expr;
@@ -139,15 +139,15 @@ var descartesJS = (function(descartesJS) {
 
       // if the images is a space image
       if (this.img.canvas) {
-        w = mathRound( w/this.ratio );
-        h = mathRound( h/this.ratio );
+        w = MathRound( w/this.ratio );
+        h = MathRound( h/this.ratio );
       }
 
-      despX = (this.centered) ? 0 : mathRound(w/2);
-      despY = (this.centered) ? 0 : mathRound(h/2);
+      despX = (this.centered) ? 0 : MathRound(w/2);
+      despY = (this.centered) ? 0 : MathRound(h/2);
 
-      coordX = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-      coordY = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+      coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
+      coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
       rotation = descartesJS.degToRad(-evaluator.eval(this.inirot));
 
       ctx.save();

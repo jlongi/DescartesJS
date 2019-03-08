@@ -298,7 +298,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * 
    */
-  descartesJS.TextNode.prototype.querySelectorAll = function(nodeType) {
+  descartesJS.TextNode.prototype.queryAll = function(nodeType) {
     var elements = [];
 
     if (typeof(nodeType) === "string") {
@@ -306,7 +306,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     for (var i=0, l=this.children.length; i<l; i++) {
-      elements = elements.concat( this.children[i].querySelectorAll(nodeType) );
+      elements = elements.concat( this.children[i].queryAll(nodeType) );
     }
 
     if (this.nodeType.match(nodeType)) {
@@ -343,7 +343,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.normalize = function() {
-    var emptyNodes = this.querySelectorAll(/textLineBlock|formula|numerator|denominator|superIndex|subIndex|index|subIndex|radicand|from|to|what|element/);
+    var emptyNodes = this.queryAll(/textLineBlock|formula|numerator|denominator|superIndex|subIndex|index|subIndex|radicand|from|to|what|element/);
     
     for (var i=0, l=emptyNodes.length; i<l; i++) {
       if (emptyNodes[i].children.length === 0) {
@@ -351,14 +351,16 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    var nodesWhitoutSiblings = this.querySelectorAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
+    var nodesWithoutSiblings = this.queryAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
+    var nodesWithoutSiblings_i;
 
-    for (var i=0, l=nodesWhitoutSiblings.length; i<l; i++) {
-      if ( (nodesWhitoutSiblings[i].prevSibling() === null) || ((nodesWhitoutSiblings[i].prevSibling() !== null) && (nodesWhitoutSiblings[i].prevSibling().nodeType !== "text")) ) {
-        nodesWhitoutSiblings[i].parent.insertBefore(nodesWhitoutSiblings[i], new descartesJS.TextNode("", "text", nodesWhitoutSiblings[i].parent.style));
+    for (var i=0, l=nodesWithoutSiblings.length; i<l; i++) {
+      nodesWithoutSiblings_i = nodesWithoutSiblings[i];
+      if ( (nodesWithoutSiblings_i.prevSibling() === null) || ((nodesWithoutSiblings_i.prevSibling() !== null) && (nodesWithoutSiblings_i.prevSibling().nodeType !== "text")) ) {
+        nodesWithoutSiblings_i.parent.insertBefore(nodesWithoutSiblings_i, new descartesJS.TextNode("", "text", nodesWithoutSiblings_i.parent.style));
       }
-      if ( (nodesWhitoutSiblings[i].nextSibling() === null) || ((nodesWhitoutSiblings[i].nextSibling() !== null) && (nodesWhitoutSiblings[i].nextSibling().nodeType !== "text")) ) {
-        nodesWhitoutSiblings[i].parent.insertAfter(nodesWhitoutSiblings[i], new descartesJS.TextNode("", "text", nodesWhitoutSiblings[i].parent.style));
+      if ( (nodesWithoutSiblings_i.nextSibling() === null) || ((nodesWithoutSiblings_i.nextSibling() !== null) && (nodesWithoutSiblings_i.nextSibling().nodeType !== "text")) ) {
+        nodesWithoutSiblings_i.parent.insertAfter(nodesWithoutSiblings_i, new descartesJS.TextNode("", "text", nodesWithoutSiblings_i.parent.style));
       }
     }
 
@@ -369,7 +371,7 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.TextNode.prototype.removeEmptyText = function() {
-    var textNodes = this.querySelectorAll(/text/);
+    var textNodes = this.queryAll(/text/);
     for (var i=0, l=textNodes.length; i<l; i++) {
       if ((textNodes[i].value === "") && (textNodes[i].parent)) {
         textNodes[i].parent.removeChild(textNodes[i]);
@@ -676,13 +678,14 @@ var descartesJS = (function(descartesJS) {
           });
 
           ////
-          if (!children_i.clickCacher) {
-            children_i.clickCacher = document.createElement("div");
-            children_i.clickCacher.setAttribute("style", "position:absolute;width:" + children_i.metrics.w + "px;height:" + children_i.metrics.h + "px;cursor:pointer;");
-            children_i.clickCacher.rtfNode = children_i;
-            children_i.clickCacher.action = new descartesJS.OpenURL(this.evaluator.parent, children_i.URL);
+          if (!children_i.clickCatcher) {
+            children_i.clickCatcher = descartesJS.newHTML("div", {
+              style : "position:absolute;width:" + children_i.metrics.w + "px;height:" + children_i.metrics.h + "px;cursor:pointer;",
+            });
+            children_i.clickCatcher.rtfNode = children_i;
+            children_i.clickCatcher.action = new descartesJS.OpenURL(this.evaluator.parent, children_i.URL);
         
-            children_i.clickCacher.addEventListener("click", function(evt) {
+            children_i.clickCatcher.addEventListener("click", function(evt) {
               this.rtfNode.click = true;
               this.action.execute();
               this.rtfNode.draw(this.rtfNode.ctx);
@@ -1494,7 +1497,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       //////////////////////////////////////////////////////////
-      // asign the previous child
+      // assign the previous child
       prevChild = children_i;
 
       //////////////////////////////////////////////////////////
@@ -1640,18 +1643,18 @@ var descartesJS = (function(descartesJS) {
     var y = this.metrics.y;
 
     this.ctx = ctx;
-    // add a position to the click cacher div
-    if (!this.clickCacher.parentNode) {
-      // ctx.canvas.parentNode.appendChild(this.clickCacher);
+    // add a position to the click catcher div
+    if (!this.clickCatcher.parentNode) {
+      // ctx.canvas.parentNode.appendChild(this.clickCatcher);
       if (ctx.canvas.nextSibling.className) {
-        ctx.canvas.parentNode.insertBefore(this.clickCacher, ctx.canvas.nextSibling.nextSibling);
+        ctx.canvas.parentNode.insertBefore(this.clickCatcher, ctx.canvas.nextSibling.nextSibling);
       }
       else {
-        ctx.canvas.parentNode.insertBefore(this.clickCacher, ctx.canvas.nextSibling);
+        ctx.canvas.parentNode.insertBefore(this.clickCatcher, ctx.canvas.nextSibling);
       }
     }
-    this.clickCacher.style.left = x + "px";
-    this.clickCacher.style.top  = (y - this.metrics.ascent) + "px";
+    this.clickCatcher.style.left = x + "px";
+    this.clickCatcher.style.top  = (y - this.metrics.ascent) + "px";
 
     ctx.fillStyle = "blue";
 

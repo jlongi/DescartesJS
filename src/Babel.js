@@ -268,4 +268,4 @@ var babel = (function(babel) {
   babel["doc"] = "doc";
 
   return babel;
-})(babel || {});
+})(babel || Object.create(null));

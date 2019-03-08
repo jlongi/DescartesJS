@@ -92,7 +92,7 @@ var descartesJS = (function(descartesJS) {
       y = currentPixel[1];
 
       if (equalColor(startColor, getPixel(imageData, x, y))) {
-        // asign the color
+        // assign the color
         setPixel(imageData, x, y, fill);
 
         // add the next pixel to the stack

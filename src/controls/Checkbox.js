@@ -25,7 +25,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       descartesJS.Control.call(self, parent, values);
 
-      // checkbox or radiobutton
+      // checkbox or radio button
       self.radio_group = self.radio_group.trim();
       if (self.radio_group !== "") {
         self.typeCtr = "radio";
@@ -43,21 +43,32 @@ var descartesJS = (function(descartesJS) {
       self.tabindex = ++self.parent.tabindex;
 
       // control container
-      self.containerControl = document.createElement("div");
+      self.containerControl = descartesJS.newHTML("div", {
+        class : "DescartesCheckboxContainer",
+      });
 
       // the checkbox
-      self.checkbox = document.createElement("input");
-      self.checkbox.setAttribute("type", self.typeCtr);
+      self.checkbox = descartesJS.newHTML("input", {
+        type     : self.typeCtr,
+        id       : self.id + self.typeCtr,
+        class    : "DescartesCheckbox",
+        tabindex : self.tabindex,
+      });
+
       if (self.radio_group !== "") {
         self.checkbox.setAttribute("name", self.radio_group);
       }
       self.checkbox.internalID = this.id;
         
       // the label
-      self.label = document.createElement("label");
+      self.label = descartesJS.newHTML("label", {
+        class : "DescartesCheckboxLabel",
+      });
 
       // the dummyLabel
-      self.dummyLabel = document.createElement("label");
+      self.dummyLabel = descartesJS.newHTML("label", {
+        "for" : self.id+self.typeCtr,
+      });
 
       self.value = self.evaluator.eval(self.valueExpr);
 
@@ -92,21 +103,14 @@ var descartesJS = (function(descartesJS) {
       self.labelFontSize = descartesJS.getFieldFontSize(self.h);
       var labelWidth = Math.max(self.w - self.h, 0);
 
-      self.containerControl.className = "DescartesCheckboxContainer";
-      self.containerControl.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
+      self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
-      self.dummyLabel.setAttribute("style", "position:absolute; width : " + self.h + "px; height : " + self.h + "px; left: " + labelWidth + "px;");
-      self.dummyLabel.setAttribute("for", self.id+self.typeCtr);
+      self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
 
-      self.checkbox.setAttribute("type", self.typeCtr);
-      self.checkbox.id = self.id + self.typeCtr;
-      self.checkbox.className = "DescartesCheckbox";
-      self.checkbox.setAttribute("style", "width : " + self.h + "px; height : " + self.h + "px; left: " + labelWidth + "px;");
-      self.checkbox.setAttribute("tabindex", self.tabindex);
+      self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
       self.checkbox.checked = (self.value != 0);
 
-      self.label.className = "DescartesCheckboxLabel";
-      self.label.setAttribute("style", "font-size:" + self.labelFontSize + "px; width: " + labelWidth + "px; height: " + self.h + "px; line-height: " + self.h + "px;");
+      self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;`);
       
       // register the control value
       self.evaluator.setVariable(self.id, self.value);
@@ -147,7 +151,7 @@ var descartesJS = (function(descartesJS) {
             self.checkbox.checked = (self.value !== 0);
           }
         }
-        // update the radiobutton value
+        // update the radio button value
         else {
           self.value = (self.checkbox.checked) ? 1 : 0;
           if (self.pressed) {

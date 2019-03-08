@@ -40,13 +40,13 @@ var descartesJS = (function(descartesJS) {
    * 
    */
   descartesJS.Variable.prototype.registerTextField = function() {
-    var container = document.createElement("div");
+    var container = descartesJS.newHTML("div");
 
-    var label = document.createElement("label");
+    var label = descartesJS.newHTML("label");
     // underscores are added at the beginning and end to determine the initial size of the label
     label.appendChild( document.createTextNode("___" + this.id + "=___") );
     
-    var textField = document.createElement("input");
+    var textField = descartesJS.newHTML("input");
     textField.value = this.expresionString;
     textField.disabled = !(this.editable);
 

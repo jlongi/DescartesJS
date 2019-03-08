@@ -2,7 +2,6 @@
 
 require "date"
 
-out = File.new("descartes.js", "w")
 prefix = "src/"
 files = [ "Babel.js",
 
@@ -112,7 +111,9 @@ files = [ "Babel.js",
           "Debug.js",
           "Main.js"]
 
+=begin
 # add the header to the descartes-min.js file
+out = File.new("descartes.js", "w")
 out.write(
 "/**
  * @preserve Joel Espinosa Longi
@@ -129,4 +130,31 @@ end
 out.close
 
 # call the closure compiler
-exec("java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartes-min.js", )
+`java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartes-min-sf.js`
+=end
+
+##########################################################################
+# Complete interpreter
+
+# add the header to the descartes-min.js file
+out = File.new("descartes.js", "w")
+out.write(
+"/**
+ * @preserve Joel Espinosa Longi
+ * jlongi@im.unam.mx
+ * https://github.com/jlongi/DescartesJS
+ * LGPL - http://www.gnu.org/licenses/lgpl.html
+ * " + Date.today.to_s() + "
+ */\n\n")
+
+# Add the fonts to the file
+files.insert(5, "utils/EmbeddedFonts.js")
+
+# join the content of the files
+files.each do |file|
+  out.write(File.read(prefix + file))
+end
+out.close
+
+# call the closure compiler
+`java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartes-min.js`

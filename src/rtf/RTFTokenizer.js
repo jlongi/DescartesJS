@@ -64,7 +64,7 @@ var descartesJS = (function(descartesJS) {
         if (currentChar === "\\") {
           insideControlWord = true;
 
-          // save a text node if readed
+          // save a text node if read
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
             lastTokenType = "text";
@@ -75,7 +75,7 @@ var descartesJS = (function(descartesJS) {
         else if (currentChar === "{") {
           blockNumber++;
 
-          // save a text node if readed
+          // save a text node if read
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue });
             tokenValue = "";
@@ -86,7 +86,7 @@ var descartesJS = (function(descartesJS) {
         }
         // close block
         else if (currentChar === "}") {
-          // save a text node if readed
+          // save a text node if read
           if (tokenValue !== "") {
             tokens.push({ type: "text", value: tokenValue })
             tokenValue = "";

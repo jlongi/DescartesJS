@@ -55,7 +55,7 @@ var descartesJS = (function(descartesJS) {
     for (var ui=0; ui<=Nu; ui++) {
       evaluator.setVariable("u", ui/Nu);
 
-      // eval all the subterms in the expression
+      // eval all the sub terms in the expression
       for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
         evaluator.eval(this.expresion[ii]);
       }

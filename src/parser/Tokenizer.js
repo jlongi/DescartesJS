@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var inputInicial;
+  var initial_input;
   var tokens ;
   var exit;
   var pos;
@@ -21,7 +21,7 @@ var descartesJS = (function(descartesJS) {
   var numberRegExp = /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/;
   var compOperatorRegExp = /^==|^!=|^<=|^<|^>=|^>|^#/;
   var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
-  var asignRegExp = /^=|^:=/;
+  var assignRegExp = /^=|^:=/;
   var conditionalRegExp = /^[\?\:]/;
   var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
   var squareBracketRegExp = /^\[|^\]/;
@@ -39,7 +39,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Tokenizer = function() {  };
 
   descartesJS.Tokenizer.prototype.tokenize = function(input) {
-    inputInicial = input;
+    initial_input = input;
 
     if (input) {
       var commentIndex = input.indexOf("//");
@@ -70,9 +70,9 @@ var descartesJS = (function(descartesJS) {
         input = input.replace(pipeStringDelimiterRegExp, "'");
       }
 
-      var inputTrimed = input.trim();
-      if ((inputTrimed.charAt(0) == "|") && (inputTrimed.charAt(inputTrimed.length-1) == "|")) {
-        input = inputTrimed.replace(pipeStringDelimiterRegExp, "'");
+      var inputTrimmed = input.trim();
+      if ((inputTrimmed.charAt(0) == "|") && (inputTrimmed.charAt(inputTrimmed.length-1) == "|")) {
+        input = inputTrimmed.replace(pipeStringDelimiterRegExp, "'");
       }
     }
 
@@ -108,7 +108,7 @@ var descartesJS = (function(descartesJS) {
             inc++;
           }
           else {
-            console.info(">Error, unknown symbol: ["+str+"], in the string 《" + inputInicial + "》" );
+            console.info(">Error, unknown symbol: ["+str+"], in the string 《" + initial_input + "》" );
             return;
           }
         }
@@ -186,7 +186,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // equal (assign)
-      val = str.match(asignRegExp);
+      val = str.match(assignRegExp);
       if ((val) && !(str.match( /^==/))) {
         addToken("asign", val[0], val[0].length);
         continue;
@@ -247,14 +247,14 @@ var descartesJS = (function(descartesJS) {
       // final of expression
       val = str.match(finalOfExpressionRegExp);
       if (val) {
-        addToken("final_of_expresion", val[0], val[0].length);
+        addToken("final_of_expression", val[0], val[0].length);
         continue;
       }
 
       if (exit == pos){
-        descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, inputInicial);
-        // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + inputInicial + "》" );
-        // console.info("Error: en la cadena 《 " + inputInicial + " 》");
+        descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, initial_input);
+        // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
+        // console.info("Error: en la cadena 《 " + initial_input + " 》");
         return;
       }
     }

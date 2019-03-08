@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
+  var MathRound = Math.round;
   var PI2 = Math.PI*2;
 
   var evaluator;
@@ -110,7 +110,7 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.eval(this.width) );
+    tmpLineWidth = MathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     size = evaluator.eval(this.size);
@@ -125,15 +125,15 @@ var descartesJS = (function(descartesJS) {
     lineDesp = (ctx.lineWidth%2 == 0) ? 0 : 0.5;
 
     if (this.abs_coord) {
-      coordX =  mathRound(this.endPoints[0].x);
-      coordY =  mathRound(this.endPoints[0].y);
-      coordX1 = mathRound(this.endPoints[1].x);
-      coordY1 = mathRound(this.endPoints[1].y);
+      coordX =  MathRound(this.endPoints[0].x);
+      coordY =  MathRound(this.endPoints[0].y);
+      coordX1 = MathRound(this.endPoints[1].x);
+      coordY1 = MathRound(this.endPoints[1].y);
     } else {
-      coordX =  mathRound(space.getAbsoluteX(this.endPoints[0].x));
-      coordY =  mathRound(space.getAbsoluteY(this.endPoints[0].y));
-      coordX1 = mathRound(space.getAbsoluteX(this.endPoints[1].x));
-      coordY1 = mathRound(space.getAbsoluteY(this.endPoints[1].y));
+      coordX =  MathRound(space.getAbsoluteX(this.endPoints[0].x));
+      coordY =  MathRound(space.getAbsoluteY(this.endPoints[0].y));
+      coordX1 = MathRound(space.getAbsoluteX(this.endPoints[1].x));
+      coordY1 = MathRound(space.getAbsoluteY(this.endPoints[1].y));
     }
 
     ctx.beginPath();
@@ -150,7 +150,7 @@ var descartesJS = (function(descartesJS) {
       ctx.fill();
     }
 
-    // restor the dash style
+    // restore the dash style
     ctx.setLineDash([]);
 
     // draw the text of the segment

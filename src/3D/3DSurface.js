@@ -90,7 +90,7 @@ var descartesJS = (function(descartesJS) {
       for (vi=0; vi<=Nv; vi++) {
         evaluator.setVariable("v", vi/Nv);
 
-        // eval all the subterms in the expression
+        // eval all the sub terms in the expression
         for (ii=0, ll=this.expresion.length; ii<ll; ii++) {
           evaluator.eval(this.expresion[ii]);
         }

@@ -7,7 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var PI2 = Math.PI*2;
-  var mathRound = Math.round;
+  var MathRound = Math.round;
 
   var evaluator;
   var space;
@@ -119,8 +119,8 @@ var descartesJS = (function(descartesJS) {
       this.exprX = expr[0][0];
       this.exprY = expr[0][1];
 
-      coordX = mathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-      coordY = mathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+      coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
+      coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
 
       ctx.beginPath();
       ctx.arc(coordX, coordY, size, 0, PI2, true);
@@ -144,7 +144,7 @@ var descartesJS = (function(descartesJS) {
    * Register a text field in case the equation expression is editable
    */
   descartesJS.Sequence.prototype.registerTextField = function() {
-    var textField = document.createElement("input");
+    var textField = descartesJS.newHTML("input");
     textField.value = this.expresionString;
     textField.disabled = !(this.editable);
 

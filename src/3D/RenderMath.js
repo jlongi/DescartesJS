@@ -9,6 +9,7 @@ var descartesJS = (function(descartesJS) {
   var MathSqrt = Math.sqrt;
   var MathSin = Math.sin;
   var MathCos = Math.cos;
+  var MathAbs = Math.abs;
 
   var len;
   var s;
@@ -25,12 +26,6 @@ var descartesJS = (function(descartesJS) {
   var a21;
   var a22;
   var a23;
-  var a30;
-  var a31;
-  var a32;
-  var a33;
-  var b00;
-  var b01;
 
   descartesJS.norm3D = function(v) {
     return MathSqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -93,9 +88,9 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.equals3DEpsilon = function(p1, p2, epsilon) {
-    return (Math.abs(p1.x-p2.x) <= epsilon) && 
-           (Math.abs(p1.y-p2.y) <= epsilon) && 
-           (Math.abs(p1.z-p2.z) <= epsilon);
+    return (MathAbs(p1.x-p2.x) <= epsilon) && 
+           (MathAbs(p1.y-p2.y) <= epsilon) && 
+           (MathAbs(p1.z-p2.z) <= epsilon);
   }
 
 

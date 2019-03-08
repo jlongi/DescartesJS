@@ -169,7 +169,7 @@ var descartesJS = (function(descartesJS) {
     this.endpos = parser.parse("(0,0,0)");
 
     /**
-     * the ilumination model
+     * the illumination model
      * type {String}
      * @private
      */
@@ -460,7 +460,7 @@ var descartesJS = (function(descartesJS) {
    * Split a line if has spaces
    */
   function splitExpr(expr) {
-    var tmpEmprArr = [];
+    var tmpExprArr = [];
     var statusIgnore = 0;
     var statusEqual = 1;
     var statusId = 2;
@@ -497,7 +497,7 @@ var descartesJS = (function(descartesJS) {
 
       if (status == statusId) {
         if (charAt == " ") {
-          tmpEmprArr.unshift(expr.substring(i+1, lastIndex));
+          tmpExprArr.unshift(expr.substring(i+1, lastIndex));
           lastIndex = i;
           status = statusIgnore;
           continue;
@@ -505,9 +505,9 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    tmpEmprArr.unshift(expr.substring(0, lastIndex));
+    tmpExprArr.unshift(expr.substring(0, lastIndex));
 
-    return tmpEmprArr;
+    return tmpExprArr;
   }
 
   var tmpPrimitives;
@@ -523,7 +523,7 @@ var descartesJS = (function(descartesJS) {
       if (this.primitives[i].type === "face") {
         for (var j=0, k=g.primitives.length; j<k; j++) {
 
-          // the primitives of g are splited and added to an array
+          // the primitives of g are divided and added to an array
           if (g.primitives[j].type === "face") {
             tmpPrimitives = tmpPrimitives.concat( this.primitives[i].splitFace(g.primitives[j]) );
           }

@@ -47,7 +47,7 @@ var descartesJS = (function(descartesJS) {
    * Update the vector
    */
   descartesJS.Vector.prototype.update = function() {
-    var expresion = this.expresion;
+    var expr = this.expresion;
 
     evaluator = this.evaluator;
     parser = evaluator.parser;
@@ -59,7 +59,7 @@ var descartesJS = (function(descartesJS) {
       this.file = newFile;
     }
 
-    // if has an asociate file then read it
+    // if has an associate file then read it
     if (this.file) {
       // if the vector is embedded in the page
       vectorElement = document.getElementById(this.file);
@@ -92,24 +92,24 @@ var descartesJS = (function(descartesJS) {
       }
       // if the file has content and could be read
       else {
-        expresion = response;
+        expr = response;
         this.size = null;
       }
       
       if (this.size === null) {
-        this.size = parser.parse( expresion.length + "" );
+        this.size = parser.parse( expr.length + "" );
       }
     }
 
     var tmpExp;
     var newExpression = [];
     // parse the elements of the expression
-    for(var i=0, l=expresion.length; i<l; i++) {
-      tmpExp = parser.parse(expresion[i], true);
+    for(var i=0, l=expr.length; i<l; i++) {
+      tmpExp = parser.parse(expr[i], true);
 
       // if the expression is not an assignment
       if ((tmpExp) && (tmpExp.type != "asign")) {
-        tmpExp = parser.parse( this.id + "[" + i + "]=" + expresion[i], true );
+        tmpExp = parser.parse( this.id + "[" + i + "]=" + expr[i], true );
       }
 
       newExpression.push( tmpExp );

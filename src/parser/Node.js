@@ -87,7 +87,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Converts a parse tree with an equal operator as principal operator in a parse tree with a minus operator as a principal operator
-   * @return {Node} return a new parse tree with the convertion of the principal operator
+   * @return {Node} return a new parse tree with the conversion of the principal operator
    */
   descartesJS.Node.prototype.equalToMinus = function() {
     if (this.type === "compOperator") {
@@ -120,7 +120,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Set the apropiate evaluate function for the node
+   * Set the appropriate evaluate function for the node
    *
    */
   descartesJS.Node.prototype.setEvalFun = function() {
@@ -150,7 +150,7 @@ var descartesJS = (function(descartesJS) {
         this.evaluate = function(evaluator, getMatrix) {
           variableValue = evaluator.variables[this.value];
 
-          // the variable has an auxiliar variable value
+          // the variable has an auxiliary variable value
           if ((typeof(variableValue) === "object") && (variableValue.length == undefined)) {
             return variableValue.evaluate(evaluator);
           }
@@ -200,7 +200,7 @@ var descartesJS = (function(descartesJS) {
     // function
     else if ( (this.type === "identifier") && (this.childs[0].type === "parentheses") ) {
       var argu;
-      var _asign;
+      var _assign;
       var tmp_ret;
 
       this.evaluate = function(evaluator) {
@@ -224,7 +224,7 @@ var descartesJS = (function(descartesJS) {
             }
 
             if (evalCache[evalArgument] == undefined) {
-              _asign = (evalArgument.match(/:=/g)) ? true : false;
+              _assign = (evalArgument.match(/:=/g)) ? true : false;
             
               //////////////////////////////////////////////////////////////
               if (evalArgument.match(";")) {
@@ -251,7 +251,7 @@ var descartesJS = (function(descartesJS) {
               }
               //////////////////////////////////////////////////////////////
 
-              evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _asign);
+              evalCache[evalArgument] = evaluator.parser.parse(evalArgument, _assign);
             }
 
             tmp_ret = evaluator.eval( evalCache[evalArgument] );
@@ -282,7 +282,7 @@ var descartesJS = (function(descartesJS) {
             }
             return op1 + op2;
           }
-          // matix operation
+          // matrix operation
           else {
             return sumMatrix(op1, op2);
           }
@@ -299,7 +299,7 @@ var descartesJS = (function(descartesJS) {
           }
           // matrix operation
           else {
-            return substactMatrix(op1, op2);
+            return subtractMatrix(op1, op2);
           }
         }
       }
@@ -501,7 +501,7 @@ var descartesJS = (function(descartesJS) {
 
           // the assignation isn't a variable
           if (!assignation.type) {
-            // prevent to asign a value to an auxiliar variable
+            // prevent to assign a value to an auxiliary variable
             if (typeof(evaluator.variables[ide.value]) !== "object") {
               evaluator.variables[ide.value] = assignation;
               return assignation;
@@ -580,7 +580,7 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function substactMatrix(op1, op2) {
+  function subtractMatrix(op1, op2) {
     rows = op1.rows;
     cols = op1.cols;
     result = createMatrix(rows, cols);
@@ -707,7 +707,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Used only in debug
+   * Used only when debug
    */
   // descartesJS.Node.prototype.toString = function() {
   //   var str = "tipo: " + this.type + ", valor: " + this.value + "\n";

@@ -51,17 +51,32 @@ var descartesJS = (function(descartesJS) {
     this.orientation = (this.w >= this.h) ? HORIZONTAL : VERTICAL;
 
     // control container
-    this.container = document.createElement("div");
-    this.canvas = document.createElement("canvas");
-    this.divUp = document.createElement("div");
-    this.divDown = document.createElement("div");
-    this.field = document.createElement("input");
+    this.container = descartesJS.newHTML("div", {
+      class : "DescartesScrollbarContainer",
+      id    : this.id,
+    });
+    this.canvas = descartesJS.newHTML("canvas");
+    this.divUp = descartesJS.newHTML("div", {
+      class : "DescartesCatcher up",
+    });
+    this.divDown = descartesJS.newHTML("div", {
+      class : "DescartesCatcher down",
+    });
+    this.field = descartesJS.newHTML("input", {
+      type  : "text",
+      id    : this.id + "scrollbar",
+      class : "DescartesScrollbarField",
+    });
 
     // the scroll handler
-    this.scrollHandler = document.createElement("div");
+    this.scrollHandler = descartesJS.newHTML("div", {
+      class : "DescartesCatcher manipulator",
+    });
 
     // the label
-    this.label = document.createElement("label");
+    this.label = descartesJS.newHTML("label", {
+      class : "DescartesScrollbarLabel",
+    });
 
     // add the elements to the container
     this.container.appendChild(this.canvas);
@@ -91,7 +106,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Scrollbar.prototype.init = function() {
     evaluator = this.evaluator;
 
-    // if has decimals the increment are the interval [min, max] dividen by 100, if not then the incremente is 1
+    // if has decimals the increment are the interval [min, max] divided by 100, if not then the increment is 1
     if (evaluator.eval(this.decimals) == 0) {
       this.incr = 1;
     }
@@ -239,9 +254,7 @@ var descartesJS = (function(descartesJS) {
       self.limSup = sbx+self.canvasWidth-self.downW -self.scrollHandlerW;
     }
 
-    self.container.className = "DescartesScrollbarContainer";
-    self.container.id = self.id;
-    self.container.setAttribute("style", "width: " + self.w + "px; height: " + self.h + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
+    self.container.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
     self.canvas.setAttribute("width", self.w+"px");
     self.canvas.setAttribute("height", self.h+"px");
@@ -249,30 +262,20 @@ var descartesJS = (function(descartesJS) {
     self.ctx = self.canvas.getContext("2d");
     self.ctx.imageSmoothingEnabled = false;
 
-    self.divUp.className = "DescartesCatcher up";
-    self.divUp.setAttribute("style", "width : " + self.upWidth + "px; height : " + self.upHeight + "px; left: " + self.upX + "px; top: " + self.upY + "px;");
-    self.divDown.className = "DescartesCatcher down";
-    self.divDown.setAttribute("style", "width : " + self.downW + "px; height : " + self.downH + "px; left: " + self.downX + "px; top: " + self.downY + "px;");
+    self.divUp.setAttribute("style", `width:${self.upWidth}px;height:${self.upHeight}px;left:${self.upX}px;top:${self.upY}px;`);
 
-    self.scrollHandler.className = "DescartesCatcher manipulator";
-    self.scrollHandler.setAttribute("style", "width : " + self.scrollHandlerW + "px; height : " + self.scrollHandlerH + "px;");
-    self.scrollHandler.style.top = ((self.orientation === VERTICAL) ? self.limInf : 0) + "px";
-    self.scrollHandler.style.left = ((self.orientation === VERTICAL) ? 0 : self.limInf) + "px";
+    self.divDown.setAttribute("style", `width:${self.downW}px;height:${self.downH}px;left:${self.downX}px;top:${self.downY}px;`);
+
+    self.scrollHandler.setAttribute("style", `width:${self.scrollHandlerW}px;height:${self.scrollHandlerH}px;left:${(self.orientation === VERTICAL) ? 0 : self.limInf}px;top:${(self.orientation === VERTICAL) ? self.limInf : 0}px;`);
 
     // style the text field
-    self.field.setAttribute("type", "text");
-    self.field.id = self.id + "scrollbar";
-    self.field.className = "DescartesScrollbarField";
-    self.field.setAttribute("style", "font-size: " + self.fieldFontSize + "px; width : " + self.fieldWidth + "px; height : " + self.fieldHeight + "px; left: " + self.fieldX + "px; top: 0px;");
-    self.field.value = fieldValue;
+    self.field.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.fieldWidth}px;height:${self.fieldHeight}px;left:${self.fieldX}px;top:0;`);
     if (self.fieldHeight === 0) {
       self.field.style.display = "none";
     }
 
     // style the label
-    self.label.className = "DescartesScrollbarLabel";
-    self.label.setAttribute("style", "font-size:" + self.fieldFontSize + "px; width: " + self.labelWidth + "px; height: " + self.labelHeight + "px; line-height: " + self.labelHeight + "px; left: 0px; top:" + self.labelY + "px;");
-
+    self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;`);
   }
 
   /**
@@ -283,7 +286,7 @@ var descartesJS = (function(descartesJS) {
 
     this.label.innerHTML = evaluator.eval(this.name).toString();
 
-    // the incremente is the interval [min, max] dividen by 100 if has decimals, if not then the incremente is 1
+    // the increment is the interval [min, max] divided by 100 if has decimals, if not then the increment is 1
     if (evaluator.eval(this.decimals) == 0) {
       this.incr = 1;
     }
@@ -568,7 +571,7 @@ var descartesJS = (function(descartesJS) {
 
       // update the controls
       this.parent.updateControls();
-      // execute the acction
+      // execute the action
       this.actionExec.execute();
       // update again the controls
       this.parent.update();
@@ -609,7 +612,7 @@ var descartesJS = (function(descartesJS) {
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
      * @param {Number} delayTime the delay of time between the function repetition
-     * @param {Function} fun the function to execut
+     * @param {Function} fun the function to execute
      * @param {Boolean} firstime a flag to indicated if is the first time clicked
      * @private
      */
@@ -802,7 +805,7 @@ var descartesJS = (function(descartesJS) {
           self.pos =  self.limSup;
         }
 
-        self.scrollHandler.setAttribute("style", "background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;width:" + self.scrollHandlerW + "px;height:" + self.h + "px;left:" + self.pos + "px;top:0;");
+        self.scrollHandler.setAttribute("style", `background-color:rgba(0,0,0,0);cursor:pointer;position:absolute;width:${self.scrollHandlerW}px;height:${self.h}px;left:${self.pos}px;top:0;`);
       } else {
         self.pos = self.prePos - (self.initPos.y - newPos.y);
 
@@ -814,7 +817,7 @@ var descartesJS = (function(descartesJS) {
           self.pos =  self.limSup;
         }
 
-        self.scrollHandler.setAttribute("style", "background-color:rgba(255,255,255,0);cursor:pointer;position:absolute;width:" + self.w + "px;height:" + self.scrollHandlerH + "px;left:0;top:" + self.pos + "px;");
+        self.scrollHandler.setAttribute("style", `background-color:rgba(0,0,0,0);cursor:pointer;position:absolute;width:${self.w}px;height:${self.scrollHandlerH}px;left:0;top:${self.pos}px;`);
       }
 
       self.changeValueForScrollMovement();

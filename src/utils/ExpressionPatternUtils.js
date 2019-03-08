@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     tmpAnswer = answer.trim();
-    answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
+    answer = { ignoreAccents: false, ignoreCaps: false, regExp: null };
 
     // ignore uppercase
     if ((tmpAnswer[0] == tmpAnswer[tmpAnswer.length-1]) && (tmpAnswer[0] == "'")) {
@@ -41,14 +41,14 @@ var descartesJS = (function(descartesJS) {
 
       // ignore accents
       if ((tmpAnswer[0] == "`") && (tmpAnswer[tmpAnswer.length-1] == "´")) {
-        answer.ignoreAcents = true;
+        answer.ignoreAccents = true;
         tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
       }
     }
 
     // ignore accents
     if ((tmpAnswer[0] == "`") && (tmpAnswer[tmpAnswer.length-1] == "´")) {
-      answer.ignoreAcents = true;
+      answer.ignoreAccents = true;
       tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
 
       // ignore uppercase
@@ -87,7 +87,7 @@ var descartesJS = (function(descartesJS) {
   function buildNumericRegularExpressionPattern(answer, evaluator) {
     answer = answer || "";
     tmpAnswer = answer.trim();
-    answer = { ignoreAcents: false, ignoreCaps: false, regExp: null };
+    answer = { ignoreAccents: false, ignoreCaps: false, regExp: null };
 
     answer.expr = tmpAnswer.split(",");
 
@@ -135,7 +135,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} answer the Descartes answer pattern to convert
    * @return {Object} return an object representing a regular expression pattern
    */
-  descartesJS.buildRegularExpresionsPatterns = function(answer, evaluator) {
+  descartesJS.buildRegularExpressionsPatterns = function(answer, evaluator) {
     answer = answer || "";
     // remove parentheses in a text expression
     if ((answer.charAt(0) === "(" ) && (answer.charAt(answer.length-1) === ")") && (answer.indexOf(",") === -1)) {
@@ -179,7 +179,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.escorrecto = function(respPattern, resp, evaluator, regExpPattern) {
     evaluator = evaluator || descartesJS.externalEvaluator;
-    regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
+    regExpPattern = regExpPattern || descartesJS.buildRegularExpressionsPatterns(respPattern, evaluator);
 
     // remove the accents
     resp = removeAccents(resp);
@@ -214,7 +214,7 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.esCorrecto = function(respPattern, resp, evaluator, regExpPattern) {
     evaluator = evaluator || descartesJS.externalEvaluator;
-    regExpPattern = regExpPattern || descartesJS.buildRegularExpresionsPatterns(respPattern, evaluator);
+    regExpPattern = regExpPattern || descartesJS.buildRegularExpressionsPatterns(respPattern, evaluator);
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
       regExpPattern_i = regExpPattern[i];
@@ -225,7 +225,7 @@ var descartesJS = (function(descartesJS) {
 
         // a text pattern
         if (tmpAnswer) {
-          if (regExpPattern_i[j].ignoreAcents) {
+          if (regExpPattern_i[j].ignoreAccents) {
             resp = removeAccents(resp);
             tmpAnswer = removeAccents(tmpAnswer);
           }

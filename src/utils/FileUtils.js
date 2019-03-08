@@ -6,9 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var response;
-  var xhr;
-  descartesJS.cacheFiles = {};
+  descartesJS.cacheFiles = Object.create(null);
 
   /**
    * Open an external file using an xml http request
@@ -20,8 +18,8 @@ var descartesJS = (function(descartesJS) {
       return descartesJS.cacheFiles[filename];
     }
 
-    response = null;
-    xhr = new XMLHttpRequest();
+    var response = null;
+    var xhr = new XMLHttpRequest();
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);

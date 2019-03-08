@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
     // call the parent constructor
     descartesJS.Control.call(this, parent, values);
 
-    // modification to change the name of the textfield with an expression
+    // modification to change the name of the text field with an expression
     if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
@@ -50,8 +50,7 @@ var descartesJS = (function(descartesJS) {
     if (this.answer) {
       // the answer is encrypted
       if (this.answer.match("krypto_")) {
-        var krypt = new descartesJS.Krypto();
-        this.answer = krypt.decode(this.answer.substring(7));
+        this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
       }
       this.answerPattern = this.answer;
 
@@ -99,13 +98,22 @@ var descartesJS = (function(descartesJS) {
     }
 
     // control container
-    this.containerControl = document.createElement("div");
+    this.containerControl = descartesJS.newHTML("div", {
+      class : "DescartesTextFieldContainer",
+    });
 
     // the text field
-    this.field = document.createElement("input");
+    this.field = descartesJS.newHTML("input", {
+      type     : "text",
+      id       : this.id + "TextField",
+      class    : "DescartesTextFieldField",
+      tabindex : this.tabindex,
+    });
 
     // the label
-    this.label = document.createElement("label");
+    this.label = descartesJS.newHTML("label", {
+      class : "DescartesTextFieldLabel",
+    });
 
     // add the elements to the container
     this.containerControl.appendChild(this.label);
@@ -174,18 +182,12 @@ var descartesJS = (function(descartesJS) {
 
     var fieldWidth = this.w - (labelWidth);
 
-    this.containerControl.className = "DescartesTextFieldContainer";
-    this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-    this.field.setAttribute("type", "text");
-    this.field.id = this.id + "TextField";
-    this.field.className = "DescartesTextFieldField";
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width : " + fieldWidth + "px; height : " + this.h + "px; left: " + labelWidth + "px;");
-    this.field.setAttribute("tabindex", this.tabindex);
+    this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
     this.field.value = fieldValue;
 
-    this.label.className = "DescartesTextFieldLabel";
-    this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width: " + labelWidth + "px; height: " + this.h + "px; line-height: " + this.h + "px;");
+    this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
 
     // if the text field evaluates, get the ok value
     if (this.evaluate) {
@@ -302,7 +304,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Format the value with the number of decimals, the exponential representation and the decimal symbol
    * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
+   * @return {String} return the value with the format applied
    */
   descartesJS.TextField.prototype.formatOutputValue = function(value) {
     if (value === "") {
@@ -408,7 +410,7 @@ var descartesJS = (function(descartesJS) {
      * Prevent an error with the focus of a text field
      */
     self.field.addEventListener("click", function(evt) {
-      this.select();
+      // this.select();
       this.focus();
     });
   }

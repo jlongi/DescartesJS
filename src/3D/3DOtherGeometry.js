@@ -423,7 +423,7 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    // punta
+    // tip
     for (i=0; i<Nu; i++) {
       this.faces.push([this.vertices.length-1, this.vertices.length-1 -Nu +i, this.vertices.length-1 -Nu +(i+1)%Nu]);
     }

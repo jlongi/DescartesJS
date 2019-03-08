@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var evaluator;
+  var drawif;
 
   /**
    * Descartes video control
@@ -48,7 +49,10 @@ var descartesJS = (function(descartesJS) {
       filename = self.file.substring(0, indexDot);
     }
 
-    self.video = document.createElement("video");
+    self.video = descartesJS.newHTML("video", {
+      poster : filename + '.png',
+      style  : `position:absolute;overflow:hidden;left:${self.x}px;top:${self.y}px;outline:none;background:rgba(0,0,0,0);`,
+    });
 
     if (self.autoplay) {
       self.video.setAttribute("autoplay", "autoplay");
@@ -62,39 +66,41 @@ var descartesJS = (function(descartesJS) {
       self.video.setAttribute("controls", "controls");
     }
 
-    self.video.setAttribute("poster", filename + '.png');
 
     if (self.w) {
       self.video.setAttribute("width", self.w);
       self.video.setAttribute("height", self.h);
     }
-    self.video.setAttribute("style", "position:absolute; overflow:hidden; left:" + self.x + "px; top:" + self.y + "px; outline:none; background:rgba(0,0,0,0);");
 
     var source;
     //mp4
     if (self.video.canPlayType("video/mp4")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".mp4");
-      // source.setAttribute("type", "video/mp4");
+      source = descartesJS.newHTML("source", {
+        src  : filename + ".mp4",
+        type : "video/mp4",
+      });
       self.video.appendChild(source);
     }
     // ogg, ogv
     if (self.video.canPlayType("video/ogg")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".ogg");
-      source.setAttribute("type", "video/ogg");
+      source = descartesJS.newHTML("source", {
+        src  : filename + ".ogg",
+        type : "video/ogg",
+      });
       self.video.appendChild(source);
 
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".ogv");
-      source.setAttribute("type", "video/ogg");
+      source = descartesJS.newHTML("source", {
+        src  : filename + ".ogv",
+        type : "video/ogg",
+      });
       self.video.appendChild(source);
     }
     // webm
     if (self.video.canPlayType("video/webm")) {
-      source = document.createElement("source");
-      source.setAttribute("src", filename + ".webm");
-      source.setAttribute("type", "video/webm");
+      source = descartesJS.newHTML("source", {
+        src  : filename + ".webm",
+        type : "video/webm",
+      });
       self.video.appendChild(source);
     }
 
@@ -150,7 +156,6 @@ var descartesJS = (function(descartesJS) {
     this.update();
   }
 
-  var drawif;
   /**
    * Update the video control
    */

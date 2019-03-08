@@ -44,8 +44,7 @@ var descartesJS = (function(descartesJS) {
     if (this.answer) {
       // the answer is encrypted
       if (this.answer.match("krypto_")) {
-        var krypt = new descartesJS.Krypto();
-        this.answer = krypt.decode(this.answer.substring(7));
+        this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
       }
 
       this.answer = parseInt(this.answer.split(",")[0].replace("[", "")) || 0;
@@ -62,7 +61,7 @@ var descartesJS = (function(descartesJS) {
     var self = this;
     this.evaluator.setFunction(this.id + ".setOptions", setOptions);
     /**
-     * Auxiliar function to set the optios to the menu
+     * Auxiliary function to set the options to the menu
      */
     function setOptions(options) {
       // options are separated using the comma as separator
@@ -75,7 +74,7 @@ var descartesJS = (function(descartesJS) {
       // parse the options
       for (var i=0, l=self.options.length; i<l; i++) {
 
-        // split the options if has values with square backets (option[value])
+        // split the options if has values with square brackets (option[value])
         splitOption = self.customSplit(self.options[i]);
 
         // if divide the option only has a value, then are not specifying its value and take the order in which it appears
@@ -87,11 +86,11 @@ var descartesJS = (function(descartesJS) {
         else if (splitOption.length == 2) {
           self.menuOptions.push( splitOption[0] );
 
-          // if the value is an empty string, then asign the order value
+          // if the value is an empty string, then assign the order value
           if (splitOption[1] == "") {
             self.strValue.push( i.toString() );
           }
-          // if not, then use te especified value
+          // if not, then use te specified value
           else {
             self.strValue.push(splitOption[1]);
           }
@@ -121,13 +120,13 @@ var descartesJS = (function(descartesJS) {
 
       // remove all the previous options
       while (self.select.firstChild) {
-        self.select.removeChild(self.select.firstChild);
+        self.select.remove();
       }
 
       // add the options to the menu
       var opt;
       for (var i=0, l=self.menuOptions.length; i<l; i++) {
-        opt = document.createElement("option");
+        opt = descartesJS.newHTML("option");
         opt.innerHTML = evaluator.eval( self.menuOptions[i] );
         self.select.appendChild(opt);
       }
@@ -136,17 +135,27 @@ var descartesJS = (function(descartesJS) {
     }
 
     // control container
-    this.containerControl = document.createElement("div");
+    this.containerControl = descartesJS.newHTML("div", {
+      class : "DescartesMenuContainer",
+    });
 
     // the label
-    this.label = document.createElement("label");
-
+    this.label = descartesJS.newHTML("label", {
+      class : "DescartesMenuLabel",
+    });
     // the menu
-    this.select = document.createElement("select");
-
+    this.select = descartesJS.newHTML("select", {
+      id       : this.id + "_menuSelect",
+      class    : "DescartesMenuSelect",
+      tabindex : this.tabindex,
+    });
     // the text field
-    this.field = document.createElement("input");
-
+    this.field = descartesJS.newHTML("input", {
+      type     : "text",
+      id       : this.id + "_menuField",
+      class    : "DescartesMenuField",
+      tabindex : this.tabindex,
+    });
     //
     setOptions(this.options);
     //
@@ -233,24 +242,14 @@ var descartesJS = (function(descartesJS) {
 
     var fieldValue = this.formatOutputValue( evaluator.eval(this.strValue[this.indexValue]) );
 
-    this.containerControl.className = "DescartesMenuContainer";
-    this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index:" + this.zIndex + ";");
+    this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-    this.label.className = "DescartesMenuLabel";
-    this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px; width:" + labelWidth + "px; height:" + this.h + "px; line-height:" + this.h + "px;");
+    this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
 
-    this.field.setAttribute("type", "text");
-    this.field.id = this.id + "_menuField";
     this.field.value = fieldValue;
+    this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
 
-    this.field.className = "DescartesMenuField";
-    this.field.setAttribute("style", "font-size: " + this.fieldFontSize + "px; width: " + fieldWidth + "px; height: " + this.h + "px; left:" + TFx + "px;");
-    this.field.setAttribute("tabindex", this.tabindex);
-
-    this.select.id = this.id + "_menuSelect";
-    this.select.className = "DescartesMenuSelect";
-    this.select.setAttribute("style", "text-align:left; font-size:" + this.fieldFontSize + "px; width: " + chw + "px; height: " + this.h + "px; left: " + chx + "px;");
-    this.select.setAttribute("tabindex", this.tabindex);
+    this.select.setAttribute("style", `text-align:left;font-size:${this.fieldFontSize}px;width:${chw}px;height:${this.h}px;left:${chx}px;`);
     this.select.selectedIndex = this.indexValue;
 
     // register the control value
@@ -333,7 +332,7 @@ var descartesJS = (function(descartesJS) {
         ignoreSquareBracket++;
       }
 
-      // if find a close square bracket add the strin +'
+      // if find a close square bracket add the string +'
       else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
         closeBracket = true;
         ignoreSquareBracket--;
@@ -354,7 +353,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Get the selected index
    * @param {String} val the value to find the index
-   * @return {Number} return the index asociated to the value
+   * @return {Number} return the index associated to the value
    */
   descartesJS.Menu.prototype.getIndex = function(val) {
     val = parseFloat( (val.toString()).replace(this.parent.decimal_symbol, ".") );

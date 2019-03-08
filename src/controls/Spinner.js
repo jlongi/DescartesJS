@@ -51,14 +51,28 @@ var descartesJS = (function(descartesJS) {
     }
 
     // control container
-    this.container = document.createElement("div");
-    this.canvas = document.createElement("canvas");
-    this.divUp = document.createElement("div");
-    this.divDown = document.createElement("div");
-    this.field = document.createElement("input");
+    this.container = descartesJS.newHTML("div", {
+      class : "DescartesSpinnerContainer",
+      id    : this.id,
+    });
+    this.canvas = descartesJS.newHTML("canvas");
+    this.divUp = descartesJS.newHTML("div", {
+      class : "up",
+    });
+    this.divDown = descartesJS.newHTML("div", {
+      class : "down",
+    });
+    this.field = descartesJS.newHTML("input", {
+      type     : "text",
+      id       : this.id+"_spinner",
+      class    : "DescartesSpinnerField",
+      tabindex : this.tabindex,
+    });
 
     // the label
-    this.label = document.createElement("label");
+    this.label = descartesJS.newHTML("label", {
+      class : "DescartesSpinnerLabel",
+    });
 
     this.container.appendChild(this.label);
     this.container.appendChild(this.field);
@@ -148,9 +162,7 @@ var descartesJS = (function(descartesJS) {
 
     var fieldWidth = this.w - (labelWidth + canvasWidth);
 
-    this.container.className = "DescartesSpinnerContainer";
-    this.container.id = this.id;
-    this.container.setAttribute("style", "width:" + this.w + "px;height:" + this.h + "px;left:" + this.x + "px;top:" + this.y + "px;z-index:" + this.zIndex + ";");
+    this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
     this.canvas.setAttribute("width", canvasWidth+"px");
     this.canvas.setAttribute("height", this.h+"px");
@@ -158,24 +170,19 @@ var descartesJS = (function(descartesJS) {
     this.ctx = this.canvas.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
 
-    var divStyle = "opacity:0;cursor:pointer;position:absolute;width:" + canvasWidth + "px;height:" + this.h/2 + "px;left:" + labelWidth + "px;";
-    this.divUp.className = "up";
+    var divStyle = `opacity:0;cursor:pointer;position:absolute;width:${canvasWidth}px;height:${this.h/2}px;left:${labelWidth}px;`;
+
     this.divUp.setAttribute("style", divStyle+"top:0;");
-    this.divDown.className = "down";
+
     this.divDown.setAttribute("style", divStyle+"top:" + this.h/2 + "px;");
 
-    this.field.setAttribute("type", "text");
-    this.field.id = this.id+"_spinner";
-    this.field.className = "DescartesSpinnerField";
-    this.field.setAttribute("style", "font-family:" + descartesJS.sansserif_font + ";font-size:" + this.fieldFontSize + "px;width:" + fieldWidth + "px;height:" + this.h + "px;left:" + (canvasWidth + labelWidth) + "px;");
-    this.field.setAttribute("tabindex", this.tabindex);
+    this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth}px;`);
     this.field.value = fieldValue;
     if (!this.visible) {
       this.field.style.display = "none";
     }
 
-    this.label.className = "DescartesSpinnerLabel";
-    this.label.setAttribute("style", "font-size:" + this.fieldFontSize + "px;width:" + labelWidth + "px;height:" + this.h + "px;line-height:" + this.h + "px;");
+    this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
 
     // register the control value
     evaluator.setVariable(this.id, this.value);
@@ -263,7 +270,7 @@ var descartesJS = (function(descartesJS) {
     ctx.fillStyle = this.linearGradient;
     ctx.fillRect(0, 0, w, h);
 
-    // draw the upper lines for depth efect
+    // draw the upper lines for depth effect
     if (this.up) {
       c1 = "gray";
       c2 = "#f0f8ff";
@@ -276,7 +283,7 @@ var descartesJS = (function(descartesJS) {
     descartesJS.drawLine(ctx, 0, 0, 0, h/2, c1);
     descartesJS.drawLine(ctx, 0, h/2, w, h/2, c2);
 
-    // draw the lower lines for depth efect
+    // draw the lower lines for depth effect
     if (this.down) {
       c1 = "gray";
       c2 = "#f0f8ff";
@@ -428,7 +435,7 @@ var descartesJS = (function(descartesJS) {
     /**
      * Repeat a function during a period of time, when the user click and hold the click in the button
      * @param {Number} delayTime the delay of time between the function repetition
-     * @param {Function} fun the function to execut
+     * @param {Function} fun the function to execute
      * @param {Boolean} firstime a flag to indicated if is the first time clicked
      * @private
      */

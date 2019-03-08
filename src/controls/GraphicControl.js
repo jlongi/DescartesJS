@@ -126,15 +126,17 @@ var descartesJS = (function(descartesJS) {
     this.container = this.getContainer();
 
     // dom element for catch the mouse events
-    this.mouseCacher = document.createElement("div");
-    this.mouseCacher.className = "DescartesGraphicControl";
-    this.mouseCacher.id = this.id;
-    this.mouseCacher.setAttribute("dragged", true);
-    this.mouseCacher.setAttribute("tabindex", "-1");
+    this.mouseCatcher = descartesJS.newHTML("div", {
+      class    : "DescartesGraphicControl",
+      id       : this.id,
+      dragged  : true,
+      tabindex : "-1",
+      style    : `cursor:pointer;background-color:rgba(0,0,0,0);z-index:${this.zIndex};`,
+    });
 
     this.ctx = this.space.ctx;
 
-    this.container.appendChild(this.mouseCacher);
+    this.container.appendChild(this.mouseCatcher);
 
     // register the mouse and touch events
     this.addEvents();
@@ -174,8 +176,6 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.xStr, this.x);
     evaluator.setVariable(this.yStr, this.y);
 
-    this.mouseCacher.setAttribute("style", "cursor:pointer;background-color:rgba(255,255,255,0);z-index:" + this.zIndex + ";");
-
     // if the control has an image name
     if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
       this.image = this.parent.getImage(this.imageSrc);
@@ -194,13 +194,13 @@ var descartesJS = (function(descartesJS) {
       this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
 
       // set a style to make the button round
-      this.mouseCacher.style.borderRadius = parseInt( Math.min(this._w, this._h)/2 ) + "px";
+      this.mouseCatcher.style.borderRadius = parseInt( Math.min(this._w, this._h)/2 ) + "px";
     }
 
-    this.mouseCacher.style.width = this._w + "px";
-    this.mouseCacher.style.height = this._h + "px";
-    this.mouseCacher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
-    this.mouseCacher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
+    this.mouseCatcher.style.width = this._w + "px";
+    this.mouseCatcher.style.height = this._h + "px";
+    this.mouseCatcher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
+    this.mouseCatcher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
 
     evaluator.setVariable(this.activoStr, 0);
     evaluator.setVariable(this.activeStr, 0);
@@ -227,9 +227,9 @@ var descartesJS = (function(descartesJS) {
     x = this.space.getAbsoluteX(this.x);
     y = this.space.getAbsoluteY(this.y);
 
-    this.mouseCacher.style.display = (!this.activeIfValue) ? "none" : "block";
-    this.mouseCacher.style.left = parseInt(x-this._w/2)+"px";
-    this.mouseCacher.style.top = parseInt(y-this._h/2)+"px";
+    this.mouseCatcher.style.display = (!this.activeIfValue) ? "none" : "block";
+    this.mouseCatcher.style.left = parseInt(x-this._w/2)+"px";
+    this.mouseCatcher.style.top = parseInt(y-this._h/2)+"px";
 
     // eval the constraint
     if (this.constraint) {
@@ -416,12 +416,12 @@ var descartesJS = (function(descartesJS) {
     this.active = false;
 
     // prevent the context menu display
-    this.mouseCacher.oncontextmenu = function () { return false; };
+    this.mouseCatcher.oncontextmenu = function () { return false; };
 
-    this.mouseCacher.addEventListener("touchstart", onTouchStart);
-    this.mouseCacher.addEventListener("mousedown", onMouseDown);
-    this.mouseCacher.addEventListener("mouseover", onMouseOver);
-    this.mouseCacher.addEventListener("mouseout", onMouseOut);
+    this.mouseCatcher.addEventListener("touchstart", onTouchStart);
+    this.mouseCatcher.addEventListener("mousedown", onMouseDown);
+    this.mouseCatcher.addEventListener("mouseover", onMouseOver);
+    this.mouseCatcher.addEventListener("mouseout", onMouseOut);
 
     /**
      *
@@ -532,8 +532,8 @@ var descartesJS = (function(descartesJS) {
         self.parent.updateControls();
         self.parent.update();
 
-        self.mouseCacher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
-        self.mouseCacher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
+        self.mouseCatcher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
+        self.mouseCatcher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
       }
 
       // deactivate control

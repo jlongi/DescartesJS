@@ -134,7 +134,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // if it was possible to read the macro
     if (response) {
-      tmpResponse = (descartesJS.convertHTMLEntities(tmpResponse)).replace(/\r/g, "").split("\n");
+      tmpResponse = (descartesJS.convertHTMLEntities(response)).replace(/\r/g, "").split("\n");
 
       // maintain only the lines that have information for the macro
       response = [];

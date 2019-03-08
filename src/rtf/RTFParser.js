@@ -55,7 +55,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.RTFParser.prototype.parse = function(input) {
 // console.log(input);
     tokens = this.tokenizer.tokenize(input);
-    // tokens = checkMathSymboslInFormula(tokens);
     fontTable = {};
     tempI = 2;
 // console.log(tokens);
@@ -396,7 +395,7 @@ var descartesJS = (function(descartesJS) {
           lastDynamicNode.fixed = true;
         }
 
-        // fixed representation desactivated
+        // fixed representation deactivated
         else if (tokens[i].value == "fixed0") {
           lastDynamicNode.fixed = false;
         }
@@ -503,7 +502,7 @@ var descartesJS = (function(descartesJS) {
           // the new element is the stack top
           formulaStack[formulaStack.length-1] = newNode;
 
-          // save the reference to the last dynamic node, to asign the number of decimals and the fixed representation
+          // save the reference to the last dynamic node, to assign the number of decimals and the fixed representation
           lastDynamicNode = newNode;
 
           dynamicText = false;

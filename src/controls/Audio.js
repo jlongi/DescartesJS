@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var evaluator;
+  var drawif;
 
   /**
    * Descartes audio control
@@ -63,7 +64,7 @@ var descartesJS = (function(descartesJS) {
       self.audio.setAttribute("controls", "controls");
     }
 
-    self.audio.setAttribute("style", "position: absolute; width: " + self.w + "px; left: " + self.x + "px; top: " + self.y + "px; z-index: " + self.zIndex + ";");
+    self.audio.setAttribute("style", `position:absolute;width:${self.w}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
     self.addControlContainer(self.audio);
 
@@ -120,7 +121,6 @@ var descartesJS = (function(descartesJS) {
     this.update();
   }
 
-  var drawif;
   /**
    * Update the audio control
    */

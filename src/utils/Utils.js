@@ -104,7 +104,7 @@ var descartesJS = (function(descartesJS) {
     descartesJS.isMsEdge = (/Edge/i).test(navigator.userAgent);
 
     // detects if the browser has canvas support
-    var elem = document.createElement("canvas");
+    var elem = descartesJS.newHTML("canvas");
     descartesJS.hasCanvas = (elem.getContext && elem.getContext("2d"));
 
     if (descartesJS.hasCanvas) {
@@ -417,15 +417,32 @@ por sus autores como
     return valueArray;
   }
 
+  /**
+   *
+   */
   descartesJS.preventDefault = function(evt) {
     evt.preventDefault();
     return false;
   }
 
+  /**
+   *
+   */
   descartesJS.convertHTMLEntities = function(html) {
-    var txt = document.createElement("textarea");
+    var txt = descartesJS.newHTML("textarea");
     txt.innerHTML = html;
     return txt.value;
+  }
+
+  /**
+   *
+   */
+  descartesJS.newHTML = function(tag, attributes) {
+    var dom = document.createElement(tag);
+    for (let attr in attributes) {
+      dom.setAttribute(attr, attributes[attr]);
+    }
+    return dom;
   }
 
   return descartesJS;

@@ -1063,9 +1063,9 @@ var descartesJS = (function(descartesJS, babel) {
   }
 
   /**
-   * Parse and create an auxiliar
-   * @param {String} values is the string containing the values ​​that define the auxiliar
-   * @return {Auxiliary} return a auxiliar constructed with the corresponding values
+   * Parse and create an auxiliary
+   * @param {String} values is the string containing the values ​​that define the auxiliary
+   * @return {Auxiliary} return a auxiliary constructed with the corresponding values
    */
   descartesJS.LessonParser.prototype.parseAuxiliar = function(values) {
     // object containing all the values ​​found in values
@@ -1442,7 +1442,7 @@ var descartesJS = (function(descartesJS, babel) {
 
     // the pleca is empty
     if ((plecaObj.title === "") && (plecaObj.subtitle === "")) {
-      return document.createElement("div");
+      return descartesJS.newHTML("div");
     }
 
     // the subtitle font size
@@ -1456,35 +1456,37 @@ var descartesJS = (function(descartesJS, babel) {
     }
 
     // create the container
-    plecaObj.divPleca = document.createElement("div");
-    plecaObj.divPleca.id = "descartesPleca";
+    plecaObj.divPleca = descartesJS.newHTML("div", {
+      id : "descartesPleca",
+    });
 
     // if there is an image, then the height of the pleca is adjusted to the height of the image
     if (imageHeight) {
-      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + w + "px;height:"+ imageHeight + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:8px;padding-bottom:8px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;overflow:hidden;z-index:1;");
+      plecaObj.divPleca.setAttribute("style", `position:absolute;left:0;top:0;text-align:${plecaObj.align};width:${w}px;height:${imageHeight}px;background-color:${plecaObj.bgcolor};color:${plecaObj.fgcolor};padding-top:8px;padding:8px ${paddingSides}px 8px ${paddingSides}px;margin:0;overflow:hidden;z-index:1;`);
 
       image.setAttribute("style", "position: absolute;left:0;top:0;z-index:-1;width:100%;height:100%;");
       plecaObj.divPleca.appendChild(image);
     }
-    // if there is not an image, the the height is not specified and the contaier guest the height
+    // if there is not an image, the the height is not specified and the container guest the height
     else {
-      plecaObj.divPleca.setAttribute("style", "position:absolute;left:0;top:0;text-align:" + plecaObj.align + ";width:" + w + "px;background:" + plecaObj.bgcolor + ";color:" + plecaObj.fgcolor + ";padding-top:12px;padding-bottom:12px;padding-left:" + paddingSides + "px;padding-right:" + paddingSides + "px;margin:0;z-index:100;");
+      plecaObj.divPleca.setAttribute("style", `position:absolute;left:0;top:0;text-align:${plecaObj.align};width:${w}px;background:${plecaObj.bgcolor};color:${plecaObj.fgcolor};padding:12px ${paddingSides}px 12px ${paddingSides}px;margin:0;z-index:100;`);
     }
 
     // creates the container for the title and the content is added
-    divTitle = document.createElement("div");
-    divTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.titlefont + ";overflow:hidden;white-space:nowrap;");
+    divTitle = descartesJS.newHTML("div", {
+      style : `padding:0;margin:0;font:${plecaObj.titlefont};overflow:hidden;white-space:nowrap;`,
+    });
     divTitle.innerHTML = plecaObj.title;
 
     // create the container for the subtitle
-    divSubTitle = document.createElement("div");
+    divSubTitle = descartesJS.newHTML("div");
 
     // if the number of lines of the subtitle is equal to 1 then the height of the subtitle fits only one line
     if (parseInt(plecaObj.subtitlines) === 1) {
       tempDecrement = 0;
 
       // creates a temporary container that serves as a substitute container for the subtitle, to determine the font size of the subtitle container
-      tempDiv = document.createElement("div");
+      tempDiv = descartesJS.newHTML("div");
       tempDiv.innerHTML = plecaObj.subtitle;
       document.body.appendChild(tempDiv);
       tempFontSize = subtitleFontSize;
@@ -1493,7 +1495,7 @@ var descartesJS = (function(descartesJS, babel) {
         tempFontSize = tempFontSize - tempDecrement;
 
         // style is assigned to temporary container to measure the number of lines in the text
-        tempDiv.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;width:" + (w-2*paddingSides) + "px;line-height:" + tempFontSize + "px;")
+        tempDiv.setAttribute("style", `padding:0;margin:0;font:${plecaObj.subtitlefont};font-size:${tempFontSize}px;width:${w-2*paddingSides}px;line-height:${tempFontSize}px;`);
 
         // find the height of the temporary container
         tempDivHeight = tempDiv.offsetHeight;
@@ -1509,11 +1511,11 @@ var descartesJS = (function(descartesJS, babel) {
       document.body.removeChild(tempDiv);
 
       // assign to the subtitle style the proper font size
-      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";font-size:" + tempFontSize + "px;line-height:1em;overflow:hidden;white-space:nowrap;");
+      divSubTitle.setAttribute("style", `padding:0;margin:0;font:${plecaObj.subtitlefont};font-size:${tempFontSize}px;line-height:1em;overflow:hidden;white-space:nowrap;`);
     }
     // if the number of lines is different from 1, then the number of lines is ignored
     else {
-      divSubTitle.setAttribute("style", "padding:0;margin:0;font:" + plecaObj.subtitlefont + ";line-height:1em;");
+      divSubTitle.setAttribute("style", `padding:0;margin:0;font:${plecaObj.subtitlefont};line-height:1em;`);
     }
     // assign the content to the subtitle
     divSubTitle.innerHTML = plecaObj.subtitle;

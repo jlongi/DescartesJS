@@ -9,8 +9,8 @@ var descartesJS = (function(descartesJS) {
   var MathFloor = Math.floor;
 
   /**
-   * Descartes evaluador
-   * @parent {DescartesApp} parent the parent asociated with the evaluator
+   * Descartes evaluator
+   * @parent {DescartesApp} parent the parent associated with the evaluator
    * @constructor
    */
   descartesJS.Evaluator = function (parent) {

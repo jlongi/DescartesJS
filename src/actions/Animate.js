@@ -6,28 +6,24 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Descartes animate action
-   * @constructor 
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} parameter the values of the action
-   */
-  descartesJS.Animate = function(parent, parameter) {
-    // call the parent constructor
-    descartesJS.Action.call(this, parent, parameter);
-  }  
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Action
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Animate, descartesJS.Action);
+  class Animate extends descartesJS.Action {
+    /**
+     * Descartes animate action
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} parameter the values of the action
+     */
+    constructor(parent, parameter) {
+      super(parent, parameter);
+    }
 
-  /**
-   * Execute the action
-   */
-  descartesJS.Animate.prototype.execute = function() {
-    this.parent.play();
+    /**
+     * Execute the action
+     */
+    execute() {
+      this.parent.play();
+    }
   }
 
+  descartesJS.Animate = Animate;
   return descartesJS;
 })(descartesJS || {});

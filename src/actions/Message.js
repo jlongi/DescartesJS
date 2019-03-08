@@ -6,30 +6,25 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Descartes message action
-   * @constructor 
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} parameter the values of the action
-   */
-  descartesJS.Message = function(parent, parameter) {
-    // call the parent constructor
-    descartesJS.Action.call(this, parent, parameter);
-    
-    this.parameter = (parameter || "").replace(/\\n/g, "\n").replace(/&squot;/g, "'");
-  }  
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Action
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Message, descartesJS.Action);
+  class Message extends descartesJS.Action {
+    /**
+     * Descartes message action
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} parameter the values of the action
+     */
+    constructor(parent, parameter) {
+      super(parent, parameter);
+      this.parameter = (parameter || "").replace(/\\n/g, "\n").replace(/&squot;/g, "'");
+    }
 
-  /**
-   * Execute the action
-   */
-  descartesJS.Message.prototype.execute = function() {
-    alert(this.parameter);
+    /**
+     * Execute the action
+     */
+    execute() {
+      alert(this.parameter);
+    }
   }
 
+  descartesJS.Message = Message;
   return descartesJS;
 })(descartesJS || {});

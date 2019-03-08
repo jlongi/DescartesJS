@@ -17,13 +17,10 @@ var descartesJS = (function(descartesJS) {
    * Make the javascript replacements of the java applets
    */
   function makeDescartesApps() {
-    var applets = getDescartesApplets();
-
-    // for all descartes applets in the page make a javascript replacement
-    for (var i=0, l=applets.length; i<l; i++) {
-      descartesJS.apps.push( new descartesJS.DescartesApp(applets[i]) );
-      changeClassDescartesJS(applets[i]);
-    }
+    getDescartesApplets().forEach(applet => {
+      descartesJS.apps.push( new descartesJS.DescartesApp(applet) );
+      changeClassDescartesJS(applet);
+    });
   }
 
   /**
@@ -33,14 +30,16 @@ var descartesJS = (function(descartesJS) {
     var cssNode = document.getElementById("StyleDescartesApps");
 
     if (cssNode) {
-      (cssNode.parentNode).removeChild(cssNode);
+      cssNode.remove();
     }
 
     // create the CSS style to hide the applets
-    cssNode = document.createElement("style");
-    cssNode.id = "StyleDescartesApps";
-    cssNode.type = "text/css";
-    cssNode.setAttribute("rel", "stylesheet");
+    cssNode = descartesJS.newHTML("style", {
+      id   : "StyleDescartesApps",
+      type : "text/css",
+      rel  : "stylesheet",
+    });
+
     cssNode.innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:none;}";
 
     // add the style in the head of the document
@@ -59,20 +58,9 @@ var descartesJS = (function(descartesJS) {
    * @return {Array.<applet>} the descartes applets in the document
    */
   function getDescartesApplets() {
-    // get all the applets in the document
-    var applets = document.querySelectorAll("applet,ajs");
-    var descartesRegExp = /Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i;
-
-    // create an array to hold the applets
-    var tmpArrayApplets = [];
-
-    for (var i=0, l=applets.length; i<l; i++) {
-      if ( descartesRegExp.test(applets[i].getAttribute("code")) ) {
-        tmpArrayApplets.push(applets[i]);
-      }
-    }
-
-    return tmpArrayApplets;
+    return [...(document.querySelectorAll("applet,ajs"))].filter(applet => {
+      return (/Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i).test(applet.getAttribute("code"));
+    });
   }
 
   /**
@@ -88,12 +76,9 @@ var descartesJS = (function(descartesJS) {
    */
   function removeDescartesAppContainers() {
     // remove elements with "DescartesAppContainer" class
-    var toBeRemoved = document.querySelectorAll(".DescartesAppContainer");
-
-    // remove the elements in the toBeRemove array
-    for (var i=0, l=toBeRemoved.length; i<l; i++) {
-      (toBeRemoved[i].parentNode).removeChild(toBeRemoved[i]);
-    }
+    document.querySelectorAll(".DescartesAppContainer").forEach(element => {
+      element.remove();
+    });
   }
 
   /**
@@ -126,12 +111,14 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
-    var fontDiv = document.createElement("div");
-    var str = '<div style="font-size:12px;visibility:hidden;">\n';
+    var fontDiv = descartesJS.newHTML("div");
+    var str = '<div style="font-size:12px;visibility:hidden;">';
     var font_names = ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbola", "DJS_extra", "DJS_sansserif", "DJS_serif", "DJS_monospace"];
-    for (let i=0,l=font_names.length; i<l; i++) {
-      str += '<div style="font-family:'+ font_names[i] +';">\n<span>_</span>\n<span style="font-weight:bold;">_</span>\n<span style="font-style:italic;">_</span>\n<span style="font-weight:bold;font-style:italic;">_</span>\n</div>\n';
-    }
+
+    font_names.forEach(font => {
+      str += '<div style="font-family:'+ font +';"><span>_</span><span style="font-weight:bold;">_</span><span style="font-style:italic;">_</span><span style="font-weight:bold;font-style:italic;">_</span></div>';
+    });
+
     fontDiv.innerHTML = str + '</div>';
 
     document.body.appendChild(fontDiv);
@@ -155,10 +142,10 @@ var descartesJS = (function(descartesJS) {
       showApplets();
     }
 
-    document.body.removeChild(fontDiv);
+    fontDiv.remove();
   }
 
-  var applets_cache = {};
+  var applets_cache = Object.create(null);
   /**
    * Function to handle the message between frames
    * @param {Event} evt the evt of receive a message
@@ -214,7 +201,7 @@ var descartesJS = (function(descartesJS) {
           new_applets = applets_cache[data.filename];
         }
         else {
-          new_applets = document.createElement("div");
+          new_applets = descartesJS.newHTML("div");
           new_applets.innerHTML = data.content;
           new_applets = new_applets.getElementsByTagName("param");
           applets_cache[data.filename] = new_applets;
@@ -222,7 +209,7 @@ var descartesJS = (function(descartesJS) {
 
         let base = document.querySelector("base");
         if (!base) {
-          base = document.createElement("base");
+          base = descartesJS.newHTML("base");
           document.body.appendChild(base);
         }
         base.setAttribute("href", data.filename);

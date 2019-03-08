@@ -15,10 +15,10 @@ var descartesJS = (function(descartesJS) {
    * @param {String} family the font family name
    * @param {String} italic the flag if the text is italic
    * @param {String} bold the flag if the text is bold
-   * @param {Boolean} underline the flag if the text is undelined
+   * @param {Boolean} underline the flag if the text is underlined
    * @param {Boolean} overline the flag if the text is overlined
    * @param {String} color the color of the text
-   * @param {String} aling the aligment of the text
+   * @param {String} aling the alignment of the text
    * @constuctor
    */
   descartesJS.TextStyle = function(style) {

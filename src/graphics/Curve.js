@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
+  var MathRound = Math.round;
 
   var evaluator;
   var para;
@@ -17,7 +17,7 @@ var descartesJS = (function(descartesJS) {
   var radianAngle;
   var tmpRot;
 
-  var lineDesp = .5;
+  var lineDesp = 0.5;
   var POS_LIMIT = 1000000;
 
   /**
@@ -119,7 +119,7 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.eval(this.width) );
+    tmpLineWidth = MathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = ctx.lineJoin = "round";
@@ -132,8 +132,8 @@ var descartesJS = (function(descartesJS) {
     evaluator.setVariable(this.parameter, this.paraInf);
 
     expr = evaluator.eval(this.expresion);
-    this.exprX = mathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
-    this.exprY = mathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
+    this.exprX = MathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
+    this.exprY = MathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
 
     // MACRO //
     // rotate the elements in case the graphic is part of a macro
@@ -141,8 +141,8 @@ var descartesJS = (function(descartesJS) {
       radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
       tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
 
-      this.exprX = mathRound( (this.abs_coord) ? tmpRot.x : space.getAbsoluteX(tmpRot.x) );
-      this.exprY = mathRound( (this.abs_coord) ? tmpRot.y : space.getAbsoluteY(tmpRot.y) );
+      this.exprX = MathRound( (this.abs_coord) ? tmpRot.x : space.getAbsoluteX(tmpRot.x) );
+      this.exprY = MathRound( (this.abs_coord) ? tmpRot.y : space.getAbsoluteY(tmpRot.y) );
     }
     // MACRO //
 
@@ -161,8 +161,8 @@ var descartesJS = (function(descartesJS) {
       }
       // MACRO //
 
-      this.exprX = mathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
-      this.exprY = mathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
+      this.exprX = MathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
+      this.exprY = MathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
 
       if ( !isNaN(this.exprX) && !isNaN(this.exprY) && (this.exprX > -POS_LIMIT) && (this.exprX < POS_LIMIT) && (this.exprY > -POS_LIMIT) && (this.exprY < POS_LIMIT) ) {
         ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
@@ -177,7 +177,7 @@ var descartesJS = (function(descartesJS) {
     this.dashStyle();
     ctx.stroke();
 
-    // restor the dash style
+    // restore the dash style
     ctx.setLineDash([]);
 
     evaluator.setVariable(this.parameter, tempParam);
@@ -187,7 +187,7 @@ var descartesJS = (function(descartesJS) {
    * Register a text field in case the curve expression is editable
    */
   descartesJS.Curve.prototype.registerTextField = function() {
-    var textField = document.createElement("input");
+    var textField = descartesJS.newHTML("input");
     textField.value = this.expresionString;
     textField.disabled = !(this.editable);
 

@@ -43,7 +43,7 @@ var descartesJS = (function(descartesJS) {
   var checkImageReady;
 
   var prefix;
-  var sufix;
+  var suffix;
   var imageOverSrc;
   var imageDownSrc;
   var imageOver;
@@ -225,7 +225,7 @@ var descartesJS = (function(descartesJS) {
 
     if (imageSrc != "") {
       var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-      var sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+      var suffix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
       // empty image, i.e. reference to vacio.gif
       if (imageSrc.toLowerCase().match(/vacio.gif$/)) {
@@ -248,22 +248,26 @@ var descartesJS = (function(descartesJS) {
 
         // if the name is empty, do not try to get over and down images
         if (prefix) {
-          this.imageOver = this.parent.getImage(prefix + "_over" + sufix);
-          this.imageDown = this.parent.getImage(prefix + "_down" + sufix);
+          try {
+            this.imageOver = this.parent.getImage(prefix + "_over" + suffix);
+            this.imageDown = this.parent.getImage(prefix + "_down" + suffix);
+          } catch(e) {};
         }
       }
     }
 
-    this.container = document.createElement("div");
-    this.container.className = "DescartesButtonContainer" + this.classContainer;
-    this.container.id = this.id;
-    this.container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + ";");
+    this.container = descartesJS.newHTML("div", {
+      class : "DescartesButtonContainer" + this.classContainer,
+      id    : this.id,
+      style : `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`,
+    });
 
     // create the btn and the rendering context
-    this.btn = document.createElement("canvas");
-    this.btn.width  = this.w *this.ratio;
-    this.btn.height = this.h *this.ratio;
-    this.btn.setAttribute("style", "position:absolute;left:0;top:0;width:" + this.w +"px;height:" + this.h + "px;");
+    this.btn = descartesJS.newHTML("canvas", {
+      width  : this.w * this.ratio,
+      height : this.h * this.ratio,
+      style  : `position:absolute;left:0;top:0;width:${this.w}px;height:${this.h}px;`,
+    });
     this.ctx = this.btn.getContext("2d");
     this.ctx.imageSmoothingEnabled = false;
 
@@ -301,8 +305,8 @@ var descartesJS = (function(descartesJS) {
     //
     btn.width  = this.w *this.ratio;
     btn.height = this.h *this.ratio;
-    btn.setAttribute("style", "position:absolute; left:0; top:0; width:" + this.w +"px; height:" + this.h + "px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;");
-    container.setAttribute("style", "width:" + this.w + "px; height:" + this.h + "px; left:" + this.x + "px; top:" + this.y + "px; z-index:" + this.zIndex + "; display:block;");
+    btn.setAttribute("style", `position:absolute;left:0;top:0;width:${this.w}px;height:${this.h}px;box-sizing:border-box;`);
+    container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};display:block;`);
     //
 
     //
@@ -418,7 +422,7 @@ var descartesJS = (function(descartesJS) {
       checkImageSrc = (imageSrc === this.oldImageSrc);
       checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
       checkTextColor = (this.color.getColor() === this.oldTextColor);
-checkImageReady = (this.image.ready === this.oldImageReady);
+      checkImageReady = (this.image.ready === this.oldImageReady);
 
       this.oldOver = this.over;
       this.oldButtonClick = this.buttonClick;
@@ -428,7 +432,7 @@ checkImageReady = (this.image.ready === this.oldImageReady);
       this.oldImageSrc = imageSrc;
       this.oldBackColor = this.colorInt.getColor();
       this.oldTextColor = this.color.getColor();
-this.oldImageReady = this.image.ready;
+      this.oldImageReady = this.image.ready;
 
       if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor && checkImageReady) {
         return;
@@ -445,10 +449,10 @@ this.oldImageReady = this.image.ready;
       image = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageSrc);
 
       prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-      sufix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+      suffix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
-      imageOverSrc = prefix + "_over" + sufix;
-      imageDownSrc = prefix + "_down" + sufix;
+      imageOverSrc = prefix + "_over" + suffix;
+      imageDownSrc = prefix + "_down" + suffix;
       imageOver = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageOverSrc);
       imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
     }
@@ -509,7 +513,7 @@ this.oldImageReady = this.image.ready;
         _image_pos_x = this.w-image.width +despX;
       }
 
-      // verticall image align
+      // vertical image align
       if (this.image_align[0] == "center") {
         _image_pos_y = parseInt((this.h-image.height)/2)+despY;
       }
@@ -532,7 +536,7 @@ this.oldImageReady = this.image.ready;
           this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         }
         else {
-          // se dibuja el fondo, incluso con la imagen
+          // the background is drawn, even with the image
           if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
             container.style.backgroundColor = this.colorInt.getColor();
           }
@@ -581,8 +585,6 @@ this.oldImageReady = this.image.ready;
     // down image
     if (this.activeIfValue) {
       if ( (imageDown !== this.emptyImage) && (this.buttonClick) && (imageDown.ready) && (imageDown.complete) ) {
-        // container.style.backgroundImage = "url('" + imageDownSrc + "')";
-        // container.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
         if ( imageDownSrc.match(gifPattern) ) {
           this.btn.style.backgroundImage = "url('" + imageDownSrc + "')";
           this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
@@ -613,14 +615,8 @@ this.oldImageReady = this.image.ready;
       }
     }
 
-    // text border
-    // if ( (!newButtonCondition) && (!this.conStyle) && (this.drawTextBorder()) ) {
-    //   ctx.lineWidth = parseInt(font_size/6);
-    //   ctx.strokeStyle = this.colorInt.getColor();
-    //   ctx.strokeText(name, _text_pos_x, _text_pos_y);
-    // }
     if ( this.borderColor ) {
-      ctx.lineWidth = parseInt(font_size/7);
+      ctx.lineWidth = parseInt(font_size/6);
       ctx.strokeStyle = this.borderColor.getColor();
       ctx.strokeText(name, _text_pos_x, _text_pos_y);
     }
@@ -742,7 +738,7 @@ this.oldImageReady = this.image.ready;
           self.draw();
 
           if (self.action == "calculate") {
-            // se registra el valor de la variable
+            // the value of the variable is set
             self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
             repeat(delay, self.buttonPressed, true);
           }
@@ -776,7 +772,7 @@ this.oldImageReady = this.image.ready;
         self.draw();
 
         if (self.action != "calculate") {
-          // se registra el valor de la variable
+          // the value of the variable is set
           self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
           self.buttonPressed();
         }
@@ -784,7 +780,7 @@ this.oldImageReady = this.image.ready;
         self.btn.removeEventListener("touchend", onMouseUp);
         self.btn.removeEventListener("mouseup", onMouseUp);
       }
-      // espero que no haya errores
+      // maybe an error
       self.parent.update();
     }
 

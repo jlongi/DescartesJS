@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.DEBUG = {
+  var DEBUG = {
     PARENTHESIS_CLOSING: "Faltan paréntesis por cerrar",
     PARENTHESIS_OPENING: "Faltan paréntesis por abrir",
     BRACKET_CLOSING: "Faltan corchetes por cerrar",
@@ -15,8 +15,8 @@ var descartesJS = (function(descartesJS) {
     EXPRESSION: "En la expresión",
   };
 
-  descartesJS.DEBUG.setError = function(type, expr) {
-    var errStr = "Error: " + type + " en《 " + expr + " 》. ";
+  DEBUG.setError = function(type, expr) {
+    var errStr = `Error: ${type} en《 ${expr} 》`;
     var tmpErr = "";
     var extraErr = "";
 
@@ -27,7 +27,7 @@ var descartesJS = (function(descartesJS) {
           tmpErr = "En el programa ";
         }
         else {
-          tmpErr = "En la definición "
+          tmpErr = "En la definición ";
         }
 
         if ( (babel[descartesJS.DEBUG.paramName] == "doExpr") ||
@@ -47,5 +47,6 @@ var descartesJS = (function(descartesJS) {
     console.info(errStr);
   }
 
+  descartesJS.DEBUG = DEBUG;
   return descartesJS;
 })(descartesJS || {});

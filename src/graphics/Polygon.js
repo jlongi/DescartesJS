@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
+  var MathRound = Math.round;
 
   var evaluator;
   var space;
@@ -98,7 +98,7 @@ var descartesJS = (function(descartesJS) {
     space = this.space;
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.eval(this.width) );
+    tmpLineWidth = MathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.strokeStyle = stroke.getColor();
@@ -106,15 +106,15 @@ var descartesJS = (function(descartesJS) {
 
     lineDesp = (tmpLineWidth > 0) ? .5 : 0;
 
-    coordX = mathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
-    coordY = mathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
+    coordX = MathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
+    coordY = MathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
 
     ctx.beginPath();
     ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
 
     for(var i=1, l=this.endPoints.length; i<l; i++) {
-      coordX = mathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
-      coordY = mathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
+      coordX = MathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
+      coordY = MathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
       
       ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
     }

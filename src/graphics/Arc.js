@@ -6,14 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var mathRound = Math.round;
-  var mathMin   = Math.min;
-  var mathMax   = Math.max;
-  var mathAcos  = Math.acos;
-  var mathSqrt  = Math.sqrt;
-  var mathPI    = Math.PI;
-  var math_PI_2 = mathPI/2;
-  var math_2_PI = 2*mathPI;
+  var MathRound = Math.round;
+  var MathMin   = Math.min;
+  var MathMax   = Math.max;
+  var MathAcos  = Math.acos;
+  var MathSqrt  = Math.sqrt;
+  var MathPI    = Math.PI;
+  var Math_PI_2 = MathPI/2;
+  var Math_2_PI = 2*MathPI;
 
   var evaluator;
   var expr;
@@ -22,8 +22,6 @@ var descartesJS = (function(descartesJS) {
   var senTheta;
   var tmpRotX;
   var tmpRotY;
-  var iniAng;
-  var endAng;
   var u1;
   var u2;
   var v1;
@@ -178,37 +176,37 @@ var descartesJS = (function(descartesJS) {
       w2 = 0;
 
       // find the angles
-      angulo1 = (u1 == 0) ? ((u2 < 0) ? 3*math_PI_2 : math_PI_2) : mathAcos( (u1*w1)/mathSqrt(u1*u1+u2*u2) );
-      angulo2 = (v1 == 0) ? ((v2 < 0) ? 3*math_PI_2 : math_PI_2) : mathAcos( (v1*w1)/mathSqrt(v1*v1+v2*v2) );
+      angulo1 = (u1 == 0) ? ((u2 < 0) ? 3*Math_PI_2 : Math_PI_2) : MathAcos( (u1*w1)/MathSqrt(u1*u1+u2*u2) );
+      angulo2 = (v1 == 0) ? ((v2 < 0) ? 3*Math_PI_2 : Math_PI_2) : MathAcos( (v1*w1)/MathSqrt(v1*v1+v2*v2) );
       angulo1 += macroAngle;
       angulo2 += macroAngle;
 
       // change considering the quadrant for the first angle
       if ((u1 > 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
+        angulo1 = Math_2_PI-angulo1;
       }
       if ((u1 > 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
+        angulo1 = Math_2_PI-angulo1;
       }
       if ((u1 < 0) && (u2 < 0) && !this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
+        angulo1 = Math_2_PI-angulo1;
       }
       if ((u1 < 0) && (u2 > 0) && this.abs_coord) {
-        angulo1 = math_2_PI-angulo1;
+        angulo1 = Math_2_PI-angulo1;
       }
 
       // change considering the quadrant for the second angle
       if ((v1 > 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
+        angulo2 = Math_2_PI-angulo2;
       }
       if ((v1 > 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
+        angulo2 = Math_2_PI-angulo2;
       }
       if ((v1 < 0) && (v2 < 0) && !this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
+        angulo2 = Math_2_PI-angulo2;
       }
       if ((v1 < 0) && (v2 > 0) && this.abs_coord) {
-        angulo2 = math_2_PI-angulo2;
+        angulo2 = Math_2_PI-angulo2;
       }
 
       if (this.initFlag) {
@@ -218,18 +216,18 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         // always choose the angles in order from lowest to highest
-        tmpAngulo1 = mathMin(angulo1, angulo2);
-        tmpAngulo2 = mathMax(angulo1, angulo2);
+        tmpAngulo1 = MathMin(angulo1, angulo2);
+        tmpAngulo2 = MathMax(angulo1, angulo2);
         angulo1 = tmpAngulo1;
         angulo2 = tmpAngulo2;
 
         // if the internal angle if greater than PI and the angle is in absolute coordinates
-        if (((angulo2 - angulo1) > mathPI) && this.abs_coord) {
+        if (((angulo2 - angulo1) > MathPI) && this.abs_coord) {
           angulo1 = tmpAngulo2;
           angulo2 = tmpAngulo1;
         }
         // if the internal angle if less than PI and the angle is in relative coordinates
-        if (((angulo2 - angulo1) <= mathPI) && !this.abs_coord) {
+        if (((angulo2 - angulo1) <= MathPI) && !this.abs_coord) {
           angulo1 = tmpAngulo2;
           angulo2 = tmpAngulo1;
         }
@@ -281,21 +279,21 @@ var descartesJS = (function(descartesJS) {
     }
 
     // the width of a line can not be 0 or negative
-    tmpLineWidth = mathRound( evaluator.eval(this.width) );
+    tmpLineWidth = MathRound( evaluator.eval(this.width) );
     ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
 
     ctx.lineCap = "round";
     ctx.strokeStyle = stroke.getColor();
 
-    // draw the arc when especified in angles
+    // draw the arc when specified in angles
     if (this.drawAngle) {
       if (this.abs_coord) {
-        coordX = mathRound(this.exprX);
-        coordY = mathRound(this.exprY);
+        coordX = MathRound(this.exprX);
+        coordY = MathRound(this.exprY);
       }
       else {
-        coordX = mathRound(space.getAbsoluteX(this.exprX));
-        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        coordX = MathRound(space.getAbsoluteX(this.exprX));
+        coordY = MathRound(space.getAbsoluteY(this.exprY));
         radius = radius*space.scale;
         this.iniAng = -this.iniAng;
         this.endAng = -this.endAng;
@@ -307,15 +305,15 @@ var descartesJS = (function(descartesJS) {
         this.endAng = tempAng;
       }
     }
-    // draw the arc when especified with points
+    // draw the arc when specified with points
     else if (this.drawPoints) {
       if (this.abs_coord) {
-        coordX = mathRound(this.exprX);
-        coordY = mathRound(this.exprY);
+        coordX = MathRound(this.exprX);
+        coordY = MathRound(this.exprY);
       }
       else {
-        coordX = mathRound(space.getAbsoluteX(this.exprX));
-        coordY = mathRound(space.getAbsoluteY(this.exprY));
+        coordX = MathRound(space.getAbsoluteX(this.exprX));
+        coordY = MathRound(space.getAbsoluteY(this.exprY));
         radius = radius*space.scale;
         this.iniAng = -this.iniAng;
         this.endAng = -this.endAng;

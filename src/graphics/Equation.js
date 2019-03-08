@@ -6,8 +6,6 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-
   var b;
 
   var evaluator;
@@ -147,7 +145,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Auxiliar function for draw a family graphic
+   * Auxiliary function for draw a family graphic
    * @param {CanvasRenderingContext2D} ctx the render context to draw
    * @param {String} fill the fill color of the graphic
    * @param {String} stroke the stroke color of the graphic
@@ -162,7 +160,7 @@ var descartesJS = (function(descartesJS) {
     tempParam = evaluator.getVariable(this.family);
 
     if (this.fSteps >= 0) {
-      // draw all the family mebers of the graphic
+      // draw all the family members of the graphic
       for(var i=0, l=this.fSteps; i<=l; i++) {
         // update the value of the family parameter
         evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
@@ -651,7 +649,7 @@ var descartesJS = (function(descartesJS) {
         return 5;
       }
 
-      if (Math.abs(vb-va)>e) {  // detectar saltos
+      if (Math.abs(vb-va)>e) {  // detect jumps
         var epsilon = 1E-12;
         this.evaluator.setVariable(X, a-epsilon);
         var _v = this.evaluator.eval(this.funExpr);
@@ -806,7 +804,7 @@ var descartesJS = (function(descartesJS) {
 
                   ctx.stroke();
                 }
-                // fill maximus
+                // fill maximums
                 if ((this.fillP) && (y<y0)) {
                   ctx.lineWidth = 1;
                   ctx.strokeStyle = this.fillP.getColor();
@@ -982,7 +980,7 @@ var descartesJS = (function(descartesJS) {
    * Register a text field in case the equation expression is editable
    */
   descartesJS.Equation.prototype.registerTextField = function() {
-    var textField = document.createElement("input");
+    var textField = descartesJS.newHTML("input");
     textField.value = this.expresionString;
     textField.disabled = !(this.editable);
 

@@ -143,6 +143,13 @@ var descartesJS = (function(descartesJS) {
     this.colorInt = new descartesJS.Color((values.type !== "GraphicControl") ? "f0f8ff" : "cc0022");
 
     /**
+     * font size of the control
+     * type {Object}
+     * @private
+     */
+    this.font_size = (this.parent.version < 4) ? -1 : parser.parse("12");
+
+    /**
      * bold text condition
      * type {String}
      * @private
@@ -164,13 +171,6 @@ var descartesJS = (function(descartesJS) {
     this.underlined = "";
 
     /**
-     * font size of the control
-     * type {Object}
-     * @private
-     */
-    this.font_size = (this.parent.version < 4) ? -1 : parser.parse("12");
-
-    /**
      * action type
      * type {String}
      * @private
@@ -185,11 +185,34 @@ var descartesJS = (function(descartesJS) {
     this.parameter = "";
 
     /**
-     * parameter font
+     * tooltip text
      * type {String}
      * @private
      */
-    this.parameterFont = "Monospace 12px";
+    this.tooltip = "";
+
+    /**
+     * control explanation
+     * type {String}
+     * @private
+     */
+    this.Explanation = "";
+
+    /**
+     * message position
+     * type {String}
+     * @private
+     */
+    this.msg_pos = "";
+
+    /**
+     * component identifier
+     * type {String}
+     * @private
+     */
+    this.cID = "";
+
+    this.parameterFont = this.tooltipFont = this.ExplanationFont = "Monospace 12px";
 
     /**
      * draw condition
@@ -204,48 +227,6 @@ var descartesJS = (function(descartesJS) {
      * @private
      */
     this.activeif = parser.parse("1");
-
-    /**
-     * tooltip text
-     * type {String}
-     * @private
-     */
-    this.tooltip = "";
-
-    /**
-     * tooltip font
-     * type {String}
-     * @private
-     */
-    this.tooltipFont = "Monospace 12px";
-
-    /**
-     * control explanation
-     * type {String}
-     * @private
-     */
-    this.Explanation = "";
-
-    /**
-     * explanation font
-     * type {String}
-     * @private
-     */
-    this.ExplanationFont = "Monospace 12px";
-
-    /**
-     * mensage position
-     * type {String}
-     * @private
-     */
-    this.msg_pos = "";
-
-    /**
-     * conponent identifier
-     * type {String}
-     * @private
-     */
-    this.cID = "";
 
     /**
      * initial value (spinner)
@@ -344,8 +325,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.Control.prototype.draw = function() { }
 
   /**
-   * Get the space container and add the cotrol to it
-   * @return {HTMLnode} return the space container asociated with the control
+   * Get the space container and add the control to it
+   * @return {HTMLnode} return the space container associated with the control
    */
   descartesJS.Control.prototype.getContainer = function() {
     var spaces = this.parent.spaces;
@@ -382,7 +363,7 @@ var descartesJS = (function(descartesJS) {
       }
 
     }
-    // if the cotrol is in the north, south, east or west region
+    // if the control is in the north, south, east or west region
     else if ((/north|south|east|west/).test(this.region)) {
       this.parent[this.region + "Space"].controls.push(this);
       return this.parent[this.region + "Space"].container;
@@ -396,7 +377,7 @@ var descartesJS = (function(descartesJS) {
 
   /**
    *
-   * @return {HTMLnode} return the space container asociated with the control
+   * @return {HTMLnode} return the space container associated with the control
    */
   descartesJS.Control.prototype.addControlContainer = function(controlContainer) {
     // get the control container
@@ -446,7 +427,7 @@ var descartesJS = (function(descartesJS) {
   /**
    * Format the value with the number of decimals, the exponential representation and the decimal symbol
    * @param {String} value tha value to format
-   * @return {String} return the value with the format applyed
+   * @return {String} return the value with the format applied
    */
   descartesJS.Control.prototype.formatOutputValue = function(value) {
     parent = this.parent;
@@ -499,7 +480,7 @@ var descartesJS = (function(descartesJS) {
     if (this.action === "init") {
       this.click = false;
     }
-    // execute the acction
+    // execute the action
     this.actionExec.execute();
 
     // update again the controls
@@ -517,8 +498,8 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Create a linear gradient for the background
-   * @param {Number} w es el ancho del canvas sobre el cual se quiere crear el gradiente lineal
-   * @param {Number} h es el alto del canvas sobre el cual se quiere crear el gradiente lineal
+   * @param {Number} w is the width of the canvas on which you want to create the linear gradient
+   * @param {Number} h is the height of the canvas on which you want to create the linear gradient
    */
   descartesJS.Control.prototype.createGradient = function(w, h) {
     this.linearGradient = this.ctx.createLinearGradient(0, 0, 0, h);

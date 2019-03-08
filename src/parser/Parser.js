@@ -124,7 +124,7 @@ var descartesJS = (function(descartesJS) {
   
   var parenthesesType = "parentheses";
   var squareBracketType = "square_bracket";
-  var asignType = "asign";
+  var assignType = "asign";
   var compOperatorType = "compOperator";
   var identifierType = "identifier";
   var operatorType = "operator";
@@ -138,7 +138,7 @@ var descartesJS = (function(descartesJS) {
   var tokens;
   var lastNode;
   var node;
-  var openParentesis;
+  var openParenthesis;
   var openSquareBracket;
   var openConditional;
   var tokens_i;
@@ -163,7 +163,7 @@ var descartesJS = (function(descartesJS) {
     assignation = !assignation || false;
     count = 0;
 
-    openParentesis = 0;
+    openParenthesis = 0;
     openSquareBracket = 0;
     openConditional = 0;
 
@@ -208,11 +208,11 @@ var descartesJS = (function(descartesJS) {
       // assignation (one equal sign)
       //
       ////////////////////////////////////////////////////////////////////////////////
-      if ( (tokens_i_type === asignType) && (assignation) && (tokens_i_value != ":=") ) {
+      if ( (tokens_i_type === assignType) && (assignation) && (tokens_i_value != ":=") ) {
         tokens_i_type = compOperatorType;
         tokens_i_value = "==";
       }
-      if (tokens_i_type === asignType) {
+      if (tokens_i_type === assignType) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
 
         // the tree is not empty
@@ -280,7 +280,7 @@ var descartesJS = (function(descartesJS) {
         node = new descartesJS.Node(tokens_i_type, tokens_i_value);
 
         if (tokens_i_value === "(") {
-          openParentesis++;
+          openParenthesis++;
         }
 
         if (tokens_i_value === "[") {
@@ -302,7 +302,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // the last element of the tree is an operator
-          if ( (lastNode.type === operatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === compOperatorType) || (lastNode.type === conditionalType) || (lastNode.type === asignType) ) {
+          if ( (lastNode.type === operatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === compOperatorType) || (lastNode.type === conditionalType) || (lastNode.type === assignType) ) {
             lastNode.addChild(node);
             lastNode = node;
           }
@@ -357,7 +357,7 @@ var descartesJS = (function(descartesJS) {
       // close parentheses
       else if ((tokens_i_type === parenthesesType) && (tokens_i_value === ")")) {
 
-        openParentesis--;
+        openParenthesis--;
 
         // the first element of the tree
         if (lastNode === null) {
@@ -441,7 +441,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // the last element of the tree is an operator, an open parentheses, a sign or an assignation
-          if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || ((lastNode.type === parenthesesType) && (lastNode.value === "(")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[")) || (lastNode.type === signType)  || (lastNode.type === conditionalType) || (lastNode.type === asignType)) {
+          if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || ((lastNode.type === parenthesesType) && (lastNode.value === "(")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[")) || (lastNode.type === signType)  || (lastNode.type === conditionalType) || (lastNode.type === assignType)) {
             lastNode.addChild(node);
             lastNode = node;
           }
@@ -490,7 +490,7 @@ var descartesJS = (function(descartesJS) {
         // the tree has some element
         else {
           // the last element of the tree is an operator or an open parentheses and the operator is + or -
-          if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === asignType) || (lastNode.type === conditionalType) || (((lastNode.type === squareBracketType) && (lastNode.value === "[")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) || (((lastNode.type === parenthesesType) && (lastNode.value === "(")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) ) {
+          if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === assignType) || (lastNode.type === conditionalType) || (((lastNode.type === squareBracketType) && (lastNode.value === "[")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) || (((lastNode.type === parenthesesType) && (lastNode.value === "(")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) ) {
             // sign of an expression
             if ((tokens_i_value === "-") || (tokens_i_value === "+")){
               node.type = signType;
@@ -501,7 +501,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           // the last element of the tree is a number, parenthetical expression, a string or an identifier
-          else if ( (lastNode.type === numberType) || ((lastNode.type === parenthesesType) && (lastNode.value === "()")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[]")) || (lastNode.type === stringType) || (lastNode.type === identifierType) || (lastNode.type === conditionalType) ||(lastNode.type === asignType) ) {
+          else if ( (lastNode.type === numberType) || ((lastNode.type === parenthesesType) && (lastNode.value === "()")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[]")) || (lastNode.type === stringType) || (lastNode.type === identifierType) || (lastNode.type === conditionalType) ||(lastNode.type === assignType) ) {
 
             // find an element in the tree having a higher precedence to the node to be added
             while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
@@ -621,10 +621,10 @@ var descartesJS = (function(descartesJS) {
     }
 
     // missing or too many parentheses or square brackets
-    if (openParentesis > 0) {
+    if (openParenthesis > 0) {
       descartesJS.DEBUG.setError(descartesJS.DEBUG.PARENTHESIS_CLOSING, input);
     }
-    if (openParentesis < 0) {
+    if (openParenthesis < 0) {
       descartesJS.DEBUG.setError(descartesJS.DEBUG.PARENTHESIS_OPENING, input);
     }
 
@@ -1140,8 +1140,9 @@ var descartesJS = (function(descartesJS) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    var anchor = document.createElement("a");
-    anchor.setAttribute("target", "_blank");
+    var anchor = descartesJS.newHTML("a", {
+      target : "_blank",
+    });
     var blob;
     var blobContent = null;
     descartesJS.newBlobContent = null;
@@ -1176,8 +1177,9 @@ var descartesJS = (function(descartesJS) {
     var files;
     var reader;
 
-    var input = document.createElement("input");
-    input.setAttribute("type", "file");
+    var input = descartesJS.newHTML("input", {
+      type : "file",
+    });
 
     input.addEventListener("change", function(evt) {
       files = evt.target.files;

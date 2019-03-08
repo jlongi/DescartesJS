@@ -11,10 +11,10 @@ var descartesJS = (function(descartesJS) {
   var newText;
 
   /**
-   * Descartes scrollbar control
+   * Descartes TextArea control
    * @constructor
    * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the scrollbar control
+   * @param {String} values the values of the TextArea control
    */
   descartesJS.TextArea = function(parent, values){
     this.font_family = "Monospaced";
@@ -40,25 +40,33 @@ var descartesJS = (function(descartesJS) {
     if (this.answer) {
       // la respuesta esta encriptada
       if (this.answer.match("krypto_")) {
-        var krypt = new descartesJS.Krypto();
-        this.answer = krypt.decode(this.answer.substring(7));
+        this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
       }
 
       var parseAnswer = this.parent.lessonParser.parseText(this.answer);
     }
 
     // control container
-    this.containerControl = document.createElement("div");
+    this.containerControl = descartesJS.newHTML("div", {
+      class      : "DescartesTextAreaContainer",
+      id         : this.id,
+      spellcheck : "false",
+    });
 
     // the text area
-    this.textArea = document.createElement("div");
-    this.textAreaAnswer = document.createElement("div");
+    this.textArea = descartesJS.newHTML("div", {
+      class           : "DescartesTextAreaContainer",
+      contenteditable : "true",
+    });
+    this.textAreaAnswer = descartesJS.newHTML("div", {
+      class : "DescartesTextAreaContainer",
+    });
 
     // show answer button
-    this.showButton = document.createElement("div");
+    this.showButton = descartesJS.newHTML("div");
 
     // active cover
-    this.activeCover = document.createElement("div");
+    this.activeCover = descartesJS.newHTML("div");
 
     // add the elements to the container
     this.containerControl.appendChild(this.textArea);
@@ -152,32 +160,22 @@ var descartesJS = (function(descartesJS) {
       newText = this.text.replace(/\\n/g, "<br/>");
     }
 
-    this.containerControl.className = "DescartesTextAreaContainer";
-    this.containerControl.id = this.id;
-    this.containerControl.setAttribute("style", "width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px; z-index: " + this.zIndex + ";");
+    this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
     this.containerControl.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
-    this.containerControl.setAttribute("spellcheck", "false");
 
     // text area
-    this.textArea.className = "DescartesTextAreaContainer";
-    this.textArea.setAttribute("style", "padding: 5px; width: " + (this.w-4) + "px; height: " + (this.h-displaceY) + "px; left: 2px; top: 2px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";line-height:"+ this.font_size +"px;");
-    this.textArea.setAttribute("contenteditable", "true");
-    // this.textArea.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;' >" + newText + "</span>";
+    this.textArea.setAttribute("style", `padding:5px;width:${this.w-4}px;height:${this.h-displaceY}px;left:2px;top:2px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};line-height:${this.font_size}px;`);
     this.textArea.innerHTML = newText;
 
     // text area answer
-    this.textAreaAnswer.className = "DescartesTextAreaContainer";
-    this.textAreaAnswer.setAttribute("style", "width: " + (this.w-8) + "px; height: " + (this.h-displaceY) + "px; left: 4px; top: 4px; background-color: white; text-align: left; font: " + descartesJS.convertFont(this.font) + ";");
-    this.textAreaAnswer.style.display = (this.showAnswer) ? "block" : "none";
-    this.textAreaAnswer.innerHTML = "<span style='position: relative; top: 10px; left: 10px; white-space: nowrap;'>" + this.answer + "</span>";
+    this.textAreaAnswer.setAttribute("style", `width:${this.w-8}px;height:${this.h-displaceY}px;left:4px;top:4px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};display:${(this.showAnswer) ? "block" : "none"};`);
+    this.textAreaAnswer.innerHTML = "<span style='position:relative;top:10px;left:10px;white-space:nowrap;'>" + this.answer + "</span>";
 
     // show answer button
-    this.showButton.setAttribute("style", "width: 20px; height: 16px; position: absolute; bottom: 4px; right: 4px; cursor: pointer;");
-    this.showButton.style.backgroundImage = "url(" + this.imageUnPush + ")";
-    this.showButton.style.display = (this.answer) ? "block" : "none";
+    this.showButton.setAttribute("style", `width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;background-image:url(${this.imageUnPush});display:${(this.answer) ? "block" : "none"};`);
     this.showButton.innerHTML = "<span style='position: relative; top: 2px; text-align: center; font: 9px Arial'> S </span>";
 
-    this.activeCover.setAttribute("style", "position: absolute; width: " + this.w + "px; height: " + this.h + "px; left: " + this.x + "px; top: " + this.y + "px;");
+    this.activeCover.setAttribute("style", `position:absolute;width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;`);
 
     this.update();
   }
@@ -189,9 +187,11 @@ var descartesJS = (function(descartesJS) {
     var w = 20;
     var h = 16;
 
-    var canvas = document.createElement("canvas");
-    canvas.setAttribute("width", w);
-    canvas.setAttribute("height", h);
+    var canvas = descartesJS.newHTML("canvas", {
+      width  : w,
+      height : h,
+    });
+
     var ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
 
@@ -288,7 +288,13 @@ var descartesJS = (function(descartesJS) {
       var selection = window.getSelection();
       self.cursorInd = selection.focusOffset;
     }
-    this.textArea.addEventListener("blur", getSelection)
+    this.textArea.addEventListener("blur", getSelection);
+
+    // prevent the paste of content with style
+    this.textArea.addEventListener("paste", (evt) => {
+      evt.preventDefault();
+      document.execCommand("insertHTML", false, evt.clipboardData.getData("text/plain"));
+    });
   }
 
   return descartesJS;

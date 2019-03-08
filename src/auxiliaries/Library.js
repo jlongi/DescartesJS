@@ -32,7 +32,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     if (response) {
-      response = (descartesJS.convertHTMLEntities(response)).replace(/\r/g, "").split("\n");
+      response = ((descartesJS.convertHTMLEntities(response)).replace(/\r/g, "")).split("\n");
 
       // create the elements
       for (var i=0,l=response.length; i<l; i++){
