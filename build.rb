@@ -134,7 +134,7 @@ out.close
 =end
 
 ##########################################################################
-# Complete interpreter
+# Complete
 
 # add the header to the descartes-min.js file
 out = File.new("descartes.js", "w")
@@ -147,8 +147,8 @@ out.write(
  * " + Date.today.to_s() + "
  */\n\n")
 
-# Add the fonts to the file
-files.insert(5, "utils/EmbeddedFonts.js")
+# Add the fonts to the file list in the first index
+files.insert(1, "utils/EmbeddedFonts.js")
 
 # join the content of the files
 files.each do |file|

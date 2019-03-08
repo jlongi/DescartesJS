@@ -1096,7 +1096,7 @@ var descartesJS = (function(descartesJS) {
               audios[name].addEventListener('error', onError);
               audios[name].load();
             } else {
-              console.log("El archivo '" + name + "' no puede ser reproducido");
+              console.warn("El archivo '" + name + "' no puede ser reproducido");
               this.errorload = 1;
             }
           }

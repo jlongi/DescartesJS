@@ -102,7 +102,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           if (filename) {
-            // the macro is embeded in the webpage
+            // the macro is embedded in the webpage
             var macroElement = document.getElementById(filename);
 
             if ((macroElement) && (macroElement.type == "descartes/macro")) {
@@ -247,7 +247,7 @@ var descartesJS = (function(descartesJS) {
           audios[file].load();
         }
         else {
-          console.log("El archivo '" + file + "' no puede ser reproducido");
+          console.warn("El archivo '" + file + "' no puede ser reproducido");
           this.errorload = 1;
         }
       }
@@ -259,7 +259,6 @@ var descartesJS = (function(descartesJS) {
         audios[file].load();
         audios[file].play();
         descartesJS.setTimeout( function(){
-          // console.log("detenido");
           audios[file].pause();
         }, 20);
         audios[file].ready = 1;

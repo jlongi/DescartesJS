@@ -8,6 +8,8 @@ var descartesJS = (function(descartesJS) {
 
   var MathFloor = Math.floor;
   var MathAbs = Math.abs;
+  var delay = 1000;
+  var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   var evaluator;
   var btn;
@@ -20,15 +22,11 @@ var descartesJS = (function(descartesJS) {
   var despX;
   var despY;
   var txtW;
-  // var hasTouchSupport;
-  var delay = 1000;
 
   var _image_pos_x;
   var _image_pos_y;
   var _text_pos_x;
   var _text_pos_y;
-
-  var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
   var container;
 
@@ -108,11 +106,12 @@ var descartesJS = (function(descartesJS) {
     this.image_align = this.image_align.split("_");
 
     // modification to change the name of the button with an expression
-    if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
+    if (this.name.match(/^\[.*\]?/)) {
+    // if ((this.name.charAt(0) === "[") && (this.name.charAt(this.name.length-1) === "]")) {
       this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
     }
     else {
-      this.name = this.parser.parse("'" + this.name + "'");
+      this.name = this.parser.parse(`'${this.name}'`);
     }
 
     var tmpParam;
@@ -213,7 +212,7 @@ var descartesJS = (function(descartesJS) {
       this.imageSrc  = "";
     }
 
-    if (this.imageSrc.charAt(0) == '[') {
+    if (this.imageSrc.match(/^\[.*\]?/)) {
       this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
     }
     else {
@@ -228,7 +227,7 @@ var descartesJS = (function(descartesJS) {
       var suffix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
       // empty image, i.e. reference to vacio.gif
-      if (imageSrc.toLowerCase().match(/vacio.gif$/)) {
+      if (imageSrc.match(/vacio.gif$/i)) {
         this.imageSrc = this.parser.parse("'vacio.gif'");
         this.image.ready = 1;
 
@@ -679,7 +678,6 @@ var descartesJS = (function(descartesJS) {
    * Register the mouse and touch events
    */
   descartesJS.Button.prototype.addEvents = function() {
-    // hasTouchSupport = descartesJS.hasTouchSupport;
     var self = this;
     var timer;
 

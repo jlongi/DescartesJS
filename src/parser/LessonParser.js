@@ -93,7 +93,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("Propiedad de botones no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
+          console.warn("Propiedad de botones no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -313,7 +313,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("Propiedad del espacio no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
+          console.warn("Propiedad del espacio no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -578,7 +578,7 @@ var descartesJS = (function(descartesJS, babel) {
             break;
           }
 
-          console.log("Propiedad de control no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
+          console.warn("Propiedad de control no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -716,8 +716,18 @@ var descartesJS = (function(descartesJS, babel) {
           case("inipos"):
           // range
           case("range"):
-          // font size
+            if (values_i_1 !== "") {
+              graphicObj[babelValue] = this.parser.parse(values_i_1);
+            }
+            break;
+
+          // font size 
           case("font_size"):
+            // check for values of the form [x]
+            values_i_1 = values_i_1.trim();
+            if (values_i_1.match(/^\[.*\]?/)) {
+              values_i_1 = values_i_1.substring(1, values_i_1.length-1);
+            }
             if (values_i_1 !== "") {
               graphicObj[babelValue] = this.parser.parse(values_i_1);
             }
@@ -820,7 +830,7 @@ var descartesJS = (function(descartesJS, babel) {
               }
             }
 
-            console.log("Propiedad del grafico no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
+            console.warn("Propiedad del gráfico no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
             break;
         }
       } // end switch
@@ -1054,7 +1064,7 @@ var descartesJS = (function(descartesJS, babel) {
             }
           }
 
-          console.log("Propiedad del grafico 3D no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
+          console.warn("Propiedad del gráfico 3D no identificada: <" + values_i_0 + "> valor: <" + values_i_1 +">");
           break;
       }
     }
@@ -1186,7 +1196,7 @@ var descartesJS = (function(descartesJS, babel) {
             break;
           }
 
-          console.log("Propiedad del auxiliar no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
+          console.warn("Propiedad del auxiliar no identificada: <" + values_i_0 + "> valor: <" + values_i_1 + ">");
           break;
       }
     }
@@ -1348,7 +1358,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("Propiedad de la animacion no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
+          console.warn("Propiedad de la animación no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
           break;
       }
     }
@@ -1435,7 +1445,7 @@ var descartesJS = (function(descartesJS, babel) {
 
         // any variable missing
         default:
-          console.log("Propiedad de la pleca no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
+          console.warn("Propiedad de la pleca no identificada: <" + values_i_0 + ">  <" + values_i_1 + ">");
           break;
       }
     }

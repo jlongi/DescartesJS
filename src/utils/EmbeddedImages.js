@@ -37,9 +37,5 @@ var descartesJS = (function(descartesJS) {
     return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMzcuMDk1IDYuMjg0TDE1LjQ3MyAyNy45MDVsLTcuNTY4LTcuNTY3TDIuNSAyNS43NDNsMTIuOTczIDEyLjk3M0w0Mi41IDExLjY5eiIgY29sb3I9IiMwMDAiIHNvbGlkLWNvbG9yPSIjMDAwMDAwIiBzdHlsZT0iYmxvY2stcHJvZ3Jlc3Npb246dGI7aXNvbGF0aW9uOmF1dG87bWl4LWJsZW5kLW1vZGU6bm9ybWFsO3RleHQtZGVjb3JhdGlvbi1jb2xvcjojMDAwO3RleHQtZGVjb3JhdGlvbi1saW5lOm5vbmU7dGV4dC1kZWNvcmF0aW9uLXN0eWxlOnNvbGlkO3RleHQtaW5kZW50OjA7dGV4dC10cmFuc2Zvcm06bm9uZSIgd2hpdGUtc3BhY2U9Im5vcm1hbCIvPjwvc3ZnPg==";
   }
 
-  descartesJS.symbolFont = descartesJS.extraBFont = descartesJS.extraBIFont = descartesJS.extraIFont = descartesJS.extraRFont = descartesJS.arimoBFont = descartesJS.arimoBIFont = descartesJS.arimoIFont = descartesJS.arimoRFont = descartesJS.cousineBFont = descartesJS.cousineBIFont = descartesJS.cousineIFont = descartesJS.cousineRFont = descartesJS.tinosBFont = descartesJS.tinosBIFont = descartesJS.tinosIFont = descartesJS.tinosRFont = function() {
-    return "";
-  }
-
   return descartesJS;
 })(descartesJS || {});
