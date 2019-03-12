@@ -17,121 +17,105 @@ var descartesJS = (function(descartesJS) {
   var coordX;
   var coordY;
 
-  /**
-   * A Descartes polygon
-   * @constructor
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the polygon
-   */
-  descartesJS.Polygon = function(parent, values) {
+  class Polygon extends descartesJS.Graphic {
     /**
-     * the stroke width of the graph
-     * type {Number}
-     * @private
+     * A Descartes polygon
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} values the values of the polygon
      */
-    this.width = parent.evaluator.parser.parse("1");
+    constructor(parent, values) {
+      // call the parent constructor
+      super(parent, values);
 
-    /**
-     * the condition and the color of the fill
-     * type {String}
-     * @private
-     */
-    this.fill = "";
+      this.width = this.width || parent.evaluator.parser.parse("1");
+      this.fill = this.fill || "";
 
-    // call the parent constructor
-    descartesJS.Graphic.call(this, parent, values);
-
-    this.endPoints = [];
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Graphic
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Polygon, descartesJS.Graphic);
-
-  /**
-   * Update polygon
-   */
-  descartesJS.Polygon.prototype.update = function() {
-    evaluator = this.evaluator;
-
-    points = evaluator.eval(this.expresion);
-
-    for(var i=0, l=points.length; i<l; i++){
-      this.endPoints[i] = { x: points[i][0], y: points[i][1] };
+      this.endPoints = [];
     }
 
-    // rotate the elements in case the graphic is part of a macro
-    if (this.rotateExp) {
-      radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
+    /**
+     * Update polygon
+     */
+    update() {
+      evaluator = this.evaluator;
 
-      for (var i=0, l=this.endPoints.length; i<l; i++) {
-        this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
+      points = evaluator.eval(this.expresion);
+
+      for(var i=0, l=points.length; i<l; i++){
+        this.endPoints[i] = { x: points[i][0], y: points[i][1] };
+      }
+
+      // rotate the elements in case the graphic is part of a macro
+      if (this.rotateExp) {
+        radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
+
+        for (var i=0, l=this.endPoints.length; i<l; i++) {
+          this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
+        }
       }
     }
-  }
 
-  /**
-   * Draw the polygon
-   */
-  descartesJS.Polygon.prototype.draw = function() {
-    // call the draw function of the father (uber instead of super as it is reserved word)
-    this.uber.draw.call(this, this.fill, this.color);
-  }
-
-  /**
-   * Draw the trace of the polygon
-   */
-  descartesJS.Polygon.prototype.drawTrace = function() {
-    // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
-  }
-
-  /**
-   * Auxiliary function for draw a polygon
-   * @param {CanvasRenderingContext2D} ctx rendering context on which the polygon is drawn
-   * @param {String} fill the fill color of the polygon
-   * @param {String} stroke the stroke color of the polygon
-   */
-  descartesJS.Polygon.prototype.drawAux = function(ctx, fill, stroke) {
-    evaluator = this.evaluator;
-    space = this.space;
-
-    // the width of a line can not be 0 or negative
-    tmpLineWidth = MathRound( evaluator.eval(this.width) );
-    ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
-
-    ctx.strokeStyle = stroke.getColor();
-    ctx.lineCap = ctx.lineJoin = "round";
-
-    lineDesp = (tmpLineWidth > 0) ? .5 : 0;
-
-    coordX = MathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
-    coordY = MathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
-
-    ctx.beginPath();
-    ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
-
-    for(var i=1, l=this.endPoints.length; i<l; i++) {
-      coordX = MathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
-      coordY = MathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
-      
-      ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
+    /**
+     * Draw the polygon
+     */
+    draw() {
+      super.draw(this.fill, this.color);
     }
 
-    // draw the fill
-    if (this.fill) {
-      ctx.fillStyle = fill.getColor();
-      ctx.fill();
+    /**
+     * Draw the trace of the polygon
+     */
+    drawTrace() {
+      super.drawTrace(this.trace, this.trace);
     }
 
-    this.dashStyle();
-    // draw the stroke
-    ctx.stroke();
+    /**
+     * Auxiliary function for draw a polygon
+     * @param {CanvasRenderingContext2D} ctx rendering context on which the polygon is drawn
+     * @param {String} fill the fill color of the polygon
+     * @param {String} stroke the stroke color of the polygon
+     */
+    drawAux(ctx, fill, stroke) {
+      evaluator = this.evaluator;
+      space = this.space;
 
-    // restore the dash style
-    ctx.setLineDash([]);
+      // the width of a line can not be 0 or negative
+      tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+
+      ctx.strokeStyle = stroke.getColor();
+      ctx.lineCap = ctx.lineJoin = "round";
+
+      lineDesp = (tmpLineWidth > 0) ? .5 : 0;
+
+      coordX = MathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
+      coordY = MathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
+
+      ctx.beginPath();
+      ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
+
+      for(var i=1, l=this.endPoints.length; i<l; i++) {
+        coordX = MathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
+        coordY = MathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
+        
+        ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
+      }
+
+      // draw the fill
+      if (this.fill) {
+        ctx.fillStyle = fill.getColor();
+        ctx.fill();
+      }
+
+      this.dashStyle();
+      // draw the stroke
+      ctx.stroke();
+
+      // restore the dash style
+      ctx.setLineDash([]);
+    }
   }
 
+  descartesJS.Polygon = Polygon;
   return descartesJS;
 })(descartesJS || {});

@@ -16,89 +16,79 @@ var descartesJS = (function(descartesJS) {
   var coordX;
   var coordY;
 
-  /**
-   * A Descartes point
-   * @constructor
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the point
-   */
-  descartesJS.Point = function(parent, values) {
+  class Point extends descartesJS.Graphic {
     /**
-     * width of the point
-     * type {Node}
-     * @private
+     * A Descartes point
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} values the values of the point
      */
-    this.size = parent.evaluator.parser.parse("2");
+    constructor(parent, values) {
+      // call the parent constructor
+      super(parent, values);
 
-    // call the parent constructor
-    descartesJS.Graphic.call(this, parent, values);
+      this.size = this.size || parent.evaluator.parser.parse("2");
 
-    this.text = new descartesJS.TextObject(this, this.text);
-  }
+      this.text = new descartesJS.TextObject(this, this.text);
+    }
 
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Graphic
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Point, descartesJS.Graphic);
+    /**
+     * Update the point
+     */
+    update() {
+      evaluator = this.evaluator;
 
-  /**
-   * Update the point
-   */
-  descartesJS.Point.prototype.update = function() {
-    evaluator = this.evaluator;
+      expr = evaluator.eval(this.expresion);
 
-    expr = evaluator.eval(this.expresion);
+      this.exprX = expr[0][0]; // the first value of the first expression
+      this.exprY = expr[0][1]; // the second value of the first expression
 
-    this.exprX = expr[0][0]; // the first value of the first expression
-    this.exprY = expr[0][1]; // the second value of the first expression
+      // rotate the elements in case the graphic is part of a macro
+      if (this.rotateExp) {
+        tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
-    // rotate the elements in case the graphic is part of a macro
-    if (this.rotateExp) {
-      tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
+        this.exprX = tmpRot.x;
+        this.exprY = tmpRot.y;
+      }
+    }
 
-      this.exprX = tmpRot.x;
-      this.exprY = tmpRot.y;
+    /**
+     * Draw the point
+     */
+    draw() {
+      super.draw(this.color, this.color);
+    }
+
+    /**
+     * Draw the trace of the point
+     */
+    drawTrace() {
+      super.drawTrace(this.trace, this.trace);
+    }
+
+    /**
+     * Auxiliary function for draw a point
+     * @param {CanvasRenderingContext2D} ctx rendering context on which the point is drawn
+     * @param {String} fill the fill color of the point
+     */
+    drawAux(ctx, fill) {
+      space = this.space;
+
+      ctx.fillStyle = fill.getColor();
+
+      coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
+      coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+
+      ctx.beginPath();
+      ctx.arc(coordX, coordY, MathRound(this.evaluator.eval(this.size)), 0, PI2, true);
+      ctx.fill()
+
+      // draw the text of the text
+      if (this.text.hasContent) {
+        this.text.draw(ctx, fill, coordX, coordY);
+      }
     }
   }
 
-  /**
-   * Draw the point
-   */
-  descartesJS.Point.prototype.draw = function() {
-    // call the draw function of the father (uber instead of super as it is reserved word)
-    this.uber.draw.call(this, this.color, this.color);
-  }
-
-  /**
-   * Draw the trace of the point
-   */
-  descartesJS.Point.prototype.drawTrace = function() {
-    // call the drawTrace function of the father (uber instead of super as it is reserved word)
-    this.uber.drawTrace.call(this, this.trace, this.trace);
-  }
-
-  /**
-   * Auxiliary function for draw a point
-   * @param {CanvasRenderingContext2D} ctx rendering context on which the point is drawn
-   * @param {String} fill the fill color of the point
-   */
-  descartesJS.Point.prototype.drawAux = function(ctx, fill){
-    space = this.space;
-
-    ctx.fillStyle = fill.getColor();
-
-    coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-    coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
-
-    ctx.beginPath();
-    ctx.arc(coordX, coordY, MathRound(this.evaluator.eval(this.size)), 0, PI2, true);
-    ctx.fill()
-
-    // draw the text of the text
-    if (this.text.hasContent) {
-      this.text.draw(ctx, fill, coordX, coordY);
-    }
-  }
-
+  descartesJS.Point = Point;
   return descartesJS;
 })(descartesJS || {});
