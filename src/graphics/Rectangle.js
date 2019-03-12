@@ -16,6 +16,7 @@ var descartesJS = (function(descartesJS) {
   var tmpRot;
   var tmpLineWidth;
   var lineDesp;
+  var expr;
   var x, y, w, h, r, sign;
 
   class Rectangle extends descartesJS.Graphic {

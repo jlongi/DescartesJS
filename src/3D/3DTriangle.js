@@ -15,60 +15,59 @@ var descartesJS = (function(descartesJS) {
   var v3_x;
   var v3_y;
   var v3_z;
+  var evaluator;
+  var expr;
 
-  /**
-   * A Descartes 3D triangle
-   * @constructor 
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the triangle
-   */
-  descartesJS.Triangle3D = function(parent, values) {
-    // call the parent constructor
-    descartesJS.Graphic3D.call(this, parent, values);
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Graphic3D
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Triangle3D, descartesJS.Graphic3D);
+  class Triangle3D extends descartesJS.Graphic3D {
+    /**
+     * A Descartes 3D triangle
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} values the values of the triangle
+     */
+    constructor(parent, values) {
+      // call the parent constructor
+      super(parent, values);
+    }
 
-  /**
-   * Build the primitives corresponding to the triangle
-   */
-  descartesJS.Triangle3D.prototype.buildPrimitives = function() {
-    evaluator = this.evaluator;
+    /**
+     * Build the primitives corresponding to the triangle
+     */
+    buildPrimitives() {
+      evaluator = this.evaluator;
 
-    this.updateMVMatrix();
+      this.updateMVMatrix();
 
-    expr = evaluator.eval(this.expresion);
-    v1_x = expr[0][0];
-    v1_y = expr[0][1];
-    v1_z = expr[0][2];
+      expr = evaluator.eval(this.expresion);
+      v1_x = expr[0][0];
+      v1_y = expr[0][1];
+      v1_z = expr[0][2];
 
-    v2_x = expr[1][0];
-    v2_y = expr[1][1];
-    v2_z = expr[1][2];
+      v2_x = expr[1][0];
+      v2_y = expr[1][1];
+      v2_z = expr[1][2];
 
-    v3_x = expr[2][0];
-    v3_y = expr[2][1];
-    v3_z = expr[2][2];
+      v3_x = expr[2][0];
+      v3_y = expr[2][1];
+      v3_z = expr[2][2];
 
-    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
 
-    this.primitives.push( new descartesJS.Primitive3D( { 
-      vertices: [ this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-                  this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
-                  this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-                ],
-      type: "face",
-      frontColor: this.color.getColor(),
-      backColor: this.backcolor.getColor(),
-      edges: tmpEdgeColor,
-      model: this.model
-    },
-    this.space ));
-
+      this.primitives.push( new descartesJS.Primitive3D( { 
+        vertices: [ 
+          this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
+          this.transformVertex( new descartesJS.Vector4D(v3_x, v3_y, v3_z, 1) ),
+          this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
+        ],
+        type: "face",
+        frontColor: this.color.getColor(),
+        backColor: this.backcolor.getColor(),
+        edges: tmpEdgeColor,
+        model: this.model
+      },
+      this.space ));
+    }
   }
 
+  descartesJS.Triangle3D = Triangle3D;
   return descartesJS;
 })(descartesJS || {});

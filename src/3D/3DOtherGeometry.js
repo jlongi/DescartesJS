@@ -38,108 +38,122 @@ var descartesJS = (function(descartesJS) {
   var j;
   var k;
 
-  /**
-   * A Descartes 3D face
-   * @constructor
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the triangle
-   */
-  descartesJS.OtherGeometry3D = function(parent, values) {
-    this.width = parent.evaluator.parser.parse("2");
-    this.height = parent.evaluator.parser.parse("2");
-    this.length = parent.evaluator.parser.parse("2");
-    this.R = parent.evaluator.parser.parse("2");
-    this.r = parent.evaluator.parser.parse("1");
+  class OtherGeometry3D extends descartesJS.Graphic3D {
+    /**
+     * A Descartes 3D face
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} values the values of the triangle
+     */
+    constructor(parent, values) {
+      // call the parent constructor
+      super(parent, values);
 
-    vec4D = descartesJS.Vector4D;
+      this.width = this.width || parent.evaluator.parser.parse("2");
+      this.height = this.height || parent.evaluator.parser.parse("2");
+      this.length = this.length || parent.evaluator.parser.parse("2");
+      this.R = this.R || parent.evaluator.parser.parse("2");
+      this.r = this.r || parent.evaluator.parser.parse("1");
 
-    // call the parent constructor
-    descartesJS.Graphic3D.call(this, parent, values);
+      vec4D = descartesJS.Vector4D;
 
-    switch (this.subType) {
-      case("cube"):
-        this.buildGeometry = buildCube;
-        break;
+      switch (this.subType) {
+        case("cube"):
+          this.buildGeometry = buildCube;
+          break;
 
-      case("box"):
-        this.buildGeometry = buildBox;
-        break;
+        case("box"):
+          this.buildGeometry = buildBox;
+          break;
 
-      case("tetrahedron"):
-        this.buildGeometry = buildTetrahedron;
-        break;
+        case("tetrahedron"):
+          this.buildGeometry = buildTetrahedron;
+          break;
 
-      case("octahedron"):
-        this.buildGeometry = buildOctahedron;
-        break;
+        case("octahedron"):
+          this.buildGeometry = buildOctahedron;
+          break;
 
-      case("sphere"):
-        this.isSphere = true;
-      case("ellipsoid"):
-        this.buildGeometry = buildSphere;
-        break;
+        case("sphere"):
+          this.isSphere = true;
+        case("ellipsoid"):
+          this.buildGeometry = buildSphere;
+          break;
 
-      case("dodecahedron"):
-        this.buildGeometry = buildDodecahedron;
-        break;
+        case("dodecahedron"):
+          this.buildGeometry = buildDodecahedron;
+          break;
 
-      case("icosahedron"):
-        this.buildGeometry = buildIcosahedron;
-        break;
+        case("icosahedron"):
+          this.buildGeometry = buildIcosahedron;
+          break;
 
-      case("cone"):
-        this.buildGeometry = buildCone;
-        break;
+        case("cone"):
+          this.buildGeometry = buildCone;
+          break;
 
-      case("cylinder"):
-        this.buildGeometry = buildCylinder;
-        break;
+        case("cylinder"):
+          this.buildGeometry = buildCylinder;
+          break;
 
-      case("torus"):
-        this.buildGeometry = buildTorus;
-        break;
+        case("torus"):
+          this.buildGeometry = buildTorus;
+          break;
 
-      case("mesh"):
-        this.fileData = descartesJS.openExternalFile(this.evaluator.eval(this.file)).split(/\r/);
-        this.buildGeometry = buildMesh;
-        break;
-    }
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Graphic3D
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.OtherGeometry3D, descartesJS.Graphic3D);
-
-  /**
-   * Build the primitives corresponding to the face
-   */
-  descartesJS.OtherGeometry3D.prototype.buildPrimitives = function() {
-    evaluator = this.evaluator;
-
-    this.updateMVMatrix();
-
-    // construct the vertices
-    this.buildGeometry(evaluator.eval(this.width), evaluator.eval(this.height), evaluator.eval(this.length), evaluator.eval(this.Nu), evaluator.eval(this.Nv));
-
-    var tmpFrontColor = this.color.getColor();
-    var tmpBackColor = this.backcolor.getColor();
-    var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
-
-    for (i=0, l=this.faces.length; i<l; i++) {
-      v = [];
-      for (j=0, k=this.faces[i].length; j<k; j++) {
-        v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
+        case("mesh"):
+          this.fileData = descartesJS.openExternalFile(this.evaluator.eval(this.file)).split(/\r/);
+          this.buildGeometry = buildMesh;
+          break;
       }
+    }
 
-      this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
-                                                           type: "face",
-                                                           frontColor: tmpFrontColor,
-                                                           backColor: tmpBackColor,
-                                                           edges: tmpEdgeColor,
-                                                           model: this.model
-                                                         },
-                            this.space ));
+    /**
+     * Build the primitives corresponding to the face
+     */
+    buildPrimitives() {
+      evaluator = this.evaluator;
+
+      this.updateMVMatrix();
+
+      // construct the vertices
+      this.buildGeometry(evaluator.eval(this.width), evaluator.eval(this.height), evaluator.eval(this.length), evaluator.eval(this.Nu), evaluator.eval(this.Nv));
+
+      var tmpFrontColor = this.color.getColor();
+      var tmpBackColor = this.backcolor.getColor();
+      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+
+      for (i=0, l=this.faces.length; i<l; i++) {
+        v = [];
+        for (j=0, k=this.faces[i].length; j<k; j++) {
+          v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
+        }
+
+        this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
+                                                            type: "face",
+                                                            frontColor: tmpFrontColor,
+                                                            backColor: tmpBackColor,
+                                                            edges: tmpEdgeColor,
+                                                            model: this.model
+                                                          },
+                              this.space ));
+      }
+    }
+
+    /**
+     *
+     */
+    changeGeometry(width, height, length, Nu, Nv) {
+      return (this.oldWidth  === width) && (this.oldHeight === height) && (this.oldLength === length) && (this.oldNu === Nu) && (this.oldNv === Nv);
+    }
+
+    /**
+     *
+     */
+    updateValues(width, height, length, Nu, Nv) {
+      this.oldWidth = width;
+      this.oldHeight = height;
+      this.oldLength = length;
+      this.oldNv = Nv;
+      this.oldNu = Nu;
     }
   }
 
@@ -536,23 +550,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  /**
-   *
-   */
-  descartesJS.OtherGeometry3D.prototype.changeGeometry = function(width, height, length, Nu, Nv) {
-    return (this.oldWidth  === width) && (this.oldHeight === height) && (this.oldLength === length) && (this.oldNu === Nu) && (this.oldNv === Nv);
-  }
-
-  /**
-   *
-   */
-  descartesJS.OtherGeometry3D.prototype.updateValues = function(width, height, length, Nu, Nv) {
-    this.oldWidth = width;
-    this.oldHeight = height;
-    this.oldLength = length;
-    this.oldNv = Nv;
-    this.oldNu = Nu;
-  }
-
+  descartesJS.OtherGeometry3D = OtherGeometry3D;
   return descartesJS;
 })(descartesJS || {});
