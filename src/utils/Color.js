@@ -7,7 +7,6 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var MathFloor = Math.floor;
-  var MathMin = Math.min;
   var evaluator;
   var tmpColor;
   var splitColor;
@@ -156,9 +155,9 @@ var descartesJS = (function(descartesJS) {
       var self = this;
       
       evaluator = self.evaluator;
-      self.r = MathMin(255, MathFloor(evaluator.eval(self.rExpr) * 255));
-      self.g = MathMin(255, MathFloor(evaluator.eval(self.gExpr) * 255));
-      self.b = MathMin(255, MathFloor(evaluator.eval(self.bExpr) * 255));
+      self.r = MathFloor(evaluator.eval(self.rExpr) * 255);
+      self.g = MathFloor(evaluator.eval(self.gExpr) * 255);
+      self.b = MathFloor(evaluator.eval(self.bExpr) * 255);
       self.a = (1 - evaluator.eval(self.aExpr));
 
       return `rgba(${self.r},${self.g},${self.b},${self.a})`;

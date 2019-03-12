@@ -27,7 +27,7 @@ var descartesJS = (function(descartesJS) {
     execute() {
       var theParameter = this.parameter;
 
-      if ((theParameter.charAt(0) === "[") && (theParameter.charAt(theParameter.length-1) === "]")) {
+      if (theParameter.match(/^\[.*\]?/)) {
         theParameter = this.evaluator.eval( this.parser.parse(theParameter.substring(1, theParameter.length-1)) );
       }
 

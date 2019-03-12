@@ -6,74 +6,66 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  /**
-   * Descartes matrix
-   * @constructor 
-   * @param {DescartesApp} parent the Descartes application
-   * @param {String} values the values of the auxiliary
-   */
-  descartesJS.Matrix = function(parent, values){
-    var evaluator = parent.evaluator;
-    var parser = evaluator.parser;
+  var evaluator;
+  var parser;
+  var rows;
+  var cols;
+  var mat;
 
+  class Matrix extends descartesJS.Auxiliary {
     /**
-     * number of rows of a matrix
-     * type {Node}
-     * @private
+     * Descartes matrix
+     * @param {DescartesApp} parent the Descartes application
+     * @param {String} values the values of the auxiliary
      */
-    this.rows = parser.parse("3");
+    constructor(parent, values) {
+      // call the parent constructor
+      super(parent, values);
 
-    /**
-     * number of columns of a matrix
-     * type {Node}
-     * @private
-     */
-    this.columns = parser.parse("3");
+      evaluator = parent.evaluator;
+      parser = evaluator.parser;
 
-    // call the parent constructor
-    descartesJS.Auxiliary.call(this, parent, values);
+      this.rows = this.rows || parser.parse("3");
+      this.columns = this.columns || parser.parse("3");
 
-    // parse the expression
-    this.expresion = this.splitInstructions(parser, this.expresion);
+      // parse the expression
+      this.expresion = this.splitInstructions(parser, this.expresion);
 
-    var rows = evaluator.eval(this.rows);
-    var cols = evaluator.eval(this.columns);
+      rows = evaluator.eval(this.rows);
+      cols = evaluator.eval(this.columns);
 
-    var mat = [];
-    mat.type = "matrix";
-    
-    for (var j=0, k=cols; j<k; j++) {
-      mat[j] = (Array(rows)).fill(0);
+      mat = [];
+      mat.type = "matrix";
+      
+      for (var j=0, k=cols; j<k; j++) {
+        mat[j] = (Array(rows)).fill(0);
+      }
+      evaluator.matrices[this.id] = mat;
+      
+      this.update();
     }
-    evaluator.matrices[this.id] = mat;
-    
-    this.update();
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////
-  // create an inheritance of Auxiliary
-  ////////////////////////////////////////////////////////////////////////////////////
-  descartesJS.extend(descartesJS.Matrix, descartesJS.Auxiliary);
 
-  /**
-   * Update the matrix
-   */
-  descartesJS.Matrix.prototype.update = function() {
-    var evaluator = this.evaluator;
-    var rows = evaluator.eval(this.rows);
-    var cols = evaluator.eval(this.columns);
+    /**
+     * Update the matrix
+     */
+    update() {
+      evaluator = this.evaluator;
+      rows = evaluator.eval(this.rows);
+      cols = evaluator.eval(this.columns);
 
-    evaluator.setVariable(this.id + ".filas", rows);
-    evaluator.setVariable(this.id + ".columnas", cols);
+      evaluator.setVariable(this.id + ".filas", rows);
+      evaluator.setVariable(this.id + ".columnas", cols);
 
-    var mat = evaluator.matrices[this.id];
-    mat.rows = rows;
-    mat.cols = cols;
+      mat = evaluator.matrices[this.id];
+      mat.rows = rows;
+      mat.cols = cols;
 
-    for(var i=0, l=this.expresion.length; i<l; i++) {
-      evaluator.eval(this.expresion[i]);
+      for(var i=0, l=this.expresion.length; i<l; i++) {
+        evaluator.eval(this.expresion[i]);
+      }
     }
   }
 
+  descartesJS.Matrix = Matrix;
   return descartesJS;
 })(descartesJS || {});

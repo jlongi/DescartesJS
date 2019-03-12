@@ -23,7 +23,7 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         // if the parameter inits with braces [], extract the expression
-        if ( (parameter !== '') && (parameter.charAt(0) === '[') && (parameter.charAt(parameter.length-1) === ']') ) {
+        if (parameter.match(/^\[.*\]?/)) {
           parameter = parameter.substring(1, parameter.length-1);
         }
         this.filenameExpr = this.evaluator.parser.parse(parameter);

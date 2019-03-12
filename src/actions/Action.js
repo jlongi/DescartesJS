@@ -13,13 +13,7 @@ var descartesJS = (function(descartesJS) {
      * @param {String} parameter the values of the action
      */
     constructor(parent, parameter) {
-      /**
-       * Descartes application
-       * type {DescartesApp}
-       * @private
-       */
       this.parent = parent;
-
       this.evaluator = this.parent.evaluator;
     }  
     

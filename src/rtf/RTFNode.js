@@ -1573,7 +1573,7 @@ var descartesJS = (function(descartesJS) {
     }
     if (this.style.border) {
       var tmpStroke = ctx.strokeStyle;
-      ctx.lineWidth = 1 + parseInt(this.style.size/4);
+      ctx.lineWidth = 1 + parseInt(this.style.size/8);
       ctx.lineJoin = "round";
       ctx.miterLimit = 2;
       ctx.strokeStyle = this.style.border.getColor();

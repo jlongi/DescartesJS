@@ -161,7 +161,6 @@ var descartesJS = (function(descartesJS) {
         self.addEvents();
       }
       else {
-        stage_height = 0;
         self.canvas.oncontextmenu = function (evt) { return false; };
       }
     }
