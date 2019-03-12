@@ -13,7 +13,6 @@ var descartesJS = (function(descartesJS) {
   var val;
   var str;
   var inc;
-  var count;
   var lastTokenType;
 
   var whiteSpaceRegExp = /^\s+/;
@@ -32,264 +31,269 @@ var descartesJS = (function(descartesJS) {
   var pipeAsteriskLeftRegExp = /\|\*/g;
   var pipeAsteriskRightRegExp = /\*\|/g;
 
-  /**
-   * Descartes tokenizer
-   * @constructor
-   */
-  descartesJS.Tokenizer = function() {  };
-
-  descartesJS.Tokenizer.prototype.tokenize = function(input) {
-    initial_input = input;
-
-    if (input) {
-      var commentIndex = input.indexOf("//");
-      if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
-        input = input.substring(0, commentIndex);
-      }
-
-      // change the values in UTF of the form \u##
-      input = input.replace(/\\u(\S+) /g, function(str, m1){
-        if (parseInt(m1, 16) !== 39) {
-          return String.fromCharCode(parseInt(m1, 16));
-        }
-        return str; 
-      });
-
-      // super index numbers codified with &sup#;
-      input = input.replace(/\&sup(.+);/g, "^ $1 ");
-
-      // single quotation marks
-      input = input.replace(/&squot;/g, "'");
-
-      // replace the pipes used like string marks
-      if (input.match(/\=\|\*/g)) {
-        input = input.replace(pipeAsteriskLeftRegExp, "'").replace(pipeAsteriskRightRegExp, "'");
-      }
-      // replace the pipes used like string marks
-      if (input.match(/\=\|/g)) {
-        input = input.replace(pipeStringDelimiterRegExp, "'");
-      }
-
-      var inputTrimmed = input.trim();
-      if ((inputTrimmed.charAt(0) == "|") && (inputTrimmed.charAt(inputTrimmed.length-1) == "|")) {
-        input = inputTrimmed.replace(pipeStringDelimiterRegExp, "'");
-      }
-    }
-
-    tokens = [];
-    exit = false;
-    pos = 0;
-    count = 0;
-    str = input;
-    lastTokenType = "";
-
-    /**
-     * Auxiliary function to add tokens and move the character position
-     * @param {String} type the type of the token
-     * @param {String} value the value of the token
-     * @param {Number} size the length of the value of the token
-     */
-    function addToken(type, value, size) {
-      tokens.push({ type: type, value: value });
-      str = str.slice(size);
-      pos += size;
-      count++;
-      lastTokenType = type;
-    }
-
-    while ((input) && (pos < input.length)) {
-      exit = pos;
-
-      // string
-      if (str[0] == "'") {
-        inc = 1;
-        while (str[inc] != "'") {
-          if (inc < str.length) {
-            inc++;
-          }
-          else {
-            console.info(">Error, unknown symbol: ["+str+"], in the string 《" + initial_input + "》" );
-            return;
-          }
-        }
-
-        val = str.substring(1, inc);
-        addToken("string", val, val.length+2);
-        continue;
-      }
-
-      // white spaces
-      val = str.match(whiteSpaceRegExp);
-      if (val) {
-        str = str.slice(val[0].length);
-        pos += val[0].length;
-        count++;
-        continue;
-      }
-
-      // operator
-      val = str.match(operatorRegExp);
-      if (val) {
-        val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
-        addToken("operator", val[0], val[0].length);
-        continue;
-      }
-
-      // identifier
-      val = str.match(identifierRegExp);
-      if (val) {
-        // expression of the form 2pi change to 2*pi, so we need to know that the type of the last token is a number
-        if (lastTokenType === "number") {
-          // add a multiplication operator
-          tokens.push({ type: "operator", value: "*" });
-        }
-        // add the identifier token
-        addToken("identifier", val[0], val[0].length);
-        continue;
-      }
-
-      // number
-      val = str.match(numberRegExp);
-      if (val) {
-        addToken("number", val[0], val[0].length);
-        continue;
-      }
-
-      // comparison
-      val = str.match(compOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
-
-        if (tempVal == "#") { 
-          tempVal = "!="; 
-        }
-        addToken("compOperator", tempVal, val[0].length);
-        continue;
-      }
-
-      // booleans
-      val = str.match(boolOperatorRegExp);
-      if (val) {
-        var tempVal = val[0];
-        if (tempVal == "||") { 
-          tempVal = "|"; 
-        }
-        else if (tempVal == "&&") { 
-          tempVal = "&"; 
-        }
-        else if (tempVal == "~") { 
-          tempVal = "!"; 
-        }
-
-        addToken("boolOperator", tempVal, val[0].length);
-        continue;
-      }
-
-      // equal (assign)
-      val = str.match(assignRegExp);
-      if ((val) && !(str.match( /^==/))) {
-        addToken("asign", val[0], val[0].length);
-        continue;
-      }
-
-      // conditional
-      val = str.match(conditionalRegExp);
-      if (val) {
-        addToken("conditional", val[0], val[0].length);
-        continue;
-      }
-
-      // square brackets
-      val = str.match(squareBracketRegExp);
-      if (val) {
-        addToken("square_bracket", val[0], val[0].length);
-        continue;
-      }
-
-      // parentheses
-      val = str.match( parenthesesRegExp );
-      if (val) {
-        if ((val == "(") && (lastTokenType === "number")) {
-          // add a multiplication operator
-          tokens.push({ type: "operator", value: "*" });
-        }
-
-        addToken("parentheses", val[0], val[0].length);
-        continue;
-      }
-
-      // separator
-      val = str.match(separatorRegExp);
-      if (val) {
-        addToken("separator", val[0], val[0].length);
-        continue;
-      }
-
-      // square
-      if (str.charCodeAt(0) === 178) {
-        // add a multiplication operator
-        tokens.push({ type: "operator", value: "^" });
-
-        // add the identifier token
-        addToken("number", 2, 1);
-        continue;
-      }
-      // cube
-      if (str.charCodeAt(0) === 179) {
-        // add a multiplication operator
-        tokens.push({ type: "operator", value: "^" });
-
-        // add the identifier token
-        addToken("number", 3, 1);
-        continue;
-      }
-
-      // final of expression
-      val = str.match(finalOfExpressionRegExp);
-      if (val) {
-        addToken("final_of_expression", val[0], val[0].length);
-        continue;
-      }
-
-      if (exit == pos){
-        descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, initial_input);
-        // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
-        // console.info("Error: en la cadena 《 " + initial_input + " 》");
-        return;
-      }
-    }
-
-    return tokens;
-  }
-
   var result;
   var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
 
   /**
-   * Auxiliary function for the macros that take a list of tokens and get a string representation
-   * @param {Array<Object>} tokens the tokens to be flat
-   * @return {String} return a string representation of the tokens
+   * 
    */
-  descartesJS.Tokenizer.prototype.flatTokens = function(tokens, prefix) {
-    tokens = tokens || [];
-    prefix = prefix || "";
+  class Tokenizer {
+    /**
+     * Descartes tokenizer
+     */
+    constructor() {  }
 
-    result = "";
+    /**
+     * 
+     */
+    tokenize(input) {
+      initial_input = input;
 
-    for (var i=0, l=tokens.length; i<l; i++) {
-      if (tokens[i].type == "string") {
-        result = result + "&squot;" + tokens[i].value + "&squot;";
+      if (input) {
+        var commentIndex = input.indexOf("//");
+        if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
+          input = input.substring(0, commentIndex);
+        }
+
+        // change the values in UTF of the form \u##
+        input = input.replace(/\\u(\S+) /g, function(str, m1){
+          if (parseInt(m1, 16) !== 39) {
+            return String.fromCharCode(parseInt(m1, 16));
+          }
+          return str; 
+        });
+
+        // super index numbers codified with &sup#;
+        input = input.replace(/\&sup(.+);/g, "^ $1 ");
+
+        // single quotation marks
+        input = input.replace(/&squot;/g, "'");
+
+        // replace the pipes used like string marks
+        if (input.match(/\=\|\*/g)) {
+          input = input.replace(pipeAsteriskLeftRegExp, "'").replace(pipeAsteriskRightRegExp, "'");
+        }
+        // replace the pipes used like string marks
+        if (input.match(/\=\|/g)) {
+          input = input.replace(pipeStringDelimiterRegExp, "'");
+        }
+
+        var inputTrimmed = input.trim();
+        if ((inputTrimmed.charAt(0) == "|") && (inputTrimmed.charAt(inputTrimmed.length-1) == "|")) {
+          input = inputTrimmed.replace(pipeStringDelimiterRegExp, "'");
+        }
       }
-      else if ((tokens[i].type == "identifier") && (!tokens[i].value.match(exclude))) {
-        result = result + prefix + tokens[i].value;
+
+      tokens = [];
+      exit = false;
+      pos = 0;
+      str = input;
+      lastTokenType = "";
+
+      /**
+       * Auxiliary function to add tokens and move the character position
+       * @param {String} type the type of the token
+       * @param {String} value the value of the token
+       * @param {Number} size the length of the value of the token
+       */
+      function addToken(type, value, size) {
+        tokens.push({ type: type, value: value });
+        str = str.slice(size);
+        pos += size;
+        lastTokenType = type;
       }
-      else {
-        result = result + tokens[i].value;
+
+      while ((input) && (pos < input.length)) {
+        exit = pos;
+
+        // string
+        if (str[0] == "'") {
+          inc = 1;
+          while (str[inc] != "'") {
+            if (inc < str.length) {
+              inc++;
+            }
+            else {
+              console.info(">Error, unknown symbol: ["+str+"], in the string 《" + initial_input + "》" );
+              return;
+            }
+          }
+
+          val = str.substring(1, inc);
+          addToken("string", val, val.length+2);
+          continue;
+        }
+
+        // white spaces
+        val = str.match(whiteSpaceRegExp);
+        if (val) {
+          str = str.slice(val[0].length);
+          pos += val[0].length;
+          continue;
+        }
+
+        // operator
+        val = str.match(operatorRegExp);
+        if (val) {
+          val[0] = val[0].replace(/\u00F7/g, "/").replace(/\u2212/g, "-").replace(/\u00b7/g, "*").replace(/\u00D7/g, "*")
+          addToken("operator", val[0], val[0].length);
+          continue;
+        }
+
+        // identifier
+        val = str.match(identifierRegExp);
+        if (val) {
+          // expression of the form 2pi change to 2*pi, so we need to know that the type of the last token is a number
+          if (lastTokenType === "number") {
+            // add a multiplication operator
+            tokens.push({ type: "operator", value: "*" });
+          }
+          // add the identifier token
+          addToken("identifier", val[0], val[0].length);
+          continue;
+        }
+
+        // number
+        val = str.match(numberRegExp);
+        if (val) {
+          addToken("number", val[0], val[0].length);
+          continue;
+        }
+
+        // comparison
+        val = str.match(compOperatorRegExp);
+        if (val) {
+          var tempVal = val[0];
+
+          if (tempVal == "#") { 
+            tempVal = "!="; 
+          }
+          addToken("compOperator", tempVal, val[0].length);
+          continue;
+        }
+
+        // booleans
+        val = str.match(boolOperatorRegExp);
+        if (val) {
+          var tempVal = val[0];
+          if (tempVal == "||") { 
+            tempVal = "|"; 
+          }
+          else if (tempVal == "&&") { 
+            tempVal = "&"; 
+          }
+          else if (tempVal == "~") { 
+            tempVal = "!"; 
+          }
+
+          addToken("boolOperator", tempVal, val[0].length);
+          continue;
+        }
+
+        // equal (assign)
+        val = str.match(assignRegExp);
+        if ((val) && !(str.match( /^==/))) {
+          addToken("asign", val[0], val[0].length);
+          continue;
+        }
+
+        // conditional
+        val = str.match(conditionalRegExp);
+        if (val) {
+          addToken("conditional", val[0], val[0].length);
+          continue;
+        }
+
+        // square brackets
+        val = str.match(squareBracketRegExp);
+        if (val) {
+          addToken("square_bracket", val[0], val[0].length);
+          continue;
+        }
+
+        // parentheses
+        val = str.match( parenthesesRegExp );
+        if (val) {
+          if ((val == "(") && (lastTokenType === "number")) {
+            // add a multiplication operator
+            tokens.push({ type: "operator", value: "*" });
+          }
+
+          addToken("parentheses", val[0], val[0].length);
+          continue;
+        }
+
+        // separator
+        val = str.match(separatorRegExp);
+        if (val) {
+          addToken("separator", val[0], val[0].length);
+          continue;
+        }
+
+        // square
+        if (str.charCodeAt(0) === 178) {
+          // add a multiplication operator
+          tokens.push({ type: "operator", value: "^" });
+
+          // add the identifier token
+          addToken("number", 2, 1);
+          continue;
+        }
+        // cube
+        if (str.charCodeAt(0) === 179) {
+          // add a multiplication operator
+          tokens.push({ type: "operator", value: "^" });
+
+          // add the identifier token
+          addToken("number", 3, 1);
+          continue;
+        }
+
+        // final of expression
+        val = str.match(finalOfExpressionRegExp);
+        if (val) {
+          addToken("final_of_expression", val[0], val[0].length);
+          continue;
+        }
+
+        if (exit == pos){
+          descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, initial_input);
+          // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
+          // console.info("Error: en la cadena 《 " + initial_input + " 》");
+          return;
+        }
       }
+
+      return tokens;
     }
 
-    return result;
+    /**
+     * Auxiliary function for the macros that take a list of tokens and get a string representation
+     * @param {Array<Object>} tokens the tokens to be flat
+     * @return {String} return a string representation of the tokens
+     */
+    flatTokens(tokens, prefix) {
+      tokens = tokens || [];
+      prefix = prefix || "";
+
+      result = "";
+
+      for (var i=0, l=tokens.length; i<l; i++) {
+        if (tokens[i].type == "string") {
+          result = result + "&squot;" + tokens[i].value + "&squot;";
+        }
+        else if ((tokens[i].type == "identifier") && (!tokens[i].value.match(exclude))) {
+          result = result + prefix + tokens[i].value;
+        }
+        else {
+          result = result + tokens[i].value;
+        }
+      }
+
+      return result;
+    }
   }
 
+  descartesJS.Tokenizer = Tokenizer;
   return descartesJS;
 })(descartesJS || {});
