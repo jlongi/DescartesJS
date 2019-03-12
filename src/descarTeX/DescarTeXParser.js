@@ -6,23 +6,21 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  {
+  class DescarTeXParser {
     /**
      * A rtf tokenizer
-     * @constructor
      */
-    var DescarTeXParser = function() {
+    constructor() {
       this.tokenizer = new descartesJS.DescarTeXTokenizer();
-    };
+    }
 
     /**
      * Get a rtf parse tree from an input
      * @param {String} input the rtf text to tokenize
      */
-    DescarTeXParser.prototype.parse = function(input, evaluator, style) {
+    parse(input, evaluator, style) {
       var tokens = this.tokenizer.tokenize(input);
 
-      // var textNodes = new descartesJS.TextNode(value, nodeType, style, evaluator);
       var textNodes = new descartesJS.TextNode("", "textBlock", style, null);
       var lastNode = new descartesJS.TextNode("", "textLineBlock", style.clone(), null);
       textNodes.addChild(lastNode);
@@ -35,10 +33,10 @@ var descartesJS = (function(descartesJS) {
       var newColor;
       var tmpNode;
       var mathMode = false;
-  // console.log(tokens);
+// console.log(tokens);
       for (var i=0, l=tokens.length; i<l; i++) {
-  // console.log(tokens[i], "lastCommand:"+lastCommand, "tokens.type:"+tokens[i].type, "mathMode:"+mathMode);
-  // console.log(commandStack);
+// console.log(tokens[i], "lastCommand:"+lastCommand, "tokens.type:"+tokens[i].type, "mathMode:"+mathMode);
+// console.log(commandStack);
         if (tokens[i].type === "text") {
           if (lastNode.nodeType === "textLineBlock") {
             if (lastCommand === "color_parameter") {
@@ -436,7 +434,7 @@ var descartesJS = (function(descartesJS) {
       toDelete.forEach(function(node) {
         node.parent.removeChild(node);
       });
-  // console.log(textNodes, textNodes.normalize())
+// console.log(textNodes, textNodes.normalize());
 
       textNodes.adjustFontSize();
       return textNodes.normalize();

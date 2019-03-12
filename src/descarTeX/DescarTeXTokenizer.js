@@ -6,18 +6,19 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  {
+  var newInput;
+  
+  class DescarTeXTokenizer {
     /**
      * A rtf tokenizer
-     * @constructor
      */
-    DescarTeXTokenizer = function() { };
+    constructor() { }
 
     /**
      * Get a rtf parse tree from an input
      * @param {String} input the rtf text to tokenize
      */
-    var DescarTeXTokenizer.prototype.tokenize = function(input) {
+    tokenize(input) {
       input = input.replace(/\\n/g, "\\newline ");
 
       var tokens = [];
@@ -139,7 +140,7 @@ var descartesJS = (function(descartesJS) {
           }
         }
 
-  // console.log(currentChar)
+// console.log(currentChar);
 
         pos++;
       }
