@@ -111,7 +111,6 @@ var descartesJS = (function(descartesJS) {
       // ### ARQUIMEDES ###
       // the default arquimedes add a border to the container
       if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
-        // self.container.style.border = "1px solid #b8c4c8";
         self.container.style.boxShadow = "0 0 5px 0 #b8c4c8";
       }
       // ### ARQUIMEDES ###

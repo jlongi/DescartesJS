@@ -128,8 +128,10 @@ var descartesJS = (function(descartesJS, babel) {
       switch(babelValue) {
         // the type of the space (2D, 3D or another)
         case("type"):
-          if (values_i_1 === "R2") { values_i_1 = "2D"; }
-          if (values_i_1 === "R3") { values_i_1 = "3D"; }
+          if ((values_i_1 === "R2") || (values_i_1 === "R3")) {
+            values_i_1 = babel[values_i_1];
+          }
+
           spaceObj[babelValue] = values_i_1;
           break;
 
@@ -157,7 +159,7 @@ var descartesJS = (function(descartesJS, babel) {
         // sensitive to mouse movements condition
         case("sensitive_to_mouse_movements"):
         // space 3D
-        case("R3"):
+        case("3D"):
         // split option for the render
         case("split"):
         // resizable

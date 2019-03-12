@@ -106,48 +106,5 @@ var descartesJS = (function(descartesJS) {
     return height;
   }
 
-  var _font_size;
-
-  /**
-   *
-   */
-  descartesJS.getFontMetrics = function(font) {
-    var result = {};
-
-// sans serif
-// ascent = -0.0003140767846*(_font_size^2) + 0.921017849*_font_size + 0.7767317469;
-// descent = -0.0005851175551*(_font_size^2) + 0.2674451709*_font_size + 1.0887015962;
-
-// serif
-// ascent = -0.00003647238191*(_font_size^2) + 0.8914890964*_font_size + 0.668615541;
-// descent = -0.0009807742367*(_font_size^2) + 0.3184618868*_font_size + 0.8663797537;
-
-// monospace
-// ascent = 0.0001192160435*(_font_size^2) + 0.7541188887*_font_size + 1.4106492466;
-// descent = -0.001256260588*(_font_size^2) + 0.3926891751*_font_size + 0.57969422598;
-
-    _font_size = parseInt( font.match(/(\d+\.*)+px/)[0] );
-    if (font.match("sansserif")) {
-      result.ascent = -0.0003140767846*(_font_size^2) + 0.921017849*_font_size + 0.7767317469;
-      result.descent = -0.0005851175551*(_font_size^2) + 0.2674451709*_font_size + 1.0887015962;
-      result.h = result.ascent + result.descent;
-      result.baseline = result.ascent;
-    }
-    else if (font.match("serif")) {
-      result.ascent = -0.00003647238191*(_font_size^2) + 0.8914890964*_font_size + 0.668615541;
-      result.descent = -0.0009807742367*(_font_size^2) + 0.3184618868*_font_size + 0.8663797537;
-      result.h = result.ascent + result.descent;
-      result.baseline = result.ascent;
-    }
-    else if (font.match("monospace")) {
-      result.ascent = 0.0001192160435*(_font_size^2) + 0.7541188887*_font_size + 1.4106492466;
-      result.descent = -0.001256260588*(_font_size^2) + 0.3926891751*_font_size + 0.57969422598;
-      result.h = result.ascent + result.descent;
-      result.baseline = result.ascent;
-    }
-
-    return result;
-  }
-
   return descartesJS;
 })(descartesJS || {});

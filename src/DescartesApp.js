@@ -945,7 +945,7 @@ var descartesJS = (function(descartesJS) {
       var controls_i;
       for (var i=0, l=this.controls.length; i<l; i++) {
         controls_i = this.controls[i];
-        if (controls_i.type == "graphic") {
+        if (controls_i.type == "GraphicControl") {
           controls_i.deactivate();
         }
       }

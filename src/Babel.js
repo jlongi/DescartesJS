@@ -192,8 +192,8 @@ var babel = (function(babel) {
   babel["rotfin"] = babel["finrot"] = babel["bukrot"] = babel["endrot"] = "endrot";
   babel["posfin"] = babel["finpos"] = babel["bukpos"] = babel["endpos"] = "endpos";
   babel["editable"] = babel["editagarria"] = babel["editável"] = "editable";
-  babel["R2"] = "R2";
-  babel["R3"] = "R3";
+  babel["R2"] = "2D";
+  babel["R3"] = "3D";
   babel["vectores"] = babel["bektoreak"] = babel["vecteurs"] = babel["vetores"] = babel["vectors"] = "vectors";
   babel["fuente puntos"] = babel["font size"] = babel["font punts"] = babel["puntu iturria"] = babel["source points"] = babel["fonte puntos"] = babel["fonte pontos"] = babel["font_size"] = "font_size";
   babel["escenario"] = babel["scenario"] = babel["escenari"] = babel["agertoki"] = babel["scène"] = babel["cenário"] = "scenario";

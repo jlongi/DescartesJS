@@ -898,9 +898,9 @@ var descartesJS = (function(descartesJS) {
       /**
        * dbclick
        */
-      this.canvas.addEventListener("dblclick", function(evt) {
+      // this.canvas.addEventListener("dblclick", function(evt) {
         // self.parent.externalSpace.show();
-      });
+      // });
     }
   }
 

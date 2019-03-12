@@ -50,18 +50,11 @@ var descartesJS = (function(descartesJS) {
       self.id = "";
 
       /**
-       * initial values
-       * type {String}
-       * @private
-       */
-      self.values = values;
-
-      /**
        * type
        * type {String}
        * @private
        */
-      self.type = "R2";
+      self.type = "2D";
 
       /**
        * x position
@@ -155,7 +148,7 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      self.background = new descartesJS.Color( ((/DescartesJS.class/i).test(parent.code) || (parent.arquimedes)) ? "f0f8fa" : "ffffff" );
+      self.background = new descartesJS.Color( "ffffff" );
 
       /**
        * net condition and color
@@ -276,7 +269,6 @@ var descartesJS = (function(descartesJS) {
       // assign the values to replace the defaults values of the object
       Object.assign(self, values);
 
-      // self.init();
       self.initSpace();
     }
 
@@ -299,7 +291,7 @@ var descartesJS = (function(descartesJS) {
         parentW = parseInt(parent.container.width);
         parentH = parseInt(parent.container.height);
 
-        // percentage dimensions
+        // dimensions in percentages
         if (self.wExpr != undefined) {
           self.w = parseInt(parentW - self.displaceRegionWest - self.displaceRegionEast)*parseFloat(self.wExpr)/100;
         }
@@ -445,7 +437,7 @@ var descartesJS = (function(descartesJS) {
      * @param {Control} ctr is the control to add
      */
     addCtr(ctr) {
-      if (ctr.type === "graphic") {
+      if (ctr.type === "GraphicControl") {
         this.graphicsCtr.push(ctr);
       }
       else {
@@ -459,11 +451,11 @@ var descartesJS = (function(descartesJS) {
      */
     addGraph(gra, is3D) {
       // add only graphs with the type of the space
-      if ( ((this.type === "R2") && is3D) || ((this.type === "R3") && !is3D) ) {
+      if ( ((this.type === "2D") && is3D) || ((this.type === "3D") && !is3D) ) {
         return;
       }
 
-      if ((gra.background) && (this.type !== "R3")) {
+      if ((gra.background) && (this.type !== "3D")) {
         this.backGraphics.push(gra);
       }
       else {

@@ -13,9 +13,7 @@ var descartesJS = (function(descartesJS) {
 
   var colorExpr;
 
-  var touch;
-  var mouseX;
-  var mouseY;
+  let pointer;
   var boundingRect;
 
   var desp;
@@ -66,7 +64,7 @@ var descartesJS = (function(descartesJS) {
   descartesJS.drawLine = function(ctx, x1, y1, x2, y2, strokeStyle, lineWidth) {
     ctx.lineWidth = lineWidth || 1;
     ctx.strokeStyle = strokeStyle || "black";
-    desp = (ctx.lineWidth%2) ? .5 : 0;
+    desp = (ctx.lineWidth%2)*0.5;
 
     ctx.beginPath();
     ctx.moveTo(MathFloor(x1)+desp, MathFloor(y1)+desp);
@@ -222,7 +220,12 @@ var descartesJS = (function(descartesJS) {
    * Get which mouse button is pressed
    */
   descartesJS.whichBtn = function(evt) {
-    return (evt.which < 2) ? "L" : ((evt.which === 2) ? "M" : "R");
+    if (evt.touches) {
+      return "L";
+    }
+    else {
+      return (evt.button === 0) ? "L" : ((evt.button === 1) ? "M" : "R");
+    }
   }
 
   /**
@@ -231,26 +234,72 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return the position of the mouse in absolute coordinates
    */
   descartesJS.getCursorPosition = function(evt, container) {
-    // if has touch events
-    if (evt.touches) {
-      touch = evt.touches[0];
-
-      mouseX = touch.pageX;
-      mouseY = touch.pageY;
-    }
-    // if has mouse events
-    else {
-      mouseX = evt.pageX;
-      mouseY = evt.pageY;
-    }
+    pointer = (evt.touches) ? evt.touches[0] : evt;
 
     boundingRect = container.getBoundingClientRect();
 
     // consider for the scale by css transformation
     return { 
-      x: (mouseX -window.pageXOffset -boundingRect.left)/descartesJS.cssScale,
-      y: (mouseY -window.pageYOffset -boundingRect.top)/descartesJS.cssScale
+      x: (pointer.pageX -window.pageXOffset -boundingRect.left) / descartesJS.cssScale,
+      y: (pointer.pageY -window.pageYOffset -boundingRect.top)  / descartesJS.cssScale
     }
+  }
+
+  /**
+   *
+   */
+  descartesJS.splitSeparator = function(value) {
+    value = value.replace(/\\n/g, "\n");
+
+    var inStr = false;
+    var charAt;
+    var valueArray = [];
+    var lastIndex = 0;
+
+    for (var i=0, l=value.length; i<l; i++) {
+      charAt = value.charAt(i);
+      // inside or outside of a string
+      if (charAt === "'") {
+        inStr = !inStr;
+      }
+
+      // if outside of a string then replace \\n and ; for a new line
+      if ((!inStr) && ( (charAt === ";") || (charAt === "\n") ) ) {
+        valueArray.push(value.substring(lastIndex, i).replace(/\n/g, "\\n"));
+        lastIndex = i+1;
+      }
+    }
+    valueArray.push(value.substring(lastIndex).replace(/\n/g, "\\n"));
+
+    return valueArray;
+  }
+
+  /**
+   *
+   */
+  descartesJS.preventDefault = function(evt) {
+    evt.preventDefault();
+    return false;
+  }
+
+  /**
+   *
+   */
+  descartesJS.convertHTMLEntities = function(html) {
+    var txt = descartesJS.newHTML("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+  /**
+   *
+   */
+  descartesJS.newHTML = function(tag, attributes) {
+    var dom = document.createElement(tag);
+    for (let attr in attributes) {
+      dom.setAttribute(attr, attributes[attr]);
+    }
+    return dom;
   }
 
   // get the animation frame functions
@@ -386,63 +435,6 @@ por sus autores como
     var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
     tmpW.document.write(content);
     tmpW.document.close();
-  }
-
-  /**
-   *
-   */
-  descartesJS.splitSeparator = function(value) {
-    value = value.replace(/\\n/g, "\n");
-
-    var inStr = false;
-    var charAt;
-    var valueArray = [];
-    var lastIndex = 0;
-
-    for (var i=0, l=value.length; i<l; i++) {
-      charAt = value.charAt(i);
-      // inside or outside of a string
-      if (charAt === "'") {
-        inStr = !inStr;
-      }
-
-      // if outside of a string then replace \\n and ; for a new line
-      if ((!inStr) && ( (charAt === ";") || (charAt === "\n") ) ) {
-        valueArray.push(value.substring(lastIndex, i).replace(/\n/g, "\\n"));
-        lastIndex = i+1;
-      }
-    }
-    valueArray.push(value.substring(lastIndex).replace(/\n/g, "\\n"));
-
-    return valueArray;
-  }
-
-  /**
-   *
-   */
-  descartesJS.preventDefault = function(evt) {
-    evt.preventDefault();
-    return false;
-  }
-
-  /**
-   *
-   */
-  descartesJS.convertHTMLEntities = function(html) {
-    var txt = descartesJS.newHTML("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-  }
-
-  /**
-   *
-   */
-  descartesJS.newHTML = function(tag, attributes) {
-    var dom = document.createElement(tag);
-    for (let attr in attributes) {
-      dom.setAttribute(attr, attributes[attr]);
-    }
-    return dom;
   }
 
   return descartesJS;

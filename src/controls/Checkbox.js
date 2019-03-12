@@ -7,32 +7,31 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var evaluator;
+  var self;
 
-  var Checkbox = (function() {
+  class Checkbox extends descartesJS.Control {
     /**
      * Descartes checkbox control
-     * @constructor
      * @param {DescartesApp} parent the Descartes application
      * @param {String} values the values of the checkbox control
      */
-    function Checkbox(parent, values){
-      var self = this;
-
-      self.radio_group = "";
-      self.typeCtr = "checkbox";
-      self.pressed = false;
-
+    constructor(parent, values) {
       // call the parent constructor
-      descartesJS.Control.call(self, parent, values);
+      super(parent, values);
+
+      self = this;
+
+      self.typeCtr = "checkbox";
+      self.pressed = values.pressed || false;
 
       // checkbox or radio button
-      self.radio_group = self.radio_group.trim();
+      self.radio_group = (values.radio_group || "").trim();
       if (self.radio_group !== "") {
         self.typeCtr = "radio";
       }
 
       // modification to change the name of the Checkbox with an expression
-      if ((self.name.charAt(0) === "[") && (self.name.charAt(self.name.length-1) === "]")) {
+      if (self.name.match(/^\[.*\]?/)) {
         self.name = self.parser.parse(self.name.substring(1, self.name.length-1));
       }
       else {
@@ -85,16 +84,11 @@ var descartesJS = (function(descartesJS) {
       self.init();
     };
 
-    ////////////////////////////////////////////////////////////////////////////////////
-    // create an inheritance of Control
-    ////////////////////////////////////////////////////////////////////////////////////
-    descartesJS.extend(Checkbox, descartesJS.Control);
-
     /**
      * Init the checkbox
      */
-    Checkbox.prototype.init = function(changeSizePos) {
-      var self = this;
+    init(changeSizePos) {
+      self = this;
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
@@ -121,8 +115,8 @@ var descartesJS = (function(descartesJS) {
     /**
      * Update the checkbox
      */
-    Checkbox.prototype.update = function() {
-      var self = this;
+    update() {
+      self = this;
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
@@ -190,8 +184,8 @@ var descartesJS = (function(descartesJS) {
     /**
      * Register the mouse and touch events
      */
-    Checkbox.prototype.addEvents = function() {
-      var self = this;
+    addEvents() {
+      self = this;
 
       // prevent the context menu display
       self.checkbox.oncontextmenu = self.label.oncontextmenu = self.dummyLabel.oncontextmenu = function() { return false; };
@@ -210,10 +204,8 @@ var descartesJS = (function(descartesJS) {
         self.updateAndExecAction();
       });
     }
+  }
 
-    return Checkbox;
-  })();
   descartesJS.Checkbox = Checkbox;
-
   return descartesJS;
 })(descartesJS || {});
