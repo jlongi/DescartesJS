@@ -174,7 +174,6 @@ var descartesJS = (function(descartesJS) {
       self = this;
       
       // call the init of the parent
-      // self.uber.init.call(self);
       self.initSpace();
 
       // update the size of the iframe if has some regions
@@ -185,10 +184,6 @@ var descartesJS = (function(descartesJS) {
           "left"   : self.x + "px",
           "top"    : self.y + "px"
         });
-        // self.MyIFrame.style.width  = self.w + "px";
-        // self.MyIFrame.style.height = self.h + "px";
-        // self.MyIFrame.style.left   = self.x + "px";
-        // self.MyIFrame.style.top    = self.y + "px";
       }
     }
 

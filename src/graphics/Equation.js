@@ -166,8 +166,7 @@ var descartesJS = (function(descartesJS) {
      * Draw the trace of the equation
      */
     drawTrace() {
-      // call the drawTrace function of the father (uber instead of super as it is reserved word)
-      this.uber.drawTrace.call(this, this.fill, this.trace);
+      super.drawTrace(this.fill, this.trace)
     }
 
     /**

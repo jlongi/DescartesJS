@@ -10,13 +10,6 @@ var descartesJS = (function(descartesJS) {
   var tmpIncr;
   var oldFieldValue;
   var oldValue;
-  var ctx;
-  var w;
-  var h;
-  var c1;
-  var c2;
-  var triaX;
-  var triaY;
   var resultValue;
   var incr;
   var decimals;
@@ -55,12 +48,14 @@ var descartesJS = (function(descartesJS) {
         class : "DescartesSpinnerContainer",
         id    : this.id,
       });
-      this.canvas = descartesJS.newHTML("canvas");
+      this.grad = descartesJS.newHTML("div", {
+        class : "DJS_Gradient",
+      });
       this.divUp = descartesJS.newHTML("div", {
-        class : "up",
+        class : "DJS_Up",
       });
       this.divDown = descartesJS.newHTML("div", {
-        class : "down",
+        class : "DJS_Down",
       });
       this.field = descartesJS.newHTML("input", {
         type     : "text",
@@ -76,7 +71,7 @@ var descartesJS = (function(descartesJS) {
 
       this.container.appendChild(this.label);
       this.container.appendChild(this.field);
-      this.container.appendChild(this.canvas);
+      this.container.appendChild(this.grad);
       this.container.appendChild(this.divUp);
       this.container.appendChild(this.divDown);
 
@@ -159,17 +154,13 @@ var descartesJS = (function(descartesJS) {
 
       this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-      this.canvas.setAttribute("width", canvasWidth+"px");
-      this.canvas.setAttribute("height", this.h+"px");
-      this.canvas.setAttribute("style", "position:absolute;left:" + labelWidth + "px;top:0;");
-      this.ctx = this.canvas.getContext("2d");
-      this.ctx.imageSmoothingEnabled = false;
+      this.grad.setAttribute("style", `position:absolute;left:${labelWidth}px;top:0;width:${canvasWidth}px;height:${this.h}px;background-color:#f0f8ff`);
 
-      var divStyle = `opacity:0;cursor:pointer;position:absolute;width:${canvasWidth}px;height:${this.h/2}px;left:${labelWidth}px;`;
+      var divStyle = `width:${canvasWidth}px;left:${labelWidth}px;`;
 
-      this.divUp.setAttribute("style", divStyle+"top:0;");
+      this.divUp.setAttribute("style", `${divStyle};height:${this.h/2+1}px;top:0;`);
 
-      this.divDown.setAttribute("style", divStyle+"top:" + this.h/2 + "px;");
+      this.divDown.setAttribute("style", `${divStyle};height:${this.h/2-1}px;top:${this.h/2+1}px;`);
 
       this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth}px;`);
       this.field.value = fieldValue;
@@ -181,11 +172,6 @@ var descartesJS = (function(descartesJS) {
 
       // register the control value
       evaluator.setVariable(this.id, this.value);
-
-      // create the background gradient
-      this.createGradient(this.h/2, this.h);
-
-      // this.update();
     }
 
     /**
@@ -217,11 +203,13 @@ var descartesJS = (function(descartesJS) {
 
       // enable or disable the control
       this.field.disabled = !this.activeIfValue;
+      this.divUp.setAttribute("active", !this.field.disabled);
+      this.divDown.setAttribute("active", !this.field.disabled);
 
       // hide or show the spinner control
       if (this.drawIfValue) {
+        this.updateStyle();
         this.container.style.display = "block"
-        this.draw();
       }
       else {
         this.click = false;
@@ -251,74 +239,42 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     * Draw the spinner
+     * 
      */
-    draw() {
-      ctx = this.ctx;
-
-      w = this.canvas.width;
-      h = this.canvas.height
-
-      ctx.fillStyle = "#f0f8ff";
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.fillStyle = this.linearGradient;
-      ctx.fillRect(0, 0, w, h);
-
-      // draw the upper lines for depth effect
+    updateStyle() {
+      // up pressed
       if (this.up) {
-        c1 = "gray";
-        c2 = "#f0f8ff";
-      } else {
-        c1 = "#f0f8ff";
-        c2 = "gray";
+        Object.assign(this.divUp.style, {
+          "backgroundColor" : `rgba(0,0,0,${24/255})`,
+          "border-left-color" : "gray",
+          "border-bottom-color" : "#f0f8ff",
+          "border-top-color" : "gray",
+        });
+      }
+      else {
+        Object.assign(this.divUp.style, {
+          "backgroundColor" : "",
+          "border-left-color" : "#f0f8ff",
+          "border-bottom-color" : "gray",
+          "border-top-color" : "#f0f8ff",
+        });
       }
 
-      descartesJS.drawLine(ctx, 0, 0, w, 0, c1);
-      descartesJS.drawLine(ctx, 0, 0, 0, h/2, c1);
-      descartesJS.drawLine(ctx, 0, h/2, w, h/2, c2);
-
-      // draw the lower lines for depth effect
       if (this.down) {
-        c1 = "gray";
-        c2 = "#f0f8ff";
-      } else {
-        c1 = "#f0f8ff";
-        c2 = "gray";
+        Object.assign(this.divDown.style, {
+          "backgroundColor" : `rgba(0,0,0,${24/255})`,
+          "border-left-color" : "gray",
+          "border-bottom-color" : "#f0f8ff",
+          "border-top-color" : "gray",
+        });
       }
-
-      descartesJS.drawLine(ctx, 0, h/2+1, w, h/2+1, c1);
-      descartesJS.drawLine(ctx, 0, h/2+1, 0, h, c1);
-      descartesJS.drawLine(ctx, 0, h-1, w, h-1, c2);
-
-      triaX = [parseInt(w/2+1), parseInt(w/5+1), parseInt(w-w/5+1)];
-      triaY = [parseInt(h/8+1), parseInt(h/8+1+h/4), parseInt(h/8+1+h/4)];
-
-      // draw the upper triangle
-      ctx.fillStyle = (this.activeIfValue) ? "#2244cc" : "#8888aa";
-      ctx.beginPath();
-      ctx.moveTo(triaX[0], triaY[0]);
-      ctx.lineTo(triaX[1], triaY[1]);
-      ctx.lineTo(triaX[2], triaY[2]);
-      ctx.fill();
-
-      triaY = [parseInt(h-h/8), parseInt(h-h/8-h/4), parseInt(h-h/8-h/4)];
-
-      // draw the lower triangle
-      ctx.fillStyle = (this.activeIfValue) ? "#d00018" : "#aa8888";
-      ctx.beginPath();
-      ctx.moveTo(triaX[0], triaY[0]);
-      ctx.lineTo(triaX[1], triaY[1]);
-      ctx.lineTo(triaX[2], triaY[2]);
-      ctx.fill();
-
-      // draw another layer for pressed effect
-      ctx.fillStyle = `rgba(0,0,0,${24/255})`;
-      if (this.up) {
-        ctx.fillRect(0, 0, w, h/2);
-      }
-      if (this.down) {
-        ctx.fillRect(0, h/2, w, h);
+      else {
+        Object.assign(this.divDown.style, {
+          "backgroundColor" : "",
+          "border-left-color" : "#f0f8ff",
+          "border-bottom-color" : "gray",
+          "border-top-color" : "#f0f8ff",
+        });
       }
     }
 
@@ -431,7 +387,7 @@ var descartesJS = (function(descartesJS) {
        * Repeat a function during a period of time, when the user click and hold the click in the button
        * @param {Number} delayTime the delay of time between the function repetition
        * @param {Function} fun the function to execute
-       * @param {Boolean} firstime a flag to indicated if is the first time clicked
+       * @param {Boolean} firstTime a flag to indicated if is the first time clicked
        * @private
        */
       function repeat(delayTime, fun, firstTime) {
@@ -471,11 +427,9 @@ var descartesJS = (function(descartesJS) {
           if (self.activeIfValue) {
             self.up = true;
             repeat(delay, self.increase, true);
-            self.draw();
           }
         }
       }
-
       this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
       this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
 
@@ -493,11 +447,9 @@ var descartesJS = (function(descartesJS) {
           if (self.activeIfValue) {
             self.down = true;
             repeat(delay, self.decrease, true);
-            self.draw();
           }
         }
       }
-
       this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
       this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
 
@@ -509,10 +461,9 @@ var descartesJS = (function(descartesJS) {
       function onMouseOut_UpButton(evt) {
         self.up = false;
         descartesJS.clearTimeout(timer);
-        self.draw();
         evt.preventDefault();
+        self.updateStyle();
       }
-
       this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
 
       /**
@@ -523,10 +474,9 @@ var descartesJS = (function(descartesJS) {
       function onMouseOut_DownButton(evt) {
         self.down = false;
         descartesJS.clearTimeout(timer);
-        self.draw();
         evt.preventDefault();
+        self.updateStyle();
       }
-
       this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
 
       /**
@@ -537,7 +487,7 @@ var descartesJS = (function(descartesJS) {
       function onMouseUp_UpButton(evt) {
         self.up = false;
         descartesJS.clearTimeout(timer);
-        self.draw();
+        self.updateStyle();
         // evt.preventDefault();
       }
 
@@ -554,7 +504,7 @@ var descartesJS = (function(descartesJS) {
       function onMouseUp_DownButton(evt) {
         self.down = false;
         descartesJS.clearTimeout(timer);
-        self.draw();
+        self.updateStyle();
         // evt.preventDefault();
       }
 
@@ -570,7 +520,7 @@ var descartesJS = (function(descartesJS) {
         self.up = false;
         self.down = false;
         descartesJS.clearTimeout(timer);
-        self.draw();
+        self.updateStyle();
       });
 
       /**

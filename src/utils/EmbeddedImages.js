@@ -26,6 +26,20 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
+  descartesJS.getSvgArrowUp = function(fill = "24c") {
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#${fill}" d="m19.5 17.5-7.5-12-7.5 12z"/></svg>`);
+  }
+  
+  /**
+   *
+   */
+  descartesJS.getSvgArrowDown = function(fill = "d00018") {
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="m19.5 5-7.5 12-7.5-12z" fill="#${fill}"/></svg>`);
+  }
+ 
+  /**
+   *
+   */
   descartesJS.getSvgMenu = function() {
     return "data:image/svg+xml;base64," + btoa("<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M6.64 8L12 12.962 17.36 8 19 9.519 12 16 5 9.519z'/></svg>");
   }

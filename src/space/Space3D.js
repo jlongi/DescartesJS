@@ -196,7 +196,6 @@ var descartesJS = (function(descartesJS) {
       self = this;
 
       // call the init of the parent
-      // self.uber.init.call(self);
       self.initSpace();
 
       // update the size of the canvas if has some regions

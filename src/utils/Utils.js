@@ -22,18 +22,6 @@ var descartesJS = (function(descartesJS) {
   descartesJS.cssScale = 1;
 
   /**
-   * Extends an object with inheritance
-   * @param {Object} child is the object that extends
-   * @param {Object} parent is the object to extends
-   */
-  descartesJS.extend = function(child, parent) {
-    child.prototype = Object.create(parent.prototype);
-
-    // add the uber (super) property to execute functions of the parent
-    child.prototype.uber = parent.prototype;
-  }
-
-  /**
    * Converts radians to degrees
    * @param {Number} r the radian to convert
    * @return {Number} return the conversion to degrees of the number r
@@ -112,7 +100,7 @@ var descartesJS = (function(descartesJS) {
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
       // descartesJS._ratio = (descartesJS.isIOS) ? 1.25 : Math.max(1.5, window.devicePixelRatio);
-      descartesJS._ratio = Math.max(1.5, window.devicePixelRatio);
+      descartesJS._ratio = 1.5;
     }
 
     setNewToFixed();
@@ -227,6 +215,21 @@ var descartesJS = (function(descartesJS) {
     else {
       return (evt.button === 0) ? "L" : ((evt.button === 1) ? "M" : "R");
     }
+  }
+
+  descartesJS.createGradient = function() {
+    var h = 100;
+    var hh = h*h;
+    var di;
+    var str = "background-image: linear-gradient(0deg, ";
+
+    for (var i=0; i<h; i++) {
+      di = MathFloor(100-i-(35*h)/100);
+      str += `rgba(0,0,0,${(((di*di*192)/hh)/255)}) ${i}%, `;
+    }
+
+    str += `rgba(0,0,0,0.1) 100%);`;
+    return str;
   }
 
   /**

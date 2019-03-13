@@ -306,7 +306,6 @@ var descartesJS = (function(descartesJS) {
         return "";
       }
 
-      // call the draw function of the father (uber instead of super as it is reserved word)
       return super.formatOutputValue(value);
     }
 

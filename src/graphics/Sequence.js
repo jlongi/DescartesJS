@@ -121,7 +121,7 @@ var descartesJS = (function(descartesJS) {
         this.fontSize = Math.max( 5, evaluator.eval(this.font_size) );
         this.font = this.font_style + " " + this.fontSize + "px " + this.font_family;
 
-        this.uber.drawText.call(this, ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
+        super.drawText(ctx, this.text, coordX+desp, coordY-desp, this.color, this.font, "start", "alphabetic", evaluator.eval(this.decimals), this.fixed, true);
       }
 
       evaluator.setVariable("n", tmpValue);
