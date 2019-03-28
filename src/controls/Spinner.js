@@ -154,7 +154,7 @@ var descartesJS = (function(descartesJS) {
 
       this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-      this.grad.setAttribute("style", `position:absolute;left:${labelWidth}px;top:0;width:${canvasWidth}px;height:${this.h}px;background-color:#f0f8ff`);
+      this.grad.setAttribute("style", `left:0;top:0;left:${labelWidth}px;width:${canvasWidth}px;height:${this.h}px;background-color:#f0f8ff`);
 
       var divStyle = `width:${canvasWidth}px;left:${labelWidth}px;`;
 
@@ -242,40 +242,13 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     updateStyle() {
-      // up pressed
-      if (this.up) {
-        Object.assign(this.divUp.style, {
-          "backgroundColor" : `rgba(0,0,0,${24/255})`,
-          "border-left-color" : "gray",
-          "border-bottom-color" : "#f0f8ff",
-          "border-top-color" : "gray",
-        });
-      }
-      else {
-        Object.assign(this.divUp.style, {
-          "backgroundColor" : "",
-          "border-left-color" : "#f0f8ff",
-          "border-bottom-color" : "gray",
-          "border-top-color" : "#f0f8ff",
-        });
-      }
+      this.divUp.style.borderStyle = (this.up) ? "inset" : "outset";
+      this.divUp.style.borderColor = (this.up) ? "gray" : "#f0f8ff";
+      this.divUp.style.backgroundColor = (this.up) ? `rgba(0,0,0,${24/255})` : "";
 
-      if (this.down) {
-        Object.assign(this.divDown.style, {
-          "backgroundColor" : `rgba(0,0,0,${24/255})`,
-          "border-left-color" : "gray",
-          "border-bottom-color" : "#f0f8ff",
-          "border-top-color" : "gray",
-        });
-      }
-      else {
-        Object.assign(this.divDown.style, {
-          "backgroundColor" : "",
-          "border-left-color" : "#f0f8ff",
-          "border-bottom-color" : "gray",
-          "border-top-color" : "#f0f8ff",
-        });
-      }
+      this.divDown.style.borderStyle = (this.down) ? "inset" : "outset";
+      this.divDown.style.borderColor = (this.down) ? "gray" : "#f0f8ff";
+      this.divDown.style.backgroundColor = (this.down) ? `rgba(0,0,0,${24/255})` : "";
     }
 
     /**

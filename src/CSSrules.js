@@ -23,13 +23,13 @@ var descartesJS = (function(descartesJS) {
     // add the metadata to the head of the document
     head.appendChild(meta);
 
-    meta = descartesJS.newHTML("meta", {
-      name    : "viewport",
-      content : "width=device-width,initial-scale=1.0,user-scalable=yes",
-    });
-    
     // add the metadata to the head of the document
     if (!document.querySelector("meta[name=viewport]")) {
+      meta = descartesJS.newHTML("meta", {
+        name    : "viewport",
+        content : "width=device-width,initial-scale=1.0,user-scalable=yes",
+      });
+      
       head.appendChild(meta);
     }
 
@@ -78,7 +78,7 @@ var descartesJS = (function(descartesJS) {
       "#descartesJS_north,#descartesJS_south,#descartesJS_east,#descartesJS_west{background:#c0c0c0;position:absolute;z-index:100;}\n"+
 
       // progress bar style
-      ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-apearance:none;apearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
+      ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
       ".PBL::-moz-progress-bar{background:#2daae4;border-radius:inherit;}\n" +
       ".PBL::-webkit-progress-bar{background:#f2f2f2;border-radius:100vw;}\n" +
       ".PBL::-webkit-progress-value{background:#2daae4;border-radius:inherit;}\n" +
@@ -110,13 +110,13 @@ var descartesJS = (function(descartesJS) {
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
       ".DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
       
-      ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border:1px solid rgba(0,0,0,0);background-size:cover;background-repeat:none;}\n" +
+      ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border-width:1px 0 1px 1px;background-size:cover;background-repeat:no-repeat;}\n" +
       ".DJS_Up{background-image:url('"+ descartesJS.getSvgArrowUp() +"')}\n" +
       ".DJS_Up[active=false]{background-image:url('"+ descartesJS.getSvgArrowUp("8888aa") +"')}\n" +
       ".DJS_Down{background-image:url('"+ descartesJS.getSvgArrowDown() +"')}\n" +
       ".DJS_Down[active=false]{background-image:url('"+ descartesJS.getSvgArrowDown("aa8888") +"')}\n" +
 
-      ".DJS_Gradient{"+ descartesJS.createGradient() +"}\n" +
+      ".DJS_Gradient{position:absolute;"+ descartesJS.createGradient() +"}\n" +
 
       (descartesJS.addFonts ? descartesJS.addFonts() : "");
   })();

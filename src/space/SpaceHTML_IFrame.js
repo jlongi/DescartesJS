@@ -73,7 +73,8 @@ var descartesJS = (function(descartesJS) {
         marginwidth  : 0,
         frameborder  : 0,
         scrolling    : "auto",
-        style        : "position:static;left:0;top:0;",
+        style        : "position:absolute;left:0;top:0;",
+        // style        : "position:static;left:0;top:0;",
       });
       if (this.oldFile != 0) {
         this.MyIFrame.setAttribute("src", this.oldFile);
@@ -205,8 +206,6 @@ var descartesJS = (function(descartesJS) {
       }
 
       if (this.drawIfValue) {
-        // this.MyIFrame.contentWindow.focus();
-
         if (firstTime) {
           this.x = this.y = Infinity;
         }

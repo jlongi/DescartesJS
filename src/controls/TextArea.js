@@ -36,9 +36,9 @@ var descartesJS = (function(descartesJS) {
       // tabular index
       this.tabindex = ++this.parent.tabindex;
 
-      // la respuesta existe
+      // the answer exist
       if (this.answer) {
-        // la respuesta esta encriptada
+        // the answer is encrypted
         if (this.answer.match("krypto_")) {
           this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
         }
@@ -63,7 +63,9 @@ var descartesJS = (function(descartesJS) {
       });
 
       // show answer button
-      this.showButton = descartesJS.newHTML("div");
+      this.showButton = descartesJS.newHTML("div", {
+        class : "DJS_Gradient",
+      });
 
       // active cover
       this.activeCover = descartesJS.newHTML("div");
@@ -103,8 +105,6 @@ var descartesJS = (function(descartesJS) {
       }
 
       this.evaluator.setVariable(this.id, this.text);
-
-      this.drawButton();
 
       var self = this;
       var sel;
@@ -156,64 +156,24 @@ var descartesJS = (function(descartesJS) {
       }
 
       this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
-      this.containerControl.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
+
+      let style_text_area = `padding:5px;width:${this.w-4}px;height:${this.h-displaceY}px;left:2px;top:2px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};line-height:${this.font_size}px;`;
 
       // text area
-      this.textArea.setAttribute("style", `padding:5px;width:${this.w-4}px;height:${this.h-displaceY}px;left:2px;top:2px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};line-height:${this.font_size}px;`);
+      this.textArea.setAttribute("style", style_text_area);
       this.textArea.innerHTML = newText;
 
       // text area answer
-      this.textAreaAnswer.setAttribute("style", `width:${this.w-8}px;height:${this.h-displaceY}px;left:4px;top:4px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};display:${(this.showAnswer) ? "block" : "none"};`);
-      this.textAreaAnswer.innerHTML = "<span style='position:relative;top:10px;left:10px;white-space:nowrap;'>" + this.answer + "</span>";
+      this.textAreaAnswer.setAttribute("style", `${style_text_area}display:${(this.showAnswer) ? "block" : "none"};`);
+      this.textAreaAnswer.innerHTML = `<span>${this.answer}</span>`;
 
       // show answer button
-      this.showButton.setAttribute("style", `width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;background-image:url(${this.imageUnPush});display:${(this.answer) ? "block" : "none"};`);
-      this.showButton.innerHTML = "<span style='position: relative; top: 2px; text-align: center; font: 9px Arial'> S </span>";
+      this.showButton.setAttribute("style", `width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;border:1px outset #f0f8ff;display:${(this.answer) ? "block" : "none"};`);
+      this.showButton.innerHTML = `<span style="position:relative;top:1px;text-align:center;font:11px ${descartesJS.sansserif_font};">S</span>`;
 
       this.activeCover.setAttribute("style", `position:absolute;width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;`);
 
       this.update();
-    }
-
-    /**
-     * Draw the show/hide button
-     */
-    drawButton() {
-      var w = 20;
-      var h = 16;
-
-      var canvas = descartesJS.newHTML("canvas", {
-        width  : w,
-        height : h,
-      });
-
-      var ctx = canvas.getContext("2d");
-      ctx.imageSmoothingEnabled = false;
-
-      this.canvas = canvas;
-      this.ctx = ctx;
-      this.createGradient(w, h);
-
-      ctx.lineWidth = 1;
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = this.linearGradient;
-      ctx.fillRect(0, 0, w, h);
-      descartesJS.drawLine(ctx, w-1, 0, w-1, h, "rgba(0,0,0,"+(0x80/255)+")");
-      descartesJS.drawLine(ctx, 0, 0, 0, h, "rgba(0,0,0,"+(0x18/255)+")");
-      descartesJS.drawLine(ctx, 1, 0, 1, h, "rgba(0,0,0,"+(0x08/255)+")");
-      this.imageUnPush = canvas.toDataURL();
-
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = this.linearGradient;
-      ctx.fillRect(0, 0, w, h);
-      descartesJS.drawLine(ctx, 0, 0, 0, h-2, "gray");
-      descartesJS.drawLine(ctx, 0, 0, w-1, 0, "gray");
-      ctx.fillStyle = "rgba(0, 0, 0,"+(0x18/255)+")";
-      ctx.fillRect(0, 0, this.w, this.h);
-
-      this.imagePush = canvas.toDataURL();
     }
 
     /**
@@ -264,7 +224,6 @@ var descartesJS = (function(descartesJS) {
         self.showAnswer = !self.showAnswer;
         self.textAreaAnswer.style.display = (self.showAnswer) ? "block" : "none";
         self.showButton.childNodes[0].childNodes[0].textContent = (self.showAnswer) ? "T" : "S";
-        self.showButton.style.backgroundImage = "url(" + self.imagePush + ")";
       }
       this.showButton.addEventListener("mousedown", onMouseDown);
 
@@ -274,7 +233,6 @@ var descartesJS = (function(descartesJS) {
        */
       function onMouseUp(evt) {
         evt.preventDefault();
-        self.showButton.style.backgroundImage = "url(" + self.imageUnPush + ")";
       }
       this.showButton.addEventListener("mouseup",  onMouseUp);
       this.showButton.addEventListener("mouseout", onMouseUp);

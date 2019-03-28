@@ -117,22 +117,8 @@ var descartesJS = (function(descartesJS) {
       // function to prevent undefined error
       this.scaleToFit = function() {};
   
-      /**
-       * evaluator and parser of expressions
-       * type {Evaluator}
-       * @private
-       */
-      this.evaluator = new descartesJS.Evaluator(this);
-  
       // get the url parameter if any
       this.getURLParameters();
-  
-      /**
-       * parser of elements in the lesson
-       * @type {LessonParser}
-       * @private
-       */
-      this.lessonParser = new descartesJS.LessonParser(this);
   
       // init the interpretation
       this.init()
@@ -145,6 +131,20 @@ var descartesJS = (function(descartesJS) {
       // stop the animation, if the action init executes maybe the animation is playing
       this.stop();
   
+      /**
+       * evaluator and parser of expressions
+       * type {Evaluator}
+       * @private
+       */
+      this.evaluator = new descartesJS.Evaluator(this);
+
+      /**
+       * parser of elements in the lesson
+       * @type {LessonParser}
+       * @private
+       */
+      this.lessonParser = new descartesJS.LessonParser(this);
+
       /**
        * variable that tell whether the lesson is an arquimedes lesson
        * type {Boolean}

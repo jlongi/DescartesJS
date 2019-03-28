@@ -26,31 +26,33 @@ var descartesJS = (function(descartesJS) {
       textNodes.addChild(lastNode);
 
       var commandStack = [];
-      var lastCommand = null;
+      var lastCommand = undefined;
       var lastStyle = style;
       var styleStack = [style];
+      var newStyle;
       var textParts;
       var newColor;
       var tmpNode;
       var mathMode = false;
 // console.log(tokens);
       for (var i=0, l=tokens.length; i<l; i++) {
-// console.log(tokens[i], "lastCommand:"+lastCommand, "tokens.type:"+tokens[i].type, "mathMode:"+mathMode);
+// console.log(tokens[i], `, lastCommand:${lastCommand}, tokens.type:${tokens[i].type}, mathMode:${mathMode}`);
 // console.log(commandStack);
+
         if (tokens[i].type === "text") {
-          if (lastNode.nodeType === "textLineBlock") {
-            if (lastCommand === "color_parameter") {
-              newColor = new descartesJS.Color(tokens[i].value, evaluator);
-            }
-            else {
-              textParts = tokens[i].value.split(" ");
-              for (var ti=0, tl=textParts.length; ti<tl; ti++) {
-                if (textParts[ti] !== "") {
-                  lastNode.addChild( new descartesJS.TextNode(textParts[ti], "text", lastStyle.clone(), null) );
-                }
-                if (ti+1 < tl) {
-                  lastNode.addChild( new descartesJS.TextNode(" ", "space", lastStyle.clone(), null) );
-                }
+          if (lastCommand === "color_parameter") {
+            newColor = new descartesJS.Color(tokens[i].value, evaluator);
+            continue;
+          }
+
+          else if (lastNode.nodeType === "textLineBlock") {
+            textParts = tokens[i].value.split(" ");
+            for (var ti=0, tl=textParts.length; ti<tl; ti++) {
+              if (textParts[ti] !== "") {
+                lastNode.addChild( new descartesJS.TextNode(textParts[ti], "text", lastStyle.clone(), null) );
+              }
+              if (ti+1 < tl) {
+                lastNode.addChild( new descartesJS.TextNode(" ", "space", lastStyle.clone(), null) );
               }
             }
           }
@@ -132,8 +134,6 @@ var descartesJS = (function(descartesJS) {
           commandStack.push(lastCommand);
         }
         
-
-        
         else if ( (tokens[i].type === "command") && (tokens[i].value === "subindex") ) {
           lastCommand = "subIndex";
           commandStack.push(lastCommand);
@@ -148,7 +148,7 @@ var descartesJS = (function(descartesJS) {
         }
 
 
-        else if ( (tokens[i].type === "open") && (tokens[i].value === "{") && (lastCommand !== null) ) {
+        else if ( (tokens[i].type === "open") && (tokens[i].value === "{") && (lastCommand !== undefined) ) {
           if ( (lastCommand === "bold") || (lastCommand === "italic") ) {
             newStyle = lastStyle.clone();
             newStyle[lastCommand] = true;
@@ -158,6 +158,7 @@ var descartesJS = (function(descartesJS) {
 
           else if (lastCommand === "color") {
             lastCommand = "color_parameter";
+            // commandStack.push(lastCommand);
           }
 
           else if (lastCommand === "color_text") {
@@ -287,7 +288,6 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               newStyle = lastStyle.clone();
-              // newStyle.size = Math.max( Math.floor(newStyle.size*0.1), 8 );
               styleStack.push( newStyle );
               lastStyle = newStyle;
 
@@ -306,7 +306,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand !== null) ) {
+        else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand !== undefined) ) {
           if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "color_text") || (lastCommand === "color") ) {
             styleStack.pop();
             lastStyle = styleStack[styleStack.length -1];
@@ -314,7 +314,8 @@ var descartesJS = (function(descartesJS) {
             lastCommand = commandStack[commandStack.length -1];
           }
           else if (lastCommand === "color_parameter") {
-              lastCommand = "color_text";
+            lastCommand = "color_text";
+            continue;
           }
           else if (
             (lastCommand === "center") ||
@@ -390,12 +391,12 @@ var descartesJS = (function(descartesJS) {
         }
 
         // add { }
-        else if ( (tokens[i].type === "open") && (tokens[i].value === "{") && (lastCommand === null) ) {
-          lastNode.addChild( new descartesJS.TextNode("{", "text", lastStyle.clone(), null) );
-        }
-        else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand === null) ) {
-          lastNode.addChild( new descartesJS.TextNode("}", "text", lastStyle.clone(), null) );
-        }
+        // else if ( (tokens[i].type === "open") && (tokens[i].value === "{") && (lastCommand === undefined) ) {
+        //   lastNode.addChild( new descartesJS.TextNode("{", "text", lastStyle.clone(), null) );
+        // }
+        // else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand === undefined) ) {
+        //   lastNode.addChild( new descartesJS.TextNode("}", "text", lastStyle.clone(), null) );
+        // }
 
 
       }
@@ -410,8 +411,8 @@ var descartesJS = (function(descartesJS) {
         for (var i=0, l=line.children.length; i<l-1; i++) {
           currentNode = line.children[i];
           nextNode = line.children[i+1];
-
-          if ((currentNode.nodeType === "text") && (nextNode.nodeType === "text")) {
+          
+          if ((currentNode.nodeType === "text") && (nextNode.nodeType === "text") && (currentNode.style.equals(nextNode.style))) {
             if (joinNode === null) {
               joinNode = currentNode;
               tmpNode = currentNode.clone();
@@ -423,7 +424,6 @@ var descartesJS = (function(descartesJS) {
             joinNode.addChild(tmpNode);
             toDelete.push(nextNode);
             joinNode.value += tmpNode.value;
-
           }
           else {
             joinNode = null;

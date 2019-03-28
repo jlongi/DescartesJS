@@ -236,6 +236,16 @@ var descartesJS = (function(descartesJS) {
         descartesJS.onResize(evt);
       });
     });
+
+    // force and update in the scene when all the fonts are ready
+    document.fonts.ready.then(function() {
+      setTimeout(() => {
+        descartesJS.apps.forEach((app) => {
+          app.updateControls();
+          app.updateSpaces(true);
+        });
+      }, 500);
+    });
   }
 
   return descartesJS;
