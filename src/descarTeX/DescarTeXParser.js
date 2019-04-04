@@ -32,6 +32,7 @@ var descartesJS = (function(descartesJS) {
       var newStyle;
       var textParts;
       var newColor;
+      var newSize;
       var tmpNode;
       var mathMode = false;
 // console.log(tokens);
@@ -42,6 +43,10 @@ var descartesJS = (function(descartesJS) {
         if (tokens[i].type === "text") {
           if (lastCommand === "color_parameter") {
             newColor = new descartesJS.Color(tokens[i].value, evaluator);
+            continue;
+          }
+          else if (lastCommand === "text_size_parameter") {
+            newSize = parseFloat(tokens[i].value);
             continue;
           }
 
@@ -93,6 +98,23 @@ var descartesJS = (function(descartesJS) {
           lastCommand = "color";
           commandStack.push(lastCommand);
         }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "ts") ) {
+          lastCommand = "text_size";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value.toLowerCase() === "sansserif") ) {
+          lastCommand = "sansserif";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value.toLowerCase() === "serif") ) {
+          lastCommand = "serif";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value.toLowerCase() === "monospace") ) {
+          lastCommand = "monospace";
+          commandStack.push(lastCommand);
+        }
+
         else if ( (tokens[i].type === "command") && (tokens[i].value === "c") ) {
           lastCommand = "center";
           commandStack.push(lastCommand);
@@ -152,6 +174,37 @@ var descartesJS = (function(descartesJS) {
           if ( (lastCommand === "bold") || (lastCommand === "italic") ) {
             newStyle = lastStyle.clone();
             newStyle[lastCommand] = true;
+            styleStack.push( newStyle );
+            lastStyle = newStyle;
+          }
+
+
+          else if (lastCommand === "sansserif") {
+            newStyle = lastStyle.clone();
+            newStyle.family = "sansserif";
+            styleStack.push( newStyle );
+            lastStyle = newStyle;
+          }
+          else if (lastCommand === "serif") {
+            newStyle = lastStyle.clone();
+            newStyle.family = "serif";
+            styleStack.push( newStyle );
+            lastStyle = newStyle;
+          }
+          else if (lastCommand === "monospace") {
+            newStyle = lastStyle.clone();
+            newStyle.family = "monospaced";
+            styleStack.push( newStyle );
+            lastStyle = newStyle;
+          }
+
+          else if (lastCommand === "text_size") {
+            lastCommand = "text_size_parameter";
+          }
+
+          else if (lastCommand === "text_size_text") {
+            newStyle = lastStyle.clone();
+            newStyle.size = newSize;
             styleStack.push( newStyle );
             lastStyle = newStyle;
           }
@@ -307,7 +360,7 @@ var descartesJS = (function(descartesJS) {
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand !== undefined) ) {
-          if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "color_text") || (lastCommand === "color") ) {
+          if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "color_text") || (lastCommand === "color") || (lastCommand === "text_size_text") || (lastCommand === "text_size") || (lastCommand === "sansserif") || (lastCommand === "serif") || (lastCommand === "monospace") ) {
             styleStack.pop();
             lastStyle = styleStack[styleStack.length -1];
             commandStack.pop();
@@ -315,6 +368,10 @@ var descartesJS = (function(descartesJS) {
           }
           else if (lastCommand === "color_parameter") {
             lastCommand = "color_text";
+            continue;
+          }
+          else if (lastCommand === "text_size_parameter") {
+            lastCommand = "text_size_text";
             continue;
           }
           else if (
@@ -436,8 +493,13 @@ var descartesJS = (function(descartesJS) {
       });
 // console.log(textNodes, textNodes.normalize());
 
+      textNodes.normalize();
       textNodes.adjustFontSize();
-      return textNodes.normalize();
+      
+      // textNodes.adjustFontSize();
+      // return textNodes.normalize();
+
+      return textNodes;
     }
   }
 

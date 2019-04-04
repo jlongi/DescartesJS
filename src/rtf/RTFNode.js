@@ -516,6 +516,7 @@ var descartesJS = (function(descartesJS) {
 
 
       var lines = this.children;
+      var lineValue;
       for (var i=0, l=lines.length; i<l; i++) {
         if (lines[i].style.align === "left") {
           lines[i].metrics.offsetX = x;
