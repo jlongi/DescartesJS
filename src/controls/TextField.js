@@ -54,7 +54,7 @@ var descartesJS = (function(descartesJS) {
         }
         this.answerPattern = this.answer;
 
-        this.answer = descartesJS.buildRegularExpresionsPatterns(this.answer, this.evaluator);
+        this.answer = descartesJS.buildRegularExpressionsPatterns(this.answer, this.evaluator);
 
         if (this.onlyText) {
           // find the first answer pattern
