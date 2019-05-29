@@ -248,6 +248,13 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
         document.execCommand("insertHTML", false, evt.clipboardData.getData("text/plain"));
       });
+
+      this.textArea.addEventListener("keydown", function(evt) {
+        if ((evt.key === "PageDown") || (evt.key === "PageUp")) {
+          evt.stopPropagation();
+          evt.preventDefault();
+        }
+      });
     }
   }
 

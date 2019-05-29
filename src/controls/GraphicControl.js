@@ -471,6 +471,7 @@ var descartesJS = (function(descartesJS) {
 
         // deactivate control
         self.parent.deactivateGraphicControls();
+        self.parent.update();
       }
 
       var posNew;
