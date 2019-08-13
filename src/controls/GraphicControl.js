@@ -373,6 +373,8 @@ var descartesJS = (function(descartesJS) {
     addEvents() {
       var lastTime = 0;
 
+      var posNew;
+
       var self = this;
 
       this.click = false;
@@ -452,7 +454,7 @@ var descartesJS = (function(descartesJS) {
           window.removeEventListener("touchend",  onMouseUp);
           window.removeEventListener("touchmove", onMouseMove);
 
-          posNew = descartesJS.getCursorPosition(evt, self.container);
+          posNew = (descartesJS.getCursorPosition(evt, self.container)) || posNew;
 
           self.posX = self.prePos.x - (self.posAnte.x - posNew.x);
           self.posY = self.prePos.y - (self.posAnte.y - posNew.y);
@@ -471,10 +473,8 @@ var descartesJS = (function(descartesJS) {
 
         // deactivate control
         self.parent.deactivateGraphicControls();
-        self.parent.update();
+        self.parent.updateControls();
       }
-
-      var posNew;
 
       /**
        *

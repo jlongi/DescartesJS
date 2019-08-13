@@ -239,13 +239,17 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getCursorPosition = function(evt, container) {
     pointer = (evt.touches) ? evt.touches[0] : evt;
-
     boundingRect = container.getBoundingClientRect();
 
-    // consider for the scale by css transformation
-    return { 
-      x: (pointer.pageX -window.pageXOffset -boundingRect.left) / descartesJS.cssScale,
-      y: (pointer.pageY -window.pageYOffset -boundingRect.top)  / descartesJS.cssScale
+    if (pointer) {
+      // consider for the scale by css transformation
+      return { 
+        x: (pointer.pageX -window.pageXOffset -boundingRect.left) / descartesJS.cssScale,
+        y: (pointer.pageY -window.pageYOffset -boundingRect.top)  / descartesJS.cssScale
+      }
+    }
+    else {
+      return null;
     }
   }
 

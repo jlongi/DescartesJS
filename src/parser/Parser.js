@@ -835,6 +835,12 @@ var descartesJS = (function(descartesJS) {
       self.functions["toUpperCase"] = function(str) {
         return ((str || "").toString()).toUpperCase();
       };
+      /**
+       *
+       */
+      self.functions["trim"] = function(str) {
+        return ((str || "").toString()).trim();
+      };
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // read external values
