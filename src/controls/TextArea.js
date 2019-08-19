@@ -193,6 +193,8 @@ var descartesJS = (function(descartesJS) {
       newText = (this.textArea.innerText || "");
       newText = (newText.charAt(newText.length-1) === "\n") ? newText.substring(0, newText.length-1) : newText;
       newText = newText.replace(/\n/g, "\\n").replace(/\s/g, " ");
+      // newText = newText.replace(/\n/g, "\\n").replace(/\s/g, "\u00A0");
+
 
       evaluator.setVariable(this.id, newText);
 

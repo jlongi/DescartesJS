@@ -41,15 +41,22 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.getSvgMenu = function() {
-    return "data:image/svg+xml;base64," + btoa("<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M6.64 8L12 12.962 17.36 8 19 9.519 12 16 5 9.519z'/></svg>");
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M6.64 8L12 12.962 17.36 8 19 9.519 12 16 5 9.519z'/></svg>`);
   }
 
   /**
    *
    */
   descartesJS.getSvgCheckbox = function() {
-    return "data:image/svg+xml;base64," + btoa("<svg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 45 45'><path d='M37.095 6.284L15.473 27.905l-7.568-7.567L2.5 25.743l12.973 12.973L42.5 11.69z'/></svg>");
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns='http://www.w3.org/2000/svg' width='45' height='45' viewBox='0 0 45 45'><path d='M37.095 6.284L15.473 27.905l-7.568-7.567L2.5 25.743l12.973 12.973L42.5 11.69z' fill='#1e272e'/></svg>`);
   }
 
+  /**
+   *
+   */
+  descartesJS.getSvgRadio = function() {
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 45 45"><path d="M6.5 6.5h32v32h-32z" fill="#1e272e"/></svg>`);
+  
+  }
   return descartesJS;
 })(descartesJS || {});

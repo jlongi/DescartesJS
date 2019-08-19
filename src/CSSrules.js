@@ -95,7 +95,8 @@ var descartesJS = (function(descartesJS) {
       // style for check box
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]+label::after,.DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;}\n" +
-      ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after,.DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
+      ".DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgRadio() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
       ".DescartesCheckbox{position:absolute;}\n" +
 
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +

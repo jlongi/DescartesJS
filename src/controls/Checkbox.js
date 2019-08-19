@@ -7,7 +7,6 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var evaluator;
-  var self;
 
   class Checkbox extends descartesJS.Control {
     /**
@@ -19,7 +18,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      self = this;
+      var self = this;
 
       self.typeCtr = "checkbox";
       self.pressed = values.pressed || false;
@@ -30,7 +29,7 @@ var descartesJS = (function(descartesJS) {
         self.typeCtr = "radio";
       }
 
-      // modification to change the name of the Checkbox with an expression
+      // change to the name of the Checkbox with an expression
       if (self.name.match(/^\[.*\]?/)) {
         self.name = self.parser.parse(self.name.substring(1, self.name.length-1));
       }
@@ -88,7 +87,7 @@ var descartesJS = (function(descartesJS) {
      * Init the checkbox
      */
     init(changeSizePos) {
-      self = this;
+      var self = this;
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
@@ -116,7 +115,7 @@ var descartesJS = (function(descartesJS) {
      * Update the checkbox
      */
     update() {
-      self = this;
+      var self = this;
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
@@ -133,7 +132,7 @@ var descartesJS = (function(descartesJS) {
 
       if ( !(self.parent.animation.playing) || (document.activeElement != self.checkbox)) {
         var oldVal = (evaluator.getVariable(self.id) !== 0) ? 1 : 0;
-        
+
         // update the checkbox value
         if (self.radio_group === "") {
           if (self.pressed) {
@@ -185,7 +184,7 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      self = this;
+      var self = this;
 
       // prevent the context menu display
       self.checkbox.oncontextmenu = self.label.oncontextmenu = self.dummyLabel.oncontextmenu = function() { return false; };
