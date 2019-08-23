@@ -117,9 +117,6 @@ var descartesJS = (function(descartesJS) {
       // function to prevent undefined error
       this.scaleToFit = function() {};
   
-      // get the url parameter if any
-      this.getURLParameters();
-  
       // init the interpretation
       this.init()
     }
@@ -137,6 +134,9 @@ var descartesJS = (function(descartesJS) {
        * @private
        */
       this.evaluator = new descartesJS.Evaluator(this);
+
+      // get the url parameter if any
+      this.getURLParameters();
 
       /**
        * parser of elements in the lesson

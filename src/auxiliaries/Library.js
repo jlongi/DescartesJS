@@ -21,7 +21,8 @@ var descartesJS = (function(descartesJS) {
       if (filename) {
         // the lib is embedded in the webpage
         var libElement = document.getElementById(filename);
-
+        var response;
+        
         if ((libElement) && (libElement.type === "descartes/library")) {
           response = libElement.text;
         }
