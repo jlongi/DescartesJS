@@ -55,7 +55,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.getSvgRadio = function() {
-    return "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 45 45"><path d="M6.5 6.5h32v32h-32z" fill="#1e272e"/></svg>`);
+    return "data:image/svg+xml;base64," + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 45 45"><circle cx="22.5" cy="22.5" r="15" fill="#1e272e"/></svg>`);
   
   }
   return descartesJS;

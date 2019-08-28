@@ -1737,8 +1737,8 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawRadical(ctx) {
-      ctx.save();
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+      ctx.save();
       ctx.translate(this.radicalSign.x, this.radicalSign.y);
       ctx.scale(this.radicalSign.scaleX, this.radicalSign.scaleY);
       (descartesJS.isMsEdge) ? this.drawRadicalSign(ctx) : ctx.fill(radicalPath);
