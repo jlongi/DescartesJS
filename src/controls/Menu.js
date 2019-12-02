@@ -138,6 +138,7 @@ var descartesJS = (function(descartesJS) {
       // control container
       this.containerControl = descartesJS.newHTML("div", {
         class : "DescartesMenuContainer",
+        id    : this.id,
       });
 
       // the label

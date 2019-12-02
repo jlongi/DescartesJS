@@ -73,11 +73,10 @@ var descartesJS = (function(descartesJS) {
       var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
       var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
-      // add the license image for arquimedes lessons
+      // add the license image
       var licenceFile = "lib/DescartesCCLicense.png";
       images[licenceFile] = descartesJS.getCCLImg();
-      images[licenceFile].addEventListener('load', function() { this.ready = 1; });
-      images[licenceFile].addEventListener('error', function() { this.errorload = 1; });
+      images[licenceFile].ready = 1;
 
       var imageFilename;
       var imageTmp;

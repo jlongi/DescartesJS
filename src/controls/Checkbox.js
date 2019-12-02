@@ -43,6 +43,7 @@ var descartesJS = (function(descartesJS) {
       // control container
       self.containerControl = descartesJS.newHTML("div", {
         class : "DescartesCheckboxContainer",
+        id    : self.id,
       });
 
       // the checkbox

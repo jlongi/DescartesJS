@@ -248,7 +248,7 @@ var descartesJS = (function(descartesJS) {
       // prevent the paste of content with style
       this.textArea.addEventListener("paste", (evt) => {
         evt.preventDefault();
-        document.execCommand("insertHTML", false, evt.clipboardData.getData("text/plain"));
+        document.execCommand("insertHTML", false, evt.clipboardData.getData("text/plain").replace(/\n/g, "<br>"));
       });
 
       this.textArea.addEventListener("keydown", function(evt) {

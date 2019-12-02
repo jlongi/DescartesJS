@@ -100,6 +100,7 @@ var descartesJS = (function(descartesJS) {
       // control container
       this.containerControl = descartesJS.newHTML("div", {
         class : "DescartesTextFieldContainer",
+        id    : this.id,
       });
 
       // the text field
