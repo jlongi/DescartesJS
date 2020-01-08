@@ -17,6 +17,8 @@ var descartesJS = (function(descartesJS) {
   var evalMax;
   var hasTouchSupport;
   var parseTrue;
+  var tmp_image_dec_src;
+  var tmp_image_inc_src;
 
   class Spinner extends descartesJS.Control {
     /**
@@ -27,6 +29,10 @@ var descartesJS = (function(descartesJS) {
     constructor(parent, values){
       // call the parent constructor
       super(parent, values);
+
+      this.flat = this.image_dec_src && this.image_inc_src;
+      this.btn_pos = this.btn_pos || "v_left";
+      this.horizontal = (this.btn_pos === "h_left") || (this.btn_pos === "h_right") || (this.btn_pos === "h_left_right");
 
       // tabular index
       this.tabindex = ++this.parent.tabindex;
@@ -48,9 +54,6 @@ var descartesJS = (function(descartesJS) {
         class : "DescartesSpinnerContainer",
         id    : this.id,
       });
-      this.grad = descartesJS.newHTML("div", {
-        class : "DJS_Gradient",
-      });
       this.divUp = descartesJS.newHTML("div", {
         class : "DJS_Up",
       });
@@ -71,7 +74,6 @@ var descartesJS = (function(descartesJS) {
 
       this.container.appendChild(this.label);
       this.container.appendChild(this.field);
-      this.container.appendChild(this.grad);
       this.container.appendChild(this.divUp);
       this.container.appendChild(this.divDown);
 
@@ -91,6 +93,28 @@ var descartesJS = (function(descartesJS) {
         else {
           this.incr = parseTrue;
         }
+      }
+
+      // check for images for the buttons
+      if (this.image_dec_src) {
+        if (this.image_dec_src.match(/^\[.*\]?/)) {
+          this.image_dec_src = this.parser.parse(this.image_dec_src.substring(1, this.image_dec_src.length-1));
+        }
+        else {
+          this.image_dec_src = this.parser.parse("'" + this.image_dec_src + "'");
+        }
+        this.old_image_dec_src = this.evaluator.eval(this.image_dec_src).toString().trim();
+        this.image_dec = this.parent.getImage( this.old_image_dec_src );
+      }
+      if (this.image_inc_src) {
+        if (this.image_inc_src.match(/^\[.*\]?/)) {
+          this.image_inc_src = this.parser.parse(this.image_inc_src.substring(1, this.image_inc_src.length-1));
+        }
+        else {
+          this.image_inc_src = this.parser.parse("'" + this.image_inc_src + "'");
+        }
+        this.old_image_inc_src = this.evaluator.eval(this.image_inc_src).toString().trim();
+        this.image_inc = this.parent.getImage( this.old_image_inc_src );
       }
 
       // register the mouse and touch events
@@ -123,52 +147,104 @@ var descartesJS = (function(descartesJS) {
 
       var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
-      // for each element calculated width
-      var canvasWidth = 2 + parseInt(this.h/2);
-      var labelWidth = parseInt(this.w/2 - canvasWidth/2);
-      var minTFWidth = fieldValueSize;
-      var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
+      if (this.horizontal) {
+        // for each element calculated width
+        var canvasWidth = parseInt(this.h);
+        var labelWidth = parseInt(this.w/2 - canvasWidth);
+        var minTFWidth = fieldValueSize;
+        var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
-      if (!this.visible) {
-        labelWidth = this.w - canvasWidth;
-        minTFWidth = 0;
+        if (!this.visible) {
+          labelWidth = this.w - 2*canvasWidth;
+          minTFWidth = 0;
+        }
+
+        if (labelWidth < minLabelWidth) {
+          labelWidth = minLabelWidth;
+        }
+
+        if (name == "") {
+          labelWidth = 0;
+        }
+
+        if (this.w-labelWidth-canvasWidth < minTFWidth) {
+          labelWidth = this.w - canvasWidth - minTFWidth;
+        }
+
+        if (labelWidth < 0) {
+          labelWidth=0;
+        }
+
+        var fieldWidth = this.w - (labelWidth + 2*canvasWidth);
+
+        this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};background-color:transparent;`);
+
+        this.divUp.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;${(this.btn_pos === "h_left")?"left:"+(labelWidth+canvasWidth):"right:0"}px;top:0;${(this.flat)?'border-width:0;':''}`);
+        this.divDown.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;left:${labelWidth + ((this.btn_pos === "h_right")?fieldWidth:0)}px;top:0;${(this.flat)?'border-width:0;':''}`);
+
+        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;`);
+        this.field.value = fieldValue;
+        if (!this.visible) {
+          this.field.style.display = "none";
+        }
+
+        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+      }
+      else {
+        // for each element calculated width
+        var canvasWidth = 2 + parseInt(this.h/2);
+        var labelWidth = parseInt(this.w/2 - canvasWidth/2);
+        var minTFWidth = fieldValueSize;
+        var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
+
+        if (!this.visible) {
+          labelWidth = this.w - canvasWidth;
+          minTFWidth = 0;
+        }
+
+        if (labelWidth < minLabelWidth) {
+          labelWidth = minLabelWidth;
+        }
+
+        if (name == "") {
+          labelWidth = 0;
+        }
+
+        if (this.w-labelWidth-canvasWidth < minTFWidth) {
+          labelWidth = this.w - canvasWidth - minTFWidth;
+        }
+
+        if (labelWidth < 0) {
+          labelWidth=0;
+        }
+
+        var fieldWidth = this.w - (labelWidth + canvasWidth);
+
+        this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};background-color:transparent;`);
+
+        var divStyle = `width:${canvasWidth}px;left:${labelWidth+((this.btn_pos === "v_right")?fieldWidth:0)}px;`;
+
+        this.divUp.setAttribute("style", `${divStyle};height:${this.h/2+1}px;top:0;${(this.flat)?'border-width:0;':''}`);
+        this.divDown.setAttribute("style", `${divStyle};height:${this.h/2-1}px;top:${this.h/2+1}px;${(this.flat)?'border-width:0;':''}`);
+
+        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${((this.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
+        this.field.value = fieldValue;
+        if (!this.visible) {
+          this.field.style.display = "none";
+        }
+
+        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
       }
 
-      if (labelWidth < minLabelWidth) {
-        labelWidth = minLabelWidth;
+      if (this.image_dec && this.image_dec.ready) {
+        this.divDown.style["background-image"] = "url(" + this.image_dec.src + ")";
+      }
+      if (this.image_inc && this.image_inc.ready) {
+        this.divUp.style["background-image"] = "url(" + this.image_inc.src + ")";
       }
 
-      if (name == "") {
-        labelWidth = 0;
-      }
-
-      if (this.w-labelWidth-canvasWidth < minTFWidth) {
-        labelWidth = this.w - canvasWidth - minTFWidth;
-      }
-
-      if (labelWidth < 0) {
-        labelWidth=0;
-      }
-
-      var fieldWidth = this.w - (labelWidth + canvasWidth);
-
-      this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
-
-      this.grad.setAttribute("style", `left:0;top:0;left:${labelWidth}px;width:${canvasWidth}px;height:${this.h}px;background-color:#f0f8ff`);
-
-      var divStyle = `width:${canvasWidth}px;left:${labelWidth}px;`;
-
-      this.divUp.setAttribute("style", `${divStyle};height:${this.h/2+1}px;top:0;`);
-
-      this.divDown.setAttribute("style", `${divStyle};height:${this.h/2-1}px;top:${this.h/2+1}px;`);
-
-      this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth}px;`);
-      this.field.value = fieldValue;
-      if (!this.visible) {
-        this.field.style.display = "none";
-      }
-
-      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+      this.divUp.setAttribute("horizontal", (this.horizontal)?true:false);
+      this.divDown.setAttribute("horizontal", (this.horizontal)?true:false);
 
       // register the control value
       evaluator.setVariable(this.id, this.value);
@@ -216,6 +292,22 @@ var descartesJS = (function(descartesJS) {
         this.container.style.display = "none";
       }
 
+      // change in the images of the buttons
+      if (this.image_dec) {
+        tmp_image_dec_src = this.evaluator.eval(this.image_dec_src).toString().trim();
+        if (this.old_image_dec_src !== tmp_image_dec_src) {
+          this.divDown.style["background-image"] = "url(" + this.image_dec.src + ")";
+          this.old_image_dec_src = tmp_image_dec_src;
+        }
+      }
+      if (this.image_inc) {
+        tmp_image_inc_src = this.evaluator.eval(this.image_inc_src).toString().trim();
+        if (this.old_image_inc_src !== tmp_image_inc_src) {
+          this.divUp.style["background-image"] = "url(" + this.image_inc.src + ")";
+          this.image_inc_src = tmp_image_inc_src;
+        }
+      }
+
       // update the position and size
       this.updatePositionAndSize();
 
@@ -244,11 +336,15 @@ var descartesJS = (function(descartesJS) {
     updateStyle() {
       this.divUp.style.borderStyle = (this.up) ? "inset" : "outset";
       this.divUp.style.borderColor = (this.up) ? "gray" : "#f0f8ff";
-      this.divUp.style.backgroundColor = (this.up) ? `rgba(0,0,0,${24/255})` : "";
+      this.divUp.style.backgroundColor = (this.up) ? "#bfbfbf" : "";
+      this.divUp.style.backgroundColor = (this.flat) ? "transparent" : this.divUp.style.backgroundColor;
+      this.divUp.style.backgroundPosition = (this.up) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
 
       this.divDown.style.borderStyle = (this.down) ? "inset" : "outset";
       this.divDown.style.borderColor = (this.down) ? "gray" : "#f0f8ff";
-      this.divDown.style.backgroundColor = (this.down) ? `rgba(0,0,0,${24/255})` : "";
+      this.divDown.style.backgroundColor = (this.down) ? "#bfbfbf" : "";
+      this.divDown.style.backgroundColor = (this.flat) ? "transparent" : this.divDown.style.backgroundColor;
+      this.divDown.style.backgroundPosition = (this.down) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
     }
 
     /**
@@ -500,7 +596,7 @@ var descartesJS = (function(descartesJS) {
        * Prevent an error with the focus of a text field
        */
       self.field.addEventListener("click", function(evt) {
-        this.select();
+        // this.select();
         this.focus();
       });
     }

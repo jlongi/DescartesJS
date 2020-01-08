@@ -399,7 +399,7 @@ var descartesJS = (function(descartesJS, babel) {
           // css class
           case("cssClass"):
           // css class
-          case("radio_group"):        
+          case("radio_group"):
           // information
           case("info"):
             controlObj[babelValue] = values_i_1;
@@ -417,6 +417,8 @@ var descartesJS = (function(descartesJS, babel) {
           case("text_align"):
           // image alignment
           case("image_align"):
+          // condition to make the spinner horizontal
+          case("btn_pos"):
             controlObj[babelValue] = babel[values_i_1];
             break;
 
@@ -477,6 +479,14 @@ var descartesJS = (function(descartesJS, babel) {
           // image
           case("image"):
             controlObj["imageSrc"] = values_i_1;
+            break;
+          // image for the decrement button in spinners
+          case("image_dec"):
+            controlObj["image_dec_src"] = values_i_1;
+            break;
+          // image for the incremente button in spinners
+          case("image_inc"):
+            controlObj["image_inc_src"] = values_i_1;
             break;
 
           // id of the containing space

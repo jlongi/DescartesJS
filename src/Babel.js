@@ -266,6 +266,14 @@ var babel = (function(babel) {
   babel["fit"] = babel["escalar"] = "fit";
   babel["code"] = "code";
   babel["doc"] = "doc";
+  babel["image_dec"] = "image_dec";
+  babel["image_inc"] = "image_inc";
+  babel["btn_pos"] = "btn_pos";
+  babel["v_left"] = "v_left";
+  babel["v_right"] = "v_right";
+  babel["h_left"] = "h_left";
+  babel["h_right"] = "h_right";
+  babel["h_left_right"] = "h_left_right";
 
   return babel;
 })(babel || Object.create(null));

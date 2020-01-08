@@ -865,7 +865,8 @@ var descartesJS = (function(descartesJS) {
           superIndex.metrics.descent += superIndex.metrics.paddingY;
           superIndex.metrics.h += 2*superIndex.metrics.paddingY;
 
-          this.metrics.ascent = superIndex.metrics.descent - superIndex.metrics.prevChild.metrics.descent + parseInt(2*superIndex.metrics.prevChild.metrics.h/7) + superIndex.metrics.ascent;
+          // no estoy seguro si es correcto, quizá habrá que volverlo a descomentar
+          // this.metrics.ascent = superIndex.metrics.descent - superIndex.metrics.prevChild.metrics.descent + parseInt(2*superIndex.metrics.prevChild.metrics.h/7) + superIndex.metrics.ascent;
 
           displaceX += 2*superIndex.metrics.marginX;
         }
@@ -891,7 +892,6 @@ var descartesJS = (function(descartesJS) {
             "offsetY" : { get : function() { return thisFormula.metrics.offsetY +this.ascent +subIndex.metrics.prevChild.metrics.descent -parseInt(4*subIndex.metrics.prevChild.metrics.h/7); } },
           });
 
-          // subIndex.metrics.w += 2*subIndex.metrics.paddingX;
           subIndex.metrics.w += subIndex.metrics.paddingX;
           subIndex.metrics.ascent += subIndex.metrics.paddingY;
           subIndex.metrics.descent += subIndex.metrics.paddingY;
@@ -899,7 +899,6 @@ var descartesJS = (function(descartesJS) {
 
           this.metrics.descent = subIndex.metrics.ascent +subIndex.metrics.prevChild.metrics.descent -parseInt(4*subIndex.metrics.prevChild.metrics.h/7) +subIndex.metrics.descent;
 
-          // displaceX += 2*subIndex.metrics.marginX;
           displaceX += subIndex.metrics.marginX;
         }
 
@@ -1036,6 +1035,7 @@ var descartesJS = (function(descartesJS) {
 
           radical.metrics.w = indexWidth +2*radical.metrics.paddingX + radicand.metrics.w;
           radical.metrics.ascent = Math.max(radicand.metrics.ascent, (index.metrics.h +2*fontSize/5)) +radical.metrics.paddingY;
+
           radical.metrics.descent = radicand.metrics.descent +radical.metrics.paddingY;
           radical.metrics.h = radical.metrics.ascent + radical.metrics.descent;
 
@@ -1503,6 +1503,7 @@ var descartesJS = (function(descartesJS) {
         prevChild = children_i;
 
         //////////////////////////////////////////////////////////
+
         this.metrics.ascent = Math.max(this.metrics.ascent, children_i.metrics.ascent);
         this.metrics.descent = Math.max(this.metrics.descent, children_i.metrics.descent);
 

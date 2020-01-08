@@ -193,7 +193,7 @@ var descartesJS = (function(descartesJS) {
       // prevent the default events int the label
       self.label.addEventListener("touchstart", descartesJS.preventDefault);
       self.label.addEventListener("mousedown", descartesJS.preventDefault);
-      self.dummyLabel.addEventListener("touchstart", descartesJS.preventDefault);
+      // self.dummyLabel.addEventListener("touchstart", descartesJS.preventDefault);
       self.dummyLabel.addEventListener("mousedown", descartesJS.preventDefault);
 
       /*

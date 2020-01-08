@@ -94,9 +94,9 @@ var descartesJS = (function(descartesJS) {
 
       // style for check box
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
-      ".DescartesCheckboxContainer input[type=checkbox]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border:1px solid gray;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
-      ".DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border: 1px solid gray;border-radius:50%;}\n" +
+      ".DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border:1px solid gray;border-radius:50%;}\n" +
       ".DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgRadio() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
       ".DescartesCheckbox{position:absolute;}\n" +
 
@@ -112,13 +112,14 @@ var descartesJS = (function(descartesJS) {
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
       ".DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
       
-      ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border-width:1px 0 1px 1px;background-size:cover;background-repeat:none;}\n" +
-      ".DJS_Up{background-image:url('"+ descartesJS.getSvgArrowUp() +"')}\n" +
-      ".DJS_Up[active=false]{background-image:url('"+ descartesJS.getSvgArrowUp("8888aa") +"')}\n" +
-      ".DJS_Down{background-image:url('"+ descartesJS.getSvgArrowDown() +"')}\n" +
-      ".DJS_Down[active=false]{background-image:url('"+ descartesJS.getSvgArrowDown("aa8888") +"')}\n" +
-
-      ".DJS_Gradient{position:absolute;"+ descartesJS.createGradient() +"}\n" +
+      ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border-width:1px 0 1px 1px;background-size:cover;background-repeat:none;background-position:center;}\n" +
+      ".DJS_Up[horizontal=false]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100) + ", url('"+ descartesJS.getSvgArrowUp() +"');}\n" +
+      ".DJS_Up[horizontal=true]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100,90) + ", url('"+ descartesJS.getSvgArrowUp(true) +"');}\n" +
+      ".DJS_up[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
+      ".DJS_Down[horizontal=false]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(0,50) + ", url('"+ descartesJS.getSvgArrowDown() +"');}\n" +
+      ".DJS_Down[horizontal=true]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100,-90) + ", url('"+ descartesJS.getSvgArrowDown(true) +"');}\n" +
+      ".DJS_Down[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
+      ".DJS_Gradient{position:absolute;display:none;}\n" +
 
       (descartesJS.addFonts ? descartesJS.addFonts() : "");
   })();

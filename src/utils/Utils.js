@@ -217,18 +217,19 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  descartesJS.createGradient = function() {
+  descartesJS.createGradient = function(start=0, end=100, rotate=0) {
     var h = 100;
     var hh = h*h;
     var di;
-    var str = "background-image: linear-gradient(0deg, ";
+    var str = `linear-gradient(${rotate}deg,`;
+    var c = start*2;
 
-    for (var i=0; i<h; i++) {
+    for (var i=start; i<end; i++) {
       di = MathFloor(100-i-(35*h)/100);
-      str += `rgba(0,0,0,${(((di*di*192)/hh)/255)}) ${i}%, `;
+      str += `rgba(0,0,0,${(((di*di*192)/hh)/255)}) ${i*2 - c}%, `;
     }
 
-    str += `rgba(0,0,0,0.1) 100%);`;
+    str += `rgba(0,0,0,0.1) 100%)`;
     return str;
   }
 
