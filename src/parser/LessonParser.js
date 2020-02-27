@@ -143,10 +143,14 @@ var descartesJS = (function(descartesJS, babel) {
           case("x_axis"):
           // text of the Y axis
           case("y_axis"):
-          // control identifier (for arquimedes positioning)
+          // control identifier (for arquimedes position)
           case("cID"):
           // file name of an external space
           case("file"):
+          // width of the space border
+          case("border_width"):
+          // border radius of the space
+          case("border_radius"):
           // information
           case("info"):
             spaceObj[babelValue] = values_i_1;
@@ -174,6 +178,8 @@ var descartesJS = (function(descartesJS, babel) {
             spaceObj[babelValue] = babel[values_i_1];
             break;
 
+          // color of the border
+          case("border_color"):
           // color of the net
           case("net"):
           // color of the net 10
@@ -384,7 +390,7 @@ var descartesJS = (function(descartesJS, babel) {
           case("Explanation"):
           // font explanation
           case("ExplanationFont"):
-          // control identifier (for rtf positioning)
+          // control identifier (for rtf position)
           case("cID"):
           // control menu options
           case("options"):
@@ -400,6 +406,8 @@ var descartesJS = (function(descartesJS, babel) {
           case("cssClass"):
           // css class
           case("radio_group"):
+          // extra style for the buttons
+          case("extra_style"):
           // information
           case("info"):
             controlObj[babelValue] = values_i_1;
@@ -447,6 +455,10 @@ var descartesJS = (function(descartesJS, babel) {
           case("color"):
           // color-int text
           case("colorInt"):
+          // background color of control label
+          case("label_color"):
+          // text color of control label
+          case("label_text_color"):
           // control graphic trace
           case("trace"):
             controlObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
@@ -475,7 +487,6 @@ var descartesJS = (function(descartesJS, babel) {
           case("constraint"):
             controlObj["constraintExpr"] = values_i_1;
             break;
-
           // image
           case("image"):
             controlObj["imageSrc"] = values_i_1;

@@ -20,6 +20,9 @@ var descartesJS = (function(descartesJS) {
 
       var self = this;
 
+      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+
       self.typeCtr = "checkbox";
       self.pressed = values.pressed || false;
 
@@ -104,7 +107,7 @@ var descartesJS = (function(descartesJS) {
       self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
       self.checkbox.checked = (self.value != 0);
 
-      self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;`);
+      self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
       
       // register the control value
       self.evaluator.setVariable(self.id, self.value);

@@ -855,7 +855,7 @@ var descartesJS = (function(descartesJS) {
         editableRegionHeight = buttonsConfig.height;
         var container = this.editableRegion.container;
         container.id = "descartesJS_editableRegion";
-        container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;");
+        container.setAttribute("style", "position:absolute;width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;");
 
         principalContainer.insertBefore(container, this.loader);
 
@@ -898,7 +898,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       this.displaceRegionNorth = northRegionHeight;
-      this.displaceRegionSouth = southRegionHeight;
+      this.displaceRegionSouth = southRegionHeight + (editableRegionHeight || 0);
 
       this.displaceRegionEast = eastRegionWidth;
       this.displaceRegionWest = westRegionWidth;

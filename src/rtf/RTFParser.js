@@ -25,6 +25,7 @@ var descartesJS = (function(descartesJS) {
   var descartesFormula;
   var dynamicText;
   var setDecimals;
+  var setType;
   var setRows;
   var setColumns;
   var setParts;
@@ -105,6 +106,7 @@ var descartesJS = (function(descartesJS) {
       descartesFormula = false;
       dynamicText = false;
       setDecimals = false;
+      setType = false;
       setRows = false;
       setColumns = false;
       setParts = false;
@@ -362,12 +364,18 @@ var descartesJS = (function(descartesJS) {
             }
             else if (tokens[i].value == "matrix") {
               lastMatrixNode = newNode;
+              lastMatrixNode.matrix_type = 0;
             }
           }
 
           // number of parts
           else if (tokens[i].value == "parts") {
             setParts = true;
+          }
+
+          // 
+          else if (tokens[i].value == "type") {
+            setType = true;
           }
 
           // number of rows
@@ -428,6 +436,12 @@ var descartesJS = (function(descartesJS) {
           if (setParts) {
             lastPartsNode.parts = (parseInt(tokens[i].value));
             setParts = false;
+          }
+
+          //
+          else if (setType) {
+            lastMatrixNode.matrix_type = (parseInt(tokens[i].value));
+            setType = false;
           }
 
           // set the number of rows

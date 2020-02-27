@@ -182,8 +182,6 @@ var descartesJS = (function(descartesJS) {
         Object.assign(self.MyIFrame.style, {
           "width"  : self.w + "px",
           "height" : self.h + "px",
-          // "left"   : self.x + "px",
-          // "top"    : self.y + "px"
         });
       }
     }

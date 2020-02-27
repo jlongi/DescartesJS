@@ -23,6 +23,9 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
+      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+
       // modification to change the name of the text field with an expression
       if (this.name.match(/^\[.*\]?/)) {
         this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -136,6 +139,7 @@ var descartesJS = (function(descartesJS) {
 
       var name = evaluator.eval(this.name).toString();
       this.label.innerHTML = name;
+      name = this.label.textContent;
 
       // validate the initial value
       if (!changeSizePos) {
@@ -183,7 +187,7 @@ var descartesJS = (function(descartesJS) {
       this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
       this.field.value = fieldValue;
 
-      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
 
       // if the text field evaluates, get the ok value
       if (this.evaluate) {

@@ -90,13 +90,21 @@ var descartesJS = (function(descartesJS) {
 
       var tmpParam;
       this.classContainer = (this.cssClass) ? (" " + this.cssClass+" ") : "";
+
+      this.extra_style = this.imageSrc.trim().match("^_STYLE_") ? this.imageSrc.trim().substring(8) : (this.extra_style || "");
+
       if (this.imageSrc.trim().match("^_STYLE_")) {
+        this.imageSrc = "vacio.gif";
+      }
+
+      if (this.extra_style) {
         this.customStyle = true;
         this.btnStyle = [];
         this.conStyle = [];
         this.conStyle.textBorder = 3;
 
-        tmpParam = this.imageSrc.trim().substring(8).split("|");
+        tmpParam = this.extra_style.split("|");
+
         var tempo;
         var isRGB;
         for (var i=0, l=tmpParam.length; i<l; i++) {
@@ -170,8 +178,10 @@ var descartesJS = (function(descartesJS) {
           else if (tempo.match("textBorder=")) {
             this.conStyle.textBorder = parseFloat(tempo.substring(11).trim());
           }
+          else if (tempo.match("flat=")) {
+            this.flat = parseInt(tempo.substring(5).trim()) == 1;
+          }
         }
-        this.imageSrc = "vacio.gif";
       }
 
       // color expression of the form _COLORES_ffffff_000000_P_22 specified in the image field

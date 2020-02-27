@@ -102,10 +102,10 @@ var descartesJS = (function(descartesJS) {
 
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +
       ".DescartesButtonContainer{position:absolute;overflow:hidden;}\n" +
-      ".DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{background-color:lightgray;position:absolute;overflow:hidden;}\n" +
+      ".DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
       ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
-      ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background-color:#e0e4e8;position:absolute;left:0;top:0;}\n" +
+      ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
       ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
       ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
       ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;}\n" +

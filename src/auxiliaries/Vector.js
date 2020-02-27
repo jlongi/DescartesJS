@@ -43,7 +43,8 @@ var descartesJS = (function(descartesJS) {
      */
     update() {
       var expr = this.expresion;
-
+      var vectorElement;
+      
       evaluator = this.evaluator;
       parser = evaluator.parser;
 

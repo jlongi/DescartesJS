@@ -64,8 +64,10 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
 
       self = this;
-
       self.ratio = parent.ratio;
+      self.border_width = self.border_width || 0;
+      self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
+      self.border_radius = self.border_radius || 0;
 
       // create the canvas
       self.canvas = descartesJS.newHTML("canvas", {
@@ -105,7 +107,7 @@ var descartesJS = (function(descartesJS) {
       self.container = descartesJS.newHTML("div", {
         id    : self.id,
         class : "DescartesSpace2DContainer",
-        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`,
+        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`,
       });
 
       // ### ARQUIMEDES ###
@@ -773,6 +775,9 @@ var descartesJS = (function(descartesJS) {
         onMouseUp(evt);
       });
 
+      document.addEventListener("mouseleave", function(evt) {
+        onMouseUp(evt);
+      });
     }
   }
 

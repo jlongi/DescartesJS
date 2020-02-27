@@ -29,8 +29,10 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.options = values.options || "";
+      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
+      this.options = values.options || "";
 
       parser = this.parser;
       evaluator = this.evaluator;
@@ -188,6 +190,7 @@ var descartesJS = (function(descartesJS) {
 
       var name = evaluator.eval(this.name).toString();
       this.label.innerHTML = name;
+      name = this.label.textContent;
 
       // find the font size of the text field
       this.fieldFontSize = (this.parent.version != 2) ? descartesJS.getFieldFontSize(this.h) : 10;
@@ -241,7 +244,7 @@ var descartesJS = (function(descartesJS) {
 
       this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
 
       this.field.value = fieldValue;
       this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);

@@ -40,6 +40,9 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
+      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
         this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -143,6 +146,7 @@ var descartesJS = (function(descartesJS) {
 
       name = evaluator.eval(self.name).toString();
       self.label.innerHTML = name;
+      name = this.label.textContent;
 
       var defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
@@ -270,7 +274,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // style the label
-      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;`);
+      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
     }
 
     /**

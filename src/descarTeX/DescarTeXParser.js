@@ -94,6 +94,14 @@ var descartesJS = (function(descartesJS) {
           lastCommand = "italic";
           commandStack.push(lastCommand);
         }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "o") ) {
+          lastCommand = "overline";
+          commandStack.push(lastCommand);
+        }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "u") ) {
+          lastCommand = "underline";
+          commandStack.push(lastCommand);
+        }
         else if ( (tokens[i].type === "command") && (tokens[i].value === "color") ) {
           lastCommand = "color";
           commandStack.push(lastCommand);
@@ -142,6 +150,10 @@ var descartesJS = (function(descartesJS) {
           lastCommand = "sum";
           commandStack.push(lastCommand);
         }
+        else if ( (tokens[i].type === "command") && (tokens[i].value === "prod") ) {
+          lastCommand = "prod";
+          commandStack.push(lastCommand);
+        }
         else if ( (tokens[i].type === "command") && (tokens[i].value === "int") ) {
           lastCommand = "integral";
           commandStack.push(lastCommand);
@@ -169,9 +181,9 @@ var descartesJS = (function(descartesJS) {
           commandStack.push(lastCommand);
         }
 
-
+        
         else if ( (tokens[i].type === "open") && (tokens[i].value === "{") && (lastCommand !== undefined) ) {
-          if ( (lastCommand === "bold") || (lastCommand === "italic") ) {
+          if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "overline") || (lastCommand === "underline") ) {
             newStyle = lastStyle.clone();
             newStyle[lastCommand] = true;
             styleStack.push( newStyle );
@@ -294,7 +306,7 @@ var descartesJS = (function(descartesJS) {
           }
 
 
-          else if ((lastCommand === "sum") || (lastCommand === "integral") || (lastCommand === "limit")) {
+          else if ((lastCommand === "sum") || (lastCommand === "integral") || (lastCommand === "limit") || (lastCommand === "prod")) {
             if (mathMode) {
               tmpNode = new descartesJS.TextNode("", lastCommand, lastStyle.clone(), null);
               lastNode.addChild(tmpNode);
@@ -357,10 +369,10 @@ var descartesJS = (function(descartesJS) {
             lastNode = tmpNode;
           }
         }
-
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand !== undefined) ) {
-          if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "color_text") || (lastCommand === "color") || (lastCommand === "text_size_text") || (lastCommand === "text_size") || (lastCommand === "sansserif") || (lastCommand === "serif") || (lastCommand === "monospace") ) {
+          if ( (lastCommand === "bold") || (lastCommand === "italic") || (lastCommand === "overline") || (lastCommand === "underline") || (lastCommand === "color_text") || (lastCommand === "color") || (lastCommand === "text_size_text") || (lastCommand === "text_size") || (lastCommand === "sansserif") || (lastCommand === "serif") || (lastCommand === "monospace") ) {
             styleStack.pop();
             lastStyle = styleStack[styleStack.length -1];
             commandStack.pop();
@@ -498,7 +510,7 @@ var descartesJS = (function(descartesJS) {
       
       // textNodes.adjustFontSize();
       // return textNodes.normalize();
-
+console.log(textNodes)
       return textNodes;
     }
   }

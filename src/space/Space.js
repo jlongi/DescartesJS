@@ -327,6 +327,10 @@ var descartesJS = (function(descartesJS) {
           self.h = (newH >= parentH) ? parentH : newH;
         }
 
+        if (self.displaceRegionSouth > 0) {
+          self.h -= self.displaceRegionSouth;
+        }
+
         if (self.x >= 0) {
           newW = parentW - self.x;
           if (self.w > newW) {
@@ -336,6 +340,10 @@ var descartesJS = (function(descartesJS) {
         else {
           newW = self.w + self.x;
           self.w = (newW >= parentW) ? parentW : newW;
+        }
+
+        if (self.displaceRegionEast > 0) {
+          self.w -= self.displaceRegionEast;
         }
       }
 

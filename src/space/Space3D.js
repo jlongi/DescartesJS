@@ -60,6 +60,10 @@ var descartesJS = (function(descartesJS) {
 
       self = this;
 
+      self.border_width = self.border_width || 0;
+      self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
+      self.border_radius = self.border_radius || 0;
+
       // create the canvas
       self.backCanvas = descartesJS.newHTML("canvas", {
         id     : self.id + "_background",
@@ -101,7 +105,7 @@ var descartesJS = (function(descartesJS) {
       self.container = descartesJS.newHTML("div", {
         id    : self.id,
         class : "DescartesSpace3DContainer",
-        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`,
+        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`,
       });
 
       // add the elements to the container
@@ -894,12 +898,13 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      /**
-       * dbclick
-       */
-      // this.canvas.addEventListener("dblclick", function(evt) {
-        // self.parent.externalSpace.show();
-      // });
+      document.addEventListener("visibilitychange", function(evt) {
+        onMouseUp(evt);
+      });
+
+      document.addEventListener("mouseleave", function(evt) {
+        onMouseUp(evt);
+      });
     }
   }
 

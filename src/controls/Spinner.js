@@ -33,6 +33,8 @@ var descartesJS = (function(descartesJS) {
       this.flat = this.image_dec_src && this.image_inc_src;
       this.btn_pos = this.btn_pos || "v_left";
       this.horizontal = (this.btn_pos === "h_left") || (this.btn_pos === "h_right") || (this.btn_pos === "h_left_right");
+      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
       // tabular index
       this.tabindex = ++this.parent.tabindex;
@@ -132,7 +134,8 @@ var descartesJS = (function(descartesJS) {
 
       var name = evaluator.eval(this.name).toString();
       this.label.innerHTML = name;
-
+      name = this.label.textContent;
+      
       // validate the initial value
       this.value = this.validateValue(evaluator.eval(this.valueExpr));
 
@@ -182,13 +185,13 @@ var descartesJS = (function(descartesJS) {
         this.divUp.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;${(this.btn_pos === "h_left")?"left:"+(labelWidth+canvasWidth):"right:0"}px;top:0;${(this.flat)?'border-width:0;':''}`);
         this.divDown.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;left:${labelWidth + ((this.btn_pos === "h_right")?fieldWidth:0)}px;top:0;${(this.flat)?'border-width:0;':''}`);
 
-        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;`);
+        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
         this.field.value = fieldValue;
         if (!this.visible) {
           this.field.style.display = "none";
         }
 
-        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
       }
       else {
         // for each element calculated width
@@ -233,7 +236,7 @@ var descartesJS = (function(descartesJS) {
           this.field.style.display = "none";
         }
 
-        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;`);
+        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
       }
 
       if (this.image_dec && this.image_dec.ready) {

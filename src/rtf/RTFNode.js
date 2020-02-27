@@ -19,6 +19,9 @@ var descartesJS = (function(descartesJS) {
   var integralPathStr = "m 150,828 c -21,88 -42,144 -83,144 -6,0 -9,-2 -9,-6 0,-9 15,-8 15,-34 0,-14 -13,-22 -27,-22 -24,0 -45,22 -45,51 0,20 21,39 56,39 97,0 141,-105 159,-176 L 375,181 c 23,-91 45,-154 89,-153 6,0 9,2 9,6 0,7 -15,13 -15,35 0,14 13,20 27,20 24,0 45,-22 45,-51 C 530,18 508,0 473,0 368,0 326,120 309,190 Z";
   var integralPath = new Path2D(integralPathStr);
   integralPath.svgData = integralPathStr;
+  var prodPathStr = "m 876.3561,999.59384 v -27.38613 h -17.60537 c -64.55302,0 -96.82952,-41.07919 -96.82952,-124.21565 V 144.75542 c 0,-83.136456 27.38612,-117.369116 114.43489,-117.369116 V 1.7633057e-4 H 1.184082e-5 V 27.386304 H 16.627304 c 60.640711,0 98.785676,24.4519 98.785676,121.281426 v 716.9297 c 0,71.39954 -31.298433,106.61028 -96.829524,106.61028 H 1.184082e-5 v 27.38613 H 359.93198 v -27.38613 h -30.32036 c -64.55302,0 -86.07069,-40.10112 -86.07069,-131.06218 V 64.553192 H 633.79325 V 841.14553 c 0,75.31185 -17.60537,131.06218 -86.07068,131.06218 h -31.29844 v 27.38613 z";
+  var prodPath = new Path2D(prodPathStr);
+  prodPath.svgData = prodPathStr;
 
   var factorMarginH = 0.075;
   var factorMarginV = 0.05;
@@ -104,6 +107,11 @@ var descartesJS = (function(descartesJS) {
         // an integral
         case ("integral"):
           this.draw = this.drawIntegral;
+          break;
+
+        // a product
+        case ("prod"):
+          this.draw = this.drawProd;
           break;
 
         // a sum
@@ -352,7 +360,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      var nodesWithoutSiblings = this.queryAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
+      var nodesWithoutSiblings = this.queryAll(/formula|fraction|superIndex|subIndex|radical|sum|integral|prod|limit|matrix|defparts|dynamicText|componentNumCtrl|componentSpace/);
       var nodesWithoutSiblings_i;
 
       for (var i=0, l=nodesWithoutSiblings.length; i<l; i++) {
@@ -821,8 +829,10 @@ var descartesJS = (function(descartesJS) {
           descartesJS.ctx.font = children_i.style.toString();
           children_i.metrics = getFontMetrics(descartesJS.ctx.font);
 
-          children_i.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
-          children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+          // children_i.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+          // children_i.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+          children_i.metrics.marginX = 0;
+          children_i.metrics.paddingX = 0;
 
           children_i.metrics.w = descartesJS.ctx.measureText(textTemp).width + 2*children_i.metrics.paddingX;
 
@@ -865,7 +875,7 @@ var descartesJS = (function(descartesJS) {
           superIndex.metrics.descent += superIndex.metrics.paddingY;
           superIndex.metrics.h += 2*superIndex.metrics.paddingY;
 
-          // no estoy seguro si es correcto, quizá habrá que volverlo a descomentar
+// no estoy seguro si es correcto, quizá habrá que volverlo a descomentar
           // this.metrics.ascent = superIndex.metrics.descent - superIndex.metrics.prevChild.metrics.descent + parseInt(2*superIndex.metrics.prevChild.metrics.h/7) + superIndex.metrics.ascent;
 
           displaceX += 2*superIndex.metrics.marginX;
@@ -1237,6 +1247,104 @@ var descartesJS = (function(descartesJS) {
         }
 
         //////////////////////////////////////////////////////////
+        else if (children_i.nodeType === "prod") {
+          var prod = children_i;
+        
+          prod.updateFormula();
+        
+          var components = prod.children;
+          var prodFrom = components[0];
+          var prodTo = components[1];
+          var prodWhat = components[2];
+        
+          prod.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
+          prod.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+          prod.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
+        
+          prod.metrics.offsetX_aux = displaceX;
+        
+          // prod position
+          Object.defineProperties(prod.metrics, {
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+        
+            "offsetX" : { get : function() { return thisFormula.metrics.offsetX +thisFormula.metrics.paddingX +this.marginX +this.offsetX_aux; } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+          });
+        
+          //////////////////////////////////
+          // w=876, h=1000
+          descartesJS.ctx.font = children_i.style.toString();
+          var tmpMetric = getFontMetrics(descartesJS.ctx.font);
+          
+          var piHeight = parseInt(tmpMetric.h*1.2);
+          var piWidth = parseInt(0.5 +piHeight*876/1000);
+          prod.piSign = {
+            w : piWidth,
+            h : piHeight,
+            scale : piHeight/1000,
+          };
+          var prodWidth = Math.max(prodTo.metrics.w, prodFrom.metrics.w, prod.piSign.w);
+        
+          prod.piSign.parent = prod;
+          Object.defineProperties(prod.piSign, {
+            "prodWidth" : { value : prodWidth },
+        
+            "x" : { get: function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.prodWidth - this.w)/2); } },
+            "y" : { get: function() { return thisFormula.metrics.offsetY +tmpMetric.descent -(this.h +tmpMetric.h)/2; } },
+          });
+        
+          var newBaselineTo = tmpMetric.descent -prodTo.metrics.descent -(piHeight +tmpMetric.h)/2 -prod.metrics.paddingY;
+        
+          // prodTo position
+          Object.defineProperties(prodTo.metrics, {
+            "parent" : { value : prod },
+            "prodWidth" : { value : prodWidth },
+            "newBaselineTo" : { value : newBaselineTo },
+        
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+        
+            "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.prodWidth - this.w)/2); } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineTo; } },
+          });
+        
+          var newBaselineFrom = prodFrom.metrics.ascent +tmpMetric.descent +(piHeight -tmpMetric.h)/2 +prod.metrics.paddingY;
+        
+          // prodFrom position
+          Object.defineProperties(prodFrom.metrics, {
+            "parent" : { value : prod },
+            "prodWidth" : { value : prodWidth },
+            "newBaselineFrom" : { value : newBaselineFrom },
+        
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+        
+            "offsetX" : { get : function() { return this.parent.metrics.offsetX + this.parent.metrics.paddingX +parseInt((this.prodWidth - this.w)/2); } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY + this.newBaselineFrom; } },
+          });
+        
+          // prodWhat position
+          Object.defineProperties(prodWhat.metrics, {
+            "parent" : { value : prod },
+            "prodWidth" : { value : prodWidth },
+        
+            "x" : { get : function() { return this.offsetX; } },
+            "y" : { get : function() { return this.offsetY; } },
+        
+            "offsetX" : { get : function() { return this.parent.metrics.offsetX + 2*this.parent.metrics.paddingX +this.prodWidth; } },
+            "offsetY" : { get : function() { return thisFormula.metrics.offsetY; } },
+          });
+        
+          prod.metrics.w = prodWidth + prodWhat.metrics.w +3*prod.metrics.paddingX;
+          prod.metrics.ascent = Math.max( prodWhat.metrics.ascent, (-newBaselineTo +prodTo.metrics.ascent) ) +prod.metrics.paddingY;
+          prod.metrics.descent = Math.max( prodWhat.metrics.descent, (newBaselineFrom +prodFrom.metrics.descent) ) +prod.metrics.paddingY;
+          prod.metrics.h = prod.metrics.ascent + prod.metrics.descent;
+        
+          displaceX += 2*prod.metrics.marginX;
+        }
+
+        //////////////////////////////////////////////////////////
         else if (children_i.nodeType === "limit") {
           var limit = children_i;
 
@@ -1347,7 +1455,7 @@ var descartesJS = (function(descartesJS) {
           var cols = matrix.columns;
 
           matrix.metrics.marginX = parseInt(1.5 + this.style.size*factorMarginH);
-          matrix.metrics.paddingX = parseInt(1.5 + this.style.size*factorPaddingH);
+          matrix.metrics.paddingX = parseInt(5 + this.style.size*factorPaddingH);
           matrix.metrics.paddingY = parseInt(1.5 + this.style.size*factorPaddingV);
 
           matrix.metrics.offsetX_aux = displaceX;
@@ -1792,6 +1900,23 @@ var descartesJS = (function(descartesJS) {
     /**
      * 
      */
+    drawProd(ctx) {
+      ctx.save();
+      ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+      ctx.translate(this.piSign.x, this.piSign.y);
+      ctx.scale(this.piSign.scale, this.piSign.scale);
+      (descartesJS.isMsEdge) ? this.drawProdSign(ctx) : ctx.fill(prodPath);
+      ctx.restore();
+      
+      for (var i=0, l=this.children.length; i<l; i++) {
+        this.children[i].draw(ctx);
+      }
+      
+      this.drawBorder(ctx, "blue");
+    }
+    /**
+     * 
+     */
     drawLimit(ctx) {
       for (var i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
@@ -1818,18 +1943,86 @@ var descartesJS = (function(descartesJS) {
       var w_2 = w/2;
       ctx.lineWidth = w;
       ctx.strokeStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
-
+      
       ctx.beginPath();
 
-      ctx.moveTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
-      ctx.lineTo(this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent);
-      ctx.lineTo(this.metrics.x +w_2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h);
-      ctx.lineTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h);
+      if (this.matrix_type == 0) {
+        ctx.moveTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.lineTo(this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.lineTo(this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
+        ctx.lineTo(this.metrics.x +w_2 +1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
 
-      ctx.moveTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
-      ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent);
-      ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
-      ctx.lineTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
+        ctx.moveTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.lineTo(this.metrics.x +this.metrics.w -w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
+        ctx.lineTo(this.metrics.x +this.metrics.w -w_2 -1.5*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h);
+      }
+      else if (this.matrix_type == 1) {
+        ctx.moveTo(this.metrics.x +w_2 +2*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.bezierCurveTo(
+          this.metrics.x -w_2, this.metrics.y +w_2 -this.metrics.ascent,
+          this.metrics.x -w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +w_2 +2*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h
+        );
+
+        ctx.moveTo(this.metrics.x +this.metrics.w -w_2 -2*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.bezierCurveTo(
+          this.metrics.x +this.metrics.w +w_2, this.metrics.y +w_2 -this.metrics.ascent,
+          this.metrics.x +this.metrics.w +w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +this.metrics.w -w_2 -2*this.metrics.marginX, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h
+        );
+      }
+      else if (this.matrix_type == 2) {
+        var x1 = 3*this.metrics.marginX;
+        var x2 = x1/2;
+        ctx.moveTo(this.metrics.x +w_2 +x1, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.bezierCurveTo(
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent, 
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent,
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +2*this.metrics.marginX
+        );
+        ctx.lineTo(this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 -5*this.metrics.marginX);
+        ctx.bezierCurveTo(
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2
+        );
+        ctx.bezierCurveTo(
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 +5*this.metrics.marginX
+        );
+        ctx.lineTo(this.metrics.x +w_2 +x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h -2*this.metrics.marginX);
+        ctx.bezierCurveTo(
+          this.metrics.x +w_2 +x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +w_2 +x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +w_2 +x1, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h
+        );
+
+        ctx.moveTo(this.metrics.x +this.metrics.w +w_2 -x1, this.metrics.y +w_2 -this.metrics.ascent);
+        ctx.bezierCurveTo(
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent, 
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent,
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +2*this.metrics.marginX
+        );
+        ctx.lineTo(this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 -5*this.metrics.marginX);
+        ctx.bezierCurveTo(
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +this.metrics.w +w_2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2
+        );
+        ctx.bezierCurveTo(
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2,
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h/2 +5*this.metrics.marginX
+        );
+        ctx.lineTo(this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y +w_2 -this.metrics.ascent +this.metrics.h -2*this.metrics.marginX);
+        ctx.bezierCurveTo(
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +this.metrics.w +w_2 -x2, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h,
+          this.metrics.x +this.metrics.w +w_2 -x1, this.metrics.y -w_2 -this.metrics.ascent +this.metrics.h
+        );
+      }
 
       ctx.stroke();
 
@@ -1965,6 +2158,35 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawIntegralSign(ctx) {
+      ctx.strokeStyle = 'rgba(0,0,0,0)';
+      ctx.lineCap = 'butt';
+      ctx.lineJoin = 'miter';
+      ctx.miterLimit = 4;
+      ctx.beginPath();
+      ctx.moveTo(150,828);
+      ctx.bezierCurveTo(129,916,108,972,67,972);
+      ctx.bezierCurveTo(61,972,58,970,58,966);
+      ctx.bezierCurveTo(58,957,73,958,73,932);
+      ctx.bezierCurveTo(73,918,60,910,46,910);
+      ctx.bezierCurveTo(22,910,1,932,1,961);
+      ctx.bezierCurveTo(1,981,22,1000,57,1000);
+      ctx.bezierCurveTo(154,1000,198,895,216,824);
+      ctx.lineTo(375,181);
+      ctx.bezierCurveTo(398,90,420,27,464,28);
+      ctx.bezierCurveTo(470,28,473,30,473,34);
+      ctx.bezierCurveTo(473,41,458,47,458,69);
+      ctx.bezierCurveTo(458,83,471,89,485,89);
+      ctx.bezierCurveTo(509,89,530,67,530,38);
+      ctx.bezierCurveTo(530,18,508,0,473,0);
+      ctx.bezierCurveTo(368,0,326,120,309,190);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    /**
+     * 
+     */
+    drawProdSign(ctx) {
       ctx.strokeStyle = 'rgba(0,0,0,0)';
       ctx.lineCap = 'butt';
       ctx.lineJoin = 'miter';
@@ -2219,6 +2441,7 @@ var descartesJS = (function(descartesJS) {
           (children_i.nodeType === "radicand") ||
           (children_i.nodeType === "sum") ||
           (children_i.nodeType === "integral") ||
+          (children_i.nodeType === "prod") ||
           (children_i.nodeType === "limit") ||
           (children_i.nodeType === "from") ||
           (children_i.nodeType === "to") ||
