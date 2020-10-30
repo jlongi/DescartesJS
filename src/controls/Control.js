@@ -147,7 +147,7 @@ var descartesJS = (function(descartesJS) {
        * type {Object}
        * @private
        */
-      this.font_size = (this.parent.version < 4) ? -1 : parser.parse("12");
+      this.font_size = parser.parse("0");
 
       /**
        * bold text condition

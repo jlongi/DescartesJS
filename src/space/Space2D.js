@@ -12,7 +12,7 @@ var descartesJS = (function(descartesJS) {
   var minScale = 0.000001;
   var maxScale = 1000000;
 
-  var axisFont = descartesJS.convertFont("SansSerif,PLAIN,12");
+  var axisFont = descartesJS.convertFont("Serif,BOLD+ITALIC,16");
   var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
 
   var self;
@@ -74,7 +74,6 @@ var descartesJS = (function(descartesJS) {
         id    : self.id + "_canvas",
         class : "DescartesSpace2DCanvas",
         width : self.w * self.ratio,
-
       });
 
       self.backCanvas = descartesJS.newHTML("canvas", {
@@ -82,6 +81,7 @@ var descartesJS = (function(descartesJS) {
         width : self.w * self.ratio,
       });
 
+      self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
       self.canvas.style.zIndex = self.zIndex;
       self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
       self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
@@ -107,7 +107,7 @@ var descartesJS = (function(descartesJS) {
       self.container = descartesJS.newHTML("div", {
         id    : self.id,
         class : "DescartesSpace2DContainer",
-        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`,
+        style : `z-index:${self.zIndex};`,
       });
 
       // ### ARQUIMEDES ###
@@ -776,7 +776,12 @@ var descartesJS = (function(descartesJS) {
       });
 
       document.addEventListener("mouseleave", function(evt) {
-        onMouseUp(evt);
+        self.click = 0;
+        self.evaluator.setVariable(self.mpressedStr, 0);
+        self.evaluator.setVariable(self.mclickedStr, 1);
+        self.evaluator.setVariable(self.mclickIzqStr, 1);
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
       });
     }
   }

@@ -649,7 +649,7 @@ var descartesJS = (function(descartesJS, babel) {
             case("align"):
             // anchor text
             case("anchor"):
-            // linedash
+            // line dash
             case("lineDash"):
               graphicObj[babelValue] = babel[values_i_1];
               break;
@@ -675,6 +675,8 @@ var descartesJS = (function(descartesJS, babel) {
               graphicObj[babelValue] = (babel[values_i_1] === "true");
               break;
 
+            // shadow color
+            case("shadowColor"):
             // color
             case("color"):
             // fill color
@@ -688,14 +690,17 @@ var descartesJS = (function(descartesJS, babel) {
             // trace
             case("trace"):
               // patch for catala
-              if (babel[values_i_1] === "false") {
-                graphicObj[babelValue] = "";
-              }
-              else {
-                graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
-              }
+              graphicObj[babelValue] = (babel[values_i_1] === "false") ? "" : new descartesJS.Color(values_i_1, this.parent.evaluator);
               break;
 
+            // border text size parameter
+            case("border_size"):
+            // shadow blur parameter
+            case("shadowBlur"):
+            // shadow offset x parameter
+            case("shadowOffsetX"):
+            // shadow offset y parameter
+            case("shadowOffsetY"):
             // family parameter
             case("family"):
             // parameter of a curve
@@ -931,11 +936,17 @@ var descartesJS = (function(descartesJS, babel) {
 
           // illumination model
           case("model"):
-          // linedash
+          // text alignment
+          case("align"):
+          // anchor text
+          case("anchor"):
+          // line dash
           case("lineDash"):
             graphicObj[babelValue] = babel[values_i_1];
             break;
 
+          // shadow color
+          case("shadowColor"):
           // fill color of the curve
           case("fill"):
             // patch for catala
@@ -970,6 +981,13 @@ var descartesJS = (function(descartesJS, babel) {
             graphicObj[babelValue] = new descartesJS.Color(values_i_1, this.parent.evaluator);
           }
           break;
+
+          // color border
+          case("border"):
+            if ( (values_i_1 != "") && (babel[values_i_1] != "false") ) {
+              graphicObj["border"] = new descartesJS.Color(values_i_1, this.parent.evaluator);
+            }
+            break;
 
           // color
           case("color"):
@@ -1011,6 +1029,14 @@ var descartesJS = (function(descartesJS, babel) {
             }
             break;
 
+          // border text size parameter
+          case("border_size"):
+          // shadow blur parameter
+          case("shadowBlur"):
+          // shadow offset x parameter
+          case("shadowOffsetX"):
+          // shadow offset y parameter
+          case("shadowOffsetY"):
           // family parameter
           case("family"):
           // curve parameter

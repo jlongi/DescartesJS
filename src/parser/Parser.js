@@ -12,7 +12,7 @@ var descartesJS = (function(descartesJS) {
 
   var parenthesesType = "parentheses";
   var squareBracketType = "square_bracket";
-  var assignType = "asign";
+  var assignType = "assign";
   var compOperatorType = "compOperator";
   var identifierType = "identifier";
   var operatorType = "operator";

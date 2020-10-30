@@ -287,7 +287,6 @@ var descartesJS = (function(descartesJS) {
         self.displaceRegionSouth = parent.displaceRegionSouth || 0;
         self.displaceRegionEast = parent.displaceRegionEast || 0;
         self.displaceRegionWest = parent.displaceRegionWest || 0;
-
         parentW = parseInt(parent.container.width);
         parentH = parseInt(parent.container.height);
 
@@ -316,6 +315,7 @@ var descartesJS = (function(descartesJS) {
           self.container.style.top  = self.y + "px";
         }
 
+
         if (self.y >= 0) {
           newH = parentH - self.y;
           if (self.h > newH) {
@@ -327,10 +327,6 @@ var descartesJS = (function(descartesJS) {
           self.h = (newH >= parentH) ? parentH : newH;
         }
 
-        if (self.displaceRegionSouth > 0) {
-          self.h -= self.displaceRegionSouth;
-        }
-
         if (self.x >= 0) {
           newW = parentW - self.x;
           if (self.w > newW) {
@@ -340,10 +336,6 @@ var descartesJS = (function(descartesJS) {
         else {
           newW = self.w + self.x;
           self.w = (newW >= parentW) ? parentW : newW;
-        }
-
-        if (self.displaceRegionEast > 0) {
-          self.w -= self.displaceRegionEast;
         }
       }
 

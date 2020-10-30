@@ -33,6 +33,8 @@ var descartesJS = (function(descartesJS) {
         this.anchor = "top_left"
       };
 
+      this.shadowColor = (this.shadowColor) ? this.shadowColor.getColor() : "transparent";
+
       this.text = new descartesJS.TextObject(this, this.text);
     }
 

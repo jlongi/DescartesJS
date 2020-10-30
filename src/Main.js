@@ -113,7 +113,7 @@ var descartesJS = (function(descartesJS) {
   function onLoad(evt) {
     var fontDiv = descartesJS.newHTML("div");
     var str = '<div style="font-size:12px;visibility:hidden;">';
-    var font_names = ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbola", "DJS_extra", "DJS_sansserif", "DJS_serif", "DJS_monospace"];
+    var font_names = ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbol", "DJS_sansserif", "DJS_serif", "DJS_monospace", "DJS_math"];
 
     font_names.forEach(font => {
       str += '<div style="font-family:'+ font +';"><span>_</span><span style="font-weight:bold;">_</span><span style="font-style:italic;">_</span><span style="font-weight:bold;font-style:italic;">_</span></div>';

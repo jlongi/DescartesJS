@@ -322,6 +322,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               lastCommand = "from";
+              commandStack[commandStack.length-1] = lastCommand;
             }
           }
           else if (lastCommand === "from") {
@@ -331,6 +332,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               lastCommand = "to";
+              commandStack[commandStack.length-1] = lastCommand;
             }
           }
           else if (lastCommand === "to") {
@@ -343,6 +345,7 @@ var descartesJS = (function(descartesJS) {
               lastNode = tmpNode;
 
               lastCommand = "what";
+              commandStack[commandStack.length-1] = lastCommand;
             }
           }
 
@@ -406,7 +409,7 @@ var descartesJS = (function(descartesJS) {
             }
           }
 
-          if (lastNode.nodeType === "formula") {
+          else if (lastNode.nodeType === "formula") {
             mathMode = false;
             styleStack.pop();
             lastStyle = styleStack[styleStack.length -1];
@@ -457,6 +460,9 @@ var descartesJS = (function(descartesJS) {
             lastCommand = commandStack[commandStack.length -1];
             lastNode = lastNode.parent.parent;
           }
+
+
+          
         }
 
         // add { }
@@ -466,8 +472,6 @@ var descartesJS = (function(descartesJS) {
         // else if ( (tokens[i].type === "close") && (tokens[i].value === "}") && (lastCommand === undefined) ) {
         //   lastNode.addChild( new descartesJS.TextNode("}", "text", lastStyle.clone(), null) );
         // }
-
-
       }
       
       var currentNode;
@@ -510,7 +514,6 @@ var descartesJS = (function(descartesJS) {
       
       // textNodes.adjustFontSize();
       // return textNodes.normalize();
-console.log(textNodes)
       return textNodes;
     }
   }

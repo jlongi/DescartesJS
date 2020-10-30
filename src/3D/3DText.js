@@ -21,6 +21,8 @@ var descartesJS = (function(descartesJS) {
     constructor(parent, values) {
       // call the parent constructor
       super(parent, values);    
+
+      this.shadowColor = (this.shadowColor) ? this.shadowColor.getColor() : "transparent";
     }
   
     /**

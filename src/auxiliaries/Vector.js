@@ -104,7 +104,7 @@ var descartesJS = (function(descartesJS) {
         tmpExp = parser.parse(expr[i], true);
 
         // if the expression is not an assignment
-        if ((tmpExp) && (tmpExp.type != "asign")) {
+        if ((tmpExp) && (tmpExp.type != "assign")) {
           tmpExp = parser.parse( this.id + "[" + i + "]=" + expr[i], true );
         }
 

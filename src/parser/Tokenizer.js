@@ -193,7 +193,7 @@ var descartesJS = (function(descartesJS) {
         // equal (assign)
         val = str.match(assignRegExp);
         if ((val) && !(str.match( /^==/))) {
-          addToken("asign", val[0], val[0].length);
+          addToken("assign", val[0], val[0].length);
           continue;
         }
 

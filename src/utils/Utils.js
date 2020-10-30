@@ -100,7 +100,8 @@ var descartesJS = (function(descartesJS) {
 
       // descartesJS._ratio = window.devicePixelRatio || 1;
       // descartesJS._ratio = (descartesJS.isIOS) ? 1.25 : Math.max(1.5, window.devicePixelRatio);
-      descartesJS._ratio = 1.5;
+      //descartesJS._ratio = 1.5;
+      descartesJS._ratio = 2;
     }
 
     setNewToFixed();

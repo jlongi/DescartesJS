@@ -7,7 +7,6 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var family;
-  var familyArray = [descartesJS.sansserif_font, descartesJS.serif_font, descartesJS.monospace_font];
 
   class TextStyle {
     /**
@@ -74,15 +73,15 @@ var descartesJS = (function(descartesJS) {
      * Convert the font style to a string representation
      * @return {String} return the string representation of the style
      */
-    toString() {
+    toString(math) {
       if ((/arial|sansserif/i).test(this.family)) {
-        family = familyArray[0];
+        family = descartesJS.sansserif_font;
       }
       else if ((/times|serif/i).test(this.family)) {
-        family = familyArray[1];
+        family = (math) ? descartesJS.math_font : descartesJS.serif_font;
       }
       else if ((/courier|monospaced/i).test(this.family)) {
-        family = familyArray[2];
+        family = descartesJS.monospace_font;
       }
 
       return ((this.bold ? 'bold' : '') + " " + (this.italic ? 'italic' : '') + " " + this.size + "px " + family).trim();

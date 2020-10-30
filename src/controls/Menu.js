@@ -144,9 +144,12 @@ var descartesJS = (function(descartesJS) {
       });
 
       // the label
-      this.label = descartesJS.newHTML("label", {
+      this.label = descartesJS.newHTML("canvas", {
         class : "DescartesMenuLabel",
       });
+this.label_ctx = this.label.getContext("2d");
+this.ratio = parent.ratio;
+
       // the menu
       this.select = descartesJS.newHTML("select", {
         id       : this.id + "_menuSelect",
@@ -188,12 +191,31 @@ var descartesJS = (function(descartesJS) {
     init(noupdate) {
       evaluator = this.evaluator;
 
-      var name = evaluator.eval(this.name).toString();
-      this.label.innerHTML = name;
-      name = this.label.textContent;
+      var old_name = evaluator.eval(this.name).toString();
+      this.label.innerHTML = old_name;
+      var name = this.label.textContent;
 
       // find the font size of the text field
-      this.fieldFontSize = (this.parent.version != 2) ? descartesJS.getFieldFontSize(this.h) : 10;
+      this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
+
+//new
+this.text_object = new descartesJS.TextObject({
+  parent : {
+    decimal_symbol : this.parent.decimal_symbol
+  },
+  evaluator : this.evaluator,
+  decimals : this.decimals,
+  fixed: false,
+  align: "left",
+  anchor: "center_center",
+  width: this.parser.parse("0"),
+  font_size: this.parser.parse(""+ this.fieldFontSize),
+  font_family: this.font_family,
+  italics: this.italics,
+  bold: this.bold,
+}, old_name);
+//new
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       var minchw = 0;
       var indMinTFw = 0;
@@ -214,7 +236,9 @@ var descartesJS = (function(descartesJS) {
       minchw += 25;
       minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.eval(this.strValue[indMinTFw])), this.fieldFontSize+"px " + descartesJS.sansserif_font ) + 7;
 
-      var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
+//      var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
+var labelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+
       var fieldWidth = minTFw;
 
       if (name == "") {
@@ -245,6 +269,8 @@ var descartesJS = (function(descartesJS) {
       this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
       this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+this.label.width = labelWidth*this.ratio;
+this.label.height = this.h*this.ratio;
 
       this.field.value = fieldValue;
       this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
@@ -305,6 +331,11 @@ var descartesJS = (function(descartesJS) {
 
       // update the position and size
       this.updatePositionAndSize();
+
+this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**

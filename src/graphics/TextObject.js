@@ -51,20 +51,14 @@ var descartesJS = (function(descartesJS) {
         this.type = "rtfNode";
         this.text = text;
         this.textNodes = ( new descartesJS.RTFParser(parent.evaluator) ).parse(text.substring(10));
+        this.draw = this.drawRTF;
       }
       else {
         this.descarTeXParser = new descartesJS.DescarTeXParser();
         this.text = this.parseSimpleText(this.textStr);
-        this.textNodes = new descartesJS.TextNode("", "textLineBlock", null, null)
+        this.textNodes = new descartesJS.TextNode("", "textLineBlock", null, null);
+        this.draw = this.drawText;
       }
-
-    }
-
-    /**
-     * 
-     */
-    draw(ctx, fill, posX, posY, onlyUpdate) {
-      this[(this.type === "rtfNode") ? "drawRTF" : "drawText"](ctx, fill, posX, posY, onlyUpdate);
     }
 
     /**
@@ -98,7 +92,12 @@ var descartesJS = (function(descartesJS) {
           bold: this.parent.bold || false,
           color: color,
           align: this.align,
-          border: this.parent.border
+          border: this.parent.border,
+          border_size: this.parent.border_size,
+          shadowBlur: this.parent.shadowBlur,
+          shadowOffsetX: this.parent.shadowOffsetX,
+          shadowOffsetY: this.parent.shadowOffsetY,
+          shadowColor: this.parent.shadowColor || "transparent",
         });
 
         this.textNodes = this.descarTeXParser.parse(newTextStr, this.evaluator, style);

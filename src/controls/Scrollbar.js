@@ -77,9 +77,11 @@ var descartesJS = (function(descartesJS) {
       });
 
       // the label
-      this.label = descartesJS.newHTML("label", {
+      this.label = descartesJS.newHTML("canvas", {
         class : "DescartesScrollbarLabel",
       });
+this.label_ctx = this.label.getContext("2d");
+this.ratio = parent.ratio;
 
       // add the elements to the container
       this.container.appendChild(this.canvas);
@@ -144,14 +146,33 @@ var descartesJS = (function(descartesJS) {
       self = this;
       evaluator = self.evaluator;
 
-      name = evaluator.eval(self.name).toString();
-      self.label.innerHTML = name;
+      var old_name = evaluator.eval(self.name).toString();
+      self.label.innerHTML = old_name;
       name = this.label.textContent;
 
       var defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
       // find the font size of the text field
-      self.fieldFontSize = (self.orientation === VERTICAL) ? (defaultHeight - parseInt(self.h/20) -1) : ((self.parent.version !== 2) ? descartesJS.getFieldFontSize(defaultHeight) : 10);
+      self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : ( (self.orientation === VERTICAL) ? (defaultHeight - parseInt(self.h/20) -1) : descartesJS.getFieldFontSize(defaultHeight) );
+
+//new
+this.text_object = new descartesJS.TextObject({
+  parent : {
+    decimal_symbol : this.parent.decimal_symbol
+  },
+  evaluator : this.evaluator,
+  decimals : this.decimals,
+  fixed: false,
+  align: "left",
+  anchor: "center_center",
+  width: this.parser.parse("0"),
+  font_size: this.parser.parse(""+ this.fieldFontSize),
+  font_family: this.font_family,
+  italics: this.italics,
+  bold: this.bold,
+}, old_name);
+//new
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", self.fieldFontSize+"px " + descartesJS.sansserif_font);
 
@@ -200,7 +221,9 @@ var descartesJS = (function(descartesJS) {
         var minsbw = 58;
 
         // get the width of all elements in the scrollbar
-        var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
+//        var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
+var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+
         self.labelWidth = minLabelWidth;
         var minTFWidth = fieldValueSize;
         self.fieldWidth = minTFWidth;
@@ -275,6 +298,9 @@ var descartesJS = (function(descartesJS) {
 
       // style the label
       self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+
+this.label.width = self.labelWidth * this.ratio;
+this.label.height = self.labelHeight * this.ratio;
     }
 
     /**
@@ -324,6 +350,11 @@ var descartesJS = (function(descartesJS) {
 
       // register the control value
       evaluator.setVariable(this.id, this.value);
+
+this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**

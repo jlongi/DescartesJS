@@ -291,6 +291,9 @@ var descartesJS = (function(descartesJS) {
           this.drawAux(this.ctx, fill, stroke);
         }
       }
+
+      // restore the stoke style
+      this.ctx.setLineDash([]);
     }
 
     /**

@@ -102,7 +102,7 @@ var descartesJS = (function(descartesJS) {
 
       // add the identifier nodes to local variables
       for (var i=0, l=tmpExpression.length; i<l; i++) {
-        if (tmpExpression[i].type === "asign") {
+        if (tmpExpression[i].type === "assign") {
           tmpExpression[i] = tmpExpression[i].childs[0].value;
         }
         else if (tmpExpression[i].type === "identifier") {

@@ -61,11 +61,13 @@ var descartesJS = (function(descartesJS) {
         self.checkbox.setAttribute("name", self.radio_group);
       }
       self.checkbox.internalID = this.id;
-        
+
       // the label
-      self.label = descartesJS.newHTML("label", {
+      self.label = descartesJS.newHTML("canvas", {
         class : "DescartesCheckboxLabel",
       });
+this.label_ctx = this.label.getContext("2d");
+this.ratio = parent.ratio;
 
       // the dummyLabel
       self.dummyLabel = descartesJS.newHTML("label", {
@@ -73,6 +75,7 @@ var descartesJS = (function(descartesJS) {
       });
 
       self.value = self.evaluator.eval(self.valueExpr);
+      self.evaluator.setVariable(self.id, self.value);
 
       // add the elements to the container
       self.containerControl.appendChild(self.label);
@@ -94,24 +97,43 @@ var descartesJS = (function(descartesJS) {
       var self = this;
       evaluator = self.evaluator;
 
-      self.label.innerHTML = evaluator.eval(self.name).toString();
+      var old_name = evaluator.eval(self.name).toString();
+      self.label.innerHTML = old_name;
 
       // find the font size of the checkbox
-      self.labelFontSize = descartesJS.getFieldFontSize(self.h);
+      self.labelFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
       var labelWidth = Math.max(self.w - self.h, 0);
+
+//new
+this.text_object = new descartesJS.TextObject({
+  parent : {
+    decimal_symbol : this.parent.decimal_symbol
+  },
+  evaluator : this.evaluator,
+  decimals : this.decimals,
+  fixed: false,
+  align: "left",
+  anchor: "center_center",
+  width: this.parser.parse("0"),
+  font_size: this.parser.parse(""+ this.labelFontSize),
+  font_family: this.font_family,
+  italics: this.italics,
+  bold: this.bold,
+}, old_name);
+//new
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
       self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
 
       self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
-      self.checkbox.checked = (self.value != 0);
+      self.checkbox.checked = (self.evaluator.getVariable(self.id) != 0);
 
       self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
-      
-      // register the control value
-      self.evaluator.setVariable(self.id, self.value);
-     
+this.label.width = labelWidth*this.ratio;
+this.label.height = this.h*this.ratio;
+
       self.update();
     };
 
@@ -147,41 +169,56 @@ var descartesJS = (function(descartesJS) {
             self.value = oldVal;
             self.checkbox.checked = (self.value !== 0);
           }
+
+          // register the control value
+          evaluator.setVariable(self.id, self.value);
         }
         // update the radio button value
         else {
-          self.value = (self.checkbox.checked) ? 1 : 0;
+          self.value = evaluator.getVariable(self.id);
+          evaluator.setVariable(self.radio_group, 0);
+
+          var radios = document.querySelectorAll("[name="+self.radio_group+"]");
+          var last_radio_checked = -1;
+
           if (self.pressed) {
+            for (var i=radios.length-1; i>=0; i--) {
+              evaluator.setVariable(radios[i].internalID, 0);
+              radios[i].checked = false;
+            }
+
+            evaluator.setVariable(self.id, 1);
+            self.checkbox.checked = true;
+            self.value = 1;
             evaluator.setVariable(self.radio_group, self.id);
-            self.pressed = false;
+            self.pressed = 0;
           }
-          
-          // if (self.pressed) {
-            // var radios = document.querySelectorAll("[name="+self.radio_group+"]");
-            // for (var i=radios.length-1; i>=0; i--) {
-            //   evaluator.setVariable(radios[i].internalID, 0);
-            // }
-            // self.value = 1;
-            // self.pressed = false;
-          // }
-          // else {
-          //   self.value = oldVal;
-          //   self.checkbox.checked = (self.value !== 0);
-          //   var radios = document.querySelectorAll("[name="+self.radio_group+"]");
-          //   for (var i=radios.length-1; i>=0; i--) {
-          //     if (radios[i].checked === false) {
-          //       evaluator.setVariable(radios[i].internalID, 0);
-          //     }
-          //   }
-          // }
+          else {
+            for (var i=radios.length-1; i>=0; i--) {
+              last_radio_checked = (evaluator.getVariable(radios[i].internalID) != 0) ? i : last_radio_checked;
+              evaluator.setVariable(radios[i].internalID, 0);
+              radios[i].checked = false;
+            }
+
+            if (last_radio_checked >= 0) {
+              evaluator.setVariable(radios[last_radio_checked].internalID, 1);
+              radios[last_radio_checked].checked = true;
+              evaluator.setVariable(self.radio_group, radios[last_radio_checked].internalID);
+            }
+
+            self.value = (self.checkbox.checked) ? 1 : 0;
+          }
         }
 
-        // register the control value
-        evaluator.setVariable(self.id, self.value);
       }
 
       // update the position and size
       self.updatePositionAndSize();
+
+this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**

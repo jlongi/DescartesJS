@@ -22,6 +22,7 @@ var descartesJS = (function(descartesJS) {
   var despX;
   var despY;
   var txtW;
+  var txtH;
 
   var _image_pos_x;
   var _image_pos_y;
@@ -79,6 +80,8 @@ var descartesJS = (function(descartesJS) {
       }
       this.text_align = this.text_align.split("_");
       this.image_align = this.image_align.split("_");
+
+      this.old_name = this.name;
 
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
@@ -254,6 +257,11 @@ var descartesJS = (function(descartesJS) {
       this.ctx = this.btn.getContext("2d");
       this.ctx.imageSmoothingEnabled = false;
 
+      if (this.tooltip) {
+        this.btn.title = this.tooltip;
+      }
+
+
       this.container.appendChild(this.btn);
 
       this.addControlContainer(this.container);
@@ -312,12 +320,12 @@ var descartesJS = (function(descartesJS) {
           var spread = 1;
           btn.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
         }
-        if (this.conStyle.shadowTextColor) {
-          ctx.shadowBlur = this.conStyle.shadowTextBlur || 1;
-          ctx.shadowOffsetX = this.conStyle.shadowTextOffsetX || 0;
-          ctx.shadowOffsetY = this.conStyle.shadowTextOffsetY || 2;
-          ctx.shadowColor = this.conStyle.shadowTextColor;
-        }
+        // if (this.conStyle.shadowTextColor) {
+          // ctx.shadowBlur = this.conStyle.shadowTextBlur || 1;
+          // ctx.shadowOffsetX = this.conStyle.shadowTextOffsetX || 0;
+          // ctx.shadowOffsetY = this.conStyle.shadowTextOffsetY || 2;
+          // ctx.shadowColor = this.conStyle.shadowTextColor;
+        // }
       }
       //
 
@@ -332,20 +340,36 @@ var descartesJS = (function(descartesJS) {
       container.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
 
       ////
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      // ctx.textAlign = "center";
+      // ctx.textBaseline = "middle";
       ctx.lineJoin = "round";
       ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
 
-      if (this.customStyle) {
-        if (this.conStyle.font == "serif") {
-          ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
-        }
-        else if (this.conStyle.font == "monospace") {
-          ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + descartesJS.monospace_font;
-        }
-      }
-      // container.setAttribute("data-color", this.colorInt.getColor());
+//new
+this.text_object = new descartesJS.TextObject({
+  parent : {
+    decimal_symbol : this.parent.decimal_symbol
+  },
+  evaluator : this.evaluator,
+  decimals : this.decimals,
+  fixed: false,
+  align: "left",
+  anchor: "center_center",
+  width: this.parser.parse("0"),
+  font_size: this.font_size,
+  font_family: this.font_family,
+  italics: this.italics,
+  bold: this.bold,
+  border: this.borderColor, 
+  border_size: (this.conStyle) ? this.conStyle.textBorder : undefined,
+  shadowBlur: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextBlur || 1 : undefined,
+  shadowOffsetX: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetX || 0 : undefined,
+  shadowOffsetY: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetY || 2 : undefined,
+  shadowColor: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextColor: undefined,
+
+}, this.old_name);
+//new
+
       this.draw(force);
     }
 
@@ -452,15 +476,18 @@ var descartesJS = (function(descartesJS) {
       // text position
       //////////////////////////////////////////////////////////
       // horizontal text align
+this.text_object.draw(ctx, this.color.getColor(), 0, 0, true);
+txtW = this.text_object.textNodes.metrics.w;
+txtH = this.text_object.textNodes.metrics.h;
       if (this.text_align[1] == "center") {
         _text_pos_x = MathFloor(this.w/2 + despX)-.5;
       }
       else if (this.text_align[1] == "left") {
-        txtW = ctx.measureText(name).width;
+//        txtW = ctx.measureText(name).width;
         _text_pos_x = txtW/2 + 5 + despX;
       }
       else if (this.text_align[1] == "right") {
-        txtW = ctx.measureText(name).width;
+//        txtW = ctx.measureText(name).width;
         _text_pos_x = this.w - txtW/2 + despX -5;
       }
 
@@ -469,10 +496,12 @@ var descartesJS = (function(descartesJS) {
         _text_pos_y = MathFloor(this.h/2 + despY)-.5;
       }
       else if (this.text_align[0] == "top") {
-        _text_pos_y = font_size/2 + despY +4;
+        _text_pos_y = txtH/2 + despY +4;
+//        _text_pos_y = font_size/2 + despY +4;
       }
       else if (this.text_align[0] == "bottom") {
-        _text_pos_y = this.h - font_size/2 + despY -3;
+        _text_pos_y = this.h - txtH/2 + despY -3;
+        //_text_pos_y = this.h - font_size/2 + despY -3;
       }
 
 
@@ -589,24 +618,26 @@ var descartesJS = (function(descartesJS) {
         if ((this.conStyle.shadowTextColor) && (this.conStyle.textBorder > 0)) {
           ctx.lineWidth = this.conStyle.textBorder;
           ctx.strokeStyle = this.conStyle.shadowTextColor;
-          ctx.strokeText(name, _text_pos_x, _text_pos_y);
+          //ctx.strokeText(name, _text_pos_x, _text_pos_y);
         }
       }
 
       if ( this.borderColor ) {
         ctx.lineWidth = parseInt(font_size/6);
         ctx.strokeStyle = this.borderColor.getColor();
-        ctx.strokeText(name, _text_pos_x, _text_pos_y);
+//        ctx.strokeText(name, _text_pos_x, _text_pos_y);
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // write the button name
-      ctx.fillText(name, _text_pos_x, _text_pos_y);
+//      ctx.fillText(name, _text_pos_x, _text_pos_y);
+//console.log(this.text_object, _text_pos_x, _text_pos_y)
+this.text_object.draw(ctx, this.color.getColor(), _text_pos_x, _text_pos_y);
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // draw the under line
       if (this.underlined) {
-        txtW = ctx.measureText(name).width;
+//        txtW = ctx.measureText(name).width;
         ctx.strokeStyle = this.color.getColor();
         ctx.lineWidth = MathFloor(font_size/10) || 2;
         ctx.lineCap = "round";

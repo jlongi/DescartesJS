@@ -423,7 +423,7 @@ var descartesJS = (function(descartesJS) {
       // conditional
       else if (this.type === "conditional") {
         this.evaluate = function(evaluator) {
-          return (this.childs[0].evaluate(evaluator) > 0) ? this.childs[1].evaluate(evaluator) : this.childs[2].evaluate(evaluator);
+          return (this.childs[0].evaluate(evaluator) > 0) ? this.childs[1].evaluate(evaluator) : ((this.childs[2]) ? this.childs[2].evaluate(evaluator) : 0);
         }
       }
 
@@ -473,7 +473,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // assignation
-      else if (this.type === "asign") {
+      else if (this.type === "assign") {
         var assignation;
 
         var ide = this.childs[0];

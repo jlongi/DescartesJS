@@ -81,6 +81,8 @@ var descartesJS = (function(descartesJS) {
       self.ctx = self.canvas.getContext("2d");
       self.ctx.imageSmoothingEnabled = false;
 
+      self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
+
       // variable to expose the image of the space
       var id_name = self.id + ".image";
       self.parent.images[id_name] = self.canvas;
@@ -105,7 +107,7 @@ var descartesJS = (function(descartesJS) {
       self.container = descartesJS.newHTML("div", {
         id    : self.id,
         class : "DescartesSpace3DContainer",
-        style : `left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`,
+        style : `z-index:${self.zIndex};`,
       });
 
       // add the elements to the container

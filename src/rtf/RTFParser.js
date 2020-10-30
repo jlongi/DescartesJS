@@ -217,9 +217,6 @@ var descartesJS = (function(descartesJS) {
 
           // a new line
           else if (tokens[i].value == "par") {
-            // is not necessary to add the new line node, because a new textLineBlock is added
-            // lastNode.addChild( new descartesJS.TextNode("", "newLine", styleStackTop.clone()) );
-
             newNode = new descartesJS.TextNode("", "textLineBlock", styleStackTop.clone(), this.evaluator);
 
             // find a textBlock to add the new line

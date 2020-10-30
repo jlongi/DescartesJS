@@ -11,9 +11,10 @@ var descartesJS = (function(descartesJS) {
   var name;
   var fontStyleMap = { "bold":"Bold", "italic":"Italic", "italics":"Italic", "bold+italic":"Italic Bold" };
 
-  descartesJS.serif_font     = "descartesJS_serif,DJS_symbola,DJS_extra,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
-  descartesJS.sansserif_font = "descartesJS_sansserif,DJS_symbola,DJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
-  descartesJS.monospace_font = "descartesJS_monospace,DJS_symbola,DJS_monospace,'Courier New',Courier,'Liberation Mono','Nimbus Mono L',monospace";
+  descartesJS.serif_font     = "descartesJS_serif,DJS_symbol,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
+  descartesJS.sansserif_font = "descartesJS_sansserif,DJS_symbol,DJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
+  descartesJS.monospace_font = "descartesJS_monospace,DJS_symbol,DJS_monospace,'Courier New',Courier,'Liberation Mono','Nimbus Mono L',monospace";
+  descartesJS.math_font     = "descartesJS_math,DJS_symbol,DJS_math,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
 
   /**
    * Converts a Descartes font string, to a canvas font string
