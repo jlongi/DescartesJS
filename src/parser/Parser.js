@@ -818,7 +818,7 @@ var descartesJS = (function(descartesJS) {
         var index = str.indexOf(strTo);
         while (index >= 0) {
           str = str.substring(0, index) + strWith + str.substring(index+strTo.length);
-          index = str.indexOf(strTo);
+          index = str.indexOf(strTo, index+strWith.length);
         }
         
         return str;

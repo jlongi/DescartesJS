@@ -78,13 +78,13 @@ var descartesJS = (function(descartesJS) {
       "#descartesJS_north,#descartesJS_south,#descartesJS_east,#descartesJS_west{background:#c0c0c0;position:absolute;z-index:100;}\n"+
 
       // progress bar style
-      ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-apearance:none;apearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
+      ".PBL{position:absolute;background-color:#f2f2f2;border:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;color:#2daae4;visibility:hidden;border-radius:100vw;}\n" +
       ".PBL::-moz-progress-bar{background:#2daae4;border-radius:inherit;}\n" +
       ".PBL::-webkit-progress-bar{background:#f2f2f2;border-radius:100vw;}\n" +
       ".PBL::-webkit-progress-value{background:#2daae4;border-radius:inherit;}\n" +
       ".PBL::-ms-fill{background:#2daae4;border-radius:inherit;}\n" +
 
-      ".DescartesAppContainer *,.DescartesAppContainer *:before,.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;}\n" +
+      ".DescartesAppContainer *,.DescartesAppContainer *:before,.DescartesAppContainer *:after{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;transform:translate3d(0,0,0);}\n" +
       ".DescartesAppContainer{border:none;overflow:hidden;position:relative;top:0;left:0;}\n" +
       ".DescartesCatcher{background-color:rgba(0,0,0,0);cursor:pointer;position:absolute;}\n" +
       ".DescartesLoader{background-color:#fff;overflow:hidden;position:absolute;top:0;left:0;z-index:1000;width:100%;height:100%;display:none;}\n" +
@@ -94,15 +94,14 @@ var descartesJS = (function(descartesJS) {
 
       // style for check box
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
-      ".DescartesCheckboxContainer input[type=checkbox]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border:1px solid gray;}\n" +
-      ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
-      ".DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:white;border:1px solid gray;border-radius:50%;}\n" +
-      ".DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgRadio() +") center center no-repeat;background-size:contain;background-color:white;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:#fff;border:1px solid gray;}\n" +
+      ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:#fff;}\n" +
+      ".DescartesCheckboxContainer input[type=radio]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:#fff;border:1px solid gray;border-radius:50%;}\n" +
+      ".DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgRadio() +") center center no-repeat;background-size:contain;background-color:#fff;}\n" +
       ".DescartesCheckbox{position:absolute;}\n" +
 
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +
-      ".DescartesButtonContainer{position:absolute;overflow:hidden;}\n" +
-      ".DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
+      ".DescartesButtonContainer,.DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
       ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
       ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
