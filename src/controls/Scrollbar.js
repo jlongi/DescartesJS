@@ -43,6 +43,8 @@ var descartesJS = (function(descartesJS) {
       this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
       this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
+      this.name_str = this.name;
+
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
         this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -146,8 +148,7 @@ this.ratio = parent.ratio;
       self = this;
       evaluator = self.evaluator;
 
-      var old_name = evaluator.eval(self.name).toString();
-      self.label.innerHTML = old_name;
+      self.label.innerHTML = evaluator.eval(self.name).toString();
       name = this.label.textContent;
 
       var defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
@@ -170,7 +171,7 @@ this.text_object = new descartesJS.TextObject({
   font_family: this.font_family,
   italics: this.italics,
   bold: this.bold,
-}, old_name);
+}, self.name_str);
 //new
 this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
@@ -309,7 +310,7 @@ this.label.height = self.labelHeight * this.ratio;
     update() {
       evaluator = this.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
+      // this.label.innerHTML = evaluator.eval(this.name).toString();
 
       // the increment is the interval [min, max] divided by 100 if has decimals, if not then the increment is 1
       if (evaluator.eval(this.decimals) == 0) {
@@ -351,10 +352,22 @@ this.label.height = self.labelHeight * this.ratio;
       // register the control value
       evaluator.setVariable(this.id, this.value);
 
-this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
-this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      //
+      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      
+      // draw the text to get the width
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+
+      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
+        this.text_object.anchor = "center_left";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      }
+      else {
+        this.text_object.anchor = "center_center";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+      }
+      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -571,9 +584,9 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
 
           // register the control value
           this.evaluator.setVariable(this.id, this.value);
-
-          this.updateAndExecAction();
         }
+
+        this.updateAndExecAction();
       }
     }
 
@@ -663,6 +676,18 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
       }
       this.field.addEventListener("keydown", onKeyDown_TextField);
+
+      /**
+       *
+       * @param {Event} evt
+       * @private
+       */
+      function onBlur_textField(evt) {
+        if (self.drawIfValue) {
+          self.changeValue(self.field.value, true);
+        }
+      }
+      this.field.addEventListener("blur", onBlur_textField);
 
       /**
        *
@@ -938,7 +963,6 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
       window.addEventListener("touchend", onMouseUp_DownButton);
       window.addEventListener("mouseup", onMouseUp_DownButton);
-
     }
   }
 

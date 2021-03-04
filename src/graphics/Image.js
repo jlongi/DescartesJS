@@ -38,6 +38,31 @@ var descartesJS = (function(descartesJS) {
       this.img = new Image();
       this.scaleX = this.scaleY = 1;
       this.ratio = parent.ratio;
+
+      let ch = this.expresion.getChildren();
+
+      this.x_e = ch[0];
+      this.y_e = ch[1];
+      
+      if (ch.length > 2) {
+        this.centered = true;
+
+        this.s_x_e = ch[2];
+
+        if (ch.length > 3) {
+          this.s_y_e = ch[3];
+        }
+        else {
+          this.s_y_e = ch[2];
+        }
+      }
+
+      // if has a clipping region
+      let clip = this.evaluator.eval(this.clip);
+      if (clip) {
+        this.clip = this.clip.getChildren();
+      }
+
       this.update();
     }
 
@@ -47,37 +72,29 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      expr = evaluator.eval(this.expresion);
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      let x = evaluator.eval(this.x_e);
+      let y = evaluator.eval(this.y_e);
+      this.exprX = x;
+      this.exprY = y;
 
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
-        tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
+        tmpRot = this.rotate(x, y, descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
         this.exprX = tmpRot.x;
         this.exprY = tmpRot.y;
       }
 
-      // configuration of the form (x,y,ew,eh)
-      if (expr[0].length >= 4) {
-        this.centered = true;
-        this.scaleX = expr[0][2];
-        this.scaleY = expr[0][3];
-      }
+      if (this.centered) {
+        this.scaleX = evaluator.eval(this.s_x_e);
+        this.scaleY = evaluator.eval(this.s_y_e);
 
-      // configuration of the form (x,y)(ew,eh)
-      if ((expr[1]) && (expr[1].length == 2)) {
-        this.centered = true;
-        this.scaleX = expr[1][0];
-        this.scaleY = expr[1][1];
-      }
-
-      if (this.scaleX == 0) {
-        this.scaleX = 0.00001;
-      }
-      if (this.scaleY == 0) {
-        this.scaleY = 0.00001;
+        if (this.scaleX == 0) {
+          this.scaleX = 0.00001;
+        }
+        if (this.scaleY == 0) {
+          this.scaleY = 0.00001;
+        }
       }
 
       var self = this;
@@ -113,8 +130,14 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
-        w = this.img.width;
-        h = this.img.height;
+        if (!this.clip) {
+          w = this.img.width;
+          h = this.img.height;
+        }
+        else {
+          w = evaluator.eval(this.clip[2]);
+          h = evaluator.eval(this.clip[3]);
+        }
 
         // if the images is a space image
         if (this.img.canvas) {
@@ -139,7 +162,12 @@ var descartesJS = (function(descartesJS) {
 
         // draw image
         ctx.scale(this.scaleX, this.scaleY);
-        ctx.drawImage(this.img, -w/2, -h/2, w, h);
+        if (!this.clip) {
+          ctx.drawImage(this.img, -w/2, -h/2, w, h);
+        }
+        else {
+          ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);
+        }
 
         // reset the transformations
         ctx.restore();

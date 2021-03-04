@@ -92,7 +92,7 @@ var descartesJS = (function(descartesJS) {
       ".DescartesSpace2DCanvas,.DescartesSpace3DCanvas,.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
       ".DescartesSpace2DContainer,.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" +
 
-      // style for check box
+      // style for checkbox
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]+label::after{position:absolute;left:0px;content:'';padding:0;margin:0;width:100%;height:100%;background:#fff;border:1px solid gray;}\n" +
       ".DescartesCheckboxContainer input[type=checkbox]:checked+label::after{content:'';background:url("+ descartesJS.getSvgCheckbox() +") center center no-repeat;background-size:contain;background-color:#fff;}\n" +
@@ -104,21 +104,27 @@ var descartesJS = (function(descartesJS) {
       ".DescartesButtonContainer,.DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
       ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
+      "input[type='text']:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
       ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
       ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
       ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
-      ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;}\n" +
+      ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;outline:none;}\n" +
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
       ".DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
-      
+
       ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border-width:1px 0 1px 1px;background-size:cover;background-repeat:none;background-position:center;}\n" +
+      
       ".DJS_Up[horizontal=false]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100) + ", url('"+ descartesJS.getSvgArrowUp() +"');}\n" +
       ".DJS_Up[horizontal=true]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100,90) + ", url('"+ descartesJS.getSvgArrowUp(true) +"');}\n" +
-      ".DJS_up[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
+      ".DJS_Up[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
+
       ".DJS_Down[horizontal=false]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(0,50) + ", url('"+ descartesJS.getSvgArrowDown() +"');}\n" +
       ".DJS_Down[horizontal=true]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100,-90) + ", url('"+ descartesJS.getSvgArrowDown(true) +"');}\n" +
       ".DJS_Down[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
+      
       ".DJS_Gradient{position:absolute;display:none;}\n" +
+
+      (descartesJS.addSymbolFont ? descartesJS.addSymbolFont() : "") +
 
       (descartesJS.addFonts ? descartesJS.addFonts() : "");
   })();

@@ -362,7 +362,7 @@ var descartesJS = (function(descartesJS, babel) {
             else if (temp === "text") {
               temp = "TextArea";
             }
-            controlObj["type"] = firstLetterUpercase(temp);
+            controlObj["type"] = firstLetterUppercase(temp);
             break;
 
           // interface (spinner, button, etc)
@@ -371,7 +371,7 @@ var descartesJS = (function(descartesJS, babel) {
             if (temp === "textfield") {
               temp = "TextField";
             }
-            controlObj[babelValue] = firstLetterUpercase(temp);
+            controlObj[babelValue] = firstLetterUppercase(temp);
             break;
 
           // identifier
@@ -415,6 +415,8 @@ var descartesJS = (function(descartesJS, babel) {
 
           // region
           case("region"):
+          // position
+          case("position"):
           // action
           case("action"):
           // relative position of control messages
@@ -642,7 +644,7 @@ var descartesJS = (function(descartesJS, babel) {
             case("type"):
               // get the type for the debug
               descartesJS.DEBUG.idName = values_i_1;
-              graphicObj[babelValue] = firstLetterUpercase( babel[values_i_1] );
+              graphicObj[babelValue] = firstLetterUppercase( babel[values_i_1] );
               break;
 
             // text alignment
@@ -744,6 +746,8 @@ var descartesJS = (function(descartesJS, babel) {
             case("inipos"):
             // range
             case("range"):
+            // clip region
+            case("clip"):
               if (values_i_1 !== "") {
                 graphicObj[babelValue] = this.parser.parse(values_i_1);
               }
@@ -931,7 +935,7 @@ var descartesJS = (function(descartesJS, babel) {
                 temp = "OtherGeometry";
             }
 
-            graphicObj[babelValue] = firstLetterUpercase( temp );
+            graphicObj[babelValue] = firstLetterUppercase( temp );
             break;
 
           // illumination model
@@ -1350,7 +1354,7 @@ var descartesJS = (function(descartesJS, babel) {
 
       // if has some action then create it
       if (theAction_action) {
-        return new descartesJS[firstLetterUpercase(theAction_action)](theAction_parent, theAction_parameter);
+        return new descartesJS[firstLetterUppercase(theAction_action)](theAction_parent, theAction_parameter);
       }
       // if has not some action then return a function that does nothing
       else {
@@ -1694,7 +1698,7 @@ var descartesJS = (function(descartesJS, babel) {
     }
   }
 
-  function firstLetterUpercase(str) {
+  function firstLetterUppercase(str) {
     return str.charAt(0).toUpperCase() + str.substring(1);
   }
 

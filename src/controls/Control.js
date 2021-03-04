@@ -119,7 +119,7 @@ var descartesJS = (function(descartesJS) {
        * type {Boolean}
        * @private
        */
-      this.fixed = (this.parent.version != 2) ? false : true;
+      this.fixed = true;
 
       /**
        * condition visibility
@@ -133,7 +133,7 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      this.color = new descartesJS.Color((this.parent.version < 4) ? "000000" : "222222");
+      this.color = new descartesJS.Color("222222");
 
       /**
        * control color
@@ -419,7 +419,7 @@ var descartesJS = (function(descartesJS) {
 
       // if has some change, then init the control and redraw it
       if ((changeW) || (changeH) || (changeX) || (changeY)) {
-        this.init(true);
+        this.init(true, true);
         this.draw();
       }
     }

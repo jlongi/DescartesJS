@@ -110,6 +110,28 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
+     * Get the children of a parenthesis expression
+     */
+    getChildren() {
+      if ((this.type === "(expr)") || (this.type === "[expr]")) {
+        if (this.childArray) {
+          return this.childArray;
+        }
+
+        this.childArray = [];
+
+        for (let i=0, l=this.childs.length; i<l; i++) {
+          if ((this.childs[i].type === "square_bracket") || (this.childs[i].type === "parentheses")) {
+            this.childArray = this.childArray.concat(this.childs[i].childs);
+          }
+        }
+        return this.childArray;
+      }
+
+      return null;
+    }
+
+    /**
      * Register the evaluation functions to all the nodes in the tree
      */
     setAllEvalFun() {

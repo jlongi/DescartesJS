@@ -111,7 +111,8 @@ var descartesJS = (function(descartesJS) {
         newExpression.push( tmpExp );
       }
 
-      var vectInit = (Array(evaluator.eval(this.size))).fill(0);
+      var tmp_size = parseInt(Math.abs(evaluator.eval(this.size)));
+      var vectInit = (Array(tmp_size)).fill(0);
       vectInit._size_ = vectInit.length;
       evaluator.vectors[this.id] = vectInit;
       evaluator.setVariable(this.id + ".long", vectInit._size_);

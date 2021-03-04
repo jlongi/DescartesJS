@@ -65,9 +65,9 @@ var descartesJS = (function(descartesJS) {
 
       self = this;
       self.ratio = parent.ratio;
-      self.border_width = self.border_width || 0;
-      self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
-      self.border_radius = self.border_radius || 0;
+      // self.border_width = self.border_width || 0;
+      // self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
+      // self.border_radius = self.border_radius || 0;
 
       // create the canvas
       self.canvas = descartesJS.newHTML("canvas", {
@@ -443,8 +443,8 @@ var descartesJS = (function(descartesJS) {
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
 
-        coordTxt_X = (self.scale <= 1) ? ((self.mouse_x).toFixed(0)) : (self.mouse_x).toFixed((self.scale).toString().length);
-        coordTxt_Y = (self.scale <= 1) ? ((self.mouse_y).toFixed(0)) : (self.mouse_y).toFixed((self.scale).toString().length);
+        coordTxt_X = (self.scale <= 1) ? ((self.mouse_x).toFixed(0)) : (self.mouse_x).toFixed((parseInt(self.scale)).toString().length+1);
+        coordTxt_Y = (self.scale <= 1) ? ((self.mouse_y).toFixed(0)) : (self.mouse_y).toFixed((parseInt(self.scale)).toString().length+1);
         coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
         coordTxtW = MathFloor(ctx.measureText(coordTxt).width/2);
         mouseX = self.getAbsoluteX(self.mouse_x);

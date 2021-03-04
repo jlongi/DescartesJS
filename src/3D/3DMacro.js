@@ -175,7 +175,12 @@ var descartesJS = (function(descartesJS, babel) {
                   var tokens = tokenizer.tokenize(m1.replace(/\&squot;/g, "'"));
                   
                   for (var t=0, lt=tokens.length; t<lt; t++) {
-                    if ((tokens[t].type == "identifier")  && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) {
+                    if (
+                      ((tokens[t].type == "identifier") && (!descartesJS.reservedIds.match("-" + tokens[t].value + "-"))) ||
+                      (tokens[t].value === "R") ||
+                      (tokens[t].value === "G") ||
+                      (tokens[t].value === "B")
+                    ) {
                       tokens[t].value = self.name + "." + tokens[t].value;
                     }
                   }
@@ -200,7 +205,12 @@ var descartesJS = (function(descartesJS, babel) {
                   tmpTokens = tokenizer.tokenize(tmpTokensRespText[ttrt].replace(/\&squot;/g, "'"));
 
                   for (var tt=0, ltt=tmpTokens.length; tt<ltt; tt++) {
-                    if ((tmpTokens[tt].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[tt].value + "-"))) {
+                    if (
+                      ((tmpTokens[tt].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[tt].value + "-"))) ||
+                      (tmpTokens[tt].value === "R") ||
+                      (tmpTokens[tt].value === "G") ||
+                      (tmpTokens[tt].value === "B")
+                    ) {
                       tmpTokens[tt].value = this.name + "." + tmpTokens[tt].value;
                     }
                   }
@@ -220,7 +230,12 @@ var descartesJS = (function(descartesJS, babel) {
                 tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
 
                 for (var t=0, lt=tmpTokens.length; t<lt; t++) {
-                  if ((tmpTokens[t].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[t].value + "-"))) {
+                  if (
+                    ((tmpTokens[t].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[t].value + "-"))) ||
+                    (tmpTokens[t].value === "R") ||
+                    (tmpTokens[t].value === "G") ||
+                    (tmpTokens[t].value === "B")
+                  ) {
                     tmpTokens[t].value = this.name + "." + tmpTokens[t].value;
                   }
                 }

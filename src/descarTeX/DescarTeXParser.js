@@ -250,7 +250,7 @@ var descartesJS = (function(descartesJS) {
 
           else if (lastCommand === "formula") {
             newStyle = lastStyle.clone();
-            newStyle.italic = true;
+//newStyle.italic = true;
             styleStack.push( newStyle );
             lastStyle = newStyle;
 

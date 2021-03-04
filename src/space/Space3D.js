@@ -60,9 +60,9 @@ var descartesJS = (function(descartesJS) {
 
       self = this;
 
-      self.border_width = self.border_width || 0;
-      self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
-      self.border_radius = self.border_radius || 0;
+      // self.border_width = self.border_width || 0;
+      // self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
+      // self.border_radius = self.border_radius || 0;
 
       // create the canvas
       self.backCanvas = descartesJS.newHTML("canvas", {

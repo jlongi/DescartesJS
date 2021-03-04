@@ -117,14 +117,6 @@ var descartesJS = (function(descartesJS) {
           lastToken = { type: "close", value: currentChar};
           tokens.push(lastToken);
         }
-        // else if (!isCommand && (currentChar === "_")) {
-        //   lastToken = { type: "command", value: "subindex" };
-        //   tokens.push(lastToken);
-        // }
-        // else if (!isCommand && (currentChar === "^")) {
-        //   lastToken = { type: "command", value: "superindex" };
-        //   tokens.push(lastToken);
-        // }
 
         else if (!isCommand) {
           if (lastToken && (lastToken.type === "text")) {

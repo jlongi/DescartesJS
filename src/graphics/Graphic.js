@@ -72,24 +72,15 @@ var descartesJS = (function(descartesJS) {
        * type {Boolean}
        * @private
        */
-      self.abs_coord = (values.type && values.type === "text") ? true : false;
+      self.abs_coord = (values.type && values.type.toLowerCase() === "text") ? true : false;
 
       /**
        * the primary color of the graphic
        * type {String}
        * @private
        */
-      self.color = new descartesJS.Color("blue");
-      if (self.parent.version !== 2) {
-        self.color = new descartesJS.Color("20303a");
-
-        // ##ARQUIMEDES## //
-        if (self.parent.arquimedes) {
-          self.color = new descartesJS.Color("black");
-        }
-        // ##ARQUIMEDES## //
-      }
-
+      self.color = new descartesJS.Color("20303a");
+      
       /**
        * the color for the trace of the graphic
        * type {String}

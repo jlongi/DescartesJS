@@ -96,7 +96,7 @@ var descartesJS = (function(descartesJS) {
        * type {Boolean}
        * @private
        */
-      self.fixed = (parent.version === 2);
+      self.fixed = false;
 
       /**
        * scale
@@ -155,28 +155,28 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      self.net = (parent.version != 2) ? new descartesJS.Color("c0c0c0") : "";
+      self.net = new descartesJS.Color("b8c4c8");
 
       /**
        * net 10 condition and color
        * type {String}
        * @private
        */
-      self.net10 = (parent.version != 2) ? new descartesJS.Color("808080") : "";
+      self.net10 = new descartesJS.Color("889498");
 
       /**
        * axes condition and color
        * type {String}
        * @private
        */
-      self.axes = (parent.version != 2) ? new descartesJS.Color("808080") : "";
+      self.axes = new descartesJS.Color("405860");
 
       /**
        * coordinate text condition and color
        * type {String}
        * @private
        */
-      self.text = new descartesJS.Color("ffafaf");
+      self.text = false;
 
       /**
        * condition to draw the axis numbers
@@ -190,7 +190,7 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      self.x_axis = (parent.version != 2) ? "" : " ";
+      self.x_axis = "";
 
       /**
        * y axis text
@@ -261,6 +261,14 @@ var descartesJS = (function(descartesJS) {
        * @private
        */
       self.zIndex = parent.zIndex;
+
+      /**
+       * 
+       */
+      self.border_width = 0;
+      self.border_color = new descartesJS.Color("000000");
+      self.border_radius = 0;
+      
 
       self.plecaHeight = parent.plecaHeight || 0;
       self.displaceRegionNorth = parent.displaceRegionNorth || 0;

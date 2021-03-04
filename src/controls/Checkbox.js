@@ -32,6 +32,8 @@ var descartesJS = (function(descartesJS) {
         self.typeCtr = "radio";
       }
 
+      self.name_str = self.name;
+
       // change to the name of the Checkbox with an expression
       if (self.name.match(/^\[.*\]?/)) {
         self.name = self.parser.parse(self.name.substring(1, self.name.length-1));
@@ -97,8 +99,7 @@ this.ratio = parent.ratio;
       var self = this;
       evaluator = self.evaluator;
 
-      var old_name = evaluator.eval(self.name).toString();
-      self.label.innerHTML = old_name;
+      self.label.innerHTML = evaluator.eval(self.name).toString();
 
       // find the font size of the checkbox
       self.labelFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
@@ -119,18 +120,28 @@ this.text_object = new descartesJS.TextObject({
   font_family: this.font_family,
   italics: this.italics,
   bold: this.bold,
-}, old_name);
+}, this.name_str);
 //new
 this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
-      self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
+      if (self.position == "right") {
+        self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
 
-      self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
+        self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
+        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+      }
+      else {
+        self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:0;`);
+
+        self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:0;`);
+        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};left:${self.h}px`);
+      }
+
       self.checkbox.checked = (self.evaluator.getVariable(self.id) != 0);
 
-      self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+
 this.label.width = labelWidth*this.ratio;
 this.label.height = this.h*this.ratio;
 
@@ -144,7 +155,7 @@ this.label.height = this.h*this.ratio;
       var self = this;
       evaluator = self.evaluator;
 
-      self.label.innerHTML = evaluator.eval(self.name).toString();
+      // self.label.innerHTML = evaluator.eval(self.name).toString();
 
       // check if the control is active and visible
       self.activeIfValue = (evaluator.eval(self.activeif) > 0);
@@ -215,10 +226,22 @@ this.label.height = this.h*this.ratio;
       // update the position and size
       self.updatePositionAndSize();
 
-this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
-this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      //
+      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+      // draw the text to get the width
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      
+      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
+        this.text_object.anchor = "center_left";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      }
+      else {
+        this.text_object.anchor = "center_center";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+      }
+      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**

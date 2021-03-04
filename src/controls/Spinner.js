@@ -39,9 +39,7 @@ var descartesJS = (function(descartesJS) {
       // tabular index
       this.tabindex = ++this.parent.tabindex;
 
-      if (this.name == "_._") {
-        this.name = "";
-      }
+      this.name_str = this.name;
 
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
@@ -73,8 +71,8 @@ var descartesJS = (function(descartesJS) {
       this.label = descartesJS.newHTML("canvas", {
         class : "DescartesSpinnerLabel",
       });
-this.label_ctx = this.label.getContext("2d");
-this.ratio = parent.ratio;
+      this.label_ctx = this.label.getContext("2d");
+      this.ratio = parent.ratio;
 
       this.container.appendChild(this.label);
       this.container.appendChild(this.field);
@@ -131,15 +129,16 @@ this.ratio = parent.ratio;
     /**
      * Init the spinner
      */
-    init() {
+    init(force, maintain_val) {
       evaluator = this.evaluator;
 
-      var old_name = evaluator.eval(this.name).toString();
-      this.label.innerHTML = old_name;
+      this.label.innerHTML = evaluator.eval(this.name).toString();
       var name = this.label.textContent;
-      
+
       // validate the initial value
-      this.value = this.validateValue(evaluator.eval(this.valueExpr));
+      if (!maintain_val) {
+        this.value = this.validateValue(evaluator.eval(this.valueExpr));
+      }
 
       // get the width of the initial value to determine the width of the text field
       var fieldValue = this.formatOutputValue(this.value);
@@ -147,24 +146,24 @@ this.ratio = parent.ratio;
       // find the font size of the text field
       this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.parser.parse(""+ this.fieldFontSize),
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-}, old_name);
-//new
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      //new
+      this.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : this.parent.decimal_symbol
+        },
+        evaluator : this.evaluator,
+        decimals : this.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: this.parser.parse("0"),
+        font_size: this.parser.parse(""+ this.fieldFontSize),
+        font_family: this.font_family,
+        italics: this.italics,
+        bold: this.bold,
+      }, this.name_str);
+      //new
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       // extra space added to the name
       var extraSpace = (this.parent.version !== 2) ? "__" : "_____";
@@ -176,8 +175,7 @@ this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, tr
         var canvasWidth = parseInt(this.h);
         var labelWidth = parseInt(this.w/2 - canvasWidth);
         var minTFWidth = fieldValueSize;
-//        var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
-var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+        var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
 
         if (!this.visible) {
           labelWidth = this.w - 2*canvasWidth;
@@ -214,8 +212,9 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
         }
 
         this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
-this.label.width = labelWidth*this.ratio;
-this.label.height = this.h*this.ratio;
+
+        this.label.width = labelWidth*this.ratio;
+        this.label.height = this.h*this.ratio;
       }
       else {
         // for each element calculated width
@@ -261,8 +260,9 @@ this.label.height = this.h*this.ratio;
         }
 
         this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
-this.label.width = labelWidth*this.ratio;
-this.label.height = this.h*this.ratio;
+        
+        this.label.width = labelWidth*this.ratio;
+        this.label.height = this.h*this.ratio;
       }
 
       if (this.image_dec && this.image_dec.ready) {
@@ -285,7 +285,7 @@ this.label.height = this.h*this.ratio;
     update() {
       evaluator = this.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
+      // this.label.innerHTML = evaluator.eval(this.name).toString();
 
       if (evaluator.eval(this.decimals) < 0) {
         tmpIncr = evaluator.eval(this.incr);
@@ -358,11 +358,23 @@ this.label.height = this.h*this.ratio;
         evaluator.setVariable(this.id, this.value);
       }
 
-this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
-this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      //
+      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+      // draw the text to get the width
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+
+      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
+        this.text_object.anchor = "center_left";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
       }
+      else {
+        this.text_object.anchor = "center_center";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+      }
+      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
 
     /**
      * 
@@ -626,6 +638,18 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
         self.updateStyle();
       });
 
+      /**
+       *
+       * @param {Event} evt
+       * @private
+       */
+      function onBlur_textField(evt) {
+        if (self.drawIfValue) {
+          self.changeValue(self.field.value, true);
+        }
+      }
+      this.field.addEventListener("blur", onBlur_textField);
+      
       /**
        * Prevent an error with the focus of a text field
        */

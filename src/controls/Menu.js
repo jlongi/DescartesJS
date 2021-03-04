@@ -53,6 +53,8 @@ var descartesJS = (function(descartesJS) {
         this.answer = parseInt(this.answer.split(",")[0].replace("[", "")) || 0;
       }
 
+      this.name_str = this.name;
+
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
         this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -191,8 +193,7 @@ this.ratio = parent.ratio;
     init(noupdate) {
       evaluator = this.evaluator;
 
-      var old_name = evaluator.eval(this.name).toString();
-      this.label.innerHTML = old_name;
+      this.label.innerHTML = evaluator.eval(this.name).toString();
       var name = this.label.textContent;
 
       // find the font size of the text field
@@ -213,7 +214,7 @@ this.text_object = new descartesJS.TextObject({
   font_family: this.font_family,
   italics: this.italics,
   bold: this.bold,
-}, old_name);
+}, this.name_str);
 //new
 this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
@@ -307,7 +308,7 @@ this.label.height = this.h*this.ratio;
       }
 
       if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
-        this.label.innerHTML = evaluator.eval(this.name).toString();
+        // this.label.innerHTML = evaluator.eval(this.name).toString();
 
         for (var i=0, l=this.menuOptions.length; i<l; i++) {
           this.select.options[i].innerHTML = evaluator.eval( this.menuOptions[i] );
@@ -332,10 +333,22 @@ this.label.height = this.h*this.ratio;
       // update the position and size
       this.updatePositionAndSize();
 
-this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
-this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      //
+      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+      // draw the text to get the width
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+
+      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
+        this.text_object.anchor = "center_left";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      }
+      else {
+        this.text_object.anchor = "center_center";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+      }
+      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -462,6 +475,18 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
       }
       this.field.addEventListener("keydown", onKeyDown_TextField);
 
+      /**
+       *
+       * @param {Event} evt
+       * @private
+       */
+      function onBlur_textField(evt) {
+        if (self.drawIfValue) {
+          self.changeValue(self.field.value, true);
+        }
+      }
+      this.field.addEventListener("blur", onBlur_textField);
+
       /*
       * Prevent an error with the focus of a text field
       */
@@ -469,9 +494,6 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
         // this.select();
         this.focus();
       });
-      // self.select.addEventListener("mouse", function(evt) {
-      //   this.focus();
-      // });
     }
   }
 

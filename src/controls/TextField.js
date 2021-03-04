@@ -26,6 +26,8 @@ var descartesJS = (function(descartesJS) {
       this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
       this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
+      this.name_str = this.name;
+
       // modification to change the name of the text field with an expression
       if (this.name.match(/^\[.*\]?/)) {
         this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
@@ -95,10 +97,10 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // if the name is only white spaces
-      if (name.trim() == "") {
-        name = "";
-      }
+      // // if the name is only white spaces
+      // if (this.name.trim() == "") {
+      //   this.name = "";
+      // }
 
       // control container
       this.containerControl = descartesJS.newHTML("div", {
@@ -139,8 +141,7 @@ this.ratio = parent.ratio;
     init(changeSizePos) {
       evaluator = this.evaluator;
 
-      var old_name = evaluator.eval(this.name).toString();
-      this.label.innerHTML = old_name;
+      this.label.innerHTML = evaluator.eval(this.name).toString();
       var name = this.label.textContent;
 
       // validate the initial value
@@ -169,7 +170,7 @@ this.text_object = new descartesJS.TextObject({
   font_family: this.font_family,
   italics: this.italics,
   bold: this.bold,
-}, old_name);
+}, this.name_str);
 //new
 this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
@@ -235,7 +236,7 @@ this.label.height = this.h*this.ratio;
     update() {
       evaluator = this.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
+      // this.label.innerHTML = evaluator.eval(this.name).toString();
 
       // check if the control is active and visible
       this.activeIfValue = (evaluator.eval(this.activeif) > 0);
@@ -268,10 +269,22 @@ this.label.height = this.h*this.ratio;
       // update the position and size
       this.updatePositionAndSize();
 
-this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
-this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      //
+      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+      // draw the text to get the width
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      
+      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
+        this.text_object.anchor = "center_left";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      }
+      else {
+        this.text_object.anchor = "center_center";
+        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+      }
+      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -414,8 +427,7 @@ this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
        * @private
        */
       function onBlur_textField(evt) {
-        // self.update();
-        if (self.evaluator.eval(self.drawIf)) {
+        if (self.drawIfValue) {
           self.changeValue(self.field.value, true);
         }
       }

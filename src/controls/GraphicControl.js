@@ -37,12 +37,19 @@ var descartesJS = (function(descartesJS) {
       this.spaceID = values.spaceID || "";
       this.text = values.text || "";
       this.size = values.size || parser.parse("4");
-      this.font = values.font || "Monospaced,PLAIN,12";
+      this.font = values.font || "Serif,PLAIN,12";
       this.image = new Image();
       this.image.onload = function() {
         this.ready = 1;
       }
       this.imageSrc = values.imageSrc || "";
+      
+      if (this.imageSrc.match(/^\[.*\]?/)) {
+        this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
+      }
+      else {
+        this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+      }
 
       // get the Descartes font
       this.font = descartesJS.convertFont(this.font);
@@ -91,7 +98,7 @@ var descartesJS = (function(descartesJS) {
         id       : this.id,
         dragged  : true,
         tabindex : "-1",
-        style    : `cursor:pointer;background-color:rgba(0,0,0,0);z-index:${this.zIndex};`,
+        style    : `cursor:pointer;background-color:transparent;z-index:${this.zIndex};`,
       });
 
       this.ctx = this.space.ctx;
@@ -125,20 +132,23 @@ var descartesJS = (function(descartesJS) {
     /**
      * Init the graphic control
      */
-    init() {
+    init(preservePos) {
       evaluator = this.evaluator;
       hasTouchSupport = descartesJS.hasTouchSupport;
 
       // find the x and y position
-      var expr = evaluator.eval(this.expresion);
-      this.x = expr[0][0];
-      this.y = expr[0][1];
-      evaluator.setVariable(this.xStr, this.x);
-      evaluator.setVariable(this.yStr, this.y);
+      if (!preservePos) {
+        var expr = evaluator.eval(this.expresion);
+        this.x = expr[0][0];
+        this.y = expr[0][1];
+        evaluator.setVariable(this.xStr, this.x);
+        evaluator.setVariable(this.yStr, this.y);
+      }
+      this.img_src_eval = evaluator.eval(this.imageSrc).toString().trim();
 
       // if the control has an image name
-      if ((this.imageSrc != "") && !(this.imageSrc.toLowerCase().match(/vacio.gif$/))) {
-        this.image = this.parent.getImage(this.imageSrc);
+      if ((this.img_src_eval != "") && !(this.img_src_eval.toLowerCase().match(/vacio.gif$/))) {
+        this.image = this.parent.getImage(this.img_src_eval);
 
         this.width = this.image.width;
         this.height = this.image.height;
@@ -175,6 +185,10 @@ var descartesJS = (function(descartesJS) {
      */
     update() {
       evaluator = this.evaluator;
+
+      if (evaluator.eval(this.imageSrc).toString().trim() !== this.img_src_eval) {
+        this.init(true);
+      }
 
       // check if the control is active and visible
       this.activeIfValue = (evaluator.eval(this.activeif) > 0);

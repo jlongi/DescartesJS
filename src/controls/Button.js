@@ -369,7 +369,7 @@ this.text_object = new descartesJS.TextObject({
 
 }, this.old_name);
 //new
-
+      
       this.draw(force);
     }
 
@@ -413,6 +413,11 @@ this.text_object = new descartesJS.TextObject({
       ctx = this.ctx;
 
       name = evaluator.eval(this.name);
+      // update the text
+      this.text_object.draw(descartesJS.ctx, "#000000", 0, 0);
+      // get a string from the textNodes
+      name = this.text_object.textNodes.toStr();
+
       imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
 
       if (!force) {
