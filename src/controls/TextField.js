@@ -97,11 +97,6 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // // if the name is only white spaces
-      // if (this.name.trim() == "") {
-      //   this.name = "";
-      // }
-
       // control container
       this.containerControl = descartesJS.newHTML("div", {
         class : "DescartesTextFieldContainer",
@@ -120,12 +115,19 @@ var descartesJS = (function(descartesJS) {
       this.label = descartesJS.newHTML("canvas", {
         class : "DescartesTextFieldLabel",
       });
-this.label_ctx = this.label.getContext("2d");
-this.ratio = parent.ratio;
+      this.label_ctx = this.label.getContext("2d");
+      this.ratio = parent.ratio;
 
       // add the elements to the container
       this.containerControl.appendChild(this.label);
       this.containerControl.appendChild(this.field);
+
+      this.cover = descartesJS.newHTML("div", {
+        class : "TextfieldCover"
+      });
+      if (this.keyboard) {
+        this.containerControl.appendChild(this.cover);
+      }
 
       this.addControlContainer(this.containerControl);
 
@@ -155,33 +157,31 @@ this.ratio = parent.ratio;
       // find the font size of the text field
       this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.parser.parse(""+ this.fieldFontSize),
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-}, this.name_str);
-//new
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
-
+      //new
+      this.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : this.parent.decimal_symbol
+        },
+        evaluator : this.evaluator,
+        decimals : this.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: this.parser.parse("0"),
+        font_size: this.parser.parse(""+ this.fieldFontSize),
+        font_family: this.font_family,
+        italics: this.italics,
+        bold: this.bold,
+      }, this.name_str);
+      //new
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
 
       // widths are calculated for each element
       var labelWidth = parseInt(this.w/2);
       var minTFWidth = fieldValueSize;
-//      var minLabelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font);
-var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+      var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
 
       if (!this.visible) {
         labelWidth = this.w;
@@ -210,11 +210,12 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
 
       this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
       this.field.value = fieldValue;
+      this.cover.setAttribute("style", `;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
 
       this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
 
-this.label.width = labelWidth*this.ratio;
-this.label.height = this.h*this.ratio;
+      this.label.width = labelWidth*this.ratio;
+      this.label.height = this.h*this.ratio;
 
       // if the text field evaluates, get the ok value
       if (this.evaluate) {
@@ -235,8 +236,6 @@ this.label.height = this.h*this.ratio;
      */
     update() {
       evaluator = this.evaluator;
-
-      // this.label.innerHTML = evaluator.eval(this.name).toString();
 
       // check if the control is active and visible
       this.activeIfValue = (evaluator.eval(this.activeif) > 0);
@@ -415,7 +414,7 @@ this.label.height = this.h*this.ratio;
       var self = this;
 
       // prevent the context menu display
-      self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
+      self.field.oncontextmenu = self.label.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
 
       // prevent the default events int the label
       self.label.addEventListener("touchstart", descartesJS.preventDefault);
@@ -449,11 +448,30 @@ this.label.height = this.h*this.ratio;
       this.field.addEventListener("keydown", onKeyDown_TextField);
 
       /*
-      * Prevent an error with the focus of a text field
-      */
+       * Prevent an error with the focus of a text field
+       */
       self.field.addEventListener("click", function(evt) {
         // this.select();
         this.focus();
+      });
+
+      /**
+       * 
+       */
+      self.cover.addEventListener("click", function(evt) {
+        let pos = self.evaluator.eval(self.kbexp);
+
+        if (self.activeIfValue) {
+          self.parent.keyboard.show(
+            self,
+            self.kblayout, 
+            pos[0][0] || 0,
+            pos[0][1] || 0,
+            self.id, 
+            self.field, 
+            self.onlyText
+          );
+        }
       });
     }
   }

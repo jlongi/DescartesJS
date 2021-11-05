@@ -8,7 +8,7 @@ var descartesJS = (function(descartesJS, babel) {
 
   var regExpType = new String("-text-image-point-polygon-arc-segment-arrow-macro-curve-equation-sequence-rectangle-fill-");
   
-  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
   var expr;
 
   class Macro extends descartesJS.Graphic {

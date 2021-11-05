@@ -100,11 +100,14 @@ var descartesJS = (function(descartesJS) {
       ".DescartesCheckboxContainer input[type=radio]:checked+label::after{content:'';background:url("+ descartesJS.getSvgRadio() +") center center no-repeat;background-size:contain;background-color:#fff;}\n" +
       ".DescartesCheckbox{position:absolute;}\n" +
 
+      ".TextfieldCover{position:absolute;overflow:hidden;background-color:transparent;cursor:pointer;}\n" +
+      "input[type=text]{-webkit-appearance:none;}\n" +
+
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +
       ".DescartesButtonContainer,.DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
       ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
-      "input[type='text']:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
+      "input[type=text]:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
       ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
       ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
       ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
@@ -121,7 +124,15 @@ var descartesJS = (function(descartesJS) {
       ".DJS_Down[horizontal=false]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(0,50) + ", url('"+ descartesJS.getSvgArrowDown() +"');}\n" +
       ".DJS_Down[horizontal=true]{background-color:#f0f8ff;background-image:" + descartesJS.createGradient(50,100,-90) + ", url('"+ descartesJS.getSvgArrowDown(true) +"');}\n" +
       ".DJS_Down[active=false]::after{cursor:not-allowed;content:'';position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(255,255,255,0.3);}\n" +
-      
+
+      ".DescartesKeyboardContainer{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.1);z-index:1000;}\n" +
+      ".DescartesKeysContainer{display:flex;flex-direction:row;flex-wrap:wrap;background-color:#c0c0c0;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 0 8px 0 rgba(0,0,0,0.75);box-sizing: content-box;}\n" +
+      // keys
+      ".DescartesKeysContainer > div{margin:5px 0 0 5px;display:inline-block;min-width:40px;min-height:40px;max-height:40px;line-height:35px;background-color:#ebeff3;font-family:"+ descartesJS.math_font +";font-size:18px;font-weight:bold;color:black;cursor:pointer;text-align:center;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 1px 2px 0 rgba(0,0,0,0.25);transform-origin:center;user-select:none;}\n" +
+      ".DescartesKeysContainer > div:hover{background-color:rgba(0,0,0,0.05);transform:scale(1.1);}\n" +
+      ".DescartesKeysContainer > div:active{transform:scale(0.95);}\n" +
+      ".DescartesKeyboardDisplay{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;text-align:left;background-color:white;position:absolute;overflow:hidden;outline:2px solid black;}\n" +
+
       ".DJS_Gradient{position:absolute;display:none;}\n" +
 
       (descartesJS.addSymbolFont ? descartesJS.addSymbolFont() : "") +

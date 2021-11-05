@@ -80,13 +80,17 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+ctx.lineWidth = Math.max(
+  0.000001, 
+  MathRound( evaluator.eval(this.width) )
+);
 
       ctx.strokeStyle = stroke.getColor();
       ctx.lineCap = ctx.lineJoin = "round";
 
-      lineDesp = (tmpLineWidth > 0) ? .5 : 0;
+      lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
       coordX = MathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
       coordY = MathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );

@@ -438,6 +438,11 @@ var descartesJS = (function(descartesJS) {
 
       self.w_2 = self.w/2;
       self.h_2 = self.h/2;
+
+      // register the download function
+      evaluator.setFunction(thisID + ".download_image", function(filename) {
+        self.evaluator.functions["_SaveSpace_"](filename, self.canvas.toDataURL("image/png"));
+      });
     }
 
     /**

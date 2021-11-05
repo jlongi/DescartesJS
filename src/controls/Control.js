@@ -96,6 +96,9 @@ var descartesJS = (function(descartesJS) {
        */
       this.h = (values.type !== "Video") ? 23 : 120;
 
+      this.keyboard = false;
+      this.kblayout = "1x16";
+
       /**
        * position and size expression
        * type {String}

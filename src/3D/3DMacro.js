@@ -7,7 +7,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var regExpType = new String("-point-segment-polygon-curve-triangle-face-polireg-surface-text-cube-box-tetrahedron-octahedron-sphere-dodecahedron-icosahedron-ellipsoid-cone-cylinder-torus-mesh-macro-");
-  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+  var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
   var thisGraphics_i;
   var thisGraphicsNext;
   var macros_count = 0;

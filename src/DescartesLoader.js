@@ -70,7 +70,7 @@ var descartesJS = (function(descartesJS) {
       var children = self.children;
       var images = self.images;
       var audios = self.audios;
-      var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+      var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
       var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
       // add the license image

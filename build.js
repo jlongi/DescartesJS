@@ -17,6 +17,7 @@ let files = [
   "utils/ExpressionPatternUtils.js",
   "utils/EmbeddedImages.js",
   "utils/Color.js",
+  "utils/Keyboard.js",
   "CSSrules.js",
   "math/Krypto.js",
 
@@ -130,7 +131,7 @@ function addZero(str) {
   return str;
 }
 
-const dateStr = `${date.getFullYear()}-${addZero(date.getMonth())}-${addZero(date.getDate())}`;
+const dateStr = `${date.getFullYear()}-${addZero(date.getMonth()+1)}-${addZero(date.getDate())}`;
 
 // the header of the descartes files
 let head = `/**

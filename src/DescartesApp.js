@@ -113,6 +113,8 @@ var descartesJS = (function(descartesJS) {
        * @private
        */
       this.firstRun = true;
+
+      this.keyboard = new descartesJS.Keyboard(this)
   
       // function to prevent undefined error
       this.scaleToFit = function() {};
@@ -619,6 +621,21 @@ var descartesJS = (function(descartesJS) {
       catch(e) {
         console.warn("CustomEvents not supported in this browser");
       }
+
+      let self = this;
+      /** */
+      this.evaluator.setFunction("openKB", function(layoutType, kb_x, kb_y, var_id, tf_x, tf_y, tf_w, tf_h, tf_fs, tf_val, tf_onlyText) {
+        let textfield = {
+          x : tf_x,
+          y : tf_y,
+          w : tf_w,
+          h : tf_h,
+          fs : tf_fs + "px",
+          value : tf_val+"",
+          type : "custom"
+        }
+        self.keyboard.show(null, layoutType, kb_x, kb_y, var_id, textfield, tf_onlyText)
+      });
 
       this.readyApp = true;
     }

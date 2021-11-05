@@ -15,6 +15,7 @@ var descartesJS = (function(descartesJS) {
   var tmpRot;
   var coordX;
   var coordY;
+  var size;
 
   class Point extends descartesJS.Graphic {
     /**
@@ -78,9 +79,13 @@ var descartesJS = (function(descartesJS) {
       coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
       coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
 
-      ctx.beginPath();
-      ctx.arc(coordX, coordY, MathRound(this.evaluator.eval(this.size)), 0, PI2, true);
-      ctx.fill()
+      size = MathRound(this.evaluator.eval(this.size));
+
+      if (size > 0) {
+        ctx.beginPath();
+        ctx.arc(coordX, coordY, size, 0, PI2);
+        ctx.fill()
+      }
 
       // draw the text of the text
       if (this.text.hasContent) {

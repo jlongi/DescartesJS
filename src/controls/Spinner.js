@@ -79,6 +79,13 @@ var descartesJS = (function(descartesJS) {
       this.container.appendChild(this.divUp);
       this.container.appendChild(this.divDown);
 
+      this.cover = descartesJS.newHTML("div", {
+        class : "TextfieldCover"
+      });
+      if ( (this.keyboard) && (this.visible) ) {
+        this.container.appendChild(this.cover);
+      }
+
       this.addControlContainer(this.container);
 
       parseTrue = this.evaluator.parser.parse("1");
@@ -206,6 +213,8 @@ var descartesJS = (function(descartesJS) {
         this.divDown.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;left:${labelWidth + ((this.btn_pos === "h_right")?fieldWidth:0)}px;top:0;${(this.flat)?'border-width:0;':''}`);
 
         this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
+        this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
+
         this.field.value = fieldValue;
         if (!this.visible) {
           this.field.style.display = "none";
@@ -254,6 +263,8 @@ var descartesJS = (function(descartesJS) {
         this.divDown.setAttribute("style", `${divStyle};height:${this.h/2-1}px;top:${this.h/2+1}px;${(this.flat)?'border-width:0;':''}`);
 
         this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${((this.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
+        this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${((this.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
+
         this.field.value = fieldValue;
         if (!this.visible) {
           this.field.style.display = "none";
@@ -492,7 +503,7 @@ var descartesJS = (function(descartesJS) {
       var timer;
 
       // prevent the context menu display
-      self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = function() { return false; };
+      self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
 
       // prevent the default events int the label
       this.label.addEventListener("touchstart", descartesJS.preventDefault);
@@ -658,6 +669,24 @@ var descartesJS = (function(descartesJS) {
         this.focus();
       });
 
+      /**
+       * 
+       */
+      self.cover.addEventListener("click", function(evt) {
+        let pos = self.evaluator.eval(self.kbexp);
+
+        if (self.activeIfValue) {
+          self.parent.keyboard.show(
+            self,
+            self.kblayout, 
+            pos[0][0] || 0,
+            pos[0][1] || 0,
+            self.id, 
+            self.field, 
+            self.onlyText
+          );
+        }
+      });
     }
   }
 

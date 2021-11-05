@@ -117,7 +117,7 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      this.font = "Monospaced,PLAIN,12";
+      this.font = "SansSerif,PLAIN,18";
 
       /**
        * the condition for determining whether the text of the graph is fixed or not

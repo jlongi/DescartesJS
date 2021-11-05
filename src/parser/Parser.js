@@ -1141,6 +1141,35 @@ var descartesJS = (function(descartesJS) {
         return 0;
       };
 
+
+      var anchorImg = descartesJS.newHTML("a", {
+        target : "_blank",
+      });
+      /**
+       *
+       */
+      self.functions["_SaveSpace_"] = function(filename, img) {
+        self.evaluator.parent.removeButtonClick();
+        if ((Date.now() - lastTime) > waitTime) {
+          lastTime = Date.now();
+
+          document.body.appendChild(anchorImg);
+
+          blobContent = img;
+          anchorImg.setAttribute("href", blobContent);
+          anchorImg.setAttribute("download", filename);
+
+          if (blobContent != descartesJS.newBlobContent) {
+            anchorImg.click();
+            descartesJS.newBlobContent = blobContent;
+          }
+
+          document.body.removeChild(anchorImg);
+        }
+        return 0;
+      };
+
+
       var files;
       var reader;
 

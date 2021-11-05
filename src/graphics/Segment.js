@@ -13,15 +13,13 @@ var descartesJS = (function(descartesJS) {
   var space;
   var points;
   var radianAngle;
-  var tmpLineWidth;
-  var midpX;
-  var midpY;
   var size;
   var lineDesp;
   var coordX;
   var coordY;
   var coordX1;
   var coordY1;
+  //var tmpLineWidth;
 
   class Segment extends descartesJS.Graphic {
     /**
@@ -92,13 +90,14 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+ctx.lineWidth = Math.max(
+  0.000001, 
+  MathRound( evaluator.eval(this.width) )
+);
 
       size = evaluator.eval(this.size);
-      if (size < 0) {
-        size = 0;
-      }
 
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = stroke.getColor();
@@ -127,8 +126,8 @@ var descartesJS = (function(descartesJS) {
 
       if (size > 0) {
         ctx.beginPath();
-        ctx.arc(coordX, coordY, size, 0, PI2, true);
-        ctx.arc(coordX1, coordY1, size, 0, PI2, true);
+        ctx.arc(coordX, coordY, size, 0, PI2);
+        ctx.arc(coordX1, coordY1, size, 0, PI2);
         ctx.fill();
       }
 
@@ -137,9 +136,11 @@ var descartesJS = (function(descartesJS) {
 
       // draw the text of the segment
       if (this.text.hasContent) {
-        midpX = parseInt((coordX + coordX1)/2) -3;
-        midpY = parseInt((coordY + coordY1)/2) +3;
-        this.text.draw(ctx, stroke, midpX, midpY);
+        this.text.draw(
+          ctx, 
+          stroke, 
+          parseInt((coordX + coordX1)/2) -3, parseInt((coordY + coordY1)/2) +3 // midpoint
+        );
       }
     }
   }

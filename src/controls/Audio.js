@@ -38,11 +38,9 @@ var descartesJS = (function(descartesJS) {
       self.audio = self.parent.getAudio(self.file);
       self.oldFile = self.file;
 
-
       if (self.file.charAt(self.file.length-1) === "]") {
         self.file = self.evaluator.parser.parse(self.file.substring(1, self.file.length-1));
       }
-
       
       if (self.autoplay) {
         self.audio.setAttribute("autoplay", "autoplay");
@@ -79,7 +77,7 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setFunction(self.id + ".stop", function() {
         try {
           self.audio.pause();
-          self.audio.currentTime = 0.0;
+          self.audio.currentTime = 0;
         } catch(e) {}
 
         return 0;
@@ -93,6 +91,8 @@ var descartesJS = (function(descartesJS) {
       });
       self.audio.addEventListener("timeupdate", function(evt) {
         self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
+        self.evaluator.setVariable(self.id + ".playing", (self.audio.paused)?0:1);
+        self.evaluator.setVariable(self.id + ".duration", self.audio.duration);
       });
     }
 
@@ -100,8 +100,6 @@ var descartesJS = (function(descartesJS) {
      * Init the audio
      */
     init() {
-      // this.audio.setAttribute("width", this.w);
-      // this.audio.setAttribute("height", this.h);
       this.audio.style.left = this.x + "px";
       this.audio.style.top  = this.y + "px";
 

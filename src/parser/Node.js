@@ -17,6 +17,7 @@ var descartesJS = (function(descartesJS) {
   var cols;
   var result;
   var i, j, k, l;
+  var epsilon = 0.00000001;
 
   class Node {
     /**
@@ -401,12 +402,26 @@ var descartesJS = (function(descartesJS) {
         }
         else if (this.value === "==") {
           this.evaluate = function(evaluator) {
-            return +(this.childs[0].evaluate(evaluator) === this.childs[1].evaluate(evaluator));
+            var op1 = this.childs[0].evaluate(evaluator);
+            var op2 = this.childs[1].evaluate(evaluator);
+            if ( (typeof(op1) == "number") && (typeof(op2) == "number") ) {
+              return +(Math.abs(op1 - op2) < epsilon);
+            }
+            else {
+              return +(op1 === op2);
+            }
           }
         }
         else if (this.value === "!=") {
           this.evaluate = function(evaluator) {
-            return +(this.childs[0].evaluate(evaluator) !== this.childs[1].evaluate(evaluator));
+            var op1 = this.childs[0].evaluate(evaluator);
+            var op2 = this.childs[1].evaluate(evaluator);
+            if ( (typeof(op1) == "number") && (typeof(op2) == "number") ) {
+              return +(!(Math.abs(op1 - op2) < epsilon));
+            }
+            else {
+              return +(op1 !== op2);
+            }
           }
         }
       }

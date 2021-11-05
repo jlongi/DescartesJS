@@ -78,7 +78,6 @@ var descartesJS = (function(descartesJS) {
 
         // parse the options
         for (var i=0, l=self.options.length; i<l; i++) {
-
           // split the options if has values with square brackets (option[value])
           splitOption = self.customSplit(self.options[i]);
 
@@ -124,9 +123,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         // remove all the previous options
-        while (self.select.firstChild) {
-          self.select.remove();
-        }
+        self.select.innerHTML = "";
 
         // add the options to the menu
         var opt;
@@ -177,6 +174,14 @@ this.ratio = parent.ratio;
       if (this.visible) {
         this.containerControl.appendChild(this.field);
       }
+
+      this.cover = descartesJS.newHTML("div", {
+        class : "TextfieldCover"
+      });
+      if ( (this.keyboard) && (this.visible) ) {
+        this.containerControl.appendChild(this.cover);
+      }
+
 
       this.addControlContainer(this.containerControl);
 
@@ -275,6 +280,7 @@ this.label.height = this.h*this.ratio;
 
       this.field.value = fieldValue;
       this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
+      this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
 
       this.select.setAttribute("style", `text-align:left;font-size:${this.fieldFontSize}px;width:${chw}px;height:${this.h}px;left:${chx}px;`);
       this.select.selectedIndex = this.indexValue;
@@ -435,7 +441,7 @@ this.label.height = this.h*this.ratio;
       var self = this;
 
       // prevent the context menu display
-      self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = function() { return false; };
+      self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
 
       self.label.addEventListener("touchstart", descartesJS.preventDefault)
       self.label.addEventListener("mousedown", descartesJS.preventDefault)
@@ -493,6 +499,25 @@ this.label.height = this.h*this.ratio;
       self.field.addEventListener("click", function(evt) {
         // this.select();
         this.focus();
+      });
+
+      /**
+       * 
+       */
+      self.cover.addEventListener("click", function(evt) {
+        let pos = self.evaluator.eval(self.kbexp);
+
+        if (self.activeIfValue) {
+          self.parent.keyboard.show(
+            self,
+            self.kblayout, 
+            pos[0][0] || 0,
+            pos[0][1] || 0,
+            self.id, 
+            self.field, 
+            self.onlyText
+          );
+        }
       });
     }
   }

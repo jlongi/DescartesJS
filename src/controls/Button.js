@@ -261,7 +261,6 @@ var descartesJS = (function(descartesJS) {
         this.btn.title = this.tooltip;
       }
 
-
       this.container.appendChild(this.btn);
 
       this.addControlContainer(this.container);
@@ -320,12 +319,6 @@ var descartesJS = (function(descartesJS) {
           var spread = 1;
           btn.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
         }
-        // if (this.conStyle.shadowTextColor) {
-          // ctx.shadowBlur = this.conStyle.shadowTextBlur || 1;
-          // ctx.shadowOffsetX = this.conStyle.shadowTextOffsetX || 0;
-          // ctx.shadowOffsetY = this.conStyle.shadowTextOffsetY || 2;
-          // ctx.shadowColor = this.conStyle.shadowTextColor;
-        // }
       }
       //
 
@@ -339,9 +332,6 @@ var descartesJS = (function(descartesJS) {
 
       container.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
 
-      ////
-      // ctx.textAlign = "center";
-      // ctx.textBaseline = "middle";
       ctx.lineJoin = "round";
       ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
 
@@ -366,7 +356,6 @@ this.text_object = new descartesJS.TextObject({
   shadowOffsetX: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetX || 0 : undefined,
   shadowOffsetY: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetY || 2 : undefined,
   shadowColor: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextColor: undefined,
-
 }, this.old_name);
 //new
       
@@ -393,7 +382,8 @@ this.text_object = new descartesJS.TextObject({
         this.draw();
 
         container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-  
+        container.setAttribute("active", this.activeIfValue);
+        
         // update the position and size
         this.updatePositionAndSize();
       }

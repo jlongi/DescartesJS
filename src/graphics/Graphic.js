@@ -273,7 +273,7 @@ var descartesJS = (function(descartesJS) {
         this.drawFamilyAux(this.ctx, fill, stroke);
       }
       // if the graphic has not a family
-      else  {
+      else {
         // if the condition to draw is true
         if ( this.evaluator.eval(this.drawif) > 0 ) {
           // update the values of the graphic
@@ -367,13 +367,12 @@ var descartesJS = (function(descartesJS) {
         ctx.textBaseline = "alphabetic";
         ctx.textNode.pos = { x:x, y:y };
 
-        // text.draw(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
         text.update(ctx, x, y, decimals, fixed, align, displaceY, fill.getColor());
 
         return;
       }
 
-      // simple text (none rtf text)
+      // simple text (not rtf text)
       if (text.type === "simpleText") {
         text = text.toString(decimals, fixed).split("\\n");
       }

@@ -38,7 +38,7 @@ var descartesJS = (function(descartesJS) {
   var radius;
   var tempAng;
   var clockwise;
-  var tmpLineWidth;
+//var tmpLineWidth;
 
   class Arc extends descartesJS.Graphic {
     /**
@@ -110,17 +110,27 @@ var descartesJS = (function(descartesJS) {
 
         // arc expressed with points in the space
         if (!this.vectors) {
-          if (this.abs_coord) {
-            u1 =  u1 - this.exprX;
-            u2 = -u2 + this.exprY;
-            v1 =  v1 - this.exprX;
-            v2 = -v2 + this.exprY;
-          }
-          else {
-            u1 = u1 - this.exprX;
-            u2 = u2 - this.exprY;
-            v1 = v1 - this.exprX;
-            v2 = v2 - this.exprY;
+          // if (this.abs_coord) {
+          //   u1 =  u1 - this.exprX;
+          //   u2 = -u2 + this.exprY;
+          //   v1 =  v1 - this.exprX;
+          //   v2 = -v2 + this.exprY;
+          // }
+          // else {
+          //   u1 = u1 - this.exprX;
+          //   u2 = u2 - this.exprY;
+          //   v1 = v1 - this.exprX;
+          //   v2 = v2 - this.exprY;
+          // }
+
+          u1 =  u1 - this.exprX;
+          u2 = -u2 + this.exprY;
+          v1 =  v1 - this.exprX;
+          v2 = -v2 + this.exprY;
+
+          if (!this.abs_coord) {
+            u2 = -u2;
+            v2 = -v2;
           }
         }
         // arc expressed with vectors
@@ -203,7 +213,6 @@ var descartesJS = (function(descartesJS) {
         this.endAng = descartesJS.degToRad(endVal)  +macroAngle;
         this.drawAngle = true;
       }
-
     }
 
     /**
@@ -230,52 +239,72 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
       space = this.space;
 
-      radius = evaluator.eval(this.radius);
-      if (radius < 0) {
-        radius = 0;
-      }
+      radius = Math.max(0, evaluator.eval(this.radius));
 
       // the width of a line can not be 0 or negative
-      tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
+ctx.lineWidth = Math.max(
+  0.000001, 
+  MathRound( evaluator.eval(this.width) )
+);
 
       ctx.lineCap = "round";
       ctx.strokeStyle = stroke.getColor();
 
-      // draw the arc when specified in angles
-      if (this.drawAngle) {
-        if (this.abs_coord) {
-          coordX = MathRound(this.exprX);
-          coordY = MathRound(this.exprY);
-        }
-        else {
-          coordX = MathRound(space.getAbsoluteX(this.exprX));
-          coordY = MathRound(space.getAbsoluteY(this.exprY));
-          radius = radius*space.scale;
-          this.iniAng = -this.iniAng;
-          this.endAng = -this.endAng;
-        }
+      if (this.abs_coord) {
+        coordX = MathRound(this.exprX);
+        coordY = MathRound(this.exprY);
+      }
+      else {
+        coordX = MathRound(space.getAbsoluteX(this.exprX));
+        coordY = MathRound(space.getAbsoluteY(this.exprY));
+        radius = radius*space.scale;
+        this.iniAng = -this.iniAng;
+        this.endAng = -this.endAng;
+      }
 
-        if (this.iniAng > this.endAng) {
-          tempAng = this.iniAng;
-          this.iniAng = this.endAng;
-          this.endAng = tempAng;
-        }
+      // draw the arc when specified in angles
+      if ( (this.drawAngle) && (this.iniAng > this.endAng) ) {
+        tempAng = this.iniAng;
+        this.iniAng = this.endAng;
+        this.endAng = tempAng;
       }
-      // draw the arc when specified with points
-      else if (this.drawPoints) {
-        if (this.abs_coord) {
-          coordX = MathRound(this.exprX);
-          coordY = MathRound(this.exprY);
-        }
-        else {
-          coordX = MathRound(space.getAbsoluteX(this.exprX));
-          coordY = MathRound(space.getAbsoluteY(this.exprY));
-          radius = radius*space.scale;
-          this.iniAng = -this.iniAng;
-          this.endAng = -this.endAng;
-        }
-      }
+
+      // // draw the arc when specified in angles
+      // if (this.drawAngle) {
+      //   if (this.abs_coord) {
+      //     coordX = MathRound(this.exprX);
+      //     coordY = MathRound(this.exprY);
+      //   }
+      //   else {
+      //     coordX = MathRound(space.getAbsoluteX(this.exprX));
+      //     coordY = MathRound(space.getAbsoluteY(this.exprY));
+      //     radius = radius*space.scale;
+      //     this.iniAng = -this.iniAng;
+      //     this.endAng = -this.endAng;
+      //   }
+
+      //   if (this.iniAng > this.endAng) {
+      //     tempAng = this.iniAng;
+      //     this.iniAng = this.endAng;
+      //     this.endAng = tempAng;
+      //   }
+      // }
+      // // draw the arc when specified with points
+      // else if (this.drawPoints) {
+      //   if (this.abs_coord) {
+      //     coordX = MathRound(this.exprX);
+      //     coordY = MathRound(this.exprY);
+      //   }
+      //   else {
+      //     coordX = MathRound(space.getAbsoluteX(this.exprX));
+      //     coordY = MathRound(space.getAbsoluteY(this.exprY));
+      //     radius = radius*space.scale;
+      //     this.iniAng = -this.iniAng;
+      //     this.endAng = -this.endAng;
+      //   }
+      // }
 
       if (this.fill) {
         ctx.fillStyle = fill.getColor();

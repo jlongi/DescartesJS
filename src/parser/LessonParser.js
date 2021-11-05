@@ -7,7 +7,7 @@ var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var paddingSides = 15;
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg)/gi;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
 
   var temp;
   var babelValue;
@@ -408,6 +408,8 @@ var descartesJS = (function(descartesJS, babel) {
           case("radio_group"):
           // extra style for the buttons
           case("extra_style"):
+          // kblayout
+          case("kblayout"):
           // information
           case("info"):
             controlObj[babelValue] = values_i_1;
@@ -450,6 +452,8 @@ var descartesJS = (function(descartesJS, babel) {
           case("controls"):
           // condition to show or remove the gradient in the buttons
           case("flat"):
+          // condition to show or not a virtual keyboard
+          case("keyboard"):
             controlObj[babelValue] = (babel[values_i_1] === "true");
             break;
 
@@ -507,9 +511,13 @@ var descartesJS = (function(descartesJS, babel) {
             controlObj["spaceID"] = values_i_1;
             break;
 
+            
           // expression of the position and size
           case("expresion"):
             controlObj["expresion"] = this.parser.parse(values_i_1.replace(")(", ","));
+          // expression of the position of the keyboard
+          case("kbexp"):
+            controlObj["kbexp"] = this.parser.parse(values_i_1.replace(")(", ","));
             break;
 
           // border color of the text

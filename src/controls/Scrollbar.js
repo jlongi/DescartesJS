@@ -93,6 +93,13 @@ this.ratio = parent.ratio;
       this.container.appendChild(this.field);
       this.container.appendChild(this.scrollHandler);
 
+      this.cover = descartesJS.newHTML("div", {
+        class : "TextfieldCover"
+      });
+      if ( (this.keyboard) && (this.visible)) {
+        this.container.appendChild(this.cover);
+      }
+
       this.addControlContainer(this.container);
 
       // register the mouse and touch events
@@ -293,6 +300,8 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
 
       // style the text field
       self.field.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.fieldWidth}px;height:${self.fieldHeight}px;left:${self.fieldX}px;top:0;`);
+      self.cover.setAttribute("style", `width:${self.fieldWidth}px;height:${self.fieldHeight}px;left:${self.fieldX}px;top:0;`);
+
       if (self.fieldHeight === 0) {
         self.field.style.display = "none";
       }
@@ -645,7 +654,7 @@ this.label.height = self.labelHeight * this.ratio;
       var timer;
 
       // prevent the context menu display
-      self.canvas.oncontextmenu = self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = self.scrollHandler.oncontextmenu = function () { return false; };
+      self.canvas.oncontextmenu = self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = self.scrollHandler.oncontextmenu = self.cover.oncontextmenu = function () { return false; };
 
       /**
        * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -963,6 +972,25 @@ this.label.height = self.labelHeight * this.ratio;
       }
       window.addEventListener("touchend", onMouseUp_DownButton);
       window.addEventListener("mouseup", onMouseUp_DownButton);
+
+      /**
+       * 
+       */
+      self.cover.addEventListener("click", function(evt) {
+        let pos = self.evaluator.eval(self.kbexp);
+
+        if (self.activeIfValue) {
+          self.parent.keyboard.show(
+            self,
+            self.kblayout, 
+            pos[0][0] || 0,
+            pos[0][1] || 0,
+            self.id, 
+            self.field, 
+            self.onlyText
+          );
+        }
+      });
     }
   }
 

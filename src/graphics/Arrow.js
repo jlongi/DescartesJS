@@ -13,8 +13,6 @@ var descartesJS = (function(descartesJS) {
   var points;
   var radianAngle;
   var space;
-  var midpX;
-  var midpY;
   var width1;
   var width2;
   var scale;
@@ -36,11 +34,14 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
     
       this.width = this.width || parent.evaluator.parser.parse("5");
-      this.size = this.size || parent.evaluator.parser.parse("2");
+      this.size  = this.size  || parent.evaluator.parser.parse("2");
       this.spear = this.spear || parent.evaluator.parser.parse("8");
       this.arrow = this.arrow || new descartesJS.Color("ee0022");
 
       this.text = new descartesJS.TextObject(this, this.text);
+
+      this.endPoints = [];
+      this.vect = new descartesJS.Vector2D(0, 0);
     }
 
     /**
@@ -50,8 +51,7 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
 
       points = evaluator.eval(this.expresion);
-      this.endPoints = [];
-
+      
       for(var i=0, l=points.length; i<l; i++){
         this.endPoints[i] = {x: points[i][0], y: points[i][1]};
       }
@@ -64,7 +64,6 @@ var descartesJS = (function(descartesJS) {
           this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
         }
       }
-
     }
 
     /**
@@ -91,17 +90,15 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
       space = this.space;
 
-      width1 = evaluator.eval(this.width);
-      if (width1 < 0) {
-        width1 = 0;
-      }
-
+      width1 = Math.max(0, evaluator.eval(this.width));
       width2 = Math.ceil(width1/2);
       scale = space.scale;
 
-      this.vect = new descartesJS.Vector2D(this.endPoints[1].x-this.endPoints[0].x, this.endPoints[1].y-this.endPoints[0].y);
+      this.vect.x = this.endPoints[1].x - this.endPoints[0].x;
+      this.vect.y = this.endPoints[1].y - this.endPoints[0].y;
       vlength = this.vect.vectorLength();
-      this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
+      //this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
+this.angle = Math.atan2(this.vect.y, this.vect.x)
 
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = stroke.getColor();
@@ -121,30 +118,18 @@ var descartesJS = (function(descartesJS) {
         coordY1 = MathRound(space.getAbsoluteY(this.endPoints[1].y));
       }
 
-      spear = evaluator.eval(this.spear);
-      if (spear < 0) {
-        spear = 0
-      }
+      spear = Math.max(0, evaluator.eval(this.spear));
 
       ctx.save();
-      ctx.translate(coordX, coordY, vlength);
+      ctx.translate(coordX, coordY);
 
       if (this.abs_coord) {
-        // if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
-        //   ctx.rotate(this.angle)
-        // } else {
-        //   ctx.rotate(-this.angle)
-        // }
-        ctx.rotate( this.angle * ((this.vect.y >= 0) ? 1 : -1) );
+        // ctx.rotate( this.angle * ((this.vect.y >= 0) ? 1 : -1) );
+ctx.rotate( this.angle );
       } else {
         vlength = vlength*scale;
-
-        // if (((this.vect.x >= 0) && (this.vect.y >= 0)) || ((this.vect.x <= 0) && (this.vect.y >= 0))) {
-        //   ctx.rotate(-this.angle)
-        // } else {
-        //   ctx.rotate(this.angle)
-        // }
-        ctx.rotate( this.angle * ((this.vect.y >= 0) ? -1 : 1) );
+        //ctx.rotate( this.angle * ((this.vect.y >= 0) ? -1 : 1) );
+ctx.rotate( -this.angle );
       }
 
       ctx.beginPath();
@@ -155,7 +140,6 @@ var descartesJS = (function(descartesJS) {
       ctx.lineTo(MathFloor(vlength-2*spear),      MathFloor(spear+width2));
       ctx.lineTo(MathFloor(vlength-spear-width1), MathFloor(width2));
       ctx.lineTo(-width2,                         MathFloor(width2));
-
       ctx.closePath();
       ctx.stroke();
       ctx.fill();
@@ -163,9 +147,11 @@ var descartesJS = (function(descartesJS) {
 
       // draw the text of the arrow
       if (this.text.hasContent) {
-        midpX = parseInt((coordX + coordX1)/2) -3;
-        midpY = parseInt((coordY + coordY1)/2) +3;
-        this.text.draw(ctx, stroke, midpX, midpY);
+        this.text.draw(
+          ctx, 
+          stroke, 
+          parseInt((coordX + coordX1)/2) -3, parseInt((coordY + coordY1)/2) +3 // midpoint
+        );
       }
     }
   }

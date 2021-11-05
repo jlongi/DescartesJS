@@ -485,9 +485,14 @@ var descartesJS = (function(descartesJS) {
           self.mouseCatcher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
         }
 
+var act = self.evaluator.getVariable(self.activeStr);
+
         // deactivate control
         self.parent.deactivateGraphicControls();
         self.parent.updateControls();
+self.evaluator.setVariable(self.activoStr, act);
+self.evaluator.setVariable(self.activeStr, act);
+self.parent.update();
       }
 
       /**
