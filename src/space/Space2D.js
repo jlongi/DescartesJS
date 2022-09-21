@@ -74,11 +74,13 @@ var descartesJS = (function(descartesJS) {
         id    : self.id + "_canvas",
         class : "DescartesSpace2DCanvas",
         width : self.w * self.ratio,
+        height : self.h * self.ratio,
       });
 
       self.backCanvas = descartesJS.newHTML("canvas", {
         id    : self.id + "_background",
         width : self.w * self.ratio,
+        height : self.h * self.ratio,
       });
 
       self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
@@ -165,6 +167,8 @@ var descartesJS = (function(descartesJS) {
       else {
         self.canvas.oncontextmenu = function (evt) { return false; };
       }
+
+      parent.evaluator.setVariable(self.id+"._refresh_back_", 1);
     }
 
     /**
@@ -416,7 +420,10 @@ var descartesJS = (function(descartesJS) {
       self = this;
       ctx = self.ctx;
 
-      ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
+      // prevent the clearing of the space
+      if (evaluator.getVariable(self.id+"._refresh_back_")) {
+        ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
+      }
 
       // draw the no background graphics
       for (var i=0, l=self.graphics.length; i<l; i++) {

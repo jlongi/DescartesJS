@@ -776,11 +776,17 @@
       }
       else {
         let containerRect = this.container.getBoundingClientRect();
+        
         let rect = textfield.getBoundingClientRect();
-        x = rect.left - containerRect.left;
-        y = rect.top - containerRect.top;
-        w = rect.width;
-        h = rect.height;
+
+        // x = rect.left - containerRect.left;
+        // y = rect.top - containerRect.top;
+        // w = rect.width;
+        // h = rect.height;
+        x = rect.left/descartesJS.cssScale - containerRect.left/descartesJS.cssScale;
+        y = rect.top/descartesJS.cssScale - containerRect.top/descartesJS.cssScale;
+        w = rect.width/descartesJS.cssScale;
+        h = rect.height/descartesJS.cssScale;
         fs = textfield.style.fontSize;
       }
 

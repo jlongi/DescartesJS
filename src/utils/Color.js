@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
+
   var MathFloor = Math.floor;
   var evaluator;
   var tmpColor;
@@ -22,6 +24,11 @@ var descartesJS = (function(descartesJS) {
   var b;
   var a;
 
+  var stop_tmp;
+  var grad;
+  var img;
+  var parent;
+
   /**
    *
    */
@@ -35,14 +42,52 @@ var descartesJS = (function(descartesJS) {
 
       self.getColor = self.getColorStr;
 
+      let grad_info;
+      let stop;
+
       // construct a simple color
       if (!color) {
         self.colorStr = `rgba(${self.r},${self.g},${self.b},${self.a})`;
         return;
       }
 
+      // linear gradient
+      else if (color.match(/^GradL/)) {
+        grad_info = self.splitComa( color.substring(6, color.length-1) );
+        self.x1 = self.evaluator.parser.parse(grad_info[0]);
+        self.y1 = self.evaluator.parser.parse(grad_info[1]);
+        self.x2 = self.evaluator.parser.parse(grad_info[2]);
+        self.y2 = self.evaluator.parser.parse(grad_info[3]);
+        self.stops = [];
+        for (let i=4; i<grad_info.length; i++) {
+          if (grad_info[i] != "") {
+            stop = grad_info[i].split("|");
+
+            self.stops.push({
+              percentage: self.evaluator.parser.parse(stop[1]),
+              color: "#" + stop[2]
+            });
+          }
+        }
+
+        self.getColor = self.getLinearGradient;
+        return;
+      }
+
+      // pattern
+      else if (color.match(/^Pattern/)) {
+        self.img_src = color.substring(8, color.length-1);
+        if (self.img_src.match(regExpImage)) {
+          self.img_src = "'" + self.img_src + "'";
+        }
+        self.img_src = self.evaluator.parser.parse(self.img_src);
+
+        self.getColor = self.getPattern;
+        return;
+      }
+
       // the color is a color name
-      if (babel[color]) {
+      else if (babel[color]) {
         if (babel[color] === "net") {
           color = "rojo";
         }
@@ -56,7 +101,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // the color is six hexadecimals digits #RRGGBB
-      if (color.length === 6) {
+      else if (color.length === 6) {
         self.r = descartesJS.toHex(color.substring(0,2));
         self.g = descartesJS.toHex(color.substring(2,4));
         self.b = descartesJS.toHex(color.substring(4,6));
@@ -64,7 +109,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // the color is eight hexadecimals digits #RRGGBBAA
-      if (color.length === 8) {
+      else if (color.length === 8) {
         self.r = descartesJS.toHex(color.substring(2,4));
         self.g = descartesJS.toHex(color.substring(4,6));
         self.b = descartesJS.toHex(color.substring(6,8));
@@ -73,7 +118,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // the color is a Descartes expression (exprR, exprG, exprB, exprA)
-      if (color[0] === "(") {
+      else if (color[0] === "(") {
         tmpColor = [];
         splitColor = self.splitComa(color.substring(1, color.length-1));
 
@@ -161,6 +206,49 @@ var descartesJS = (function(descartesJS) {
       self.a = (1 - evaluator.eval(self.aExpr));
 
       return `rgba(${self.r},${self.g},${self.b},${self.a})`;
+    }
+
+    /**
+     * 
+     */
+    getLinearGradient() {
+      var self = this;
+
+      grad = descartesJS.ctx.createLinearGradient(
+        self.evaluator.eval(self.x1),
+        self.evaluator.eval(self.y1),
+        self.evaluator.eval(self.x2),
+        self.evaluator.eval(self.y2)
+      );
+
+      for (let i=0; i<self.stops.length; i++) {
+        stop_tmp = self.evaluator.eval(self.stops[i].percentage);
+        stop_tmp = (stop_tmp < 0) ? 0 : ((stop_tmp > 1) ? 1 : stop_tmp)
+        grad.addColorStop(
+          stop_tmp,
+          self.stops[i].color
+        );
+      }
+
+      return grad;
+    }
+
+    /**
+     * 
+     */
+     getPattern() {
+      var self = this;
+      parent = self.evaluator.parent;
+      img = parent.getImage(self.evaluator.eval(self.img_src));
+
+      if (img) {
+        try {
+          return descartesJS.ctx.createPattern(img, "repeat");
+        } catch (e) {
+          return "ff00ff";          
+        }
+      }
+      return "ff00ff";
     }
 
     /**

@@ -12,6 +12,7 @@ var descartesJS = (function(descartesJS) {
   var resultValue;
   var evalMin;
   var evalMax;
+  var int_color;
 
   class TextField extends descartesJS.Control {
     /**
@@ -275,6 +276,13 @@ var descartesJS = (function(descartesJS) {
       this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
       
       this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+
+      int_color = this.label_color.getColor();
+      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+        this.label_ctx.fillStyle = int_color;
+        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      }
+      
       if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
         this.text_object.anchor = "center_left";
         this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 

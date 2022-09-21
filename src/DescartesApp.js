@@ -117,7 +117,7 @@ var descartesJS = (function(descartesJS) {
       this.keyboard = new descartesJS.Keyboard(this)
   
       // function to prevent undefined error
-      this.scaleToFit = function() {};
+      this.scaleToFit = function() { };
   
       // init the interpretation
       this.init()
@@ -196,12 +196,6 @@ var descartesJS = (function(descartesJS) {
           });
           document.head.appendChild(base);
         }
-      }
-  
-      // cover space
-      if (this.expand == "cover") {
-        this.width = window.innerWidth;
-        this.height = window.innerHeight;
       }
   
       // configure an arquimedes lesson
@@ -341,6 +335,29 @@ var descartesJS = (function(descartesJS) {
         this.scaleToFit = scaleToFit;
         this.scaleToFit();
       }
+      // cover space
+      if (this.expand == "cover") {
+        // this.width = window.innerWidth;
+        // this.height = window.innerHeight;
+
+        this.scaleToFit = function() {
+          this.width = window.innerWidth;
+          this.height = window.innerHeight;
+          this.container.width = this.width;
+          this.container.height = this.height;
+          this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
+
+          if (this.spaces) {
+            for (var i=0, l=this.spaces.length; i<l; i++) {
+              this.spaces[i].initSpace();
+              this.spaces[i].init();
+              this.spaces[i].update(true);
+            }
+          }
+        };
+        this.scaleToFit();
+      }
+      
       //
   
       /**
@@ -734,7 +751,7 @@ var descartesJS = (function(descartesJS) {
         // configure the controls in the region
         for (var i=0, l=northSpaceControls.length; i<l; i++) {
           northSpaceControls[i].expresion = parser.parse("(" + (displaceButton +controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
-          northSpaceControls[i].drawif = parser.parse("1");
+          // northSpaceControls[i].drawif = parser.parse("1");
           northSpaceControls[i].init();
         }
 
@@ -800,7 +817,7 @@ var descartesJS = (function(descartesJS) {
         // configure the controls in the region
         for (var i=0, l=southSpaceControls.length; i<l; i++) {
           southSpaceControls[i].expresion = parser.parse("(" + (displaceButton + controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
-          southSpaceControls[i].drawif = parser.parse("1");
+          // southSpaceControls[i].drawif = parser.parse("1");
           southSpaceControls[i].init();
         }
 
@@ -841,7 +858,7 @@ var descartesJS = (function(descartesJS) {
         // configure the controls in the region
         for (var i=0, l=eastSpaceControls.length; i<l; i++) {
           eastSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + eastRegionWidth + "," + buttonsConfig.height +")");
-          eastSpaceControls[i].drawif = parser.parse("1");
+          // eastSpaceControls[i].drawif = parser.parse("1");
           eastSpaceControls[i].init();
         }
       }
@@ -861,7 +878,7 @@ var descartesJS = (function(descartesJS) {
         // configure the controls in the region
         for (var i=0, l=westSpaceControls.length; i<l; i++) {
           westSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + westRegionWidth + "," + buttonsConfig.height +")");
-          westSpaceControls[i].drawif = parser.parse("1");
+          // westSpaceControls[i].drawif = parser.parse("1");
           westSpaceControls[i].init();
         }
       }

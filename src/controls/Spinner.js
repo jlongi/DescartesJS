@@ -19,6 +19,7 @@ var descartesJS = (function(descartesJS) {
   var parseTrue;
   var tmp_image_dec_src;
   var tmp_image_inc_src;
+  var int_color;
 
   class Spinner extends descartesJS.Control {
     /**
@@ -40,6 +41,11 @@ var descartesJS = (function(descartesJS) {
       this.tabindex = ++this.parent.tabindex;
 
       this.name_str = this.name;
+
+      this.initial_value = 0;
+      try {
+        this.initial_value = this.evaluator.eval(this.parser.parse(this.valueExprString))
+      } catch(e) {console.log(e);};
 
       // modification to change the name of the button with an expression
       if (this.name.match(/^\[.*\]?/)) {
@@ -336,14 +342,14 @@ var descartesJS = (function(descartesJS) {
       if (this.image_dec) {
         tmp_image_dec_src = this.evaluator.eval(this.image_dec_src).toString().trim();
         if (this.old_image_dec_src !== tmp_image_dec_src) {
-          this.divDown.style["background-image"] = "url(" + this.image_dec.src + ")";
+          this.divDown.style["background-image"] = "url(" + tmp_image_dec_src + ")";
           this.old_image_dec_src = tmp_image_dec_src;
         }
       }
       if (this.image_inc) {
         tmp_image_inc_src = this.evaluator.eval(this.image_inc_src).toString().trim();
         if (this.old_image_inc_src !== tmp_image_inc_src) {
-          this.divUp.style["background-image"] = "url(" + this.image_inc.src + ")";
+          this.divUp.style["background-image"] = "url(" + tmp_image_inc_src + ")";
           this.image_inc_src = tmp_image_inc_src;
         }
       }
@@ -376,6 +382,13 @@ var descartesJS = (function(descartesJS) {
       this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
 
       this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+
+      int_color = this.label_color.getColor();
+      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+        this.label_ctx.fillStyle = int_color;
+        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      }
+
       if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
         this.text_object.anchor = "center_left";
         this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
@@ -450,9 +463,9 @@ var descartesJS = (function(descartesJS) {
 
       if (this.discrete) {
         incr = evaluator.eval(this.incr);
-        resultValue = (incr == 0) ? 0 : (incr * Math.round(resultValue / incr));
+        resultValue = (incr == 0) ? 0 : this.initial_value + (incr * Math.round((resultValue-this.initial_value) / incr));
       }
-
+      
       decimals = evaluator.eval(this.decimals);
       if (decimals <= 0) {
         decimals = 0;

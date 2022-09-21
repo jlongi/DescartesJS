@@ -136,14 +136,22 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      this.color = new descartesJS.Color("222222");
-
+      this.color = new descartesJS.Color((values.gui == "Scrollbar") ? "e0e4e8" : "222222");
+  
       /**
        * control color
        * type {String}
        * @private
        */
-      this.colorInt = new descartesJS.Color((values.type !== "GraphicControl") ? "f0f8ff" : "cc0022");
+      this.colorInt = "cc0022";
+      if (values.gui == "Scrollbar") {
+        // this.colorInt = "3B3B98";
+        this.colorInt = "182C61";
+      }
+      else if (values.type !== "GraphicControl") {
+        this.colorInt = "f0f8ff";
+      }
+      this.colorInt = new descartesJS.Color(this.colorInt);
 
       /**
        * font size of the control
@@ -434,7 +442,6 @@ var descartesJS = (function(descartesJS) {
      */
     formatOutputValue(value) {
       parent = this.parent;
-
       resultValue = value+"";
       decimals = this.evaluator.eval(this.decimals);
 

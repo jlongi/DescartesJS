@@ -30,6 +30,10 @@ var descartesJS = (function(descartesJS) {
     if (indexOfRadial != -1) {
       answer = answer.substring(0, indexOfRadial);
     }
+    
+    // fix to operator in text
+    answer = answer.replace(/\+/g, "\\+")
+                   .replace(/\*/g, "\\*");
 
     tmpAnswer = answer.trim();
     answer = { ignoreAccents: false, ignoreCaps: false, regExp: null };
@@ -215,6 +219,8 @@ var descartesJS = (function(descartesJS) {
   descartesJS.esCorrecto = function(respPattern, resp, evaluator, regExpPattern) {
     evaluator = evaluator || descartesJS.externalEvaluator;
     regExpPattern = regExpPattern || descartesJS.buildRegularExpressionsPatterns(respPattern, evaluator);
+
+    resp = resp+'';
 
     for (var i=0, l=regExpPattern.length; i<l; i++) {
       regExpPattern_i = regExpPattern[i];

@@ -29,6 +29,7 @@ var descartesJS = (function(descartesJS) {
   var min;
   var max;
   var name;
+  var int_color;
 
   class Scrollbar extends descartesJS.Control {
     /**
@@ -82,8 +83,8 @@ var descartesJS = (function(descartesJS) {
       this.label = descartesJS.newHTML("canvas", {
         class : "DescartesScrollbarLabel",
       });
-this.label_ctx = this.label.getContext("2d");
-this.ratio = parent.ratio;
+      this.label_ctx = this.label.getContext("2d");
+      this.ratio = parent.ratio;
 
       // add the elements to the container
       this.container.appendChild(this.canvas);
@@ -163,24 +164,24 @@ this.ratio = parent.ratio;
       // find the font size of the text field
       self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : ( (self.orientation === VERTICAL) ? (defaultHeight - parseInt(self.h/20) -1) : descartesJS.getFieldFontSize(defaultHeight) );
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.parser.parse(""+ this.fieldFontSize),
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-}, self.name_str);
-//new
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      //new
+      this.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : this.parent.decimal_symbol
+        },
+        evaluator : this.evaluator,
+        decimals : this.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: this.parser.parse("0"),
+        font_size: this.parser.parse(""+ this.fieldFontSize),
+        font_family: this.font_family,
+        italics: this.italics,
+        bold: this.bold,
+      }, self.name_str);
+      //new
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", self.fieldFontSize+"px " + descartesJS.sansserif_font);
 
@@ -209,7 +210,7 @@ this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, tr
         self.labelY = TFy;
 
         self.upWidth = self.downW = self.w;
-        self.upHeight = self.downH = 15;
+        self.upHeight = self.downH = self.w;
         self.upX = 0;
         self.upY = self.fieldHeight;
         self.downX = 0;
@@ -220,17 +221,18 @@ this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, tr
 
         self.scrollHandlerW = self.w;
         self.scrollHandlerH = parseInt( (self.canvasHeight -self.upHeight -self.downH -self.labelHeight -self.fieldHeight)/10 );
+        self.scrollHandlerH = ((self.canvasHeight-self.upHeight-self.downH-self.labelHeight-self.fieldHeight) > self.w*2) ? self.w : self.scrollHandlerH;
         self.scrollHandlerH = (self.scrollHandlerH < 15) ? 15 : self.scrollHandlerH;
 
         self.limInf = TFy -self.downH -self.scrollHandlerH;
         self.limSup = sby+self.downH;
       }
+      // horizontal orientation
       else {
         var minsbw = 58;
 
         // get the width of all elements in the scrollbar
-//        var minLabelWidth = descartesJS.getTextWidth(name, self.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
-var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+        var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
 
         self.labelWidth = minLabelWidth;
         var minTFWidth = fieldValueSize;
@@ -269,7 +271,7 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
         self.labelHeight = self.h;
         self.labelY = 0;
 
-        self.upWidth = self.downW = 15;
+        self.upWidth = self.downW = self.h;
         self.upHeight = self.downH = self.h;
         self.upX = TFx-self.downW;
         self.upY = 0;
@@ -277,6 +279,7 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
         self.downY = 0;
 
         self.scrollHandlerW = parseInt( (self.canvasWidth-self.upWidth-self.downW)/10 );
+        self.scrollHandlerW = ((self.canvasWidth-self.upWidth-self.downW) > self.h*2) ? self.h : self.scrollHandlerW;
         self.scrollHandlerW = (self.scrollHandlerW < 15) ? 15 : self.scrollHandlerW;
         self.scrollHandlerH = self.h;
 
@@ -309,8 +312,8 @@ var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFon
       // style the label
       self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
 
-this.label.width = self.labelWidth * this.ratio;
-this.label.height = self.labelHeight * this.ratio;
+      this.label.width = self.labelWidth * this.ratio;
+      this.label.height = self.labelHeight * this.ratio;
     }
 
     /**
@@ -318,8 +321,6 @@ this.label.height = self.labelHeight * this.ratio;
      */
     update() {
       evaluator = this.evaluator;
-
-      // this.label.innerHTML = evaluator.eval(this.name).toString();
 
       // the increment is the interval [min, max] divided by 100 if has decimals, if not then the increment is 1
       if (evaluator.eval(this.decimals) == 0) {
@@ -368,6 +369,13 @@ this.label.height = self.labelHeight * this.ratio;
       this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
 
       this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+
+      int_color = this.label_color.getColor();
+      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+        this.label_ctx.fillStyle = int_color;
+        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      }
+
       if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
         this.text_object.anchor = "center_left";
         this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
@@ -389,95 +397,72 @@ this.label.height = self.labelHeight * this.ratio;
       tmpW = MathFloor(this.w);
       tmpH = MathFloor(this.h);
 
-      ctx.fillStyle = "#e0e4e8";
+      // background color
+      ctx.fillStyle = this.color.getColor();
       ctx.fillRect(0, 0, tmpW, tmpH);
 
-      ctx.strokeStyle = "#7a8a99";
-      ctx.fillStyle = "#ccdcec";
-
-      if (self.down) {
-        ctx.fillRect(self.downX+.5, self.downY+.5, self.downW, self.downH-1);
-      }
-      ctx.strokeRect(self.downX+.5, self.downY+.5, self.downW, self.downH-1);
-
-      if (self.up) {
-        ctx.fillRect(self.upX+.5, self.upY-.5, self.upWidth, self.upHeight+1);
-      }
-      ctx.strokeRect(self.upX+.5, self.upY-.5, self.upWidth, self.upHeight+1);
-
-      desp = 4;
       ctx.fillStyle = "black";
       ctx.beginPath();
 
+      // horizontal
       if (self.orientation === HORIZONTAL) {
-        // triangle in the buttons
-        ctx.moveTo(self.downX +desp, self.downH/2);
-        ctx.lineTo(self.downX +self.downW -desp, desp);
-        ctx.lineTo(self.downX +self.downW -desp, self.downH -desp);
-        ctx.moveTo(self.upX + self.upWidth -desp, self.downH/2);
-        ctx.lineTo(self.upX +desp, desp);
-        ctx.lineTo(self.upX +desp, self.downH -desp);
-        ctx.fill();
+        // external border
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(0,0,0,0.3)";
+        ctx.strokeRect(parseInt(self.labelWidth)+.5, .5, tmpW-1 -parseInt(self.labelWidth), tmpH-1);
 
-        if (self.activeIfValue) {
-          // scroll handler
-          tmpPos = MathFloor(self.pos);
-          ctx.fillStyle = "#ccdcec";
-          ctx.fillRect(tmpPos+.5, 0, MathFloor(self.scrollHandlerW), tmpH);
-          ctx.strokeStyle = "#6382bf";
-          ctx.strokeRect(tmpPos+.5, 0, MathFloor(self.scrollHandlerW), tmpH);
+        // arrow in the buttons
+        ctx.lineWidth = Math.ceil((12*self.upWidth)/100) || 1;
+        ctx.strokeStyle = self.colorInt.getColor();
 
-          // scroll handler lines
-          smw = MathFloor(self.scrollHandlerW/2);
-          ctx.beginPath();
-          ctx.moveTo(tmpPos+smw+.5-2, 3);
-          ctx.lineTo(tmpPos+smw+.5-2, tmpH-3);
-          ctx.moveTo(tmpPos+smw+.5,   3);
-          ctx.lineTo(tmpPos+smw+.5,   tmpH-3);
-          ctx.moveTo(tmpPos+smw+.5+2, 3);
-          ctx.lineTo(tmpPos+smw+.5+2, tmpH-3);
-          ctx.stroke();
-        }
+        ctx.moveTo(self.downX+ (62.215*self.upWidth)/100, (20*self.downH)/100);
+        ctx.lineTo(self.downX+ (32.449*self.upWidth)/100, self.downH/2);
+        ctx.lineTo(self.downX+ (62.215*self.upWidth)/100, (80*self.downH)/100);
 
+        ctx.moveTo(self.upX+ (32.449*self.upWidth)/100, (20*self.downH)/100);
+        ctx.lineTo(self.upX+ (62.215*self.upWidth)/100, self.downH/2);
+        ctx.lineTo(self.upX+ (32.449*self.upWidth)/100, (80*self.downH)/100);
+
+        ctx.stroke();
+
+        // scroll handler
+        tmpPos = MathFloor(self.pos);
+        desp = Math.ceil(tmpH/10) || 1;
+        ctx.fillStyle = this.colorInt.getColor();
+        ctx.fillRect(tmpPos+.5, desp, MathFloor(self.scrollHandlerW), tmpH-(desp*2));
       }
+      // vertical
       else {
-        // triangle in the buttons
-        ctx.moveTo(self.downX +self.downW/2, self.downY +self.downH -desp);
-        ctx.lineTo(self.downX +desp, self.downY +desp);
-        ctx.lineTo(self.downX +self.downW -desp, self.downY +desp);
-        ctx.moveTo(self.upX +self.upWidth/2, self.upY +desp);
-        ctx.lineTo(self.upX +desp, self.upY +self.upHeight -desp);
-        ctx.lineTo(self.upX +self.upWidth -desp, self.upY +self.upHeight -desp);
-        ctx.fill();
+        // external border
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(0,0,0,0.3)";
+        ctx.strokeRect(.5, .5, tmpW-1, tmpH-parseInt(self.labelHeight)-0.5);
+        
+        // arrow in the buttons
+        ctx.lineWidth = Math.ceil((12*self.upWidth)/100) || 1;
+        ctx.strokeStyle = self.colorInt.getColor();
+        
+        ctx.moveTo((20*self.upWidth)/100, self.h - self.labelHeight - (70*self.downH)/100);
+        ctx.lineTo((50*self.upWidth)/100, self.h - self.labelHeight - (40.237*self.downH)/100);
+        ctx.lineTo((80*self.upWidth)/100, self.h - self.labelHeight - (70*self.downH)/100);
 
-        if (self.activeIfValue) {
-          // scroll handler
-          tmpPos = MathFloor(self.pos);
-          ctx.fillStyle = "#ccdcec";
-          ctx.fillRect(0, tmpPos+.5, tmpW, MathFloor(self.scrollHandlerH));
-          ctx.strokeStyle = "#6382bf";
-          ctx.strokeRect(0, tmpPos+.5, tmpW, MathFloor(self.scrollHandlerH));
+        ctx.moveTo((20*self.upWidth)/100, (70*self.downH)/100);
+        ctx.lineTo((50*self.upWidth)/100, (40.237*self.downH)/100);
+        ctx.lineTo((80*self.upWidth)/100, (70*self.downH)/100);
 
-          // scroll handler lines
-          smw = MathFloor(self.scrollHandlerH/2);
-          ctx.beginPath();
-          ctx.moveTo(3,      tmpPos+smw+.5-2);
-          ctx.lineTo(tmpW-3, tmpPos+smw+.5-2);
-          ctx.moveTo(3,      tmpPos+smw+.5);
-          ctx.lineTo(tmpW-3, tmpPos+smw+.5);
-          ctx.moveTo(3,      tmpPos+smw+.5+2);
-          ctx.lineTo(tmpW-3, tmpPos+smw+.5+2);
-          ctx.stroke();
-        }
+        ctx.stroke();
+
+        // scroll handler
+        tmpPos = MathFloor(self.pos);
+        desp = Math.ceil(tmpW/10) || 1;
+        ctx.fillStyle = this.colorInt.getColor();
+        ctx.fillRect(desp, tmpPos+.5, tmpW-(desp*2), MathFloor(self.scrollHandlerH));
       }
-
-      // external border
-      ctx.strokeRect(.5, .5, tmpW-1, tmpH-1);
 
       // inactive shade
       if (!self.activeIfValue) {
-        ctx.fillStyle = `rgba(240,240,240,${0xa0/255})`;
-        ctx.fillRect(0, 0, tmpW, tmpH.h);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
       }
     }
 

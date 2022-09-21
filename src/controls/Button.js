@@ -48,6 +48,8 @@ var descartesJS = (function(descartesJS) {
   var imageOver;
   var imageDown;
 
+  var int_color;
+
   class Button extends descartesJS.Control {
     /**
      * Descartes button control
@@ -335,29 +337,27 @@ var descartesJS = (function(descartesJS) {
       ctx.lineJoin = "round";
       ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.font_size,
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-  border: this.borderColor, 
-  border_size: (this.conStyle) ? this.conStyle.textBorder : undefined,
-  shadowBlur: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextBlur || 1 : undefined,
-  shadowOffsetX: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetX || 0 : undefined,
-  shadowOffsetY: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetY || 2 : undefined,
-  shadowColor: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextColor: undefined,
-}, this.old_name);
-//new
+      this.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : this.parent.decimal_symbol
+        },
+        evaluator : this.evaluator,
+        decimals : this.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: this.parser.parse("0"),
+        font_size: this.font_size,
+        font_family: this.font_family,
+        italics: this.italics,
+        bold: this.bold,
+        border: this.borderColor, 
+        border_size: (this.conStyle) ? this.conStyle.textBorder : undefined,
+        shadowBlur: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextBlur || 1 : undefined,
+        shadowOffsetX: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetX || 0 : undefined,
+        shadowOffsetY: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetY || 2 : undefined,
+        shadowColor: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextColor: undefined,
+      }, this.old_name);
       
       this.draw(force);
     }
@@ -471,18 +471,16 @@ this.text_object = new descartesJS.TextObject({
       // text position
       //////////////////////////////////////////////////////////
       // horizontal text align
-this.text_object.draw(ctx, this.color.getColor(), 0, 0, true);
-txtW = this.text_object.textNodes.metrics.w;
-txtH = this.text_object.textNodes.metrics.h;
+      this.text_object.draw(ctx, this.color.getColor(), 0, 0, true);
+      txtW = this.text_object.textNodes.metrics.w;
+      txtH = this.text_object.textNodes.metrics.h;
       if (this.text_align[1] == "center") {
         _text_pos_x = MathFloor(this.w/2 + despX)-.5;
       }
       else if (this.text_align[1] == "left") {
-//        txtW = ctx.measureText(name).width;
         _text_pos_x = txtW/2 + 5 + despX;
       }
       else if (this.text_align[1] == "right") {
-//        txtW = ctx.measureText(name).width;
         _text_pos_x = this.w - txtW/2 + despX -5;
       }
 
@@ -492,13 +490,10 @@ txtH = this.text_object.textNodes.metrics.h;
       }
       else if (this.text_align[0] == "top") {
         _text_pos_y = txtH/2 + despY +4;
-//        _text_pos_y = font_size/2 + despY +4;
       }
       else if (this.text_align[0] == "bottom") {
         _text_pos_y = this.h - txtH/2 + despY -3;
-        //_text_pos_y = this.h - font_size/2 + despY -3;
       }
-
 
       //////////////////////////////////////////////////////////
       // image position
@@ -540,29 +535,50 @@ txtH = this.text_object.textNodes.metrics.h;
           else {
             // the background is drawn, even with the image
             if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
-              container.style.backgroundColor = this.colorInt.getColor();
+              int_color = this.colorInt.getColor();
+
+              if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+                ctx.fillStyle = int_color;
+                ctx.fillRect(0, 0, this.w, this.h);
+              } else {
+                container.style.backgroundColor = int_color;
+              }
             }
             ctx.drawImage(image, _image_pos_x, _image_pos_y);
           }
         }
         else if ((this.emptyImage) && (this.customStyle)) {
-          container.style.backgroundColor = this.colorInt.getColor();
+          int_color = this.colorInt.getColor();
+
+          if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+            ctx.fillStyle = int_color;
+            ctx.fillRect(0, 0, this.w, this.h);
+          } else {
+            container.style.backgroundColor = int_color;
+          }
         }
       }
       // the image is not ready or the button do not have a image
       else {
-        container.style.backgroundColor = this.colorInt.getColor();
+        int_color = this.colorInt.getColor();
 
-        // add the gradient and border when not flat
-        if (!this.flat) {
-          if (!this.buttonClick) {
-            descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
-            descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
-            descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
-          }
-
-          ctx.fillStyle = this.linearGradient;
+        if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+          ctx.fillStyle = int_color;
           ctx.fillRect(0, 0, this.w, this.h);
+        } else {
+          container.style.backgroundColor = int_color;
+
+          // add the gradient and border when not flat
+          if (!this.flat) {
+            if (!this.buttonClick) {
+              descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
+              descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
+              descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
+            }
+
+            ctx.fillStyle = this.linearGradient;
+            ctx.fillRect(0, 0, this.w, this.h);
+          }
         }
       }
 
@@ -613,26 +629,21 @@ txtH = this.text_object.textNodes.metrics.h;
         if ((this.conStyle.shadowTextColor) && (this.conStyle.textBorder > 0)) {
           ctx.lineWidth = this.conStyle.textBorder;
           ctx.strokeStyle = this.conStyle.shadowTextColor;
-          //ctx.strokeText(name, _text_pos_x, _text_pos_y);
         }
       }
 
-      if ( this.borderColor ) {
+      if (this.borderColor) {
         ctx.lineWidth = parseInt(font_size/6);
         ctx.strokeStyle = this.borderColor.getColor();
-//        ctx.strokeText(name, _text_pos_x, _text_pos_y);
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // write the button name
-//      ctx.fillText(name, _text_pos_x, _text_pos_y);
-//console.log(this.text_object, _text_pos_x, _text_pos_y)
-this.text_object.draw(ctx, this.color.getColor(), _text_pos_x, _text_pos_y);
+      this.text_object.draw(ctx, this.color.getColor(), _text_pos_x, _text_pos_y);
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // draw the under line
       if (this.underlined) {
-//        txtW = ctx.measureText(name).width;
         ctx.strokeStyle = this.color.getColor();
         ctx.lineWidth = MathFloor(font_size/10) || 2;
         ctx.lineCap = "round";

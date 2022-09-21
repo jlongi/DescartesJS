@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var evaluator;
+  var int_color;
 
   class Checkbox extends descartesJS.Control {
     /**
@@ -68,8 +69,8 @@ var descartesJS = (function(descartesJS) {
       self.label = descartesJS.newHTML("canvas", {
         class : "DescartesCheckboxLabel",
       });
-this.label_ctx = this.label.getContext("2d");
-this.ratio = parent.ratio;
+      this.label_ctx = this.label.getContext("2d");
+      this.ratio = parent.ratio;
 
       // the dummyLabel
       self.dummyLabel = descartesJS.newHTML("label", {
@@ -105,24 +106,24 @@ this.ratio = parent.ratio;
       self.labelFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
       var labelWidth = Math.max(self.w - self.h, 0);
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.parser.parse(""+ this.labelFontSize),
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-}, this.name_str);
-//new
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      //new
+      this.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : this.parent.decimal_symbol
+        },
+        evaluator : this.evaluator,
+        decimals : this.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: this.parser.parse("0"),
+        font_size: this.parser.parse(""+ this.labelFontSize),
+        font_family: this.font_family,
+        italics: this.italics,
+        bold: this.bold,
+      }, this.name_str);
+      //new
+      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
       self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
@@ -141,9 +142,8 @@ this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, tr
 
       self.checkbox.checked = (self.evaluator.getVariable(self.id) != 0);
 
-
-this.label.width = labelWidth*this.ratio;
-this.label.height = this.h*this.ratio;
+      this.label.width = labelWidth*this.ratio;
+      this.label.height = this.h*this.ratio;
 
       self.update();
     };
@@ -154,8 +154,6 @@ this.label.height = this.h*this.ratio;
     update() {
       var self = this;
       evaluator = self.evaluator;
-
-      // self.label.innerHTML = evaluator.eval(self.name).toString();
 
       // check if the control is active and visible
       self.activeIfValue = (evaluator.eval(self.activeif) > 0);
@@ -233,6 +231,13 @@ this.label.height = this.h*this.ratio;
       this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
       
       this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+
+      int_color = this.label_color.getColor();
+      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+        this.label_ctx.fillStyle = int_color;
+        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      }
+
       if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
         this.text_object.anchor = "center_left";
         this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 

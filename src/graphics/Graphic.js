@@ -72,7 +72,7 @@ var descartesJS = (function(descartesJS) {
        * type {Boolean}
        * @private
        */
-      self.abs_coord = (values.type && values.type.toLowerCase() === "text") ? true : false;
+      self.abs_coord = (values && values.type && values.type.toLowerCase() === "text") ? true : false;
 
       /**
        * the primary color of the graphic
