@@ -125,7 +125,7 @@ var descartesJS = (function(descartesJS) {
      * Auxiliary function for draw an image
      * @param {CanvasRenderingContext2D} ctx rendering context on which the image is drawn
      */
-    drawAux(ctx) {
+     drawAux(ctx) {
       evaluator = this.evaluator;
       space = this.space;
 
@@ -133,16 +133,16 @@ var descartesJS = (function(descartesJS) {
         if (!this.clip) {
           w = this.img.width;
           h = this.img.height;
+
+          // if the images is a space image
+          if (this.img.canvas) {
+            w = MathRound( w/this.ratio );
+            h = MathRound( h/this.ratio );
+          }
         }
         else {
           w = evaluator.eval(this.clip[2]);
           h = evaluator.eval(this.clip[3]);
-        }
-
-        // if the images is a space image
-        if (this.img.canvas) {
-          w = MathRound( w/this.ratio );
-          h = MathRound( h/this.ratio );
         }
 
         despX = (this.centered) ? 0 : MathRound(w/2);
@@ -166,7 +166,12 @@ var descartesJS = (function(descartesJS) {
           ctx.drawImage(this.img, -w/2, -h/2, w, h);
         }
         else {
-          ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);
+          if (this.img.canvas) {
+            ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w*this.ratio, h*this.ratio, -w/2, -h/2, w, h);
+          }
+          else {
+            ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);
+          }
         }
 
         // reset the transformations

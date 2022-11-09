@@ -656,6 +656,7 @@ var descartesJS = (function(descartesJS) {
       var self = this;
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // register the default variables
+      self.variables["_NUM_MAX_ITE_ALG_"] = 100000;
       self.variables["rnd"] = Math.random;
       self.variables["pi"] = self.variables["π"] = descartesJS.returnValue(Math.PI);
       self.variables["e"] = descartesJS.returnValue(Math.E);

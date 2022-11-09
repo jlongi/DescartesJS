@@ -44,12 +44,12 @@ var descartesJS = (function(descartesJS) {
       this.expresion = parser.parse(this.expresion);
 
       var self = this;
+      var max_ite;
 
       this.functionExec = function() {
         self.iterations = 0;
 
         if (self.numberOfParams <= arguments.length) {
-
           // saves the private variables
           var localVars = [];
           for (var i=0, l=self.privateVars.length; i<l; i++) {
@@ -75,7 +75,9 @@ var descartesJS = (function(descartesJS) {
               evaluator.eval(self.doExpr[i]);
             }
 
-            if (++self.iterations > 100000) {
+            max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
+            // if (++self.iterations > 100000) {
+            if (++self.iterations > max_ite) {
               console.warn("se ha excedido el límite de 100000 repeticiones en la función << " + self.name + " >>");
               return 0;
             }

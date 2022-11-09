@@ -1430,10 +1430,12 @@ var descartesJS = (function(descartesJS) {
 
     if (scaleToFitX < scaleToFitY) {
       this.container.style.left = "0";
-      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+")";
+      this.container.style.top = "50%";
+      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(0, -50%)";
     }
     else {
       this.container.style.left = "50%";
+      this.container.style.top = "0";
       this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
     }
   }
