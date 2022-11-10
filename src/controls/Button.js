@@ -657,8 +657,9 @@ var descartesJS = (function(descartesJS) {
       ////////////////////////////////////////////////////////////////////////////////////////
       if (!this.activeIfValue) {
         if ((this.customStyle) && (this.conStyle.inactiveColor)) {
-          ctx.fillStyle = this.conStyle.inactiveColor;
-          ctx.fillRect(0, 0, this.w, this.h);
+          container.style.backgroundColor = this.conStyle.inactiveColor;
+          // ctx.fillStyle = this.conStyle.inactiveColor;
+          // ctx.fillRect(0, 0, this.w, this.h);
         }
         else {
           ctx.fillStyle = "rgba(240,240,240,0.6)";

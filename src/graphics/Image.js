@@ -167,7 +167,7 @@ var descartesJS = (function(descartesJS) {
         }
         else {
           if (this.img.canvas) {
-            ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w*this.ratio, h*this.ratio, -w/2, -h/2, w, h);
+            ctx.drawImage(this.img, evaluator.eval(this.clip[0])*this.ratio, evaluator.eval(this.clip[1])*this.ratio, w*this.ratio, h*this.ratio, -w/2, -h/2, w, h);
           }
           else {
             ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);

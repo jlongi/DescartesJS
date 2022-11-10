@@ -463,13 +463,15 @@ var descartesJS = (function(descartesJS) {
      *
      */
     computeColor(color, primitive, metal) {
-      if (color.match("rgba")) {
-        color = descartesJS.RGBAToHexColor(color);
+      if (typeof(color) != "object") {
+        if (color.match("rgba")) {
+          color = descartesJS.RGBAToHexColor(color);
+        }
+        else if (color.match("#")) {
+          color = new descartesJS.Color(color.substring(1));
+        }
       }
-      else if (color.match("#")) {
-        color = new descartesJS.Color(color.substring(1));
-      }
-
+      
       toEye = descartesJS.subtract3D(this.eye, primitive.average);
       aveDistanceToEye = descartesJS.norm3D(toEye);
       unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
