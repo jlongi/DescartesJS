@@ -10,8 +10,8 @@ var descartesJS = (function(descartesJS) {
   var scaleToFitX;
   var scaleToFitY;
   var optimalRatio;
-  
-  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una licencia {\\*\\hyperlink Creative Commons|https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|http://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
+
+  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una licencia {\\*\\hyperlink Creative Commons|https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|https://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
   /**
    * Descartes application interpreted with JavaScript
@@ -22,35 +22,35 @@ var descartesJS = (function(descartesJS) {
       this.animation = { playing:false, play:function(){}, stop:function(){},  reinit:function(){} };
 
       this.ratio = descartesJS._ratio;
-  
+
       /**
        * applet code
        * @type {<applet>}
        * @private
        */
       this.applet = applet;
-  
+
       /**
        * container of the java applet
        * @type {<HTMLelement>}
        * @private
        */
       this.parentC = applet.parentNode;
-  
+
       /**
        * width of the applet
        * @type {Number}
        * @private
        */
       this.width = parseFloat( applet.getAttribute("width") );
-  
+
       /**
        * height of the applet
        * @type {Number}
        * @private
        */
       this.height = parseFloat( applet.getAttribute("height") );
-  
+
       /**
        * decimal symbol
        * @type {String}
@@ -58,21 +58,21 @@ var descartesJS = (function(descartesJS) {
        */
       this.decimal_symbol = ".";
       this.decimal_symbol_regexp = new RegExp("\\.", "g");
-  
+
       /**
        * language of the lesson
        * type {String}
        * @private
        */
       this.language = "español";
-  
+
       /**
        * parameters of the applet
        * type {Array.<param>}
        * @private
        */
       this.children = applet.getElementsByTagName("param");
-  
+
       // set the license attribute
       descartesJS.ccLicense = true;
       for (var i=0,l=this.children.length; i<l; i++) {
@@ -80,33 +80,33 @@ var descartesJS = (function(descartesJS) {
           descartesJS.ccLicense = !(this.children[i].value === "no");
         }
       }
-  
+
       /**
        * string that determines what kind of descartes lesson is
        * @type {String}
        * @private
        */
       this.code = applet.getAttribute("code");
-  
+
       /**
        *
        */
       this.saveState = [];
-  
+
       /**
        * images used in the applet
        * type {Array.<Image>}
        * @private
        */
       this.images = { length: -1 };
-  
+
       /**
        * audios used in the applet
        * type {Array.<Audio>}
        * @private
        */
       this.audios = { length: -1 };
-  
+
       /**
        * variable to record if the applet is interpreted for the first time, used to show the loader screen
        * type {Boolean}
@@ -114,11 +114,11 @@ var descartesJS = (function(descartesJS) {
        */
       this.firstRun = true;
 
-      this.keyboard = new descartesJS.Keyboard(this)
-  
+      this.keyboard = new descartesJS.Keyboard(this);
+
       // function to prevent undefined error
       this.scaleToFit = function() { };
-  
+
       // init the interpretation
       this.init()
     }
@@ -129,13 +129,16 @@ var descartesJS = (function(descartesJS) {
     init() {
       // stop the animation, if the action init executes maybe the animation is playing
       this.stop();
-  
+
       /**
        * evaluator and parser of expressions
        * type {Evaluator}
        * @private
        */
       this.evaluator = new descartesJS.Evaluator(this);
+
+      this.evaluator.setVariable("DJS.w", this.width);
+      this.evaluator.setVariable("DJS.h", this.height);
 
       // get the url parameter if any
       this.getURLParameters();
@@ -153,40 +156,40 @@ var descartesJS = (function(descartesJS) {
        * @private
        */
       this.arquimedes = (/DescartesWeb2_0|Arquimedes|Discurso/i).test(this.code);
-  
-      // arquimedes license 
+
+      // arquimedes license
       this.licenseA = (descartesJS.ccLicense) ? licenseA : "";
-  
+
       var children = this.children;
       var children_i;
       var heightRTF = 0;
       var heightButtons = 0;
       var licenceHeight = (descartesJS.ccLicense) ? 90 : 0;
-  
+
       for (var i=0, l=children.length; i<l; i++) {
         children_i = children[i];
-  
+
         // get the rtf height
         if (children_i.name == "rtf_height") {
           heightRTF = (parseInt(children_i.value) + 120) || this.height;
         }
-  
+
         // get the buttons height
         if (babel[children_i.name] == "Buttons") {
           this.buttonsConfig = this.lessonParser.parseButtonsConfig(children_i.value);
           heightButtons = this.buttonsConfig.height;
         }
-  
+
         // get image source for the loader
         if (children_i.name == "image_loader") {
           this.imgLoader = children_i.value;
         }
-  
+
         // get the cover of the scene
         if (children_i.name == "expand") {
           this.expand = children_i.value;
         }
-  
+
         // set the docBase for the elements in the resources
         if (children_i.name == "docBase") {
           this.docBase = children_i.value;
@@ -197,7 +200,7 @@ var descartesJS = (function(descartesJS) {
           document.head.appendChild(base);
         }
       }
-  
+
       // configure an arquimedes lesson
       if (this.arquimedes) {
         this.ratio = 1;
@@ -206,7 +209,7 @@ var descartesJS = (function(descartesJS) {
           this.height =  heightRTF + heightButtons + licenceHeight; // 70 is the height of the licence image
         }
       }
-  
+
       /**
        * external region
        * type {Space}
@@ -216,122 +219,122 @@ var descartesJS = (function(descartesJS) {
         document.body.removeChild(this.externalSpace.container);
       }
       this.externalSpace = new descartesJS.SpaceExternal(this);
-  
+
       /**
        * north region
        * type {Space}
        * @private
        */
       this.northSpace = {container: descartesJS.newHTML("div"), controls: []};
-  
+
       /**
        * south region
        * type {Space}
        * @private
        */
       this.southSpace = {container: descartesJS.newHTML("div"), controls: []};
-  
+
       /**
        * east region
        * type {Space}
        * @private
        */
       this.eastSpace = {container: descartesJS.newHTML("div"), controls: []};
-  
+
       /**
        * west region
        * type {Space}
        * @private
        */
       this.westSpace = {container: descartesJS.newHTML("div"), controls: []};
-  
+
       /**
        * region to show text fields for editable content
        * type {Space}
        * @private
        */
       this.editableRegion = {container: descartesJS.newHTML("div"), textFields: []};
-  
+
       /**
        * array to store the lesson controls
        * type {Array.<Control>}
        * @private
        */
       this.controls = [];
-  
+
       /**
        * array to store the lesson auxiliaries
        * type {Array.<Auxiliary>}
        * @private
        */
       this.auxiliaries = [];
-  
+
       /**
        * array to store the lesson events
        * type {Array.<Event>}
        * @private
        */
       this.events = [];
-  
+
       /**
        * the z index for order the graphics
        * @type {Number}
        * @private
        */
       this.zIndex = 0;
-  
+
       /**
        * tabulation index for the text fields
        * @type {Number}
        * @private
        */
       this.tabindex = 0;
-  
+
       /**
        * pleca height
        * @type {Number}
        * @private
        */
       this.plecaHeight = 0;
-  
+
       /**
        * number of iframes in the lesson
        * @type {Number}
        * @private
        */
       this.nIframes = 0;
-  
+
       // code needed for reinit the lesson
       if (this.container != undefined) {
         this.cleanCanvasImages();
         this.parentC.removeChild(this.container);
-  
+
         delete(this.container);
         delete(this.loader);
       }
-  
+
       this.container = descartesJS.newHTML("div");
       this.loader = descartesJS.newHTML("div", {
         class : "DescartesLoader",
       });
-  
+
       // append the lesson container to the java applet container
       this.parentC.insertBefore(this.container, this.parentC.firstChild);
       this.container.width = this.loader.width = this.width;
       this.container.height = this.loader.height = this.height;
       this.container.className = "DescartesAppContainer";
       this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
-  
+
       // add the loader
       this.container.appendChild(this.loader);
-  
+
       //
       // fit space
       if (this.expand == "fit") {
         this.container.parentNode.removeAttribute("align");
         this.container.parentNode.style.overflow = "hidden";
-        this.container.parentNode.style.width = "100vw";
-        this.container.parentNode.style.height = "100vh";
+        // this.container.parentNode.style.width = "100vw";
+        // this.container.parentNode.style.height = "100vh";
         this.scaleToFit = scaleToFit;
         this.scaleToFit();
       }
@@ -357,16 +360,16 @@ var descartesJS = (function(descartesJS) {
         };
         this.scaleToFit();
       }
-      
+
       //
-  
+
       /**
        * array to store the lesson spaces
        * type {Array.<Space>}
        * @private
        */
       this.spaces = [];
-  
+
       // first run
       if (this.firstRun) {
         this.loader.style.display = "block";
@@ -649,7 +652,8 @@ var descartesJS = (function(descartesJS) {
           h : tf_h,
           fs : tf_fs + "px",
           value : tf_val+"",
-          type : "custom"
+          type : "custom",
+          tagName: "textfield"
         }
         self.keyboard.show(null, layoutType, kb_x, kb_y, var_id, textfield, tf_onlyText)
       });
@@ -676,7 +680,7 @@ var descartesJS = (function(descartesJS) {
      */
     configRegions() {
       var parser = this.evaluator.parser;
-      var buttonsConfig = this.buttonsConfig || {};
+      var buttonsConfig = this.buttonsConfig || {};
       var principalContainer = this.container;
 
       // descartes 4
@@ -1020,7 +1024,7 @@ var descartesJS = (function(descartesJS) {
         this.spaces[i].update(firstime);
       }
     }
-  
+
     /**
      * Clear the trace in the space
      */
@@ -1202,7 +1206,7 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * Get the parameters in the URL an set the values in the URL object
-     * ex. index.html?var1=0&var2=hi, creates URL.var1=0 y URL.var2='hi' 
+     * ex. index.html?var1=0&var2=hi, creates URL.var1=0 y URL.var2='hi'
      */
     getURLParameters() {
       var url = window.location.href;
@@ -1358,7 +1362,7 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     * 
+     *
      */
     cleanCanvasImages() {
       this.container.querySelectorAll("canvas").forEach((canvas) => {
@@ -1427,6 +1431,10 @@ var descartesJS = (function(descartesJS) {
     descartesJS.cssScale = optimalRatio = Math.min(scaleToFitX, scaleToFitY);
 
     this.container.style.transformOrigin = "0 0";
+
+    // set the dimensions of the parent container (usually the body element)
+    this.container.parentNode.style.width  = window.innerWidth  + "px";
+    this.container.parentNode.style.height = window.innerHeight + "px";
 
     if (scaleToFitX < scaleToFitY) {
       this.container.style.left = "0";

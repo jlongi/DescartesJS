@@ -26,7 +26,7 @@ var descartesJS = (function(descartesJS) {
       parser = evaluator.parser;
 
       this.rows = this.rows || parser.parse("3");
-      this.columns = this.columns || parser.parse("3");
+      this.columns = this.columns || parser.parse("3");
 
       // parse the expression
       this.expresion = this.splitInstructions(parser, this.expresion);

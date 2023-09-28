@@ -217,6 +217,14 @@ var descartesJS = (function(descartesJS) {
         descartesJS.apps[0].children = new_applets;
         descartesJS.apps[0].init();
       }
+
+      else if (data.type === "change_content") {
+        new_applets = descartesJS.newHTML("div");
+        new_applets.innerHTML = data.content;
+        new_applets = new_applets.getElementsByTagName("param");
+        descartesJS.apps[0].children = new_applets;
+        descartesJS.apps[0].init();
+      }
     }
   }
 

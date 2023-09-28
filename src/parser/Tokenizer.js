@@ -64,8 +64,7 @@ var descartesJS = (function(descartesJS) {
         });
 
         // super index numbers codified with &sup#;
-        input = input.replace(/\&sup(.+);/g, "^ $1 ");
-
+        input = input.replace(/\&sup(.+?);/g, "^$1 ");
         // single quotation marks
         input = input.replace(/&squot;/g, "'");
 

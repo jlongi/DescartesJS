@@ -97,12 +97,10 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
-ctx.lineWidth = Math.max(
-  0.000001, 
-  MathRound( evaluator.eval(this.width) )
-);
+      ctx.lineWidth = Math.max(
+        0.000001, 
+        MathRound( evaluator.eval(this.width) )
+      );
 
       ctx.strokeStyle = stroke.getColor();
       ctx.lineCap = "round";
@@ -141,7 +139,7 @@ ctx.lineWidth = Math.max(
         ctx.lineTo(x, y + h);
         ctx.lineTo(x, y);
       }
-      
+
       // draw the fill
       if (this.fill) {
         ctx.fillStyle = fill.getColor();

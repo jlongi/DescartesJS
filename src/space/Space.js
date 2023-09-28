@@ -395,9 +395,9 @@ var descartesJS = (function(descartesJS) {
       if ((self.id !== "") && (parent.version !== 2)) {
         evaluator.setVariable(thisID + "._w", self.w);
         evaluator.setVariable(thisID + "._h", self.h);
-        evaluator.setVariable(thisID + ".escala", self.scale);
-        evaluator.setVariable(thisID + ".Ox", self.Ox);
-        evaluator.setVariable(thisID + ".Oy", self.Oy);
+        evaluator.setVariable(thisID + ".escala", evaluator.getVariable(thisID + ".escala") ||self.scale);
+        evaluator.setVariable(thisID + ".Ox", evaluator.getVariable(thisID + ".Ox") || self.Ox);
+        evaluator.setVariable(thisID + ".Oy", evaluator.getVariable(thisID + ".Oy") || self.Oy);
         evaluator.setVariable(thisID + ".mouse_x", 0);
         evaluator.setVariable(thisID + ".mouse_y", 0);
         evaluator.setVariable(thisID + ".mouse_pressed", 0);

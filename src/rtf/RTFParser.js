@@ -147,7 +147,7 @@ var descartesJS = (function(descartesJS) {
           else if (tokens[i].value == "b") {
             styleStackTop.set({ bold: true });
             if (formulaStack.length > 0) {
-              formulaStack[formulaStack.length-1].style.set({ bold: true });
+              formulaStack[formulaStack.length-1].style.set({ bold: true });
             }
           }
 
@@ -161,9 +161,9 @@ var descartesJS = (function(descartesJS) {
 
           // init italic text
           else if (tokens[i].value == "i") {
-            styleStackTop.set({ italic: true });
+            styleStackTop.set({ italic: true });
             if (formulaStack.length > 0) {
-              formulaStack[formulaStack.length-1].style.set({ italic: true });
+              formulaStack[formulaStack.length-1].style.set({ italic: true });
             }
           }
 

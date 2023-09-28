@@ -32,8 +32,8 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.file = this.file || "";
-      this.inirot = this.inirot || parent.evaluator.parser.parse("0");
+      this.file = this.file || "";
+      this.inirot = this.inirot || parent.evaluator.parser.parse("0");
 
       this.img = new Image();
       this.scaleX = this.scaleY = 1;

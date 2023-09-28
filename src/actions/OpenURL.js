@@ -15,6 +15,7 @@ var descartesJS = (function(descartesJS) {
     constructor(parent, parameter) {
       super(parent, parameter);
 
+      this.parent = parent;
       this.parser = parent.evaluator.parser;
       this.evaluator = parent.evaluator;    
       this.parameter = parameter;
@@ -42,7 +43,7 @@ var descartesJS = (function(descartesJS) {
       // if the parameter is JavaScript code
       if (theParameter.substring(0,10) == "javascript") {
         // replace the &squot; with '
-        theParameter = new descartesJS.SimpleText(parent, (theParameter.substring(11)).replace(/&squot;/g, "'"));
+        theParameter = new descartesJS.SimpleText(this.parent, (theParameter.substring(11)).replace(/&squot;/g, "'"));
 
         try {
           eval(theParameter.toString());

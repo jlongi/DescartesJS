@@ -50,12 +50,12 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.width = this.width || parent.evaluator.parser.parse("1");
-      this.fill = this.fill || "";
-      this.center = this.center || parent.evaluator.parser.parse("(0,0)");
-      this.radius = this.radius || parent.evaluator.parser.parse("1");
-      this.init = this.init || "0";
-      this.end = this.end || "90";
+      this.width = this.width || parent.evaluator.parser.parse("1");
+      this.fill = this.fill || "";
+      this.center = this.center || parent.evaluator.parser.parse("(0,0)");
+      this.radius = this.radius || parent.evaluator.parser.parse("1");
+      this.init = this.init || "0";
+      this.end = this.end || "90";
 
       if (this.init.match(/^_\(/)) {
         this.initFlag = true;

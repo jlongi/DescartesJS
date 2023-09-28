@@ -33,10 +33,10 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
     
-      this.width = this.width || parent.evaluator.parser.parse("5");
-      this.size  = this.size  || parent.evaluator.parser.parse("2");
-      this.spear = this.spear || parent.evaluator.parser.parse("8");
-      this.arrow = this.arrow || new descartesJS.Color("ee0022");
+      this.width = this.width || parent.evaluator.parser.parse("5");
+      this.size  = this.size  || parent.evaluator.parser.parse("2");
+      this.spear = this.spear || parent.evaluator.parser.parse("8");
+      this.arrow = this.arrow || new descartesJS.Color("ee0022");
 
       this.text = new descartesJS.TextObject(this, this.text);
 

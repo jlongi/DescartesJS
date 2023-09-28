@@ -21,9 +21,9 @@ var descartesJS = (function(descartesJS, babel) {
       // call the parent constructor
       super(parent, values);
       
-      this.hasExpresion = this.hasExpresion || false;
-      this.inirot = this.inirot || parent.evaluator.parser.parse("0");
-      this.inipos = this.inipos || parent.evaluator.parser.parse("(0,0)");
+      this.hasExpresion = this.hasExpresion || false;
+      this.inirot = this.inirot || parent.evaluator.parser.parse("0");
+      this.inipos = this.inipos || parent.evaluator.parser.parse("(0,0)");
 
       // assign the values to replace the defaults values of the object
       Object.assign(this, values);

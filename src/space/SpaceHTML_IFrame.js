@@ -151,6 +151,16 @@ var descartesJS = (function(descartesJS) {
         self.evaluator.setFunction(self.id + ".changeConf", iframeChangeConfig);
 
         //
+        function iframeChangeContent(data) {
+          if (data) {
+            let content = (new DOMParser()).parseFromString(data.replace(/\&sq;/g, "'"), "text/html").querySelector("ajs");
+            content = (content) ? content.innerHTML : "";
+            iframe.contentWindow.postMessage({ type: "change_content", content:content }, "*");
+          }
+        }
+        self.evaluator.setFunction(self.id + ".changeContent", iframeChangeContent);
+        
+        //
         self.ImReady = !self.isFirefox;
         if (!self.isFirefox) {
           self.container.style.visibility = "visible";

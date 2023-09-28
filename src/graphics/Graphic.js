@@ -180,7 +180,7 @@ var descartesJS = (function(descartesJS) {
       this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
 
       this.font_style = descartesJS.getFontStyle(this.font_str.split(",")[1]);
-      if ((typeof(this.bold) === "boolean") || (typeof(this.italics) === "boolean")) {
+      if ((typeof(this.bold) === "boolean") || (typeof(this.italics) === "boolean")) {
         if (this.bold && !this.italics) {
           this.font_style = "Bold ";
         }

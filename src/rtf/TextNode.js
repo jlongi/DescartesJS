@@ -254,7 +254,7 @@ var descartesJS = (function(descartesJS) {
     /**
      * 
      */
-    getFirstTextNode() {
+    getFirstTextNode() {
       var node = this;
 
       while (node.children.length > 0) {
@@ -459,7 +459,7 @@ var descartesJS = (function(descartesJS) {
       this.style[prop] = value;
       this.styleString = this.style.toString();
 
-      for (var i=0, l=this.children.length; i<l; i++) {
+      for (var i=0, l=this.children.length; i<l; i++) {
         this.children[i].propagateStyle(prop, value);
       }
     }

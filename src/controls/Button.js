@@ -24,6 +24,8 @@ var descartesJS = (function(descartesJS) {
   var txtW;
   var txtH;
 
+  var _img_w;
+  var _img_h;
   var _image_pos_x;
   var _image_pos_y;
   var _text_pos_x;
@@ -61,15 +63,15 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
 
       this.imageSrc = values.imageSrc || "";
-      this.image = values.image || new Image();
+      this.image = values.image || new Image();
       this.imageOver = values.imageOver || new Image();
       this.imageDown = values.imageDown || new Image();
-      this.flat = values.flat || false;
+      this.flat = values.flat || false;
       this.borderColor = values.borderColor || false;
-      this.text_align = values.text_align || "center_center";
+      this.text_align = values.text_align || "center_center";
       this.image_align = values.image_align || "center_center";
 
-      this.font_family = descartesJS.getFontName(values.font_family || "arial");
+      this.font_family = descartesJS.getFontName(values.font_family || "arial");
 
       this.ratio = parent.ratio;
 
@@ -185,6 +187,12 @@ var descartesJS = (function(descartesJS) {
           }
           else if (tempo.match("flat=")) {
             this.flat = parseInt(tempo.substring(5).trim()) == 1;
+          }
+          else if (tempo.match("imgSizeW=")) {
+            this.imgSizeW = parseFloat(tempo.substring(9)) || 0;
+          }
+          else if (tempo.match("imgSizeH=")) {
+            this.imgSizeH = parseFloat(tempo.substring(9)) || 0;
           }
         }
       }
@@ -499,62 +507,72 @@ var descartesJS = (function(descartesJS) {
       // image position
       //////////////////////////////////////////////////////////
       if (image) {
+        _img_w = (this.imgSizeW) ? this.imgSizeW : image.width;
+        _img_h = (this.imgSizeH) ? this.imgSizeH : image.height;
+
         // horizontal image align
         if (this.image_align[1] == "center") {
-          _image_pos_x = parseInt((this.w-image.width)/2)+despX;
+          _image_pos_x = parseInt((this.w - _img_w)/2) +despX;
         }
         else if (this.image_align[1] == "left") {
           _image_pos_x = despX;
         }
         else if (this.image_align[1] == "right") {
-          _image_pos_x = this.w-image.width +despX;
+          _image_pos_x = this.w-_img_w +despX;
         }
 
         // vertical image align
         if (this.image_align[0] == "center") {
-          _image_pos_y = parseInt((this.h-image.height)/2)+despY;
+          _image_pos_y = parseInt((this.h - _img_h)/2) +despY;
         }
         else if (this.image_align[0] == "top") {
           _image_pos_y = despY;
         }
         else if (this.image_align[0] == "bottom") {
-          _image_pos_y = this.h - image.height +despY;
-        }      
-      }
-
-      ////////////////////////////////////////////////////////////////////////////////////////
-      // the image is ready
-      if ((image) && (image.ready)) {
-        if ( (image !== this.emptyImage) && (image.complete) ) {
-          // check if is a gif image
-          if ( imageSrc.match(gifPattern) ) {
-            this.btn.style.backgroundRepeat = "no-repeat";
-            this.btn.style.backgroundImage = "url('" + imageSrc + "')";
-            this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
-          }
-          else {
-            // the background is drawn, even with the image
-            if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
-              int_color = this.colorInt.getColor();
-
-              if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-                ctx.fillStyle = int_color;
-                ctx.fillRect(0, 0, this.w, this.h);
-              } else {
-                container.style.backgroundColor = int_color;
-              }
-            }
-            ctx.drawImage(image, _image_pos_x, _image_pos_y);
-          }
+          _image_pos_y = this.h - _img_h +despY;
         }
-        else if ((this.emptyImage) && (this.customStyle)) {
-          int_color = this.colorInt.getColor();
+  
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // the image is ready
+        if ((image) && (image.ready)) {
+          if ( (image !== this.emptyImage) && (image.complete) ) {
+            // check if is a gif image
+            if ( imageSrc.match(gifPattern) ) {
+              this.btn.style.backgroundRepeat = "no-repeat";
+              this.btn.style.backgroundImage = "url('" + imageSrc + "')";
+              this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+            }
+            else {
+              // the background is drawn, even with the image
+              if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
+                int_color = this.colorInt.getColor();
 
-          if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-            ctx.fillStyle = int_color;
-            ctx.fillRect(0, 0, this.w, this.h);
-          } else {
-            container.style.backgroundColor = int_color;
+                if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+                  ctx.fillStyle = int_color;
+                  ctx.fillRect(0, 0, this.w, this.h);
+                } else {
+                  container.style.backgroundColor = int_color;
+                }
+              }
+
+              ctx.drawImage(
+                image, 
+                0, 0,
+                image.width, image.height,
+                _image_pos_x, _image_pos_y,
+                _img_w, _img_h
+              );
+            }
+          }
+          else if ((this.emptyImage) && (this.customStyle)) {
+            int_color = this.colorInt.getColor();
+
+            if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+              ctx.fillStyle = int_color;
+              ctx.fillRect(0, 0, this.w, this.h);
+            } else {
+              container.style.backgroundColor = int_color;
+            }
           }
         }
       }
@@ -658,8 +676,6 @@ var descartesJS = (function(descartesJS) {
       if (!this.activeIfValue) {
         if ((this.customStyle) && (this.conStyle.inactiveColor)) {
           container.style.backgroundColor = this.conStyle.inactiveColor;
-          // ctx.fillStyle = this.conStyle.inactiveColor;
-          // ctx.fillRect(0, 0, this.w, this.h);
         }
         else {
           ctx.fillStyle = "rgba(240,240,240,0.6)";

@@ -33,7 +33,7 @@ var descartesJS = (function(descartesJS) {
       this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
       this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
-      this.options = values.options || "";
+      this.options = values.options || "";
 
       parser = this.parser;
       evaluator = this.evaluator;

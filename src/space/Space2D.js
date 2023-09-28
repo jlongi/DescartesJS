@@ -65,22 +65,19 @@ var descartesJS = (function(descartesJS) {
 
       self = this;
       self.ratio = parent.ratio;
-      // self.border_width = self.border_width || 0;
-      // self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
-      // self.border_radius = self.border_radius || 0;
 
       // create the canvas
       self.canvas = descartesJS.newHTML("canvas", {
         id    : self.id + "_canvas",
         class : "DescartesSpace2DCanvas",
         width : self.w * self.ratio,
-        height : self.h * self.ratio,
+        // height : self.h * self.ratio, // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
       });
 
       self.backCanvas = descartesJS.newHTML("canvas", {
         id    : self.id + "_background",
         width : self.w * self.ratio,
-        height : self.h * self.ratio,
+        // height : self.h * self.ratio, // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
       });
 
       self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;

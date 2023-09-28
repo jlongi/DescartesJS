@@ -35,14 +35,14 @@ var descartesJS = (function(descartesJS) {
       parser = parent.evaluator.parser;
 
       this.spaceID = values.spaceID || "";
-      this.text = values.text || "";
+      this.text = values.text || "";
       this.size = values.size || parser.parse("4");
       this.font = values.font || "Serif,PLAIN,12";
       this.image = new Image();
       this.image.onload = function() {
         this.ready = 1;
       }
-      this.imageSrc = values.imageSrc || "";
+      this.imageSrc = values.imageSrc || "";
       
       if (this.imageSrc.match(/^\[.*\]?/)) {
         this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));

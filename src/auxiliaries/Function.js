@@ -76,9 +76,8 @@ var descartesJS = (function(descartesJS) {
             }
 
             max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
-            // if (++self.iterations > 100000) {
             if (++self.iterations > max_ite) {
-              console.warn("se ha excedido el límite de 100000 repeticiones en la función << " + self.name + " >>");
+              console.warn("se ha excedido el límite de " + max_ite + " repeticiones en la función << " + self.name + " >>");
               return 0;
             }
           }

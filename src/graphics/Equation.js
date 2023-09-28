@@ -7,6 +7,7 @@ var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   var b;
+  var tempParam;
 
   var evaluator;
   var parser;
@@ -673,12 +674,146 @@ var descartesJS = (function(descartesJS) {
       return disc;
     }
 
+
+
+
+
+
+    discontLR(fx, xi, h, fmax) {
+      //Detect discontinuity using LR criterion
+      let xi1 = xi + h;
+      let xi2 = xi1 + h;
+      let x_i1 = xi - h;
+      let x_i2 = x_i1 - h;
+
+      //Compute f(xi)
+      this.evaluator.setVariable("x", xi);
+      let fxi = this.evaluator.eval(fx);
+      // let fxi = fx(xi);
+
+      //Singularity at xi
+      if (isNaN(fxi) || !isFinite(fxi) || Math.abs(fxi) > fmax) {
+      // if (isNaN(fxi) || !isFinite(fxi)) {
+        return true;
+      }
+
+      //Compute f(xi1)
+      this.evaluator.setVariable("x", xi1);
+      let fxi1 = this.evaluator.eval(fx);
+      // let fxi1 = fx(xi1);
+      
+      //Singularity at xi1
+      if (isNaN(fxi1) || !isFinite(fxi1) || Math.abs(fxi1) > fmax) {
+      // if (isNaN(fxi1) || !isFinite(fxi1)) {
+        return true;
+      }
+
+      //Compute f(xi2)
+      this.evaluator.setVariable("x", xi2);
+      let fxi2 = this.evaluator.eval(fx);
+      // let fxi2 = fx(xi2);
+
+      //Singularity at xi2
+      if (isNaN(fxi2) || !isFinite(fxi2) || Math.abs(fxi2) > fmax) {
+      // if (isNaN(fxi2) || !isFinite(fxi2)) {
+        return true;
+      }
+      
+      //Compute f(x_i1)
+      this.evaluator.setVariable("x", x_i1);
+      let fx_i1 = this.evaluator.eval(fx);
+      // let fx_i1 = fx(x_i1);
+      
+      //Singularity at x_i1
+      if (isNaN(fx_i1) || !isFinite(fx_i1) || Math.abs(fx_i1) > fmax) {
+      // if (isNaN(fx_i1) || !isFinite(fx_i1)) {
+        return true;
+      }
+
+      //Compute f(x_i2)
+      this.evaluator.setVariable("x", x_i2);
+      let fx_i2 = this.evaluator.eval(fx);
+      // let fx_i2 = fx(x_i2);
+      
+      //Singularity at x_i2
+      if (isNaN(fx_i2) || !isFinite(fx_i2) || Math.abs(fx_i2) > fmax) {
+      // if (isNaN(fx_i2) || !isFinite(fx_i2)) {
+        return true;
+      }
+
+      //Compute LR criterion
+      let fr = 3 * fxi - 4 * fxi1 + fxi2;
+      let fl = 3 * fxi - 4 * fx_i1 + fx_i2;
+      let lr = Math.abs((fr * fr - fl * fl)/(fr * fr + fl * fl + 0.0001));
+      
+      //Threshold exceeded, possible discontinuity
+      if (lr > 0.8) {
+        return true;
+      }
+
+      //No discontinuity has been found
+      return false;
+    }
+
+
     /**
      * Auxiliary function for draw an equation of y
      * @param {CanvasRenderingContext2D} ctx rendering context on which the equation is drawn
      * @param {String} fill the fill color of the equation
      * @param {String} stroke the stroke color of the equation
      */
+    drawAuxFun1(ctx, fill, stroke) {
+      savex = this.evaluator.parser.getVariable("x");
+      savey = this.evaluator.parser.getVariable("y");
+      descartesJS.rangeOK = 1;
+      if (!this.evaluator.eval(this.drawif)) return;
+
+      var X = "x";
+      var Y = "y";
+
+      if (this.of_y) {
+        X = "y";
+        Y = "x";
+      }
+
+      let Xr, Yr;
+      let Xn, Yn;
+      let inpath = false;
+      ctx.beginPath();
+      ctx.lineWidth = this.evaluator.eval(this.width);
+      ctx.strokeStyle = stroke.getColor();
+
+      let inc = 1;
+      for (let i=-inc; i<=this.space.w; i+=inc) {
+        Xr = this.space.getRelativeX(i);
+
+        this.evaluator.setVariable(X, Xr);
+        Yr = this.evaluator.eval(this.funExpr);
+
+        Xn = this.space.getAbsoluteX(Xr);
+        Yn = this.space.getAbsoluteY(Yr);
+        // if (inpath) {
+          if (this.discontLR(this.funExpr, Xr, 0.001, 100)) {
+            // inpath = false;
+            ctx.moveTo(Xn, Yn);
+          }
+          else {
+            ctx.lineTo(Xn, Yn);
+          }
+        // }
+        // else {
+        //   ctx.moveTo(Xn, Yn);
+        //   inpath = true;
+        // }
+//console.log(i, this.space.getAbsoluteX(Xr), this.space.getAbsoluteY(Yr))
+      }
+      ctx.stroke();
+
+      this.evaluator.parser.setVariable("x", savex);
+      this.evaluator.parser.setVariable("y", savey);
+    }
+
+
     drawAuxFun(ctx, fill, stroke) {
       savex = this.evaluator.parser.getVariable("x");
       savey = this.evaluator.parser.getVariable("y");

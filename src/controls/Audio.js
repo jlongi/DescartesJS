@@ -22,7 +22,7 @@ var descartesJS = (function(descartesJS) {
       var self = this;
 
       self.controls = values.controls || true;
-      self.file = values.file || "";
+      self.file = values.file || "";
       self.oldDrawIf = 0;
 
       // the audio position and size

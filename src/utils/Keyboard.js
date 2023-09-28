@@ -20,9 +20,15 @@
       });
       this.container.oncontextmenu = function() { return false; };
 
-      this.display = descartesJS.newHTML("input", {
-        type : "text",
+      // this.display = descartesJS.newHTML("input", {
+      //   type : "text",
+      //   class : "DescartesKeyboardDisplay",
+      //   inputmode : "none"
+      // });
+      // this.container.appendChild(this.display);
+      this.display = descartesJS.newHTML("textarea", {
         class : "DescartesKeyboardDisplay",
+        spellcheck : "false",
         inputmode : "none"
       });
       this.container.appendChild(this.display);
@@ -38,6 +44,17 @@
         class : "DescartesKeysContainer"
       });
       this.container.appendChild(this.aditionalKeys);
+
+      this.newLine = descartesJS.newHTML("div", {
+        style : "position:absolute; background-color:white; margin:0; font-family:DJS_sansserif; font-size:17px; font-weight:normal; line-height:38px", 
+        class : "new_line_btn",
+      });
+      this.newLine.textContent = "\\n";
+      this.newLine.addEventListener("pointerup", () => {
+        this.insert("\n");
+      });
+
+      this.container.appendChild(this.newLine);
 
       /**
        * 
@@ -79,7 +96,7 @@
           (evt.target.id == "k_o") ||
           (evt.target.id == "k_u") 
         ) {
-          // add an event listener to prevent que delete key to get stuck
+          // add an event listener to prevent the delete key to get stuck
           evt.target.onpointerleave = function() {
             clearTimeout(idTimeout);
           }
@@ -92,7 +109,7 @@
           600);
         }
         else if (evt.target.id == "k_delete") {
-          // add an event listener to prevent que delete key to get stuck
+          // add an event listener to prevent the delete key to get stuck
           evt.target.onpointerleave = function() {
             clearTimeout(deleteTimeout);
           }
@@ -686,8 +703,44 @@
     /**
      * 
      */
+    showCustomKB(c_kb) {
+      let divs = c_kb.querySelectorAll("div");
+      let num_keys = parseInt( c_kb.getAttribute("cols") || divs.length );
+      let keys = [];
+      let k;
+      let id;
+      let size;
+
+      for (let i=0; i<divs.length; i++) {
+        k = {val: divs[i].textContent};
+
+        id = divs[i].getAttribute("id");
+        if (id) { 
+          k.id = id;
+        }
+
+        size = divs[i].getAttribute("size");
+        if (size) {
+          k.style = `width:${40*parseInt(size) + 5*(parseInt(size)-1) }px;transform:none !important;`;
+        }
+        keys.push(k);
+      }
+
+      this.keyContainer.innerHTML = this.addKeys(keys);
+      this.keyContainer.style.width = (margin + num_keys*(40+5))+"px";
+    }
+
+    /**
+     * 
+     */
     setLayout(which) {
       this.layout_mode = which;
+
+      let c_kb = document.getElementById("kb_" + which);
+      if (c_kb) {
+        this.showCustomKB(c_kb);
+        return;
+      }
 
       if (which == "14x1") {
         this.setLayout_14x1();
@@ -748,6 +801,9 @@
 
       this.keyContainer.style.left = kb_x + "px";
       this.keyContainer.style.top  = kb_y + "px";
+
+      // hide the aditional keys
+      this.aditionalKeys.style.display = "none";
     }
 
     /**
@@ -766,7 +822,7 @@
       let w;
       let h;
       let fs;
-      
+
       if (textfield.type == "custom") {
         x = textfield.x;
         y = textfield.y;
@@ -779,10 +835,6 @@
         
         let rect = textfield.getBoundingClientRect();
 
-        // x = rect.left - containerRect.left;
-        // y = rect.top - containerRect.top;
-        // w = rect.width;
-        // h = rect.height;
         x = rect.left/descartesJS.cssScale - containerRect.left/descartesJS.cssScale;
         y = rect.top/descartesJS.cssScale - containerRect.top/descartesJS.cssScale;
         w = rect.width/descartesJS.cssScale;
@@ -790,8 +842,16 @@
         fs = textfield.style.fontSize;
       }
 
-      this.display.setAttribute("style", `left:${x}px;top:${y}px;width:${w}px;height:${h}px;font-size:${fs};line-height:${h}px;`);
-
+      if (textfield.tagName.toLowerCase() == "textarea") {
+        this.display.setAttribute("style", `left:${x}px;top:${y}px;width:${w}px;height:${h}px;font-size:${fs};line-height:${1.2}em;padding:5px;font:${textfield.style.font};`);
+        this.newLine.style.left = (x+w-42) + "px";
+        this.newLine.style.top  = (y+h-42) + "px";
+        this.newLine.style.display = "block";
+      }
+      else {
+        this.display.setAttribute("style", `left:${x}px;top:${y}px;width:${w}px;height:${h}px;font-size:${fs};line-height:${h}px;white-space:nowrap;`);
+        this.newLine.style.display = "none";
+      }
       this.display.value = textfield.value || "";
       this.display.focus();
       this.display.selectionStart = this.display.selectionEnd = this.display.value.length;
@@ -819,7 +879,47 @@
         this.ctr.changeValue(result, true);
       }
       else {
-        this.parent.evaluator.setVariable(this.var_id, result);
+        this.var_id = (this.var_id+"").trim();
+        let indexCor = this.var_id.indexOf("[");
+
+        // variable id
+        if (indexCor == -1) {
+          this.parent.evaluator.setVariable(this.var_id, result);
+        }
+        else {
+          let indexComa = this.var_id.indexOf(",");
+          let id = this.var_id.substring(0, indexCor);
+
+          // vector id
+          if (indexComa == -1) {
+            this.parent.evaluator.setVector(
+              id, 
+              parseInt(this.var_id.substring(indexCor+1)), 
+              result
+            );
+          }
+          // matrix id
+          else {
+            this.parent.evaluator.setMatrix(
+              id, 
+              parseInt(this.var_id.substring(indexCor+1)), 
+              parseInt(this.var_id.substring(indexComa+1)),
+              result
+            );
+          }
+        }
+        
+        // // vector o matrix id
+        // if ( (this.var_id +"").match(/\[/g) ) {
+        //   // matrix
+        //   if ( (this.var_id +"").match(/,/g) ) {
+
+        //   }
+        //   
+        //   else {
+
+        //   }
+        // }
       }
       
       this.parent.update();

@@ -798,7 +798,9 @@ var descartesJS = (function(descartesJS, babel) {
 
             // file name
             case("file"):
-              var fileTmp = values_i_1.replace(/&squot;/g, "'");
+              var fileTmp = values_i_1.replace(/&squot;/g, "'").trim();
+
+              // filename in expression
               if ((fileTmp.charAt(0) === "[") && (fileTmp.charAt(fileTmp.length-1) === "]")) {
                 fileTmp = fileTmp.substring(1, fileTmp.length-1);
               }
@@ -806,6 +808,13 @@ var descartesJS = (function(descartesJS, babel) {
               if (fileTmp.match(regExpImage)) {
                 fileTmp = "'" + fileTmp + "'";
               }
+              // // filename in a string
+              // else {
+              //   if (fileTmp.charAt(0) != "'") {
+              //     fileTmp = "'" + fileTmp + "'";
+              //   }
+              // }
+
               graphicObj["file"] = this.parser.parse(fileTmp);
               break;
 

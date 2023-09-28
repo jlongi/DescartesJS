@@ -30,8 +30,8 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.size = this.size || parent.evaluator.parser.parse("2");
-      this.range = this.range || parent.evaluator.parser.parse("[1, 100]");
+      this.size = this.size || parent.evaluator.parser.parse("2");
+      this.range = this.range || parent.evaluator.parser.parse("[1, 100]");
 
       // Descartes 2 visible
       this.visible = ((this.parent.version === 2) && (this.visible == undefined)) ? true : this.visible;

@@ -209,7 +209,7 @@ var descartesJS = (function(descartesJS) {
 
       this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
-      this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
+      this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px; font-family:${(this.font_family == "Serif")?descartesJS.serif_font:((this.font_family == "Monospaced")?descartesJS.monospace_font:descartesJS.sansserif_font)};`);
       this.field.value = fieldValue;
       this.cover.setAttribute("style", `;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
 

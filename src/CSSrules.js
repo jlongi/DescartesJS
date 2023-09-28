@@ -110,7 +110,7 @@ var descartesJS = (function(descartesJS) {
       "input[type=text]:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
       ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
       ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
-      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;}\n" +
+      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;resize:none;}\n" +
       ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;outline:none;}\n" +
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
       ".DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
@@ -128,10 +128,11 @@ var descartesJS = (function(descartesJS) {
       ".DescartesKeyboardContainer{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.1);z-index:1000;}\n" +
       ".DescartesKeysContainer{display:flex;flex-direction:row;flex-wrap:wrap;background-color:#c0c0c0;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 0 8px 0 rgba(0,0,0,0.75);box-sizing: content-box;}\n" +
       // keys
-      ".DescartesKeysContainer > div{margin:5px 0 0 5px;display:inline-block;min-width:40px;min-height:40px;max-height:40px;line-height:35px;background-color:#ebeff3;font-family:"+ descartesJS.math_font +";font-size:18px;font-weight:bold;color:black;cursor:pointer;text-align:center;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 1px 2px 0 rgba(0,0,0,0.25);transform-origin:center;user-select:none;}\n" +
-      ".DescartesKeysContainer > div:hover{background-color:rgba(0,0,0,0.05);transform:scale(1.1);}\n" +
-      ".DescartesKeysContainer > div:active{transform:scale(0.95);}\n" +
-      ".DescartesKeyboardDisplay{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;text-align:left;background-color:white;position:absolute;overflow:hidden;outline:2px solid black;}\n" +
+      ".DescartesKeysContainer > div, .new_line_btn{margin:5px 0 0 5px;display:inline-block;min-width:40px;min-height:40px;max-height:40px;line-height:35px;background-color:#ebeff3;font-family:"+ descartesJS.math_font +";font-size:18px;font-weight:bold;color:black;cursor:pointer;text-align:center;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 1px 2px 0 rgba(0,0,0,0.25);transform-origin:center;user-select:none;}\n" +
+      ".DescartesKeysContainer > div:hover, .new_line_btn:hover{background-color:rgba(0,0,0,0.05);transform:scale(1.1);}\n" +
+      ".DescartesKeysContainer > div:active, .new_line_btn:active{transform:scale(0.95);}\n" +
+      ".DescartesKeyboardDisplay{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;text-align:left;background-color:white;position:absolute;overflow:hidden;outline:2px solid black; resize: none;}\n" +
+      ".custom_keyboard{display:none;}\n" +
 
       ".DJS_Gradient{position:absolute;display:none;}\n" +
 

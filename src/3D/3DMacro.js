@@ -22,14 +22,14 @@ var descartesJS = (function(descartesJS, babel) {
       // call the parent constructor
       super(parent, values);
 
-      this.expresion = this.expresion || undefined;
-      this.inirot = this.inirot || "(0,0,0)";
-      this.inirotEuler = this.inirotEuler || false;
-      this.inipos = this.inipos || parent.evaluator.parser.parse("(0,0,0)");
-      this.endrot = this.endrot || "(0,0,0)";
-      this.endrotEuler = this.endrotEuler || false;
-      this.endpos = this.endpos || parent.evaluator.parser.parse("(0,0,0)");
-      this.name = this.name || "_descartes_empty_name_" + (macros_count++)
+      this.expresion = this.expresion || undefined;
+      this.inirot = this.inirot || "(0,0,0)";
+      this.inirotEuler = this.inirotEuler || false;
+      this.inipos = this.inipos || parent.evaluator.parser.parse("(0,0,0)");
+      this.endrot = this.endrot || "(0,0,0)";
+      this.endrotEuler = this.endrotEuler || false;
+      this.endpos = this.endpos || parent.evaluator.parser.parse("(0,0,0)");
+      this.name = this.name || "_descartes_empty_name_" + (macros_count++)
 
       // assign the values to replace the defaults values of the object
       Object.assign(this, values);
@@ -153,16 +153,42 @@ var descartesJS = (function(descartesJS, babel) {
                 (babelResp === "font_family") ||
                 (((babelResp === "fill") || (babelResp === "color") || (babelResp === "backcolor") || (babelResp === "arrow")) && (respText[j][1].charAt(0) !== "(")) ||
                 ((babelResp === "file") && (respText[j][1].match(regExpImage))) ||
-                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined)) ||
-                (isSurface && babelResp === "expresion")
+                ((babelResp !== "id") && (babel[respText[j][1]] !== undefined))
               ) {
                 if ((babelResp !== "width") && (babelResp !== "height") && (babelResp !== "length")) {
                   continue;
                 }
             }
+            if (isSurface && babelResp === "expresion") {
+              var splitExp = respText[j][1].split(" ");
+              var new_exp = "";
 
-            // is a text
-            if (babelResp == "text") {
+              for (var split_i=0, split_l=splitExp.length; split_i<split_l; split_i++) {
+                var tmpTokensArray = splitExp[split_i].replace(/\&squot;/g, "'").split(";");
+
+                for (var tmpI=0, tmpL=tmpTokensArray.length; tmpI<tmpL; tmpI++) {
+                  tmpTokens = tokenizer.tokenize(tmpTokensArray[tmpI].replace(/\\n/g, ";"));
+
+                  for (var t=0, lt=tmpTokens.length; t<lt; t++) { 
+                    if ( 
+                      ((tmpTokens[t].type === "identifier") && (!((descartesJS.reservedIds+'-x-y-z-u-v-').match("-" + tmpTokens[t].value + "-")))) || 
+                      (tmpTokens[t].value === "R") || 
+                      (tmpTokens[t].value === "G") || 
+                      (tmpTokens[t].value === "B")
+                    ) { 
+                      tmpTokens[t].value = this.name + "." + tmpTokens[t].value; 
+                    } 
+                  }
+                  tmpTokensArray[tmpI] = tokenizer.flatTokens(tmpTokens); 
+                }
+
+                new_exp += tmpTokensArray.join(";") + " ";
+              }
+
+              respText[j][1] = new_exp;
+            }
+            // is a text 
+            else if (babelResp == "text") {
               // if the text is rtf must processing it different
               if (respText[j][1].match(/\{\\rtf1/)) {
                 var textTemp = respText[j][1];
@@ -231,7 +257,7 @@ var descartesJS = (function(descartesJS, babel) {
 
                 for (var t=0, lt=tmpTokens.length; t<lt; t++) {
                   if (
-                    ((tmpTokens[t].type === "identifier") && (!descartesJS.reservedIds.match("-" + tmpTokens[t].value + "-"))) ||
+                    ((tmpTokens[t].type === "identifier") && (!(descartesJS.reservedIds+'-Euler-').match("-" + tmpTokens[t].value + "-"))) ||
                     (tmpTokens[t].value === "R") ||
                     (tmpTokens[t].value === "G") ||
                     (tmpTokens[t].value === "B")
