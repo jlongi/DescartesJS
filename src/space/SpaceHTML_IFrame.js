@@ -137,7 +137,7 @@ var descartesJS = (function(descartesJS) {
                 content = embedElement.textContent;
               }
               else {
-                content = descartesJS.openExternalFile(filename);
+                content = descartesJS.openFile(filename);
               }
               content = (new DOMParser()).parseFromString(content, "text/html").querySelector("ajs");
               content = (content) ? content.innerHTML : "";

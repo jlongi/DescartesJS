@@ -22,7 +22,7 @@ var descartesJS = (function(descartesJS) {
        * @private
        */
       this.parent = parent;
-      this.evaluator = this.parent.evaluator;
+      this.evaluator = parent.evaluator;
 
       /**
        * identifier of the auxiliary

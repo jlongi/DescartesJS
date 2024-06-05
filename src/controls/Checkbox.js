@@ -267,7 +267,7 @@ var descartesJS = (function(descartesJS) {
       /*
       * Prevent an error with the focus of a checkbox
       */
-      self.checkbox.addEventListener("click", function(evt) {
+      self.checkbox.addEventListener("click", function() {
         self.pressed = true;
         self.updateAndExecAction();
       });

@@ -30,7 +30,7 @@ var descartesJS = (function(descartesJS) {
         this.params = this.params.split(",");
       }
       
-      this.numberOfParams = this.params.length;
+      this.numParams = this.params.length;
 
       // if do not have an algorithm ignore the init, doExpr and whileExpr values
       if (!this.algorithm) {
@@ -49,9 +49,9 @@ var descartesJS = (function(descartesJS) {
       this.functionExec = function() {
         self.iterations = 0;
 
-        if (self.numberOfParams <= arguments.length) {
+        if (self.numParams <= arguments.length) {
           // saves the private variables
-          var localVars = [];
+          let localVars = [];
           for (var i=0, l=self.privateVars.length; i<l; i++) {
             localVars.push( evaluator.getVariable(self.privateVars[i]) );
             // set the local variables to 0
@@ -59,9 +59,9 @@ var descartesJS = (function(descartesJS) {
           }
 
           // saves the variable values ​​that have the same names as function parameters
-          var paramsTemp = [];
+          let paramsTemp = [];
           for (var i=0, l=self.params.length; i<l; i++) {
-            paramsTemp[i] = evaluator.getVariable(self.params[i]);
+            paramsTemp.push( evaluator.getVariable(self.params[i]) );
             // associated input parameters of the function with parameter names
             evaluator.setVariable(self.params[i], arguments[i]);
           }
@@ -69,13 +69,14 @@ var descartesJS = (function(descartesJS) {
           for (var i=0, l=self.init.length; i<l; i++) {
             evaluator.eval(self.init[i]);
           }
-          
+
+          max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
+
           do {
             for (var i=0, l=self.doExpr.length; i<l; i++) {
               evaluator.eval(self.doExpr[i]);
             }
 
-            max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
             if (++self.iterations > max_ite) {
               console.warn("se ha excedido el límite de " + max_ite + " repeticiones en la función << " + self.name + " >>");
               return 0;
@@ -84,7 +85,7 @@ var descartesJS = (function(descartesJS) {
           while (evaluator.eval(self.whileExpr) > 0);
 
           // evaluates to the return value
-          var result = evaluator.eval(self.expresion);
+          let result = evaluator.eval(self.expresion);
           descartesJS.rangeOK = evaluator.eval(self.domain);
 
           // restore the variable values that have the same names as function parameters

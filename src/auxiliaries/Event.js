@@ -20,15 +20,15 @@ var descartesJS = (function(descartesJS) {
       
       delete(this.evaluate);
       this.condition = evaluator.parser.parse(this.condition);
-      this.lastEvaluation = false;
+      this.lastEval = false;
 
       this.action = this.parent.lessonParser.parseAction(this);
       
       // if the type of evaluation is onlyOnce
       if (this.execution == "onlyOnce") {
         this.eventExec = function() {
-          if ((this.evaluator.eval(this.condition) > 0) && (!this.lastEvaluation)) {
-            this.lastEvaluation = true;
+          if ((this.evaluator.eval(this.condition) > 0) && (!this.lastEval)) {
+            this.lastEval = true;
             this.action.execute();
           }
         }
@@ -37,16 +37,16 @@ var descartesJS = (function(descartesJS) {
       // if the type of evaluation is alternate
       if (this.execution == "alternate") {
         this.eventExec = function() {
-          var cond = (this.evaluator.eval(this.condition) > 0);
+          const cond = (this.evaluator.eval(this.condition) > 0);
 
           // if the condition was true and the last time was not executed, then the event is executed
-          if ((cond) && (!this.lastEvaluation)) {
+          if ((cond) && (!this.lastEval)) {
             this.action.execute();
-            this.lastEvaluation = true;
+            this.lastEval = true;
           }
           // if already run once and the condition is evaluated to false, then rerun the event
-          else if ((!cond) && (this.lastEvaluation)) {
-            this.lastEvaluation = false;
+          else if ((!cond) && (this.lastEval)) {
+            this.lastEval = false;
           }
         }
       }
@@ -59,7 +59,6 @@ var descartesJS = (function(descartesJS) {
           }
         }
       }
-      
     }
     
     /**

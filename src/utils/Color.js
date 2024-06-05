@@ -6,9 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
+  const MathFloor = Math.floor;
 
-  var MathFloor = Math.floor;
+  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
   var evaluator;
   var tmpColor;
   var splitColor;
@@ -23,7 +23,6 @@ var descartesJS = (function(descartesJS) {
   var g;
   var b;
   var a;
-
   var stop_tmp;
   var grad;
   var img;
@@ -284,7 +283,6 @@ var descartesJS = (function(descartesJS) {
 
     return new Color(a+r+g+b);
   }
-
 
   descartesJS.Color = Color;
   return descartesJS;

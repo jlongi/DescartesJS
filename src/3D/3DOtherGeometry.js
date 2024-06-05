@@ -100,7 +100,7 @@ var descartesJS = (function(descartesJS) {
           break;
 
         case("mesh"):
-          this.fileData = descartesJS.openExternalFile(this.evaluator.eval(this.file)).split(/\r/);
+          this.fileData = descartesJS.openFile(this.evaluator.eval(this.file)).split(/\r/);
           this.buildGeometry = buildMesh;
           break;
       }

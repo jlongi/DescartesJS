@@ -6,27 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-//comment
-//descartesJS.in_editor = true;
-
   var inside_formula = false;
 
   var externalColor = "#000000";
   var externalDecimals = 2;
   var externalFixed = false;
-
-  var radicalPathStr = "m 759,1 c -8,0 -15,4 -20,14 L 325,878 153,500 c -5,-11 -11,-14 -17,-9 L 2,596 c -5,4 17,30 22,26 l 65,-47 193,422 c 3,6 27,6 32,-4 L 773,40 V 1 Z";
-  var radicalPath = new Path2D(radicalPathStr);
-  radicalPath.svgData = radicalPathStr;
-  var sigmaPathStr = "M 780,707 H 750 C 728,805 695,872 585,872 H 180 L 509,447 225,65 h 313 c 130,0 167,49 188,181 h 30 V 0 H 25 L 384,500 0,1000 h 729 z";
-  var sigmaPath = new Path2D(sigmaPathStr);
-  sigmaPath.svgData = sigmaPathStr;
-  var integralPathStr = "m 150,828 c -21,88 -42,144 -83,144 -6,0 -9,-2 -9,-6 0,-9 15,-8 15,-34 0,-14 -13,-22 -27,-22 -24,0 -45,22 -45,51 0,20 21,39 56,39 97,0 141,-105 159,-176 L 375,181 c 23,-91 45,-154 89,-153 6,0 9,2 9,6 0,7 -15,13 -15,35 0,14 13,20 27,20 24,0 45,-22 45,-51 C 530,18 508,0 473,0 368,0 326,120 309,190 Z";
-  var integralPath = new Path2D(integralPathStr);
-  integralPath.svgData = integralPathStr;
-  var prodPathStr = "m 876.3561,999.59384 v -27.38613 h -17.60537 c -64.55302,0 -96.82952,-41.07919 -96.82952,-124.21565 V 144.75542 c 0,-83.136456 27.38612,-117.369116 114.43489,-117.369116 V 1.7633057e-4 H 1.184082e-5 V 27.386304 H 16.627304 c 60.640711,0 98.785676,24.4519 98.785676,121.281426 v 716.9297 c 0,71.39954 -31.298433,106.61028 -96.829524,106.61028 H 1.184082e-5 v 27.38613 H 359.93198 v -27.38613 h -30.32036 c -64.55302,0 -86.07069,-40.10112 -86.07069,-131.06218 V 64.553192 H 633.79325 V 841.14553 c 0,75.31185 -17.60537,131.06218 -86.07068,131.06218 h -31.29844 v 27.38613 z";
-  var prodPath = new Path2D(prodPathStr);
-  prodPath.svgData = prodPathStr;
 
   var factorMarginH = 0.075;
   var factorMarginV = 0.05;
@@ -2163,7 +2147,6 @@ var descartesJS = (function(descartesJS) {
       ctx.save();
       ctx.translate(this.radicalSign.x, this.radicalSign.y);
       ctx.scale(this.radicalSign.scaleX, this.radicalSign.scaleY);
-      // (descartesJS.isMsEdge) ? this.drawRadicalSign(ctx) : ctx.fill(radicalPath);
       this.drawRadicalSign(ctx);
       ctx.restore();
 
@@ -2184,7 +2167,6 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
       ctx.translate(this.sigmaSign.x, this.sigmaSign.y);
       ctx.scale(this.sigmaSign.scale, this.sigmaSign.scale);
-      // (descartesJS.isMsEdge) ? this.drawSigmaSign(ctx) : ctx.fill(sigmaPath);
       if (this.style.border) {
         var tmpStroke = ctx.strokeStyle;
         ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
@@ -2211,7 +2193,6 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
       ctx.translate(this.sign.x, this.sign.y);
       ctx.scale(this.sign.scale, this.sign.scale);
-      // (descartesJS.isMsEdge) ? this.drawIntegralSign(ctx) : ctx.fill(integralPath);
       this.drawIntegralSign(ctx);
 
       ctx.restore();
@@ -2230,7 +2211,6 @@ var descartesJS = (function(descartesJS) {
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
       ctx.translate(this.piSign.x, this.piSign.y);
       ctx.scale(this.piSign.scale, this.piSign.scale);
-      // (descartesJS.isMsEdge) ? this.drawProdSign(ctx) : ctx.fill(prodPath);
       this.drawProdSign(ctx);
 
       ctx.restore();

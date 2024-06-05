@@ -6,10 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
+  const MathFloor = Math.floor;
 
-  var HORIZONTAL = "h";
-  var VERTICAL = "v";
+  const delay = 350;
+  const HORIZONTAL = "h";
+  const VERTICAL = "v";
 
   var evaluator;
   var self;
@@ -97,7 +98,7 @@ var descartesJS = (function(descartesJS) {
       this.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if ( (this.keyboard) && (this.visible)) {
+      if ( (this.keyboard) && (this.visible) ) {
         this.container.appendChild(this.cover);
       }
 
@@ -115,7 +116,6 @@ var descartesJS = (function(descartesJS) {
      */
     init() {
       evaluator = this.evaluator;
-
       // if has decimals the increment are the interval [min, max] divided by 100, if not then the increment is 1
       if (evaluator.eval(this.decimals) == 0) {
         this.incr = 1;
@@ -157,7 +157,7 @@ var descartesJS = (function(descartesJS) {
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
-      name = this.label.textContent;
+      name = self.label.textContent;
 
       var defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
@@ -446,9 +446,9 @@ var descartesJS = (function(descartesJS) {
         ctx.lineTo((50*self.upWidth)/100, self.h - self.labelHeight - (40.237*self.downH)/100);
         ctx.lineTo((80*self.upWidth)/100, self.h - self.labelHeight - (70*self.downH)/100);
 
-        ctx.moveTo((20*self.upWidth)/100, (70*self.downH)/100);
-        ctx.lineTo((50*self.upWidth)/100, (40.237*self.downH)/100);
-        ctx.lineTo((80*self.upWidth)/100, (70*self.downH)/100);
+        ctx.moveTo((20*self.upWidth)/100, self.upY+(70*self.downH)/100);
+        ctx.lineTo((50*self.upWidth)/100, self.upY+(40.237*self.downH)/100);
+        ctx.lineTo((80*self.upWidth)/100, self.upY+(70*self.downH)/100);
 
         ctx.stroke();
 
@@ -499,11 +499,6 @@ var descartesJS = (function(descartesJS) {
 
       incr = this.incr;
       resultValue = (incr != 0) ? (resultValue*incr)/incr : 0;
-
-  //     if (this.discrete) {
-  //       var incr = this.incr;
-  //       resultValue = incr * Math.round(resultValue / incr);
-  //     }
 
       if (this.fixed) {
         resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.eval(this.decimals)));
@@ -635,7 +630,6 @@ var descartesJS = (function(descartesJS) {
      */
     addEvents() {
       var self = this;
-      var delay = 350;
       var timer;
 
       // prevent the context menu display

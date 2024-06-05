@@ -6,8 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathAbs = Math.abs;
+  const MathFloor = Math.floor;
+  const MathAbs = Math.abs;
   var delay = 1000;
   var gifPattern = /[\w\.\-//]*(\.gif)/gi;
 
@@ -19,6 +19,7 @@ var descartesJS = (function(descartesJS) {
   var name;
   var imageSrc;
   var image;
+  let desp;
   var despX;
   var despY;
   var txtW;
@@ -75,8 +76,9 @@ var descartesJS = (function(descartesJS) {
 
       this.ratio = parent.ratio;
 
+      // font size not set
       if (this.font_size === -1) {
-        this.fontSizeNotSet = true;
+        this.noFSize = true;
       }
 
       if (this.borderColor) {
@@ -320,19 +322,20 @@ var descartesJS = (function(descartesJS) {
           var wShadow = this.conStyle.shadowBoxOffsetY || 2;
           var blur = this.conStyle.shadowBoxBlur || 2;
           var spread = 1;
-          container.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowBoxColor;
+          container.style.boxShadow = `${hShadow}px ${wShadow}px ${blur}px ${spread}px ${this.conStyle.shadowBoxColor}`;
         }
         if (this.conStyle.shadowInsetBoxColor) {
           var hShadow = this.conStyle.shadowInsetBoxOffsetX || 0;
           var wShadow = this.conStyle.shadowInsetBoxOffsetY || -2;
           var blur = this.conStyle.shadowInsetBoxBlur || 1;
           var spread = 1;
-          btn.style.boxShadow = hShadow + "px " + wShadow + "px " + blur + "px " + spread + "px " + this.conStyle.shadowInsetBoxColor + " inset";
+          btn.style.boxShadow = `${hShadow}px ${wShadow}px ${blur}px ${spread}px ${this.conStyle.shadowInsetBoxColor} inset`;
         }
       }
       //
 
-      if (this.fontSizeNotSet) {
+      // font size not set
+      if (this.noFSize) {
         this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
       }
       this.fs_evaluated = evaluator.eval(this.font_size);
@@ -589,9 +592,9 @@ var descartesJS = (function(descartesJS) {
           // add the gradient and border when not flat
           if (!this.flat) {
             if (!this.buttonClick) {
-              descartesJS.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
-              descartesJS.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
-              descartesJS.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
+              this.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
+              this.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
+              this.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
             }
 
             ctx.fillStyle = this.linearGradient;
@@ -688,6 +691,27 @@ var descartesJS = (function(descartesJS) {
       // for the screenshot
       this._image_pos_x = _image_pos_x;
       this._image_pos_y = _image_pos_y;
+    }
+
+    /**
+     * Function for draw the spinner control, that draws a line
+     * @param {2DContext} ctx the canvas context to draw
+     * @param {Number} x1 the x position of the initial point
+     * @param {Number} y1 the y position of the initial point
+     * @param {Number} x2 the x position of the final point
+     * @param {Number} y2 the y position of the final point
+     * @param {String} strokeStyle the style of the stroke used to draw the line
+     * @param {Number} lineWidth the width of the line to draw
+     */
+    drawLine(ctx, x1, y1, x2, y2, strokeStyle = "black", lineWidth = 1) {
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = strokeStyle;
+      desp = (ctx.lineWidth%2)*0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(MathFloor(x1)+desp, MathFloor(y1)+desp);
+      ctx.lineTo(MathFloor(x2)+desp, MathFloor(y2)+desp);
+      ctx.stroke();
     }
 
     /**
@@ -852,7 +876,6 @@ var descartesJS = (function(descartesJS) {
         descartesJS.newBlobContent = null;
         self.buttonClick = false;
       });
-
     }
   }
 

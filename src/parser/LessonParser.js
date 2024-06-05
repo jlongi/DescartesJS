@@ -6,8 +6,8 @@
 var descartesJS = (function(descartesJS, babel) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var paddingSides = 15;
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
+  const paddingSides = 15;
+  const regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
 
   var temp;
   var babelValue;

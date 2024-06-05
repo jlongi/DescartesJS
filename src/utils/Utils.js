@@ -6,17 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var PI2 = Math.PI*2;
-  var trecientosSesentaEntreDosPi = 360/PI2;
-  var dosPiEntreTrecientosSesenta = PI2/360;
-  var MathFloor = Math.floor;
-
-  var colorExpr;
+  const tri_pi2 = 360/(Math.PI*2);
+  const pi2_tri = (Math.PI*2)/360;
+  const MathFloor = Math.floor;
 
   let pointer;
-  var boundingRect;
-
-  var desp;
+  let boundingRect;
+  let indexOfDot;
+  let decimalNumbers;
 
   descartesJS.rangeOK = 1;
   descartesJS.cssScale = 1;
@@ -27,7 +24,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the conversion to degrees of the number r
    */
   descartesJS.radToDeg = function(r) {
-    return r*trecientosSesentaEntreDosPi;
+    return r*tri_pi2;
   }
 
   /**
@@ -36,46 +33,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return the conversion to radians of the number d
    */
   descartesJS.degToRad = function(d) {
-    return d*dosPiEntreTrecientosSesenta;
-  }
-
-  /**
-   * Function for draw the spinner control, that draws a line
-   * @param {2DContext} ctx the canvas context to draw
-   * @param {Number} x1 the x position of the initial point
-   * @param {Number} y1 the y position of the initial point
-   * @param {Number} x2 the x position of the final point
-   * @param {Number} y2 the y position of the final point
-   * @param {String} strokeStyle the style of the stroke used to draw the line
-   * @param {Number} lineWidth the width of the line to draw
-   */
-  descartesJS.drawLine = function(ctx, x1, y1, x2, y2, strokeStyle, lineWidth) {
-    ctx.lineWidth = lineWidth || 1;
-    ctx.strokeStyle = strokeStyle || "black";
-    desp = (ctx.lineWidth%2)*0.5;
-
-    ctx.beginPath();
-    ctx.moveTo(MathFloor(x1)+desp, MathFloor(y1)+desp);
-    ctx.lineTo(MathFloor(x2)+desp, MathFloor(y2)+desp);
-    ctx.stroke();
-  }
-
-  /**
-   * Get a color string from a Descartes color
-   * @param {DescartesJS.Evaluator} evaluator the evaluator needed for evaluate the possible expressions
-   * @param {String|Object} color Descartes color specification
-   * @return {String} return a string corresponding to the color
-   */
-  descartesJS.getColor = function(evaluator, color) {
-    // if the color is a string then return that string color
-    if ( typeof(color) === "string" ) {
-      return color;
-    }
-    // if the color has an expression, then evaluate the string and return the corresponding color
-    else {
-      colorExpr = evaluator.eval(color);
-      return `rgba(${MathFloor(colorExpr[0][0]*255)},${MathFloor(colorExpr[0][1]*255)},${MathFloor(colorExpr[0][2]*255)},${(1-colorExpr[0][3])})`;
-    }
+    return d*pi2_tri;
   }
 
   /**
@@ -83,14 +41,18 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.getFeatures = function() {
     // detects if the browser supports touch events
-    var system = navigator.appVersion.toLowerCase();
+    let system = "";
+    try {
+      system = navigator.appVersion.toLowerCase();
+    }
+    catch(e) { console.warn("navigator.appVersion is deprecated"); };
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
     descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
     descartesJS.isMsEdge = (/Edge/i).test(navigator.userAgent);
 
-    // detects if the browser has canvas support
-    var elem = descartesJS.newHTML("canvas");
+    // detects if the browser has canvas 2D support
+    let elem = descartesJS.newHTML("canvas");
     descartesJS.hasCanvas = (elem.getContext && elem.getContext("2d"));
 
     if (descartesJS.hasCanvas) {
@@ -107,22 +69,21 @@ var descartesJS = (function(descartesJS) {
   }
 
   function setNewToFixed() {
-    var strNum;
-    var indexOfDot;
-    var diff;
-    var exponentialSplit;
-    var exponentialNumber;
-    var exponentialSign;
-    var moveDotTo;
+    let strNum;
+    let indexOfDot;
+    let diff;
+    let exponentialSplit;
+    let exponentialNumber;
+    let exponentialSign;
+    let moveDotTo;
 
     // maintain the original toFixed function
     Number.prototype.oToFixed = Number.prototype.toFixed;
 
-    Number.prototype.toFixed = function(decimals) {
-      decimals = (decimals) || 0;
-      decimals = (decimals < 0) ? 0 : parseInt(decimals);
-
+    Number.prototype.toFixed = function(decimals = 0) {
+      decimals = Math.max(0, parseInt(decimals));
       strNum = this.toString();
+
       if (strNum.indexOf("e") !== -1) {
         exponentialSplit = strNum.split("e");
         exponentialSign = (exponentialSplit[0][0] === "-") ? "-" : "";
@@ -169,9 +130,6 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var indexOfDot;
-  var decimalNumbers;
-
   /**
    *
    */
@@ -186,7 +144,7 @@ var descartesJS = (function(descartesJS) {
           return num.substring(0, indexOfDot);
         }
         else {
-          for (var i=decimalNumbers.length-1; i>0; i--) {
+          for (let i=decimalNumbers.length-1; i>0; i--) {
             if (decimalNumbers.charAt(i) !== "0") {
               return num.substring(0, indexOfDot+i+1);
             }
@@ -196,13 +154,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     return num;
-  }
-
-  /**
-   *
-   */
-  descartesJS.returnValue = function(v) {
-    return (typeof(v) === "number") ? parseFloat(v.toFixed(11)) : v;
   }
 
   /**
@@ -217,16 +168,19 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
+  /**
+   * Create gradient for buttons
+   */
   descartesJS.createGradient = function(start=0, end=100, rotate=0) {
-    var h = 100;
-    var hh = h*h;
-    var di;
-    var str = `linear-gradient(${rotate}deg,`;
-    var c = start*2;
+    let h = 100;
+    let hh = h*h;
+    let di;
+    let str = `linear-gradient(${rotate}deg,`;
+    let c = start*2;
 
-    for (var i=start; i<end; i++) {
+    for (let i=start; i<end; i++) {
       di = MathFloor(100-i-(35*h)/100);
-      str += `rgba(0,0,0,${(((di*di*192)/hh)/255)}) ${i*2 - c}%, `;
+      str += `rgba(0,0,0,${((di*di*192)/hh)/255}) ${i*2 - c}%, `;
     }
 
     str += `rgba(0,0,0,0.1) 100%)`;
@@ -245,8 +199,8 @@ var descartesJS = (function(descartesJS) {
     if (pointer) {
       // consider for the scale by css transformation
       return { 
-        x: (pointer.pageX -window.pageXOffset -boundingRect.left) / descartesJS.cssScale,
-        y: (pointer.pageY -window.pageYOffset -boundingRect.top)  / descartesJS.cssScale
+        x: (pointer.pageX -window.scrollX -boundingRect.left) / descartesJS.cssScale,
+        y: (pointer.pageY -window.scrollY -boundingRect.top)  / descartesJS.cssScale
       }
     }
     else {
@@ -260,12 +214,12 @@ var descartesJS = (function(descartesJS) {
   descartesJS.splitSeparator = function(value) {
     value = value.replace(/\\n/g, "\n");
 
-    var inStr = false;
-    var charAt;
-    var valueArray = [];
-    var lastIndex = 0;
+    let inStr = false;
+    let charAt;
+    let valueArray = [];
+    let lastIndex = 0;
 
-    for (var i=0, l=value.length; i<l; i++) {
+    for (let i=0, l=value.length; i<l; i++) {
       charAt = value.charAt(i);
       // inside or outside of a string
       if (charAt === "'") {
@@ -295,7 +249,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.convertHTMLEntities = function(html) {
-    var txt = descartesJS.newHTML("textarea");
+    let txt = descartesJS.newHTML("textarea");
     txt.innerHTML = html;
     return txt.value;
   }
@@ -304,7 +258,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.newHTML = function(tag, attributes) {
-    var dom = document.createElement(tag);
+    let dom = document.createElement(tag);
     for (let attr in attributes) {
       dom.setAttribute(attr, attributes[attr]);
     }
@@ -323,15 +277,14 @@ var descartesJS = (function(descartesJS) {
       return setInterval(fun, delay);
     }
 
-    var start = Date.now();
-    var handle = {};
+    let start = Date.now();
+    let handle = {};
 
     function loop() {
       if ((Date.now() - start) >= delay) {
         fun.call();
         start = Date.now();
       }
-
       handle.value = requestAnimationFrame(loop);
     };
 
@@ -356,8 +309,8 @@ var descartesJS = (function(descartesJS) {
       return setTimeout(fun, delay);
     }
 
-    var start = Date.now();
-    var handle = {};
+    let start = Date.now();
+    let handle = {};
 
     function loop() {
       if ((Date.now() - start) >= delay) {
@@ -381,7 +334,7 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  var htmlAbout =
+  const htmlAbout =
 `<html>
 <head>
 <style>
@@ -391,8 +344,8 @@ dt{font-weight:bold;margin-top:10px;}
 </style>
 </head>
 <body>
-<iframe src='http://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
-<h2><a href='http://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='http://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
+<iframe src='https://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
+<h2><a href='https://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='https://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
 <dl>
 <dt>Diseño funcional:</dt>
 <dd>
@@ -412,15 +365,15 @@ El software en Java está bajo la licencia
 <a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>
 <br>
 El software en JavaScript está bajo licencia
-<a href='http://www.gnu.org/licenses/lgpl.html'>LGPL</a>
+<a href='https://www.gnu.org/licenses/lgpl.html'>LGPL</a>
 </p>
 <p>
 La documentación y el código fuente se encuentran en :
 <br>
-<a href='http://descartes.matem.unam.mx/'>http://descartes.matem.unam.mx/</a>
+<a href='https://descartes.matem.unam.mx/'>https://descartes.matem.unam.mx/</a>
 </p>`;
 
-  var htmlCreative = 
+  const htmlCreative = 
 `<p>
 Este objeto, creado con Descartes, está licenciado
 por sus autores como
@@ -429,19 +382,19 @@ por sus autores como
 <a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>
 </p>`;
 
-  var htmlFinal = "</body> </html>";
+  const htmlFinal = "</body> </html>";
 
   /**
    *
    */
   descartesJS.showAbout = function() {
-    var content = htmlAbout;
+    let content = htmlAbout;
     if (descartesJS.ccLicense) {
       content += htmlCreative;
     }
     content += htmlFinal;
 
-    var tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
+    let tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
     tmpW.document.write(content);
     tmpW.document.close();
   }

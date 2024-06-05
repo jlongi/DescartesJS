@@ -19,7 +19,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
       
-      var self = this;
+      let self = this;
 
       self.controls = values.controls || true;
       self.file = values.file || "";
@@ -89,7 +89,7 @@ var descartesJS = (function(descartesJS) {
 
         return 0;
       });
-      self.audio.addEventListener("timeupdate", function(evt) {
+      self.audio.addEventListener("timeupdate", function() {
         self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
         self.evaluator.setVariable(self.id + ".playing", (self.audio.paused)?0:1);
         self.evaluator.setVariable(self.id + ".duration", self.audio.duration);
@@ -100,8 +100,8 @@ var descartesJS = (function(descartesJS) {
      * Init the audio
      */
     init() {
-      this.audio.style.left = this.x + "px";
-      this.audio.style.top  = this.y + "px";
+      this.audio.style.left = `${this.x}px`;
+      this.audio.style.top  = `${this.y}px`;
 
       this.update();
     }

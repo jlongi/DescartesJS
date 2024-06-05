@@ -12,37 +12,31 @@ var descartesJS = (function(descartesJS) {
      * @param {DescartesApp} parent the Descartes application
      * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
-      super(parent, parameter);
-
-      var evaluator = this.evaluator;
-      var parser = evaluator.parser;
+    constructor(parent, parameter = "") {
+      super(parent);
 
       // replace the semicolon with a newline, since both notations can appear in the expression
       parameter = descartesJS.splitSeparator( (parameter || "").replace(/&squot;/g, "'") );
 
       // add only the instructions tha execute something, i.e. instructions with parsing different of null
-      var tmpParameter = [];
-      var tmp;
-      for (var i=0, l=parameter.length; i<l; i++) {
-        tmp = parser.parse(parameter[i], true);
+      this.inst = [];
+      let tmp;
+      for (let i=0, l=parameter.length; i<l; i++) {
+        tmp = this.evaluator.parser.parse(parameter[i], true);
         if (tmp) {
-          tmpParameter.push(tmp);
+          this.inst.push(tmp);
         }
       }
+    }
 
-      var i;
-      var l = tmpParameter.length;
-      /**
-       * Execute the action
-       */
-      this.execute = function() {
-        for (i=0; i<l; i++) {
-          evaluator.eval(tmpParameter[i]);
-        }
+    /**
+     * Execute the action
+     */
+    execute() {
+      for (let i=0, l=this.inst.length; i<l; i++) {
+        this.evaluator.eval(this.inst[i]);
       }
-
-    }  
+    }
   }
 
   descartesJS.Calculate = Calculate;

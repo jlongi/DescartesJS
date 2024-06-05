@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var DEBUG = {
+  const DEBUG = {
     PARENTHESIS_CLOSING: "Faltan paréntesis por cerrar",
     PARENTHESIS_OPENING: "Faltan paréntesis por abrir",
     BRACKET_CLOSING: "Faltan corchetes por cerrar",
@@ -16,31 +16,24 @@ var descartesJS = (function(descartesJS) {
   };
 
   DEBUG.setError = function(type, expr) {
-    var errStr = `Error: ${type} en《 ${expr} 》`;
-    var tmpErr = "";
-    var extraErr = "";
+    let errStr = `Error: ${type} en《 ${expr} 》`;
+    let tmpErr = "";
+    let extraErr = "";
 
-    switch(descartesJS.DEBUG.objectName) {
-      //////////////////////////////////////////
+    switch (descartesJS.DEBUG.objectName) {
       case("Auxiliar"):
-        if ( (descartesJS.DEBUG.typeName === "event") || (descartesJS.DEBUG.typeName === "algorithm") || (descartesJS.DEBUG.typeName === "constant")) {
-          tmpErr = "En el programa ";
-        }
-        else {
-          tmpErr = "En la definición ";
-        }
+        tmpErr = ( (descartesJS.DEBUG.typeName === "event") || (descartesJS.DEBUG.typeName === "algorithm") || (descartesJS.DEBUG.typeName === "constant") ) ? "En el programa " : "En la definición ";
 
         if ( (babel[descartesJS.DEBUG.paramName] == "doExpr") ||
              (babel[descartesJS.DEBUG.paramName] == "init") ) {
           extraErr = " en la línea " + (descartesJS.DEBUG.lineCount+1);
         }
 
-        errStr += tmpErr + "「" +descartesJS.DEBUG.idName + "」, en el paramétro 「" + descartesJS.DEBUG.paramName + "」" + extraErr + ".";
+        errStr += `${tmpErr}「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.paramName}」${extraErr}.`;
         break;
 
-      //////////////////////////////////////////
       case("Graphic"):
-        errStr += "En el gráfico #" + (descartesJS.DEBUG.elemIndex+1) + " de tipo 「" +descartesJS.DEBUG.idName + "」, en el paramétro 「" + descartesJS.DEBUG.paramName + "」.";
+        errStr += `En el gráfico #${descartesJS.DEBUG.elemIndex+1} de tipo 「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.paramName}」.`;
         break;
     }
 

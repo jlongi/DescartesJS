@@ -70,14 +70,14 @@ var descartesJS = (function(descartesJS) {
       self.canvas = descartesJS.newHTML("canvas", {
         id    : self.id + "_canvas",
         class : "DescartesSpace2DCanvas",
-        width : self.w * self.ratio,
-        // height : self.h * self.ratio, // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
+        width : (self.w * self.ratio) + "px",
+        height : (self.h * self.ratio) + "px", // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
       });
 
       self.backCanvas = descartesJS.newHTML("canvas", {
         id    : self.id + "_background",
-        width : self.w * self.ratio,
-        // height : self.h * self.ratio, // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
+        width : (self.w * self.ratio) + "px",
+        height : (self.h * self.ratio) + "px", // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
       });
 
       self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
@@ -90,6 +90,9 @@ var descartesJS = (function(descartesJS) {
       self.backCtx = self.backCanvas.getContext("2d");
       self.ctx.imageSmoothingEnabled = self.backCtx.imageSmoothingEnabled = false;
 
+      self.canvas.ratio = self.ratio;
+      self.backCanvas.ratio = self.ratio;
+
       // create a graphic control container
       self.graphicControlContainer = descartesJS.newHTML("div", {
         id    : self.id + "_graphicControls",
@@ -97,7 +100,7 @@ var descartesJS = (function(descartesJS) {
       });
 
       // create a control container
-      self.numericalControlContainer = descartesJS.newHTML("div", {
+      self.numCtrContainer = descartesJS.newHTML("div", {
         id    : self.id + "_numericalControls",
         style : `position:absolute;left:0;top:0;z-index:${self.zIndex};`,
       });
@@ -120,7 +123,7 @@ var descartesJS = (function(descartesJS) {
       self.container.appendChild(self.backCanvas);
       self.container.appendChild(self.canvas);
       self.container.appendChild(self.graphicControlContainer);
-      self.container.appendChild(self.numericalControlContainer);
+      self.container.appendChild(self.numCtrContainer);
 
       parent.container.insertBefore(self.container, parent.loader);
 
@@ -585,7 +588,7 @@ var descartesJS = (function(descartesJS) {
         self.evaluator.setVariable(self.mclickIzqStr, 0);
 
         // deactivate the graphic controls
-        self.parent.deactivateGraphicControls();
+        self.parent.deactivateControls();
 
         onSensitiveToMouseMovements(evt);
 
@@ -656,7 +659,7 @@ var descartesJS = (function(descartesJS) {
         self.click = 1;
 
         // deactivate the graphic controls
-        self.parent.deactivateGraphicControls();
+        self.parent.deactivateControls();
 
         self.whichBtn = descartesJS.whichBtn(evt);
 
@@ -717,7 +720,7 @@ var descartesJS = (function(descartesJS) {
         window.removeEventListener("mouseup", onMouseUp);
 
         // deactivate control
-        self.parent.deactivateGraphicControls();
+        self.parent.deactivateControls();
 
         self.parent.update();
       }

@@ -25,6 +25,7 @@ var descartesJS = (function(descartesJS) {
       // create the function to exec when the algorithm evaluates
       this.algorithmExec = function() {
         self.iterations = 0;
+        max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
 
         for (var i=0, l=self.init.length; i<l; i++) {
           evaluator.eval(self.init[i]);
@@ -35,7 +36,6 @@ var descartesJS = (function(descartesJS) {
             evaluator.eval(self.doExpr[i]);
           }
 
-          max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
           if (++self.iterations > max_ite) {
             console.warn("se ha excedido el límite de " + max_ite + " repeticiones en el algoritmo << " + self.name + " >>");
             return 0;

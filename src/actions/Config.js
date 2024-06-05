@@ -10,10 +10,9 @@ var descartesJS = (function(descartesJS) {
     /**
      * Descartes config action
      * @param {DescartesApp} parent the Descartes application
-     * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
-      super(parent, parameter);
+    constructor(parent) {
+      super(parent);
     }
 
     /**
@@ -24,10 +23,8 @@ var descartesJS = (function(descartesJS) {
         this.parent.editor.show();
       }
       else {
-        var codeWindow = window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes")
-        codeWindow.document.write("<xmp style='width:100%;height:100%;'><script type='text/javascript' src='http://arquimedes.matem.unam.mx/Descartes5/lib/descartes-min.js'></script>" + (this.parent.applet.outerHTML.replace(/<applet/g, "<ajs").replace(/<\/applet/g, "</ajs")) + "</xmp>");
+        window.open("about:blank", "_blank", "width=800px,height=600px,location=no,menubar=no,scrollbars=yes").document.write("<xmp style='width:100%;height:100%;'>" + (this.parent.applet.outerHTML.replace(/<applet/g, "<ajs").replace(/<\/applet/g, "</ajs")) + "</xmp>");
       }
-      
     }
   }
 

@@ -30,7 +30,9 @@ var descartesJS = (function(descartesJS) {
   var pipeStringDelimiterRegExp = /\|/g;
   var pipeAsteriskLeftRegExp = /\|\*/g;
   var pipeAsteriskRightRegExp = /\*\|/g;
-
+var commentRegExp = /^\/\//g;
+var httpRegExp = /:\/\//g;
+  
   var result;
   var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
 
@@ -41,7 +43,7 @@ var descartesJS = (function(descartesJS) {
     /**
      * Descartes tokenizer
      */
-    constructor() {  }
+    constructor() { }
 
     /**
      * 
@@ -50,10 +52,10 @@ var descartesJS = (function(descartesJS) {
       initial_input = input;
 
       if (input) {
-        var commentIndex = input.indexOf("//");
-        if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
-          input = input.substring(0, commentIndex);
-        }
+        // var commentIndex = input.indexOf("//");
+        // if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
+        //   input = input.substring(0, commentIndex);
+        // }
 
         // change the values in UTF of the form \u##
         input = input.replace(/\\u(\S+) /g, function(str, m1){
@@ -122,6 +124,18 @@ var descartesJS = (function(descartesJS) {
           addToken("string", val, val.length+2);
           continue;
         }
+
+// comments
+val = str.match(commentRegExp);
+if (val) {
+  if (str.match(httpRegExp)) {
+    continue;
+  }
+  else {
+    pos = 2*input.length;
+    break;
+  }
+}
 
         // white spaces
         val = str.match(whiteSpaceRegExp);
@@ -257,7 +271,7 @@ var descartesJS = (function(descartesJS) {
 
         if (exit == pos){
           descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, initial_input);
-          // console.info("Error, simbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
+          // console.info("Error, símbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
           // console.info("Error: en la cadena 《 " + initial_input + " 》");
           return;
         }

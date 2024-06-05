@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathAbs = Math.abs;
+  const MathAbs = Math.abs;
 
   var parser;
   var evaluator;
@@ -30,42 +30,43 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
-      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+      let self = this;
 
-      this.options = values.options || "";
+      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
-      parser = this.parser;
-      evaluator = this.evaluator;
+      self.options = values.options || "";
+
+      parser = self.parser;
+      evaluator = self.evaluator;
 
       // the evaluation of the control
-      this.ok = 0;
+      self.ok = 0;
 
       // tabular index
-      this.tabindex = ++this.parent.tabindex;
+      self.tabindex = ++self.parent.tabindex;
 
       // if the answer exist
-      if (this.answer) {
+      if (self.answer) {
         // the answer is encrypted
-        if (this.answer.match("krypto_")) {
-          this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
+        if (self.answer.match("krypto_")) {
+          self.answer = (new descartesJS.Krypto()).decode(self.answer.substring(7));
         }
-
-        this.answer = parseInt(this.answer.split(",")[0].replace("[", "")) || 0;
+        self.answer = parseInt(self.answer.split(",")[0].replace("[", "")) || 0;
       }
 
-      this.name_str = this.name;
+      self.name_str = self.name;
 
       // modification to change the name of the button with an expression
-      if (this.name.match(/^\[.*\]?/)) {
-        this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+      if (self.name.match(/^\[.*\]?/)) {
+        self.name = self.parser.parse(self.name.substring(1, self.name.length-1));
       }
       else {
-        this.name = this.parser.parse("'" + this.name + "'");
+        self.name = self.parser.parse("'" + self.name + "'");
       }
 
-      var self = this;
-      this.evaluator.setFunction(this.id + ".setOptions", setOptions);
+      self.evaluator.setFunction(self.id + ".setOptions", setOptions);
+
       /**
        * Auxiliary function to set the options to the menu
        */
@@ -138,102 +139,103 @@ var descartesJS = (function(descartesJS) {
       }
 
       // control container
-      this.containerControl = descartesJS.newHTML("div", {
+      self.containerControl = descartesJS.newHTML("div", {
         class : "DescartesMenuContainer",
-        id    : this.id,
+        id    : self.id,
       });
 
       // the label
-      this.label = descartesJS.newHTML("canvas", {
+      self.label = descartesJS.newHTML("canvas", {
         class : "DescartesMenuLabel",
       });
-this.label_ctx = this.label.getContext("2d");
-this.ratio = parent.ratio;
+      self.label_ctx = self.label.getContext("2d");
+      self.ratio = parent.ratio;
 
       // the menu
-      this.select = descartesJS.newHTML("select", {
-        id       : this.id + "_menuSelect",
+      self.select = descartesJS.newHTML("select", {
+        id       : self.id + "_menuSelect",
         class    : "DescartesMenuSelect",
-        tabindex : this.tabindex,
+        tabindex : self.tabindex,
       });
       // the text field
-      this.field = descartesJS.newHTML("input", {
+      self.field = descartesJS.newHTML("input", {
         type     : "text",
-        id       : this.id + "_menuField",
+        id       : self.id + "_menuField",
         class    : "DescartesMenuField",
-        tabindex : this.tabindex,
+        tabindex : self.tabindex,
       });
       //
-      setOptions(this.options);
+      setOptions(self.options);
       //
 
       // add the elements to the container
-      this.containerControl.appendChild(this.label);
-      this.containerControl.appendChild(this.select);
+      self.containerControl.appendChild(self.label);
+      self.containerControl.appendChild(self.select);
 
       // if visible then show the text field
-      if (this.visible) {
-        this.containerControl.appendChild(this.field);
+      if (self.visible) {
+        self.containerControl.appendChild(self.field);
       }
 
-      this.cover = descartesJS.newHTML("div", {
+      self.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if ( (this.keyboard) && (this.visible) ) {
-        this.containerControl.appendChild(this.cover);
+      if ( (self.keyboard) && (self.visible) ) {
+        self.containerControl.appendChild(self.cover);
       }
 
 
-      this.addControlContainer(this.containerControl);
+      self.addControlContainer(self.containerControl);
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
       // init the menu parameters
-      this.init();
+      self.init();
     }
 
     /**
      * Init the menu
      */
     init(noupdate) {
-      evaluator = this.evaluator;
+      let self = this;
+      evaluator = self.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
-      var name = this.label.textContent;
+      self.label.innerHTML = evaluator.eval(self.name).toString();
+      var name = self.label.textContent;
 
       // find the font size of the text field
-      this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
+      self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
 
-//new
-this.text_object = new descartesJS.TextObject({
-  parent : {
-    decimal_symbol : this.parent.decimal_symbol
-  },
-  evaluator : this.evaluator,
-  decimals : this.decimals,
-  fixed: false,
-  align: "left",
-  anchor: "center_center",
-  width: this.parser.parse("0"),
-  font_size: this.parser.parse(""+ this.fieldFontSize),
-  font_family: this.font_family,
-  italics: this.italics,
-  bold: this.bold,
-}, this.name_str);
-//new
-this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      //new
+      self.text_object = new descartesJS.TextObject({
+        parent : {
+          decimal_symbol : self.parent.decimal_symbol
+        },
+        evaluator : self.evaluator,
+        decimals : self.decimals,
+        fixed: false,
+        align: "left",
+        anchor: "center_center",
+        width: self.parser.parse("0"),
+        font_size: self.parser.parse(""+ self.fieldFontSize),
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
+      }, self.name_str);
+      //new
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0, true);
 
       var minchw = 0;
       var indMinTFw = 0;
       var minTFw = 0;
       var mow;
-      this.value = (noupdate) ? this.value : evaluator.eval(this.valueExpr);
-      this.indexValue = this.getIndex(this.value);
+      self.value = (noupdate) ? self.value : evaluator.eval(self.valueExpr);
+      self.indexValue = self.getIndex(self.value);
 
       // find the widest choice to set the menu width
-      for (var i=0, l=this.menuOptions.length; i<l; i++) {
-        mow = descartesJS.getTextWidth( evaluator.eval(this.menuOptions[i]).toString(), this.fieldFontSize+"px " + descartesJS.sansserif_font );
+      for (var i=0, l=self.menuOptions.length; i<l; i++) {
+        mow = descartesJS.getTextWidth( evaluator.eval(self.menuOptions[i]).toString(), self.fieldFontSize+"px " + descartesJS.sansserif_font );
         if (mow > minchw) {
           minchw = mow;
           indMinTFw = i;
@@ -241,20 +243,19 @@ this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, tr
       }
 
       minchw += 25;
-      minTFw = descartesJS.getTextWidth( this.formatOutputValue(evaluator.eval(this.strValue[indMinTFw])), this.fieldFontSize+"px " + descartesJS.sansserif_font ) + 7;
+      minTFw = descartesJS.getTextWidth( self.formatOutputValue(evaluator.eval(self.strValue[indMinTFw])), self.fieldFontSize+"px " + descartesJS.sansserif_font ) + 7;
 
-//      var labelWidth = descartesJS.getTextWidth(name, this.fieldFontSize+"px " + descartesJS.sansserif_font) +10;
-var labelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+      var labelWidth = self.text_object.textNodes.metrics.w +parseInt(self.fieldFontSize);
 
       var fieldWidth = minTFw;
 
       if (name == "") {
         labelWidth = 0;
       }
-      if (!this.visible) {
+      if (!self.visible) {
         fieldWidth = 0;
       }
-      var chw = this.w - fieldWidth - labelWidth;
+      var chw = self.w - fieldWidth - labelWidth;
       while (chw<minchw && labelWidth>0) {
         labelWidth--;
         chw++;
@@ -263,106 +264,105 @@ var labelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSi
         fieldWidth--;
         chw++;
       }
-      while (labelWidth+chw+fieldWidth+1<this.w) {
+      while (labelWidth+chw+fieldWidth+1<self.w) {
         chw++;
         fieldWidth++;
       }
       var chx = labelWidth;
       var TFx = chx + chw;
-      fieldWidth = this.w - TFx;
+      fieldWidth = self.w - TFx;
 
-      var fieldValue = this.formatOutputValue( evaluator.eval(this.strValue[this.indexValue]) );
+      var fieldValue = self.formatOutputValue( evaluator.eval(self.strValue[self.indexValue]) );
 
-      this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
+      self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
-      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
-this.label.width = labelWidth*this.ratio;
-this.label.height = this.h*this.ratio;
+      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
+      self.label.width = labelWidth*self.ratio;
+      self.label.height = self.h*self.ratio;
 
-      this.field.value = fieldValue;
-      this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
-      this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${TFx}px;`);
+      self.field.value = fieldValue;
+      self.field.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${fieldWidth}px;height:${self.h}px;left:${TFx}px;`);
+      self.cover.setAttribute("style", `width:${fieldWidth}px;height:${self.h}px;left:${TFx}px;`);
 
-      this.select.setAttribute("style", `text-align:left;font-size:${this.fieldFontSize}px;width:${chw}px;height:${this.h}px;left:${chx}px;`);
-      this.select.selectedIndex = this.indexValue;
+      self.select.setAttribute("style", `text-align:left;font-size:${self.fieldFontSize}px;width:${chw}px;height:${self.h}px;left:${chx}px;`);
+      self.select.selectedIndex = self.indexValue;
 
       // register the control value
-      evaluator.setVariable(this.id, parseFloat(fieldValue.replace(this.parent.decimal_symbol, ".")));
+      evaluator.setVariable(self.id, parseFloat(fieldValue.replace(self.parent.decimal_symbol, ".")));
 
-      this.update();
+      self.update();
     }
 
     /**
      * Update the menu
      */
     update() {
-      evaluator = this.evaluator;
+      let self = this;
+      evaluator = self.evaluator;
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue = (evaluator.eval(self.drawif) > 0);
 
       // enable or disable the control
-      this.field.disabled = (this.activeIfValue) ? false : true;
-      this.select.disabled = (this.activeIfValue) ? false : true;
+      self.field.disabled = (self.activeIfValue) ? false : true;
+      self.select.disabled = (self.activeIfValue) ? false : true;
 
       // hide or show the menu control
-      if (this.drawIfValue) {
-        this.containerControl.style.display = "block";
+      if (self.drawIfValue) {
+        self.containerControl.style.display = "block";
       } else {
-        this.click = false;
-        this.containerControl.style.display = "none";
+        self.click = false;
+        self.containerControl.style.display = "none";
       }
 
-      if ( !(this.parent.animation.playing) || (document.activeElement != this.select) ) {
-        // this.label.innerHTML = evaluator.eval(this.name).toString();
-
-        for (var i=0, l=this.menuOptions.length; i<l; i++) {
-          this.select.options[i].innerHTML = evaluator.eval( this.menuOptions[i] );
+      if ( !(self.parent.animation.playing) || (document.activeElement != self.select) ) {
+        for (var i=0, l=self.menuOptions.length; i<l; i++) {
+          self.select.options[i].innerHTML = (evaluator.eval( self.menuOptions[i] ) || "").replace(/\\u002C/g, ",");
         }
 
         // update the value of the menu
-        this.value = evaluator.getVariable(this.id);
+        self.value = evaluator.getVariable(self.id);
 
-        if (isNaN(this.value)) {
-          this.value = 0;
+        if (isNaN(self.value)) {
+          self.value = 0;
         }
-        this.field.value = this.formatOutputValue(this.value);
+        self.field.value = self.formatOutputValue(self.value);
 
         // register the control value
-        evaluator.setVariable(this.id, parseFloat(this.value));
-        this.select.selectedIndex = parseFloat(this.getIndex(this.value));
+        evaluator.setVariable(self.id, parseFloat(self.value));
+        self.select.selectedIndex = parseFloat(self.getIndex(self.value));
       }
 
-      this.ok = (this.value == this.answer) ? 1 : 0;
-      this.evaluator.setVariable(this.id+".ok", this.ok);
+      self.ok = (self.value == self.answer) ? 1 : 0;
+      self.evaluator.setVariable(self.id+".ok", self.ok);
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
 
       //
-      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      self.label_ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
       // draw the text to get the width
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0);
 
-      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      self.label_ctx.clearRect(0, 0, self.label.width, self.label.height);
 
-      int_color = this.label_color.getColor();
+      int_color = self.label_color.getColor();
       if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-        this.label_ctx.fillStyle = int_color;
-        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+        self.label_ctx.fillStyle = int_color;
+        self.label_ctx.fillRect(0,0,self.label_ctx.canvas.width,self.label_ctx.canvas.height);
       }
 
-      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
-        this.text_object.anchor = "center_left";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      if (self.text_object.textNodes.metrics.w > self.label.width/self.ratio) {
+        self.text_object.anchor = "center_left";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 5, self.label.height/self.ratio/2); 
       }
       else {
-        this.text_object.anchor = "center_center";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+        self.text_object.anchor = "center_center";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), self.label.width/self.ratio/2, self.label.height/self.ratio/2);
       }
-      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      self.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -433,9 +433,16 @@ this.label.height = this.h*this.ratio;
     /**
      * Change the menu value
      */
-    changeValue() {
+    changeValue(value, keyboard) {
       if (this.activeIfValue) {
         // register the control value
+        if (keyboard) {
+          this.indexValue = this.getIndex(value);
+          this.value = this.evaluator.eval( this.strValue[this.indexValue] );
+          this.field.value = this.formatOutputValue(this.indexValue);
+          this.select.selectedIndex = this.indexValue;
+        }
+
         this.evaluator.setVariable(this.id, this.value);
 
         this.updateAndExecAction();
@@ -446,7 +453,7 @@ this.label.height = this.h*this.ratio;
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
+      let self = this;
 
       // prevent the context menu display
       self.select.oncontextmenu = self.label.oncontextmenu = self.field.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
@@ -468,7 +475,7 @@ this.label.height = this.h*this.ratio;
 
         evt.preventDefault();
       }
-      this.select.addEventListener("change", onChangeSelect);
+      self.select.addEventListener("change", onChangeSelect);
 
       /**
        *
@@ -487,7 +494,7 @@ this.label.height = this.h*this.ratio;
           self.changeValue();
         }
       }
-      this.field.addEventListener("keydown", onKeyDown_TextField);
+      self.field.addEventListener("keydown", onKeyDown_TextField);
 
       /**
        *
@@ -499,14 +506,13 @@ this.label.height = this.h*this.ratio;
           self.changeValue(self.field.value, true);
         }
       }
-      this.field.addEventListener("blur", onBlur_textField);
+      self.field.addEventListener("blur", onBlur_textField);
 
       /*
       * Prevent an error with the focus of a text field
       */
       self.field.addEventListener("click", function(evt) {
-        // this.select();
-        this.focus();
+        self.field.focus();
       });
 
       /**

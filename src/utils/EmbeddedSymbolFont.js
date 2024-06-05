@@ -14,10 +14,10 @@ var descartesJS = (function(descartesJS) {
   }
 
   descartesJS.addSymbolFont = function() {
-    return  "@font-face{font-family:'DJS_symbol';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:bold;}\n" +
-            "@font-face{font-family:'DJS_symbol';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:bold;}\n" +
-            "@font-face{font-family:'DJS_symbol';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:italic;font-weight:normal;}\n" +
-            "@font-face{font-family:'DJS_symbol';src:url('"+ descartesJS.symbolFont() +"') format('woff2');font-style:normal;font-weight:normal;}\n";
+    return `@font-face{font-family:'DJS_symbol';src:url('${descartesJS.symbolFont()}') format('woff2');font-style:normal;font-weight:bold;}
+@font-face{font-family:'DJS_symbol';src:url('${descartesJS.symbolFont()}') format('woff2');font-style:italic;font-weight:bold;}
+@font-face{font-family:'DJS_symbol';src:url('${descartesJS.symbolFont()}') format('woff2');font-style:italic;font-weight:normal;}
+@font-face{font-family:'DJS_symbol';src:url('${descartesJS.symbolFont()}') format('woff2');font-style:normal;font-weight:normal;}`;
   }
 
   return descartesJS;

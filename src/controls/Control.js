@@ -6,8 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathRound = Math.round;
+  const MathFloor = Math.floor;
+  const MathRound = Math.round;
   var hh;
   var di;
   var changeX;
@@ -145,7 +145,6 @@ var descartesJS = (function(descartesJS) {
        */
       this.colorInt = "cc0022";
       if (values.gui == "Scrollbar") {
-        // this.colorInt = "3B3B98";
         this.colorInt = "182C61";
       }
       else if (values.type !== "GraphicControl") {
@@ -350,8 +349,7 @@ var descartesJS = (function(descartesJS) {
             space_i.addCtr(this);
             this.zIndex = space_i.zIndex;
             this.space = space_i;
-            // this.space = space_i;
-            return space_i.numericalControlContainer;
+            return space_i.numCtrContainer;
           }
         }
       }
@@ -364,10 +362,10 @@ var descartesJS = (function(descartesJS) {
       else if (this.region === "scenario") {
         // has a cID
         if (this.cID) {
-          this.expresion = this.evaluator.parser.parse("(0,-1000," + this.w + "," + this.h + ")");
+          this.expresion = this.evaluator.parser.parse(`(0,-1000,${this.w},${this.h})`);
           this.parent.stage.stageSpace.addCtr(this);
           this.zIndex = this.parent.stage.stageSpace.zIndex;
-          return this.parent.stage.stageSpace.numericalControlContainer;
+          return this.parent.stage.stageSpace.numCtrContainer;
         }
         else {
           return this.parent.externalSpace.container;
@@ -383,7 +381,7 @@ var descartesJS = (function(descartesJS) {
       // if do not find a space with the identifier then return the first space
       spaces[0].addCtr(this);
       this.zIndex = spaces[0].zIndex;
-      return spaces[0].numericalControlContainer;
+      return spaces[0].numCtrContainer;
     }
 
     /**
@@ -392,7 +390,7 @@ var descartesJS = (function(descartesJS) {
      */
     addControlContainer(controlContainer) {
       // get the control container
-      var container = this.getContainer();
+      const container = this.getContainer();
 
       // add the container in inverse order to the space container
       if (!container.childNodes[0]) {

@@ -19,7 +19,7 @@ var descartesJS = (function(descartesJS) {
   function makeDescartesApps() {
     getDescartesApplets().forEach(applet => {
       descartesJS.apps.push( new descartesJS.DescartesApp(applet) );
-      changeClassDescartesJS(applet);
+      applet.className = "DescartesJS";
     });
   }
 
@@ -27,7 +27,7 @@ var descartesJS = (function(descartesJS) {
    * Hide the applets in the page
    */
   function hideApplets() {
-    var cssNode = document.getElementById("StyleDescartesApps");
+    let cssNode = document.getElementById("StyleDescartesApps");
 
     if (cssNode) {
       cssNode.remove();
@@ -54,21 +54,13 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Find and get the descartes applets in the document
-   * @return {Array.<applet>} the descartes applets in the document
+   * Find and get the Descartes applets in the document
+   * @return {Array.<applet>} the Descartes applets in the document
    */
   function getDescartesApplets() {
     return [...(document.querySelectorAll("applet,ajs"))].filter(applet => {
       return (/Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i).test(applet.getAttribute("code"));
     });
-  }
-
-  /**
-   * Change the class of an applet to "DescartesJS"
-   * @param {<applet>} applet the applet to change the class
-   */
-  function changeClassDescartesJS(applet) {
-    applet.className = "DescartesJS";
   }
 
   /**
@@ -82,7 +74,7 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Get the array of descartes apps, i.e. javascript interpretations of the descartes applets
+   * Get the array of Descartes apps, i.e. javascript interpretations of the Descartes applets
    * @return {Array.<DescartesApp>}
    */
   descartesJS.getDescartesApps = function() {
@@ -111,24 +103,23 @@ var descartesJS = (function(descartesJS) {
    * @param {Event} evt the evt of load the web page
    */
   function onLoad(evt) {
-    var fontDiv = descartesJS.newHTML("div");
-    var str = '<div style="font-size:12px;visibility:hidden;">';
-    var font_names = ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbol", "DJS_sansserif", "DJS_serif", "DJS_monospace", "DJS_math"];
+    let fontDiv = descartesJS.newHTML("div");
+    let str = '<div style="font-size:12px;visibility:hidden;">';
 
-    font_names.forEach(font => {
-      str += '<div style="font-family:'+ font +';"><span>_</span><span style="font-weight:bold;">_</span><span style="font-style:italic;">_</span><span style="font-weight:bold;font-style:italic;">_</span></div>';
+    ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbol", "DJS_sansserif", "DJS_serif", "DJS_monospace", "DJS_math"].forEach(font => {
+      str += `<div style="font-family:${font};"><span>_</span><span style="font-weight:bold;">_</span><span style="font-style:italic;">_</span><span style="font-weight:bold;font-style:italic;">_</span></div>`;
     });
 
     fontDiv.innerHTML = str + '</div>';
 
     document.body.appendChild(fontDiv);
 
-    // get the features for interpreting descartes applets
+    // get the features for interpreting Descartes applets
     descartesJS.getFeatures();
 
     // if has support for canvas start the interpretation
     if (descartesJS.hasCanvas) {
-      window.scrollTo(0, 10);
+      window.scrollTo(0, 100);
 
       removeDescartesAppContainers();
       makeDescartesApps();
@@ -145,18 +136,19 @@ var descartesJS = (function(descartesJS) {
     fontDiv.remove();
   }
 
-  var applets_cache = Object.create(null);
+  var applets_cache = {};
   /**
    * Function to handle the message between frames
    * @param {Event} evt the evt of receive a message
    */
   descartesJS.onMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
-      var data = evt.data;
+      let data = evt.data;
 
+      // empty message
       if (!data) { return; }
 
-      // set a value to a variable
+      // set a value to a variable, vector or matrix
       if (data.type === "set") {
         if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
           descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
@@ -178,22 +170,25 @@ var descartesJS = (function(descartesJS) {
 
       // execute a function
       else if (data.type === "exec") {
-        var fun = descartesJS.apps[0].evaluator.getFunction(data.name);
+        let fun = descartesJS.apps[0].evaluator.getFunction(data.name);
         if (fun) {
           fun.apply(descartesJS.apps[0].evaluator, (data.value.toString()).split(","));
         }
       }
 
+      // the scene needs a resize then send a message to the sender to do a resize 
       else if (data.type === "isResizeNeeded") {
         evt.source.postMessage({ type: "doResize" }, '*');
       }
 
+      // adjust the size in case is needed
       else if (data.type === "doResize") {
         if (descartesJS.apps.length > 0) {
           descartesJS.apps[0].adjustSize();
         }
       }
 
+      // the iframe needs a change in his configuration
       else if (data.type === "change_config") {
         let new_applets;
 
@@ -207,19 +202,20 @@ var descartesJS = (function(descartesJS) {
           applets_cache[data.filename] = new_applets;
         }
 
-        let base = document.querySelector("base");
-        if (!base) {
-          base = descartesJS.newHTML("base");
-          document.body.appendChild(base);
-        }
-        base.setAttribute("href", data.filename);
+        // let base = document.querySelector("base");
+        // if (!base) {
+        //   base = descartesJS.newHTML("base");
+        //   document.body.appendChild(base);
+        // }
+        // base.setAttribute("href", data.filename);
         
         descartesJS.apps[0].children = new_applets;
         descartesJS.apps[0].init();
       }
 
+      // the iframe needs a change in his content
       else if (data.type === "change_content") {
-        new_applets = descartesJS.newHTML("div");
+        let new_applets = descartesJS.newHTML("div");
         new_applets.innerHTML = data.content;
         new_applets = new_applets.getElementsByTagName("param");
         descartesJS.apps[0].children = new_applets;
@@ -246,13 +242,13 @@ var descartesJS = (function(descartesJS) {
     });
 
     // force and update in the scene when all the fonts are ready
-    document.fonts.ready.then(function() {
+    document.fonts.ready.then(() => {
       setTimeout(() => {
-        descartesJS.apps.forEach((app) => {
+        for (const app of descartesJS.apps) {
           app.updateControls();
           app.updateSpaces(true);
-        });
-      }, 500);
+        }
+      }, 15);
     });
   }
 

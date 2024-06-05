@@ -13,21 +13,13 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////
     // add metadata for tablets
     ////////////////////////////////////////////////////////////////////
-    var head = document.head;
+    let head = document.head;
 
-    // try chrome frame // <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    var meta = descartesJS.newHTML("meta", {
-      "http-equiv" : "X-UA-Compatible",
-      content      : "IE=edge,chrome=1",
-    });
-    // add the metadata to the head of the document
-    head.appendChild(meta);
-
-    meta = descartesJS.newHTML("meta", {
+    // 
+    let meta = descartesJS.newHTML("meta", {
       name    : "viewport",
       content : "width=device-width,initial-scale=1.0,user-scalable=yes",
     });
-    
     // add the metadata to the head of the document
     if (!document.querySelector("meta[name=viewport]")) {
       head.appendChild(meta);
@@ -56,7 +48,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////
 
     // try to get the style
-    var cssNode = document.getElementById("StyleDescartesApps2");
+    let cssNode = document.getElementById("StyleDescartesApps2");
 
     // if the style exists, then the lesson was saved before, then remove the style
     if (cssNode) {
@@ -68,7 +60,6 @@ var descartesJS = (function(descartesJS) {
       type : "text/css",
       id   : "StyleDescartesApps2",
     });
-
     // add the style to the head of the document
     document.head.insertBefore(cssNode, document.head.firstChild);
 
@@ -106,14 +97,22 @@ var descartesJS = (function(descartesJS) {
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +
       ".DescartesButtonContainer,.DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
-      ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
+      ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField,.DescartesSliderField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
       "input[type=text]:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
-      ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
+      ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesSliderLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
       ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
-      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;resize:none;}\n" +
+      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;resize:none;border:solid #666 1px;}\n" +
+      ".DescartesTextAreaContainer *{border:none;}\n" +
       ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;outline:none;}\n" +
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
-      ".DescartesScrollbarContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
+      
+      ".DescartesScrollbarContainer,.DescartesSliderContainer{touch-action:none;background:#eee;overflow:hidden;position:absolute;}\n" + 
+      ".DescartesSliderContainer{background:transparent;}\n" +
+      ".DescartesRange{-webkit-appearance:none;appearance:none;background:transparent;cursor: pointer;}\n" +
+      ".DescartesRange::-webkit-slider-runnable-track{background:var(--track_color);height:var(--track_h);border-radius:var(--track_h);}\n" +
+      ".DescartesRange::-moz-range-track{background:var(--track_color);height:var(--track_h);border-radius:var(--track_h);}\n" +
+      ".DescartesRange::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:calc(var(--track_h) / 2 - var(--thumb_size) / 2);border-radius:50%;background-color:var(--thumb_color);height:var(--thumb_size);width:var(--thumb_size);}\n" +
+      ".DescartesRange::-moz-range-thumb{border:none;border-radius:50%;background-color:var(--thumb_color);height:var(--thumb_size);width:var(--thumb_size);}\n" +
 
       ".DJS_Up,.DJS_Down{cursor:pointer;position:absolute;border-width:1px 0 1px 1px;background-size:cover;background-repeat:none;background-position:center;}\n" +
       
@@ -127,6 +126,7 @@ var descartesJS = (function(descartesJS) {
 
       ".DescartesKeyboardContainer{position:absolute;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.1);z-index:1000;}\n" +
       ".DescartesKeysContainer{display:flex;flex-direction:row;flex-wrap:wrap;background-color:#c0c0c0;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 0 8px 0 rgba(0,0,0,0.75);box-sizing: content-box;}\n" +
+
       // keys
       ".DescartesKeysContainer > div, .new_line_btn{margin:5px 0 0 5px;display:inline-block;min-width:40px;min-height:40px;max-height:40px;line-height:35px;background-color:#ebeff3;font-family:"+ descartesJS.math_font +";font-size:18px;font-weight:bold;color:black;cursor:pointer;text-align:center;border-radius:4px;border:1px solid rgba(0,0,0,0.3);box-shadow:0 1px 2px 0 rgba(0,0,0,0.25);transform-origin:center;user-select:none;}\n" +
       ".DescartesKeysContainer > div:hover, .new_line_btn:hover{background-color:rgba(0,0,0,0.05);transform:scale(1.1);}\n" +

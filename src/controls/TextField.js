@@ -130,6 +130,9 @@ var descartesJS = (function(descartesJS) {
         this.containerControl.appendChild(this.cover);
       }
 
+      this.activoStr = this.id + ".activo";
+      this.activeStr = this.id + ".active";
+
       this.addControlContainer(this.containerControl);
 
       // register the mouse and touch events
@@ -416,6 +419,14 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
+     * Deactivate the control
+     */
+    deactivate() {
+      this.evaluator.setVariable(this.activoStr, 0);
+      this.evaluator.setVariable(this.activeStr, 0);
+    }
+
+    /**
      * Register the mouse and touch events
      */
     addEvents() {
@@ -429,31 +440,32 @@ var descartesJS = (function(descartesJS) {
       self.label.addEventListener("mousedown", descartesJS.preventDefault);
 
       /**
-       *
-       * @param {Event} evt
-       * @private
        */
-      function onBlur_textField(evt) {
+      this.field.addEventListener("mousedown", function (evt) {
+        self.parent.deactivateControls();
+        self.evaluator.setVariable(self.activoStr, 1);
+        self.evaluator.setVariable(self.activeStr, 1);
+        self.parent.update();
+      });
+      /**
+       */
+      this.field.addEventListener("blur", function (evt) {
         if (self.drawIfValue) {
           self.changeValue(self.field.value, true);
         }
-      }
-      this.field.addEventListener("blur", onBlur_textField);
+      });
 
       /**
        *
-       * @param {Event} evt
-       * @private
-       */
-      function onKeyDown_TextField(evt) {
+       */      
+      this.field.addEventListener("keydown", function (evt) {
         if (self.activeIfValue) {
           // responds to enter
           if (evt.keyCode == 13) {
             self.changeValue(self.field.value, true);
           }
         }
-      }
-      this.field.addEventListener("keydown", onKeyDown_TextField);
+      });
 
       /*
        * Prevent an error with the focus of a text field
@@ -467,6 +479,11 @@ var descartesJS = (function(descartesJS) {
        * 
        */
       self.cover.addEventListener("click", function(evt) {
+        self.parent.deactivateControls();
+        self.evaluator.setVariable(self.activoStr, 1);
+        self.evaluator.setVariable(self.activeStr, 1);
+        self.parent.update();
+
         let pos = self.evaluator.eval(self.kbexp);
 
         if (self.activeIfValue) {

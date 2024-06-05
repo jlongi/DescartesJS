@@ -6,17 +6,17 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathSin = Math.sin;
-  var MathFloor = Math.floor;
-  var MathRandom = Math.random;
-  var MathRound = Math.round;
-  var MathAbs = Math.abs;
-  var stringFromCharCode = String.fromCharCode;
+  const MathSin = Math.sin;
+  const MathFloor = Math.floor;
+  const MathRandom = Math.random;
+  const MathRound = Math.round;
+  const MathAbs = Math.abs;
+  const stringFromCharCode = String.fromCharCode;
   
-  var a1 = 1.0;
-  var a2 = 1.4;
-  var a3 = 0.6;
-  var a4 = 2.2;
+  const a1 = 1.0;
+  const a2 = 1.4;
+  const a3 = 0.6;
+  const a4 = 2.2;
 
   var ll;
 

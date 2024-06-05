@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var delta = 0.000001;
+  const delta = 0.000001;
 
   var evaluator;
   var FV;

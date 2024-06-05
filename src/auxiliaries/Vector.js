@@ -42,8 +42,8 @@ var descartesJS = (function(descartesJS) {
      * Update the vector
      */
     update() {
-      var expr = this.expresion;
-      var vectorElement;
+      let expr = this.expresion;
+      let vectorElement;
       
       evaluator = this.evaluator;
       parser = evaluator.parser;
@@ -64,16 +64,15 @@ var descartesJS = (function(descartesJS) {
         }
         // read the vector data from a file
         else {
-          response = descartesJS.openExternalFile(this.file);
+          response = descartesJS.openFile(this.file);
         }
 
         // if the read information has content, split the content
         if (response != null) {
           response = response.replace(/\r/g, "").split("\n");
 
-          var tmpResponse = [];
-          for (var i=0,l=response.length; i<l; i++) {
-
+          let tmpResponse = [];
+          for (var i=0, l=response.length; i<l; i++) {
             if (response[i] != "") {
               tmpResponse.push( response[i] );
             }
@@ -97,8 +96,8 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      var tmpExp;
-      var newExpression = [];
+      let tmpExp;
+      let newExpression = [];
       // parse the elements of the expression
       for(var i=0, l=expr.length; i<l; i++) {
         tmpExp = parser.parse(expr[i], true);
@@ -111,11 +110,10 @@ var descartesJS = (function(descartesJS) {
         newExpression.push( tmpExp );
       }
 
-      var tmp_size = parseInt(Math.abs(evaluator.eval(this.size)));
-      var vectInit = (Array(tmp_size)).fill(0);
-      vectInit._size_ = vectInit.length;
-      evaluator.vectors[this.id] = vectInit;
-      evaluator.setVariable(this.id + ".long", vectInit._size_);
+      let vecInit = (Array(parseInt(Math.abs(evaluator.eval(this.size))))).fill(0);
+      vecInit._size_ = vecInit.length;
+      evaluator.vectors[this.id] = vecInit;
+      evaluator.setVariable(this.id + ".long", vecInit._size_);
 
       for(var i=0, l=newExpression.length; i<l; i++) {
         evaluator.eval(newExpression[i]);

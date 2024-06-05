@@ -6,13 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathMax = Math.max;
-  var MathMin = Math.min;
-  var MathPI = Math.PI;
-  var MathCos = Math.cos;
-  var MathSin = Math.sin;
-  var MathAbs = Math.abs;
-  var MathRound = Math.round;
+  const MathMax = Math.max;
+  const MathMin = Math.min;
+  const MathPI = Math.PI;
+  const MathCos = Math.cos;
+  const MathSin = Math.sin;
+  const MathAbs = Math.abs;
+  const MathRound = Math.round;
+  
   var aux;
   var q;
   var p;

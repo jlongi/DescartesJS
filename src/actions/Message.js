@@ -12,9 +12,9 @@ var descartesJS = (function(descartesJS) {
      * @param {DescartesApp} parent the Descartes application
      * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
-      super(parent, parameter);
-      this.parameter = (parameter || "").replace(/\\n/g, "\n").replace(/&squot;/g, "'");
+    constructor(parent, parameter = "") {
+      super(parent);
+      this.parameter = (parameter).replace(/\\n/g, "\n").replace(/&squot;/g, "'");
     }
 
     /**

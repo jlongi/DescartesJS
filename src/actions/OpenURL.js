@@ -13,12 +13,9 @@ var descartesJS = (function(descartesJS) {
      * @param {String} parameter the values of the action
      */
     constructor(parent, parameter) {
-      super(parent, parameter);
+      super(parent);
 
-      this.parent = parent;
-      this.parser = parent.evaluator.parser;
-      this.evaluator = parent.evaluator;    
-      this.parameter = parameter;
+      this.parameter = parameter.trim();
       this.target = "_blank";
     }
     
@@ -26,13 +23,13 @@ var descartesJS = (function(descartesJS) {
      * Execute the action
      */
     execute() {
-      var theParameter = this.parameter;
+      let theParameter = this.parameter;
 
       if (theParameter.match(/^\[.*\]?/)) {
-        theParameter = this.evaluator.eval( this.parser.parse(theParameter.substring(1, theParameter.length-1)) );
+        theParameter = this.evaluator.eval( this.evaluator.parser.parse(theParameter.substring(1, theParameter.length-1)) );
       }
 
-      var indexOfTarget = theParameter.indexOf("target");
+      let indexOfTarget = theParameter.indexOf("target");
 
       if (indexOfTarget != -1) {
         this.target = theParameter.substring(indexOfTarget);
@@ -55,7 +52,7 @@ var descartesJS = (function(descartesJS) {
       else {
         // if the parameter is a file name relative to the current page
         if (theParameter.substring(0,4) != "http") {
-          var location = window.__dirname || window.location.href;
+          let location = (window.__dirname || window.location.href);
           theParameter = location.substring(0, location.lastIndexOf("/")+1) + theParameter;
         }
 

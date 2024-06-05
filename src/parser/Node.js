@@ -6,8 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  const epsilon = 0.00000001;
+
+  const MathFloor = Math.floor;
+
   var evalCache = {};
-  var MathFloor = Math.floor;
   var evalArgument;
   var lastChild;
   var lastChildIndex;
@@ -17,7 +20,6 @@ var descartesJS = (function(descartesJS) {
   var cols;
   var result;
   var i, j, k, l;
-  var epsilon = 0.00000001;
 
   class Node {
     /**

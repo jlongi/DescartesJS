@@ -6,12 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var tmpVal;
-  var scaleToFitX;
-  var scaleToFitY;
-  var optimalRatio;
+  let tmpVal;
+  let scaleToFitX;
+  let scaleToFitY;
+  let optimalRatio;
 
-  var licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una licencia {\\*\\hyperlink Creative Commons|https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Creditos|https://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
+  let licenseA = "{\\rtf1\\uc0{\\fonttbl\\f0\\fcharset0 Arial;}{\\f0\\fs34 __________________________________________________________________________________\\par \\fs22                                        Los contenidos de esta unidad didáctica interactiva están bajo una licencia {\\*\\hyperlink Creative Commons|https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es}, si no se indica lo contrario.\\par                                        La unidad didáctica fue creada con Descartes, que es un producto de código abierto, {\\*\\hyperlink Créditos|https://arquimedes.matem.unam.mx/Descartes5/creditos/conCCL.html}\\par }";
 
   /**
    * Descartes application interpreted with JavaScript
@@ -19,7 +19,12 @@ var descartesJS = (function(descartesJS) {
    */
   class DescartesApp {
     constructor(applet) {
-      this.animation = { playing:false, play:function(){}, stop:function(){},  reinit:function(){} };
+      this.animation = { 
+        playing: false, 
+        play:   ()=>{}, 
+        stop:   ()=>{},  
+        reinit: ()=>{},
+      };
 
       this.ratio = descartesJS._ratio;
 
@@ -75,9 +80,9 @@ var descartesJS = (function(descartesJS) {
 
       // set the license attribute
       descartesJS.ccLicense = true;
-      for (var i=0,l=this.children.length; i<l; i++) {
-        if (this.children[i].name === "CreativeCommonsLicense") {
-          descartesJS.ccLicense = !(this.children[i].value === "no");
+      for (let children_i of this.children) {
+        if (children_i.name === "CreativeCommonsLicense") {
+          descartesJS.ccLicense = (children_i.value !== "no");
         }
       }
 
@@ -117,7 +122,7 @@ var descartesJS = (function(descartesJS) {
       this.keyboard = new descartesJS.Keyboard(this);
 
       // function to prevent undefined error
-      this.scaleToFit = function() { };
+      this.scaleToFit = () => {};
 
       // init the interpretation
       this.init()
@@ -137,6 +142,7 @@ var descartesJS = (function(descartesJS) {
        */
       this.evaluator = new descartesJS.Evaluator(this);
 
+      // get the width and height of the scene 
       this.evaluator.setVariable("DJS.w", this.width);
       this.evaluator.setVariable("DJS.h", this.height);
 
@@ -151,62 +157,69 @@ var descartesJS = (function(descartesJS) {
       this.lessonParser = new descartesJS.LessonParser(this);
 
       /**
-       * variable that tell whether the lesson is an arquimedes lesson
+       * variable that tell whether the lesson is an Arquimedes lesson
        * type {Boolean}
        * @private
        */
       this.arquimedes = (/DescartesWeb2_0|Arquimedes|Discurso/i).test(this.code);
 
-      // arquimedes license
+      // Arquimedes license
       this.licenseA = (descartesJS.ccLicense) ? licenseA : "";
 
-      var children = this.children;
-      var children_i;
-      var heightRTF = 0;
-      var heightButtons = 0;
-      var licenceHeight = (descartesJS.ccLicense) ? 90 : 0;
+      let children = this.children;
+      let children_i;
+      let heightRTF = 0;
+      let heightButtons = 0;
+      let licenseHeight = (descartesJS.ccLicense) ? 90 : 0;
 
-      for (var i=0, l=children.length; i<l; i++) {
-        children_i = children[i];
-
+      for (children_i of children) {
         // get the rtf height
         if (children_i.name == "rtf_height") {
           heightRTF = (parseInt(children_i.value) + 120) || this.height;
+          continue;
         }
 
         // get the buttons height
         if (babel[children_i.name] == "Buttons") {
           this.buttonsConfig = this.lessonParser.parseButtonsConfig(children_i.value);
           heightButtons = this.buttonsConfig.height;
+          continue;
         }
 
         // get image source for the loader
         if (children_i.name == "image_loader") {
           this.imgLoader = children_i.value;
+          continue;
         }
 
-        // get the cover of the scene
+        // get the cover parameter of the scene
         if (children_i.name == "expand") {
           this.expand = children_i.value;
+          continue;
         }
 
         // set the docBase for the elements in the resources
         if (children_i.name == "docBase") {
-          this.docBase = children_i.value;
-          var base = descartesJS.newHTML("base", {
-            id   : "descartesJS_base",
-            href : this.docBase,
-          });
-          document.head.appendChild(base);
+          document.head.appendChild(
+            descartesJS.newHTML("base", {
+              id   : "descartesJS_base",
+              href : children_i.value,
+            })
+          );
+          continue;
+        }
+
+        if (children_i.name.startsWith("E_")) {
+          break;
         }
       }
 
-      // configure an arquimedes lesson
+      // configure an Arquimedes lesson
       if (this.arquimedes) {
         this.ratio = 1;
         // modify the lesson height if has rtf height parameter
         if (heightRTF) {
-          this.height =  heightRTF + heightButtons + licenceHeight; // 70 is the height of the licence image
+          this.height =  heightRTF + heightButtons + licenseHeight; // 70 is the height of the license image
         }
       }
 
@@ -308,7 +321,6 @@ var descartesJS = (function(descartesJS) {
       if (this.container != undefined) {
         this.cleanCanvasImages();
         this.parentC.removeChild(this.container);
-
         delete(this.container);
         delete(this.loader);
       }
@@ -323,45 +335,36 @@ var descartesJS = (function(descartesJS) {
       this.container.width = this.loader.width = this.width;
       this.container.height = this.loader.height = this.height;
       this.container.className = "DescartesAppContainer";
-      this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
+      this.container.setAttribute("style", `width:${this.width}px;height:${this.height}px;`);
 
       // add the loader
       this.container.appendChild(this.loader);
 
-      //
+      // resize functions
       // fit space
       if (this.expand == "fit") {
         this.container.parentNode.removeAttribute("align");
         this.container.parentNode.style.overflow = "hidden";
-        // this.container.parentNode.style.width = "100vw";
-        // this.container.parentNode.style.height = "100vh";
         this.scaleToFit = scaleToFit;
         this.scaleToFit();
       }
       // cover space
       if (this.expand == "cover") {
-        // this.width = window.innerWidth;
-        // this.height = window.innerHeight;
-
         this.scaleToFit = function() {
-          this.width = window.innerWidth;
-          this.height = window.innerHeight;
-          this.container.width = this.width;
-          this.container.height = this.height;
-          this.container.setAttribute("style", "width:" + this.width + "px;height:" + this.height + "px;");
+          this.container.width = this.width = window.innerWidth;
+          this.container.height = this.height = window.innerHeight;
+          this.container.setAttribute("style", `width:${this.width}px;height:${this.height}px;`);
 
           if (this.spaces) {
-            for (var i=0, l=this.spaces.length; i<l; i++) {
-              this.spaces[i].initSpace();
-              this.spaces[i].init();
-              this.spaces[i].update(true);
+            for (let space_i of this.spaces) {
+              space_i.initSpace();
+              space_i.init();
+              space_i.update(true);
             }
           }
         };
         this.scaleToFit();
       }
-
-      //
 
       /**
        * array to store the lesson spaces
@@ -385,24 +388,22 @@ var descartesJS = (function(descartesJS) {
     initBuildApp() {
       descartesJS.showConfig = true;
 
-      var children = this.children;
-      var children_i;
-      var lessonParser = this.lessonParser;
+      let children = this.children;
+      let children_i;
+      let lessonParser = this.lessonParser;
 
-      var tmpSpaces = [];
-      var tmpControls = [];
-      var tmpAuxiliaries = [];
-      var tmpGraphics = [];
-      var tmp3DGraphics = [];
-      var tmpAnimations = [];
+      let tmpSpaces = [];
+      let tmpControls = [];
+      let tmpAuxiliaries = [];
+      let tmpGraphics = [];
+      let tmp3DGraphics = [];
+      let tmpAnimations = [];
 
       // check all the children
-      for(var i=0, l=children.length; i<l; i++) {
-        children_i = children[i];
-
+      for (children_i of children) {
         // find if the scene is editable
         if (babel[children_i.name] == "editable") {
-          descartesJS.showConfig = (babel[children_i.value] == 'false') ? false : true;
+          descartesJS.showConfig = (babel[children_i.value] != 'false');
           continue;
         }
 
@@ -414,7 +415,7 @@ var descartesJS = (function(descartesJS) {
 
         // find the parameters for the pleca
         if (children_i.name == "pleca") {
-          var divPleca = lessonParser.parsePleca(children_i.value, this.width);
+          let divPleca = lessonParser.parsePleca(children_i.value, this.width);
           this.container.insertBefore(divPleca, this.loader);
           this.plecaHeight = (divPleca.imageHeight) ? divPleca.imageHeight : divPleca.offsetHeight;
           continue;
@@ -446,46 +447,45 @@ var descartesJS = (function(descartesJS) {
         }
 
         // ##ARQUIMEDES## //
-        // find the rtf text of an arquimedes lesson
+        // find the rtf text of an Arquimedes lesson
         if (children_i.name == "rtf") {
-          var posX = (this.width-780)/2;
-          var posY = (parseInt(this.height) -this.plecaHeight -this.buttonsConfig.height -45);
-
-          tmpGraphics.push("space='descartesJS_stage' type='text' abs_coord='yes' expresion='[10,20]' background='yes' text='" + children_i.value.replace(/'/g, "&squot;") + "'");
-          tmpGraphics.push("space='descartesJS_stage' type='text' abs_coord='yes' expresion='[" + posX + "," + (posY-25) + "]' background='yes' text='" + this.licenseA + "'");
+          const posX = (this.width-780)/2;
+          const posY = (parseInt(this.height) -this.plecaHeight -this.buttonsConfig.height -45);
+          tmpGraphics.push(
+            `space='descartesJS_stage' type='text' abs_coord='yes' expresion='[10,20]' background='yes' text='${children_i.value.replace(/'/g, "&squot;")}'`,
+            `space='descartesJS_stage' type='text' abs_coord='yes' expresion='[${posX},${posY-25}]' background='yes' text='${this.licenseA}'`
+          );
           if (descartesJS.ccLicense) {
-            tmpGraphics.push("space='descartesJS_stage' type='image' expresion='[" + (posX+15) + "," + posY + "]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'");
+            tmpGraphics.push(`space='descartesJS_stage' type='image' expresion='[${posX+15},${posY}]' background='yes' abs_coord='yes' file='lib/DescartesCCLicense.png'`);
           }
-
           continue;
         }
         // ##ARQUIMEDES## //
 
         // if the name of the children start with "E" then is a space
-        if (children_i.name.charAt(0) == "E") {
+        if (children_i.name.startsWith("E_")) {
           if (children_i.value.match(/'HTMLIFrame'/)) {
             this.nIframes++;
           }
-
           tmpSpaces.push(children_i.value);
           continue;
         }
 
         // if the name of the children start with "C_" then is a control
-        if ((/^C_/).test(children_i.name)) {
+        if (children_i.name.startsWith("C_")) {
           tmpControls.push(children_i.value);
           continue;
         }
 
         // if the name of the children start with "A_" then is an auxiliary
-        if ((/^A_/).test(children_i.name)) {
+        if (children_i.name.startsWith("A_")) {
           tmpAuxiliaries.push(children_i.value);
           continue;
         }
 
         // if the name of the children start with "G" then is a graphic
-        if ((/^G_/).test(children_i.name)) {
-          // prevent the use of a retina canvas
+        if (children_i.name.startsWith("G_")) {
+          // prevent the use of a retina canvas if the space has a fill graphic
           if (children_i.value.match(/type='fill'|tipo='relleno'|tipus='ple'|mota='betea'|type='plein'|tipo='recheo'|tipo='curva_piena'|tipo='preencher'|tipus='ple'/)) {
             this.ratio = 1;
           }
@@ -494,7 +494,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         // if the name of the children start with "S" then is a tridimensional graphic
-        if ((/^S_/).test(children_i.name)) {
+        if (children_i.name.startsWith("S_")) {
           tmp3DGraphics.push(children_i.value);
           continue;
         }
@@ -511,19 +511,17 @@ var descartesJS = (function(descartesJS) {
       if (this.arquimedes) {
         // the scenario region is only visible in arquimedes lessons
         this.stage = {container: descartesJS.newHTML("div", {id : "descartesJS_Stage"}), scroll: 0};
-
         // if descartesJS.TextController exist then make transparent the color of the canvas, because the selection canvas is white
-        this.stage.stageSpace = this.lessonParser.parseSpace("tipo='R2' id='descartesJS_stage' fondo='" + ((descartesJS.TextController) ? "ffffffff" : "blanco") +"' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='" + this.width + "' alto='" + this.height + "'");
+        this.stage.stageSpace = this.lessonParser.parseSpace(`tipo='R2' id='descartesJS_stage' fondo='${(descartesJS.TextController) ? "ffffffff" : "blanco"}' x='0' y='0' fijo='yes' red='no' red10='no' ejes='no' text='no' ancho='${this.width}' alto='${this.height}'`);
         this.stage.container.appendChild(this.stage.stageSpace.container);
-
         this.container.appendChild(this.stage.container);
         this.spaces.push(this.stage.stageSpace);
       }
       // ##ARQUIMEDES## //
 
       // init the spaces
-      var tmpSpace;
-      for (var i=0, l=tmpSpaces.length; i<l; i++) {
+      let tmpSpace;
+      for (let i=0,l=tmpSpaces.length; i<l; i++) {
         tmpSpace = lessonParser.parseSpace(tmpSpaces[i]);
 
         // ##ARQUIMEDES## //
@@ -540,8 +538,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       // init the graphics
-      var tmpGraph;
-      for (var i=0, l=tmpGraphics.length; i<l; i++) {
+      let tmpGraph;
+      for (let i=0,l=tmpGraphics.length; i<l; i++) {
         descartesJS.DEBUG.elemIndex = i;
         tmpGraph = lessonParser.parseGraphic(tmpGraphics[i]);
         if (tmpGraph) {
@@ -551,7 +549,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // init the tridimensional graphics
-      for (var i=0, l=tmp3DGraphics.length; i<l; i++) {
+      for (let i=0,l=tmp3DGraphics.length; i<l; i++) {
         tmpGraph = lessonParser.parse3DGraphic(tmp3DGraphics[i]);
         if (tmpGraph) {
           tmpGraph.space.addGraph(tmpGraph, true);
@@ -559,17 +557,17 @@ var descartesJS = (function(descartesJS) {
       }
 
       // init the controls
-      for (var i=0, l=tmpControls.length; i<l; i++) {
+      for (let i=0,l=tmpControls.length; i<l; i++) {
         this.controls.push( lessonParser.parseControl(tmpControls[i]) );
       }
 
       // init the auxiliary
-      for (var i=0, l=tmpAuxiliaries.length; i<l; i++) {
+      for (let i=0,l=tmpAuxiliaries.length; i<l; i++) {
         lessonParser.parseAuxiliar(tmpAuxiliaries[i]);
       }
 
       // init the animation
-      for (var i=0, l=tmpAnimations.length; i<l; i++) {
+      for (let i=0,l=tmpAnimations.length; i<l; i++) {
         this.animation = lessonParser.parseAnimation(tmpAnimations[i]);
       }
 
@@ -581,7 +579,7 @@ var descartesJS = (function(descartesJS) {
       this.updateAuxiliaries();
       // beware
 
-      for (var i=0, l=this.controls.length; i<l; i++) {
+      for (let i=0,l=this.controls.length; i<l; i++) {
         this.controls[i].init();
       }
       this.updateControls();
@@ -589,13 +587,8 @@ var descartesJS = (function(descartesJS) {
       this.updateSpaces(true);
 
       // finish the interpretation
-      var self = this;
-      if (this.nIframes) {
-        descartesJS.setTimeout(function() { self.finishInit(); }, 200*this.nIframes);
-      }
-      else {
-        this.finishInit();
-      }
+      const self = this;
+      descartesJS.setTimeout(() => { self.finishInit(); }, 200*self.nIframes);
     }
 
     /**
@@ -632,9 +625,8 @@ var descartesJS = (function(descartesJS) {
       this.externalSpace.init();
 
       // trigger descartesReady event
-      var evt;
       try {
-        evt = new CustomEvent("descartesReady", { "detail":this });
+        let evt = new CustomEvent("descartesReady", { "detail":this });
         // send the event
         window.dispatchEvent(evt);
       }
@@ -642,7 +634,7 @@ var descartesJS = (function(descartesJS) {
         console.warn("CustomEvents not supported in this browser");
       }
 
-      let self = this;
+      const self = this;
       /** */
       this.evaluator.setFunction("openKB", function(layoutType, kb_x, kb_y, var_id, tf_x, tf_y, tf_w, tf_h, tf_fs, tf_val, tf_onlyText) {
         let textfield = {
@@ -666,12 +658,10 @@ var descartesJS = (function(descartesJS) {
      */
     adjustSize() {
       document.body.style.margin = document.body.style.padding = this.parentC.style.margin = this.parentC.style.padding = "0px";
-      var winWidth = parseInt(this.width)+30;
-      var winHeight = parseInt(this.height)+90;
-
+      const winWidth = parseInt(this.width)+30;
+      const winHeight = parseInt(this.height)+90;
       window.moveTo((parseInt(screen.width)-winWidth)/2, (parseInt(screen.height)-winHeight)/2);
       window.resizeTo(winWidth, winHeight);
-
       descartesJS.onResize();
     }
 
@@ -679,19 +669,19 @@ var descartesJS = (function(descartesJS) {
      * Configure the regions
      */
     configRegions() {
-      var parser = this.evaluator.parser;
-      var buttonsConfig = this.buttonsConfig || {};
-      var principalContainer = this.container;
+      let parser = this.evaluator.parser;
+      let buttonsConfig = this.buttonsConfig || {};
+      let principalContainer = this.container;
 
       // descartes 4
-      var fontSizeDefaultButtons = "15";
-      var aboutWidth = 100;
-      var configWidth = 100;
-      var initWidth = 100;
-      var clearWidth = 100;
+      let fontSizeDefaultButtons = "15";
+      let aboutWidth = 100;
+      let configWidth = 100;
+      let initWidth = 100;
+      let clearWidth = 100;
 
       // descartes 2
-      if (this.version == 2) {
+      if (this.version === 2) {
         fontSizeDefaultButtons = "14";
         aboutWidth = 63;
         configWidth = 50;
@@ -699,20 +689,20 @@ var descartesJS = (function(descartesJS) {
         clearWidth = 53;
       }
 
-      var northRegionHeight = 0;
-      var southRegionHeight = 0;
-      var eastRegionHeight = 0;
-      var westRegionHeight = 0;
-      var editableRegionHeight = 0;
-      var northRegionWidth = 0;
-      var southRegionWidth = 0;
-      var eastRegionWidth = 0;
-      var westRegionWidth = 0;
+      let northRegionHeight = 0;
+      let southRegionHeight = 0;
+      let eastRegionHeight = 0;
+      let westRegionHeight = 0;
+      let editableRegionHeight = 0;
+      let northRegionWidth = 0;
+      let southRegionWidth = 0;
+      let eastRegionWidth = 0;
+      let westRegionWidth = 0;
 
-      var northSpaceControls = this.northSpace.controls;
-      var southSpaceControls = this.southSpace.controls;
-      var eastSpaceControls = this.eastSpace.controls;
-      var westSpaceControls = this.westSpace.controls;
+      let northSpaceControls = this.northSpace.controls;
+      let southSpaceControls = this.southSpace.controls;
+      let eastSpaceControls = this.eastSpace.controls;
+      let westSpaceControls = this.westSpace.controls;
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // north region
@@ -727,14 +717,14 @@ var descartesJS = (function(descartesJS) {
           northRegionHeight = buttonsConfig.height * buttonsConfig.rowsNorth;
         }
 
-        var container = this.northSpace.container;
+        let container = this.northSpace.container;
         container.id = "descartesJS_north";
-        container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + northRegionHeight + "px;left:0;top:" + this.plecaHeight + "px;");
+        container.setAttribute("style", `width:${principalContainer.width}px;height:${northRegionHeight}px;left:0;top:${this.plecaHeight}px;`);
 
         principalContainer.insertBefore(container, this.loader);
 
         northRegionWidth = principalContainer.width;
-        var displaceButton = 0;
+        let displaceButton = 0;
 
         // show the credits button
         if (buttonsConfig.about) {
@@ -749,34 +739,41 @@ var descartesJS = (function(descartesJS) {
           northRegionWidth -= configWidth;
         }
 
-        var numberOfControlsPerRow = Math.ceil(northSpaceControls.length / buttonsConfig.rowsNorth);
-        var controlWidth = northRegionWidth/numberOfControlsPerRow;
+        let numberOfControlsPerRow = Math.ceil(northSpaceControls.length / buttonsConfig.rowsNorth);
+        let controlWidth = northRegionWidth/numberOfControlsPerRow;
 
         // configure the controls in the region
-        for (var i=0, l=northSpaceControls.length; i<l; i++) {
-          northSpaceControls[i].expresion = parser.parse("(" + (displaceButton +controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
-          // northSpaceControls[i].drawif = parser.parse("1");
+        for (let i=0,l=northSpaceControls.length; i<l; i++) {
+          northSpaceControls[i].expresion = parser.parse(`(${displaceButton + controlWidth*(i%numberOfControlsPerRow)},${buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)},${controlWidth},${buttonsConfig.height})`);
           northSpaceControls[i].init();
         }
 
         // create the credits button
         if (buttonsConfig.about) {
-          var btnAbout = new descartesJS.Button(this, {region: "north",
-                                                      name: (this.language == "english") ? "about" : "créditos",
-                                                      font_size: parser.parse(fontSizeDefaultButtons),
-                                                      expresion: parser.parse("(0, 0, " + aboutWidth + ", " + northRegionHeight + ")")
-                                                      });
+          let btnAbout = new descartesJS.Button(
+            this, 
+            {
+              region: "north",
+              name: (this.language == "english") ? "about" : "créditos",
+              font_size: parser.parse(fontSizeDefaultButtons),
+              expresion: parser.parse(`(0,0,${aboutWidth},${northRegionHeight})`)
+            }
+          );
           btnAbout.actionExec = { execute: descartesJS.showAbout };
           btnAbout.update();
         }
         // create the configuration button
         if (buttonsConfig.config) {
-          var btnConfig = new descartesJS.Button(this, {region: "north",
-                                                        name: "config",
-                                                        font_size: parser.parse(fontSizeDefaultButtons),
-                                                        action: "config",
-                                                        expresion: parser.parse("(" + (northRegionWidth + aboutWidth)  + ", 0, " + configWidth + ", " + northRegionHeight + ")")
-                                                      });
+          let btnConfig = new descartesJS.Button(
+            this, 
+            {
+              region: "north",
+              name: "config",
+              font_size: parser.parse(fontSizeDefaultButtons),
+              action: "config",
+              expresion: parser.parse(`(${northRegionWidth + aboutWidth},0,${configWidth},${northRegionHeight})`)
+            }
+          );
           btnConfig.update();
         }
       }
@@ -795,7 +792,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         southRegionWidth = principalContainer.width;
-        var displaceButton = 0;
+        let displaceButton = 0;
         // show the init button
         if (buttonsConfig.init) {
           displaceButton = initWidth;
@@ -809,40 +806,47 @@ var descartesJS = (function(descartesJS) {
           southRegionWidth -= clearWidth;
         }
 
-        var container = this.southSpace.container;
+        let container = this.southSpace.container;
         container.id = "descartesJS_south";
-        container.setAttribute("style", "width:" + principalContainer.width + "px;height:" + southRegionHeight + "px;left:0;bottom:0;");
+        container.setAttribute("style", `width:${principalContainer.width}px;height:${southRegionHeight}px;left:0;bottom:0;`);
 
         principalContainer.insertBefore(container, this.loader);
 
-        var numberOfControlsPerRow = Math.ceil(southSpaceControls.length / buttonsConfig.rowsSouth);
-        var controlWidth = southRegionWidth/numberOfControlsPerRow;
+        let numberOfControlsPerRow = Math.ceil(southSpaceControls.length / buttonsConfig.rowsSouth);
+        let controlWidth = southRegionWidth/numberOfControlsPerRow;
 
         // configure the controls in the region
-        for (var i=0, l=southSpaceControls.length; i<l; i++) {
-          southSpaceControls[i].expresion = parser.parse("(" + (displaceButton + controlWidth*(i%numberOfControlsPerRow)) +"," + (buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)) + "," + controlWidth + "," + buttonsConfig.height +")");
-          // southSpaceControls[i].drawif = parser.parse("1");
+        for (let i=0,l=southSpaceControls.length; i<l; i++) {
+          southSpaceControls[i].expresion = parser.parse(`(${displaceButton + controlWidth*(i%numberOfControlsPerRow)},${buttonsConfig.height*Math.floor(i/numberOfControlsPerRow)},${controlWidth},${buttonsConfig.height})`);
           southSpaceControls[i].init();
         }
 
         // create the init button
         if (buttonsConfig.init) {
-          var btnInit = new descartesJS.Button(this, {region: "south",
-                                                      name: (this.language == "english") ? "init" : "inicio",
-                                                      font_size: parser.parse(fontSizeDefaultButtons),
-                                                      action: "init",
-                                                      expresion: parser.parse("(0, 0, " + initWidth + ", " + southRegionHeight + ")")
-                                                    });
+          let btnInit = new descartesJS.Button(
+            this, 
+            {
+              region: "south",
+              name: (this.language == "english") ? "init" : "inicio",
+              font_size: parser.parse(fontSizeDefaultButtons),
+              action: "init",
+              expresion: parser.parse(`(0,0,${initWidth},${southRegionHeight})`)
+            }
+          );
           btnInit.update();
         }
         // create the clear button
         if (buttonsConfig.clear) {
-          var btnClear = new descartesJS.Button(this, {region: "south",
-                                                      name: (this.language == "english") ? "clear" : "limpiar",
-                                                      font_size: parser.parse(fontSizeDefaultButtons),
-                                                      action: "clear",
-                                                      expresion: parser.parse("(" + (southRegionWidth + initWidth) + ", 0, " + clearWidth + ", " + southRegionHeight + ")")
-                                                      });
+          let btnClear = new descartesJS.Button(
+            this, 
+            {
+              region: "south",
+              name: (this.language == "english") ? "clear" : "limpiar",
+              font_size: parser.parse(fontSizeDefaultButtons),
+              action: "clear",
+              expresion: parser.parse(`(${southRegionWidth + initWidth},0,${clearWidth},${southRegionHeight})`)
+            }
+          );
           btnClear.update();
         }
       }
@@ -853,16 +857,15 @@ var descartesJS = (function(descartesJS) {
         eastRegionHeight = principalContainer.height - northRegionHeight - southRegionHeight;
         eastRegionWidth = buttonsConfig.widthEast;
 
-        var container = this.eastSpace.container;
+        let container = this.eastSpace.container;
         container.id = "descartesJS_east";
-        container.setAttribute("style", "width:" + eastRegionWidth + "px;height:" + eastRegionHeight + "px;right:0;top:" + northRegionHeight + "px;");
+        container.setAttribute("style", `width:${eastRegionWidth}px;height:${eastRegionHeight}px;right:0;top:${northRegionHeight}px;`);
 
         principalContainer.insertBefore(container, this.loader);
 
         // configure the controls in the region
-        for (var i=0, l=eastSpaceControls.length; i<l; i++) {
-          eastSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + eastRegionWidth + "," + buttonsConfig.height +")");
-          // eastSpaceControls[i].drawif = parser.parse("1");
+        for (let i=0,l=eastSpaceControls.length; i<l; i++) {
+          eastSpaceControls[i].expresion = parser.parse(`(0,${buttonsConfig.height*i},${eastRegionWidth},${buttonsConfig.height})`);
           eastSpaceControls[i].init();
         }
       }
@@ -873,16 +876,15 @@ var descartesJS = (function(descartesJS) {
         westRegionHeight = principalContainer.height - northRegionHeight - southRegionHeight;
         westRegionWidth = buttonsConfig.widthWest;
 
-        var container = this.westSpace.container;
+        let container = this.westSpace.container;
         container.id = "descartesJS_west";
-        container.setAttribute("style", "width: " + westRegionWidth + "px;height:" + westRegionHeight + "px;left:0;top:" + northRegionHeight + "px;");
+        container.setAttribute("style", `width:${westRegionWidth}px;height:${westRegionHeight}px;left:0;top:${northRegionHeight}px;`);
 
         principalContainer.insertBefore(container, this.loader);
 
         // configure the controls in the region
-        for (var i=0, l=westSpaceControls.length; i<l; i++) {
-          westSpaceControls[i].expresion = parser.parse("(0," + (buttonsConfig.height*i) + "," + westRegionWidth + "," + buttonsConfig.height +")");
-          // westSpaceControls[i].drawif = parser.parse("1");
+        for (let i=0,l=westSpaceControls.length; i<l; i++) {
+          westSpaceControls[i].expresion = parser.parse(`(0,${buttonsConfig.height*i},${westRegionWidth},${buttonsConfig.height}`);
           westSpaceControls[i].init();
         }
       }
@@ -891,31 +893,32 @@ var descartesJS = (function(descartesJS) {
       // editable and visible region
       if (this.editableRegionVisible) {
         editableRegionHeight = buttonsConfig.height;
-        var container = this.editableRegion.container;
+        let container = this.editableRegion.container;
         container.id = "descartesJS_editableRegion";
-        container.setAttribute("style", "position:absolute;width:" + principalContainer.width + "px;height:" + editableRegionHeight + "px;left:0;top:" + (principalContainer.height - southRegionHeight - buttonsConfig.height) + "px;");
+        container.setAttribute("style", `position:absolute;width:${principalContainer.width}px;height:${editableRegionHeight}px;left:0;top:${principalContainer.height - southRegionHeight - buttonsConfig.height}px;`);
 
         principalContainer.insertBefore(container, this.loader);
 
-        var editableRegionTextFields = this.editableRegion.textFields;
-        var textFieldsWidth = (principalContainer.width)/editableRegionTextFields.length;
+        let editableRegionTextFields = this.editableRegion.textFields;
+        let textFieldsWidth = (principalContainer.width)/editableRegionTextFields.length;
 
-        var fontSize = descartesJS.getFieldFontSize(editableRegionHeight);
+        let fontSize = descartesJS.getFieldFontSize(editableRegionHeight);
         // configure the text fields in the region
-        for (var i=0, l=editableRegionTextFields.length; i<l; i++) {
+        for (let i=0,l=editableRegionTextFields.length; i<l; i++) {
           if (editableRegionTextFields[i].type == "div") {
             container.appendChild(editableRegionTextFields[i].container);
 
             ////////////////////////////////////////////////////////////////
             // the container
-            editableRegionTextFields[i].container.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";width:" + (textFieldsWidth-4) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;");
+            editableRegionTextFields[i].container.setAttribute("style", `font-family:${descartesJS.sansserif_font};width:${textFieldsWidth-4}px;height:${editableRegionHeight}px;position:absolute;left:${i*textFieldsWidth}px;top:0;`);
 
             ////////////////////////////////////////////////////////////////
             // the label
-            var label = editableRegionTextFields[i].container.firstChild;
+            let label = editableRegionTextFields[i].container.firstChild;
 
-            label.setAttribute("style", "font-family:"+ descartesJS.sansserif_font +";font-size:" + fontSize + "px;padding-top:0;background-color:#e0e4e8;position:absolute;left:0;top:0;height:" + (editableRegionHeight) + "px;text-align:center;line-height:"+ (editableRegionHeight) +"px;");
-            var labelWidth = label.offsetWidth;
+            label.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${fontSize}px;padding-top:0;background-color:#e0e4e8;position:absolute;left:0;top:0;height:${editableRegionHeight}px;text-align:center;line-height:${editableRegionHeight}px;`);
+            
+            let labelWidth = label.offsetWidth;
             label.style.width = labelWidth + "px";
 
             // remove the first and last character, because are initially underscores
@@ -923,14 +926,14 @@ var descartesJS = (function(descartesJS) {
 
             ////////////////////////////////////////////////////////////////
             // the text field
-            var textfield = editableRegionTextFields[i].container.lastChild;
-            textfield.setAttribute("style", "font-family:"+ descartesJS.monospace_font +";font-size:" + fontSize + "px;width:" + (textFieldsWidth-labelWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + (labelWidth) + "px;top:0;border:2px groove white;");
+            let textfield = editableRegionTextFields[i].container.lastChild;
+            textfield.setAttribute("style", `font-family:${descartesJS.monospace_font};font-size:${fontSize}px;width:${textFieldsWidth-labelWidth}px;height:${editableRegionHeight}px;position:absolute;left:${labelWidth}px;top:0;border:2px groove white;`);
           }
 
           else {
             container.appendChild(editableRegionTextFields[i]);
 
-            editableRegionTextFields[i].setAttribute("style", "font-family:"+ descartesJS.monospace_font +";font-size:" + fontSize + "px;width:" + (textFieldsWidth) + "px;height:" + (editableRegionHeight) + "px;position:absolute;left:" + ( i*textFieldsWidth ) + "px;top:0;border:2px groove white;");
+            editableRegionTextFields[i].setAttribute("style", `font-family:${descartesJS.monospace_font};font-size:${fontSize}px;width:${textFieldsWidth}px;height:${editableRegionHeight}px;position:absolute;left:${i*textFieldsWidth}px;top:0;border:2px groove white;`);
           }
         }
       }
@@ -941,8 +944,8 @@ var descartesJS = (function(descartesJS) {
       this.displaceRegionEast = eastRegionWidth;
       this.displaceRegionWest = westRegionWidth;
 
-      for (var i=0, l=this.spaces.length; i<l; i++) {
-        this.spaces[i].init()
+      for (let space_i of this.spaces) {
+        space_i.init()
       }
     }
 
@@ -961,8 +964,8 @@ var descartesJS = (function(descartesJS) {
      * Change the click to 0
      */
     clearClick() {
-      for (var i=0, l=this.spaces.length; i<l; i++) {
-        this.spaces[i].clearClick()
+      for (let space_i of this.spaces) {
+        space_i.clearClick()
       }
     }
 
@@ -971,20 +974,20 @@ var descartesJS = (function(descartesJS) {
      */
     removeButtonClick() {
       descartesJS.newBlobContent = null;
-      for (var i=0, l=this.controls.length; i<l; i++) {
-        this.controls[i].buttonClick = false;
+      for (let control_i of this.controls) {
+        control_i.buttonClick = false;
       }
     }
 
     /**
      * Deactivate the graphic controls
      */
-    deactivateGraphicControls() {
-      var controls_i;
-      for (var i=0, l=this.controls.length; i<l; i++) {
-        controls_i = this.controls[i];
-        if (controls_i.type == "GraphicControl") {
-          controls_i.deactivate();
+    deactivateControls() {
+      if (this.controls) {
+        for (let control_i of this.controls) {
+          if (control_i.deactivate) {
+            control_i.deactivate();
+          }
         }
       }
     }
@@ -993,8 +996,8 @@ var descartesJS = (function(descartesJS) {
      * Update the auxiliaries
      */
     updateAuxiliaries() {
-      for (var i=0, l=this.auxiliaries.length; i<l; i++) {
-        this.auxiliaries[i].update();
+      for (let aux_i of this.auxiliaries) {
+        aux_i.update();
       }
     }
 
@@ -1002,8 +1005,8 @@ var descartesJS = (function(descartesJS) {
      * Update the events
      */
     updateEvents() {
-      for (var i=0, l=this.events.length; i<l; i++) {
-        this.events[i].update();
+      for (let event_i of this.events) {
+        event_i.update();
       }
     }
 
@@ -1011,17 +1014,17 @@ var descartesJS = (function(descartesJS) {
      * Update the controls
      */
     updateControls() {
-      for (var i=0, l=this.controls.length; i<l; i++) {
-        this.controls[i].update();
+      for (let control_i of this.controls) {
+        control_i.update();
       }
     }
 
     /**
      * Update the spaces
      */
-    updateSpaces(firstime) {
-      for (var i=0, l=this.spaces.length; i<l; i++) {
-        this.spaces[i].update(firstime);
+    updateSpaces(first_time) {
+      for (let space_i of this.spaces) {
+        space_i.update(first_time);
       }
     }
 
@@ -1029,11 +1032,10 @@ var descartesJS = (function(descartesJS) {
      * Clear the trace in the space
      */
     clear() {
-      for (var i=0, l=this.spaces.length; i<l; i++) {
-        this.spaces[i].spaceChange = true;
-
-        if (this.spaces[i].drawBackground) {
-          this.spaces[i].drawBackground();
+      for (let space_i of this.spaces) {
+        space_i.spaceChange = true;
+        if (space_i.drawBackground) {
+          space_i.drawBackground();
         }
       }
     }
@@ -1067,7 +1069,7 @@ var descartesJS = (function(descartesJS) {
       this.stop()
 
       // stop the audios
-      for (var propName in this.audios) {
+      for (let propName in this.audios) {
         if ((this.audios).hasOwnProperty(propName)) {
           if (this.audios[propName].pause) {
             this.audios[propName].pause();
@@ -1083,20 +1085,24 @@ var descartesJS = (function(descartesJS) {
      * @return {Image} the image with the name
      */
     getImage(name) {
-      var images = this.images;
       if (name) {
         // if the image exist return that image
-        if (images[name]) {
-          return images[name];
+        if (this.images[name]) {
+          return this.images[name];
         }
         // if do not exist then create a new image
         else {
-          images[name] = new Image();
-          images[name].addEventListener('load', function() { this.ready = 1; });
-          images[name].addEventListener('error', function() { this.ready = 0; this.errorload = 1; });
-          images[name].src = name;
+          // if (name.match(/[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi)) {
+            let images = this.images;
+            images[name] = new Image();
+            images[name].addEventListener('load', function() { this.ready = 1; });
+            images[name].addEventListener('error', function() { this.ready = 0; this.errorload = 1; });
+            images[name].src = name;
+            return images[name];
+          // }
+          // else {
 
-          return images[name];
+          // }
         }
       }
 
@@ -1109,7 +1115,7 @@ var descartesJS = (function(descartesJS) {
      * @return {Audio} the audio with the name
      */
     getAudio(name) {
-      var audios = this.audios;
+      let audios = this.audios;
       if (name) {
         // if the audio exist return that audio
         if (audios[name]) {
@@ -1117,16 +1123,16 @@ var descartesJS = (function(descartesJS) {
         }
         // if do not exist then create a new audio
         else {
-          var lastIndexOfDot = name.lastIndexOf(".");
+          let lastIndexOfDot = name.lastIndexOf(".");
           lastIndexOfDot = (lastIndexOfDot === -1) ? name.length : lastIndexOfDot;
           audios[name] = new Audio(name);
 
-          var onCanPlayThrough = function(evt) {
+          let onCanPlayThrough = function(evt) {
             this.ready = 1;
           }
           audios[name].addEventListener('canplaythrough', onCanPlayThrough);
 
-          var onError = function(evt) {
+          let onError = function(evt) {
             if (!this.canPlayType("audio/" + name.substring(name.length-3)) && (name.substring(name.length-3) == "mp3")) {
               audios[name] = new Audio(name.replace("mp3", "ogg"));
               audios[name].addEventListener('canplaythrough', onCanPlayThrough);
@@ -1165,16 +1171,14 @@ var descartesJS = (function(descartesJS) {
      * @return {Control} return a control with identifier or a dummy control if not find
      */
     getControlById(id, cID) {
-      var param = (cID) ? "cID" : "id";
-      var controls_i;
-      for (var i=0, l=this.controls.length; i<l; i++) {
-        controls_i = this.controls[i];
-        if (controls_i[param] == id) {
-          return controls_i;
+      let param = (cID) ? "cID" : "id";
+      for (let control_i of this.controls) {
+        if (control_i[param] == id) {
+          return control_i;
         }
       }
 
-      return { update: function() {}, w: 0, h: 0 };
+      return { update: ()=>{}, w: 0, h: 0 };
     }
 
     /**
@@ -1192,16 +1196,14 @@ var descartesJS = (function(descartesJS) {
      * @return {Space} return a space with the identifier or a dummy space if not find
      */
     getSpaceById(id, cID) {
-      var param = (cID) ? "cID" : "id";
-      var spaces_i;
-      for (var i=0, l=this.spaces.length; i<l; i++) {
-        spaces_i = this.spaces[i];
-        if (spaces_i[param] == id) {
-          return spaces_i;
+      let param = (cID) ? "cID" : "id";
+      for (let space_i of this.spaces) {
+        if (space_i[param] == id) {
+          return space_i;
         }
       }
 
-      return { update: function() {}, w: 0, h: 0 };
+      return { update: ()=>{}, w: 0, h: 0 };
     }
 
     /**
@@ -1209,21 +1211,18 @@ var descartesJS = (function(descartesJS) {
      * ex. index.html?var1=0&var2=hi, creates URL.var1=0 y URL.var2='hi'
      */
     getURLParameters() {
-      var url = window.location.href;
-      var indexParams = url.indexOf("?");
-      var tmpParam;
+      let url = window.location.href;
+      let indexParams = url.indexOf("?");
+      let tmpParam;
 
       if (indexParams != -1) {
         url = decodeURIComponent(url.substring(indexParams+1)).split("&");
-        for (var i=0, l=url.length; i<l; i++) {
-          tmpParam = url[i].split("=");
-
+        for (let url_i of url) {
+          tmpParam = url_i.split("=");
           if (tmpParam.length == 2) {
-            // is number
-            if (+tmpParam[1] == +tmpParam[1]) {
-              tmpParam[1] = parseFloat(tmpParam[1]);
-            }
-            this.evaluator.setVariable("URL." + tmpParam[0], tmpParam[1]);
+            // (+tmpParam[1] == +tmpParam[1])
+            // +VAR if VAR is a number then +VAR is a number, but if is not a number the +VAR is NaN; NaN==NaN is false
+            this.evaluator.setVariable(`URL.${tmpParam[0]}`, (+tmpParam[1] == +tmpParam[1]) ? parseFloat(tmpParam[1]) : tmpParam[1]);
           }
         }
       }
@@ -1234,12 +1233,14 @@ var descartesJS = (function(descartesJS) {
      * @return {String} return a string with the variables, vectors and matrices separate with commas
      */
     getState() {
-      var theValues;
-      var state = "";
+      let theValues;
+      let state = "";
+      let theVariables = this.evaluator.variables;
+      let theVectors = this.evaluator.vectors;
+      let theMatrices = this.evaluator.matrices;
 
-      var theVariables = this.evaluator.variables;
       // check all the variables
-      for (var varName in theVariables) {
+      for (let varName in theVariables) {
         if (theVariables.hasOwnProperty(varName)) {
           theValues = theVariables[varName];
 
@@ -1255,17 +1256,15 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      var theVectors = this.evaluator.vectors;
       // check all the vectors
-      for (var vecName in theVectors) {
+      for (let vecName in theVectors) {
         if (theVectors.hasOwnProperty(vecName)) {
           state += "\n" + vecName + "=" + arrayToString(theVectors[vecName]);
         }
       }
 
-      var theMatrices = this.evaluator.matrices;
       // check all the matrices
-      for (var matName in theMatrices) {
+      for (let matName in theMatrices) {
         if (theMatrices.hasOwnProperty(matName)) {
           state += "\n" + matName + "=" + arrayToString(theMatrices[matName]);
         }
@@ -1280,12 +1279,12 @@ var descartesJS = (function(descartesJS) {
      * @param {String} state string containing the values to set of the form  variable1=value1\nvariable2=value2\n...\nvariableN=valueN
      */
     setState(state, noUpdate) {
-      var theState = state.split("\n");
+      let theState = state.split("\n");
 
-      var tmpParse;
-      var value;
+      let tmpParse;
+      let value;
 
-      for (var i=0, l=theState.length; i<l; i++) {
+      for (let i=0, l=theState.length; i<l; i++) {
         tmpParse = theState[i].split("=");
 
         // the text is of the type variable=value
@@ -1321,10 +1320,10 @@ var descartesJS = (function(descartesJS) {
      * @return {String} return a string of the form: questions=something \n correct=something \n wrong=something \n control1=respuestaAlumno|0 o 1 \n control2=respuestaAlumno|0 o 1
      */
     getEvaluation() {
-      var questions = correct = 0;
-      var answers = "";
+      let questions = correct = 0;
+      let answers = "";
 
-      for (var i=0, l=this.controls.length; i<l; i++) {
+      for (let i=0, l=this.controls.length; i<l; i++) {
         if ( (this.controls[i].gui == "textfield") && (this.controls[i].evaluate) ) {
           questions++;
           correct += this.controls[i].ok;
@@ -1340,8 +1339,8 @@ var descartesJS = (function(descartesJS) {
      * Store que values in the text fields in the moment of the execution and show the first element in the answer pattern
      */
     showSolution() {
-      var controls = this.controls;
-      for (var i=0, l=controls.length; i<l; i++) {
+      let controls = this.controls;
+      for (let i=0, l=controls.length; i<l; i++) {
         if ( (controls[i].gui == "textfield") && (controls[i].evaluate) ) {
           controls[i].changeValue( controls[i].getFirstAnswer() );
         }
@@ -1354,7 +1353,7 @@ var descartesJS = (function(descartesJS) {
      * Store the values in the text fields in the moment of the execution and show the answer of the student
      */
     showAnswer() {
-      for (var i=0, l=this.saveState.length; i<l; i++){
+      for (let i=0, l=this.saveState.length; i<l; i++){
         this.evaluator.eval( this.saveState[i] );
       }
 
@@ -1385,7 +1384,6 @@ var descartesJS = (function(descartesJS) {
         }
       }
     }
-
   }
 
   /**
@@ -1394,9 +1392,9 @@ var descartesJS = (function(descartesJS) {
    * @return {String} return a string representing the array
    */
   function arrayToString(array) {
-    var result = "[";
+    let result = "[";
 
-    for (var i=0, l=array.length; i<l; i++) {
+    for (let i=0, l=array.length; i<l; i++) {
       // nested array
       if (Array.isArray(array[i])) {
         result += arrayToString(array[i]);
@@ -1439,12 +1437,12 @@ var descartesJS = (function(descartesJS) {
     if (scaleToFitX < scaleToFitY) {
       this.container.style.left = "0";
       this.container.style.top = "50%";
-      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(0, -50%)";
+      this.container.style.transform = `translate3d(0px,0px,0px) scale(${optimalRatio}) translate(0,-50%)`;
     }
     else {
       this.container.style.left = "50%";
       this.container.style.top = "0";
-      this.container.style.transform = "translate3d(0px, 0px, 0px) scale("+optimalRatio+") translate(-50%, 0)";
+      this.container.style.transform = `translate3d(0px,0px,0px) scale(${optimalRatio}) translate(-50%,0)`;
     }
   }
 

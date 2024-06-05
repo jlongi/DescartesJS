@@ -6,21 +6,22 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.reservedIds = new String("-_-rnd-pi-π-e-Infinity-isTouch-esTáctil-device-dispositivo-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-ceil-round-min-max-_Trace_-_Print_-_Num_-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-isNumber-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-trim-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-R-G-B-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-");
+  descartesJS.reservedIds = new String("-_-_NUM_MAX_ITE_ALG_-rnd-pi-π-e-Infinity-isTouch-esTáctil-device-dispositivo-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-piso-ceil-techo-round-redondeo-trunc-truncamiento-min-max-_Trace_-_Print_-_Num_-isNumber-esNúmero-random-aleatorio-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-trim-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_SaveSpace_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-R-G-B-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-DJS.squote-DJS.comma-DJS.w-DJS.h-");
   var lastTime = Date.now();
-  var waitTime = 1500;
 
-  var parenthesesType = "parentheses";
-  var squareBracketType = "square_bracket";
-  var assignType = "assign";
-  var compOperatorType = "compOperator";
-  var identifierType = "identifier";
-  var operatorType = "operator";
-  var boolOperatorType = "boolOperator";
-  var conditionalType = "conditional";
-  var signType = "sign";
-  var numberType = "number";
-  var stringType = "string";
+  const waitTime = 1500;
+  const parenthesesType = "parentheses";
+  const squareBracketType = "square_bracket";
+  const assignType = "assign";
+  const compOperatorType = "compOperator";
+  const identifierType = "identifier";
+  const operatorType = "operator";
+  const boolOperatorType = "boolOperator";
+  const conditionalType = "conditional";
+  const signType = "sign";
+  const numberType = "number";
+  const stringType = "string";
+
   var i;
   var l;
   var tokens;
@@ -655,8 +656,8 @@ var descartesJS = (function(descartesJS) {
       // register the default variables
       self.variables["_NUM_MAX_ITE_ALG_"] = 100000;
       self.variables["rnd"] = Math.random;
-      self.variables["pi"] = self.variables["π"] = descartesJS.returnValue(Math.PI);
-      self.variables["e"] = descartesJS.returnValue(Math.E);
+      self.variables["pi"] = self.variables["π"] = Math.PI;
+      self.variables["e"] = Math.E;
       self.variables["Infinity"] = Infinity;
       self.variables["-Infinity"] = -Infinity;
       self.variables["isTouch"] = self.variables["esTáctil"] = (descartesJS.hasTouchSupport) ? 1 : 0;
@@ -685,6 +686,9 @@ var descartesJS = (function(descartesJS) {
         "screenWidth" : { get : function() { return window.innerWidth; } },
         "screenHeight" : { get : function() { return window.innerHeight; } },
       });
+      self.variables["DJS.squote"] = "\\u0027";
+      self.variables["DJS.comma"] = "\\u002C";
+
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // register the default functions
@@ -692,10 +696,10 @@ var descartesJS = (function(descartesJS) {
       self.functions["sqrt"]  = self.functions["raíz"] = Math.sqrt;
       self.functions["exp"]   = Math.exp;
       self.functions["log"]   = Math.log;
-      self.functions["log10"] = function(x) { return Math.log(x)/Math.log(10) };
+      self.functions["log10"] = (Math.log10) ? Math.log10 : function(x) { return Math.log(x)/Math.log(10) };
       self.functions["abs"]   = Math.abs;
-      self.functions["ent"]   = Math.floor;
-      self.functions["sgn"]   = function(x) { return (x>0) ? 1 : ((x<0) ? -1 : 0) };
+      self.functions["ent"]   = function(x) { return Math.trunc(parseFloat(x) + (Math.sign(x)*0.0000000000000001)) };
+      self.functions["sgn"]   = Math.sign;
       self.functions["ind"]   = function(x) { return (x) ? 1 : 0 };
       self.functions["sin"]   = self.functions["sen"] = Math.sin;
       self.functions["cos"]   = Math.cos;
@@ -703,9 +707,9 @@ var descartesJS = (function(descartesJS) {
       self.functions["cot"]   = function(x) { return 1/Math.tan(x); };
       self.functions["sec"]   = function(x) { return 1/Math.cos(x); };
       self.functions["csc"]   = function(x) { return 1/Math.sin(x); };
-      self.functions["sinh"]  = self.functions["senh"] = function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
-      self.functions["cosh"]  = function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
-      self.functions["tanh"]  = function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
+      self.functions["sinh"]  = self.functions["senh"] = (Math.sinh) ? Math.sinh : function(x) { return (Math.exp(x)-Math.exp(-x))/2 };
+      self.functions["cosh"]  = (Math.cosh) ? Math.cosh : function(x) { return (Math.exp(x)+Math.exp(-x))/2; };
+      self.functions["tanh"]  = (Math.tanh) ? Math.tanh : function(x) { return (Math.exp(x)-Math.exp(-x))/(Math.exp(x)+Math.exp(-x)); };
       self.functions["coth"]  = function(x) { return 1/self.functions.tanh(x); };
       self.functions["sech"]  = function(x) { return 1/self.functions.cosh(x); };
       self.functions["csch"]  = function(x) { return 1/self.functions.sinh(x); };
@@ -713,9 +717,10 @@ var descartesJS = (function(descartesJS) {
       self.functions["acos"]  = Math.acos;
       self.functions["atan"]  = Math.atan;
       self.functions["atan2"] = Math.atan2;
-      self.functions["floor"] = Math.floor;
-      self.functions["ceil"] = Math.ceil; 
-      self.functions["round"] = Math.round;
+      self.functions["floor"] = self.functions["piso"] = Math.floor;
+      self.functions["ceil"]  = self.functions["techo"] = Math.ceil;
+      self.functions["round"] = self.functions["redondeo"] = Math.round;
+      self.functions["trunc"] = self.functions["truncamiento"] = Math.trunc;
       self.functions["min"]   = Math.min;
       self.functions["max"]   = Math.max;
       self.functions["_Trace_"] = self.functions["_Print_"] = function() { console.info.apply(console, arguments); return 0; };
@@ -728,9 +733,18 @@ var descartesJS = (function(descartesJS) {
           return (parseFloat(x) == x) ? parseFloat(x) : "NaN";
         }
       };
-      self.functions["isNumber"] = function(x) {
+      self.functions["isNumber"] = self.functions["esNúmero"] = function(x) {
         return (Number.isFinite(x)) ? 1 : 0;
       }
+      self.functions["random"] = self.functions["aleatorio"] = function(min, max) {
+        min = isNaN(parseFloat(min)) ? 0 : parseFloat(min);
+        max = isNaN(parseFloat(max)) ? 1 : parseFloat(max);
+        
+        // if the min value is greater than the max value, then invert the values
+        if (min > max) { [min, max] = [max, min]; }
+        return min + Math.random()*max;
+      };
+
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       self.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
@@ -860,10 +874,10 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_Load_"] = function(file) {
-        var response = "";
+        let response = "";
         if (file) {
-          var fileElement = document.getElementById(file);
-          response = ((fileElement) && (fileElement.type == "descartes/archivo")) ? fileElement.text : descartesJS.openExternalFile(file);
+          let fileElement = document.getElementById(file);
+          response = ((fileElement) && (fileElement.type == "descartes/archivo")) ? fileElement.text : descartesJS.openFile(file);
         }
         return response || "";
       }
@@ -883,13 +897,13 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_MatrixToStr_"] = function(Mstr) {
-        var M = self.matrices[Mstr];
+        let M = self.matrices[Mstr];
         if (M) {
-          var strM = "<" + Mstr + ">\\n";
+          let strM = "<" + Mstr + ">\\n";
 
-          var l = self.getVariable(Mstr + ".columnas_usadas") || M.cols || 0;
-          var k = self.getVariable(Mstr + ".filas_usadas")    || M.rows || 0;
-          var _val;
+          let l = self.getVariable(Mstr + ".columnas_usadas") || M.cols || 0;
+          let k = self.getVariable(Mstr + ".filas_usadas")    || M.rows || 0;
+          let _val;
 
           for (var i=0; i<l; i++) {
             for (var j=0; j<k; j++) {
@@ -920,12 +934,12 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_StrToMatrix_"] = function(response, name) {
-        var values = [];
-        var storeValues = false;
-        var findMatrix = false;
+        let values = [];
+        let storeValues = false;
+        let findMatrix = false;
         values.type = "matrix";
 
-        var tmpValue;
+        let tmpValue;
 
         if (response) {
           response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
@@ -982,13 +996,13 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_VectorToStr_"] = function(Vstr) {
-        var V = self.vectors[Vstr];
+        let V = self.vectors[Vstr];
 
         if (V) {
-          var strV = "<" + Vstr + ">\\n";
+          let strV = "<" + Vstr + ">\\n";
 
-          var l = self.getVariable(Vstr + ".long_usada") || V._size_ || 0;
-          var _val;
+          let l = self.getVariable(Vstr + ".long_usada") || V._size_ || 0;
+          let _val;
 
           for (var i=0; i<l; i++) {
             _val = V[i];
@@ -1015,9 +1029,9 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_StrToVector_"] = function(response, name) {
-        var values = [];
-        var storeValues = false;
-        var findVector = false;
+        let values = [];
+        let storeValues = false;
+        let findVector = false;
         values.type = "vector";
 
         if (response) {
@@ -1061,9 +1075,9 @@ var descartesJS = (function(descartesJS) {
        *
        */
       self.functions["_ExecBlock_"] = function(response, name) {
-        var values = [];
-        var storeValues = (name == "");
-        var tmpValue;
+        let values = [];
+        let storeValues = (name == "");
+        let tmpValue;
 
         if (response) {
           response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
@@ -1239,6 +1253,53 @@ var descartesJS = (function(descartesJS) {
       self.functions["R"] = self.functions["_Rojo_"]  = self.functions["_Red_"]   = function(c) { return (new descartesJS.Color(c).r)/255; }
       self.functions["G"] = self.functions["_Verde_"] = self.functions["_Green_"] = function(c) { return (new descartesJS.Color(c).g)/255; }
       self.functions["B"] = self.functions["_Azul_"]  = self.functions["_Blue_"]  = function(c) { return (new descartesJS.Color(c).b)/255; }
+
+      self.functions["HSV2RGB"] = function(h, s, v) {
+        h = (parseInt(h) % 360);
+        let c = v * s;
+        let x = c * (1 - Math.abs((h/60) % 2 -1));
+        let m = v - c;
+        let R;
+        let G;
+        let B;
+
+        if ((0 <= h) && (h < 60)) {
+          R = c;
+          G = x;
+          B = 0;
+        }
+        else if ((60 <= h) && (h < 120)) {
+          R = x;
+          G = c;
+          B = 0;
+        }
+        else if ((120 <= h) && (h < 180)) {
+          R = 0;
+          G = c;
+          B = x;
+        }
+        else if ((180 <= h) && (h < 240)) {
+          R = 0;
+          G = x;
+          B = c;
+        }
+        else if ((240 <= h) && (h < 300)) {
+          R = x;
+          G = 0;
+          B = c;
+        }
+        else if ((300 <= h) && (h < 360)) {
+          R = c;
+          G = 0;
+          B = x;
+        }
+        R = parseInt((R+m)*255);
+        G = parseInt((G+m)*255);
+        B = parseInt((B+m)*255);
+      
+        return `${R.toString(16).padStart(2,"0")}${G.toString(16).padStart(2,"0")}${B.toString(16).padStart(2,"0")}`;
+      };
+
 
       self.functions["DJS.typeof"] = function(o) {
         if (o.rows) { return "matrix"; }

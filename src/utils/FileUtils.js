@@ -13,7 +13,7 @@ var descartesJS = (function(descartesJS) {
    * @param {String} filename the filename of the file to open
    * @return {*} the content of the file if reader or null if not
    */
-  descartesJS.openExternalFile = function(filename) {
+  descartesJS.openFile = function(filename) {
     if (descartesJS.cacheFiles[filename]) {
       return descartesJS.cacheFiles[filename];
     }

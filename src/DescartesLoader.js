@@ -6,12 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var scale = 1;
-  var original_scale = 1.3;
-  var original_w = 880;
-  var original_h = 840;
-  var barWidth = 726;
-  var barHeight = 14;
+  let scale = 1;
+  const original_scale = 1.3;
+  const original_w = 880;
+  const original_h = 840;
+  const barWidth = 726;
+  const barHeight = 14;
 
   /**
    * Descartes loader
@@ -19,7 +19,7 @@ var descartesJS = (function(descartesJS) {
    */
   class DescartesLoader {
     constructor(descartesApp) {
-      var self = this;
+      const self = this;
 
       self.children = descartesApp.children;
       self.lessonParser = descartesApp.lessonParser;
@@ -41,16 +41,22 @@ var descartesJS = (function(descartesJS) {
 
       // has a value in the parameter image_loader
       if (descartesApp.imgLoader) {
-        descartesApp.loader.style.backgroundColor = "rgba(0,0,0,0)";
-        self.imgLoader.setAttribute("style", "background-image:url(" + descartesApp.imgLoader + ");background-size:contain;");
+        descartesApp.loader.style.backgroundColor = "transparent";
+        self.imgLoader.setAttribute("style", `background-image:url(${descartesApp.imgLoader});background-size:contain;`);
       }
       else {
         scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
         scale = (scale > 2.5) ? 2.5 : scale;
 
-        self.imgLoader.setAttribute("style", "background-image:url(" + descartesJS.loaderImg.src + ");background-position:50% 33.5%;background-size:"+ (original_w*scale) +"px;");
+        self.imgLoader.setAttribute(
+          "style", 
+          `background-image:url(${descartesJS.loaderImg.src});background-position:50% 33.5%;background-size:${original_w*scale}px;`
+        );
 
-        self.progress.setAttribute("style", "visibility:visible; left:"+ ((descartesApp.width-barWidth*scale)/2) +"px; top:"+ ( descartesApp.height*33.5/100 + (original_h+100)*scale/2 ) +"px; width:"+ (barWidth*scale) +"px; height:"+ (barHeight*scale) +"px;");
+        self.progress.setAttribute(
+          "style", 
+          `visibility:visible;left:${(descartesApp.width - barWidth*scale)/2}px;top:${descartesApp.height*33.5/100 + (original_h+100)*scale/2}px;width:${barWidth*scale}px;height:${barHeight*scale}px;`
+        );
       }
 
       descartesApp.loader.appendChild(self.imgLoader);
@@ -65,23 +71,23 @@ var descartesJS = (function(descartesJS) {
      * Init the preload of images and audios
      */
     initPreloader() {
-      var self = this;
+      const self = this;
 
-      var children = self.children;
-      var images = self.images;
-      var audios = self.audios;
-      var regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
-      var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
+      let children = self.children;
+      let images = self.images;
+      let audios = self.audios;
+      let regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
+      let regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
 
       // add the license image
-      var licenceFile = "lib/DescartesCCLicense.png";
-      images[licenceFile] = descartesJS.getCCLImg();
-      images[licenceFile].ready = 1;
+      let licenseFile = "lib/DescartesCCLicense.png";
+      images[licenseFile] = descartesJS.getCCLImg();
+      images[licenseFile].ready = 1;
 
-      var imageFilename;
-      var imageTmp;
-      var audioFilename;
-      var i, j, l, il, al;
+      let imageFilename;
+      let imageTmp;
+      let audioFilename;
+      let i, j, l, il, al;
       // check all children in the applet
       for (i=0, l=children.length; i<l; i++) {
         if (children[i].name === "rtf") {
@@ -90,11 +96,11 @@ var descartesJS = (function(descartesJS) {
 
         // macro patch, search images inside the macro
         if (children[i].value.match(/'macro'|'makro'/g)) {
-          var filename = "";
-          var response;
+          let filename = "";
+          let response;
 
-          var values = self.lessonParser.split(children[i].value);
-          for (var v_i=0, v_l=values.length; v_i<v_l; v_i++) {
+          let values = self.lessonParser.split(children[i].value);
+          for (let v_i=0, v_l=values.length; v_i<v_l; v_i++) {
             if (babel[values[v_i][0]] === "expresion") {
               filename = values[v_i][1];
             }
@@ -102,14 +108,14 @@ var descartesJS = (function(descartesJS) {
 
           if (filename) {
             // the macro is embedded in the webpage
-            var macroElement = document.getElementById(filename);
+            let macroElement = document.getElementById(filename);
 
             if ((macroElement) && (macroElement.type == "descartes/macro")) {
               response = macroElement.text;
             }
             // the macro is in an external file
             else {
-              response = descartesJS.openExternalFile(filename);
+              response = descartesJS.openFile(filename);
             }
           }
 
@@ -162,33 +168,33 @@ var descartesJS = (function(descartesJS) {
       }
 
       // count how many images
-      for (var propName in images) {
+      for (let propName in images) {
         if (images.hasOwnProperty(propName)) {
           self.images.length++;
         }
       }
 
       // count how many audios
-      for (var propName in audios) {
+      for (let propName in audios) {
         if (audios.hasOwnProperty(propName)) {
           self.audios.length++;
         }
       }
 
-      var total = self.images.length + self.audios.length;
+      let total = self.images.length + self.audios.length;
       if (total > 0) {
         self.progress.setAttribute("max", total);
       }
 
-      var readys;
+      let readys;
       /**
        * Function that checks if all the media are loaded
        */
-      var checkLoader = function() {
+      let checkLoader = function() {
         readys = 0;
 
         // how many images are loaded
-        for (var propName in images) {
+        for (let propName in images) {
           if (images.hasOwnProperty(propName)) {
             if ( (images[propName].ready) || (images[propName].errorload) ) {
               readys++;
@@ -197,7 +203,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         // how many audios are loaded
-        for (var propName in audios) {
+        for (let propName in audios) {
           if (audios.hasOwnProperty(propName)) {
             if ( (audios[propName].ready) || (audios[propName].errorload) ) {
               readys++;
@@ -227,16 +233,16 @@ var descartesJS = (function(descartesJS) {
      * @param {String} file the filename of the new audio
      */
     initAudio(file) {
-      var audios = this.audios;
+      let audios = this.audios;
 
       audios[file] = new Audio(file);
       audios[file].filename = file;
 
-      var onCanPlayThrough = function() {
+      let onCanPlayThrough = function() {
         this.ready = 1;
       }
 
-      var onError = function() {
+      let onError = function() {
         if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
           audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
           audios[file].filename = this.filename.replace("mp3", "ogg");
@@ -246,7 +252,7 @@ var descartesJS = (function(descartesJS) {
           audios[file].load();
         }
         else {
-          console.warn("El archivo '" + file + "' no puede ser reproducido");
+          console.warn(`El archivo ${file} no puede ser reproducido`);
           this.errorload = 1;
         }
       }
@@ -257,7 +263,7 @@ var descartesJS = (function(descartesJS) {
       if (descartesJS.hasTouchSupport) {
         audios[file].load();
         audios[file].play();
-        descartesJS.setTimeout( function(){
+        descartesJS.setTimeout( ()=>{
           audios[file].pause();
         }, 20);
         audios[file].ready = 1;

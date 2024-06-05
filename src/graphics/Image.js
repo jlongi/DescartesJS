@@ -9,10 +9,8 @@ var descartesJS = (function(descartesJS) {
   var MathRound = Math.round;
 
   var evaluator;
-  var expr;
   var tmpRot;
   var imgFile;
-  var space;
   var despX;
   var despY;
   var coordX;
@@ -21,7 +19,9 @@ var descartesJS = (function(descartesJS) {
 
   var w;
   var h;
-
+  var x, y;
+  var self;
+  
   class DescartesImage extends descartesJS.Graphic {
     /**
      * A Descartes image
@@ -72,8 +72,8 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      let x = evaluator.eval(this.x_e);
-      let y = evaluator.eval(this.y_e);
+      x = evaluator.eval(this.x_e);
+      y = evaluator.eval(this.y_e);
       this.exprX = x;
       this.exprY = y;
 
@@ -97,13 +97,16 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      var self = this;
+      self = this;
       imgFile = evaluator.eval(this.file);
       if ((imgFile) || (imgFile == "")) {
         this.img = this.parent.getImage(imgFile);
-        this.img.addEventListener("load", function(evt) {
-          self.space.update(true);
-        });
+        // if the image isn't ready then add a event listener to update the space
+        if (!this.img.ready) {
+          this.img.addEventListener("load", function(evt) {
+            self.space.update(true);
+          });
+        }
       }
     }
 
@@ -125,9 +128,8 @@ var descartesJS = (function(descartesJS) {
      * Auxiliary function for draw an image
      * @param {CanvasRenderingContext2D} ctx rendering context on which the image is drawn
      */
-     drawAux(ctx) {
+    drawAux(ctx) {
       evaluator = this.evaluator;
-      space = this.space;
 
       if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
         if (!this.clip) {
@@ -136,8 +138,8 @@ var descartesJS = (function(descartesJS) {
 
           // if the images is a space image
           if (this.img.canvas) {
-            w = MathRound( w/this.ratio );
-            h = MathRound( h/this.ratio );
+            w = MathRound( w/this.img.ratio );
+            h = MathRound( h/this.img.ratio );
           }
         }
         else {
@@ -148,8 +150,8 @@ var descartesJS = (function(descartesJS) {
         despX = (this.centered) ? 0 : MathRound(w/2);
         despY = (this.centered) ? 0 : MathRound(h/2);
 
-        coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-        coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+        coordX = MathRound( (this.abs_coord) ? this.exprX : this.space.getAbsoluteX(this.exprX) );
+        coordY = MathRound( (this.abs_coord) ? this.exprY : this.space.getAbsoluteY(this.exprY) );
         rotation = descartesJS.degToRad(-evaluator.eval(this.inirot));
 
         ctx.save();
@@ -167,7 +169,7 @@ var descartesJS = (function(descartesJS) {
         }
         else {
           if (this.img.canvas) {
-            ctx.drawImage(this.img, evaluator.eval(this.clip[0])*this.ratio, evaluator.eval(this.clip[1])*this.ratio, w*this.ratio, h*this.ratio, -w/2, -h/2, w, h);
+            ctx.drawImage(this.img, evaluator.eval(this.clip[0])*this.img.ratio, evaluator.eval(this.clip[1])*this.img.ratio, w*this.img.ratio, h*this.img.ratio, -w/2, -h/2, w, h);
           }
           else {
             ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);

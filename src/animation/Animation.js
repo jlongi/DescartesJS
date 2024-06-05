@@ -25,7 +25,7 @@ var descartesJS = (function(descartesJS) {
       var algorithmAuxiliary = new descartesJS.Auxiliary(parent);
       var self = this;
 
-      self.delay = (values.delay) ? parser.parse(values.delay) : parser.parse("60");
+      self.delay = parser.parse((values.delay) ? values.delay : "60");
       self.loop = (values.loop) ? values.loop : false;
       self.auto = (values.auto == undefined) ? true : values.auto;
       self.controls = values.controls;

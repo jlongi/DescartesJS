@@ -59,27 +59,26 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
 
       self = this;
-
-      // self.border_width = self.border_width || 0;
-      // self.border_color = self.border_color || new descartesJS.Color("000000", parent.evaluator);
-      // self.border_radius = self.border_radius || 0;
+      //self.ratio = parent.ratio;
+      self.ratio = 1;
 
       // create the canvas
       self.backCanvas = descartesJS.newHTML("canvas", {
         id     : self.id + "_background",
-        width  : self.w + "px",
-        height : self.h + "px",
+        width : (self.w * self.ratio) + "px",
+        height : (self.h * self.ratio) + "px", // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
       });
     
       self.canvas = descartesJS.newHTML("canvas", {
         id     : self.id + "_canvas",
-        width  : self.w + "px",
-        height : self.h + "px",
+        width : (self.w * self.ratio) + "px",
+        height : (self.h * self.ratio) + "px", // por alguna razón extraña esto hace que algunas escenas no funcionen en el iPad
         class  : "DescartesSpace3DCanvas",
         style  : "z-index: " + self.zIndex + ";",
       });
       self.ctx = self.canvas.getContext("2d");
       self.ctx.imageSmoothingEnabled = false;
+      self.canvas.ratio = self.ratio;
 
       self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
 
@@ -98,7 +97,7 @@ var descartesJS = (function(descartesJS) {
       });
 
       // create a control container
-      self.numericalControlContainer = descartesJS.newHTML("div", {
+      self.numCtrContainer = descartesJS.newHTML("div", {
         id    : self.id + "_numericalControls",
         style : `position:absolute;left:0px;top:0px;z-index:${self.zIndex};`,
       });
@@ -114,7 +113,7 @@ var descartesJS = (function(descartesJS) {
       self.container.appendChild(self.backCanvas);
       self.container.appendChild(self.canvas);
       self.container.appendChild(self.graphicControlContainer);
-      self.container.appendChild(self.numericalControlContainer);
+      self.container.appendChild(self.numCtrContainer);
 
       parent.container.insertBefore(self.container, parent.loader);
 
@@ -187,8 +186,6 @@ var descartesJS = (function(descartesJS) {
         self.wModExpr = parent.evaluator.parser.parse(self.wModExpr);
         self.hModExpr = parent.evaluator.parser.parse(self.hModExpr);
       }
-      // self.ratio = parent.ratio;
-      self.ratio = 1;
 
 
       // register the mouse and touch events
@@ -206,8 +203,10 @@ var descartesJS = (function(descartesJS) {
 
       // update the size of the canvas if has some regions
       if (self.canvas) {
-        self.canvas.width  = self.backCanvas.width  = self.w;
-        self.canvas.height = self.backCanvas.height = self.h;
+        self.old_w = self.w;
+        self.old_h = self.h;
+        self.canvas.width  = self.backCanvas.width  = self.w *self.ratio;
+        self.canvas.height = self.backCanvas.height = self.h *self.ratio;
         self.canvas.style.width  = self.backCanvas.style.width  = self.w + "px";
         self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
       };
@@ -372,6 +371,8 @@ var descartesJS = (function(descartesJS) {
                       };
 
         self.updateCamera();
+
+        self.ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
         // draw the geometry
         self.draw();
@@ -714,7 +715,7 @@ var descartesJS = (function(descartesJS) {
         self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
 
         // deactivate the graphic controls
-        self.parent.deactivateGraphicControls();
+        self.parent.deactivateControls();
 
         self.posAnte = descartesJS.getCursorPosition(evt, self.container);
         self.oldMouse.x = self.getRelativeX(self.posAnte.x);
@@ -768,7 +769,7 @@ var descartesJS = (function(descartesJS) {
         self.click = 1;
 
         // deactivate the graphic controls
-        self.parent.deactivateGraphicControls();
+        self.parent.deactivateControls();
 
         self.whichBtn = descartesJS.whichBtn(evt);
 

@@ -97,8 +97,7 @@ var descartesJS = (function(descartesJS) {
       this.vect.x = this.endPoints[1].x - this.endPoints[0].x;
       this.vect.y = this.endPoints[1].y - this.endPoints[0].y;
       vlength = this.vect.vectorLength();
-      //this.angle = this.vect.angleBetweenVectors(descartesJS.Vector2D.AXIS_X);
-this.angle = Math.atan2(this.vect.y, this.vect.x)
+      this.angle = Math.atan2(this.vect.y, this.vect.x)
 
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = stroke.getColor();
@@ -124,12 +123,10 @@ this.angle = Math.atan2(this.vect.y, this.vect.x)
       ctx.translate(coordX, coordY);
 
       if (this.abs_coord) {
-        // ctx.rotate( this.angle * ((this.vect.y >= 0) ? 1 : -1) );
-ctx.rotate( this.angle );
+        ctx.rotate( this.angle );
       } else {
         vlength = vlength*scale;
-        //ctx.rotate( this.angle * ((this.vect.y >= 0) ? -1 : 1) );
-ctx.rotate( -this.angle );
+        ctx.rotate( -this.angle );
       }
 
       ctx.beginPath();

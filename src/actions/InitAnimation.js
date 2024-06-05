@@ -10,10 +10,9 @@ var descartesJS = (function(descartesJS) {
     /**
      * Descartes init animation action
      * @param {DescartesApp} parent the Descartes application
-     * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
-      super(parent, parameter);
+    constructor(parent) {
+      super(parent);
     }
     
     /**

@@ -57,7 +57,7 @@ var descartesJS = (function(descartesJS, babel) {
         }
         // the macro is in an external file
         else {
-          response = descartesJS.openExternalFile(filename);
+          response = descartesJS.openFile(filename);
         }
       }
 

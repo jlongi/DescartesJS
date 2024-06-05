@@ -258,6 +258,8 @@ var babel = (function(babel) {
   babel["font_family"] = "font_family";
   babel["resizable"] = "resizable";
 
+  babel["slider"] = "slider";
+
   // extra
   babel["antialias"] = "antialias";
   babel["image_loader"] = "image_loader";

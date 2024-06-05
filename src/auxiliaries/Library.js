@@ -16,19 +16,19 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      var filename = values.file;
+      let filename = values.file;
+      let response;
 
       if (filename) {
         // the lib is embedded in the webpage
-        var libElement = document.getElementById(filename);
-        var response;
+        let libElement = document.getElementById(filename);
         
         if ((libElement) && (libElement.type === "descartes/library")) {
           response = libElement.text;
         }
         // the lib is in an external file
         else {
-          response = descartesJS.openExternalFile(filename);
+          response = descartesJS.openFile(filename);
         }
       }
 
@@ -36,7 +36,7 @@ var descartesJS = (function(descartesJS) {
         response = ((descartesJS.convertHTMLEntities(response)).replace(/\r/g, "")).split("\n");
 
         // create the elements
-        for (var i=0,l=response.length; i<l; i++){
+        for (var i=0, l=response.length; i<l; i++){
           if (response[i].trim() !== "") {
             parent.lessonParser.parseAuxiliar(response[i]);
           }

@@ -10,9 +10,8 @@ var descartesJS = (function(descartesJS) {
     /**
      * Descartes action
      * @param {DescartesApp} parent the Descartes application
-     * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
+    constructor(parent) {
       this.parent = parent;
       this.evaluator = this.parent.evaluator;
     }  

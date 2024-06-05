@@ -20,7 +20,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.font_family = values.font_family || "Monospaced";
+      this.font_family = values.font_family || "sansserif";
       this.style = values.style || ",PLAIN,";
       this.font_size = values.font_size || 12;
 
@@ -29,6 +29,10 @@ var descartesJS = (function(descartesJS) {
       }
   
       this.font = this.font_family + this.style + this.font_size;
+
+      // overwrite scroll
+      this.evaluator.setVariable(this.id + "._scroll_x", 0);
+      this.evaluator.setVariable(this.id + "._scroll_y", 0);
 
       // always show in the interior region
       this.region = "interior";
@@ -54,12 +58,8 @@ var descartesJS = (function(descartesJS) {
       });
 
       // the text area
-      // this.textArea = descartesJS.newHTML("div", {
-      //   class           : "DescartesTextAreaContainer",
-      //   contenteditable : "true",
-      // });
       this.textArea = descartesJS.newHTML("textarea", {
-        class           : "DescartesTextAreaContainer",
+        class      : "DescartesTextAreaContainer",
         spellcheck : "false",
       });
       this.textAreaAnswer = descartesJS.newHTML("div", {
@@ -71,14 +71,10 @@ var descartesJS = (function(descartesJS) {
         class : "DJS_Gradient",
       });
 
-      // active cover
-      this.activeCover = descartesJS.newHTML("div");
-
       // add the elements to the container
       this.containerControl.appendChild(this.textArea);
       this.containerControl.appendChild(this.textAreaAnswer);
       this.containerControl.appendChild(this.showButton);
-      this.containerControl.appendChild(this.activeCover);
 
       this.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
@@ -91,21 +87,6 @@ var descartesJS = (function(descartesJS) {
 
       this.showAnswer = false;
 
-      /**
-      // plain text
-      if ( (this.text == undefined) || (this.text.type == "simpleText")) {
-        this.text = this.rawText || "";
-      }
-      // rtf text
-      else {
-        if (this.text.hasFormula) {
-          this.text = this.rawText;
-        }
-        else {
-          this.text = this.text.toHTML();
-        }
-      }
-      */
       this.text = this.rawText || "";
 
       // rtf answer
@@ -130,32 +111,13 @@ var descartesJS = (function(descartesJS) {
         return 0;
       });
 
-      // var self = this;
-      // var sel;
-      // var range;
-      // var newText;
-      // this.evaluator.setFunction(this.id + ".insertAtCursor", function(str) {
-      //   sel = window.getSelection();
-      //   if (sel && sel.getRangeAt && sel.rangeCount) {
-      //     newText = document.createTextNode(str);
-      //     range = sel.getRangeAt(0);
-      //     range.deleteContents();
-      //     range.insertNode(newText);
-          
-      //     // move the caret to the end of the inserted text
-      //     range.setStart(newText, newText.length);
-      //     range.setEnd(newText, newText.length);
-      //     sel.removeAllRanges();
-      //     sel.addRange(range);
-
-      //     self.textArea.focus();
-      //   }
-      //   return 0;
-      // });
-
       this.evaluator.setFunction(this.id + ".update", function() {
         self.update();
-      })
+      });
+
+      this.evaluator.setFunction(this.id + ".scrollTo", function(num) {
+        self.textArea.scrollTop = num;
+      });
 
       // register the mouse and touch events
       this.addEvents();
@@ -171,13 +133,6 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
 
       var newText = this.text.replace(/\\n/g, "\n");
-
-      // if (this.text.match(/<span/)) {
-      //   newText = this.text;
-      // }
-      // else {
-      //   newText = this.text.replace(/\\n/g, "<br/>");
-      // }
 
       this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
 
@@ -195,8 +150,7 @@ var descartesJS = (function(descartesJS) {
       this.showButton.setAttribute("style", `width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;border:1px outset #f0f8ff;display:${(this.answer) ? "block" : "none"};`);
       this.showButton.innerHTML = `<span style="position:relative;top:1px;text-align:center;font:11px ${descartesJS.sansserif_font};">S</span>`;
 
-      this.activeCover.setAttribute("style", `position:absolute;width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;`);
-      this.cover.setAttribute("style", `;position:absolute;width:${this.w}px;height:${this.h}px;left:0px;top:0px;`);
+      this.cover.setAttribute("style", `position:absolute;width:${this.w}px;height:${this.h}px;left:0px;top:0px;`);
 
       this.update();
     }
@@ -218,8 +172,6 @@ var descartesJS = (function(descartesJS) {
       newText = (this.textArea.value || "");
       newText = (newText.charAt(newText.length-1) === "\n") ? newText.substring(0, newText.length-1) : newText;
       newText = newText.replace(/\n/g, "\\n").replace(/\s/g, " ");
-      // newText = newText.replace(/\n/g, "\\n").replace(/\s/g, "\u00A0");
-
 
       evaluator.setVariable(this.id, newText);
 
@@ -227,10 +179,13 @@ var descartesJS = (function(descartesJS) {
       this.oldValue = evaluator.getVariable(this.id);
 
       // enable or disable the control
-      this.activeCover.style.display = (this.activeIfValue) ? "none" : "block";
+      (this.activeIfValue) ? this.textArea.removeAttribute("disabled") : this.textArea.setAttribute("disabled", true);
 
       // hide or show the text field control
       this.containerControl.style.display = (this.drawIfValue) ? "block" : "none";
+
+      this.textArea.style["overflow-x"] = (evaluator.getVariable(this.id + "._scroll_x") > 0) ? "auto" : "unset";
+      this.textArea.style["overflow-y"] = (evaluator.getVariable(this.id + "._scroll_y") > 0) ? "auto" : "unset";
 
       // update the position and size
       this.updatePositionAndSize();

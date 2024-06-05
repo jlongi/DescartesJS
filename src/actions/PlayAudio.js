@@ -14,19 +14,18 @@ var descartesJS = (function(descartesJS) {
      * @param {DescartesApp} parent the Descartes application
      * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter) {
-      super(parent, parameter);
+    constructor(parent, parameter = "") {
+      super(parent);
     
-      parameter = parameter || '';
       if (parameter.match(regExpAudio)) {
-        this.filenameExpr = this.evaluator.parser.parse("'" + parameter.match(regExpAudio) + "'");
+        this.filename = this.evaluator.parser.parse(`'${parameter.match(regExpAudio)}'`);
       }
       else {
         // if the parameter inits with braces [], extract the expression
         if (parameter.match(/^\[.*\]?/)) {
           parameter = parameter.substring(1, parameter.length-1);
         }
-        this.filenameExpr = this.evaluator.parser.parse(parameter);
+        this.filename = this.evaluator.parser.parse(parameter);
       }
     }
     
@@ -34,7 +33,7 @@ var descartesJS = (function(descartesJS) {
      * Execute the action
      */
     execute() {
-      var theAudio = this.theAudio = this.parent.getAudio( this.evaluator.eval(this.filenameExpr) );
+      var theAudio = this.theAudio = this.parent.getAudio( this.evaluator.eval(this.filename) );
 
       // if the audio is paused then play it
       if (theAudio.paused) {

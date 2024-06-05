@@ -11,12 +11,10 @@ var descartesJS = (function(descartesJS) {
   var evaluator;
   var para;
   var space;
-  var tmpLineWidth;
   var tempParam;
   var expr;
   var radianAngle;
   var tmpRot;
-
   var lineDesp = 0.5;
   var POS_LIMIT = 1000000;
 

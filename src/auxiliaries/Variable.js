@@ -35,13 +35,13 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     registerTextField() {
-      var container = descartesJS.newHTML("div");
+      let container = descartesJS.newHTML("div");
+      let label = descartesJS.newHTML("label");
 
-      var label = descartesJS.newHTML("label");
       // underscores are added at the beginning and end to determine the initial size of the label
       label.appendChild( document.createTextNode("___" + this.id + "=___") );
       
-      var textField = descartesJS.newHTML("input");
+      let textField = descartesJS.newHTML("input");
       textField.value = this.expresionString;
       textField.disabled = !(this.editable);
 
@@ -53,14 +53,12 @@ var descartesJS = (function(descartesJS) {
       textField.onkeydown = function(evt) {
         if (evt.keyCode == 13) {
           self.expresion = parser.parse(this.value);
-          
           parser.setVariable(self.id, self.expresion);
           self.parent.update();
         }
       }
-      
-      var containerTextField = { container: container,  type: "div" };
-      this.parent.editableRegion.textFields.push(containerTextField);
+
+      this.parent.editableRegion.textFields.push({ container:container, type:"div" });
     }
   }
 

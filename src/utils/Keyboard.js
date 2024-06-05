@@ -6,7 +6,7 @@
  var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var margin = 5;
+  const margin = 5;
 
   /**
    *
@@ -20,12 +20,6 @@
       });
       this.container.oncontextmenu = function() { return false; };
 
-      // this.display = descartesJS.newHTML("input", {
-      //   type : "text",
-      //   class : "DescartesKeyboardDisplay",
-      //   inputmode : "none"
-      // });
-      // this.container.appendChild(this.display);
       this.display = descartesJS.newHTML("textarea", {
         class : "DescartesKeyboardDisplay",
         spellcheck : "false",
@@ -39,11 +33,11 @@
       });
       this.container.appendChild(this.keyContainer);
 
-      this.aditionalKeys = descartesJS.newHTML("div", {
+      this.additionalKeys = descartesJS.newHTML("div", {
         style : "position:absolute; padding: 0 5px 5px 0; display:none;",
         class : "DescartesKeysContainer"
       });
-      this.container.appendChild(this.aditionalKeys);
+      this.container.appendChild(this.additionalKeys);
 
       this.newLine = descartesJS.newHTML("div", {
         style : "position:absolute; background-color:white; margin:0; font-family:DJS_sansserif; font-size:17px; font-weight:normal; line-height:38px", 
@@ -156,7 +150,7 @@
           }
           else if (evt.target.id == "k_shift") {
             let keys = this.keyContainer.querySelectorAll("div");
-            let a_keys = this.aditionalKeys.querySelectorAll("div");
+            let a_keys = this.additionalKeys.querySelectorAll("div");
             this.shift = !this.shift;
 
             if (this.shift) {
@@ -214,7 +208,7 @@
 
             if (!this.key_pressed) {
               this.insert(evt.target.textContent.trim());
-              this.aditionalKeys.style.display = "none";
+              this.additionalKeys.style.display = "none";
             }
            
             this.key_pressed = false;
@@ -228,7 +222,7 @@
 
             this.insert(content);
 
-            this.aditionalKeys.style.display = "none";
+            this.additionalKeys.style.display = "none";
           }
         }
 
@@ -248,14 +242,14 @@
       /**
        * 
        */
-      this.aditionalKeys.addEventListener("pointerdown", (evt) => {
+      this.additionalKeys.addEventListener("pointerdown", (evt) => {
         aditionalPointerDown = true;
       });
 
       /**
        * 
        */
-      this.aditionalKeys.addEventListener("pointerup", (evt) => {
+      this.additionalKeys.addEventListener("pointerup", (evt) => {
         if (aditionalPointerDown) {
           if ( (evt.target != this.keyContainer) && (evt.target != this.container) ) {
             evt.preventDefault();
@@ -266,7 +260,7 @@
           }
 
           this.key_pressed = false;
-          this.aditionalKeys.style.display = "none";
+          this.additionalKeys.style.display = "none";
         }
 
         aditionalPointerDown = false;
@@ -283,6 +277,8 @@
 
       this.display.selectionStart += text.length;
       this.display.selectionStart = this.display.selectionEnd;
+
+      this.display.focus();
     }
 
     /**
@@ -344,15 +340,15 @@
         keys = ["ú", "ù", "ü", "û"];
       }
 
-      this.aditionalKeys.innerHTML = this.addKeys(keys);
+      this.additionalKeys.innerHTML = this.addKeys(keys);
 
       if (this.shift) {
-        this.aditionalKeys.innerHTML = this.aditionalKeys.innerHTML.toUpperCase();
+        this.additionalKeys.innerHTML = this.additionalKeys.innerHTML.toUpperCase();
       }
 
-      this.aditionalKeys.style.display = "flex";
-      this.aditionalKeys.style.left = this.keyContainer.style.left;
-      this.aditionalKeys.style.top = (parseFloat(this.keyContainer.style.top)-50) + "px";
+      this.additionalKeys.style.display = "flex";
+      this.additionalKeys.style.left = this.keyContainer.style.left;
+      this.additionalKeys.style.top = (parseFloat(this.keyContainer.style.top)-50) + "px";
     }
 
     /**
@@ -803,7 +799,7 @@
       this.keyContainer.style.top  = kb_y + "px";
 
       // hide the aditional keys
-      this.aditionalKeys.style.display = "none";
+      this.additionalKeys.style.display = "none";
     }
 
     /**
@@ -811,6 +807,8 @@
      */
     close() {
       this.container.style.display = "none";
+      this.parent.deactivateControls();
+      this.parent.update();
     }
 
     /**
@@ -862,7 +860,7 @@
      */
     onEnter() {
       let result = this.display.value;
-      
+
       if (!this.onlyText) {
         let parse = this.parent.evaluator.parser.parse(result.replace(/√/g, "sqrt"));
 
@@ -908,21 +906,8 @@
             );
           }
         }
-        
-        // // vector o matrix id
-        // if ( (this.var_id +"").match(/\[/g) ) {
-        //   // matrix
-        //   if ( (this.var_id +"").match(/,/g) ) {
-
-        //   }
-        //   
-        //   else {
-
-        //   }
-        // }
       }
       
-      this.parent.update();
       this.close();
     }
   }

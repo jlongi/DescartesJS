@@ -242,7 +242,7 @@ var descartesJS = (function(descartesJS) {
 
       if (this.fSteps >= 0) {
         // draw all the family members of the graphic
-        for(var i=0, l=this.fSteps; i<=l; i++) {
+        for(let i=0, l=this.fSteps; i<=l; i++) {
           // update the value of the family parameter
           evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
 

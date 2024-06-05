@@ -148,7 +148,7 @@ var descartesJS = (function(descartesJS) {
        * type {String}
        * @private
        */
-      self.background = new descartesJS.Color( "ffffff" );
+      self.background = new descartesJS.Color("ffffff");
 
       /**
        * net condition and color
@@ -268,7 +268,6 @@ var descartesJS = (function(descartesJS) {
       self.border_width = 0;
       self.border_color = new descartesJS.Color("000000");
       self.border_radius = 0;
-      
 
       self.plecaHeight = parent.plecaHeight || 0;
       self.displaceRegionNorth = parent.displaceRegionNorth || 0;
@@ -323,7 +322,6 @@ var descartesJS = (function(descartesJS) {
           self.container.style.top  = self.y + "px";
         }
 
-
         if (self.y >= 0) {
           newH = parentH - self.y;
           if (self.h > newH) {
@@ -347,7 +345,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      // if the space has a background image then get the image from the loader
+      // if the space has a background image then get the image from the parent
       if ( (self.imageSrc != "") || !(/vacio.gif$/i).test(self.imageSrc.trim()) ) {
         self.image = parent.getImage(self.imageSrc);
       }
@@ -395,7 +393,7 @@ var descartesJS = (function(descartesJS) {
       if ((self.id !== "") && (parent.version !== 2)) {
         evaluator.setVariable(thisID + "._w", self.w);
         evaluator.setVariable(thisID + "._h", self.h);
-        evaluator.setVariable(thisID + ".escala", evaluator.getVariable(thisID + ".escala") ||self.scale);
+        evaluator.setVariable(thisID + ".escala", evaluator.getVariable(thisID + ".escala") || self.scale);
         evaluator.setVariable(thisID + ".Ox", evaluator.getVariable(thisID + ".Ox") || self.Ox);
         evaluator.setVariable(thisID + ".Oy", evaluator.getVariable(thisID + ".Oy") || self.Oy);
         evaluator.setVariable(thisID + ".mouse_x", 0);
@@ -406,8 +404,7 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         temp = evaluator.getVariable("_w");
-        if (temp === undefined) { temp = self.w; };
-        evaluator.setVariable("_w", temp);
+        evaluator.setVariable("_w", (temp === undefined) ? self.w : temp);
 
         temp = evaluator.getVariable("_h");
         if (temp === undefined) { temp = self.h; };

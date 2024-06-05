@@ -10,10 +10,13 @@ var descartesJS = (function(descartesJS) {
   var x;
   var y;
   var pixelStack;
-  var currentPixel;
   var startColor;
-  var index;
   var count;
+  var imageData;
+  var pixelData;
+  var colorCtx = document.createElement('canvas').getContext('2d');
+  colorCtx.canvas.width = 1;
+  colorCtx.canvas.height = 1;
 
   class Fill extends descartesJS.Graphic {
     /**
@@ -53,12 +56,15 @@ var descartesJS = (function(descartesJS) {
     /**
      * Auxiliary function for draw a fill
      * @param {CanvasRenderingContext2D} ctx rendering context on which the fill is drawn
-     * @param {String} fill the fill color of the fill
+     * @param {String} fill the fill color of the graphics
      */
     drawAux(ctx, fill) {
-      // update the color components of the fill color
-      fill.getColor();
+      // get the color in a 32bits representation
+      fill = colorTo32Bits(fill.getColor());
+
       imageData = ctx.getImageData(0, 0, this.space.w, this.space.h);
+
+      pixelData = new Uint32Array(imageData.data.buffer);
 
       if (this.abs_coord) {
         x = parseInt(this.exprX);
@@ -73,38 +79,34 @@ var descartesJS = (function(descartesJS) {
         return;
       }
 
-      pixelStack = [[x, y]];
+      pixelStack = [x, y];
 
-      startColor = getPixel(imageData, x, y);
+      startColor = getPixel(pixelData, imageData.width, imageData.height, x, y);
       count = 0;
 
       while(pixelStack.length > 0) {
         count++;
-        currentPixel = pixelStack.pop();
-        x = currentPixel[0];
-        y = currentPixel[1];
+        y = pixelStack.pop();
+        x = pixelStack.pop();
 
-        if (equalColor(startColor, getPixel(imageData, x, y))) {
+        if (startColor == getPixel(pixelData, imageData.width, imageData.height, x, y)) {
           // assign the color
-          setPixel(imageData, x, y, fill);
+          pixelData[x + y*imageData.width] = fill;
 
           // add the next pixel to the stack
-          if (x > 0) {
-            pixelStack.push([x-1, y]);
-          }
-          if (x < imageData.width-1) {
-            pixelStack.push([x+1, y]);
-          }
-          pixelStack.push([x, y-1]);
-          pixelStack.push([x, y+1]);
+          pixelStack.push(x-1, y);
+          pixelStack.push(x+1, y);
+          pixelStack.push(x, y-1);
+          pixelStack.push(x, y+1);
         }
 
         //exit safe
-        if (count >= this.space.w*this.space.h*3) {
+        if (count >= this.space.w*this.space.h*4*2) {
           break;
         }
       }
 
+      // write the pixels in the canvas
       ctx.putImageData(imageData, 0, 0);
     }
   }
@@ -112,33 +114,18 @@ var descartesJS = (function(descartesJS) {
   /**
    *
    */
-  function getPixel(imageData, x, y) {
-    index = (x + y*imageData.width) *4;
-
-    return { 
-      r: imageData.data[index],
-      g: imageData.data[index+1],
-      b: imageData.data[index+2],
-      a: imageData.data[index+3]
-    }
+  function getPixel(pixelData, w, h, x, y) {
+    return (x < 0 || y < 0 || x >= w || y >= h) ? -1 : pixelData[x + y*w];
   }
 
   /**
    *
    */
-  function setPixel(imageData, x, y, color) {
-    index = (x + y * imageData.width) * 4;
-    imageData.data[index+0] = color.r;
-    imageData.data[index+1] = color.g;
-    imageData.data[index+2] = color.b;
-    imageData.data[index+3] = color.a*255;
-  }
-
-  /**
-   *
-   */
-  function equalColor(c1, c2) {
-    return (c1.r === c2.r) && (c1.g === c2.g) && (c1.b === c2.b) && (c1.a === c2.a);
+  function colorTo32Bits(color) {
+    colorCtx.clearRect(0, 0, 1, 1);
+    colorCtx.fillStyle = color;
+    colorCtx.fillRect(0, 0, 1, 1);
+    return new Uint32Array(colorCtx.getImageData(0, 0, 1, 1).data.buffer)[0];    
   }
 
   descartesJS.Fill = Fill;
