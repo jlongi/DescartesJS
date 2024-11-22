@@ -59,8 +59,8 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
 
       self = this;
-      //self.ratio = parent.ratio;
-      self.ratio = 1;
+      self.ratio = parent.ratio;
+      //self.ratio = 1;
 
       // create the canvas
       self.backCanvas = descartesJS.newHTML("canvas", {

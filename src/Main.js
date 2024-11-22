@@ -102,17 +102,21 @@ var descartesJS = (function(descartesJS) {
    * Function to handle the load evt of the document
    * @param {Event} evt the evt of load the web page
    */
-  function onLoad(evt) {
-    let fontDiv = descartesJS.newHTML("div");
-    let str = '<div style="font-size:12px;visibility:hidden;">';
-
-    ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbol", "DJS_sansserif", "DJS_serif", "DJS_monospace", "DJS_math"].forEach(font => {
-      str += `<div style="font-family:${font};"><span>_</span><span style="font-weight:bold;">_</span><span style="font-style:italic;">_</span><span style="font-weight:bold;font-style:italic;">_</span></div>`;
-    });
-
-    fontDiv.innerHTML = str + '</div>';
-
-    document.body.appendChild(fontDiv);
+  async function onLoad(evt) {
+    // wait the load of the fonts for later use
+    try {
+      let fonts_promises = [];
+      ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace"].forEach(font => {
+        fonts_promises.push(document.fonts.load(`20px ${font}`)); // Regular
+        fonts_promises.push(document.fonts.load(`bold 20px ${font}`)); // Bold
+        fonts_promises.push(document.fonts.load(`italic 20px ${font}`)); // Italic
+        fonts_promises.push(document.fonts.load(`bold italic 20px ${font}`)); // Bold Italic
+      });
+      await Promise.all(fonts_promises);
+    }
+    catch(error) {
+      console.log("error", error);
+    }
 
     // get the features for interpreting Descartes applets
     descartesJS.getFeatures();
@@ -120,20 +124,15 @@ var descartesJS = (function(descartesJS) {
     // if has support for canvas start the interpretation
     if (descartesJS.hasCanvas) {
       window.scrollTo(0, 100);
-
       removeDescartesAppContainers();
       makeDescartesApps();
-
       window.addEventListener("resize", descartesJS.onResize);
-
       window.scrollTo(0, 0);
     }
     // if has not support for canvas show the applets and do not interpret
     else {
       showApplets();
     }
-
-    fontDiv.remove();
   }
 
   var applets_cache = {};
@@ -201,13 +200,6 @@ var descartesJS = (function(descartesJS) {
           new_applets = new_applets.getElementsByTagName("param");
           applets_cache[data.filename] = new_applets;
         }
-
-        // let base = document.querySelector("base");
-        // if (!base) {
-        //   base = descartesJS.newHTML("base");
-        //   document.body.appendChild(base);
-        // }
-        // base.setAttribute("href", data.filename);
         
         descartesJS.apps[0].children = new_applets;
         descartesJS.apps[0].init();
@@ -239,16 +231,6 @@ var descartesJS = (function(descartesJS) {
       window.addEventListener(element, function(evt) {
         descartesJS.onResize(evt);
       });
-    });
-
-    // force and update in the scene when all the fonts are ready
-    document.fonts.ready.then(() => {
-      setTimeout(() => {
-        for (const app of descartesJS.apps) {
-          app.updateControls();
-          app.updateSpaces(true);
-        }
-      }, 15);
     });
   }
 

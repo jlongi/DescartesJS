@@ -138,7 +138,9 @@ var descartesJS = (function(descartesJS) {
 
       (descartesJS.addSymbolFont ? descartesJS.addSymbolFont() : "") +
 
-      (descartesJS.addFonts ? descartesJS.addFonts() : "");
+      (descartesJS.addFonts ? descartesJS.addFonts() : "") +
+      
+      "@media print{body{margin:0;padding:0;}\n.DescartesAppContainer{transform:none !important;left:0 !important;top:0 !important;}\ndiv:has(.DescartesAppContainer){overflow:unset !important;width:100% !important;height:100% !important;}}";
   })();
   // immediately add the style to the document
 

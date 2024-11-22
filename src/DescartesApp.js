@@ -145,6 +145,8 @@ var descartesJS = (function(descartesJS) {
       // get the width and height of the scene 
       this.evaluator.setVariable("DJS.w", this.width);
       this.evaluator.setVariable("DJS.h", this.height);
+      this.evaluator.setVariable("DJS.container_w", this.width);
+      this.evaluator.setVariable("DJS.container_h", this.height);
 
       // get the url parameter if any
       this.getURLParameters();
@@ -343,6 +345,14 @@ var descartesJS = (function(descartesJS) {
       // resize functions
       // fit space
       if (this.expand == "fit") {
+        let cssNode = descartesJS.newHTML("style", {
+          rel  : "stylesheet",
+          type : "text/css",
+          id   : "StyleDescartesAppsPrint",
+        });
+        document.head.insertBefore(cssNode, document.head.firstChild);
+        cssNode.innerHTML = `@page{margin:0cm;size:${this.width}px ${this.height}px;}`;
+        
         this.container.parentNode.removeAttribute("align");
         this.container.parentNode.style.overflow = "hidden";
         this.scaleToFit = scaleToFit;
@@ -354,6 +364,9 @@ var descartesJS = (function(descartesJS) {
           this.container.width = this.width = window.innerWidth;
           this.container.height = this.height = window.innerHeight;
           this.container.setAttribute("style", `width:${this.width}px;height:${this.height}px;`);
+          this.evaluator.setVariable("DJS.container_w", this.container.width);
+          this.evaluator.setVariable("DJS.container_h", this.container.height);
+          try { this.update(); } catch(e) {}
 
           if (this.spaces) {
             for (let space_i of this.spaces) {

@@ -742,7 +742,7 @@ var descartesJS = (function(descartesJS) {
         
         // if the min value is greater than the max value, then invert the values
         if (min > max) { [min, max] = [max, min]; }
-        return min + Math.random()*max;
+        return min + Math.random()*(max-min);
       };
 
 

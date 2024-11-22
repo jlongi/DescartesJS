@@ -815,7 +815,13 @@ var descartesJS = (function(descartesJS, babel) {
               //   }
               // }
 
-              graphicObj["file"] = this.parser.parse(fileTmp);
+              if (!fileTmp.startsWith("data:image/")) {
+                graphicObj["file"] = this.parser.parse(fileTmp);
+              }
+              else {
+                graphicObj["file"] = this.parser.parse("'" + fileTmp + "'");
+              }
+
               break;
 
             // color border

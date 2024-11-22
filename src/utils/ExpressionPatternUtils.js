@@ -62,20 +62,20 @@ var descartesJS = (function(descartesJS) {
       }
     }
 
-    if ((tmpAnswer.charAt(0) === "*") && (tmpAnswer.charAt(tmpAnswer.length-1) !== "*")) {
-      tmpAnswer = (tmpAnswer.substring(1)) + "$";
+    if ((tmpAnswer.startsWith("\\*")) && (!tmpAnswer.endsWith("\\*"))) {
+      tmpAnswer = (tmpAnswer.substring(2)) + "$";
     }
 
-    else if ((tmpAnswer.charAt(0) !== "*") && (tmpAnswer.charAt(tmpAnswer.length-1) === "*")) {
-      tmpAnswer = "^" + (tmpAnswer.substring(0, tmpAnswer.length-1));
+    else if ((!tmpAnswer.startsWith("\\*")) && (tmpAnswer.endsWith("\\*"))) {
+      tmpAnswer = "^" + (tmpAnswer.substring(0, tmpAnswer.length-2));
     }
 
-    else if ((tmpAnswer.charAt(0) !== "*") && (tmpAnswer.charAt(tmpAnswer.length-1) !== "*")) {
+    else if ((!tmpAnswer.startsWith("\\*")) && (!tmpAnswer.endsWith("\\*"))) {
       tmpAnswer = "^" + tmpAnswer + "$";
     }
 
-    else if ((tmpAnswer.charAt(0) === "*") && (tmpAnswer.charAt(tmpAnswer.length-1) === "*")) {
-      tmpAnswer = tmpAnswer.substring(1, tmpAnswer.length-1);
+    else if ((tmpAnswer.startsWith("\\*")) && (tmpAnswer.endsWith("\\*"))) {
+      tmpAnswer = tmpAnswer.substring(2, tmpAnswer.length-2);
     }
 
     answer.regExp = tmpAnswer.replace(/\?/g, "[\\S\\s]{1}");
