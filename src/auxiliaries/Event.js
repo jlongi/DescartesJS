@@ -16,46 +16,47 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
       
-      var evaluator = this.evaluator;
+      let self = this;
+      let evaluator = self.evaluator;
       
-      delete(this.evaluate);
-      this.condition = evaluator.parser.parse(this.condition);
-      this.lastEval = false;
+      delete(self.evaluate);
+      self.condition = evaluator.parser.parse(self.condition);
+      self.lastEval = false;
 
-      this.action = this.parent.lessonParser.parseAction(this);
+      self.action = self.parent.lessonParser.parseAction(self);
       
       // if the type of evaluation is onlyOnce
-      if (this.execution == "onlyOnce") {
-        this.eventExec = function() {
-          if ((this.evaluator.eval(this.condition) > 0) && (!this.lastEval)) {
-            this.lastEval = true;
-            this.action.execute();
+      if (self.execution == "onlyOnce") {
+        self.eventExec = function() {
+          if ((self.evaluator.eval(self.condition) > 0) && (!self.lastEval)) {
+            self.lastEval = true;
+            self.action.execute();
           }
         }
       }
       
       // if the type of evaluation is alternate
-      if (this.execution == "alternate") {
-        this.eventExec = function() {
-          const cond = (this.evaluator.eval(this.condition) > 0);
+      if (self.execution == "alternate") {
+        self.eventExec = function() {
+          const cond = (self.evaluator.eval(self.condition) > 0);
 
           // if the condition was true and the last time was not executed, then the event is executed
-          if ((cond) && (!this.lastEval)) {
-            this.action.execute();
-            this.lastEval = true;
+          if ((cond) && (!self.lastEval)) {
+            self.action.execute();
+            self.lastEval = true;
           }
           // if already run once and the condition is evaluated to false, then rerun the event
-          else if ((!cond) && (this.lastEval)) {
-            this.lastEval = false;
+          else if ((!cond) && (self.lastEval)) {
+            self.lastEval = false;
           }
         }
       }
 
       // if the type of evaluation is always
-      if (this.execution == "always") {
-        this.eventExec = function() {
-          if (this.evaluator.eval(this.condition) > 0) {
-            this.action.execute();
+      if (self.execution == "always") {
+        self.eventExec = function() {
+          if (self.evaluator.eval(self.condition) > 0) {
+            self.action.execute();
           }
         }
       }

@@ -24,17 +24,32 @@ var descartesJS = (function(descartesJS) {
       case("Auxiliar"):
         tmpErr = ( (descartesJS.DEBUG.typeName === "event") || (descartesJS.DEBUG.typeName === "algorithm") || (descartesJS.DEBUG.typeName === "constant") ) ? "En el programa " : "En la definición ";
 
-        if ( (babel[descartesJS.DEBUG.paramName] == "doExpr") ||
-             (babel[descartesJS.DEBUG.paramName] == "init") ) {
+        if (
+          (babel[descartesJS.DEBUG.pName] == "doExpr") ||
+          (babel[descartesJS.DEBUG.pName] == "init") 
+        ) {
           extraErr = " en la línea " + (descartesJS.DEBUG.lineCount+1);
         }
 
-        errStr += `${tmpErr}「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.paramName}」${extraErr}.`;
-        break;
+        errStr += `${tmpErr}「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.pName}」${extraErr}.`;
+      break;
 
       case("Graphic"):
-        errStr += `En el gráfico #${descartesJS.DEBUG.elemIndex+1} de tipo 「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.paramName}」.`;
-        break;
+        errStr += `En el gráfico #${descartesJS.DEBUG.elemIndex+1} de tipo 「${descartesJS.DEBUG.idName}」, en el parámetro 「${descartesJS.DEBUG.pName}」.`;
+      break;
+
+      case("Animation"):
+        tmpErr = ". En la Animación";
+
+        if (
+          (babel[descartesJS.DEBUG.pName] == "doExpr") ||
+          (babel[descartesJS.DEBUG.pName] == "init") 
+        ) {
+          extraErr = " en la línea " + (descartesJS.DEBUG.lineCount+1);
+        }
+
+        errStr += `${tmpErr}, en el parámetro 「${descartesJS.DEBUG.pName}」${extraErr}.`;
+      break;
     }
 
     console.info(errStr);

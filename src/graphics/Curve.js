@@ -6,17 +6,16 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var para;
-  var space;
-  var tempParam;
-  var expr;
-  var radianAngle;
-  var tmpRot;
-  var lineDesp = 0.5;
-  var POS_LIMIT = 1000000;
+  let evaluator;
+  let space;
+  let tempParam;
+  let expr;
+  let radianAngle;
+  let tmpRot;
+  let lineDesp = 0.5;
+  let POS_LIMIT = 1000000;
 
   class Curve extends descartesJS.Graphic {
     /**
@@ -28,7 +27,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.parameter = this.parameter || "t";
+      this.param = this.param || "t";
       this.parameter_interval = this.parameter_interval || parent.evaluator.parser.parse("[0,1]");
       this.parameter_steps = this.parameter_steps || parent.evaluator.parser.parse("8");
       this.width = this.width || parent.evaluator.parser.parse("1");
@@ -47,10 +46,7 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      para = evaluator.eval(this.parameter_interval);
-
-      this.paraInf = para[0][0]; // the first value of the first expression
-      this.paraSup = para[0][1]; // the second value of the first expression
+      [this.paraInf, this.paraSup] = evaluator.eval(this.parameter_interval)[0];
 
       this.pSteps = evaluator.eval(this.parameter_steps);
       this.paraSep = (this.pSteps > 0) ? Math.abs(this.paraSup - this.paraInf)/this.pSteps : 0;
@@ -89,47 +85,47 @@ var descartesJS = (function(descartesJS) {
       ctx.lineCap = ctx.lineJoin = "round";
       ctx.strokeStyle = stroke.getColor();
 
-      tempParam = evaluator.getVariable(this.parameter);
+      tempParam = evaluator.getVariable(this.param);
 
       ctx.beginPath();
 
-      evaluator.setVariable(this.parameter, this.paraInf);
+      evaluator.setVariable(this.param, this.paraInf);
 
-      expr = evaluator.eval(this.expresion);
-      this.exprX = MathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
-      this.exprY = MathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
+      expr = evaluator.eval(this.expresion)[0];
+      this.X = MathRound( (this.abs_coord) ? expr[0] : space.getAbsoluteX(expr[0]) );
+      this.Y = MathRound( (this.abs_coord) ? expr[1] : space.getAbsoluteY(expr[1]) );
 
       // MACRO //
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
         radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
-        tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
+        tmpRot = this.rotate(expr[0], expr[1], radianAngle);
 
-        this.exprX = MathRound( (this.abs_coord) ? tmpRot.x : space.getAbsoluteX(tmpRot.x) );
-        this.exprY = MathRound( (this.abs_coord) ? tmpRot.y : space.getAbsoluteY(tmpRot.y) );
+        this.X = MathRound( (this.abs_coord) ? tmpRot.x : space.getAbsoluteX(tmpRot.x) );
+        this.Y = MathRound( (this.abs_coord) ? tmpRot.y : space.getAbsoluteY(tmpRot.y) );
       }
       // MACRO //
 
-      ctx.moveTo(this.exprX+lineDesp, this.exprY+lineDesp);
-      for(var i=1; i<=this.pSteps; i++) {
-        evaluator.setVariable( this.parameter, (this.paraInf+(i*this.paraSep)) );
+      ctx.moveTo(this.X+lineDesp, this.Y+lineDesp);
+      for (let i=1; i<=this.pSteps; i++) {
+        evaluator.setVariable( this.param, (this.paraInf + (i*this.paraSep)) );
 
-        expr = evaluator.eval(this.expresion);
+        expr = evaluator.eval(this.expresion)[0];
     
         // MACRO //
         // rotate the elements in case the graphic is part of a macro
         if (this.rotateExp) {
-          tmpRot = this.rotate(expr[0][0], expr[0][1], radianAngle);
-          expr[0][0] = tmpRot.x;
-          expr[0][1] = tmpRot.y;
+          tmpRot = this.rotate(expr[0], expr[1], radianAngle);
+          expr[0] = tmpRot.x;
+          expr[1] = tmpRot.y;
         }
         // MACRO //
 
-        this.exprX = MathRound( (this.abs_coord) ? expr[0][0] : space.getAbsoluteX(expr[0][0]) );
-        this.exprY = MathRound( (this.abs_coord) ? expr[0][1] : space.getAbsoluteY(expr[0][1]) );
+        this.X = MathRound( (this.abs_coord) ? expr[0] : space.getAbsoluteX(expr[0]) );
+        this.Y = MathRound( (this.abs_coord) ? expr[1] : space.getAbsoluteY(expr[1]) );
 
-        if ( !isNaN(this.exprX) && !isNaN(this.exprY) && (this.exprX > -POS_LIMIT) && (this.exprX < POS_LIMIT) && (this.exprY > -POS_LIMIT) && (this.exprY < POS_LIMIT) ) {
-          ctx.lineTo(this.exprX+lineDesp, this.exprY+lineDesp);
+        if ( !isNaN(this.X) && !isNaN(this.Y) && (this.X > -POS_LIMIT) && (this.X < POS_LIMIT) && (this.Y > -POS_LIMIT) && (this.Y < POS_LIMIT) ) {
+          ctx.lineTo(this.X+lineDesp, this.Y+lineDesp);
         }
       }
 
@@ -144,19 +140,18 @@ var descartesJS = (function(descartesJS) {
       // restore the dash style
       ctx.setLineDash([]);
 
-      evaluator.setVariable(this.parameter, tempParam);
+      evaluator.setVariable(this.param, tempParam);
     }
 
     /**
      * Register a text field in case the curve expression is editable
      */
     registerTextField() {
-      var textField = descartesJS.newHTML("input");
-      textField.value = this.expresionString;
-      textField.disabled = !(this.editable);
+      let self = this;
+      let textField = descartesJS.newHTML("input");
+      textField.value = self.expresionString;
+      textField.disabled = !(self.editable);
 
-      var self = this;
-      textField.oncontextmenu = function () { return false; };
       textField.onkeydown = function(evt) {
         if (evt.keyCode == 13) {
           self.expresion = self.evaluator.parser.parse(this.value);
@@ -164,7 +159,9 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      this.parent.editableRegion.textFields.push(textField);
+      self.parent.editableRegion.textFields.push(textField);
+      console.log(self.parent.editableRegion.textFields)
+
     }
   }
 

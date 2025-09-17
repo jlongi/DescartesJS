@@ -8,32 +8,32 @@ var descartesJS = (function(descartesJS) {
 
   const MathFloor = Math.floor;
 
-  var regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
-  var evaluator;
-  var tmpColor;
-  var splitColor;
-  var hexColor;
-  var splitString;
-  var splitColor_i;
-  var numParentheses;
-  var numSquareParentheses;
-  var lastSplitIndex;
-  var charAt;
-  var r;
-  var g;
-  var b;
-  var a;
-  var stop_tmp;
-  var grad;
-  var img;
-  var parent;
+  let regExpImage = /[\w-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
+  let evaluator;
+  let tmpColor;
+  let splitColor;
+  let hexColor;
+  let splitString;
+  let splitColor_i;
+  let numParentheses;
+  let numSquareParentheses;
+  let lastSplitIndex;
+  let charAt;
+  let r;
+  let g;
+  let b;
+  let a;
+  let stop_tmp;
+  let grad;
+  let img;
+  let parent;
 
   /**
    *
    */
   class Color {
     constructor(color, evaluator) {
-      var self = this;
+      let self = this;
       self.r = self.g = self.b = 0;
       self.a = 1;
 
@@ -51,8 +51,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       // linear gradient
-      else if (color.match(/^GradL/)) {
-        grad_info = self.splitComa( color.substring(6, color.length-1) );
+      else if ((/^GradL/).test(color)) {
+        grad_info = descartesJS.splitComa( color.substring(6, color.length-1) );
         self.x1 = self.evaluator.parser.parse(grad_info[0]);
         self.y1 = self.evaluator.parser.parse(grad_info[1]);
         self.x2 = self.evaluator.parser.parse(grad_info[2]);
@@ -74,7 +74,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // pattern
-      else if (color.match(/^Pattern/)) {
+      else if ((/^Pattern/).test(color)) {
         self.img_src = color.substring(8, color.length-1);
         if (self.img_src.match(regExpImage)) {
           self.img_src = "'" + self.img_src + "'";
@@ -119,9 +119,9 @@ var descartesJS = (function(descartesJS) {
       // the color is a Descartes expression (exprR, exprG, exprB, exprA)
       else if (color[0] === "(") {
         tmpColor = [];
-        splitColor = self.splitComa(color.substring(1, color.length-1));
+        splitColor = descartesJS.splitComa(color.substring(1, color.length-1));
 
-        for (var i=0, l=splitColor.length; i<l; i++) {
+        for (let i=0, l=splitColor.length; i<l; i++) {
           splitColor_i = splitColor[i];
           hexColor = parseInt(splitColor_i, 16);
           
@@ -147,45 +147,6 @@ var descartesJS = (function(descartesJS) {
     }
 
     /**
-     * Split a string using a coma delimiter
-     * @param {String} string the string to split
-     * @return {Array<String>} return an array of the splitting string using a coma delimiter
-     */
-    splitComa(string) {
-      splitString = [];
-
-      numParentheses = 0;
-      numSquareParentheses = 0;
-
-      lastSplitIndex = 0;
-
-      for (var i=0, l=string.length; i<l; i++) {
-        charAt = string.charAt(i);
-
-        if (charAt === "(") {
-          numParentheses++;
-        }
-        else if (charAt === ")") {
-          numParentheses--;
-        }
-        else if (charAt === "[") {
-          numSquareParentheses++;
-        }
-        else if (charAt === "]") {
-          numSquareParentheses--;
-        }
-        else if ((charAt === ",") && (numParentheses === 0) && (numSquareParentheses === 0)) {
-          splitString.push(string.substring(lastSplitIndex, i));
-          lastSplitIndex = i+1;
-        }
-      }
-
-      splitString.push(string.substring(lastSplitIndex));
-
-      return splitString;
-    }
-
-    /**
      *
      */
     getColorStr() {
@@ -196,9 +157,9 @@ var descartesJS = (function(descartesJS) {
      *
      */
     getColorExp() {
-      var self = this;
-      
+      let self = this;
       evaluator = self.evaluator;
+
       self.r = MathFloor(evaluator.eval(self.rExpr) * 255);
       self.g = MathFloor(evaluator.eval(self.gExpr) * 255);
       self.b = MathFloor(evaluator.eval(self.bExpr) * 255);
@@ -211,17 +172,18 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     getLinearGradient() {
-      var self = this;
+      let self = this;
+      evaluator = self.evaluator;
 
       grad = descartesJS.ctx.createLinearGradient(
-        self.evaluator.eval(self.x1),
-        self.evaluator.eval(self.y1),
-        self.evaluator.eval(self.x2),
-        self.evaluator.eval(self.y2)
+        evaluator.eval(self.x1),
+        evaluator.eval(self.y1),
+        evaluator.eval(self.x2),
+        evaluator.eval(self.y2)
       );
 
       for (let i=0; i<self.stops.length; i++) {
-        stop_tmp = self.evaluator.eval(self.stops[i].percentage);
+        stop_tmp = evaluator.eval(self.stops[i].percentage);
         stop_tmp = (stop_tmp < 0) ? 0 : ((stop_tmp > 1) ? 1 : stop_tmp)
         grad.addColorStop(
           stop_tmp,
@@ -236,7 +198,7 @@ var descartesJS = (function(descartesJS) {
      * 
      */
      getPattern() {
-      var self = this;
+      let self = this;
       parent = self.evaluator.parent;
       img = parent.getImage(self.evaluator.eval(self.img_src));
 
@@ -270,18 +232,51 @@ var descartesJS = (function(descartesJS) {
    */
   descartesJS.RGBAToHexColor = function(color) {
     color = color.substring(5, color.length-1).split(",");
-
-    r = parseInt(color[0]).toString(16);
-    g = parseInt(color[1]).toString(16);
-    b = parseInt(color[2]).toString(16);
-    a = (255 - (parseInt(parseFloat(color[3])*255))).toString(16);
-
-    if (r.length === 1) r = "0"+r;
-    if (g.length === 1) g = "0"+g;
-    if (b.length === 1) b = "0"+b;
-    if (a.length === 1) a = "0"+a;
-
+    r = parseInt(color[0]).toString(16).padStart(2, '0');
+    g = parseInt(color[1]).toString(16).padStart(2, '0');
+    b = parseInt(color[2]).toString(16).padStart(2, '0');
+    a = (255 - (parseInt(parseFloat(color[3])*255))).toString(16).padStart(2, '0');
     return new Color(a+r+g+b);
+  }
+
+  
+  /**
+   * Split a string using a coma delimiter
+   * @param {String} inputString the string to split
+   * @return {Array<String>} return an array of the splitting string using a coma delimiter
+   */
+  descartesJS.splitComa = function(inputString) {
+    splitString = [];
+
+    numParentheses = 0;
+    numSquareParentheses = 0;
+
+    lastSplitIndex = 0;
+
+    for (let i=0, l=inputString.length; i<l; i++) {
+      charAt = inputString[i];
+
+      if (charAt === "(") {
+        numParentheses++;
+      }
+      else if (charAt === ")") {
+        numParentheses--;
+      }
+      else if (charAt === "[") {
+        numSquareParentheses++;
+      }
+      else if (charAt === "]") {
+        numSquareParentheses--;
+      }
+      else if ((charAt === ",") && (numParentheses === 0) && (numSquareParentheses === 0)) {
+        splitString.push(inputString.substring(lastSplitIndex, i));
+        lastSplitIndex = i+1;
+      }
+    }
+
+    splitString.push(inputString.substring(lastSplitIndex));
+
+    return splitString;
   }
 
   descartesJS.Color = Color;

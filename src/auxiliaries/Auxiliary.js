@@ -6,9 +6,10 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
-  var tmp;
-  var tmpExpression;
-  
+  let self;
+  let tmpExpression;
+  let tmp;
+
   class Auxiliary {
     /**
      * Descartes auxiliary
@@ -16,39 +17,15 @@ var descartesJS = (function(descartesJS) {
      * @param {String} values the values of the auxiliary
      */
     constructor(parent, values) {
-      /**
-       * Descartes application
-       * type {DescartesApp}
-       * @private
-       */
-      this.parent = parent;
-      this.evaluator = parent.evaluator;
+      self = this;
 
-      /**
-       * identifier of the auxiliary
-       * type {String}
-       * @private
-       */
-      this.id = "";
-      
-      /**
-       * the expression of the auxiliary
-       * type {String}
-       * @private
-       */
-      this.expresion = "";
-
-      this.local = "";
-
-      /**
-       * type of evaluation of the auxiliary
-       * type {String}
-       * @private
-       */
-      this.evaluate = "onlyOnce";
+      self.parent = parent;
+      self.evaluator = parent.evaluator;
+      self.id = self.expresion = self.init = self.privateVars = self.doExpr = self.whileExpr = "";
+      self.evaluate = "onlyOnce";
 
       // assign the values to replace the defaults values of the object
-      Object.assign(this, values);
+      Object.assign(self, values);
     }  
     
     /**
@@ -60,82 +37,79 @@ var descartesJS = (function(descartesJS) {
      * Update the auxiliary
      */
     update() { };
+  }
 
-    /**
-     * Split the expression using the semicolon as separator, ignoring the empty expressions
-     * @param {Parser} parser a Descartes parser object
-     * @param {String} expression the expression to split
-     * @return {Array<Node>} return an array of nodes corresponding to the expression split
-     */
-    splitInstructions(parser, expression) {
-      tmpExpression = [];
+  /**
+   * Support functions for auxiliary
+   */
 
-      expression = (expression) ? descartesJS.splitSeparator(expression) : [""];
+  /**
+   * Split the expression using the semicolon as separator, ignoring the empty expressions
+   * @param {Parser} parser a Descartes parser object
+   * @param {String} expression the expression to split
+   * @return {Array<Node>} return an array of nodes corresponding to the expression split
+   */
+  descartesJS.splitInstructions = function(parser, expression) {
+    expression = (expression) ? descartesJS.splitSeparator(expression) : [""];
 
-      // add only the instructions that execute something, i.e. instructions with parsing different of null
-      for (var i=0, l=expression.length; i<l; i++) {
-        descartesJS.DEBUG.lineCount = i;
-        tmp = parser.parse(expression[i], true);
-        if (tmp) {
-          tmpExpression.push(tmp);
-        }
+    // add only the instructions that execute something, i.e. instructions with parsing different of null
+    return expression.map((expr_i, i) => {
+      descartesJS.DEBUG.lineCount = i;
+      return parser.parse(expr_i, true);
+    }).filter((tmp) => tmp);
+  }
+
+  /**
+   *
+   */
+  descartesJS.parseExpr = function(element, values, parser) {
+    // parse the init expression
+    descartesJS.DEBUG.pName = "inicio";
+    element.init = descartesJS.splitInstructions(parser, values.init);
+
+    // parse the local expression
+    descartesJS.DEBUG.pName = "local";
+    element.privateVars = descartesJS.getPrivateVariables(parser, values.local);
+
+    // parse the do expression
+    descartesJS.DEBUG.pName = "hacer";
+    element.doExpr = descartesJS.splitInstructions(parser, values.doExpr);
+    
+    // parse the while expression
+    descartesJS.DEBUG.pName = "mientras";
+    element.whileExpr = parser.parse(values.whileExpr);
+  }
+
+  /**
+   *
+   */
+  descartesJS.getPrivateVariables = function(parser, expression) {
+    tmpExpression = [];
+
+    expression = (expression) ? expression.split(/;|,/) : [""];
+
+    // add only the instructions that execute something, i.e. instructions with parsing different of null
+    for (let expr_i of expression) {
+      tmp = parser.parse(expr_i, true);
+      if (tmp) {
+        tmpExpression.push(tmp);
       }
-      
-      return tmpExpression;
-    }
+    }    
 
-    /**
-     *
-     */
-    getPrivateVariables(parser, expression) {
-      tmpExpression = [];
-
-      expression = (expression) ? expression.split(/;|,/) : [""];
-
-      // add only the instructions tha execute something, i.e. instructions whit parsing different of null
-      for (var i=0, l=expression.length; i<l; i++) {
-        tmp = parser.parse(expression[i], true);
-        if (tmp) {
-          tmpExpression.push(tmp);
-        }
-      }    
-
-      // add the identifier nodes to local variables
-      for (var i=0, l=tmpExpression.length; i<l; i++) {
-        if (tmpExpression[i].type === "assign") {
-          tmpExpression[i] = tmpExpression[i].childs[0].value;
-        }
-        else if (tmpExpression[i].type === "identifier") {
-          tmpExpression[i] = tmpExpression[i].value;
-        }
-        else {
-          tmpExpression[i] = "";
-        }
+    // add the identifier nodes to local variables
+    for (let i=0, l=tmpExpression.length; i<l; i++) {
+      if (tmpExpression[i].type === "assign") {
+        tmpExpression[i] = tmpExpression[i].childs[0].value;
       }
-
-      return tmpExpression;
+      else if (tmpExpression[i].type === "identifier") {
+        tmpExpression[i] = tmpExpression[i].value;
+      }
+      else {
+        tmpExpression[i] = "";
+      }
     }
 
-    /**
-     *
-     */
-    parseExpressions(parser) {
-      descartesJS.DEBUG.paramName = "inicio";
-      // parse the init expression
-      this.init = this.splitInstructions(parser, this.init);
-
-      descartesJS.DEBUG.paramName = "local";
-      // parse the local expression
-      this.privateVars = this.getPrivateVariables(parser, this.local);
-
-      descartesJS.DEBUG.paramName = "hacer";
-      // parse the do expression
-      this.doExpr = this.splitInstructions(parser, this.doExpr);
-      
-      descartesJS.DEBUG.paramName = "mientras";
-      // parse the while expression
-      this.whileExpr = parser.parse(this.whileExpr);
-    }
+    return tmpExpression;
   }
 
   descartesJS.Auxiliary = Auxiliary;

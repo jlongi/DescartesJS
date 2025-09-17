@@ -6,14 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var expr;
-  var tempParam;
-  var theText;
-  var verticalDisplace;
-  var ctx;
-  var cosTheta;
-  var senTheta;
+  let self;
+  let evaluator;
+  let tempParam;
+  let theText;
+  let verticalDisplace;
+  let ctx;
+  let cosTheta;
+  let senTheta;
 
   class Graphic {
     /**
@@ -22,139 +22,32 @@ var descartesJS = (function(descartesJS) {
      * @param {String} values the values of the graphic
      */
     constructor(parent, values) {
-      var self = this;
-      /**
-       * Descartes application
-       * type {DescartesApp}
-       * @private
-       */
+      self = this;
       self.parent = parent;
-
-      /**
-       * object for parse and evaluate expressions
-       * type {Evaluator}
-       * @private
-       */
       self.evaluator = parent.evaluator;
 
-      var parser = self.evaluator.parser;
+      let parser = self.evaluator.parser;
 
-      /**
-       * identifier of the space that belongs to the graphic
-       * type {String}
-       * @private
-       */
-      self.spaceID = "";
+      self.spaceID = self.type = self.trace = self.family = self.text = "";
 
-      /**
-       * the condition for determining whether the graph is drawn in the background
-       * type {Boolean}
-       * @private
-       */
-      self.background = false;
+      self.background = self.visible = self.editable = false;
 
-      /**
-       * type of the graphic
-       * type {String}
-       * @private
-       */
-      self.type = "";
-
-      /**
-       * the condition to draw the graphic
-       * type {Node}
-       * @private
-       */
       self.drawif = parser.parse("1");
 
-      /**
-       * the condition for determine whether the graphic is in absolute coordinates
-       * type {Boolean}
-       * @private
-       */
-      self.abs_coord = (values && values.type && values.type.toLowerCase() === "text") ? true : false;
+      self.abs_coord = (values && values.type && values.type.toLowerCase() === "text");
 
-      /**
-       * the primary color of the graphic
-       * type {String}
-       * @private
-       */
       self.color = new descartesJS.Color("20303a");
-      
-      /**
-       * the color for the trace of the graphic
-       * type {String}
-       * @private
-       */
-      self.trace = "";
 
-      /**
-       * the expression for determine the position of the graphic
-       * type {Node}
-       * @private
-       */
       self.expresion = parser.parse("(0,0)");
 
-      /**
-       * the condition and parameter name for family of the graphic
-       * type {String}
-       * @private
-       */
-      self.family = "";
-
-      /**
-       * the interval of the family
-       * type {Node}
-       * @private
-       */
       self.family_interval = parser.parse("[0,1]");
 
-      /**
-       * the number of steps of the family
-       * type {Node}
-       * @private
-       */
       self.family_steps = parser.parse("8");
 
-      /**
-       * type {Boolean}
-       * @private
-       */
-      self.visible = false;
+      self.font = "SansSerif,PLAIN," + ((self.parent.version >= 5) ? "18" : "12");
 
-      /**
-       * the condition for determining whether the graph is editable
-       * type {Boolean}
-       * @private
-       */
-      self.editable = false;
-
-      /**
-       * font of the text
-       * type {String}
-       * @private
-       */
-      self.font = "SansSerif,PLAIN," + ((self.parent.version >=5) ? "18" : "12");
-
-      /**
-       * the condition for determining whether the text of the graph is fixed or not
-       * type {Boolean}
-       * @private
-       */
       self.fixed = true;
 
-      /**
-       * text of the graphic
-       * type {String}
-       * @private
-       */
-      self.text = "";
-
-      /**
-       * the number of decimal of the text
-       * type {Node}
-       * @private
-       */
       self.decimals = parser.parse("2");
 
       // assign the values to replace the defaults values of the object
@@ -173,35 +66,24 @@ var descartesJS = (function(descartesJS) {
       }
 
       // get a Descartes font
-      this.font_str = this.font;
-      this.font = descartesJS.convertFont(this.font);
+      self.font_str = self.font;
+      self.font = descartesJS.convertFont(self.font);
       // get the font size
-      this.fontSize = this.font.match(/([\d\.]+)px/);
-      this.fontSize = (this.fontSize) ? parseFloat(this.fontSize[1]) : 10;
+      self.fontSize = self.font.match(/([\d\.]+)px/);
+      self.fontSize = (self.fontSize) ? parseFloat(self.fontSize[1]) : 10;
 
-      this.font_style = descartesJS.getFontStyle(this.font_str.split(",")[1]);
-      if ((typeof(this.bold) === "boolean") || (typeof(this.italics) === "boolean")) {
-        if (this.bold && !this.italics) {
-          this.font_style = "Bold ";
-        }
-        else if (!this.bold && this.italics) {
-          this.font_style = "Italic ";
-        }
-        else if (this.bold && this.italics) {
-          this.font_style = "Italic Bold ";
-        }
-        else if (!this.bold && !this.italics) {
-          this.font_style = " ";
-        }
+      self.font_style = descartesJS.getFontStyle(self.font_str.split(",")[1]);
+
+      if ((typeof self.bold === "boolean") || (typeof self.italics === "boolean")) {
+        self.font_style = (self.italics ? "Italic " : "") + (self.bold ? "Bold " : "");
       }
-
-      if (!this.font_family) {
-        this.font_family = this.font_str.split(",")[0];
+      if (!self.font_family) {
+        self.font_family = self.font_str.split(",")[0];
       }
-      this.font_family = descartesJS.getFontName(this.font_family);
+      self.font_family = descartesJS.getFontName(self.font_family);
 
-      if (typeof this.font_size === "undefined") {
-        this.font_size = parent.evaluator.parser.parse(this.fontSize.toString());
+      if (typeof self.font_size === "undefined") {
+        self.font_size = parent.evaluator.parser.parse(self.fontSize.toString());
       }
     }
 
@@ -210,19 +92,23 @@ var descartesJS = (function(descartesJS) {
      * return {Space} return the space to which the graphic belongs
      */
     getSpace() {
-      return (this.parent.spaces.find( (element) => { return element.id === this.spaceID; } )) || this.parent.spaces[0];
+      return (this.parent.spaces.find( (element) => {
+        // find in the spaces
+        return element.id === this.spaceID;
+      } )) 
+      // if do not find the identifier, return the first space
+      || this.parent.spaces[0];
     }
 
     /**
      * Get the family values of the graphic
      */
     getFamilyValues() {
-      evaluator = this.evaluator;
-      expr = evaluator.eval(this.family_interval);
-      this.familyInf = expr[0][0];
-      this.familySup = expr[0][1];
-      this.fSteps = Math.round(evaluator.eval(this.family_steps));
-      this.family_sep = (this.fSteps > 0) ? (this.familySup - this.familyInf)/this.fSteps : 0;
+      self = this;
+      evaluator = self.evaluator;
+      [self.fInf, self.fSup] = evaluator.eval(self.family_interval)[0];
+      self.fSteps = Math.round(evaluator.eval(self.family_steps));
+      self.fSep = (self.fSteps > 0) ? (self.fSup - self.fInf)/self.fSteps : 0;
     }
 
     /**
@@ -232,34 +118,33 @@ var descartesJS = (function(descartesJS) {
      * @param {String} stroke the stroke color of the graphic
      */
     drawFamilyAux(ctx, fill, stroke) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // update the family values
-      this.getFamilyValues();
+      self.getFamilyValues();
 
       // save the las value of the family parameter
-      tempParam = evaluator.getVariable(this.family);
+      tempParam = evaluator.getVariable(self.family);
 
-      if (this.fSteps >= 0) {
+      if (self.fSteps >= 0) {
         // draw all the family members of the graphic
-        for(let i=0, l=this.fSteps; i<=l; i++) {
+        for (let i=0, l=self.fSteps; i<=l; i++) {
           // update the value of the family parameter
-          evaluator.setVariable(this.family, this.familyInf+(i*this.family_sep));
+          evaluator.setVariable(self.family, self.fInf + (i*self.fSep));
 
           // if the condition to draw if true then update and draw the graphic
-          if ( evaluator.eval(this.drawif) > 0 ) {
+          if ( evaluator.eval(self.drawif) > 0 ) {
             // update the values of the graphic
-            this.update();
-            //awful hack to help the pstricks exporter
-            ctx.oldTextNode = null;
+            self.update();
             // draw the graphic
-            this.drawAux(ctx, fill, stroke);
+            self.drawAux(ctx, fill, stroke);
           }
         }
       }
 
       evaluator.setVariable("_Text_H_", 0);
-      evaluator.setVariable(this.family, tempParam);
+      evaluator.setVariable(self.family, tempParam);
     }
 
     /**
@@ -327,20 +212,22 @@ var descartesJS = (function(descartesJS) {
      */
     dashStyle() {
       ctx = this.ctx
-      if (this.lineDash === "dot") {
-        ctx.lineCap = "butt";
-        ctx.setLineDash([ctx.lineWidth, ctx.lineWidth])
-      }
-      else if (this.lineDash === "dash") {
-        ctx.lineCap = "butt";
-        ctx.setLineDash([ctx.lineWidth*4, ctx.lineWidth*3])
-      }
-      else if (this.lineDash === "dash_dot") {
-        ctx.lineCap = "butt";
-        ctx.setLineDash([ctx.lineWidth*4, ctx.lineWidth*2, ctx.lineWidth, ctx.lineWidth*2])
-      }
-      else {
-        ctx.setLineDash([]);
+      ctx.lineCap = "butt";
+
+      switch (this.lineDash) {
+        case "dot":
+          ctx.setLineDash([ctx.lineWidth, ctx.lineWidth]);
+          break;
+        case "dash":
+          ctx.setLineDash([ctx.lineWidth * 4, ctx.lineWidth * 3]);
+          break;
+        case "dash_dot":
+          ctx.setLineDash([ctx.lineWidth * 4, ctx.lineWidth * 2, ctx.lineWidth, ctx.lineWidth * 2]);
+          break;
+        default:
+          ctx.lineCap = "round";
+          ctx.setLineDash([]);
+          break;
       }
     }
 
@@ -385,7 +272,7 @@ var descartesJS = (function(descartesJS) {
 
       verticalDisplace = this.fontSize*1.2 || 0;
 
-      for (var i=0, l=text.length; i<l; i++) {
+      for (let i=0, l=text.length; i<l; i++) {
         theText = text[i];
 
         if (this.border) {

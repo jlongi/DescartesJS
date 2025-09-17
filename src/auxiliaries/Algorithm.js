@@ -6,6 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  let max_ite;
+  let evaluator;
+
   class Algorithm extends descartesJS.Auxiliary {
     /**
      * Descartes algorithm
@@ -16,33 +19,31 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      var evaluator = this.evaluator;
-      this.parseExpressions(evaluator.parser);
-      
-      var self = this;
-      var max_ite;
+      descartesJS.parseExpr(this, this, this.evaluator.parser);
+    }
 
-      // create the function to exec when the algorithm evaluates
-      this.algorithmExec = function() {
-        self.iterations = 0;
-        max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
+    // create the function to exec when the algorithm evaluates
+    algorithmExec() {
+      let ite = 0;
 
-        for (var i=0, l=self.init.length; i<l; i++) {
-          evaluator.eval(self.init[i]);
-        }
-        
-        do {
-          for (var i=0, l=self.doExpr.length; i<l; i++) {
-            evaluator.eval(self.doExpr[i]);
-          }
+      evaluator = this.evaluator;
+      max_ite = evaluator.getVariable("_NUM_MAX_ITE_ALG_") || 100000;
 
-          if (++self.iterations > max_ite) {
-            console.warn("se ha excedido el límite de " + max_ite + " repeticiones en el algoritmo << " + self.name + " >>");
-            return 0;
-          }
-        }
-        while (evaluator.eval(self.whileExpr) > 0);
+      for (let expr of this.init) {
+        evaluator.eval(expr);
       }
+
+      do {
+        for (let expr of this.doExpr) {
+          evaluator.eval(expr);
+        }
+
+        if (++ite > max_ite) {
+          console.warn(`se ha excedido el límite de ${max_ite} repeticiones en el algoritmo «${this.name}»`);
+          return 0;
+        }
+      }
+      while (evaluator.eval(this.whileExpr) > 0);
     }
     
     /**
@@ -52,7 +53,7 @@ var descartesJS = (function(descartesJS) {
       this.algorithmExec();
       
       if (this.evaluate === "onlyOnce") {
-        this.update = function() {};
+        this.update = ()=>{};
       }
     }
   }

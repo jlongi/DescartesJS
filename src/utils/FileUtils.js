@@ -11,15 +11,15 @@ var descartesJS = (function(descartesJS) {
   /**
    * Open an external file using an xml http request
    * @param {String} filename the filename of the file to open
-   * @return {*} the content of the file if reader or null if not
+   * @return {string|null} the content of the file if reader or null if not
    */
   descartesJS.openFile = function(filename) {
     if (descartesJS.cacheFiles[filename]) {
       return descartesJS.cacheFiles[filename];
     }
 
-    var response = null;
-    var xhr = new XMLHttpRequest();
+    let response = null;
+    let xhr = new XMLHttpRequest();
     xhr.open("GET", filename, false);
     try {
       xhr.send(null);

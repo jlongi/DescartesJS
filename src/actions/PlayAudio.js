@@ -6,26 +6,25 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
-
-  class PlayAudio extends descartesJS.Action {
+  class PlayAudio {
     /**
      * Descartes play audio action
      * @param {DescartesApp} parent the Descartes application
      * @param {String} parameter the values of the action
      */
-    constructor(parent, parameter = "") {
-      super(parent);
+    constructor(parent, parameter="") {
+      this.parent = parent;
     
-      if (parameter.match(regExpAudio)) {
-        this.filename = this.evaluator.parser.parse(`'${parameter.match(regExpAudio)}'`);
+      const match_audio = parameter.match(/[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi);
+      if (match_audio) {
+        this.filename = this.parent.evaluator.parser.parse(`'${match_audio}'`);
       }
       else {
         // if the parameter inits with braces [], extract the expression
-        if (parameter.match(/^\[.*\]?/)) {
-          parameter = parameter.substring(1, parameter.length-1);
+        if ((/^\[.*\]$/).test(parameter)) {
+          parameter = parameter.slice(1, -1);
         }
-        this.filename = this.evaluator.parser.parse(parameter);
+        this.filename = this.parent.evaluator.parser.parse(parameter);
       }
     }
     
@@ -33,7 +32,7 @@ var descartesJS = (function(descartesJS) {
      * Execute the action
      */
     execute() {
-      var theAudio = this.theAudio = this.parent.getAudio( this.evaluator.eval(this.filename) );
+      const theAudio = this.parent.getAudio( this.parent.evaluator.eval(this.filename) );
 
       // if the audio is paused then play it
       if (theAudio.paused) {

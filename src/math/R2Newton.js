@@ -8,39 +8,36 @@ var descartesJS = (function(descartesJS) {
 
   const delta = 0.000001;
 
-  var evaluator;
-  var FV;
-  var xa;
-  var ya;
-  var q;
-  var newQ;
-  var savex;
-  var savey;
+  let evaluator;
+  let FV;
+  let xa;
+  let ya;
+  let q;
+  let newQ;
+  let savex;
+  let savey;
 
-  var _unitNormal;
+  let _unitNormal;
 
   class R2Newton {
     /**
      * Descartes R2Newton
      * @param {Evaluator} evaluator the Descartes evaluator
-     * @param {String} constraint the constraint of the R2Newton
+     * @param {*} constraint the constraint of the R2Newton
      */
     constructor(evaluator, constraint) {
       this.evaluator = evaluator;
       this.constraint = constraint;
       
-      if ((this.constraint.value == "==") || (this.constraint.value == "<") || (this.constraint.value == "<=") || (this.constraint.value == ">") || (this.constraint.value == ">=")) {
-        
-        if ((this.constraint.value == "<") || (this.constraint.value == "<=")) {
-          this.sign = "menor";
+      if ((/==|<|>|<=|>=/).test(this.constraint.value)) {
+        if ((/</).test(this.constraint.value)) {
+          this.sign = "<";
         }
-        
-        else if ((this.constraint.value == ">") || (this.constraint.value == ">=")) {
-          this.sign = "mayor";
+        else if ((/>/).test(this.constraint.value)) {
+          this.sign = ">";
         }
-        
         else {
-          this.sign = "igual"; 
+          this.sign = "="; 
         }
         
         // a constraint of the form "something = somethingElse" is converted to "something - somethingElse = 0"
@@ -59,7 +56,6 @@ var descartesJS = (function(descartesJS) {
      */
     getUnitNormal() {
       this.normal.normalize();
-      
       return _unitNormal.set(this.normal.x, this.normal.y);
     }
     
@@ -84,7 +80,7 @@ var descartesJS = (function(descartesJS) {
 
       FV = evaluator.eval(this.constraint);
     
-      newQ.x = (FV-this.f0)/delta;
+      newQ.x = (FV - this.f0) / delta;
       newQ.x = (!isNaN(newQ.x)) ? newQ.x : Infinity;
       
       evaluator.setVariable("x", evaluator.getVariable("x") - delta);
@@ -92,7 +88,7 @@ var descartesJS = (function(descartesJS) {
 
       FV = evaluator.eval(this.constraint);
 
-      newQ.y = (FV-this.f0)/delta;
+      newQ.y = (FV - this.f0) / delta;
       newQ.y = (!isNaN(newQ.y)) ? newQ.y : Infinity;
 
       evaluator.setVariable("x", savex);
@@ -118,14 +114,14 @@ var descartesJS = (function(descartesJS) {
       
       this.f0 = evaluator.eval(this.constraint);
       
-      if ( ((this.sign === "menor") && (this.f0 <= 0)) || ((this.sign === "mayor") && (this.f0 >= 0)) ) {
+      if ( ((this.sign == "<") && (this.f0 <= 0)) || ((this.sign == ">") && (this.f0 >= 0)) ) {
         return q;
       }
       
       evaluator.setVariable("x", savex);
       evaluator.setVariable("y", savey);
 
-      for (var i=0; i<16; i++) {
+      for (let i=0; i<16; i++) {
         xa = q.x;
         ya = q.y;
 
@@ -140,8 +136,8 @@ var descartesJS = (function(descartesJS) {
         
         if (this.normal.norm() < dist) {
           if ((this.normal.x === 0) && (this.normal.y === 0)) {
-            this.normal.x = q.x-q0.x;
-            this.normal.y = q.y-q0.y;
+            this.normal.x = q.x - q0.x;
+            this.normal.y = q.y - q0.y;
           }
           return q;
         }

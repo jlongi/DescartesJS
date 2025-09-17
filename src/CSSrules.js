@@ -13,7 +13,7 @@ var descartesJS = (function(descartesJS) {
     ////////////////////////////////////////////////////////////////////
     // add metadata for tablets
     ////////////////////////////////////////////////////////////////////
-    let head = document.head;
+    const head = document.head;
 
     // 
     let meta = descartesJS.newHTML("meta", {
@@ -21,7 +21,7 @@ var descartesJS = (function(descartesJS) {
       content : "width=device-width,initial-scale=1.0,user-scalable=yes",
     });
     // add the metadata to the head of the document
-    if (!document.querySelector("meta[name=viewport]")) {
+    if (!head.querySelector("meta[name=viewport]")) {
       head.appendChild(meta);
     }
 
@@ -82,6 +82,8 @@ var descartesJS = (function(descartesJS) {
       ".DescartesLoaderImage{position:absolute;background-repeat:no-repeat;background-position:center;overflow:hidden;top:0;left:0;width:100%;height:100%;}\n" +
       ".DescartesSpace2DCanvas,.DescartesSpace3DCanvas,.blocker{touch-action:none;position:absolute;overflow:hidden;left:0;top:0;}\n" +
       ".DescartesSpace2DContainer,.DescartesSpace3DContainer{position:absolute;overflow:hidden;line-height:0;}\n" +
+      ".DescartesSpaceIframe{position:absolute;left:0;top:0;width:inherit;height:inherit;}\n" +
+      ".DescartesSpaceIframeContainer{position:absolute;background-repeat:no-repeat;background-position:center;}\n" +
 
       // style for checkbox
       ".DescartesCheckboxContainer input[type=checkbox],.DescartesCheckboxContainer input[type=radio]{display: none;}\n" +
@@ -97,12 +99,14 @@ var descartesJS = (function(descartesJS) {
       ".DescartesButton{position:absolute;cursor:pointer;}\n" +
       ".DescartesButtonContainer,.DescartesSpinnerContainer,.DescartesCheckboxContainer,.DescartesTextFieldContainer,.DescartesMenuContainer{position:absolute;overflow:hidden;}\n" +
       ".DescartesSpinnerContainer input,.DescartesCheckboxContainer,.DescartesTextFieldContainer input,.DescartesMenuContainer select{border-radius:0;}\n" +
-      ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField,.DescartesSliderField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;}\n" +
+      ".DescartesSpinnerField,.DescartesTextFieldField,.DescartesMenuField,.DescartesScrollbarField,.DescartesSliderField{font-family:"+ descartesJS.sansserif_font +";padding:0 2px;border:solid #666 1px;position:absolute;  outline: none;}\n" +
+      ".DescartesSpinnerField:focus,.DescartesTextFieldField:focus,.DescartesMenuField:focus,.DescartesScrollbarField:focus,.DescartesSliderField:focus{border:2px solid #3f88fb;}\n" +
       "input[type=text]:disabled,.DescartesMenuSelect:disabled{background-color:#e3e3e3;cursor:not-allowed;opacity:1;}\n" +
       ".DescartesSpinnerLabel,.DescartesCheckboxLabel,.DescartesMenuLabel,.DescartesScrollbarLabel,.DescartesSliderLabel,.DescartesTextFieldLabel{font-family:"+ descartesJS.sansserif_font +";font-weight:normal;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;left:0;top:0;}\n" +
-      ".DescartesGraphicControl{touch-action:none;border-style:none;position:absolute;}\n" +
-      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;resize:none;border:solid #666 1px;}\n" +
-      ".DescartesTextAreaContainer *{border:none;}\n" +
+      ".DescartesGraphicControl{cursor:pointer;background-color:transparent;touch-action:none;border-style:none;position:absolute;}\n" +
+      ".DescartesTextAreaContainer{position:absolute;overflow:hidden;background:#F7F7F7;border:solid #666 1px;}\n" +
+      ".DescartesTextArea {position:absolute;padding:5px;left:2px;top:2px;background-color:white;text-align:left;border:none;outline:none;resize:none;}\n" +
+      ".DescartesTextArea:focus {outline:3px solid #3f88fb;}\n" +
       ".DescartesMenuSelect{font-family:"+ descartesJS.sansserif_font +";padding-top:0;text-align:center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;position:absolute;border:1px solid #7a8a99; background:#fff url('"+ descartesJS.getSvgMenu() +"') 100%/22px no-repeat;padding:0 22px 0 5px;-webkit-appearance:none;-moz-appearance:none;appearance:none;outline:none;}\n" +
       ".DescartesMenuSelect::-ms-expand{display:none;}\n" + // corrects the appearance in internet explorer
       

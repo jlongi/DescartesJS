@@ -16,18 +16,18 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      var parser = this.evaluator.parser;
+      let evaluator = this.evaluator;
   
       this.expresionString = this.expresion;
-      this.expresion = parser.parse(this.expresionString);
+      this.expresion = evaluator.parser.parse(this.expresionString);
 
       if (this.expresion) {
-        parser.setVariable(this.id, this.expresion);
+        evaluator.setVariable(this.id, this.expresion);
       }
       
       if (this.editable) {
         this.registerTextField();
-        this.parent.editableRegionVisible = true;
+        parent.editableRegionVisible = true;
       }    
     }
     
@@ -35,30 +35,31 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     registerTextField() {
+      let self = this;
+      let evaluator = self.evaluator;
+
       let container = descartesJS.newHTML("div");
       let label = descartesJS.newHTML("label");
 
       // underscores are added at the beginning and end to determine the initial size of the label
-      label.appendChild( document.createTextNode("___" + this.id + "=___") );
+      label.appendChild( document.createTextNode(`___${self.id}=___`) );
       
       let textField = descartesJS.newHTML("input");
-      textField.value = this.expresionString;
-      textField.disabled = !(this.editable);
+      textField.value = self.expresionString;
+      textField.disabled = !self.editable;
 
       container.appendChild(label);
       container.appendChild(textField);
 
-      var self = this;
-      var parser = self.evaluator.parser;
       textField.onkeydown = function(evt) {
         if (evt.keyCode == 13) {
           self.expresion = parser.parse(this.value);
-          parser.setVariable(self.id, self.expresion);
+          evaluator.setVariable(self.id, self.expresion);
           self.parent.update();
         }
       }
 
-      this.parent.editableRegion.textFields.push({ container:container, type:"div" });
+      self.parent.editableRegion.textFields.push({ container:container, type:"div" });
     }
   }
 

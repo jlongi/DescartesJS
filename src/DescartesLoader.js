@@ -19,15 +19,24 @@ var descartesJS = (function(descartesJS) {
    */
   class DescartesLoader {
     constructor(descartesApp) {
-      const self = this;
+      let self = this;
 
       self.children = descartesApp.children;
       self.lessonParser = descartesApp.lessonParser;
       self.images = descartesApp.images;
-      self.images.length = descartesApp.images.length;
       self.audios = descartesApp.audios;
-      self.audios.length = descartesApp.audios.length;
+      self.im_l = self.au_l = 0;
       self.descartesApp = descartesApp;
+
+      // add the embebed images in scripts with type "descartes/imagen"
+      let descartes_images = document.querySelectorAll(`script[type="descartes/imagen"]`);
+      for (let img of descartes_images) {
+        self.images[img.id] = new Image();
+        self.images[img.id].onload = function() {
+          this.ready = 1;
+        }
+        self.images[img.id].src = img.innerText.trim();
+      }
 
       self.imgLoader = descartesJS.newHTML("div", {
         class : "DescartesLoaderImage",
@@ -46,7 +55,7 @@ var descartesJS = (function(descartesJS) {
       }
       else {
         scale = (descartesApp.width < descartesApp.height) ? (descartesApp.width/(original_w*original_scale)) : (descartesApp.height/(original_h*original_scale));
-        scale = (scale > 2.5) ? 2.5 : scale;
+        scale = Math.min(2.5, scale);
 
         self.imgLoader.setAttribute(
           "style", 
@@ -71,18 +80,14 @@ var descartesJS = (function(descartesJS) {
      * Init the preload of images and audios
      */
     initPreloader() {
-      const self = this;
+      let self = this;
 
       let children = self.children;
       let images = self.images;
       let audios = self.audios;
       let regExpImage = /[\w\.\-//]*(\.png|\.jpg|\.gif|\.svg|\.webp)/gi;
       let regExpAudio = /[\w\.\-//]*(\.ogg|\.oga|\.mp3|\.wav)/gi;
-
-      // add the license image
-      let licenseFile = "lib/DescartesCCLicense.png";
-      images[licenseFile] = descartesJS.getCCLImg();
-      images[licenseFile].ready = 1;
+      let regExpMacro = /'macro'|'makro'/g;
 
       let imageFilename;
       let imageTmp;
@@ -90,12 +95,8 @@ var descartesJS = (function(descartesJS) {
       let i, j, l, il, al;
       // check all children in the applet
       for (i=0, l=children.length; i<l; i++) {
-        if (children[i].name === "rtf") {
-          continue;
-        }
-
         // macro patch, search images inside the macro
-        if (children[i].value.match(/'macro'|'makro'/g)) {
+        if ((children[i].value).match(regExpMacro)) {
           let filename = "";
           let response;
 
@@ -109,7 +110,6 @@ var descartesJS = (function(descartesJS) {
           if (filename) {
             // the macro is embedded in the webpage
             let macroElement = document.getElementById(filename);
-
             if ((macroElement) && (macroElement.type == "descartes/macro")) {
               response = macroElement.text;
             }
@@ -126,11 +126,10 @@ var descartesJS = (function(descartesJS) {
                 imageTmp = imageFilename[j];
 
                 // if the filename is not VACIO.GIF or vacio.gif
-                if (!(imageTmp.toLowerCase().match(/vacio.gif$/)) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
-                  images[imageTmp] = new Image();
-                  images[imageTmp].addEventListener('load', function() { this.ready = 1; });
-                  images[imageTmp].addEventListener('error', function() { this.errorload = 1; });
-                  images[imageTmp].src = imageTmp;
+                if (!(imageTmp.toLowerCase().endsWith("vacio.gif")) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
+                  if(!images[imageTmp]) {
+                    images[imageTmp] = this.descartesApp.getImageAux(imageTmp);
+                  }
                 }
               }
             }
@@ -147,11 +146,10 @@ var descartesJS = (function(descartesJS) {
             imageTmp = imageFilename[j];
 
             // if the filename is not VACIO.GIF or vacio.gif
-            if (!(imageTmp.toLowerCase().match(/vacio.gif$/)) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
-              images[imageTmp] = new Image();
-              images[imageTmp].addEventListener('load', function() { this.ready = 1; });
-              images[imageTmp].addEventListener('error', function() { this.errorload = 1; });
-              images[imageTmp].src = imageTmp;
+            if (!(imageTmp.toLowerCase().endsWith("vacio.gif")) && ((imageTmp.substring(0, imageTmp.length-4)) != "") ) {
+              if(!images[imageTmp]) {
+                images[imageTmp] = this.descartesApp.getImageAux(imageTmp);
+              }
             }
           }
         }
@@ -162,7 +160,9 @@ var descartesJS = (function(descartesJS) {
         // if audioFilename has a match then add the audios
         if (audioFilename) {
           for (j=0, al=audioFilename.length; j<al; j++) {
-            self.initAudio(audioFilename[j]);
+            if (!audios[audioFilename[j]]) {
+              audios[audioFilename[j]] = this.descartesApp.getAudioAux(audioFilename[j]);
+            }
           }
         }
       }
@@ -170,34 +170,34 @@ var descartesJS = (function(descartesJS) {
       // count how many images
       for (let propName in images) {
         if (images.hasOwnProperty(propName)) {
-          self.images.length++;
+          self.im_l++;
         }
       }
 
       // count how many audios
       for (let propName in audios) {
         if (audios.hasOwnProperty(propName)) {
-          self.audios.length++;
+          self.au_l++;
         }
       }
 
-      let total = self.images.length + self.audios.length;
+      let total = self.im_l + self.au_l;
       if (total > 0) {
         self.progress.setAttribute("max", total);
       }
 
-      let readys;
+      let ready_counter;
       /**
        * Function that checks if all the media are loaded
        */
       let checkLoader = function() {
-        readys = 0;
+        ready_counter = 0;
 
         // how many images are loaded
         for (let propName in images) {
           if (images.hasOwnProperty(propName)) {
             if ( (images[propName].ready) || (images[propName].errorload) ) {
-              readys++;
+              ready_counter++;
             }
           }
         }
@@ -206,16 +206,16 @@ var descartesJS = (function(descartesJS) {
         for (let propName in audios) {
           if (audios.hasOwnProperty(propName)) {
             if ( (audios[propName].ready) || (audios[propName].errorload) ) {
-              readys++;
+              ready_counter++;
             }
           }
         }
 
         // update the progress bar
-        self.progress.setAttribute("value", readys);
+        self.progress.setAttribute("value", ready_counter);
 
         // if the number of count elements is different to the total then execute again checkLoader
-        if (readys != total) {
+        if (ready_counter != total) {
           self.timer = descartesJS.setTimeout(checkLoader, 1);
         }
         // if the number of count elements is equal to the total init the build of the app
@@ -226,50 +226,6 @@ var descartesJS = (function(descartesJS) {
 
       // first execution of checkLoader
       checkLoader();
-    }
-
-    /**
-     * Add a new audio to the array of audios
-     * @param {String} file the filename of the new audio
-     */
-    initAudio(file) {
-      let audios = this.audios;
-
-      audios[file] = new Audio(file);
-      audios[file].filename = file;
-
-      let onCanPlayThrough = function() {
-        this.ready = 1;
-      }
-
-      let onError = function() {
-        if (!this.canPlayType("audio/" + this.filename.substring(this.filename.length-3)) && (this.filename.substring(this.filename.length-3) == "mp3")) {
-          audios[file] = new Audio(this.filename.replace("mp3", "ogg"));
-          audios[file].filename = this.filename.replace("mp3", "ogg");
-          audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-          audios[file].addEventListener('load', onCanPlayThrough);
-          audios[file].addEventListener('error', onError);
-          audios[file].load();
-        }
-        else {
-          console.warn(`El archivo ${file} no puede ser reproducido`);
-          this.errorload = 1;
-        }
-      }
-      audios[file].addEventListener('canplaythrough', onCanPlayThrough);
-      audios[file].addEventListener('load', onCanPlayThrough);
-      audios[file].addEventListener('error', onError);
-
-      if (descartesJS.hasTouchSupport) {
-        audios[file].load();
-        audios[file].play();
-        descartesJS.setTimeout( ()=>{
-          audios[file].pause();
-        }, 20);
-        audios[file].ready = 1;
-      } else {
-        audios[file].load();
-      }
     }
   }
 

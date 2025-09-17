@@ -6,21 +6,20 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var tmpRot;
-  var imgFile;
-  var despX;
-  var despY;
-  var coordX;
-  var coordY;
-  var rotation;
+  let evaluator;
+  let tmpRot;
+  let imgFile;
+  let despX;
+  let despY;
+  let coordX;
+  let coordY;
+  let rotation;
 
-  var w;
-  var h;
-  var x, y;
-  var self;
+  let w;
+  let h;
+  let self;
   
   class DescartesImage extends descartesJS.Graphic {
     /**
@@ -32,78 +31,80 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.file = this.file || "";
-      this.inirot = this.inirot || parent.evaluator.parser.parse("0");
+      self = this;
 
-      this.img = new Image();
-      this.scaleX = this.scaleY = 1;
-      this.ratio = parent.ratio;
+      self.file = self.file || "";
+      self.inirot = self.inirot || parent.evaluator.parser.parse("0");
 
-      let ch = this.expresion.getChildren();
+      self.img = new Image();
+      self.scaleX = self.scaleY = 1;
+      self.ratio = parent.ratio;
 
-      this.x_e = ch[0];
-      this.y_e = ch[1];
+      let ch = self.expresion.getChildren();
+
+      self.x_e = ch[0];
+      self.y_e = ch[1];
       
       if (ch.length > 2) {
-        this.centered = true;
+        self.centered = true;
 
-        this.s_x_e = ch[2];
+        self.s_x_e = ch[2];
 
         if (ch.length > 3) {
-          this.s_y_e = ch[3];
+          self.s_y_e = ch[3];
         }
         else {
-          this.s_y_e = ch[2];
+          self.s_y_e = ch[2];
         }
       }
 
       // if has a clipping region
-      let clip = this.evaluator.eval(this.clip);
+      let clip = self.evaluator.eval(self.clip);
       if (clip) {
-        this.clip = this.clip.getChildren();
+        self.clip = self.clip.getChildren();
       }
 
-      this.update();
+      self.update();
     }
 
     /**
      * Update the image
      */
     update() {
-      evaluator = this.evaluator;
+      let self = this;
 
-      x = evaluator.eval(this.x_e);
-      y = evaluator.eval(this.y_e);
-      this.exprX = x;
-      this.exprY = y;
+      evaluator = self.evaluator;
+
+      self.X = evaluator.eval(self.x_e);
+      self.Y = evaluator.eval(self.y_e);
 
       // rotate the elements in case the graphic is part of a macro
-      if (this.rotateExp) {
-        tmpRot = this.rotate(x, y, descartesJS.degToRad(evaluator.eval(this.rotateExp)));
-
-        this.exprX = tmpRot.x;
-        this.exprY = tmpRot.y;
+      if (self.rotateExp) {
+        tmpRot = self.rotate(self.X, self.Y, descartesJS.degToRad(evaluator.eval(self.rotateExp)));
+        self.X = tmpRot.x;
+        self.Y = tmpRot.y;
       }
 
-      if (this.centered) {
-        this.scaleX = evaluator.eval(this.s_x_e);
-        this.scaleY = evaluator.eval(this.s_y_e);
+      if (self.centered) {
+        self.scaleX = evaluator.eval(self.s_x_e);
+        self.scaleY = evaluator.eval(self.s_y_e);
 
-        if (this.scaleX == 0) {
-          this.scaleX = 0.00001;
+        if (self.scaleX == 0) {
+          self.scaleX = 0.00001;
         }
-        if (this.scaleY == 0) {
-          this.scaleY = 0.00001;
+        if (self.scaleY == 0) {
+          self.scaleY = 0.00001;
         }
       }
 
-      self = this;
-      imgFile = evaluator.eval(this.file);
+      imgFile = evaluator.eval(self.file);
+
       if ((imgFile) || (imgFile == "")) {
-        this.img = this.parent.getImage(imgFile);
-        // if the image isn't ready then add a event listener to update the space
-        if (!this.img.ready) {
-          this.img.addEventListener("load", function(evt) {
+        self.img = self.parent.getImage(imgFile);
+        
+        if (!self.img.hasUpdate) {
+          self.img.hasUpdate = true;
+          self.img.addEventListener("load", ()=>{
             self.space.update(true);
           });
         }
@@ -129,50 +130,52 @@ var descartesJS = (function(descartesJS) {
      * @param {CanvasRenderingContext2D} ctx rendering context on which the image is drawn
      */
     drawAux(ctx) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      if ( (this.img) && (this.img.ready) && (this.img.complete) ) {
-        if (!this.clip) {
-          w = this.img.width;
-          h = this.img.height;
+      if ( (self.img) && (self.img.ready) && (self.img.complete) ) {
+        if (!self.clip) {
+          w = self.img.width;
+          h = self.img.height;
 
           // if the images is a space image
-          if (this.img.canvas) {
-            w = MathRound( w/this.img.ratio );
-            h = MathRound( h/this.img.ratio );
+          if (self.img.canvas) {
+            w = MathRound( w/self.img.ratio );
+            h = MathRound( h/self.img.ratio );
           }
         }
         else {
-          w = evaluator.eval(this.clip[2]);
-          h = evaluator.eval(this.clip[3]);
+          w = evaluator.eval(self.clip[2]);
+          h = evaluator.eval(self.clip[3]);
         }
 
-        despX = (this.centered) ? 0 : MathRound(w/2);
-        despY = (this.centered) ? 0 : MathRound(h/2);
+        despX = (self.centered) ? 0 : MathRound(w/2);
+        despY = (self.centered) ? 0 : MathRound(h/2);
 
-        coordX = MathRound( (this.abs_coord) ? this.exprX : this.space.getAbsoluteX(this.exprX) );
-        coordY = MathRound( (this.abs_coord) ? this.exprY : this.space.getAbsoluteY(this.exprY) );
-        rotation = descartesJS.degToRad(-evaluator.eval(this.inirot));
+        coordX = MathRound( (self.abs_coord) ? self.X : self.space.getAbsoluteX(self.X) );
+        coordY = MathRound( (self.abs_coord) ? self.Y : self.space.getAbsoluteY(self.Y) );
+        rotation = descartesJS.degToRad(-evaluator.eval(self.inirot));
 
         ctx.save();
         ctx.translate(coordX+despX, coordY+despY);
         ctx.rotate(rotation);
 
-        if (this.opacity) {
-          ctx.globalAlpha = evaluator.eval(this.opacity);
+        if (self.opacity) {
+          ctx.globalAlpha = evaluator.eval(self.opacity);
         }
 
         // draw image
-        ctx.scale(this.scaleX, this.scaleY);
-        if (!this.clip) {
-          ctx.drawImage(this.img, -w/2, -h/2, w, h);
+        ctx.scale(self.scaleX, self.scaleY);
+
+        if (!self.clip) {
+          ctx.drawImage(self.img, -w/2, -h/2, w, h);
         }
         else {
-          if (this.img.canvas) {
-            ctx.drawImage(this.img, evaluator.eval(this.clip[0])*this.img.ratio, evaluator.eval(this.clip[1])*this.img.ratio, w*this.img.ratio, h*this.img.ratio, -w/2, -h/2, w, h);
+          if (self.img.canvas) {
+            ctx.drawImage(self.img, evaluator.eval(self.clip[0])*self.img.ratio, evaluator.eval(self.clip[1])*self.img.ratio, w*self.img.ratio, h*self.img.ratio, -w/2, -h/2, w, h);
           }
           else {
-            ctx.drawImage(this.img, evaluator.eval(this.clip[0]), evaluator.eval(this.clip[1]), w, h, -w/2, -h/2, w, h);
+            ctx.drawImage(self.img, evaluator.eval(self.clip[0]), evaluator.eval(self.clip[1]), w, h, -w/2, -h/2, w, h);
           }
         }
 

@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var self;
+  let self;
 
   class SpaceExternal {
     /**
@@ -38,67 +38,65 @@ var descartesJS = (function(descartesJS) {
     init() {
       self = this;
 
-      document.body.appendChild(this.container);
+      document.body.appendChild(self.container);
 
-      var parser = self.parent.evaluator.parser;
-      var fontSizeDefaultButtons = "15";
-
-      for (var i=0,l=self.ctrs.length; i<l; i++) {
-        self.ctrs[i].expresion = parser.parse("(0," + (self.vSpace + 23 + i*35) + "," + (self.width) + ",35)");
-        self.ctrs[i].update();
-      }
-
-      self.numCtr = l;
+      let parser = self.parent.evaluator.parser;
+      let fontSizeDefaultButtons = "15";
+      self.numCtr = self.ctrs.length;
+      self.ctrs.forEach((ctr, i) => {
+        ctr.expresion = parser.parse(`(0,${self.vSpace + 23 + i * 35},${self.width},35)`);
+        ctr.update();
+      });
 
       // create the credits button
-      var btnAbout = new descartesJS.Button(self.parent, { 
+      let btnAbout = new descartesJS.Button(self.parent, { 
         region: "external",
         name: (self.language == "english") ? "about" : "créditos",
         font_size: parser.parse(fontSizeDefaultButtons),
-        expresion: parser.parse("(0," + self.vSpace + "," + (self.width/2) + ",25)")
+        expresion: parser.parse(`(0,${self.vSpace},${self.width/2},25)`)
       });
       btnAbout.actionExec = { execute: descartesJS.showAbout };
       btnAbout.update();
 
       // create the configuration button
-      var btnConfig = new descartesJS.Button(self.parent, { 
+      let btnConfig = new descartesJS.Button(self.parent, { 
         region: "external",
         name: "config",
         font_size: parser.parse(fontSizeDefaultButtons),
         action: "config",
-        expresion: parser.parse("(" + (self.width/2) + "," + self.vSpace + "," + (self.width/2) + ",25)")
+        expresion: parser.parse(`(${self.width/2},${self.vSpace},${self.width/2},25)`)
       });
       btnConfig.update();
 
       // create the init button
-      var btnInit = new descartesJS.Button(self.parent, { 
+      let btnInit = new descartesJS.Button(self.parent, { 
         region: "external",
         name: (self.language == "english") ? "init" : "inicio",
         font_size: parser.parse(fontSizeDefaultButtons),
         action: "init",
-        expresion: parser.parse("(0," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
+        expresion: parser.parse(`(0,${self.vSpace + 23 + self.numCtr*35},${self.width/2},25)`)
       });
       btnInit.update();
 
       // create the clear button
-      var btnClear = new descartesJS.Button(self.parent, { 
+      let btnClear = new descartesJS.Button(self.parent, { 
         region: "external",
         name: (self.language == "english") ? "clear" : "limpiar",
         font_size: parser.parse(fontSizeDefaultButtons),
         action: "clear",
-        expresion: parser.parse("(" + (self.width/2) + "," + (self.vSpace + 23 + l*35) + "," + (self.width/2) + ",25)")
+        expresion: parser.parse(`(${self.width/2},${self.vSpace + 23 + self.numCtr*35},${self.width/2},25)`)
       });
       btnClear.update();
 
       // create the clear button
-      var btnClose = new descartesJS.Button(self.parent, { 
+      let btnClose = new descartesJS.Button(self.parent, { 
         region: "external",
         name: (self.language == "english") ? "close" : "cerrar",
         font_size: parser.parse(fontSizeDefaultButtons),
-        expresion: parser.parse("(" + (self.width/4) + "," + (self.vSpace + 46 + l*35) + "," + (self.width/2) + ",25)")
+        expresion: parser.parse(`(${self.width/4},${self.vSpace + 46 + self.numCtr*35},${self.width/2},25)`)
       });
       btnClose.update();
-      btnClose.btn.addEventListener("click", function(evt) {
+      btnClose.btn.addEventListener("click", (evt) => {
         self.hide();
       });
 
@@ -170,7 +168,7 @@ var descartesJS = (function(descartesJS) {
      */
     setPositionAndSize() {
       self = this;
-      var newHeight = self.vSpace + 46 + self.numCtr*35 + 25 + 10;
+      let newHeight = self.vSpace + 46 + self.numCtr*35 + 25 + 10;
 
       self.container.style.left = Math.max((parseInt(window.innerWidth - self.width)/2), 0) + "px";
       self.container.style.top = "5px";
@@ -180,7 +178,7 @@ var descartesJS = (function(descartesJS) {
         self.container.style.height = (self.vSpace + 75) + "px";
       }
       else if (newHeight > (window.innerHeight-10)) {
-        self.container.style.height = window.innerHeight-10;
+        self.container.style.height = (window.innerHeight - 10) + "px";
       }
       else {
         self.container.style.height = newHeight + "px";

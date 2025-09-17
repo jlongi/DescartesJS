@@ -6,13 +6,15 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var oldFieldValue;
-  var oldValue;
-  var resultValue;
-  var evalMin;
-  var evalMax;
-  var int_color;
+  let self;
+  let evaluator;
+  let oldFieldValue;
+  let oldValue;
+  let resultValue;
+  let evalMin;
+  let evalMax;
+  let int_color;
+  let tmp_answer;
 
   class TextField extends descartesJS.Control {
     /**
@@ -24,171 +26,175 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
-      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+      self = this;
 
-      this.name_str = this.name;
+      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+
+      self.name_str = self.name;
+
+      // if the name init with single quotes, then scape them with the \u0027 character code
+      if ((/^\&squot;.*\&squot;$/).test(self.name)) {
+        self.name = self.name.replace("&squot;", "\\u0027");
+      }
 
       // modification to change the name of the text field with an expression
-      if (this.name.match(/^\[.*\]?/)) {
-        this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+      if ((/^\[.*\]$/).test(self.name)) {
+        self.name = self.parser.parse(self.name.slice(1, -1));
       }
       else {
-        this.name = this.parser.parse("'" + this.name.trim() + "'");
+        self.name = self.parser.parse(`'${self.name.trim()}'`);
       }
 
-      if (this.valueExprString === undefined) {
-        this.valueExprString = (this.onlyText) ? '0' : "";
+      if (self.valueExprString === undefined) {
+        self.valueExprString = (self.onlyText) ? '0' : "";
       }
 
       // an empty string
-      this.emptyString = false;
+      self.emptyString = false;
 
       // the evaluation of the control
-      this.ok = 0;
+      self.ok = 0;
 
       // tabular index
-      this.tabindex = ++this.parent.tabindex;
-
-      this.regExpDecimalSymbol = new RegExp("\\" + this.parent.decimal_symbol, "g");
-
+      self.tabindex = ++parent.tabindex;
+      
       // if the answer exist
-      if (this.answer) {
-        // the answer is encrypted
-        if (this.answer.match("krypto_")) {
-          this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
+      if (self.evaluate) {
+        if (self.answer) {
+          tmp_answer = self.answer.match(/^krypto_(.*)$/);
+
+          // the answer is encrypted
+          if (tmp_answer) {
+            self.answer = (new descartesJS.Krypto()).decode(tmp_answer[1]);
+          }
+
+          self.answer = descartesJS.answerRegEx(self.answer, self.evaluator, self.onlyText);
         }
-        this.answerPattern = this.answer;
-
-        this.answer = descartesJS.buildRegularExpressionsPatterns(this.answer, this.evaluator);
-
-        if (this.onlyText) {
-          // find the first answer pattern
-          var sepIndex = this.answerPattern.indexOf("|");
-          this.firstAnswer = (sepIndex == -1) ? this.answerPattern : this.answerPattern.substring(0, sepIndex);
-        } else {
-          // find the minimum value of the first interval of a numeric answer pattern
-          this.firstAnswer = this.parser.parse( this.answerPattern.substring(1, this.answerPattern.indexOf(",")) );
+        // if the evaluate checkbox is marked but no answer is given, then don't evaluate
+        else {
+          self.evaluate = false;
         }
       }
 
       // if the text field is only text, then the value has to fulfill the validation norms
-      if (this.onlyText) {
-        if ( !(this.valueExprString.match(/^'/)) || !(this.valueExprString.match(/'$/)) ) {
-          this.valueExpr = this.evaluator.parser.parse( "'" + this.valueExprString + "'" );
+      if (self.onlyText) {
+        if ( !(/^'.*'$/).test(self.valueExprString) ) {
+          self.valueExpr = self.evaluator.parser.parse( `'${self.valueExprString}'` );
         }
 
         /**
          * validate value for a only text control
          */
-        this.validateValue = function(value) {
+        self.validateValue = function(value) {
           value = value.toString();
           if ( (value == "''") || (value == "'") ) {
             return "";
           }
 
-          if ((value) && value.match(/^'/) && value.match(/'$/)) {
-            return value.substring(1,value.length-1);
+          if (value && (/^'.*'$/).test(value)) {
+            return value.slice(1, -1);
           }
 
           return value;
         }
-        this.formatOutputValue = function(value) {
+        self.formatValue = function(value) {
           return value.toString();
         }
       }
 
       // control container
-      this.containerControl = descartesJS.newHTML("div", {
+      self.containerControl = descartesJS.newHTML("div", {
         class : "DescartesTextFieldContainer",
-        id    : this.id,
+        id    : self.id,
       });
 
       // the text field
-      this.field = descartesJS.newHTML("input", {
+      self.field = descartesJS.newHTML("input", {
         type     : "text",
-        id       : this.id + "TextField",
+        id       : self.id + "TextField",
         class    : "DescartesTextFieldField",
-        tabindex : this.tabindex,
+        tabindex : self.tabindex,
       });
 
       // the label
-      this.label = descartesJS.newHTML("canvas", {
+      self.label = descartesJS.newHTML("canvas", {
         class : "DescartesTextFieldLabel",
       });
-      this.label_ctx = this.label.getContext("2d");
-      this.ratio = parent.ratio;
+      self.label_ctx = self.label.getContext("2d");
+      self.ratio = parent.ratio;
 
       // add the elements to the container
-      this.containerControl.appendChild(this.label);
-      this.containerControl.appendChild(this.field);
+      self.containerControl.appendChild(self.label);
+      self.containerControl.appendChild(self.field);
 
-      this.cover = descartesJS.newHTML("div", {
+      self.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if (this.keyboard) {
-        this.containerControl.appendChild(this.cover);
+      if (self.keyboard) {
+        self.containerControl.appendChild(self.cover);
       }
 
-      this.activoStr = this.id + ".activo";
-      this.activeStr = this.id + ".active";
+      self.activoStr = self.id + ".activo";
+      self.activeStr = self.id + ".active";
 
-      this.addControlContainer(this.containerControl);
+      self.addControlContainer(self.containerControl);
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
-      this.init();
+      self.init();
     }
 
     /**
      * Init the text field
      */
     init(changeSizePos) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
-      var name = this.label.textContent;
+      self.label.innerHTML = evaluator.eval(self.name).toString();
+      let name = self.label.textContent;
 
       // validate the initial value
       if (!changeSizePos) {
-        this.value = this.validateValue( evaluator.eval(this.valueExpr) );
+        self.value = self.validateValue( evaluator.eval(self.valueExpr) );
       }
 
       // get the width of the initial value to determine the width of the text field
-      var fieldValue = this.formatOutputValue(this.value);
+      let fieldValue = self.formatValue(self.value);
 
       // find the font size of the text field
-      this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
+      self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
 
       //new
-      this.text_object = new descartesJS.TextObject({
+      self.text_object = new descartesJS.TextObject({
         parent : {
-          decimal_symbol : this.parent.decimal_symbol
+          decimal_symbol : self.parent.decimal_symbol
         },
-        evaluator : this.evaluator,
-        decimals : this.decimals,
+        evaluator : evaluator,
+        decimals : self.decimals,
         fixed: false,
         align: "left",
         anchor: "center_center",
-        width: this.parser.parse("0"),
-        font_size: this.parser.parse(""+ this.fieldFontSize),
-        font_family: this.font_family,
-        italics: this.italics,
-        bold: this.bold,
-      }, this.name_str);
+        width: self.parser.parse("0"),
+        font_size: self.parser.parse(""+ self.fieldFontSize),
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
+      }, self.name_str);
       //new
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0, true);
 
-      var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
+      let fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", self.fieldFontSize+"px " + descartesJS.sansserif_font);
 
       // widths are calculated for each element
-      var labelWidth = parseInt(this.w/2);
-      var minTFWidth = fieldValueSize;
-      var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+      let labelWidth = parseInt(self.w/2);
+      let minTFWidth = fieldValueSize;
+      let minLabelWidth = self.text_object.textNodes.metrics.w + parseInt(self.fieldFontSize);
 
-      if (!this.visible) {
-        labelWidth = this.w;
+      if (!self.visible) {
+        labelWidth = self.w;
         minTFWidth = 0;
       }
 
@@ -200,101 +206,102 @@ var descartesJS = (function(descartesJS) {
         labelWidth = 0;
       }
 
-      if (this.w-labelWidth < minTFWidth) {
-        labelWidth = this.w - minTFWidth;
+      if (self.w-labelWidth < minTFWidth) {
+        labelWidth = self.w - minTFWidth;
       }
 
       if (labelWidth < 0) {
         labelWidth=0;
       }
 
-      var fieldWidth = this.w - (labelWidth);
+      let fieldWidth = self.w - (labelWidth);
 
-      this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
+      self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
-      this.field.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px; font-family:${(this.font_family == "Serif")?descartesJS.serif_font:((this.font_family == "Monospaced")?descartesJS.monospace_font:descartesJS.sansserif_font)};`);
-      this.field.value = fieldValue;
-      this.cover.setAttribute("style", `;width:${fieldWidth}px;height:${this.h}px;left:${labelWidth}px;`);
+      self.field.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${fieldWidth}px;height:${self.h}px;left:${labelWidth}px; font-family:${(self.font_family == "Serif")?descartesJS.serif_font:((self.font_family == "Monospaced")?descartesJS.monospace_font:descartesJS.sansserif_font)};`);
+      self.field.value = fieldValue;
+      self.cover.setAttribute("style", `;width:${fieldWidth}px;height:${self.h}px;left:${labelWidth}px;`);
 
-      this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
 
-      this.label.width = labelWidth*this.ratio;
-      this.label.height = this.h*this.ratio;
+      self.label.width  = labelWidth * self.ratio;
+      self.label.height = self.h * self.ratio;
 
       // if the text field evaluates, get the ok value
-      if (this.evaluate) {
-        this.ok = this.evaluateAnswer();
+      if (self.evaluate) {
+        self.ok = self.evalAnswer();
       }
 
       // register the control value
-      this.evaluator.setVariable(this.id, this.value);
-      this.evaluator.setVariable(this.id+".ok", this.ok);
+      self.evaluator.setVariable(self.id, self.value);
+      self.evaluator.setVariable(self.id+".ok", self.ok);
 
-      this.oldValue = this.value;
+      self.oldValue = self.value;
 
-      this.update();
+      self.update();
     }
 
     /**
      * Update the text field
      */
     update() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // enable or disable the control
-      this.field.disabled = !this.activeIfValue;
+      self.field.disabled = !self.activeIfValue;
 
       // hide or show the text field control
-      this.containerControl.style.display = (this.drawIfValue) ? "block" : "none";
+      self.containerControl.style.display = (self.drawIfValue) ? "block" : "none";
 
-      if ( !(this.parent.animation.playing) || (document.activeElement != this.field)) {
-        oldFieldValue = this.field.value;
-        oldValue = this.value;
+      if ( !(self.parent.animation.playing) || (document.activeElement != self.field)) {
+        oldFieldValue = self.field.value;
+        oldValue = self.value;
 
         // update the text field value
-        this.value = this.validateValue( evaluator.getVariable(this.id) );
-        this.field.value = this.formatOutputValue(this.value);
+        self.value = self.validateValue( evaluator.getVariable(self.id) );
+        self.field.value = self.formatValue(self.value);
 
-        if ((this.value === oldValue) && (this.field.value != oldFieldValue)) {
+        if ((self.value === oldValue) && (self.field.value != oldFieldValue)) {
           // update the spinner value
-          this.value = this.validateValue( oldFieldValue );
-          this.field.value = this.formatOutputValue(this.value);
+          self.value = self.validateValue(oldFieldValue);
+          self.field.value = self.formatValue(self.value);
         }
 
         // register the control value
-        evaluator.setVariable(this.id, this.value);
+        evaluator.setVariable(self.id, self.value);
       }
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
 
       //
-      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      self.label_ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
       // draw the text to get the width
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0);
       
-      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      self.label_ctx.clearRect(0, 0, self.label.width, self.label.height);
 
-      int_color = this.label_color.getColor();
-      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-        this.label_ctx.fillStyle = int_color;
-        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      int_color = self.label_color.getColor();
+      if (int_color && (/CanvasGradient|CanvasPattern/).test(int_color.constructor.name)) {
+        self.label_ctx.fillStyle = int_color;
+        self.label_ctx.fillRect(0, 0, self.label_ctx.canvas.width, self.label_ctx.canvas.height);
       }
       
-      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
-        this.text_object.anchor = "center_left";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      if (self.text_object.textNodes.metrics.w > self.label.width/self.ratio) {
+        self.text_object.anchor = "center_left";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 5, self.label.height/self.ratio/2); 
       }
       else {
-        this.text_object.anchor = "center_center";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+        self.text_object.anchor = "center_center";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), self.label.width/self.ratio/2, self.label.height/self.ratio/2);
       }
-      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      self.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -312,7 +319,7 @@ var descartesJS = (function(descartesJS) {
 
       evaluator = this.evaluator;
 
-      var tmp = value.toString().replace(this.regExpDecimalSymbol, ".", "g");
+      let tmp = value.toString().replace(this.parent.decimal_symbol_regexp, ".");
       if (tmp == parseFloat(tmp)) {
         resultValue = parseFloat(tmp);
       }
@@ -346,7 +353,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       if (this.discrete) {
-        var incr = evaluator.eval(this.incr);
+        let incr = evaluator.eval(this.incr);
         resultValue = (incr === 0) ? 0 : (incr * Math.round(resultValue / incr));
       }
 
@@ -357,15 +364,15 @@ var descartesJS = (function(descartesJS) {
 
     /**
      * Format the value with the number of decimals, the exponential representation and the decimal symbol
-     * @param {String} value tha value to format
+     * @param {String} value that value to format
      * @return {String} return the value with the format applied
      */
-    formatOutputValue(value) {
+    formatValue(value) {
       if (value === "") {
-        return "";
+        return value;
       }
 
-      return super.formatOutputValue(value);
+      return super.formatValue(value);
     }
 
     /**
@@ -375,11 +382,11 @@ var descartesJS = (function(descartesJS) {
     changeValue(value) {
       if (this.activeIfValue) {
         this.value = this.validateValue(value);
-        this.field.value = this.formatOutputValue(this.value);
+        this.field.value = this.formatValue(this.value);
 
         // if the text field evaluates, get the ok value
         if (this.evaluate) {
-          this.ok = this.evaluateAnswer();
+          this.ok = this.evalAnswer();
         }
 
         // register the control value
@@ -393,29 +400,8 @@ var descartesJS = (function(descartesJS) {
     /**
      * @return
      */
-    evaluateAnswer() {
-      return descartesJS.esCorrecto(this.answer, this.value, this.evaluator, this.answer);
-    }
-
-    /**
-     * @return
-     */
-    getFirstAnswer() {
-      // if the text field has an answer pattern
-      if (this.answer) {
-        // if the text field is only text
-        if (this.onlyText) {
-          return this.firstAnswer;
-        }
-        // if the text field is numeric
-        else {
-          return this.evaluator.eval(this.firstAnswer);
-        }
-      }
-      // if the text field has not an answer pattern
-      else {
-        return "";
-      }
+    evalAnswer() {
+      return descartesJS.esCorrecto(this.answer, this.value, this.evaluator);
     }
 
     /**
@@ -430,18 +416,15 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
-
-      // prevent the context menu display
-      self.field.oncontextmenu = self.label.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
+      let self = this;
 
       // prevent the default events int the label
       self.label.addEventListener("touchstart", descartesJS.preventDefault);
-      self.label.addEventListener("mousedown", descartesJS.preventDefault);
+      self.label.addEventListener("mousedown",  descartesJS.preventDefault);
 
       /**
        */
-      this.field.addEventListener("mousedown", function (evt) {
+      self.field.addEventListener("mousedown", function (evt) {
         self.parent.deactivateControls();
         self.evaluator.setVariable(self.activoStr, 1);
         self.evaluator.setVariable(self.activeStr, 1);
@@ -449,7 +432,7 @@ var descartesJS = (function(descartesJS) {
       });
       /**
        */
-      this.field.addEventListener("blur", function (evt) {
+      self.field.addEventListener("blur", function (evt) {
         if (self.drawIfValue) {
           self.changeValue(self.field.value, true);
         }
@@ -458,7 +441,7 @@ var descartesJS = (function(descartesJS) {
       /**
        *
        */      
-      this.field.addEventListener("keydown", function (evt) {
+      self.field.addEventListener("keydown", function (evt) {
         if (self.activeIfValue) {
           // responds to enter
           if (evt.keyCode == 13) {
@@ -471,7 +454,6 @@ var descartesJS = (function(descartesJS) {
        * Prevent an error with the focus of a text field
        */
       self.field.addEventListener("click", function(evt) {
-        // this.select();
         this.focus();
       });
 

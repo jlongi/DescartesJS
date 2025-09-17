@@ -6,8 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var drawif;
+  let evaluator;
+  let tmpFile;
+  let drawif;
 
   class Audio extends descartesJS.Control {
     /**
@@ -26,20 +27,16 @@ var descartesJS = (function(descartesJS) {
       self.oldDrawIf = 0;
 
       // the audio position and size
-      var expr = self.evaluator.eval(self.expresion);
-      if (expr[0].length == 4) {
-        self.w = expr[0][2];
-        self.h = expr[0][3];
-      } else {
-        self.w = 200;
-        self.h = 28;
-      }
+      let expr = self.evaluator.eval(self.expresion);
+      let cond = (expr[0].length == 4);
+      self.w = (cond) ? expr[0][2] : 200;
+      self.h = (cond) ? expr[0][3] : 28;
 
       self.audio = self.parent.getAudio(self.file);
       self.oldFile = self.file;
 
-      if (self.file.charAt(self.file.length-1) === "]") {
-        self.file = self.evaluator.parser.parse(self.file.substring(1, self.file.length-1));
+      if ((/^\[.*\]$/).test(self.file)) {
+        self.file = self.evaluator.parser.parse(self.file.slice(1, -1));
       }
       
       if (self.autoplay) {
@@ -91,7 +88,7 @@ var descartesJS = (function(descartesJS) {
       });
       self.audio.addEventListener("timeupdate", function() {
         self.evaluator.setVariable(self.id + ".currentTime", self.audio.currentTime);
-        self.evaluator.setVariable(self.id + ".playing", (self.audio.paused)?0:1);
+        self.evaluator.setVariable(self.id + ".playing", (self.audio.paused) ? 0 : 1);
         self.evaluator.setVariable(self.id + ".duration", self.audio.duration);
       });
     }
@@ -114,27 +111,21 @@ var descartesJS = (function(descartesJS) {
 
       // the file name is variable
       if (typeof(this.file) !== "string") {
-        this.tmpFile = evaluator.eval(this.file);
-        if (this.oldFile !== this.tmpFile) {
-          this.audio.src = this.tmpFile;
-          this.oldFile = this.tmpFile;
+        tmpFile = evaluator.eval(this.file);
+        
+        if (this.old !== tmpFile) {
+          this.audio.src = this.old = tmpFile;
         }
       }
 
       drawif = evaluator.eval(this.drawif) > 0;
 
       // hide or show the audio control
-      if (drawif) {
-        this.audio.style.display = "block";
-      } else {
-        this.audio.style.display = "none";
-
-        if (drawif !== this.oldDrawIf) {
-          this.audio.pause();
-        }
+      this.audio.style.display = (drawif) ? "block" : "none";
+      if ((!drawif) && (drawif !== this.oldDIF)) {
+        this.audio.pause();
       }
-
-      this.oldDrawIf = drawif;
+      this.oldDIF = drawif;
 
       // update the position and size
       this.updatePositionAndSize();

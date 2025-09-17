@@ -6,15 +6,10 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var v1_x;
-  var v1_y;
-  var v1_z;
-  var v2_x;
-  var v2_y;
-  var v2_z;
-  var tempParamU;
-  var evaluator;
-  var expr;
+  let self;
+  let tempParamU;
+  let evaluator;
+  let expr;
 
   class Segment3D extends descartesJS.Graphic3D {
     /**
@@ -33,34 +28,30 @@ var descartesJS = (function(descartesJS) {
      * Build the primitives corresponding to the segment
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // do not apply the rotations in the model view matrix transformation
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
       tempParamU = evaluator.getVariable("u");
-      evaluator.setVariable("u", this.Nu);
+      evaluator.setVariable("u", self.Nu);
 
-      expr = evaluator.eval(this.expresion);
-      v1_x = expr[0][0];
-      v1_y = expr[0][1];
-      v1_z = expr[0][2];
+      expr = evaluator.eval(self.expresion);
 
-      v2_x = expr[1][0];
-      v2_y = expr[1][1];
-      v2_z = expr[1][2];
-
-      this.primitives.push( new descartesJS.Primitive3D( { 
-        vertices: [ 
-          this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-          this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-        ],
-        type: "edge",
-        lineDash: this.lineDash,
-        frontColor: this.color.getColor(), 
-        lineWidth: evaluator.eval(this.width)
-      },
-      this.space ));
+      self.primitives.push(
+        new descartesJS.Primitive3D({ 
+          V: [ 
+            self.transformVertex( new descartesJS.Vec4D(expr[0][0], expr[0][1], expr[0][2]) ),
+            self.transformVertex( new descartesJS.Vec4D(expr[1][0], expr[1][1], expr[1][2]) )
+          ],
+          type: "edge",
+          lineDash: self.lineDash,
+          frontColor: self.color.getColor(), 
+          lineWidth: evaluator.eval(self.width)
+        },
+       self.space
+      ));
 
       evaluator.setVariable("u", tempParamU);
     }

@@ -6,22 +6,23 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  const MathFloor = Math.floor;
+  let self;
 
   const HORIZONTAL = "h";
   const VERTICAL = "v";
 
-  var evaluator;
-  var self;
-  var fieldValue;
-  var expr;
-  var resultValue;
-  var incr;
-  var newValue;
-  var min;
-  var max;
-  var name;
-  var int_color;
+  let MathFloor = Math.floor;
+
+  let evaluator;
+  let fieldValue;
+  let expr;
+  let resultValue;
+  let incr;
+  let newValue;
+  let min;
+  let max;
+  let name;
+  let int_color;
 
   class Slider extends descartesJS.Control {
     /**
@@ -33,36 +34,43 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
-      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+      self = this;
 
-      this.name_str = this.name;
+      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+
+      self.name_str = self.name;
+
+      // if the name init with single quotes, then scape them with the \u0027 character code
+      if ((/^\&squot;.*\&squot;$/).test(self.name)) {
+        self.name = self.name.replace("&squot;", "\\u0027");
+      }
 
       // modification to change the name of the button with an expression
-      if (this.name.match(/^\[.*\]?/)) {
-        this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+      if ((/^\[.*\]$/).test(self.name)) {
+        self.name = self.parser.parse(self.name.slice(1, -1));
       }
       else {
-        this.name = this.parser.parse("'" + this.name + "'");
+        self.name = self.parser.parse(`'${self.name}'`);
       }
 
-      this.orientation = (this.w >= this.h) ? HORIZONTAL : VERTICAL;
+      self.orientation = (self.w >= self.h) ? HORIZONTAL : VERTICAL;
 
       // control container
-      this.container = descartesJS.newHTML("div", {
+      self.container = descartesJS.newHTML("div", {
         class : "DescartesSliderContainer",
-        id    : this.id,
+        id    : self.id,
       });
 
-      this.field = descartesJS.newHTML("input", {
+      self.field = descartesJS.newHTML("input", {
         type  : "text",
-        id    : this.id + "slider",
+        id    : self.id + "slider",
         class : "DescartesSliderField",
       });
 
-      this.sliderCtr = descartesJS.newHTML("input", {
+      self.sliderCtr = descartesJS.newHTML("input", {
         type : "range",
-        id   : this.id + "range",
+        id   : self.id + "range",
         min  : 0,
         max  : 100,
         step : "any",
@@ -70,63 +78,64 @@ var descartesJS = (function(descartesJS) {
       });
 
       // the label
-      this.label = descartesJS.newHTML("canvas", {
+      self.label = descartesJS.newHTML("canvas", {
         class : "DescartesSliderLabel",
       });
-      this.label_ctx = this.label.getContext("2d");
-      this.ratio = parent.ratio;
+      self.label_ctx = self.label.getContext("2d");
+      self.ratio = parent.ratio;
 
       // add the elements to the container
-      this.container.appendChild(this.label);
-      this.container.appendChild(this.field);
-      this.container.appendChild(this.sliderCtr);
+      self.container.appendChild(self.label);
+      self.container.appendChild(self.field);
+      self.container.appendChild(self.sliderCtr);
 
-      this.cover = descartesJS.newHTML("div", {
+      self.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if ( (this.keyboard) && (this.visible) ) {
-        this.container.appendChild(this.cover);
+      if ( (self.keyboard) && (self.visible) ) {
+        self.container.appendChild(self.cover);
       }
 
-      this.addControlContainer(this.container);
+      self.addControlContainer(self.container);
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
       // init the slider parameters
-      this.init();
+      self.init();
     }
 
     /**
      * Init the slider
      */
     init() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // validate the initial value
-      this.value = this.validateValue( evaluator.eval(this.valueExpr) );
+      self.value = self.validateValue( evaluator.eval(self.valueExpr) );
 
       // format the output value
-      fieldValue = this.formatOutputValue(this.value);
+      fieldValue = self.formatValue(self.value);
 
-      expr = this.evaluator.eval(this.expresion);
-      this.x = expr[0][0];
-      this.y = expr[0][1];
-      if (expr[0].length == 4) {
-        this.w = expr[0][2];
-        this.h = expr[0][3];
+      expr = self.evaluator.eval(self.expresion)[0];
+      self.x = expr[0];
+      self.y = expr[1];
+      if (expr.length == 4) {
+        self.w = expr[2];
+        self.h = expr[3];
       }
-      this.orientation = (this.w >= this.h) ? HORIZONTAL : VERTICAL;
+      self.orientation = (self.w >= self.h) ? HORIZONTAL : VERTICAL;
 
       // init the scroll configuration
-      this.initSlider(fieldValue);
+      self.initSlider(fieldValue);
 
       // change the value if really need a change
-      this.changeSliderPositionFromValue();
+      self.changeSliderPosition();
 
-      this.prePos = this.pos;
+      self.prePos = self.pos;
       // register the control value
-      evaluator.setVariable(this.id, this.value);
+      evaluator.setVariable(self.id, self.value);
     }
 
     /**
@@ -139,33 +148,34 @@ var descartesJS = (function(descartesJS) {
       self.label.innerHTML = evaluator.eval(self.name).toString();
       name = self.label.textContent;
 
-      var defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
+      let defaultHeight = (self.orientation === VERTICAL) ? parseInt(19 + (5*(self.h-100))/100) : self.h;
 
       // find the font size of the text field
       self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : ( (self.orientation === VERTICAL) ? (defaultHeight - parseInt(self.h/20) -1) : descartesJS.getFieldFontSize(defaultHeight) );
 
       //new
-      this.text_object = new descartesJS.TextObject({
+      self.text_object = new descartesJS.TextObject({
         parent : {
-          decimal_symbol : this.parent.decimal_symbol
+          decimal_symbol : self.parent.decimal_symbol
         },
-        evaluator : this.evaluator,
-        decimals : this.decimals,
+        evaluator : evaluator,
+        decimals : self.decimals,
         fixed: false,
         align: "left",
         anchor: "center_center",
-        width: this.parser.parse("0"),
-        font_size: this.parser.parse(""+ this.fieldFontSize),
-        font_family: this.font_family,
-        italics: this.italics,
-        bold: this.bold,
+        width: self.parser.parse("0"),
+        font_size: self.parser.parse(""+ self.fieldFontSize),
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
       }, self.name_str);
       //new
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
 
-      var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", self.fieldFontSize+"px " + descartesJS.sansserif_font);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0, true);
 
-      var spaceH = self.parent.getSpaceById(self.spaceID).h;
+      let fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", `${self.fieldFontSize}px ${descartesJS.sansserif_font}`);
+
+      let spaceH = self.parent.getSpaceById(self.spaceID).h;
 
       self.labelHeight = (name == "") ? 0 : defaultHeight;
       self.fieldHeight = (self.visible == "") ? 0 : defaultHeight;
@@ -179,9 +189,9 @@ var descartesJS = (function(descartesJS) {
           self.canvasHeight = spaceH;
         }
 
-        var sbx = 0;
-        var sby = self.fieldHeight;
-        var TFy = sby + self.canvasHeight;
+        let sbx = 0;
+        let sby = self.fieldHeight;
+        let TFy = sby + self.canvasHeight;
 
         self.canvasX = 0;
         self.canvasY = self.fieldHeight;
@@ -199,13 +209,13 @@ var descartesJS = (function(descartesJS) {
       }
       // horizontal orientation
       else {
-        var minsbw = 58;
+        let minsbw = 58;
 
         // get the width of all elements in the slider
-        var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+        let minLabelWidth = self.text_object.textNodes.metrics.w +parseInt(self.fieldFontSize);
 
         self.labelWidth = minLabelWidth;
-        var minTFWidth = fieldValueSize;
+        let minTFWidth = fieldValueSize;
         self.fieldWidth = minTFWidth;
 
         if (name == "") {
@@ -216,7 +226,7 @@ var descartesJS = (function(descartesJS) {
           self.fieldWidth = 0;
         }
 
-        var sbw = self.w - self.fieldWidth - self.labelWidth;
+        let sbw = self.w - self.fieldWidth - self.labelWidth;
         while ((sbw < minsbw) && (self.labelWidth > 0)) {
           self.labelWidth--;
           sbw++;
@@ -226,9 +236,9 @@ var descartesJS = (function(descartesJS) {
           sbw++;
         }
 
-        var sbx = self.labelWidth;
-        var sby = 0;
-        var TFx = sbx + sbw;
+        let sbx = self.labelWidth;
+        let sby = 0;
+        let TFx = sbx + sbw;
         self.fieldWidth = self.w - TFx;
 
         self.canvasWidth = sbw;
@@ -258,73 +268,74 @@ var descartesJS = (function(descartesJS) {
       }
 
       // style the label
-      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+      self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${self.labelWidth}px;height:${self.labelHeight}px;line-height:${self.labelHeight}px;left:0;top:${self.labelY}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
 
-      this.label.width = self.labelWidth * this.ratio;
-      this.label.height = self.labelHeight * this.ratio;
+      self.label.width  = self.labelWidth  * self.ratio;
+      self.label.height = self.labelHeight * self.ratio;
     }
 
     /**
      * Update the slider
      */
     update() {
-      evaluator = this.evaluator;
+      let self = this;
+      evaluator = self.evaluator;
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // enable or disable the control
-      this.field.disabled = !this.activeIfValue;
+      self.field.disabled = !self.activeIfValue;
 
       // hide or show the slider control
-      if (this.drawIfValue) {
-        this.container.style.display = "block";
-        this.draw();
+      if (self.drawIfValue) {
+        self.container.style.display = "block";
+        self.draw();
       } else {
-        this.container.style.display = "none";
+        self.container.style.display = "none";
       }
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
 
       // update the value of the slider
-      var tmpValue = this.validateValue( evaluator.getVariable(this.id) );
-      if ( (tmpValue != this.value) && !((Math.abs(tmpValue - this.value)>0) && (Math.abs(tmpValue - this.value)<.000000001))) {
-        this.value = tmpValue;
-        this.changeSliderPositionFromValue();
-        this.prePos = this.pos;
+      let tmpValue = self.validateValue( evaluator.getVariable(self.id) );
+      if ( (tmpValue != self.value) && !((Math.abs(tmpValue - self.value)>0) && (Math.abs(tmpValue - self.value)<0.000000001))) {
+        self.value = tmpValue;
+        self.changeSliderPosition();
+        self.prePos = self.pos;
       }
 
-      this.value = tmpValue;
-      this.field.value = this.formatOutputValue(this.value);
+      self.value = tmpValue;
+      self.field.value = self.formatValue(self.value);
 
       // register the control value
-      evaluator.setVariable(this.id, this.value);
+      evaluator.setVariable(self.id, self.value);
 
       //
-      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      self.label_ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
       
       // draw the text to get the width
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0);
 
-      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      self.label_ctx.clearRect(0, 0, self.label.width, self.label.height);
 
-      int_color = this.label_color.getColor();
-      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-        this.label_ctx.fillStyle = int_color;
-        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      int_color = self.label_color.getColor();
+      if (int_color && (/CanvasGradient|CanvasPattern/).test(int_color.constructor.name)) {
+        self.label_ctx.fillStyle = int_color;
+        self.label_ctx.fillRect(0,0,self.label_ctx.canvas.width,self.label_ctx.canvas.height);
       }
 
-      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
-        this.text_object.anchor = "center_left";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      if (self.text_object.textNodes.metrics.w > self.label.width/self.ratio) {
+        self.text_object.anchor = "center_left";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 5, self.label.height/self.ratio/2); 
       }
       else {
-        this.text_object.anchor = "center_center";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+        self.text_object.anchor = "center_center";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), self.label.width/self.ratio/2, self.label.height/self.ratio/2);
       }
-      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      self.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
@@ -334,13 +345,13 @@ var descartesJS = (function(descartesJS) {
       self = this;
 
       // track color
-      this.sliderCtr.style.setProperty("--track_color", this.color.getColor());
+      self.sliderCtr.style.setProperty("--track_color", self.color.getColor());
 
       // thumb color
-      this.sliderCtr.style.setProperty("--thumb_color", this.colorInt.getColor());
+      self.sliderCtr.style.setProperty("--thumb_color", self.colorInt.getColor());
 
       // horizontal
-      this.sliderCtr.value = this.pos;
+      self.sliderCtr.value = self.pos;
     }
 
     /**
@@ -351,9 +362,10 @@ var descartesJS = (function(descartesJS) {
      *                         is less than the lower limit then return the lower limit
      */
     validateValue(value) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
       resultValue = value.toString();
-      resultValue = parseFloat( resultValue.replace(this.parent.decimal_symbol, ".") );
+      resultValue = parseFloat( resultValue.replace(self.parent.decimal_symbol, ".") );
 
       // if the value is a string that do not represent a number, parseFloat return NaN
       if (isNaN(resultValue)) {
@@ -361,24 +373,24 @@ var descartesJS = (function(descartesJS) {
       }
 
       // if is less than the lower limit
-      this.minimo = evaluator.eval(this.min);
-      if (resultValue < this.minimo) {
-        this.value = null;
-        resultValue = this.minimo;
+      self.minimo = evaluator.eval(self.min);
+      if (resultValue < self.minimo) {
+        self.value = null;
+        resultValue = self.minimo;
       }
 
       // if si greater than the upper limit
-      this.maximo = evaluator.eval(this.max);
-      if (resultValue > this.maximo) {
-        this.value = null;
-        resultValue = this.maximo;
+      self.maximo = evaluator.eval(self.max);
+      if (resultValue > self.maximo) {
+        self.value = null;
+        resultValue = self.maximo;
       }
 
-      incr = evaluator.eval(this.incr);
+      incr = evaluator.eval(self.incr);
       resultValue = (incr != 0) ? (resultValue*incr)/incr : 0;
 
-      if (this.fixed) {
-        resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.eval(this.decimals)));
+      if (self.fixed) {
+        resultValue = parseFloat(parseFloat(resultValue).toFixed(evaluator.eval(self.decimals)));
       }
 
       return resultValue;
@@ -388,23 +400,24 @@ var descartesJS = (function(descartesJS) {
      * Change the slider value
      */
     changeValue(value) {
-      if (this.activeIfValue) {
-        newValue = this.validateValue(value);
+      self = this;
+      if (self.activeIfValue) {
+        newValue = self.validateValue(value);
 
         // change the value if really need a change
-        if (newValue != this.value) {
-          this.value = newValue;
-          this.field.value = this.formatOutputValue(newValue);
+        if (newValue != self.value) {
+          self.value = newValue;
+          self.field.value = self.formatValue(newValue);
 
-          this.changeSliderPositionFromValue();
+          self.changeSliderPosition();
 
-          this.prePos = this.pos;
+          self.prePos = self.pos;
 
           // register the control value
-          this.evaluator.setVariable(this.id, this.value);
+          self.evaluator.setVariable(self.id, self.value);
         }
 
-        this.updateAndExecAction();
+        self.updateAndExecAction();
       }
     }
 
@@ -417,18 +430,19 @@ var descartesJS = (function(descartesJS) {
       max = evaluator.eval(this.max);
       incr = evaluator.eval(this.incr);
 
-      newValue = MathFloor( (((this.pos)*(max-min))/100)/incr )*incr  +min;
+      newValue = MathFloor( (((this.pos)*(max-min))/100)/incr )*incr + min;
 
       // if the value change, the update everything
       if (newValue != this.value) {
         this.value = newValue;
-        this.field.value = this.formatOutputValue(newValue);
+        this.field.value = this.formatValue(newValue);
 
         // register the control value
         evaluator.setVariable(this.id, this.value);
 
         // update the controls
         this.parent.updateControls();
+
         // execute the action
         this.actionExec.execute();
         // update again the controls
@@ -439,7 +453,7 @@ var descartesJS = (function(descartesJS) {
     /**
      * Change the position of the scroll handler give the value
      */
-    changeSliderPositionFromValue() {
+    changeSliderPosition() {
       evaluator = this.evaluator;
       min = evaluator.eval(this.min);
       max = evaluator.eval(this.max);
@@ -451,10 +465,7 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
-
-      // prevent the context menu display
-      self.label.oncontextmenu = self.field.oncontextmenu = self.cover.oncontextmenu = function () { return false; };
+      let self = this;
 
       /**
        *
@@ -467,7 +478,7 @@ var descartesJS = (function(descartesJS) {
           self.changeValue(self.field.value);
         }
       }
-      this.field.addEventListener("keydown", onKeyDown_TextField);
+      self.field.addEventListener("keydown", onKeyDown_TextField);
 
       /**
        *
@@ -479,7 +490,7 @@ var descartesJS = (function(descartesJS) {
           self.changeValue(self.field.value, true);
         }
       }
-      this.field.addEventListener("blur", onBlur_textField);
+      self.field.addEventListener("blur", onBlur_textField);
 
       /**
        * 

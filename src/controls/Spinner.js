@@ -6,20 +6,21 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var tmpIncr;
-  var oldFieldValue;
-  var oldValue;
-  var resultValue;
-  var incr;
-  var decimals;
-  var evalMin;
-  var evalMax;
-  var hasTouchSupport;
-  var parseTrue;
-  var tmp_image_dec_src;
-  var tmp_image_inc_src;
-  var int_color;
+  let self;
+  let evaluator;
+  let tmpIncr;
+  let oldFieldValue;
+  let oldValue;
+  let resultValue;
+  let incr;
+  let decimals;
+  let evalMin;
+  let evalMax;
+  let hasTouchSupport;
+  let parseTrue;
+  let tmp_image_dec_src;
+  let tmp_image_inc_src;
+  let int_color;
 
   class Spinner extends descartesJS.Control {
     /**
@@ -31,167 +32,174 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.flat = this.image_dec_src && this.image_inc_src;
-      this.btn_pos = this.btn_pos || "v_left";
-      this.horizontal = (this.btn_pos === "h_left") || (this.btn_pos === "h_right") || (this.btn_pos === "h_left_right");
-      this.label_color = this.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
-      this.label_text_color = this.label_text_color || new descartesJS.Color("000000", parent.evaluator);
+      self = this;
+
+      self.flat = self.image_dec_src && self.image_inc_src;
+      self.btn_pos = self.btn_pos || "v_left";
+      self.horizontal = (self.btn_pos === "h_left") || (self.btn_pos === "h_right") || (self.btn_pos === "h_left_right");
+      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
       // tabular index
-      this.tabindex = ++this.parent.tabindex;
+      self.tabindex = ++parent.tabindex;
 
-      this.name_str = this.name;
+      self.name_str = self.name;
 
-      this.initial_value = 0;
+      self.initial_value = 0;
       try {
-        this.initial_value = this.evaluator.eval(this.parser.parse(this.valueExprString))
+        self.initial_value = self.evaluator.eval(self.parser.parse(self.valueExprString))
       } catch(e) {console.log(e);};
 
+      // if the name init with single quotes, then scape them with the \u0027 character code
+      if ((/^\&squot;.*\&squot;$/).test(self.name)) {
+        self.name = self.name.replace("&squot;", "\\u0027");
+      }
+
       // modification to change the name of the button with an expression
-      if (this.name.match(/^\[.*\]?/)) {
-        this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+      if ((/^\[.*\]$/).test(self.name)) {
+        self.name = self.parser.parse(self.name.slice(1, -1));
       }
       else {
-        this.name = this.parser.parse("'" + this.name + "'");
+        self.name = self.parser.parse(`'${self.name}'`);
       }
 
       // control container
-      this.container = descartesJS.newHTML("div", {
+      self.container = descartesJS.newHTML("div", {
         class : "DescartesSpinnerContainer",
-        id    : this.id,
+        id    : self.id,
       });
-      this.divUp = descartesJS.newHTML("div", {
+      self.divUp = descartesJS.newHTML("div", {
         class : "DJS_Up",
       });
-      this.divDown = descartesJS.newHTML("div", {
+      self.divDown = descartesJS.newHTML("div", {
         class : "DJS_Down",
       });
-      this.field = descartesJS.newHTML("input", {
+      self.field = descartesJS.newHTML("input", {
         type     : "text",
-        id       : this.id+"_spinner",
+        id       : self.id+"_spinner",
         class    : "DescartesSpinnerField",
-        tabindex : this.tabindex,
+        tabindex : self.tabindex,
       });
 
       // the label
-      this.label = descartesJS.newHTML("canvas", {
+      self.label = descartesJS.newHTML("canvas", {
         class : "DescartesSpinnerLabel",
       });
-      this.label_ctx = this.label.getContext("2d");
-      this.ratio = parent.ratio;
+      self.label_ctx = self.label.getContext("2d");
+      self.ratio = parent.ratio;
 
-      this.container.appendChild(this.label);
-      this.container.appendChild(this.field);
-      this.container.appendChild(this.divUp);
-      this.container.appendChild(this.divDown);
+      self.container.appendChild(self.label);
+      self.container.appendChild(self.field);
+      self.container.appendChild(self.divUp);
+      self.container.appendChild(self.divDown);
 
-      this.cover = descartesJS.newHTML("div", {
+      self.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if ( (this.keyboard) && (this.visible) ) {
-        this.container.appendChild(this.cover);
+      if ( (self.keyboard) && (self.visible) ) {
+        self.container.appendChild(self.cover);
       }
 
-      this.addControlContainer(this.container);
+      self.addControlContainer(self.container);
 
-      parseTrue = this.evaluator.parser.parse("1");
+      parseTrue = self.evaluator.parser.parse("1");
 
       // if the decimals are negative or zero
-      this.originalIncr = this.incr;
-      if ( (this.evaluator.eval(this.decimals) < 0) || (this.evaluator.eval(this.incr) === 0) ) {
-        var tmpIncr = this.evaluator.eval(this.incr);
+      self.originalIncr = self.incr;
+      if ( (self.evaluator.eval(self.decimals) < 0) || (self.evaluator.eval(self.incr) === 0) ) {
+        let tmpIncr = self.evaluator.eval(self.incr);
 
         if (tmpIncr > 0) {
-          this.incr = this.evaluator.parser.parse(parseInt(tmpIncr).toString());
-          this.originalIncr = this.incr;
+          self.originalIncr = self.incr = self.evaluator.parser.parse(parseInt(tmpIncr).toString());
         }
         else {
-          this.incr = parseTrue;
+          self.incr = parseTrue;
         }
       }
 
       // check for images for the buttons
-      if (this.image_dec_src) {
-        if (this.image_dec_src.match(/^\[.*\]?/)) {
-          this.image_dec_src = this.parser.parse(this.image_dec_src.substring(1, this.image_dec_src.length-1));
+      if (self.image_dec_src) {
+        if ((/^\[.*\]$/).test(self.image_dec_src)) {
+          self.image_dec_src = self.parser.parse(self.image_dec_src.slice(1, -1));
         }
         else {
-          this.image_dec_src = this.parser.parse("'" + this.image_dec_src + "'");
+          self.image_dec_src = self.parser.parse(`'${self.image_dec_src}'`);
         }
-        this.old_image_dec_src = this.evaluator.eval(this.image_dec_src).toString().trim();
-        this.image_dec = this.parent.getImage( this.old_image_dec_src );
+        self.old_image_dec_src = self.evaluator.eval(self.image_dec_src).toString().trim();
+        self.image_dec = self.parent.getImage( self.old_image_dec_src );
       }
-      if (this.image_inc_src) {
-        if (this.image_inc_src.match(/^\[.*\]?/)) {
-          this.image_inc_src = this.parser.parse(this.image_inc_src.substring(1, this.image_inc_src.length-1));
+      if (self.image_inc_src) {
+        if ((/^\[.*\]$/).test(self.image_inc_src)) {
+          self.image_inc_src = self.parser.parse(self.image_inc_src.slice(1, -1));
         }
         else {
-          this.image_inc_src = this.parser.parse("'" + this.image_inc_src + "'");
+          self.image_inc_src = self.parser.parse(`'${self.image_inc_src}'`);
         }
-        this.old_image_inc_src = this.evaluator.eval(this.image_inc_src).toString().trim();
-        this.image_inc = this.parent.getImage( this.old_image_inc_src );
+        self.old_image_inc_src = self.evaluator.eval(self.image_inc_src).toString().trim();
+        self.image_inc = self.parent.getImage( self.old_image_inc_src );
       }
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
       // init the menu parameters
-      this.init();
+      self.init();
     }
 
     /**
      * Init the spinner
      */
     init(force, maintain_val) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      this.label.innerHTML = evaluator.eval(this.name).toString();
-      var name = this.label.textContent;
+      self.label.innerHTML = evaluator.eval(self.name).toString();
+      let name = self.label.textContent;
 
       // validate the initial value
       if (!maintain_val) {
-        this.value = this.validateValue(evaluator.eval(this.valueExpr));
+        self.value = self.validateValue(evaluator.eval(self.valueExpr));
       }
 
       // get the width of the initial value to determine the width of the text field
-      var fieldValue = this.formatOutputValue(this.value);
+      let fieldValue = self.formatValue(self.value);
 
       // find the font size of the text field
-      this.fieldFontSize = (evaluator.eval(this.font_size)>0) ? evaluator.eval(this.font_size) : descartesJS.getFieldFontSize(this.h);
+      self.fieldFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
 
       //new
-      this.text_object = new descartesJS.TextObject({
+      self.text_object = new descartesJS.TextObject({
         parent : {
-          decimal_symbol : this.parent.decimal_symbol
+          decimal_symbol : self.parent.decimal_symbol
         },
-        evaluator : this.evaluator,
-        decimals : this.decimals,
+        evaluator : evaluator,
+        decimals : self.decimals,
         fixed: false,
         align: "left",
         anchor: "center_center",
-        width: this.parser.parse("0"),
-        font_size: this.parser.parse(""+ this.fieldFontSize),
-        font_family: this.font_family,
-        italics: this.italics,
-        bold: this.bold,
-      }, this.name_str);
+        width: self.parser.parse("0"),
+        font_size: self.parser.parse(""+ self.fieldFontSize),
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
+      }, self.name_str);
       //new
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0, true);
 
       // extra space added to the name
-      var extraSpace = (this.parent.version !== 2) ? "__" : "_____";
+      let extraSpace = (self.parent.version !== 2) ? "__" : "_____";
 
-      var fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", this.fieldFontSize+"px " + descartesJS.sansserif_font);
+      let fieldValueSize = descartesJS.getTextWidth(fieldValue+"_", `${self.fieldFontSize}px ${descartesJS.sansserif_font}`);
 
-      if (this.horizontal) {
+      if (self.horizontal) {
         // for each element calculated width
-        var canvasWidth = parseInt(this.h);
-        var labelWidth = parseInt(this.w/2 - canvasWidth);
-        var minTFWidth = fieldValueSize;
-        var minLabelWidth = this.text_object.textNodes.metrics.w +parseInt(this.fieldFontSize);
+        let canvasWidth = parseInt(self.h);
+        let labelWidth = parseInt(self.w/2 - canvasWidth);
+        let minTFWidth = fieldValueSize;
+        let minLabelWidth = self.text_object.textNodes.metrics.w + parseInt(self.fieldFontSize);
 
-        if (!this.visible) {
-          labelWidth = this.w - 2*canvasWidth;
+        if (!self.visible) {
+          labelWidth = self.w - 2*canvasWidth;
           minTFWidth = 0;
         }
 
@@ -203,43 +211,43 @@ var descartesJS = (function(descartesJS) {
           labelWidth = 0;
         }
 
-        if (this.w-labelWidth-canvasWidth < minTFWidth) {
-          labelWidth = this.w - canvasWidth - minTFWidth;
+        if (self.w-labelWidth-canvasWidth < minTFWidth) {
+          labelWidth = self.w - canvasWidth - minTFWidth;
         }
 
         if (labelWidth < 0) {
           labelWidth=0;
         }
 
-        var fieldWidth = this.w - (labelWidth + 2*canvasWidth);
+        let fieldWidth = self.w - (labelWidth + 2*canvasWidth);
 
-        this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};background-color:transparent;`);
+        self.container.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};background-color:transparent;`);
 
-        this.divUp.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;${(this.btn_pos === "h_left")?"left:"+(labelWidth+canvasWidth):"right:0"}px;top:0;${(this.flat)?'border-width:0;':''}`);
-        this.divDown.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;left:${labelWidth + ((this.btn_pos === "h_right")?fieldWidth:0)}px;top:0;${(this.flat)?'border-width:0;':''}`);
+        self.divUp.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;${(self.btn_pos === "h_left")?"left:"+(labelWidth+canvasWidth):"right:0"}px;top:0;${(self.flat)?'border-width:0;':''}`);
+        self.divDown.setAttribute("style", `width:${canvasWidth}px;height:${canvasWidth}px;left:${labelWidth + ((self.btn_pos === "h_right")?fieldWidth:0)}px;top:0;${(self.flat)?'border-width:0;':''}`);
 
-        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
-        this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${canvasWidth + labelWidth + ((this.btn_pos === "h_left")?canvasWidth:((this.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
+        self.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${self.fieldFontSize}px;width:${fieldWidth}px;height:${self.h}px;left:${canvasWidth + labelWidth + ((self.btn_pos === "h_left")?canvasWidth:((self.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
+        self.cover.setAttribute("style", `width:${fieldWidth}px;height:${self.h}px;left:${canvasWidth + labelWidth + ((self.btn_pos === "h_left")?canvasWidth:((self.btn_pos === "h_right")?-canvasWidth:0))}px;text-align:center;`);
 
-        this.field.value = fieldValue;
-        if (!this.visible) {
-          this.field.style.display = "none";
+        self.field.value = fieldValue;
+        if (!self.visible) {
+          self.field.style.display = "none";
         }
 
-        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+        self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
 
-        this.label.width = labelWidth*this.ratio;
-        this.label.height = this.h*this.ratio;
+        self.label.width  = labelWidth * self.ratio;
+        self.label.height = self.h * self.ratio;
       }
       else {
         // for each element calculated width
-        var canvasWidth = 2 + parseInt(this.h/2);
-        var labelWidth = parseInt(this.w/2 - canvasWidth/2);
-        var minTFWidth = fieldValueSize;
-        var minLabelWidth = descartesJS.getTextWidth(name+extraSpace, this.fieldFontSize+"px " + descartesJS.sansserif_font);
+        let canvasWidth = 2 + parseInt(self.h/2);
+        let labelWidth = parseInt(self.w/2 - canvasWidth/2);
+        let minTFWidth = fieldValueSize;
+        let minLabelWidth = descartesJS.getTextWidth(name+extraSpace, self.fieldFontSize+"px " + descartesJS.sansserif_font);
 
-        if (!this.visible) {
-          labelWidth = this.w - canvasWidth;
+        if (!self.visible) {
+          labelWidth = self.w - canvasWidth;
           minTFWidth = 0;
         }
 
@@ -251,170 +259,172 @@ var descartesJS = (function(descartesJS) {
           labelWidth = 0;
         }
 
-        if (this.w-labelWidth-canvasWidth < minTFWidth) {
-          labelWidth = this.w - canvasWidth - minTFWidth;
+        if (self.w-labelWidth-canvasWidth < minTFWidth) {
+          labelWidth = self.w - canvasWidth - minTFWidth;
         }
 
         if (labelWidth < 0) {
           labelWidth=0;
         }
 
-        var fieldWidth = this.w - (labelWidth + canvasWidth);
+        let fieldWidth = self.w - (labelWidth + canvasWidth);
 
-        this.container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};background-color:transparent;`);
+        self.container.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};background-color:transparent;`);
 
-        var divStyle = `width:${canvasWidth}px;left:${labelWidth+((this.btn_pos === "v_right")?fieldWidth:0)}px;`;
+        let divStyle = `width:${canvasWidth}px;left:${labelWidth+((self.btn_pos === "v_right")?fieldWidth:0)}px;`;
 
-        this.divUp.setAttribute("style", `${divStyle};height:${this.h/2+1}px;top:0;${(this.flat)?'border-width:0;':''}`);
-        this.divDown.setAttribute("style", `${divStyle};height:${this.h/2-1}px;top:${this.h/2+1}px;${(this.flat)?'border-width:0;':''}`);
+        self.divUp.setAttribute("style", `${divStyle};height:${self.h/2+1}px;top:0;${(self.flat)?'border-width:0;':''}`);
+        self.divDown.setAttribute("style", `${divStyle};height:${self.h/2-1}px;top:${self.h/2+1}px;${(self.flat)?'border-width:0;':''}`);
 
-        this.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${this.fieldFontSize}px;width:${fieldWidth}px;height:${this.h}px;left:${((this.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
-        this.cover.setAttribute("style", `width:${fieldWidth}px;height:${this.h}px;left:${((this.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
+        self.field.setAttribute("style", `font-family:${descartesJS.sansserif_font};font-size:${self.fieldFontSize}px;width:${fieldWidth}px;height:${self.h}px;left:${((self.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
+        self.cover.setAttribute("style", `width:${fieldWidth}px;height:${self.h}px;left:${((self.btn_pos === "v_left")?canvasWidth:0) + labelWidth}px;`);
 
-        this.field.value = fieldValue;
-        if (!this.visible) {
-          this.field.style.display = "none";
+        self.field.value = fieldValue;
+        if (!self.visible) {
+          self.field.style.display = "none";
         }
 
-        this.label.setAttribute("style", `font-size:${this.fieldFontSize}px;width:${labelWidth}px;height:${this.h}px;line-height:${this.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+        self.label.setAttribute("style", `font-size:${self.fieldFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
         
-        this.label.width = labelWidth*this.ratio;
-        this.label.height = this.h*this.ratio;
+        self.label.width  = labelWidth*self.ratio;
+        self.label.height = self.h*self.ratio;
       }
 
-      if (this.image_dec && this.image_dec.ready) {
-        this.divDown.style["background-image"] = "url(" + this.image_dec.src + ")";
+      if (self.image_dec && self.image_dec.ready) {
+        self.divDown.style["background-image"] = `url(${self.image_dec.src})`;
+
       }
-      if (this.image_inc && this.image_inc.ready) {
-        this.divUp.style["background-image"] = "url(" + this.image_inc.src + ")";
+      if (self.image_inc && self.image_inc.ready) {
+        self.divUp.style["background-image"] = `url(${self.image_inc.src})`;
       }
 
-      this.divUp.setAttribute("horizontal", (this.horizontal)?true:false);
-      this.divDown.setAttribute("horizontal", (this.horizontal)?true:false);
+      self.divUp.setAttribute("horizontal",   self.horizontal);
+      self.divDown.setAttribute("horizontal", self.horizontal);
 
       // register the control value
-      evaluator.setVariable(this.id, this.value);
+      evaluator.setVariable(self.id, self.value);
     }
 
     /**
      * Update the spinner
      */
     update() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // this.label.innerHTML = evaluator.eval(this.name).toString();
 
-      if (evaluator.eval(this.decimals) < 0) {
-        tmpIncr = evaluator.eval(this.incr);
+      if (evaluator.eval(self.decimals) < 0) {
+        tmpIncr = evaluator.eval(self.incr);
 
         if (tmpIncr > 0) {
-          this.incr = evaluator.parser.parse(parseInt(tmpIncr).toString());
-          this.originalIncr = this.incr;
+          self.originalIncr = self.incr = evaluator.parser.parse(parseInt(tmpIncr).toString());
         }
         else {
-          this.incr = parseTrue;
+          self.incr = parseTrue;
         }
       }
       else {
-        this.incr = (evaluator.eval(this.originalIncr) !== 0) ? this.originalIncr : parseTrue;
+        self.incr = (evaluator.eval(self.originalIncr) !== 0) ? self.originalIncr : parseTrue;
       }
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // enable or disable the control
-      this.field.disabled = !this.activeIfValue;
-      this.divUp.setAttribute("active", !this.field.disabled);
-      this.divDown.setAttribute("active", !this.field.disabled);
+      self.field.disabled = !self.activeIfValue;
+      self.divUp.setAttribute("active",   !self.field.disabled);
+      self.divDown.setAttribute("active", !self.field.disabled);
 
       // hide or show the spinner control
-      if (this.drawIfValue) {
-        this.updateStyle();
-        this.container.style.display = "block"
+      if (self.drawIfValue) {
+        self.updateStyle();
+        self.container.style.display = "block"
       }
       else {
-        this.click = false;
-        this.container.style.display = "none";
+        self.click = false;
+        self.container.style.display = "none";
       }
 
       // change in the images of the buttons
-      if (this.image_dec) {
-        tmp_image_dec_src = this.evaluator.eval(this.image_dec_src).toString().trim();
-        if (this.old_image_dec_src !== tmp_image_dec_src) {
-          this.divDown.style["background-image"] = "url(" + tmp_image_dec_src + ")";
-          this.old_image_dec_src = tmp_image_dec_src;
+      if (self.image_dec) {
+        tmp_image_dec_src = self.evaluator.eval(self.image_dec_src).toString().trim();
+        if (self.old_image_dec_src !== tmp_image_dec_src) {
+          self.divDown.style["background-image"] = `url(${tmp_image_dec_src})`;
+          self.old_image_dec_src = tmp_image_dec_src;
         }
       }
-      if (this.image_inc) {
-        tmp_image_inc_src = this.evaluator.eval(this.image_inc_src).toString().trim();
-        if (this.old_image_inc_src !== tmp_image_inc_src) {
-          this.divUp.style["background-image"] = "url(" + tmp_image_inc_src + ")";
-          this.image_inc_src = tmp_image_inc_src;
+      if (self.image_inc) {
+        tmp_image_inc_src = self.evaluator.eval(self.image_inc_src).toString().trim();
+        if (self.old_image_inc_src !== tmp_image_inc_src) {
+          self.divUp.style["background-image"] = `url(${tmp_image_inc_src})`;
+          self.image_inc_src = tmp_image_inc_src;
         }
       }
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
 
-      if ( !(this.parent.animation.playing) || (document.activeElement != this.field) ) {
-        oldFieldValue = this.field.value;
-        oldValue = this.value;
+      if ( !(self.parent.animation.playing) || (document.activeElement != self.field) ) {
+        oldFieldValue = self.field.value;
+        oldValue = self.value;
 
         // update the spinner value
-        this.value = this.validateValue( evaluator.getVariable(this.id) );
-        this.field.value = this.formatOutputValue(this.value);
+        self.value = self.validateValue( evaluator.getVariable(self.id) );
+        self.field.value = self.formatValue(self.value);
 
-        if ((this.value == oldValue) && (this.field.value != oldFieldValue)) {
+        if ((self.value == oldValue) && (self.field.value != oldFieldValue)) {
           // update the spinner value
-          this.value = this.validateValue( oldFieldValue );
-          this.field.value = this.formatOutputValue(this.value);
+          self.value = self.validateValue(oldFieldValue);
+          self.field.value = self.formatValue(self.value);
         }
 
         // register the control value
-        evaluator.setVariable(this.id, this.value);
+        evaluator.setVariable(self.id, self.value);
       }
 
       //
-      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      self.label_ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
       // draw the text to get the width
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0);
 
-      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      self.label_ctx.clearRect(0, 0, self.label.width, self.label.height);
 
-      int_color = this.label_color.getColor();
-      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-        this.label_ctx.fillStyle = int_color;
-        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      int_color = self.label_color.getColor();
+      if (int_color && (/CanvasGradient|CanvasPattern/).test(int_color.constructor.name)) {
+        self.label_ctx.fillStyle = int_color;
+        self.label_ctx.fillRect(0, 0, self.label_ctx.canvas.width, self.label_ctx.canvas.height);
       }
 
-      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
-        this.text_object.anchor = "center_left";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      if (self.text_object.textNodes.metrics.w > self.label.width/self.ratio) {
+        self.text_object.anchor = "center_left";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 5, self.label.height/self.ratio/2); 
       }
       else {
-        this.text_object.anchor = "center_center";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+        self.text_object.anchor = "center_center";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), self.label.width/self.ratio/2, self.label.height/self.ratio/2);
       }
-      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      self.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
      * 
      */
     updateStyle() {
-      this.divUp.style.borderStyle = (this.up) ? "inset" : "outset";
-      this.divUp.style.borderColor = (this.up) ? "gray" : "#f0f8ff";
-      this.divUp.style.backgroundColor = (this.up) ? "#bfbfbf" : "";
-      this.divUp.style.backgroundColor = (this.flat) ? "transparent" : this.divUp.style.backgroundColor;
-      this.divUp.style.backgroundPosition = (this.up) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
+      self = this;
+      self.divUp.style.borderStyle = (self.up) ? "inset" : "outset";
+      self.divUp.style.borderColor = (self.up) ? "gray" : "#f0f8ff";
+      self.divUp.style.backgroundColor = (self.up) ? "#bfbfbf" : "";
+      self.divUp.style.backgroundColor = (self.flat) ? "transparent" : self.divUp.style.backgroundColor;
+      self.divUp.style.backgroundPosition = (self.up) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
 
-      this.divDown.style.borderStyle = (this.down) ? "inset" : "outset";
-      this.divDown.style.borderColor = (this.down) ? "gray" : "#f0f8ff";
-      this.divDown.style.backgroundColor = (this.down) ? "#bfbfbf" : "";
-      this.divDown.style.backgroundColor = (this.flat) ? "transparent" : this.divDown.style.backgroundColor;
-      this.divDown.style.backgroundPosition = (this.down) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
+      self.divDown.style.borderStyle = (self.down) ? "inset" : "outset";
+      self.divDown.style.borderColor = (self.down) ? "gray" : "#f0f8ff";
+      self.divDown.style.backgroundColor = (self.down) ? "#bfbfbf" : "";
+      self.divDown.style.backgroundColor = (self.flat) ? "transparent" : self.divDown.style.backgroundColor;
+      self.divDown.style.backgroundPosition = (self.down) ? "calc(50% + 1px) calc(50% + 1px)" : "center";
     }
 
     /**
@@ -429,13 +439,13 @@ var descartesJS = (function(descartesJS) {
 
       if (!isNaN(parseFloat(value))) {
         // remove the exponential notation of the number and convert it to a fixed notation
-        if (value.toString().match("e")) {
+        if (value.toString().includes("e")) {
           value = parseFloat(value).toFixed(20);
         }
       }
       value = (value != undefined) ? value.toString() : "0";
 
-      var tmp = value.replace(this.parent.decimal_symbol, ".");
+      let tmp = value.replace(this.parent.decimal_symbol, ".");
       if (tmp == parseFloat(tmp)) {
         resultValue = parseFloat(tmp);
       }
@@ -496,7 +506,7 @@ var descartesJS = (function(descartesJS) {
     changeValue(value) {
       if (this.activeIfValue) {
         this.value = this.validateValue(value);
-        this.field.value = this.formatOutputValue(this.value);
+        this.field.value = this.formatValue(this.value);
 
         // register the control value
         this.evaluator.setVariable(this.id, this.value);
@@ -511,16 +521,13 @@ var descartesJS = (function(descartesJS) {
     addEvents() {
       hasTouchSupport = descartesJS.hasTouchSupport;
 
-      var self = this;
-      var delay = (hasTouchSupport) ? 500 : 200;
-      var timer;
-
-      // prevent the context menu display
-      self.divUp.oncontextmenu = self.divDown.oncontextmenu = self.field.oncontextmenu = self.label.oncontextmenu = self.cover.oncontextmenu = function() { return false; };
+      let self = this;
+      let delay = (hasTouchSupport) ? 500 : 200;
+      let timer;
 
       // prevent the default events int the label
-      this.label.addEventListener("touchstart", descartesJS.preventDefault);
-      this.label.addEventListener("mousedown", descartesJS.preventDefault);
+      self.label.addEventListener("touchstart", descartesJS.preventDefault);
+      self.label.addEventListener("mousedown", descartesJS.preventDefault);
 
       /**
        * Repeat a function during a period of time, when the user click and hold the click in the button
@@ -550,7 +557,7 @@ var descartesJS = (function(descartesJS) {
           self.changeValue(self.field.value);
         }
       }
-      this.field.addEventListener("keydown", onKeyDown_TextField);
+      self.field.addEventListener("keydown", onKeyDown_TextField);
 
       /**
        *
@@ -569,8 +576,8 @@ var descartesJS = (function(descartesJS) {
           }
         }
       }
-      this.divUp.addEventListener("touchstart", onMouseDown_UpButton);
-      this.divUp.addEventListener("mousedown", onMouseDown_UpButton);
+      self.divUp.addEventListener("touchstart", onMouseDown_UpButton);
+      self.divUp.addEventListener("mousedown", onMouseDown_UpButton);
 
       /**
        *
@@ -589,8 +596,8 @@ var descartesJS = (function(descartesJS) {
           }
         }
       }
-      this.divDown.addEventListener("touchstart", onMouseDown_DownButton);
-      this.divDown.addEventListener("mousedown", onMouseDown_DownButton);
+      self.divDown.addEventListener("touchstart", onMouseDown_DownButton);
+      self.divDown.addEventListener("mousedown", onMouseDown_DownButton);
 
       /**
        *
@@ -603,7 +610,7 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
         self.updateStyle();
       }
-      this.divUp.addEventListener("mouseout", onMouseOut_UpButton);
+      self.divUp.addEventListener("mouseout", onMouseOut_UpButton);
 
       /**
        *
@@ -616,7 +623,7 @@ var descartesJS = (function(descartesJS) {
         evt.preventDefault();
         self.updateStyle();
       }
-      this.divDown.addEventListener("mouseout", onMouseOut_DownButton);
+      self.divDown.addEventListener("mouseout", onMouseOut_DownButton);
 
       /**
        *
@@ -630,9 +637,9 @@ var descartesJS = (function(descartesJS) {
         // evt.preventDefault();
       }
 
-      this.divUp.addEventListener("touchend", onMouseUp_UpButton);
+      self.divUp.addEventListener("touchend", onMouseUp_UpButton);
       window.addEventListener("touchend", onMouseUp_UpButton);
-      this.divUp.addEventListener("mouseup", onMouseUp_UpButton);
+      self.divUp.addEventListener("mouseup", onMouseUp_UpButton);
       window.addEventListener("mouseup", onMouseUp_UpButton);
 
       /**
@@ -647,17 +654,16 @@ var descartesJS = (function(descartesJS) {
         // evt.preventDefault();
       }
 
-      this.divDown.addEventListener("touchend", onMouseUp_DownButton);
+      self.divDown.addEventListener("touchend", onMouseUp_DownButton);
       window.addEventListener("touchend", onMouseUp_DownButton);
-      this.divDown.addEventListener("mouseup", onMouseUp_DownButton);
+      self.divDown.addEventListener("mouseup", onMouseUp_DownButton);
       window.addEventListener("mouseup", onMouseUp_DownButton);
 
       /**
        *
        */
       document.addEventListener("visibilitychange", function(evt) {
-        self.up = false;
-        self.down = false;
+        self.up = self.down = false;
         descartesJS.clearTimeout(timer);
         self.updateStyle();
       });
@@ -672,13 +678,12 @@ var descartesJS = (function(descartesJS) {
           self.changeValue(self.field.value, true);
         }
       }
-      this.field.addEventListener("blur", onBlur_textField);
+      self.field.addEventListener("blur", onBlur_textField);
       
       /**
        * Prevent an error with the focus of a text field
        */
       self.field.addEventListener("click", function(evt) {
-        // this.select();
         this.focus();
       });
 

@@ -23,11 +23,9 @@ let files = [
 
   "animation/Animation.js",
 
-  "actions/Action.js",
   "actions/Message.js",
   "actions/Calculate.js",
   "actions/OpenURL.js",
-  "actions/OpenScene.js",
   "actions/Config.js",
   "actions/Init.js",
   "actions/Clear.js",
@@ -46,6 +44,10 @@ let files = [
   "auxiliaries/Library.js",
 
   "graphics/Graphic.js",
+
+  // used in Macro 2D and 3D, below Graphics.js because it extends it
+  "graphics/BaseMacro.js",
+
   "graphics/SimpleText.js",
   "graphics/Equation.js",
   "graphics/Curve.js",
@@ -87,6 +89,7 @@ let files = [
   "controls/TextField.js",
   "controls/Menu.js",
   "controls/Scrollbar.js",
+  "controls/Slider.js",
   "controls/Audio.js",
   "controls/Video.js",
   "controls/TextArea.js",
@@ -122,7 +125,7 @@ let files = [
 // date object to get the date string
 const date = new Date();
 
-// auxiliar funtion to add a zero at the start of a string
+// auxiliar function to add a zero at the start of a string
 // used for the day and month values of the date object
 function addZero(str) {
   if (str.toString().length == 1) {
@@ -156,7 +159,7 @@ fs.writeFileSync('descartes.js', output);
 
 // call the closure compiler
 exec(
-  "java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartesNF-min.js",
+  "java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2017 --js=descartes.js --js_output_file=descartesNF-min.js",
   (error, stdout, stderr) => {
     if (error) {
       console.log(`error: ${error.message}`);
@@ -181,7 +184,7 @@ exec(
 
     // call the closure compiler
     exec(
-      "java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2015 --js=descartes.js --js_output_file=descartes-min.js",
+      "java -jar ../compiler-latest/compiler.jar --language_in=ECMASCRIPT_2017 --js=descartes.js --js_output_file=descartes-min.js",
       (error, stdout, stderr) => {
         if (error) {
           console.log(`error: ${error.message}`);

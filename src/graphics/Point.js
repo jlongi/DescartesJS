@@ -6,16 +6,15 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var PI2 = Math.PI*2;
-  var MathRound = Math.round;
+  let PI2 = Math.PI*2;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var space;
-  var expr;
-  var tmpRot;
-  var coordX;
-  var coordY;
-  var size;
+  let evaluator;
+  let space;
+  let tmpRot;
+  let coordX;
+  let coordY;
+  let size;
 
   class Point extends descartesJS.Graphic {
     /**
@@ -38,17 +37,13 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      expr = evaluator.eval(this.expresion);
-
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      [this.X, this.Y] = evaluator.eval(this.expresion)[0];
 
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
-        tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
-
-        this.exprX = tmpRot.x;
-        this.exprY = tmpRot.y;
+        tmpRot = this.rotate(this.X, this.Y, descartesJS.degToRad(evaluator.eval(this.rotateExp)));
+        this.X = tmpRot.x;
+        this.Y = tmpRot.y;
       }
     }
 
@@ -76,8 +71,8 @@ var descartesJS = (function(descartesJS) {
 
       ctx.fillStyle = fill.getColor();
 
-      coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-      coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+      coordX = MathRound( (this.abs_coord) ? this.X : space.getAbsoluteX(this.X) );
+      coordY = MathRound( (this.abs_coord) ? this.Y : space.getAbsoluteY(this.Y) );
 
       size = MathRound(this.evaluator.eval(this.size));
 

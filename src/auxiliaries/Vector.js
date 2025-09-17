@@ -6,10 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var parser;
-  var newFile;
-  var response;
+  let self;
+  let evaluator;
+  let parser;
+  let newFile;
+  let response;
 
   class Vector extends descartesJS.Auxiliary {
     /**
@@ -21,102 +22,102 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      evaluator = parent.evaluator;
-      parser = evaluator.parser;
+      self = this;
+      parser = parent.evaluator.parser;
 
       /**
        * number of elements of the vector
        * type {Node}
        * @private
        */
-      this.size = this.size || parser.parse("3");
+      self.size = self.size || parser.parse("3");
       
-      this.expresion = this.expresion.split(";");
+      self.expresion = self.expresion.split(";");
 
-      this.parseFile = parser.parse(this.file);
+      self.parseFile = parser.parse(self.file);
       
-      this.update();
+      self.update();
     }
     
     /**
      * Update the vector
      */
     update() {
-      let expr = this.expresion;
+      self = this;
+      let expr = self.expresion;
       let vectorElement;
       
-      evaluator = this.evaluator;
+      evaluator = self.evaluator;
       parser = evaluator.parser;
 
       // if the filename is a variable
-      this.oldFile = this.file;
-      newFile = evaluator.eval(this.parseFile);
+      self.oldFile = self.file;
+      newFile = evaluator.eval(self.parseFile);
       if (newFile) {
-        this.file = newFile;
+        self.file = newFile;
       }
 
       // if has an associate file then read it
-      if (this.file) {
-        // if the vector is embedded in the page
-        vectorElement = document.getElementById(this.file);
+      if (self.file) {
+        // if the file is embedded in the page
+        vectorElement = document.getElementById(self.file);
         if ((vectorElement) && (vectorElement.type == "descartes/vectorFile")) {
           response = vectorElement.text;
         }
         // read the vector data from a file
         else {
-          response = descartesJS.openFile(this.file);
+          response = descartesJS.openFile(self.file);
         }
 
-        // if the read information has content, split the content
+        // if the file has content, split the content
         if (response != null) {
           response = response.replace(/\r/g, "").split("\n");
-
-          let tmpResponse = [];
-          for (var i=0, l=response.length; i<l; i++) {
-            if (response[i] != "") {
-              tmpResponse.push( response[i] );
-            }
-          }
-          response = tmpResponse;
+          response = response.filter((response_i) => (response_i.trim() !== ""));
         }
 
         // if the file has no content or could not be read
         if ( (response == null) || ((response.length == 1) && (response[0] == "")) ) {
           response = [];
-          this.size = parser.parse("0");
+          self.size = parser.parse("0");
         }
         // if the file has content and could be read
         else {
           expr = response;
-          this.size = null;
+          self.size = null;
         }
         
-        if (this.size === null) {
-          this.size = parser.parse( expr.length + "" );
+        if (self.size === null) {
+          self.size = parser.parse( expr.length + "" );
         }
       }
 
+      let tmp_val;
       let tmpExp;
-      let newExpression = [];
-      // parse the elements of the expression
-      for(var i=0, l=expr.length; i<l; i++) {
-        tmpExp = parser.parse(expr[i], true);
+      let newExpression = expr.map((expr_i, i) => {
+        tmpExp = parser.parse(expr_i, true);
 
         // if the expression is not an assignment
-        if ((tmpExp) && (tmpExp.type != "assign")) {
-          tmpExp = parser.parse( this.id + "[" + i + "]=" + expr[i], true );
+        if ((tmpExp) && (tmpExp.type !== "assign")) {
+          tmp_val = NaN;
+
+          if (this.parent.decimal_symbol == ",") {
+            tmp_val = parseFloat(expr_i.replace(",", "."));
+          }
+
+          // if tmp_val es NaN then expr_i is a string or a variable, if not is NaN then is a number
+          tmpExp = parser.parse( `${self.id}[${i}]=${(isNaN(tmp_val)) ? expr_i : tmp_val}`, true );
         }
 
-        newExpression.push( tmpExp );
-      }
+        return tmpExp;
+      });
 
-      let vecInit = (Array(parseInt(Math.abs(evaluator.eval(this.size))))).fill(0);
+      let vecInit = (Array(parseInt(Math.abs(evaluator.eval(self.size))))).fill(0);
       vecInit._size_ = vecInit.length;
-      evaluator.vectors[this.id] = vecInit;
-      evaluator.setVariable(this.id + ".long", vecInit._size_);
+      evaluator.vectors[self.id] = vecInit;
+      evaluator.setVariable(self.id + ".long", vecInit._size_);
 
-      for(var i=0, l=newExpression.length; i<l; i++) {
-        evaluator.eval(newExpression[i]);
+      for (let newExpression_i of newExpression) {
+        evaluator.eval(newExpression_i);
       }    
     }
   }

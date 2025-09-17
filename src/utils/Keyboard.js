@@ -3,7 +3,7 @@
  * @licencia LGPL - http://www.gnu.org/licenses/lgpl.html
  */
 
- var descartesJS = (function(descartesJS) {
+var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
   const margin = 5;
@@ -18,7 +18,6 @@
       this.container = descartesJS.newHTML("div", {
         class : "DescartesKeyboardContainer",
       });
-      this.container.oncontextmenu = function() { return false; };
 
       this.display = descartesJS.newHTML("textarea", {
         class : "DescartesKeyboardDisplay",
@@ -73,23 +72,15 @@
       //   this.displayCursor = this.display.selectionStart;
       // });
 
-      this.key_pressed = false;
+      this.key_pressed = this.delete_pressed = false;
       let idTimeout;
-      this.delete_pressed = false;
       let deleteTimeout;
+
       /**
        * 
        */
       this.keyContainer.addEventListener("pointerdown", (evt) => {
-        if (
-          (evt.target.id == "k_op") ||
-          (evt.target.id == "k_dot") ||
-          (evt.target.id == "k_a") ||
-          (evt.target.id == "k_e") ||
-          (evt.target.id == "k_i") ||
-          (evt.target.id == "k_o") ||
-          (evt.target.id == "k_u") 
-        ) {
+        if ( (/^(k_op|k_dot|k_a|k_e|k_i|k_o|k_u)$/).test(evt.target.id) ) {
           // add an event listener to prevent the delete key to get stuck
           evt.target.onpointerleave = function() {
             clearTimeout(idTimeout);
@@ -102,7 +93,7 @@
           },
           600);
         }
-        else if (evt.target.id == "k_delete") {
+        else if (evt.target.id == "k_del") {
           // add an event listener to prevent the delete key to get stuck
           evt.target.onpointerleave = function() {
             clearTimeout(deleteTimeout);
@@ -130,7 +121,7 @@
           else if (evt.target.id == "k_right") {
             this.display.selectionStart = this.display.selectionEnd = Math.min(this.display.value.length, this.display.selectionStart+1);
           }
-          else if (evt.target.id == "k_delete") {
+          else if (evt.target.id == "k_del") {
             if (!this.delete_pressed) {
               this.delete();
             }
@@ -195,15 +186,7 @@
           else if (evt.target.id == "k_clear") {
             this.display.value = "";
           }
-          else if (
-            (evt.target.id == "k_op") ||
-            (evt.target.id == "k_dot") ||
-            (evt.target.id == "k_a") ||
-            (evt.target.id == "k_e") ||
-            (evt.target.id == "k_i") ||
-            (evt.target.id == "k_o") ||
-            (evt.target.id == "k_u") 
-            ){
+          else if ( (/^(k_op|k_dot|k_a|k_e|k_i|k_o|k_u)$/).test(evt.target.id) ) {
             clearTimeout(idTimeout);
 
             if (!this.key_pressed) {
@@ -295,8 +278,8 @@
      * 
      */
     addKey(val, id, style) {
-      id = (id) ? "id='" + id + "'" : "";
-      style = (style) ? "style='" + style + "'" : "";
+      id = (id) ? `id='${id}'` : "";
+      style = (style) ? `style='${style}'` : "";
       return `<div ${id} ${style}>${val}</div>`
     }
     addKeys(keys_arr) {
@@ -368,7 +351,7 @@
         0, 
         {val:this.parent.decimal_symbol},
         "-",
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
         {val:"↵", id:"k_return"}
       ];
 
@@ -387,7 +370,7 @@
         4, 
         5, 
         {val:this.parent.decimal_symbol},
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
         6, 
         7, 
@@ -416,7 +399,7 @@
         "²",
         "/",
         "×",
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
         ")",
         6, 
@@ -442,7 +425,7 @@
         7,
         8,
         9,
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
         4,
         5,
@@ -472,7 +455,7 @@
         8,
         9,
         "²",
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
         
         4,
         5,
@@ -510,7 +493,7 @@
         {val:"i", id:"k_i"},
         {val:"o", id:"k_o"},
         "p",
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
         {val:"a", id:"k_a"},
         "s",
@@ -532,7 +515,7 @@
         "b",
         "n",
         "m",
-        {val:"", id:"k_space", style:`width:${40*2+5}px;`},
+        {val:"",  id:"k_space", style:`width:${40*2+5}px;`},
         {val:"↵", id:"k_return"}
       ];
 
@@ -556,7 +539,7 @@
         8, 
         9, 
         0,
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
         "q",
         "w",
@@ -590,7 +573,7 @@
         "b",
         "n",
         "m",
-        {val:"", id:"k_space", style:`width:${40*2+5}px;`},
+        {val:"",  id:"k_space", style:`width:${40*2+5}px;`},
         {val:"↵", id:"k_return"}
       ];
 
@@ -633,10 +616,10 @@
         "b",
         "n",
         "m",
-        {val:"⌫", id:"k_delete", style:`width:${40*1.5+5*0.5}px;`},
+        {val:"⌫", id:"k_del", style:`width:${40*1.5+5*0.5}px;`},
 
         {val:"123", id:"k_num_layout", style:`width:${40*2+5}px;`},
-        {val:"", id:"k_space", style:`width:${40*5+5*4}px;transform:none !important;`},
+        {val:"",  id:"k_space", style:`width:${40*5+5*4}px;transform:none !important;`},
         {val:"/", id:"k_slash"},
         {val:".", id:"k_dot"},
         {val:"↵", id:"k_return"}
@@ -682,11 +665,11 @@
         "!",
         "¿",
         "?",
-        {val:"⌫", id:"k_delete"},
+        {val:"⌫", id:"k_del"},
 
 
         {val:"ABC", id:"k_alfa_layout", style:`width:${40*2+5}px;`},
-        {val:"", id:"k_space", style:`width:${40*5+5*4}px;transform:none !important;`},
+        {val:"",  id:"k_space", style:`width:${40*5+5*4}px;transform:none !important;`},
         {val:",", id:"k_slash"},
         {val:".", id:"k_dot"},
         {val:"↵", id:"k_return"}
@@ -707,15 +690,15 @@
       let id;
       let size;
 
-      for (let i=0; i<divs.length; i++) {
-        k = {val: divs[i].textContent};
+      for (let divs_i of divs) {
+        k = {val: divs_i.textContent};
 
-        id = divs[i].getAttribute("id");
+        id = divs_i.getAttribute("id");
         if (id) { 
           k.id = id;
         }
 
-        size = divs[i].getAttribute("size");
+        size = divs_i.getAttribute("size");
         if (size) {
           k.style = `width:${40*parseInt(size) + 5*(parseInt(size)-1) }px;transform:none !important;`;
         }

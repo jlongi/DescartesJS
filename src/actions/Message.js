@@ -6,14 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  class Message extends descartesJS.Action {
+  class Message {
     /**
      * Descartes message action
      * @param {DescartesApp} parent the Descartes application
      * @param {String} parameter the values of the action
      */
     constructor(parent, parameter = "") {
-      super(parent);
+      this.parent = parent;
       this.parameter = (parameter).replace(/\\n/g, "\n").replace(/&squot;/g, "'");
     }
 

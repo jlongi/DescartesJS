@@ -6,22 +6,23 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  let self;
   const PI2 = Math.PI*2;
-  var evaluator;
-  var parser;
-  var x;
-  var y;
-  var width;
-  var height;
-  var cpos;
-  var ctx;
-  var backCtx;
-  var constraintPosition;
-  var hasTouchSupport;
-  var tmp;
+  const radioTouch = 48;
+  const radioTouchImage = 32;
 
-  var radioTouch = 48;
-  var radioTouchImage = 32;
+  let evaluator;
+  let parser;
+  let x;
+  let y;
+  let width;
+  let height;
+  let c_pos;
+  let ctx;
+  let backCtx;
+  let constraintPosition;
+  let hasTouchSupport;
+  let tmp;
 
   class GraphicControl extends descartesJS.Control {
     /**
@@ -34,225 +35,222 @@ var descartesJS = (function(descartesJS) {
 
       parser = parent.evaluator.parser;
 
-      this.spaceID = values.spaceID || "";
-      this.text = values.text || "";
-      this.size = values.size || parser.parse("4");
-      this.font = values.font || "Serif,PLAIN,12";
-      this.image = new Image();
-      this.image.onload = function() {
+      self = this;
+      self.spaceID = values.spaceID || "";
+      self.text = values.text || "";
+      self.size = values.size || parser.parse("4");
+      self.font = values.font || "Serif,PLAIN,12";
+      self.image = new Image();
+      self.image.onload = function() {
         this.ready = 1;
       }
-      this.imageSrc = values.imageSrc || "";
+      self.imageSrc = values.imageSrc || "";
       
-      if (this.imageSrc.match(/^\[.*\]?/)) {
-        this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
+      if ((/^\[.*\]$/).test(self.imageSrc)) {
+        self.imageSrc = self.parser.parse(self.imageSrc.slice(1, -1));
       }
       else {
-        this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+        self.imageSrc = self.parser.parse(`'${self.imageSrc}'`);
       }
 
       // get the Descartes font
-      this.font = descartesJS.convertFont(this.font);
+      self.font = descartesJS.convertFont(self.font);
 
       // build the constraint
-      if (this.constraintExpr) {
-        this.constraint = parser.parse(this.constraintExpr);
+      if (self.constraintExpr) {
+        self.constraint = parser.parse(self.constraintExpr);
 
-        if (this.constraint.type == "(expr)") {
-          this.constraint = parser.parse(this.constraintExpr.substring(1, this.constraintExpr.length-1));
+        if (self.constraint.type == "(expr)") {
+          self.constraint = parser.parse(self.constraintExpr.substring(1, self.constraintExpr.length-1));
         }
 
-        if (this.constraint.type == "compOperator") {
-          var left = this.constraint.childs[0];
-          var right = this.constraint.childs[1];
+        if (self.constraint.type == "compOperator") {
+          let left = self.constraint.childs[0];
+          let right = self.constraint.childs[1];
 
           if ( (left.type == "identifier") && (left.value == "y") && (!right.contains("y")) ) {
-            this.constVar = "x";
-            this.noConstVar = "y";
-            this.evalConst = this.evalConstXoY;
-            this.constraint = right;
+            self.constVar = "x";
+            self.noConstVar = "y";
+            self.evalConst = self.evalConstXoY;
+            self.constraint = right;
           }
           else if ( (left.type == "identifier") && (left.value == "x") && (!right.contains("x")) ) {
-            this.constVar = "y";
-            this.noConstVar = "x";
-            this.evalConst = this.evalConstXoY;
-            this.constraint = right;
+            self.constVar = "y";
+            self.noConstVar = "x";
+            self.evalConst = self.evalConstXoY;
+            self.constraint = right;
           }
           else {
-            this.newt = new descartesJS.R2Newton(this.evaluator, this.constraint);
+            self.newt = new descartesJS.R2Newton(self.evaluator, self.constraint);
           }
-
-        } else {
-          this.constraint = null;
+        }
+        else {
+          self.constraint = null;
         }
 
         constraintPosition = new descartesJS.R2(0, 0);
       }
 
       // get the container
-      this.container = this.getContainer();
+      self.container = self.getContainer();
 
       // dom element for catch the mouse events
-      this.mouseCatcher = descartesJS.newHTML("div", {
+      self.mouseCatcher = descartesJS.newHTML("div", {
         class    : "DescartesGraphicControl",
-        id       : this.id,
+        id       : self.id,
         dragged  : true,
         tabindex : "-1",
-        style    : `cursor:pointer;background-color:transparent;z-index:${this.zIndex};`,
+        style    : `z-index:${self.zIndex};`,
       });
 
-      this.ctx = this.space.ctx;
+      self.ctx = self.space.ctx;
 
-      this.container.appendChild(this.mouseCatcher);
+      self.container.appendChild(self.mouseCatcher);
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
-      this.xStr = this.id + ".x";
-      this.yStr = this.id + ".y";
-      this.activoStr = this.id + ".activo";
-      this.activeStr = this.id + ".active";
+      self.xStr = self.id + ".x";
+      self.yStr = self.id + ".y";
+      self.activoStr = self.id + ".activo";
+      self.activeStr = self.id + ".active";
 
-      if ((this.space.id !== "") && (parent.version !== 2)) {
-        this.mX = this.space.id + ".mouse_x";
-        this.mY = this.space.id + ".mouse_y";
-        this.mClicked = this.space.id + ".mouse_clicked";
-        this.mClicIzq = this.space.id + ".clic_izquierdo";
-      }
-      else {
-        this.mX = "mouse_x";
-        this.mY = "mouse_y";
-        this.mClicked = "mouse_clicked";
-        this.mClicIzq = "clic_izquierdo";
-      }
+      let init_str = ((self.space.id !== "") && (parent.version !== 2)) ? self.space.id + "." : "";
+      self.mX = init_str + "mouse_x";
+      self.mY = init_str + "mouse_y";
+      self.mClicked = init_str + "mouse_clicked";
+      self.mClicIzq = init_str + "clic_izquierdo";
 
-      this.init();
+      self.init();
     }
 
     /**
      * Init the graphic control
      */
     init(preservePos) {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
       hasTouchSupport = descartesJS.hasTouchSupport;
 
       // find the x and y position
       if (!preservePos) {
-        var expr = evaluator.eval(this.expresion);
-        this.x = expr[0][0];
-        this.y = expr[0][1];
-        evaluator.setVariable(this.xStr, this.x);
-        evaluator.setVariable(this.yStr, this.y);
+        let expr = evaluator.eval(self.expresion)[0];
+        self.x = expr[0];
+        self.y = expr[1];
+        evaluator.setVariable(self.xStr, self.x);
+        evaluator.setVariable(self.yStr, self.y);
       }
-      this.img_src_eval = evaluator.eval(this.imageSrc).toString().trim();
+      self.img_src_eval = evaluator.eval(self.imageSrc).toString().trim();
 
       // if the control has an image name
-      if ((this.img_src_eval != "") && !(this.img_src_eval.toLowerCase().match(/vacio.gif$/))) {
-        this.image = this.parent.getImage(this.img_src_eval);
+      if ((self.img_src_eval != "") && !((/vacio.gif$/i).test(self.img_src_eval))) {
+        self.image = self.parent.getImage(self.img_src_eval);
 
-        this.width = this.image.width;
-        this.height = this.image.height;
+        self.width  = self.image.width;
+        self.height = self.image.height;
 
-        this._w = Math.max(this.width, radioTouchImage);
-        this._h = Math.max(this.height, radioTouchImage);
+        self._w = Math.max(self.width, radioTouchImage);
+        self._h = Math.max(self.height, radioTouchImage);
       }
       else {
-        this.width = (evaluator.eval(this.size)*2);
-        this.height = (evaluator.eval(this.size)*2);
+        self.width  = (evaluator.eval(self.size)*2);
+        self.height = (evaluator.eval(self.size)*2);
 
-        this._w = ((hasTouchSupport) && (this.width < radioTouch)) ? radioTouch : this.width;
-        this._h = ((hasTouchSupport) && (this.height < radioTouch)) ? radioTouch : this.height;
+        self._w = ((hasTouchSupport) && (self.width < radioTouch))  ? radioTouch : self.width;
+        self._h = ((hasTouchSupport) && (self.height < radioTouch)) ? radioTouch : self.height;
 
         // set a style to make the button round
-        this.mouseCatcher.style.borderRadius = parseInt( Math.min(this._w, this._h)/2 ) + "px";
+        self.mouseCatcher.style.borderRadius = parseInt( Math.min(self._w, self._h)/2 ) + "px";
       }
 
-      this.mouseCatcher.style.width = this._w + "px";
-      this.mouseCatcher.style.height = this._h + "px";
-      this.mouseCatcher.style.left = parseInt(this.space.getAbsoluteX(this.x)-this._w/2)+"px";
-      this.mouseCatcher.style.top = parseInt(this.space.getAbsoluteY(this.y)-this._h/2)+"px";
+      self.mouseCatcher.style.width  = self._w + "px";
+      self.mouseCatcher.style.height = self._h + "px";
+      self.mouseCatcher.style.left = parseInt(self.space.getAbsoluteX(self.x)-self._w/2)+"px";
+      self.mouseCatcher.style.top  = parseInt(self.space.getAbsoluteY(self.y)-self._h/2)+"px";
 
-      evaluator.setVariable(this.activoStr, 0);
-      evaluator.setVariable(this.activeStr, 0);
+      evaluator.setVariable(self.activoStr, 0);
+      evaluator.setVariable(self.activeStr, 0);
 
-      this.setImage = false;
+      self.setImage = false;
 
-      this.update();
+      self.update();
     }
 
     /**
      * Update the graphic control
      */
     update() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      if (evaluator.eval(this.imageSrc).toString().trim() !== this.img_src_eval) {
-        this.init(true);
+      if (evaluator.eval(self.imageSrc).toString().trim() !== self.img_src_eval) {
+        self.init(true);
       }
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // update the position
-      this.x = evaluator.getVariable(this.xStr);
-      this.y = evaluator.getVariable(this.yStr);
+      self.x = evaluator.getVariable(self.xStr);
+      self.y = evaluator.getVariable(self.yStr);
 
-      x = this.space.getAbsoluteX(this.x);
-      y = this.space.getAbsoluteY(this.y);
+      x = self.space.getAbsoluteX(self.x);
+      y = self.space.getAbsoluteY(self.y);
 
-      this.mouseCatcher.style.display = (!this.activeIfValue) ? "none" : "block";
-      this.mouseCatcher.style.left = parseInt(x-this._w/2)+"px";
-      this.mouseCatcher.style.top = parseInt(y-this._h/2)+"px";
+      self.mouseCatcher.style.display = (!self.activeIfValue) ? "none" : "block";
+      self.mouseCatcher.style.left = parseInt(x-self._w/2)+"px";
+      self.mouseCatcher.style.top  = parseInt(y-self._h/2)+"px";
 
       // eval the constraint
-      if (this.constraint) {
-        this.evalConst();
+      if (self.constraint) {
+        self.evalConst();
       }
 
-      this.draw();
+      self.draw();
     }
 
     /**
      * Draw the graphic control
      */
     draw() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      if (this.drawIfValue) {
-        ctx = this.ctx;
-        backCtx = this.space.backgroundCtx;
-        x = parseInt(this.space.getAbsoluteX(this.x))+.5;
-        y = parseInt(this.space.getAbsoluteY(this.y))+.5;
+      if (self.drawIfValue) {
+        ctx = self.ctx;
+        backCtx = self.space.backgroundCtx;
+        x = parseInt(self.space.getAbsoluteX(this.x)) + 0.5;
+        y = parseInt(self.space.getAbsoluteY(this.y)) + 0.5;
 
-        if (this.text != "") {
-          this.drawText(x, y);
+        if (self.text != "") {
+          self.drawText(x, y);
         }
 
         // if the control do not have a image or is not ready
-        if (!this.image.ready) {
-          width = parseInt(this.width/2);
+        if (!self.image.ready) {
+          width = parseInt(self.width/2);
 
           ctx.beginPath();
           ctx.arc(x, y, width, 0, PI2);
 
-          ctx.fillStyle = this.colorInt.getColor();
+          ctx.fillStyle = self.colorInt.getColor();
           ctx.fill();
 
           ctx.lineWidth = 1;
-          ctx.strokeStyle = this.color.getColor();
+          ctx.strokeStyle = self.color.getColor();
           ctx.stroke();
 
-          if (this.active) {
-            ctx.strokeStyle = this.colorInt.borderColor();
+          if (self.active) {
+            ctx.strokeStyle = self.colorInt.borderColor();
             ctx.beginPath();
             ctx.arc(x, y, width-2, 0, PI2);
             ctx.stroke();
           }
 
           // if has trace
-          if (this.trace) {
-            backCtx.strokeStyle = this.trace.getColor();
+          if (self.trace) {
+            backCtx.strokeStyle = self.trace.getColor();
             backCtx.beginPath();
             backCtx.arc(x, y, width, 0, PI2);
             backCtx.stroke();
@@ -260,14 +258,14 @@ var descartesJS = (function(descartesJS) {
         }
         // if the control has an image and is ready
         else {
-          width = this.image.width/2;
-          height = this.image.height/2;
-          if ((this.image.complete) && (!this.setImage)) {
-            ctx.drawImage(this.image, parseInt(x-width), parseInt(y-height));
+          width  = self.image.width/2;
+          height = self.image.height/2;
+          if ((self.image.complete) && (!self.setImage)) {
+            ctx.drawImage(self.image, parseInt(x-width), parseInt(y-height));
           }
 
           // if has trace
-          if (this.trace) {
+          if (self.trace) {
             backCtx.save();
             backCtx.translate(x, y);
             backCtx.scale(parseInt(width), parseInt(height));
@@ -277,7 +275,7 @@ var descartesJS = (function(descartesJS) {
             backCtx.restore();
 
             backCtx.lineWidth = 1;
-            backCtx.strokeStyle = this.trace.getColor();
+            backCtx.strokeStyle = self.trace.getColor();
             backCtx.stroke();
           }
         }
@@ -289,10 +287,9 @@ var descartesJS = (function(descartesJS) {
      */
     evalConst() {
       constraintPosition.set(this.x, this.y);
-
-      cpos = this.newt.findZero(constraintPosition, 1/this.space.scale, true);
-      this.x = cpos.x;
-      this.y = cpos.y;
+      c_pos = this.newt.findZero(constraintPosition, 1/this.space.scale, true);
+      this.x = c_pos.x;
+      this.y = c_pos.y;
       this.evaluator.setVariable(this.xStr, this.x);
       this.evaluator.setVariable(this.yStr, this.y);
     }
@@ -318,27 +315,26 @@ var descartesJS = (function(descartesJS) {
      * Draw the graphic control text
      */
     drawText(x, y) {
-      ctx = this.ctx;
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
+      ctx = self.ctx;
+      ctx.fillStyle = self.color.getColor();
+      ctx.textBaseline = "alphabetic";
 
       // simpleText
-      if (this.text.type == "simpleText") {
-        ctx.fillStyle = this.color.getColor();
-        ctx.font = this.font;
-        ctx.textBaseline = "alphabetic";
+      if (self.text.type == "simpleText") {
+        ctx.font = self.font;
 
         ctx.fillText(
-          this.text.toString(evaluator.eval(this.decimals), this.fixed),
-          parseInt(x+1+this.width/2),
-          parseInt(y-1-this.height/2)
+          self.text.toString(evaluator.eval(self.decimals), self.fixed),
+          parseInt(x+1+self.width/2),
+          parseInt(y-1-self.height/2)
         );
       }
       // rtfNode
       else {
-        ctx.fillStyle = this.color.getColor();
-        ctx.strokeStyle = this.color.getColor();
-        ctx.textBaseline = "alphabetic";
-        this.text.draw(ctx, parseInt(x+1+this.width/2), parseInt(y-1-this.height/2), this.decimals, this.fixed, "start", true, this.color.getColor());
+        ctx.strokeStyle = self.color.getColor();
+        self.text.draw(ctx, parseInt(x+1+self.width/2), parseInt(y-1-self.height/2), self.decimals, self.fixed, "start", true, self.color.getColor());
       }
     }
 
@@ -347,13 +343,10 @@ var descartesJS = (function(descartesJS) {
      * @return {HTMLDiv} return the space container
      */
     getContainer() {
-      var spaces = this.parent.spaces;
-      var space_i;
+      let spaces = this.parent.spaces;
 
       // if the control is in a internal space
-      for(var i=0, l=spaces.length; i<l; i++) {
-        space_i = spaces[i];
-
+      for (let space_i of spaces) {
         if (space_i.id == this.spaceID) {
           space_i.addCtr(this);
           this.zIndex = space_i.zIndex;
@@ -378,30 +371,25 @@ var descartesJS = (function(descartesJS) {
       this.active = false;
       this.evaluator.setVariable(this.activoStr, 0);
       this.evaluator.setVariable(this.activeStr, 0);
-      this.evaluator.setVariable(this.mClicIzq, 0);
+      this.evaluator.setVariable(this.mClicIzq,  0);
     }
 
     /**
      * Register the mouse and touch events
      */
     addEvents() {
-      var lastTime = 0;
+      let lastTime = 0;
+      let posNew;
+      let self = this;
 
-      var posNew;
+      self.click  = false;
+      self.over   = false;
+      self.active = false;
 
-      var self = this;
-
-      this.click = false;
-      this.over = false;
-      this.active = false;
-
-      // prevent the context menu display
-      this.mouseCatcher.oncontextmenu = function () { return false; };
-
-      this.mouseCatcher.addEventListener("touchstart", onMouseDown);
-      this.mouseCatcher.addEventListener("mousedown", onMouseDown);
-      this.mouseCatcher.addEventListener("mouseover", onMouseOver);
-      this.mouseCatcher.addEventListener("mouseout", onMouseOut);
+      self.mouseCatcher.addEventListener("touchstart", onMouseDown);
+      self.mouseCatcher.addEventListener("mousedown", onMouseDown);
+      self.mouseCatcher.addEventListener("mouseover", onMouseOver);
+      self.mouseCatcher.addEventListener("mouseout", onMouseOut);
 
       /**
        *
@@ -482,10 +470,10 @@ var descartesJS = (function(descartesJS) {
           self.parent.update();
 
           self.mouseCatcher.style.left = (self.space.getAbsoluteX(self.x)-self._w/2)+"px";
-          self.mouseCatcher.style.top = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
+          self.mouseCatcher.style.top  = (self.space.getAbsoluteY(self.y)-self._h/2)+"px";
         }
 
-        var act = self.evaluator.getVariable(self.activeStr);
+        let act = self.evaluator.getVariable(self.activeStr);
 
         // deactivate control
         self.parent.deactivateControls();
@@ -521,7 +509,6 @@ var descartesJS = (function(descartesJS) {
           // update the controls
           self.parent.updateControls();
           self.parent.update();
-
           lastTime = Date.now();
         }
       }

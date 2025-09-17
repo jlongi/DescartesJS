@@ -6,21 +6,17 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var tempParamU;
-  var tempParamV;
-  var tempParamX;
-  var tempParamY;
-  var tempParamZ;
-  var Nu;
-  var Nv;
-  var vertices;
-  var v;
-  var evaluator;
-  var ui;
-  var vi;
-  var ii;
-  var ll;
+  let self;
+  let evaluator;
+  let tempParamU;
+  let tempParamV;
+  let tempParamX;
+  let tempParamY;
+  let tempParamZ;
+  let Nu;
+  let Nv;
+  let vertices;
+  let v;
 
   class Surface3D extends descartesJS.Graphic3D {
     /**
@@ -32,20 +28,23 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.parameter = this.parameter || "t";
-      this.parameter_interval = this.parameter_interval || parent.evaluator.parser.parse("[0,1]");
-      this.parameter_steps = this.parameter_steps || parent.evaluator.parser.parse("8");
+      self = this;
 
-      this.expresion = this.parseExpression();
+      self.param = self.param || "t";
+      self.parameter_interval = self.parameter_interval || parent.evaluator.parser.parse("[0,1]");
+      self.parameter_steps = self.parameter_steps || parent.evaluator.parser.parse("8");
+
+      self.expresion = self.parseExpression();
     }
     
     /**
      * Build the primitives corresponding to the surface
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
       // store the u and v parameter values
       tempParamX = evaluator.getVariable("x");
@@ -56,48 +55,50 @@ var descartesJS = (function(descartesJS) {
 
       evaluator.setVariable("u", 0);
       evaluator.setVariable("v", 0);
-      Nu = parseInt(evaluator.eval(this.Nu));
-      Nv = parseInt(evaluator.eval(this.Nv));
+      Nu = parseInt(evaluator.eval(self.Nu));
+      Nv = parseInt(evaluator.eval(self.Nv));
 
       // array to store the computed vertices 
       vertices = [];
 
-      for (ui=0; ui<=Nu; ui++) {
+      for (let ui=0; ui<=Nu; ui++) {
         evaluator.setVariable("u", ui/Nu);
 
-        for (vi=0; vi<=Nv; vi++) {
+        for (let vi=0; vi<=Nv; vi++) {
           evaluator.setVariable("v", vi/Nv);
 
           // eval all the sub terms in the expression
-          for (ii=0, ll=this.expresion.length; ii<ll; ii++) {
-            evaluator.eval(this.expresion[ii]);
+          for (let expr of self.expresion) {
+            evaluator.eval(expr);
           }
 
-          vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
+          vertices.push( self.transformVertex(new descartesJS.Vec4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"))) );
         }
       }
 
-      var tmpFrontColor = this.color.getColor();
-      var tmpBackColor = this.backcolor.getColor();
-      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+      let tmpFrontColor = self.color.getColor();
+      let tmpBackColor  = self.backcolor.getColor();
+      let tmpEdgeColor  = (self.edges) ? self.edges.getColor() : "";
 
-      for (ui=0; ui<Nu; ui++) {
-        for (vi=0; vi<Nv; vi++) {
+      for (let ui=0; ui<Nu; ui++) {
+        for (let vi=0; vi<Nv; vi++) {
           v = [];
-          v.push(vertices[vi + ui*Nv + ui]);        // 0
+          v.push(vertices[vi   + ui*Nv + ui]);      // 0
           v.push(vertices[vi+1 + ui*Nv + ui]);      // 1
           v.push(vertices[vi+2 + (ui+1)*Nv  + ui]); // 2
           v.push(vertices[vi+1 + (ui+1)*Nv  + ui]); // 3
 
-          this.primitives.push( new descartesJS.Primitive3D( { 
-            vertices: v,
-            type: "face",
-            frontColor: tmpFrontColor,
-            backColor: tmpBackColor,
-            edges: tmpEdgeColor,
-            model: this.model
-          },
-          this.space ));
+          self.primitives.push(
+            new descartesJS.Primitive3D( { 
+              V: v,
+              type: "face",
+              frontColor: tmpFrontColor,
+              backColor: tmpBackColor,
+              edges: tmpEdgeColor,
+              model: self.model
+            },
+            self.space
+          ));
         }
       }
 

@@ -6,8 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var drawif;
+  let self;
+  let evaluator;
+  let drawif;
 
   class Video extends descartesJS.Control {
     /**
@@ -19,7 +20,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
       
-      var self = this;
+      self = this;
 
       self.controls = values.controls || true;
       self.file = values.file || "";
@@ -27,17 +28,17 @@ var descartesJS = (function(descartesJS) {
 
       evaluator = self.evaluator;
 
-      var expr = evaluator.eval(self.expresion);
-      if (expr[0].length == 4) {
-        self.w = expr[0][2];
-        self.h = expr[0][3];
+      let expr = evaluator.eval(self.expresion)[0];
+      if (expr.length == 4) {
+        self.w = expr[2];
+        self.h = expr[3];
       } else {
         self.w = null;
         self.h = null;
       }
 
-      var filename = self.file;
-      var indexDot = filename.lastIndexOf(".");
+      let filename = self.file;
+      let indexDot = filename.lastIndexOf(".");
 
       if (indexDot != -1) {
         filename = self.file.substring(0, indexDot);
@@ -62,11 +63,11 @@ var descartesJS = (function(descartesJS) {
 
 
       if (self.w) {
-        self.video.setAttribute("width", self.w);
+        self.video.setAttribute("width",  self.w);
         self.video.setAttribute("height", self.h);
       }
 
-      var source;
+      let source;
       //mp4
       if (self.video.canPlayType("video/mp4")) {
         source = descartesJS.newHTML("source", {
@@ -118,7 +119,7 @@ var descartesJS = (function(descartesJS) {
       evaluator.setFunction(self.id + ".stop", function() {
         try {
           self.video.pause();
-          self.video.currentTime = 0.0;
+          self.video.currentTime = 0;
         } catch(e) {}
 
         return 0;
@@ -149,25 +150,26 @@ var descartesJS = (function(descartesJS) {
      * Update the video control
      */
     update() {
-      evaluator = this.evaluator;
-
-      drawif = evaluator.eval(this.drawif) > 0
+      self = this;
+      evaluator = self.evaluator;
+      
+      drawif = evaluator.eval(self.drawif) > 0
 
       // hide or show the video control
       if (drawif) {
-        this.video.style.display = "block"
+        self.video.style.display = "block"
       } else {
-        this.video.style.display = "none";
+        self.video.style.display = "none";
 
-        if (drawif !== this.oldDrawIf) {
-          this.video.pause();
+        if (drawif !== self.oldDrawIf) {
+          self.video.pause();
         }
       }
 
-      this.oldDrawIf = drawif;
+      self.oldDrawIf = drawif;
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
     }
   }
 

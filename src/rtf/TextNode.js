@@ -2144,16 +2144,27 @@ var descartesJS = (function(descartesJS) {
      */
     drawRadical(ctx) {
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
+      if (this.style.border) {
+        ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+        ctx.strokeStyle = this.style.border.getColor();
+        ctx.lineWidth = ctx.lineWidth/Math.max(this.radicalSign.scaleX, this.radicalSign.scaleY);
+      }
+
       ctx.save();
+      ctx.font = `1000px DJS_symbol`;
       ctx.translate(this.radicalSign.x, this.radicalSign.y);
       ctx.scale(this.radicalSign.scaleX, this.radicalSign.scaleY);
-      this.drawRadicalSign(ctx);
+      if (this.style.border) {
+        ctx.strokeText("√", -70, 800);
+      }
+      ctx.fillText("√", -70, 800);
       ctx.restore();
 
-      ctx.beginPath();
       ctx.fillRect(this.children[1].metrics.x+2.5, this.radicalSign.y -0.5, this.children[1].metrics.w -1.5, parseInt(1+this.style.size/18));
 
-      for (var i=0, l=this.children.length; i<l; i++) {
+      for (let i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
       }
 
@@ -2163,23 +2174,21 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawSum(ctx) {
-      ctx.save();
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
-      ctx.translate(this.sigmaSign.x, this.sigmaSign.y);
-      ctx.scale(this.sigmaSign.scale, this.sigmaSign.scale);
+
+      ctx.font = `${this.sigmaSign.w*1.9}px DJS_symbol`;
+
       if (this.style.border) {
-        var tmpStroke = ctx.strokeStyle;
         ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
-        ctx.lineWidth = parseInt(ctx.lineWidth / this.sigmaSign.scale);
         ctx.lineJoin = "round";
         ctx.miterLimit = 2;
         ctx.strokeStyle = this.style.border.getColor();
-        ctx.strokeStyle = tmpStroke;
+        ctx.strokeText("Σ", this.sigmaSign.x, this.sigmaSign.y+this.sigmaSign.h);
       }
-      this.drawSigmaSign(ctx);
-      ctx.restore();
 
-      for (var i=0, l=this.children.length; i<l; i++) {
+      ctx.fillText("Σ", this.sigmaSign.x, this.sigmaSign.y+this.sigmaSign.h);
+
+      for (let i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
       }
 
@@ -2189,15 +2198,21 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawIntegral(ctx) {
-      ctx.save();
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
-      ctx.translate(this.sign.x, this.sign.y);
-      ctx.scale(this.sign.scale, this.sign.scale);
-      this.drawIntegralSign(ctx);
 
-      ctx.restore();
+      ctx.font = `${this.sign.w*1.5}px DJS_symbol`;
 
-      for (var i=0, l=this.children.length; i<l; i++) {
+      if (this.style.border) {
+        ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+        ctx.strokeStyle = this.style.border.getColor();
+        ctx.strokeText("∫", this.sign.x, this.sign.y+this.sign.h*3/4);
+      }
+
+      ctx.fillText("∫", this.sign.x, this.sign.y+this.sign.h*3/4);
+
+      for (let i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
       }
 
@@ -2207,15 +2222,21 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawProd(ctx) {
-      ctx.save();
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
-      ctx.translate(this.piSign.x, this.piSign.y);
-      ctx.scale(this.piSign.scale, this.piSign.scale);
-      this.drawProdSign(ctx);
 
-      ctx.restore();
+      ctx.font = `${this.piSign.w*1.5}px DJS_symbol`;
+
+      if (this.style.border) {
+        ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+        ctx.strokeStyle = this.style.border.getColor();
+        ctx.strokeText("Π", this.piSign.x, this.piSign.y+this.piSign.h);
+      }
+
+      ctx.fillText("Π", this.piSign.x, this.piSign.y+this.piSign.h);
       
-      for (var i=0, l=this.children.length; i<l; i++) {
+      for (let i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
       }
       
@@ -2225,17 +2246,30 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawLimit(ctx) {
-      for (var i=0, l=this.children.length; i<l; i++) {
+      for (let i=0, l=this.children.length; i<l; i++) {
         this.children[i].draw(ctx);
       }
 
       ctx.fillStyle = (this.style.color !== null) ? ((this.style.color.getColor) ? this.style.color.getColor() : this.style.color) : externalColor;
 
+      if (this.style.border) {
+        ctx.lineWidth = (this.style.border_size && parseInt(this.style.border_size)>0) ? parseInt(this.style.border_size) : 1 + parseInt(this.style.size/8);
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+        ctx.strokeStyle = this.style.border.getColor();
+      }
+
       ctx.font = this.style.toString();
 
+      if (this.style.border) {
+        ctx.strokeText("lím", this.limitText.x, this.metrics.y);
+      }
       ctx.fillText("lím", this.limitText.x, this.metrics.y);
 
       if ((this.children[1].metrics.h != 0)){
+        if (this.style.border) {
+          ctx.strokeText("→", this.limitArrow.x, this.limitArrow.y);
+        }
         ctx.fillText("→", this.limitArrow.x, this.limitArrow.y);
       }
 
@@ -2432,109 +2466,6 @@ var descartesJS = (function(descartesJS) {
         this.componentSpace.update(true);
       }
     }
-    /**
-     * 
-     */
-    drawRadicalSign(ctx) {
-      ctx.beginPath();
-      ctx.moveTo(759,1);
-      ctx.bezierCurveTo(751,1,744,5,739,15);
-      ctx.lineTo(325,878);
-      ctx.lineTo(153,500);
-      ctx.bezierCurveTo(148,489,142,486,136,491);
-      ctx.lineTo(2,596);
-      ctx.bezierCurveTo(-3,600,19,626,24,622);
-      ctx.lineTo(89,575);
-      ctx.lineTo(282,997);
-      ctx.bezierCurveTo(285,1003,309,1003,314,993);
-      ctx.lineTo(773,40);
-      ctx.lineTo(773,1);
-      ctx.closePath();
-      ctx.stroke();
-      ctx.fill();
-    }
-    /**
-     * 
-     */
-    drawSigmaSign(ctx) {
-      ctx.beginPath();
-      ctx.moveTo(780,707);
-      ctx.lineTo(750,707);
-      ctx.bezierCurveTo(728,805,695,872,585,872);
-      ctx.lineTo(180,872);
-      ctx.lineTo(509,447);
-      ctx.lineTo(225,65);
-      ctx.lineTo(538,65);
-      ctx.bezierCurveTo(668,65,705,114,726,246);
-      ctx.lineTo(756,246);
-      ctx.lineTo(756,0);
-      ctx.lineTo(25,0);
-      ctx.lineTo(384,500);
-      ctx.lineTo(0,1000);
-      ctx.lineTo(729,1000);
-      ctx.closePath();
-      ctx.stroke();
-      ctx.fill();
-    }
-    /**
-     * 
-     */
-    drawIntegralSign(ctx) {
-      ctx.beginPath();
-      ctx.moveTo(150,828);
-      ctx.bezierCurveTo(129,916,108,972,67,972);
-      ctx.bezierCurveTo(61,972,58,970,58,966);
-      ctx.bezierCurveTo(58,957,73,958,73,932);
-      ctx.bezierCurveTo(73,918,60,910,46,910);
-      ctx.bezierCurveTo(22,910,1,932,1,961);
-      ctx.bezierCurveTo(1,981,22,1000,57,1000);
-      ctx.bezierCurveTo(154,1000,198,895,216,824);
-      ctx.lineTo(375,181);
-      ctx.bezierCurveTo(398,90,420,27,464,28);
-      ctx.bezierCurveTo(470,28,473,30,473,34);
-      ctx.bezierCurveTo(473,41,458,47,458,69);
-      ctx.bezierCurveTo(458,83,471,89,485,89);
-      ctx.bezierCurveTo(509,89,530,67,530,38);
-      ctx.bezierCurveTo(530,18,508,0,473,0);
-      ctx.bezierCurveTo(368,0,326,120,309,190);
-      ctx.closePath();
-      ctx.stroke();
-      ctx.fill();
-    }
-    /**
-     * 
-     */
-    drawProdSign(ctx) {
-      ctx.beginPath();
-      ctx.moveTo(876.3561,999.59384);
-      ctx.lineTo(876.3561,972.20771);
-      ctx.lineTo(858.75073,972.20771);
-      ctx.bezierCurveTo(794.19771,972.20771,761.92121,931.12852,761.92121,847.99206);
-      ctx.lineTo(761.92121,144.75542);
-      ctx.bezierCurveTo(761.92121,61.618964,789.30733,27.386304,876.3561,27.386304);
-      ctx.lineTo(876.3561,0.00017633057);
-      ctx.lineTo(0.00001184082,0.00017633057);
-      ctx.lineTo(0.00001184082,27.386304);
-      ctx.lineTo(16.627304,27.386304);
-      ctx.bezierCurveTo(77.268015,27.386304,115.41298,51.838204,115.41298,148.66773);
-      ctx.lineTo(115.41298,865.59743);
-      ctx.bezierCurveTo(115.41298,936.99697,84.114547,972.20771,18.583456,972.20771);
-      ctx.lineTo(0.00001184082,972.20771);
-      ctx.lineTo(0.00001184082,999.59384);
-      ctx.lineTo(359.93198,999.59384);
-      ctx.lineTo(359.93198,972.20771);
-      ctx.lineTo(329.61162,972.20771);
-      ctx.bezierCurveTo(265.0586,972.20771,243.54093,932.10659,243.54093,841.14553);
-      ctx.lineTo(243.54093,64.553192);
-      ctx.lineTo(633.79325,64.553192);
-      ctx.lineTo(633.79325,841.14553);
-      ctx.bezierCurveTo(633.79325,916.45738,616.18788,972.20771,547.72257,972.20771);
-      ctx.lineTo(516.42413,972.20771);
-      ctx.lineTo(516.42413,999.59384);
-      ctx.closePath();
-      ctx.stroke();
-      ctx.fill();
-    }
 
     /**
      * 
@@ -2548,7 +2479,6 @@ var descartesJS = (function(descartesJS) {
       ctx.stroke();
       ctx.setLineDash([]);
     }
-
 
     /**
      * 

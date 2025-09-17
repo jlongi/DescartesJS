@@ -15,7 +15,6 @@ var descartesJS = (function(descartesJS) {
     constructor(parent, values) {
       // call the parent constructor
       super(parent, values);
-      
       this.expresion = this.evaluator.parser.parse(this.expresion);
       this.update();
     }

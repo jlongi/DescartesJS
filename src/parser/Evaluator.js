@@ -6,7 +6,7 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
+  let MathFloor = Math.floor;
 
   class Evaluator {
     /**

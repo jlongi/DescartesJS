@@ -6,20 +6,20 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
-  var PI2 = Math.PI*2;
+  let MathRound = Math.round;
+  let PI2 = Math.PI*2;
 
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var size;
-  var lineDesp;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
-  //var tmpLineWidth;
+  let evaluator;
+  let space;
+  let points;
+  let radianAngle;
+  let size;
+  let lineDesp;
+  let coordX1;
+  let coordY1;
+  let coordX2;
+  let coordY2;
+  let tmpLineWidth;
 
   class Segment extends descartesJS.Graphic {
     /**
@@ -44,13 +44,10 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
 
       points = evaluator.eval(this.expresion);
-      this.endPoints = [];
+      this.points = [];
 
-      for(var i=0, l=points.length; i<l; i++){
-        this.endPoints[i] = {
-          x: points[i][0], 
-          y: points[i][1]
-        };
+      for (let i=0, l=points.length; i<l; i++) {
+        this.points[i] = {x: points[i][0], y: points[i][1]};
       }
 
       // MACRO //
@@ -58,8 +55,8 @@ var descartesJS = (function(descartesJS) {
       if (this.rotateExp) {
         radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
 
-        for (var i=0, l=this.endPoints.length; i<l; i++) {
-          this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
+        for (let i=0, l=this.points.length; i<l; i++) {
+          this.points[i] = this.rotate(this.points[i].x, this.points[i].y, radianAngle);
         }
       }
       // MACRO //
@@ -90,12 +87,11 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
-ctx.lineWidth = Math.max(
-  0.000001, 
-  MathRound( evaluator.eval(this.width) )
-);
+      tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      ctx.lineWidth = Math.max(
+        0.000001, 
+        tmpLineWidth
+      );
 
       size = evaluator.eval(this.size);
 
@@ -106,28 +102,28 @@ ctx.lineWidth = Math.max(
       lineDesp = (ctx.lineWidth%2 == 0) ? 0 : 0.5;
 
       if (this.abs_coord) {
-        coordX =  MathRound(this.endPoints[0].x);
-        coordY =  MathRound(this.endPoints[0].y);
-        coordX1 = MathRound(this.endPoints[1].x);
-        coordY1 = MathRound(this.endPoints[1].y);
+        coordX1 = MathRound(this.points[0].x);
+        coordY1 = MathRound(this.points[0].y);
+        coordX2 = MathRound(this.points[1].x);
+        coordY2 = MathRound(this.points[1].y);
       } else {
-        coordX =  MathRound(space.getAbsoluteX(this.endPoints[0].x));
-        coordY =  MathRound(space.getAbsoluteY(this.endPoints[0].y));
-        coordX1 = MathRound(space.getAbsoluteX(this.endPoints[1].x));
-        coordY1 = MathRound(space.getAbsoluteY(this.endPoints[1].y));
+        coordX1 = MathRound(space.getAbsoluteX(this.points[0].x));
+        coordY1 = MathRound(space.getAbsoluteY(this.points[0].y));
+        coordX2 = MathRound(space.getAbsoluteX(this.points[1].x));
+        coordY2 = MathRound(space.getAbsoluteY(this.points[1].y));
       }
 
       ctx.beginPath();
-      ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
-      ctx.lineTo(coordX1+lineDesp, coordY1+lineDesp);
+      ctx.moveTo(coordX1+lineDesp, coordY1+lineDesp);
+      ctx.lineTo(coordX2+lineDesp, coordY2+lineDesp);
 
       this.dashStyle();
       ctx.stroke();
 
       if (size > 0) {
         ctx.beginPath();
-        ctx.arc(coordX, coordY, size, 0, PI2);
         ctx.arc(coordX1, coordY1, size, 0, PI2);
+        ctx.arc(coordX2, coordY2, size, 0, PI2);
         ctx.fill();
       }
 
@@ -139,7 +135,7 @@ ctx.lineWidth = Math.max(
         this.text.draw(
           ctx, 
           stroke, 
-          parseInt((coordX + coordX1)/2) -3, parseInt((coordY + coordY1)/2) +3 // midpoint
+          parseInt((coordX1 + coordX2)/2) -3, parseInt((coordY1 + coordY2)/2) +3 // midpoint
         );
       }
     }

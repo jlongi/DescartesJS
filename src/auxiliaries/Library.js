@@ -17,7 +17,7 @@ var descartesJS = (function(descartesJS) {
       super(parent, values);
 
       let filename = values.file;
-      let response;
+      let response = null;
 
       if (filename) {
         // the lib is embedded in the webpage
@@ -36,9 +36,9 @@ var descartesJS = (function(descartesJS) {
         response = ((descartesJS.convertHTMLEntities(response)).replace(/\r/g, "")).split("\n");
 
         // create the elements
-        for (var i=0, l=response.length; i<l; i++){
-          if (response[i].trim() !== "") {
-            parent.lessonParser.parseAuxiliar(response[i]);
+        for (let element of response) {
+          if (element.trim() !== "") {
+            parent.lessonParser.parseAuxiliar(element);
           }
         }
       }

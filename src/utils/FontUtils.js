@@ -6,10 +6,10 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
   
-  var fontTokens;
-  var fontCanvas;
-  var name;
-  var fontStyleMap = { "bold":"Bold", "italic":"Italic", "italics":"Italic", "bold+italic":"Italic Bold" };
+  let fontTokens;
+  let fontCanvas;
+  let name;
+  let fontStyleMap = { "bold":"Bold", "italic":"Italic", "italics":"Italic", "bold+italic":"Italic Bold" };
 
   descartesJS.serif_font     = "descartesJS_serif,DJS_symbol,DJS_serif,Times,'Times New Roman','Liberation Serif','Nimbus Roman No9 L Regular',serif";
   descartesJS.sansserif_font = "descartesJS_sansserif,DJS_symbol,DJS_sansserif,Helvetica,Arial,'Liberation Sans','Nimbus Sans L',sans-serif";
@@ -50,13 +50,13 @@ var descartesJS = (function(descartesJS) {
     // monospace font
     name = descartesJS.monospace_font;
     
-    // serif font
-    if ((fontName === "serif") || (fontName === "times new roman") || (fontName === "timesroman") || (fontName === "times")) {
-      name = descartesJS.serif_font;
-    }
     // sans serif font
-    else if ((fontName === "sansserif") || (fontName === "arial") || (fontName === "helvetica")) {
+    if ((/sansserif|arial|helvetica/).test(fontName)) {
       name = descartesJS.sansserif_font;
+    }
+    // serif font
+    else if ((/serif|times/).test(fontName)) {
+      name = descartesJS.serif_font;
     }
     
     return name;

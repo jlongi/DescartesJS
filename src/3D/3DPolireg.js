@@ -6,12 +6,13 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var Nu;
-  var vertices;
-  var w;
-  var l;
-  var theta;
-  var evaluator;
+  let self;
+  let Nu;
+  let vertices;
+  let w;
+  let l;
+  let theta;
+  let evaluator;
 
   class Polireg3D extends descartesJS.Graphic3D {
     /**
@@ -23,47 +24,52 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.width = this.width || parent.evaluator.parser.parse("2");
-      this.length = this.length || parent.evaluator.parser.parse("2");
+      self = this;
+
+      self.width  = self.width  || parent.evaluator.parser.parse("2");
+      self.length = self.length || parent.evaluator.parser.parse("2");
     }
     
     /**
      * Build the primitives corresponding to the regular polygon
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
-      Nu = evaluator.eval(this.Nu);
+      Nu = evaluator.eval(self.Nu);
 
-      vertices = [this.transformVertex( new descartesJS.Vector4D(0, 0, 0, 1) )];
-      w = evaluator.eval(this.width)/2;
-      l = evaluator.eval(this.length)/2;
+      vertices = [self.transformVertex( new descartesJS.Vec4D() )];
+      w = evaluator.eval(self.width)/2;
+      l = evaluator.eval(self.length)/2;
       theta = (2*Math.PI) / Nu;
 
-      for (var i=0; i<Nu; i++) {
-        vertices.push ( this.transformVertex( new descartesJS.Vector4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0, 1) ) );
+      for (let i=0; i<Nu; i++) {
+        vertices.push ( self.transformVertex( new descartesJS.Vec4D(w*Math.cos(theta*i), l*Math.sin(theta*i), 0) ) );
       }
 
-      var tmpFrontColor = this.color.getColor();
-      var tmpBackColor = this.backcolor.getColor();
-      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+      let tmpFrontColor = self.color.getColor();
+      let tmpBackColor  = self.backcolor.getColor();
+      let tmpEdgeColor  = (self.edges) ? self.edges.getColor() : "";
 
-      for (var i=0; i<Nu; i++) {
-        this.primitives.push( new descartesJS.Primitive3D( { 
-          vertices: [ 
-            vertices[0],
-            (i+2 <= Nu) ? vertices[i+2] : vertices[1],
-            vertices[i+1]
-          ],
-          type: "face",
-          frontColor: tmpFrontColor,
-          backColor: tmpBackColor,
-          edges: tmpEdgeColor,
-          model: this.model
-        },
-        this.space ));
+      for (let i=0; i<Nu; i++) {
+        self.primitives.push(
+          new descartesJS.Primitive3D( { 
+            V: [ 
+              vertices[0],
+              (i+2 <= Nu) ? vertices[i+2] : vertices[1],
+              vertices[i+1]
+            ],
+            type: "face",
+            frontColor: tmpFrontColor,
+            backColor:  tmpBackColor,
+            edges: tmpEdgeColor,
+            model: self.model
+          },
+          self.space
+        ));
       }
     }
   }

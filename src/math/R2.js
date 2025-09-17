@@ -6,34 +6,35 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  const MathMax = Math.max;
-  const MathMin = Math.min;
-  const MathPI = Math.PI;
-  const MathCos = Math.cos;
-  const MathSin = Math.sin;
-  const MathAbs = Math.abs;
-  const MathRound = Math.round;
+  const treinta_y_dos_mil = 32000;
+  let MathMax = Math.max;
+  let MathMin = Math.min;
+  let MathPI = Math.PI;
+  let MathCos = Math.cos;
+  let MathSin = Math.sin;
+  let MathAbs = Math.abs;
+  let MathRound = Math.round;
   
-  var aux;
-  var q;
-  var p;
-  var s;
-  var t;
-  var cost;
-  var sint;
+  let aux;
+  let q;
+  let p;
+  let s;
+  let t;
+  let cost;
+  let sint;
 
-  var A11;
-  var A12;
-  var B1;
-  var A21;
-  var A22;
-  var B2;
+  let A11;
+  let A12;
+  let B1;
+  let A21;
+  let A22;
+  let B2;
     
-  var mp;
-  var Mp;
-  var mq;
-  var Mq;
-  var Det;
+  let mp;
+  let Mp;
+  let mq;
+  let Mq;
+  let Det;
 
   class R2 {
     /**
@@ -57,11 +58,11 @@ var descartesJS = (function(descartesJS) {
     }
     
     ix() {
-      return MathRound(MathMax(MathMin(this.x, 32000), -32000));
+      return MathRound(MathMax(MathMin(this.x, treinta_y_dos_mil), -treinta_y_dos_mil));
     }
 
     iy() {
-      return MathRound(MathMax(MathMin(this.y, 32000), -32000));
+      return MathRound(MathMax(MathMin(this.y, treinta_y_dos_mil), -treinta_y_dos_mil));
     }
 
     equals(p) {
@@ -113,7 +114,7 @@ var descartesJS = (function(descartesJS) {
 
     normalize() {
       aux = this.norm(); 
-      if (aux != 0.0) { 
+      if (aux != 0) { 
         this.div(aux); 
       }
     }
@@ -204,8 +205,8 @@ var descartesJS = (function(descartesJS) {
           return null;
         } 
         else if (q1.y != q2.y) {
-          mq=MathMin(q1.y, q2.y);
-          Mq=MathMax(q1.y, q2.y);
+          mq = MathMin(q1.y, q2.y);
+          Mq = MathMax(q1.y, q2.y);
           
           if (mq<=p1.y && p1.y<=Mq) {
             return p1;

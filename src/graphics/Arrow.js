@@ -6,22 +6,22 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathRound = Math.round;
+  let MathFloor = Math.floor;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var points;
-  var radianAngle;
-  var space;
-  var width1;
-  var width2;
-  var scale;
-  var vlength;
-  var coordX;
-  var coordY;
-  var coordX1;
-  var coordY1;
-  var spear;
+  let evaluator;
+  let points;
+  let radianAngle;
+  let space;
+  let width1;
+  let width2;
+  let scale;
+  let vlength;
+  let coordX;
+  let coordY;
+  let coordX1;
+  let coordY1;
+  let spear;
 
   class Arrow extends descartesJS.Graphic {
     /**
@@ -40,8 +40,9 @@ var descartesJS = (function(descartesJS) {
 
       this.text = new descartesJS.TextObject(this, this.text);
 
-      this.endPoints = [];
-      this.vect = new descartesJS.Vector2D(0, 0);
+      this.V = new descartesJS.Vector2D(0, 0);
+      
+      this.points = [];
     }
 
     /**
@@ -51,17 +52,16 @@ var descartesJS = (function(descartesJS) {
       evaluator = this.evaluator;
 
       points = evaluator.eval(this.expresion);
-      
-      for(var i=0, l=points.length; i<l; i++){
-        this.endPoints[i] = {x: points[i][0], y: points[i][1]};
+      for (let i=0, l=points.length; i<l; i++) {
+        this.points[i] = {x: points[i][0], y: points[i][1]};
       }
 
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
         radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
 
-        for (var i=0, l=this.endPoints.length; i<l; i++) {
-          this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
+        for (let i=0, l=this.points.length; i<l; i++) {
+          this.points[i] = this.rotate(this.points[i].x, this.points[i].y, radianAngle);
         }
       }
     }
@@ -89,32 +89,33 @@ var descartesJS = (function(descartesJS) {
     drawAux(ctx, fill, stroke) {
       evaluator = this.evaluator;
       space = this.space;
+      points = this.points;
 
       width1 = Math.max(0, evaluator.eval(this.width));
       width2 = Math.ceil(width1/2);
       scale = space.scale;
 
-      this.vect.x = this.endPoints[1].x - this.endPoints[0].x;
-      this.vect.y = this.endPoints[1].y - this.endPoints[0].y;
-      vlength = this.vect.vectorLength();
-      this.angle = Math.atan2(this.vect.y, this.vect.x)
+      this.V.x = points[1].x - points[0].x;
+      this.V.y = points[1].y - points[0].y;
+      vlength = this.V.vLength();
+      this.angle = Math.atan2(this.V.y, this.V.x)
 
       ctx.fillStyle = fill.getColor();
       ctx.strokeStyle = stroke.getColor();
       ctx.lineWidth = 2;
 
       if (this.abs_coord) {
-        coordX =  MathRound(this.endPoints[0].x);
-        coordY =  MathRound(this.endPoints[0].y);
+        coordX =  MathRound(points[0].x);
+        coordY =  MathRound(points[0].y);
 
-        coordX1 = MathRound(this.endPoints[1].x);
-        coordY1 = MathRound(this.endPoints[1].y);
+        coordX1 = MathRound(points[1].x);
+        coordY1 = MathRound(points[1].y);
       } else {
-        coordX =  MathRound(space.getAbsoluteX(this.endPoints[0].x));
-        coordY =  MathRound(space.getAbsoluteY(this.endPoints[0].y));
+        coordX =  MathRound(space.getAbsoluteX(points[0].x));
+        coordY =  MathRound(space.getAbsoluteY(points[0].y));
 
-        coordX1 = MathRound(space.getAbsoluteX(this.endPoints[1].x));
-        coordY1 = MathRound(space.getAbsoluteY(this.endPoints[1].y));
+        coordX1 = MathRound(space.getAbsoluteX(points[1].x));
+        coordY1 = MathRound(space.getAbsoluteY(points[1].y));
       }
 
       spear = Math.max(0, evaluator.eval(this.spear));

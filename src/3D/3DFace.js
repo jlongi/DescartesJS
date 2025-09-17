@@ -6,9 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var vertices;
-  var evaluator;
-  var expr;
+  let self;
+
+  let vertices;
+  let evaluator;
+  let expr;
 
   class Face3D extends descartesJS.Graphic3D {
     /**
@@ -26,29 +28,39 @@ var descartesJS = (function(descartesJS) {
      * Build the primitives corresponding to the face
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
 
-      this.updateMVMatrix();
+      evaluator = self.evaluator;
 
-      expr = evaluator.eval(this.expresion);
+      self.updateMVMatrix();
+
+      expr = evaluator.eval(self.expresion);
 
       vertices = [];
 
-      for (var i=expr.length-1; i>=0; i--) {
-        vertices.push( this.transformVertex(new descartesJS.Vector4D(expr[i][0], expr[i][1], expr[i][2], 1)) );
+      for (let i=expr.length-1; i>=0; i--) {
+        vertices.push( 
+          self.transformVertex(
+            new descartesJS.Vec4D(
+              expr[i][0],
+              expr[i][1],
+              expr[i][2]
+            )
+          )
+        );
       }
 
-      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
-
-      this.primitives.push( new descartesJS.Primitive3D( { 
-        vertices: vertices,
-        type: "face",
-        frontColor: this.color.getColor(), 
-        backColor: this.backcolor.getColor(), 
-        edges: tmpEdgeColor, 
-        model: this.model
-      },
-      this.space ));
+      self.primitives.push(
+        new descartesJS.Primitive3D( { 
+          V: vertices,
+          type: "face",
+          frontColor: self.color.getColor(), 
+          backColor: self.backcolor.getColor(), 
+          edges: (self.edges) ? self.edges.getColor() : "", 
+          model: self.model
+        },
+        self.space )
+      );
     }
   }
   

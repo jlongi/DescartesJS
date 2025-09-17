@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  let tmp_css_str = "applet.DescartesJS,applet,ajs.DescartesJS,ajs";
+
   /**
    * Array to store the javascript replacements of the java applets
    * type [DescartesApp]
@@ -40,7 +42,7 @@ var descartesJS = (function(descartesJS) {
       rel  : "stylesheet",
     });
 
-    cssNode.innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:none;}";
+    cssNode.innerHTML = tmp_css_str + "{display:none;}";
 
     // add the style in the head of the document
     document.head.appendChild(cssNode);
@@ -50,7 +52,7 @@ var descartesJS = (function(descartesJS) {
    * Show the hidden applets
    */
   function showApplets() {
-    document.getElementById("StyleDescartesApps").innerHTML = "applet.DescartesJS,applet,ajs.DescartesJS,ajs{display:block;}";
+    document.getElementById("StyleDescartesApps").innerHTML = tmp_css_str + "{display:block;}";
   }
 
   /**
@@ -59,7 +61,7 @@ var descartesJS = (function(descartesJS) {
    */
   function getDescartesApplets() {
     return [...(document.querySelectorAll("applet,ajs"))].filter(applet => {
-      return (/Descartes|DescartesJS|descinst.DescartesWeb2_0.class|Arquimedes|Discurso/i).test(applet.getAttribute("code"));
+      return (/Descartes|DescartesJS|DescartesWeb2_0/i).test(applet.getAttribute("code"));
     });
   }
 
@@ -89,9 +91,8 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Function to handle the resize of the browser
-   * @param {Event} evt the evt of resize the browser
    */
-  descartesJS.onResize = function(evt) {
+  descartesJS.onResize = function() {
     // if is adaptive then scale it
     if (descartesJS.apps.length > 0) {
       descartesJS.apps[0].scaleToFit();
@@ -100,22 +101,22 @@ var descartesJS = (function(descartesJS) {
 
   /**
    * Function to handle the load evt of the document
-   * @param {Event} evt the evt of load the web page
    */
-  async function onLoad(evt) {
+  async function onLoad() {
     // wait the load of the fonts for later use
     try {
       let fonts_promises = [];
-      ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace"].forEach(font => {
-        fonts_promises.push(document.fonts.load(`20px ${font}`)); // Regular
-        fonts_promises.push(document.fonts.load(`bold 20px ${font}`)); // Bold
-        fonts_promises.push(document.fonts.load(`italic 20px ${font}`)); // Italic
-        fonts_promises.push(document.fonts.load(`bold italic 20px ${font}`)); // Bold Italic
+      ["descartesJS_serif", "descartesJS_sansserif", "descartesJS_monospace", "DJS_symbol", "DJS_math"].forEach(font => {
+        fonts_promises.push(document.fonts.load(`9px ${font}`)); // Regular
+        fonts_promises.push(document.fonts.load(`bold 9px ${font}`)); // Bold
+        fonts_promises.push(document.fonts.load(`italic 9px ${font}`)); // Italic
+        fonts_promises.push(document.fonts.load(`bold italic 9px ${font}`)); // Bold Italic
       });
       await Promise.all(fonts_promises);
     }
     catch(error) {
-      console.log("error", error);
+      console.log(error);
+      return;
     }
 
     // get the features for interpreting Descartes applets
@@ -143,76 +144,78 @@ var descartesJS = (function(descartesJS) {
   descartesJS.onMessage = function(evt) {
     if (descartesJS.apps.length > 0) {
       let data = evt.data;
+      let new_applets;
 
       // empty message
       if (!data) { return; }
 
-      // set a value to a variable, vector or matrix
-      if (data.type === "set") {
-        if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
-          descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
-        }
-        else {
-          if ((data.value) && (data.value.rows != undefined)) {
-            descartesJS.apps[0].evaluator.matrices[data.name] = data.value;
+      switch (data.type) {
+
+        // set a value to a variable, vector or matrix
+        case "set":
+          if ((typeof(data.value) == "string") || (typeof(data.value) == "number")) {
+            descartesJS.apps[0].evaluator.setVariable(data.name, data.value);
           }
           else {
-            descartesJS.apps[0].evaluator.vectors[data.name] = data.value;
+            if ((data.value) && (data.value.rows != undefined)) {
+              descartesJS.apps[0].evaluator.matrices[data.name] = data.value;
+            }
+            else {
+              descartesJS.apps[0].evaluator.vectors[data.name] = data.value;
+            }
           }
-        }
-      }
+        break;
 
-      // update the scene
-      else if (data.type === "update") {
-        descartesJS.apps[0].update();
-      }
+        // update the scene
+        case "update":
+          descartesJS.apps[0].update();
+        break;
 
-      // execute a function
-      else if (data.type === "exec") {
-        let fun = descartesJS.apps[0].evaluator.getFunction(data.name);
-        if (fun) {
-          fun.apply(descartesJS.apps[0].evaluator, (data.value.toString()).split(","));
-        }
-      }
+        // execute a function
+        case "exec":
+          let fun = descartesJS.apps[0].evaluator.getFunction(data.name);
+          if (fun) {
+            fun.apply(descartesJS.apps[0].evaluator, (data.value.toString()).split(","));
+          }
+        break;
 
-      // the scene needs a resize then send a message to the sender to do a resize 
-      else if (data.type === "isResizeNeeded") {
-        evt.source.postMessage({ type: "doResize" }, '*');
-      }
+        // the scene needs a resize then send a message to the sender to do a resize 
+        case "isResizeNeeded":
+          evt.source.postMessage({ type: "doResize" }, '*');
+        break;
 
-      // adjust the size in case is needed
-      else if (data.type === "doResize") {
-        if (descartesJS.apps.length > 0) {
-          descartesJS.apps[0].adjustSize();
-        }
-      }
+        // adjust the size in case is needed
+        case "doResize":
+          if (descartesJS.apps.length > 0) {
+            descartesJS.apps[0].adjustSize();
+          }
+        break;
 
-      // the iframe needs a change in his configuration
-      else if (data.type === "change_config") {
-        let new_applets;
+        // the iframe needs a change in his configuration
+        case "change_config":
+          if (applets_cache[data.filename]) {
+            new_applets = applets_cache[data.filename];
+          }
+          else {
+            new_applets = descartesJS.newHTML("div");
+            new_applets.innerHTML = data.content;
+            new_applets = new_applets.getElementsByTagName("param");
+            applets_cache[data.filename] = new_applets;
+          }
+          
+          descartesJS.apps[0].children = new_applets;
+          descartesJS.apps[0].init();
+        break;
 
-        if (applets_cache[data.filename]) {
-          new_applets = applets_cache[data.filename];
-        }
-        else {
+        // the iframe needs a change in his content
+        case "change_content":
           new_applets = descartesJS.newHTML("div");
           new_applets.innerHTML = data.content;
           new_applets = new_applets.getElementsByTagName("param");
-          applets_cache[data.filename] = new_applets;
-        }
-        
-        descartesJS.apps[0].children = new_applets;
-        descartesJS.apps[0].init();
-      }
-
-      // the iframe needs a change in his content
-      else if (data.type === "change_content") {
-        let new_applets = descartesJS.newHTML("div");
-        new_applets.innerHTML = data.content;
-        new_applets = new_applets.getElementsByTagName("param");
-        descartesJS.apps[0].children = new_applets;
-        descartesJS.apps[0].init();
-      }
+          descartesJS.apps[0].children = new_applets;
+          descartesJS.apps[0].init();
+        break;
+      } // end switch
     }
   }
 
@@ -227,8 +230,8 @@ var descartesJS = (function(descartesJS) {
     window.addEventListener("message", descartesJS.onMessage);
 
     // add event listener to transitions of spaces
-    ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"].forEach(function(element) {
-      window.addEventListener(element, function(evt) {
+    ["webkitTransitionEnd", "transitionend", "oTransitionEnd", "MSTransitionEnd"].forEach((element) => {
+      window.addEventListener(element, (evt) => {
         descartesJS.onResize(evt);
       });
     });

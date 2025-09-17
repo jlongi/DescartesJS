@@ -8,9 +8,9 @@ var descartesJS = (function(descartesJS) {
 
   const tri_pi2 = 360/(Math.PI*2);
   const pi2_tri = (Math.PI*2)/360;
-  const MathFloor = Math.floor;
+  let MathFloor = Math.floor;
 
-  let pointer;
+  let source;
   let boundingRect;
   let indexOfDot;
   let decimalNumbers;
@@ -49,7 +49,6 @@ var descartesJS = (function(descartesJS) {
     descartesJS.hasTouchSupport = ((window.hasOwnProperty) && (window.hasOwnProperty("ontouchstart"))) || ("ontouchstart" in window) || ((/android/i).test(system));
 
     descartesJS.isIOS = (/iPad|iPhone/i).test(navigator.userAgent);
-    descartesJS.isMsEdge = (/Edge/i).test(navigator.userAgent);
 
     // detects if the browser has canvas 2D support
     let elem = descartesJS.newHTML("canvas");
@@ -157,15 +156,26 @@ var descartesJS = (function(descartesJS) {
   }
 
   /**
-   * Get which mouse button is pressed
+   * Get which button is pressed
+   * @param {PointerEvent | MouseEvent | TouchEvent} evt The input event
+   * @returns {"L"|"M"|"R"}
    */
   descartesJS.whichBtn = function(evt) {
+    // pointer events
+    if (evt.pointerType) {
+      if (evt.pointerType === "touch" || evt.pointerType === "pen") {
+        return "L";
+      }
+    }
+
+    // touch events
     if (evt.touches) {
       return "L";
     }
-    else {
-      return (evt.button === 0) ? "L" : ((evt.button === 1) ? "M" : "R");
-    }
+
+    // mouse events
+    // 0: Left, 1: Middle, 2: Right
+    return (evt.button === 0) ? "L" : ((evt.button === 1) ? "M" : "R");
   }
 
   /**
@@ -193,19 +203,22 @@ var descartesJS = (function(descartesJS) {
    * @return {Object} return the position of the mouse in absolute coordinates
    */
   descartesJS.getCursorPosition = function(evt, container) {
-    pointer = (evt.touches) ? evt.touches[0] : evt;
-    boundingRect = container.getBoundingClientRect();
-
-    if (pointer) {
-      // consider for the scale by css transformation
-      return { 
-        x: (pointer.pageX -window.scrollX -boundingRect.left) / descartesJS.cssScale,
-        y: (pointer.pageY -window.scrollY -boundingRect.top)  / descartesJS.cssScale
-      }
+    source = evt;
+  
+    if (evt.touches && evt.touches.length > 0) {
+      source = evt.touches[0];
     }
-    else {
+  
+    if (!source || typeof source.clientX === "undefined") {
       return null;
     }
+
+    boundingRect = container.getBoundingClientRect();
+  
+    return { 
+      x: (source.clientX - boundingRect.left) / descartesJS.cssScale,
+      y: (source.clientY - boundingRect.top)  / descartesJS.cssScale
+    };
   }
 
   /**
@@ -241,6 +254,7 @@ var descartesJS = (function(descartesJS) {
    *
    */
   descartesJS.preventDefault = function(evt) {
+    evt.stopPropagation()
     evt.preventDefault();
     return false;
   }
@@ -262,6 +276,7 @@ var descartesJS = (function(descartesJS) {
     for (let attr in attributes) {
       dom.setAttribute(attr, attributes[attr]);
     }
+
     return dom;
   }
 
@@ -334,69 +349,11 @@ var descartesJS = (function(descartesJS) {
     }
   }
 
-  const htmlAbout =
-`<html>
-<head>
-<style>
-body{text-align:center;}
-iframe{width:650px;height:73px;overflow:hidden;border:1px solid black;}
-dt{font-weight:bold;margin-top:10px;}
-</style>
-</head>
-<body>
-<iframe src='https://arquimedes.matem.unam.mx/Descartes5/creditos/bannerPatrocinadores.html'></iframe>
-<h2><a href='https://proyectodescartes.org/' target='_blank'>ProyectoDescartes.org</a><br><a href='https://descartesjs.org' target='_blank'>DescartesJS.org</a></h2>
-<dl>
-<dt>Diseño funcional:</dt>
-<dd>
-<nobr>José Luis Abreu Leon,</nobr>
-<nobr>José R. Galo Sanchez,</nobr>
-<nobr>Juan Madrigal Muga</nobr>
-</dd>
-<dt>Autores del software:</dt>
-<dd>
-<nobr>José Luis Abreu Leon,</nobr>
-<nobr>Marta Oliverá Serrat,</nobr>
-<nobr>Oscar Escamilla González,</nobr>
-<nobr>Joel Espinosa Longi</nobr>
-</dd></dl>
-<p>
-El software en Java está bajo la licencia
-<a href='https://joinup.ec.europa.eu/software/page/eupl/licence-eupl'>EUPL v.1.1</a>
-<br>
-El software en JavaScript está bajo licencia
-<a href='https://www.gnu.org/licenses/lgpl.html'>LGPL</a>
-</p>
-<p>
-La documentación y el código fuente se encuentran en :
-<br>
-<a href='https://descartes.matem.unam.mx/'>https://descartes.matem.unam.mx/</a>
-</p>`;
-
-  const htmlCreative = 
-`<p>
-Este objeto, creado con Descartes, está licenciado
-por sus autores como
-<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><nobr>Creative Commons</nobr></a>
-<br>
-<a href='https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es'><img src='https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png'></a>
-</p>`;
-
-  const htmlFinal = "</body> </html>";
-
   /**
    *
    */
   descartesJS.showAbout = function() {
-    let content = htmlAbout;
-    if (descartesJS.ccLicense) {
-      content += htmlCreative;
-    }
-    content += htmlFinal;
-
-    let tmpW = window.open("", "creditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
-    tmpW.document.write(content);
-    tmpW.document.close();
+    window.open("https://arquimedes.matem.unam.mx/Descartes5/creditos/", "créditos", "width=700,height=500,titlebar=0,toolbar=0,location=0,menubar=0,resizable=0,scrollbars=0,status=0");
   }
 
   return descartesJS;

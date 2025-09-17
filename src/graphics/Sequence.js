@@ -6,19 +6,19 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var PI2 = Math.PI*2;
-  var MathRound = Math.round;
+  let PI2 = Math.PI*2;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var space;
-  var expr;
-  var tmpRot;
-  var coordX;
-  var coordY;
-  var range;
-  var size;
-  var desp;
-  var tmp;
+  let evaluator;
+  let space;
+  let expr;
+  let tmpRot;
+  let coordX;
+  let coordY;
+  let range;
+  let size;
+  let desp;
+  let tmp;
 
   class Sequence extends descartesJS.Graphic {
     /**
@@ -30,7 +30,7 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.size = this.size || parent.evaluator.parser.parse("2");
+      this.size  = this.size || parent.evaluator.parser.parse("2");
       this.range = this.range || parent.evaluator.parser.parse("[1, 100]");
 
       // Descartes 2 visible
@@ -46,21 +46,18 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      expr = evaluator.eval(this.expresion);
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      [this.X, this.Y] = evaluator.eval(this.expresion)[0];
 
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
-        tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
-
-        this.exprX = tmpRot.x;
-        this.exprY = tmpRot.y;
+        tmpRot = this.rotate(this.X, this.Y, descartesJS.degToRad(evaluator.eval(this.rotateExp)));
+        this.X = tmpRot.x;
+        this.Y = tmpRot.y;
       }
 
-      range = evaluator.eval(this.range);
-      this.rangeInf = range[0][0];
-      this.rangeMax = range[0][1];
+      range = evaluator.eval(this.range)[0];
+      this.rangeInf = range[0];
+      this.rangeMax = range[1];
     }
 
     /**
@@ -98,19 +95,18 @@ var descartesJS = (function(descartesJS) {
         this.rangeMax = tmp;
       }
 
-      var tmpValue = evaluator.getVariable("n");
-      for (var i=this.rangeInf, l=this.rangeMax; i<=l; i++) {
+      let tmpValue = evaluator.getVariable("n");
+
+      for (let i=this.rangeInf, l=this.rangeMax; i<=l; i++) {
         evaluator.setVariable("n", i);
 
-        expr = evaluator.eval(this.expresion);
-        this.exprX = expr[0][0];
-        this.exprY = expr[0][1];
+        [this.X, this.Y] = evaluator.eval(this.expresion)[0];
 
-        coordX = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) );
-        coordY = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) );
+        coordX = MathRound( (this.abs_coord) ? this.X : space.getAbsoluteX(this.X) );
+        coordY = MathRound( (this.abs_coord) ? this.Y : space.getAbsoluteY(this.Y) );
 
         ctx.beginPath();
-        ctx.arc(coordX, coordY, size, 0, PI2, true);
+        ctx.arc(coordX, coordY, size, 0, PI2);
         ctx.fill()
       }
 
@@ -131,12 +127,12 @@ var descartesJS = (function(descartesJS) {
      * Register a text field in case the equation expression is editable
      */
     registerTextField() {
-      var textField = descartesJS.newHTML("input");
-      textField.value = this.expresionString;
-      textField.disabled = !(this.editable);
+      let self = this;
 
-      var self = this;
-      oncontextmenu = function (evt) { return false; };
+      let textField = descartesJS.newHTML("input");
+      textField.value = self.expresionString;
+      textField.disabled = !(self.editable);
+
       textField.onkeydown = function(evt) {
         if (evt.keyCode == 13) {
           self.expresion = self.evaluator.parser.parse(this.value);
@@ -144,7 +140,7 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      this.parent.editableRegion.textFields.push(textField);
+      self.parent.editableRegion.textFields.push(textField);
     }
   }
 

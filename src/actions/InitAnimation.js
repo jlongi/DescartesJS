@@ -6,13 +6,13 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  class InitAnimation extends descartesJS.Action {
+  class InitAnimation {
     /**
      * Descartes init animation action
      * @param {DescartesApp} parent the Descartes application
      */
     constructor(parent) {
-      super(parent);
+      this.parent = parent;
     }
     
     /**

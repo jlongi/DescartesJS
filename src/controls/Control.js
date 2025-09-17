@@ -6,22 +6,23 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  const MathFloor = Math.floor;
-  const MathRound = Math.round;
-  var hh;
-  var di;
-  var changeX;
-  var changeY;
-  var changeW;
-  var changeH;
-  var expr;
+  let self;
+  let MathFloor = Math.floor;
+  let MathRound = Math.round;
+  let hh;
+  let di;
+  let changeX;
+  let changeY;
+  let changeW;
+  let changeH;
+  let expr;
 
-  var temporalCompare;
-  var resultValue;
-  var decimals;
-  var indexDot;
-  var subS;
-  var parent;
+  let temporalCompare;
+  let resultValue;
+  let decimals;
+  let indexDot;
+  let subS;
+  let parent;
 
   class Control {
     /**
@@ -30,293 +31,94 @@ var descartesJS = (function(descartesJS) {
      * @param {String} values the values of the control
      */
     constructor(parent, values) {
-      /**
-       * Descartes application
-       * type {DescartesApp}
-       * @private
-       */
-      this.parent = parent;
-      this.evaluator = parent.evaluator;
-      this.parser = parent.evaluator.parser;
-      var parser = this.parser;
+      self = this;
 
-      /**
-       * identifier
-       * type {String}
-       * @private
-       */
-      this.id = (values.type !== "GraphicControl") ? "C" : "G";
+      self.parent = parent;
+      self.evaluator = parent.evaluator;
+      let parser = self.parser = parent.evaluator.parser;
 
-      /**
-       * type (numeric or graphic)
-       * type {String}
-       * @private
-       */
-      this.type = "";
+      self.id = (values.type !== "GraphicControl") ? "C" : "G";
 
-      /**
-       * interface
-       * type {String}
-       * @private
-       */
-      this.gui = "";
+      self.region = "south";
 
-      /**
-       * region to draw
-       * type {String}
-       * @private
-       */
-      this.region = "south";
+      self.x = self.y = 0;
 
-      /**
-       * x position
-       * type {Number}
-       * @private
-       */
-      this.x = 0;
+      self.w = (values.type !== "Video") ? 100 : 350;
+      self.h = (values.type !== "Video") ? 23 : 120;
 
-      /**
-       * y position
-       * type {Number}
-       * @private
-       */
-      this.y = 0;
+      self.keyboard = false;
+      self.kblayout = "1x16";
 
-      /**
-       * width
-       * type {Number}
-       * @private
-       */
-      this.w = (values.type !== "Video") ? 100 : 350;
-
-      /**
-       * height
-       * type {Number}
-       * @private
-       */
-      this.h = (values.type !== "Video") ? 23 : 120;
-
-      this.keyboard = false;
-      this.kblayout = "1x16";
-
-      /**
-       * position and size expression
-       * type {String}
-       * @private
-       */
       if ((values.type !== "GraphicControl") && (values.type !== "Audio") && (values.type !== "Video")) {
         if (values.type !== "TextArea") {
-          this.expresion = parser.parse("(0,0,100,23)");
+          self.expresion = parser.parse("(0,0,100,23)");
         } else {
-          this.expresion = parser.parse("(0,0,300,200)");
-          this.w = 300;
-          this.h = 200;
+          self.expresion = parser.parse("(0,0,300,200)");
+          self.w = 300;
+          self.h = 200;
         }
       }
       else {
-        this.expresion = parser.parse("(0,0)");
+        self.expresion = parser.parse("(0,0)");
       }
 
-      /**
-       * condition to use fixed notation in the number values
-       * type {Boolean}
-       * @private
-       */
-      this.fixed = true;
+      self.fixed = self.visible = true;
 
-      /**
-       * condition visibility
-       * type {Boolean}
-       * @private
-       */
-      this.visible = true;
-
-      /**
-       * text color
-       * type {String}
-       * @private
-       */
-      this.color = new descartesJS.Color((values.gui == "Scrollbar") ? "e0e4e8" : "222222");
+      self.color = new descartesJS.Color((values.gui == "Scrollbar") ? "e0e4e8" : "222222");
   
-      /**
-       * control color
-       * type {String}
-       * @private
-       */
-      this.colorInt = "cc0022";
+      self.colorInt = "cc0022";
       if (values.gui == "Scrollbar") {
-        this.colorInt = "182C61";
+        self.colorInt = "182C61";
       }
       else if (values.type !== "GraphicControl") {
-        this.colorInt = "f0f8ff";
+        self.colorInt = "f0f8ff";
       }
-      this.colorInt = new descartesJS.Color(this.colorInt);
+      self.colorInt = new descartesJS.Color(self.colorInt);
 
-      /**
-       * font size of the control
-       * type {Object}
-       * @private
-       */
-      this.font_size = parser.parse("0");
+      self.font_size = parser.parse("0");
 
-      /**
-       * bold text condition
-       * type {String}
-       * @private
-       */
-      this.bold = "";
+      self.type = self.gui = self.bold = self.italics = self.underlined = self.action = self.param = self.tooltip = self.Explanation = self.msg_pos = self.cID = "";
 
-      /**
-       * italic text condition
-       * type {String}
-       * @private
-       */
-      this.italics = "";
+      self.paramFont = self.tooltipFont = self.ExplanationFont = "Monospace 12px";
 
-      /**
-       * underline text condition
-       * type {String}
-       * @private
-       */
-      this.underlined = "";
+      self.drawif = self.activeif = parser.parse("1");
 
-      /**
-       * action type
-       * type {String}
-       * @private
-       */
-      this.action = "";
+      self.valueExpr = parser.parse("0");
 
-      /**
-       * parameter
-       * type {String}
-       * @private
-       */
-      this.parameter = "";
+      self.decimals = parser.parse("2");
 
-      /**
-       * tooltip text
-       * type {String}
-       * @private
-       */
-      this.tooltip = "";
+      self.min = parser.parse("-Infinity");
+      self.max = parser.parse("Infinity")
 
-      /**
-       * control explanation
-       * type {String}
-       * @private
-       */
-      this.Explanation = "";
+      self.incr = parser.parse("0.1");
 
-      /**
-       * message position
-       * type {String}
-       * @private
-       */
-      this.msg_pos = "";
+      self.discrete = self.exponentialif = false;
 
-      /**
-       * component identifier
-       * type {String}
-       * @private
-       */
-      this.cID = "";
-
-      this.parameterFont = this.tooltipFont = this.ExplanationFont = "Monospace 12px";
-
-      /**
-       * draw condition
-       * type {Node}
-       * @private
-       */
-      this.drawif = parser.parse("1");
-
-      /**
-       * active condition
-       * type {Node}
-       * @private
-       */
-      this.activeif = parser.parse("1");
-
-      /**
-       * initial value (spinner)
-       * type {Node}
-       * @private
-       */
-      this.valueExpr = parser.parse("0");
-
-      /**
-       * decimal number of the text
-       * type {Node}
-       * @private
-       */
-      this.decimals = parser.parse("2");
-
-      /**
-       * lower limit
-       * type {Node}
-       * @private
-       */
-      this.min = parser.parse("-Infinity");
-
-      /**
-       * upper limit
-       * type {Node}
-       * @private
-       */
-      this.max = parser.parse("Infinity");
-
-      /**
-       * increment
-       * type {Node}
-       * @private
-       */
-      this.incr = parser.parse("0.1");
-
-      /**
-       * discrete numbers condition
-       * type {Boolean}
-       * @private
-       */
-      this.discrete = false;
-
-      /**
-       * condition to use exponential notation
-       * type {Boolean}
-       * @private
-       */
-      this.exponentialif = false;
-
-      /**
-       * z index
-       * @type {Number}
-       * @private
-       */
-      this.zIndex = -1;
+      self.zIndex = -1;
 
       // assign the values to replace the defaults values of the object
-      Object.assign(this, values);
+      Object.assign(self, values);
 
       // move the video and audio controls to the interior region
-      if (((this.type === "Video") || (this.type === "Audio")) && (this.region !== "interior")) {
-        this.region = "interior";
+      if ((/Video|Audio/).test(self.type)) {
+        self.region = "interior";
       }
 
       // ## Descartes 2 patch ## //
-      if (this.name == undefined) {
-        this.name = (this.parent.version == 2) ? this.id : "_nada_";
+      if (self.name == undefined) {
+        self.name = (self.parent.version == 2) ? self.id : "_nada_";
       }
-      this.name = ((this.name == "_._") || (this.name == "_nada_") || (this.name == "_void_")) ? "" : this.name;
+      self.name = ((/_\._|_nada_|_void_/).test(self.name)) ? "" : self.name;
 
-      var expr = this.evaluator.eval(this.expresion);
-      this.x = MathRound(expr[0][0]);
-      this.y = MathRound(expr[0][1]);
-      if (expr[0].length == 4) {
-        this.w = MathRound(expr[0][2]);
-        this.h = MathRound(expr[0][3]);
+      let expr = self.evaluator.eval(self.expresion)[0];
+      self.x = MathRound(expr[0]);
+      self.y = MathRound(expr[1]);
+      if (expr.length == 4) {
+        self.w = MathRound(expr[2]);
+        self.h = MathRound(expr[3]);
       }
 
-      this.actionExec = parent.lessonParser.parseAction(this);
+      self.actionExec = parent.lessonParser.parseAction(self);
     }
 
     /**
@@ -339,48 +141,47 @@ var descartesJS = (function(descartesJS) {
      * @return {HTMLnode} return the space container associated with the control
      */
     getContainer() {
-      var spaces = this.parent.spaces;
-      var space_i;
+      self = this;
+      let spaces = self.parent.spaces;
+
       // if the control is in the interior region
-      if (this.region === "interior") {
-        for(var i=0, l=spaces.length; i<l; i++) {
-          space_i = spaces[i];
-          if (space_i.id === this.spaceID) {
-            space_i.addCtr(this);
-            this.zIndex = space_i.zIndex;
-            this.space = space_i;
+      if (self.region === "interior") {
+        for (let space_i of spaces) {
+          if (space_i.id === self.spaceID) {
+            space_i.addCtr(self);
+            self.zIndex = space_i.zIndex;
+            self.space = space_i;
             return space_i.numCtrContainer;
           }
         }
       }
       // if the control is in the external region
-      else if (this.region === "external") {
-        this.parent.externalSpace.addCtr(this);
-        return this.parent.externalSpace.container;
+      else if (self.region === "external") {
+        self.parent.externalSpace.addCtr(self);
+        return self.parent.externalSpace.container;
       }
       // if the control is in the scenario
-      else if (this.region === "scenario") {
+      else if (self.region === "scenario") {
         // has a cID
-        if (this.cID) {
-          this.expresion = this.evaluator.parser.parse(`(0,-1000,${this.w},${this.h})`);
-          this.parent.stage.stageSpace.addCtr(this);
-          this.zIndex = this.parent.stage.stageSpace.zIndex;
-          return this.parent.stage.stageSpace.numCtrContainer;
+        if (self.cID) {
+          self.expresion = self.evaluator.parser.parse(`(0,-1000,${self.w},${self.h})`);
+          self.parent.stage.stageSpace.addCtr(self);
+          self.zIndex = self.parent.stage.stageSpace.zIndex;
+          return self.parent.stage.stageSpace.numCtrContainer;
         }
         else {
-          return this.parent.externalSpace.container;
+          return self.parent.externalSpace.container;
         }
-
       }
       // if the control is in the north, south, east or west region
-      else if ((/north|south|east|west/).test(this.region)) {
-        this.parent[this.region + "Space"].controls.push(this);
-        return this.parent[this.region + "Space"].container;
+      else if ((/north|south|east|west/).test(self.region)) {
+        self.parent[self.region + "Space"].controls.push(self);
+        return self.parent[self.region + "Space"].container;
       }
 
       // if do not find a space with the identifier then return the first space
-      spaces[0].addCtr(this);
-      this.zIndex = spaces[0].zIndex;
+      spaces[0].addCtr(self);
+      self.zIndex = spaces[0].zIndex;
       return spaces[0].numCtrContainer;
     }
 
@@ -389,59 +190,68 @@ var descartesJS = (function(descartesJS) {
      * @return {HTMLnode} return the space container associated with the control
      */
     addControlContainer(controlContainer) {
+      this.getContainer().appendChild(controlContainer);
+
+      // DESCOMENTAR SI SE QUIERE RECUPERAR QUE LOS CONTROLES SE AGREGUEN EN ORDEN INVERSO
+      /**
       // get the control container
       const container = this.getContainer();
 
       // add the container in inverse order to the space container
+      container.appendChild(controlContainer);
+
       if (!container.childNodes[0]) {
         container.appendChild(controlContainer);
       }
       else {
         container.insertBefore(controlContainer, container.childNodes[0]);
       }
+      */
     }
 
     /**
      * Update the position and size of the control
      */
     updatePositionAndSize() {
+      self = this;
       changeX = changeY = changeW = changeH = false;
-      expr = this.evaluator.eval(this.expresion);
+      expr = self.evaluator.eval(self.expresion)[0];
 
-      temporalCompare = MathRound(expr[0][0]);
-      changeX = MathRound(this.x) !== temporalCompare;
-      this.x = temporalCompare;
+      temporalCompare = MathRound(expr[0]);
+      changeX = MathRound(self.x) !== temporalCompare;
+      self.x = temporalCompare;
 
-      temporalCompare = MathRound(expr[0][1]);
-      changeY = MathRound(this.y) !== temporalCompare;
-      this.y = temporalCompare;
+      temporalCompare = MathRound(expr[1]);
+      changeY = MathRound(self.y) !== temporalCompare;
+      self.y = temporalCompare;
 
-      if (expr[0].length === 4) {
-        temporalCompare = MathRound(expr[0][2]);
-        changeW = MathRound(this.w) !== temporalCompare;
-        this.w = temporalCompare
+      if (expr.length === 4) {
+        temporalCompare = MathRound(expr[2]);
+        changeW = MathRound(self.w) !== temporalCompare;
+        self.w = temporalCompare;
 
-        temporalCompare = MathRound(expr[0][3]);
-        changeH = MathRound(this.h) !== temporalCompare;
-        this.h = temporalCompare;
+        temporalCompare = MathRound(expr[3]);
+        changeH = MathRound(self.h) !== temporalCompare;
+        self.h = temporalCompare;
       }
 
       // if has some change, then init the control and redraw it
       if ((changeW) || (changeH) || (changeX) || (changeY)) {
-        this.init(true, true);
-        this.draw();
+        self.init(true, true);
+        self.draw();
       }
     }
 
     /**
      * Format the value with the number of decimals, the exponential representation and the decimal symbol
-     * @param {String} value tha value to format
+     * @param {String} value that value to format
      * @return {String} return the value with the format applied
      */
-    formatOutputValue(value) {
-      parent = this.parent;
+    formatValue(value) {
+      self = this;
+      parent = self.parent;
       resultValue = value+"";
-      decimals = this.evaluator.eval(this.decimals);
+      decimals = self.evaluator.eval(self.decimals);
 
       indexDot = resultValue.indexOf(".");
       if ( indexDot != -1 ) {
@@ -452,20 +262,20 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      if (this.fixed) {
+      if (self.fixed) {
         // ## patch for Descartes 2 ##
         // in a different version than 2, then fixed stays as it should
         // if the version is 2 but do not use exponential notation
-        if ( (parent.version !== 2) || ((parent.version === 2) && (!this.exponentialif)) ) {
+        if ( (parent.version !== 2) || ((parent.version === 2) && (!self.exponentialif)) ) {
           resultValue = parseFloat(value).toFixed(decimals);
         }
       }
 
       // if the value is zero then do not show the E in the exponential notation
-      if ((this.exponentialif) && (parseFloat(resultValue) != 0)) {
+      if ((self.exponentialif) && (parseFloat(resultValue) != 0)) {
         // ## patch for Descartes 2 ##
         // in the version 2 do not show the decimals
-        if ((this.fixed) && (parent.version !== 2)) {
+        if ((self.fixed) && (parent.version !== 2)) {
           resultValue = parseFloat(resultValue).toExponential(decimals);
         }
         else {
@@ -481,8 +291,10 @@ var descartesJS = (function(descartesJS) {
      *
      */
     updateAndExecAction() {
+      parent = this.parent;
+
       // update the controls
-      this.parent.updateControls();
+      parent.updateControls();
 
       // if the action is init, release the click
       if (this.action === "init") {
@@ -492,16 +304,16 @@ var descartesJS = (function(descartesJS) {
       this.actionExec.execute();
 
       // update again the controls
-      this.parent.updateControls();
+      parent.updateControls();
 
       // if the action is animate then do not update the scene
       if (this.action !== "animate") {
         // update the scene
-        this.parent.update();
+        parent.update();
       }
 
       // update again the controls
-      this.parent.updateControls();
+      parent.updateControls();
     }
 
     /**
@@ -513,8 +325,8 @@ var descartesJS = (function(descartesJS) {
       this.linearGradient = this.ctx.createLinearGradient(0, 0, 0, h);
       hh = h*h;
 
-      for (var i=0; i<h; i++) {
-        di = MathFloor(i-(35*h)/100);
+      for (let i=0; i<h; i++) {
+        di = MathFloor(i-(35*h)*0.01);
         this.linearGradient.addColorStop(i/h, `rgba(0,0,0,${((di*di*192)/hh)/255})`);
       }
     }

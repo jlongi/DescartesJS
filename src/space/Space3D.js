@@ -6,47 +6,48 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathMax   = Math.max;
-  var MathCos   = Math.cos;
-  var MathSin   = Math.sin;
-  var minScale = 0.000001;
-  var maxScale = 1000000;
+  const minScale = 0.000001;
+  const maxScale = 1000000;
 
-  var evaluator;
-  var parent;
-  var self;
-  var thisGraphics_i;
-  var thisGraphicsNext;
-  var changeX;
-  var changeY;
-  var dispX;
-  var dispY;
+  let MathFloor = Math.floor;
+  let MathMax   = Math.max;
+  let MathCos   = Math.cos;
+  let MathSin   = Math.sin;
 
-  var angle;
-  var cosAngle;
-  var sinAngle;
-  var newV1;
+  let evaluator;
+  let parent;
+  let self;
+  let thisGraphics_i;
+  let thisGraphicsNext;
+  let changeX;
+  let changeY;
+  let dispX;
+  let dispY;
 
-  var r;
-  var g;
-  var b;
-  var dl3;
-  var intensity = [];
-  var I;
-  var c;
-  var normal;
-  var toEye;
-  var aveDistanceToEye;
-  var unitToEye;
+  let angle;
+  let cosAngle;
+  let sinAngle;
+  let newV1;
 
-  var t_rr;
-  var r_rr;
-  var N_rr;
+  let r;
+  let g;
+  let b;
+  let dl3;
+  let intensity = [];
+  let I;
+  let c;
+  let normal;
+  let toEye;
+  let aveDistanceToEye;
+  let unitToEye;
 
-  var observerSet;
+  let t_rr;
+  let r_rr;
+  let N_rr;
 
-  var auxVertex;
+  let observerSet;
+
+  let auxVertex;
 
   class Space3D extends descartesJS.Space {
     /**
@@ -60,7 +61,6 @@ var descartesJS = (function(descartesJS) {
 
       self = this;
       self.ratio = parent.ratio;
-      //self.ratio = 1;
 
       // create the canvas
       self.backCanvas = descartesJS.newHTML("canvas", {
@@ -83,7 +83,7 @@ var descartesJS = (function(descartesJS) {
       self.canvas.style = self.backCanvas.style = `${(self.border_width>0)?"border:"+self.border_width+"px solid "+self.border_color.getColor()+";" : ""}${self.border_radius?"border-radius:"+self.border_radius+"px;":""}`;
 
       // variable to expose the image of the space
-      var id_name = self.id + ".image";
+      let id_name = self.id + ".image";
       self.parent.images[id_name] = self.canvas;
       self.parent.images[id_name].ready = 1;
       self.parent.images[id_name].complete = true;
@@ -125,7 +125,7 @@ var descartesJS = (function(descartesJS) {
         { x: 20, y:   0, z: -80},
         { x:  0, y:   0, z: 0}
       ];
-      for (var i=0, l=self.lights.length; i<l; i++) {
+      for (let i=0, l=self.lights.length; i<l; i++) {
         self.lights[i] = descartesJS.normalize3D(self.lights[i]);
       }
       self.light3 = { x:0, y:0, z:0 };
@@ -140,6 +140,11 @@ var descartesJS = (function(descartesJS) {
       self.scaleStr = self.id + ".escala";
       self.wStr = self.id + "._w";
       self.hStr = self.id + "._h";
+      self.mxStr = self.id + ".mouse_x";
+      self.myStr = self.id + ".mouse_y";
+      self.mpressedStr = self.id + ".mouse_pressed";
+      self.mclickedStr = self.id + ".mouse_clicked";
+      self.mclickIzqStr = self.id + ".clic_izquierdo";
       self.obsStr = self.id + ".observador";
       self.ojoXStr = self.id + ".Ojo.x";
       self.ojoYStr = self.id + ".Ojo.y";
@@ -162,23 +167,25 @@ var descartesJS = (function(descartesJS) {
       self.evaluator.setVariable(self.userIzStr, 0);
 
       // function to calc the position of a external point
-      auxVertex = new descartesJS.Primitive3D( { vertices: [new descartesJS.Vector4D(0, 0, 0, 1)],
-                                                type: "vertex"
-                                              },
-                                              self );
+      auxVertex = new descartesJS.Primitive3D({
+        V: [new descartesJS.Vec4D()],
+        type: "vertex"
+      },
+      self);
+
       self.evaluator.setFunction(self.id + "._X3D2D_", function(x, y, z) {
-        auxVertex.vertices[0].x = x;
-        auxVertex.vertices[0].y = y;
-        auxVertex.vertices[0].z = z;
+        auxVertex.V[0].x = x;
+        auxVertex.V[0].y = y;
+        auxVertex.V[0].z = z;
         auxVertex.computeDepth(self)
-        return auxVertex.projVert[0].x;
+        return auxVertex.projV[0].x;
       });
       self.evaluator.setFunction(self.id + "._Y3D2D_", function(x, y, z) {
-        auxVertex.vertices[0].x = x;
-        auxVertex.vertices[0].y = y;
-        auxVertex.vertices[0].z = z;
+        auxVertex.V[0].x = x;
+        auxVertex.V[0].y = y;
+        auxVertex.V[0].z = z;
         auxVertex.computeDepth(self)
-        return auxVertex.projVert[0].y;
+        return auxVertex.projV[0].y;
       });
       //
 
@@ -220,7 +227,7 @@ var descartesJS = (function(descartesJS) {
 
       ////////////////////////////////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////////////////////////////////
-      var rescale = (self.h/1080)*(40/self.scale);
+      let rescale = (self.h/1080)*(40/self.scale);
       self.S = { 
         x: -20.6*rescale,
         y: 0,
@@ -278,7 +285,7 @@ var descartesJS = (function(descartesJS) {
             self.canvas.style.height = self.backCanvas.style.height = self.h + "px";
             firstTime = true;
 
-            var rescale = (self.h/1080)*(40/self.scale);
+            let rescale = (self.h/1080)*(40/self.scale);
             self.S = { 
               x: -20.6*rescale,
               y: 0,
@@ -325,7 +332,7 @@ var descartesJS = (function(descartesJS) {
 
         if ((firstTime) || (self.observer == undefined)) {
           // check if the observer is the name of some control
-          for (var i=0, l=self.parent.controls.length; i<l; i++) {
+          for (let i=0, l=self.parent.controls.length; i<l; i++) {
             if (self.parent.controls[i].id === self.obsStr) {
               observerSet = true;
             }
@@ -357,7 +364,7 @@ var descartesJS = (function(descartesJS) {
         // if some property change then adjust the container style
         if ((changeX) || (changeY)) {
           self.container.style.left = self.x + "px";
-          self.container.style.top = self.y + "px";
+          self.container.style.top  = self.y + "px";
         }
 
         self.container.style.display = "block";
@@ -365,10 +372,11 @@ var descartesJS = (function(descartesJS) {
         self.dim = evaluator.getVariable(self.userIDimStr);
         self.userIntensity = evaluator.getVariable(self.userIIStr);
         // user defined light
-        self.light3 = { x: parseInt(evaluator.getVariable(self.userIxStr)),
-                        y: parseInt(evaluator.getVariable(self.userIyStr)),
-                        z: parseInt(evaluator.getVariable(self.userIzStr))
-                      };
+        self.light3 = { 
+          x: parseInt(evaluator.getVariable(self.userIxStr)),
+          y: parseInt(evaluator.getVariable(self.userIyStr)),
+          z: parseInt(evaluator.getVariable(self.userIzStr))
+        };
 
         self.updateCamera();
 
@@ -387,15 +395,7 @@ var descartesJS = (function(descartesJS) {
      *
      */
     updateCamera() {
-      // self = this;
-
-      // self.D = self.observer / cfactor;
-      // self.eye.x = self.D/self.scale;
-      // self.eye.y = 0;
-      // self.eye.z = self.D/self.scale*tanTiltAngle;
-
-      this.eye = descartesJS.scalarProduct3D(this.Ojo, 1/this.scale);
-  // console.log(this.eye, this.Ojo)
+      this.eye = descartesJS.scalarProd3D(this.Ojo, 1/this.scale);
     }
 
     /**
@@ -429,35 +429,12 @@ var descartesJS = (function(descartesJS) {
      *
      */
     project(v) {
-      self = this;
-
-      var oldProj = this.evaluator.getVariable("URL.oldProj");
-      oldProj = true;
-
-      if (oldProj) {
-      // old projection
-        var lambda = (self.eye.x) / (v.x - self.eye.x);
-        var pV = {
-          x: self.getAbsoluteX( lambda*( self.eye.y - v.y) ),
-          y: self.getAbsoluteY( lambda*( self.eye.z - v.z) ),
-          z: self.eye.x - v.x
-          // z: self.scale*(self.eye.x - v.x)
-        };
-    // console.log(v, pV)
-        return pV;
-      }
-      else {
-        // new projection
-        var _SE = (self.eye.x);
-        var fctr = _SE / (-self.S.x + _SE - v.x);
-        var pV = {
-          x: self.getAbsoluteX( fctr*(v.y - self.S.y) ),
-          y: self.getAbsoluteY( fctr*(v.z - self.S.z) ),
-          z: self.scale*(self.eye.x - v.x)
-        };
-    // console.log("nueva", v, pV);
-        return pV;
-      }
+      let lambda = (self.eye.x) / (v.x - self.eye.x);
+      return {
+        x: self.getAbsoluteX( lambda*( self.eye.y - v.y) ),
+        y: self.getAbsoluteY( lambda*( self.eye.z - v.z) ),
+        z: self.eye.x - v.x
+      };
     }
 
     /**
@@ -473,14 +450,14 @@ var descartesJS = (function(descartesJS) {
         }
       }
       
-      toEye = descartesJS.subtract3D(this.eye, primitive.average);
+      toEye = descartesJS.subtract3D(this.eye, primitive.avg);
       aveDistanceToEye = descartesJS.norm3D(toEye);
-      unitToEye = descartesJS.scalarProduct3D(toEye, 1/aveDistanceToEye);
+      unitToEye = descartesJS.scalarProd3D(toEye, 1/aveDistanceToEye);
 
-      this.lights[3] = descartesJS.subtract3D(this.light3, primitive.average);
+      this.lights[3] = descartesJS.subtract3D(this.light3, primitive.avg);
       dl3 = descartesJS.norm3D(this.lights[3]);
 
-      for (var i=0, l=this.intensity.length-1; i<l; i++) {
+      for (let i=0, l=this.intensity.length-1; i<l; i++) {
         intensity[i] = this.intensity[i]*this.dim;
       }
       intensity[3] = ((this.userIntensity*this.userIntensity)/dl3) || 0;
@@ -488,9 +465,9 @@ var descartesJS = (function(descartesJS) {
       I = (metal) ? this.dim/2 : this.dim/4;
       c = 0;
 
-      normal = (primitive.direction < 0) ? primitive.normal : descartesJS.scalarProduct3D(primitive.normal, -1);
+      normal = (primitive.direction < 0) ? primitive.normal : descartesJS.scalarProd3D(primitive.normal, -1);
 
-      for (var i=0, l=this.lights.length; i<l; i++) {
+      for (let i=0, l=this.lights.length; i<l; i++) {
         if (metal) {
           c = Math.max( 0, descartesJS.dotProduct3D(reflectedRay(this.lights[i], normal), unitToEye) );
           c = c*c*c;
@@ -518,56 +495,57 @@ var descartesJS = (function(descartesJS) {
      * Draw the primitives of the graphics, the primitives are obtained from the update step
      */
     draw() {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.ctx.fillStyle = this.background.getColor();
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      self = this;
+      self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
+      self.ctx.fillStyle = self.background.getColor();
+      self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
 
       // draw the background image if any
-      if ( (this.image) && (this.image.src != "") && (this.image.ready) && (this.image.complete) ) {
-        if (this.bg_display === "topleft") {
-          this.ctx.drawImage(this.image, 0, 0);
+      if ( (self.image) && (self.image.src != "") && (self.image.ready) && (self.image.complete) ) {
+        if (self.bg_display === "topleft") {
+          self.ctx.drawImage(self.image, 0, 0);
         }
-        else if (this.bg_display === "stretch") {
-          this.ctx.drawImage(this.image, 0, 0, this.w, this.h);
+        else if (self.bg_display === "stretch") {
+          self.ctx.drawImage(self.image, 0, 0, self.w, self.h);
         }
-        else if (this.bg_display === "patch") {
-          this.ctx.fillStyle = ctx.createPattern(this.image, "repeat");
-          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        else if (self.bg_display === "patch") {
+          self.ctx.fillStyle = ctx.createPattern(self.image, "repeat");
+          self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
         }
-        else if (this.bg_display === "center") {
-          this.ctx.drawImage(this.image, (this.w-this.image.width)/2, (this.h-this.image.height)/2);
+        else if (self.bg_display === "center") {
+          self.ctx.drawImage(self.image, (self.w-self.image.width)/2, (self.h-self.image.height)/2);
         }
       }
 
       // if not interact with the space
-      if (!this.click) {
+      if (!self.click) {
         // update the graphics to build its primitives
-        for(var i=0, l=this.graphics.length; i<l; i++) {
-          this.graphics[i].update();
+        for (let graphics_i of self.graphics) {
+          graphics_i.update();
         }
         
-        this.primitives = [];
+        self.primitives = [];
         // split the primitives if needed
-        if (this.split) {
-          for (var i=0, l=this.graphics.length; i<l; i++) {
-            thisGraphics_i = this.graphics[i];
+        if (self.split) {
+          for (let i=0, l=self.graphics.length; i<l; i++) {
+            thisGraphics_i = self.graphics[i];
 
-            for (var j=i+1; j<l; j++) {
-              thisGraphicsNext = this.graphics[j];
+            for (let j=i+1; j<l; j++) {
+              thisGraphicsNext = self.graphics[j];
 
               thisGraphics_i.splitFace(thisGraphicsNext);
               thisGraphicsNext.splitFace(thisGraphics_i);
             }
 
-            this.primitives = this.primitives.concat( thisGraphics_i.primitives || [] );
+            self.primitives = self.primitives.concat( thisGraphics_i.primitives || [] );
           }
         }
         else {
-          for (var i=0, l=this.graphics.length; i<l; i++) {
+          for (let i=0, l=this.graphics.length; i<l; i++) {
             thisGraphics_i = this.graphics[i];
 
             if (thisGraphics_i.split) {
-              for (var j=i+1; j<l; j++) {
+              for (let j=i+1; j<l; j++) {
                 thisGraphicsNext = this.graphics[j];
 
                 if (thisGraphicsNext.split) {
@@ -582,25 +560,25 @@ var descartesJS = (function(descartesJS) {
         // end split
       }
 
-      for(var i=0, l=this.primitives.length; i<l; i++) {
-        this.primitives[i].computeDepth(this);
+      for (let primitives_i of this.primitives) {
+        primitives_i.computeDepth(this);
       }
 
-      this.primitives = this.primitives.sort(function (a, b) { return b.depth - a.depth; });
+      this.primitives = this.primitives.sort(sort_function);
       
       // draw the primitives
       if (this.render === "painter") {
         this.drawPainter(this.primitives);
       }
       else {
-        for(var i=0, l=this.primitives.length; i<l; i++) {
-          this.primitives[i].draw(this.ctx, this);
+        for (let primitives_i of this.primitives) {
+          primitives_i.draw(this.ctx, this);
         }
       }
 
       // draw the graphic controls
-      for (var i=0, l=this.graphicsCtr.length; i<l; i++) {
-        this.graphicsCtr[i].draw();
+      for (let graphicsCtr_i of this.graphicsCtr) {
+        graphicsCtr_i.draw();
       }
     }
 
@@ -608,30 +586,31 @@ var descartesJS = (function(descartesJS) {
      *
      */
     drawPainter(primitives) {
-      var l = primitives.length;
+      let l = primitives.length;
 
-      for (var i=0; i<l; i++) {
+      for (let i=0; i<l; i++) {
         primitives[i].drawn = false;
         primitives[i].draw(this.ctx, this);
       }
 
-      var V = [];
-      var drawface = [];
-      var drawix = 0;
-      var NC = primitives.length;
-      var epsilon0 = 0.001;
-      var epsilon = epsilon0;
-      var NCa;
-      var oneDrawn;
-      var canDraw;
+      let V = [];
+      let drawface = [];
+      let drawix = 0;
+      let NC = primitives.length;
+      let epsilon0 = 0.001;
+      let epsilon = epsilon0;
+      let NCa;
+      let oneDrawn;
+      let canDraw;
 
       while (true) {
         NCa = NC;
         oneDrawn = false;
-        for (var i=0; i<l; i++) {
+
+        for (let i=0; i<l; i++) {
           if (!primitives[i].drawn) {
             canDraw = true;
-            for (var j=0; j<l; j++) {
+            for (let j=0; j<l; j++) {
               if ( (j!=i) && 
                   (!primitives[j].drawn) && 
                   (primitives[i].inFrontOf(V, primitives[j], epsilon))
@@ -648,6 +627,7 @@ var descartesJS = (function(descartesJS) {
             }
           }
         }
+        
         if (NC == 0) { // PA ended CORRECTLY"
           break;
         } 
@@ -656,7 +636,7 @@ var descartesJS = (function(descartesJS) {
 
           if (epsilon>0.1) {
   //          console.log("Error in Painter Algorithm");
-            for (var i=0; i<l; i++) {
+            for (let i=0; i<l; i++) {
               if (!primitives[i].drawn) {
                 drawface[drawix++] = primitives[i];
                 primitives[i].drawn = true;
@@ -671,7 +651,7 @@ var descartesJS = (function(descartesJS) {
       }
 
       // draw the primitives
-      for (var i=0; i<l; i++) {
+      for (let i=0; i<l; i++) {
         drawface[i].draw(this.ctx, this);
       }
     }
@@ -696,11 +676,9 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
+      let self = this;
 
-      this.canvas.oncontextmenu = function () { return false; };
-
-      this.canvas.addEventListener("touchstart", onTouchStart);
+      self.canvas.addEventListener("touchstart", onTouchStart);
 
       /**
        * @param {Event} evt
@@ -712,7 +690,7 @@ var descartesJS = (function(descartesJS) {
         document.activeElement.blur();
 
         self.click = 1;
-        self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
+        self.evaluator.setVariable(self.mpressedStr, 1);
 
         // deactivate the graphic controls
         self.parent.deactivateControls();
@@ -742,7 +720,7 @@ var descartesJS = (function(descartesJS) {
         document.activeElement.blur();
 
         self.click = 0;
-        self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
+        self.evaluator.setVariable(self.mpressedStr, 0);
 
         window.removeEventListener("touchmove", onMouseMove, false);
         window.removeEventListener("touchend", onTouchEnd, false);
@@ -755,7 +733,7 @@ var descartesJS = (function(descartesJS) {
       ///////////////////////////////////////////////////////////////////////////
       //
       ///////////////////////////////////////////////////////////////////////////
-      this.canvas.addEventListener("mousedown", onMouseDown);
+      self.canvas.addEventListener("mousedown", onMouseDown);
 
       /**
        *
@@ -791,7 +769,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         else if (self.whichBtn == "L") {
-          self.evaluator.setVariable(self.id + ".mouse_pressed", 1);
+          self.evaluator.setVariable(self.mpressedStr, 1);
 
           self.posAnte = descartesJS.getCursorPosition(evt, self.container);
           self.oldMouse.x = self.getRelativeX(self.posAnte.x);
@@ -816,7 +794,7 @@ var descartesJS = (function(descartesJS) {
         document.body.focus();
 
         self.click = 0;
-        self.evaluator.setVariable(self.id + ".mouse_pressed", 0);
+        self.evaluator.setVariable(self.mpressedStr, 0);
         evt.preventDefault();
 
         if (self.whichBtn === "R") {
@@ -843,8 +821,8 @@ var descartesJS = (function(descartesJS) {
         self.posAnte = descartesJS.getCursorPosition(evt, self.container);
         self.mouse_x = self.getRelativeX(self.posAnte.x);
         self.mouse_y = self.getRelativeY(self.posAnte.y);
-        self.evaluator.setVariable(self.id + ".mouse_x", self.mouse_x);
-        self.evaluator.setVariable(self.id + ".mouse_y", self.mouse_y);
+        self.evaluator.setVariable(self.mxStr, self.mouse_x);
+        self.evaluator.setVariable(self.myStr, self.mouse_y);
 
         // limit the number of updates in the lesson
         self.parent.update();
@@ -867,7 +845,7 @@ var descartesJS = (function(descartesJS) {
         self.parent.update();
       }
 
-      this.disp = {x: 0, y: 0};
+      self.disp = {x: 0, y: 0};
 
       /**
        *
@@ -917,13 +895,20 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function reflectedRay(l, uN) {
-    t_rr = descartesJS.subtract3D(l, descartesJS.scalarProduct3D(uN, descartesJS.dotProduct3D(l, uN)));
-    r_rr = descartesJS.add3D(l, descartesJS.scalarProduct3D(t_rr, -2));
+    t_rr = descartesJS.subtract3D(l, descartesJS.scalarProd3D(uN, descartesJS.dotProduct3D(l, uN)));
+    r_rr = descartesJS.add3D(l, descartesJS.scalarProd3D(t_rr, -2));
     N_rr = descartesJS.norm3D(r_rr);
     if (N_rr !== 0) {
-      return descartesJS.scalarProduct3D(r_rr, 1/N_rr);
+      return descartesJS.scalarProd3D(r_rr, 1/N_rr);
     }
-    return descartesJS.scalarProduct3D(l, -1);
+    return descartesJS.scalarProd3D(l, -1);
+  }
+
+  /**
+   * 
+   */
+  function sort_function(a, b) {
+    return b.depth - a.depth;
   }
 
   descartesJS.Space3D = Space3D;

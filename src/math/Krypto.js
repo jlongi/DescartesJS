@@ -6,30 +6,30 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  const MathSin = Math.sin;
-  const MathFloor = Math.floor;
-  const MathRandom = Math.random;
-  const MathRound = Math.round;
-  const MathAbs = Math.abs;
-  const stringFromCharCode = String.fromCharCode;
+  let MathSin = Math.sin;
+  let MathFloor = Math.floor;
+  let MathRandom = Math.random;
+  let MathRound = Math.round;
+  let MathAbs = Math.abs;
+  let stringFromCharCode = String.fromCharCode;
   
   const a1 = 1.0;
   const a2 = 1.4;
   const a3 = 0.6;
   const a4 = 2.2;
 
-  var ll;
+  let ll;
 
-  var n;
-  var a;
-  var b;
-  var c;
+  let n;
+  let a;
+  let b;
+  let c;
 
-  var encryptMeu;
-  var decryptMeu;
-  var nx;
-  var x;
-  var y;
+  let encryptMeu;
+  let decryptMeu;
+  let nx;
+  let x;
+  let y;
 
   class Krypto {
     /**
@@ -46,7 +46,7 @@ var descartesJS = (function(descartesJS) {
      */
     getKey(n) {
       ll = [];
-      for (var i=0; i<256; i++) {
+      for (let i=0; i<256; i++) {
         ll[i] = stringFromCharCode(this.alfanum( MathFloor( MathAbs(7.5*(MathSin(a1*i-n) + MathSin(a2*i+n) + MathSin(a3*i-n) + MathSin(a4*i+n))) ) ));
       }
       
@@ -94,7 +94,7 @@ var descartesJS = (function(descartesJS) {
       
       encryptMeu = new Array(3*OrigMeu.length);
       
-      for (var i=0, l=OrigMeu.length; i<l; i++) {
+      for (let i=0, l=OrigMeu.length; i<l; i++) {
         x = MathFloor(OrigMeu[i]+128)*256 + MathRound(MathRandom()*255) + MathRound(MathRandom()*255)*256*256;
         y = MathFloor((x<<this.shift(i))/256);
 
@@ -125,7 +125,7 @@ var descartesJS = (function(descartesJS) {
 
       decryptMeu = new Array(OrigMeu.length/3);
 
-      for (var i=0, l=decryptMeu.length; i<l; i++) {
+      for (let i=0, l=decryptMeu.length; i<l; i++) {
         y = this.numalfa(OrigMeu[3*i]) + this.numalfa(OrigMeu[3*i+1])*32 + this.numalfa(OrigMeu[3*i+2])*1024;
         x = MathFloor((y*256)>>this.shift(i));
         
@@ -163,7 +163,7 @@ var descartesJS = (function(descartesJS) {
     stringToBytes(OrigMeu) {
       b = [];
       
-      for (var i=0, l=OrigMeu.length; i<l; i++) {
+      for (let i=0, l=OrigMeu.length; i<l; i++) {
         b.push( OrigMeu.charCodeAt(i) );
       }
       
@@ -175,7 +175,7 @@ var descartesJS = (function(descartesJS) {
      * @return {String} 
      */
     bytesToString(b) {
-      for (var i=0, l=b.length; i<l; i++) {
+      for (let i=0, l=b.length; i<l; i++) {
         b[i] = stringFromCharCode(b[i]);
       }
 

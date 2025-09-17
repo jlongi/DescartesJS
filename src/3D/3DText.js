@@ -6,11 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var expr;
-  var exprX;
-  var exprY;
-  var exprZ;
+  let self;
+  let evaluator;
+  let expr;
 
   class Text3D extends descartesJS.Graphic3D {
     /**
@@ -29,30 +27,30 @@ var descartesJS = (function(descartesJS) {
      * Build the primitives corresponding to the point
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      expr = evaluator.eval(this.expresion);
-      exprX = expr[0][0];
-      exprY = expr[0][1];
-      exprZ = 0;
+      expr = evaluator.eval(self.expresion)[0];
 
-      this.primitives.push( new descartesJS.Primitive3D( { 
-        vertices: [new descartesJS.Vector4D(exprX, exprY, exprZ, 1)],
-        type:"text",
-        frontColor: this.color.getColor(),
-        font_size: this.font_size,
-        font_style: this.font_style,
-        font_family: this.font_family,
-        decimals: evaluator.eval(this.decimals),
-        fixed: this.fixed,
-        displace: 0,
-        isText: true,
-        evaluator: evaluator,
-        text: new descartesJS.TextObject(this, this.text),
-        family: this.family,
-        familyValue: this.familyValue
-      },
-      this.space ));
+      self.primitives.push(
+        new descartesJS.Primitive3D( { 
+          V: [new descartesJS.Vec4D(expr[0], expr[1], 0)],
+          type:"text",
+          frontColor: self.color.getColor(),
+          font_size: self.font_size,
+          font_style: self.font_style,
+          font_family: self.font_family,
+          decimals: evaluator.eval(self.decimals),
+          fixed: self.fixed,
+          displace: 0,
+          isText: true,
+          evaluator: evaluator,
+          text: new descartesJS.TextObject(self, self.text),
+          family: self.family,
+          familyValue: self.fVal
+        },
+        self.space
+      ));
     }
   }
   

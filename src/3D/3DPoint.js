@@ -6,11 +6,12 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var expr;
-  var exprX;
-  var exprY;
-  var exprZ;
+  let self;
+  let evaluator;
+  let expr;
+  let exprX;
+  let exprY;
+  let exprZ;
   
   class Point3D extends descartesJS.Graphic3D {
     /**
@@ -27,47 +28,53 @@ var descartesJS = (function(descartesJS) {
      * Build the primitives corresponding to the point
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+
+      evaluator = self.evaluator;
 
       // do not apply the rotations in the model view matrix transformation
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
-      expr = evaluator.eval(this.expresion);
-      exprX = expr[0][0];
-      exprY = expr[0][1];
-      exprZ = expr[0][2];
+      expr = evaluator.eval(self.expresion)[0];
+      exprX = expr[0];
+      exprY = expr[1];
+      exprZ = expr[2];
 
-      this.primitives.push( new descartesJS.Primitive3D( { 
-        vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
-        type: "vertex",
-        backColor: this.backcolor.getColor(), 
-        frontColor: this.color.getColor(), 
-        size: evaluator.eval(this.width)
-      } ) );
+      self.primitives.push(
+        new descartesJS.Primitive3D( { 
+          V: [self.transformVertex( new descartesJS.Vec4D(exprX, exprY, exprZ) )],
+          type: "vertex",
+          backColor: self.backcolor.getColor(), 
+          frontColor: self.color.getColor(), 
+          size: evaluator.eval(self.width)
+        })
+      );
 
       // add a text primitive only if the text has content
-      if (this.text !== "") {
-        this.offset_dist = this.offset_dist || evaluator.parser.parse("10");
-        this.offset_angle = this.offset_angle || evaluator.parser.parse("270");
+      if (self.text !== "") {
+        self.offset_dist  = self.offset_dist || evaluator.parser.parse("10");
+        self.offset_angle = self.offset_angle || evaluator.parser.parse("270");
 
-        this.primitives.push( new descartesJS.Primitive3D( { 
-          vertices: [this.transformVertex( new descartesJS.Vector4D(exprX, exprY, exprZ, 1) )],
-          type: "text",
-          fromPoint: true,
-          frontColor: this.color.getColor(), 
-          font_size: this.font_size,
-          font_style: this.font_style,
-          font_family: this.font_family,
-          decimals: evaluator.eval(this.decimals),
-          fixed: this.fixed,
-          evaluator: evaluator,
-          text: new descartesJS.TextObject(this, this.text),
-          family: this.family,
-          familyValue: this.familyValue,
-          offset_dist: this.offset_dist,
-          offset_angle: this.offset_angle
-        },
-        this.space ));
+        self.primitives.push(
+          new descartesJS.Primitive3D( { 
+            V: [self.transformVertex( new descartesJS.Vec4D(exprX, exprY, exprZ) )],
+            type: "text",
+            fromPoint: true,
+            frontColor: self.color.getColor(), 
+            font_size:   self.font_size,
+            font_style:  self.font_style,
+            font_family: self.font_family,
+            decimals: evaluator.eval(self.decimals),
+            fixed: self.fixed,
+            evaluator: evaluator,
+            text: new descartesJS.TextObject(self, self.text),
+            family: self.family,
+            familyValue: self.fVal,
+            offset_dist: self.offset_dist,
+            offset_angle: self.offset_angle
+          },
+          self.space
+        ));
       }
     }
   }

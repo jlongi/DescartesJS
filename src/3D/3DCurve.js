@@ -6,13 +6,15 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var vertices;
-  var Nu;
-  var tempParamU;
-  var tempParamX;
-  var tempParamY;
-  var tempParamZ;  
-  var evaluator;
+  let self;
+
+  let vertices;
+  let Nu;
+  let tempParamU;
+  let tempParamX;
+  let tempParamY;
+  let tempParamZ;  
+  let evaluator;
   
   class Curve3D extends descartesJS.Graphic3D {
     /**
@@ -24,65 +26,82 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.width = this.width || parent.evaluator.parser.parse("1");
-      this.expresion = this.parseExpression();
+      self = this;
+
+      self.width = self.width || parent.evaluator.parser.parse("1");
+      self.expresion = self.parseExpression();
     }
     
     /**
      * Build the primitives corresponding to the curve
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
 
-      this.updateMVMatrix();
+      evaluator = self.evaluator;
 
-      // store the u and v parameter values
+      self.updateMVMatrix();
+
+      // store the x, y, z and u parameter values
       tempParamX = evaluator.getVariable("x");
       tempParamY = evaluator.getVariable("y");
       tempParamZ = evaluator.getVariable("z");
       tempParamU = evaluator.getVariable("u");
 
       evaluator.setVariable("u", 0);
-      Nu = evaluator.eval(this.Nu);
+      Nu = evaluator.eval(self.Nu);
 
       vertices = [];
 
-      for (var ui=0; ui<=Nu; ui++) {
+      for (let ui=0; ui<=Nu; ui++) {
         evaluator.setVariable("u", ui/Nu);
 
         // eval all the sub terms in the expression
-        for (var ii=0, ll=this.expresion.length; ii<ll; ii++) {
-          evaluator.eval(this.expresion[ii]);
+        for (let exp of self.expresion) {
+          evaluator.eval(exp);
         }
 
-        vertices.push( this.transformVertex(new descartesJS.Vector4D(evaluator.getVariable("x"), evaluator.getVariable("y"), evaluator.getVariable("z"), 1)) );
+        vertices.push( 
+          self.transformVertex(
+            new descartesJS.Vec4D(
+              evaluator.getVariable("x"),
+              evaluator.getVariable("y"),
+              evaluator.getVariable("z")
+            )
+          )
+        );
       }
 
-      for (var i=0, l=vertices.length-1; i<l; i++) {
-        this.primitives.push( new descartesJS.Primitive3D( { 
-          vertices: [ vertices[i], vertices[i+1] ],
-          type: "edge",
-          frontColor: this.color.getColor(), 
-          lineWidth: evaluator.eval(this.width)
-        },
-        this.space ));
+      for (let i=0, l=vertices.length-1; i<l; i++) {
+        self.primitives.push(
+          new descartesJS.Primitive3D( { 
+            V: [ vertices[i], vertices[i+1] ],
+            type: "edge",
+            frontColor: self.color.getColor(), 
+            lineWidth: evaluator.eval(self.width)
+          },
+          self.space )
+        );
       }
 
-      if ((this.fill) && (vertices.length > 2)) {
-        this.primitives.push( new descartesJS.Primitive3D( { 
-          vertices: vertices,
-          type: "face",
-          frontColor: this.fill.getColor(), 
-          backColor: this.fill.getColor(), 
-          edges: "", 
-          model: this.model
-        },
-        this.space ));
+      if ((self.fill) && (vertices.length > 2)) {
+        self.primitives.push( 
+          new descartesJS.Primitive3D( { 
+            V: vertices,
+            type: "face",
+            frontColor: self.fill.getColor(), 
+            backColor: self.fill.getColor(), 
+            edges: "", 
+            model: self.model
+          },
+          self.space )
+        );
       }
 
+      // restore the values
       evaluator.setVariable("x", tempParamX);
-      evaluator.setVariable("y", tempParamZ);
-      evaluator.setVariable("z", tempParamY);
+      evaluator.setVariable("y", tempParamY);
+      evaluator.setVariable("z", tempParamZ);
       evaluator.setVariable("u", tempParamU);
     }
   }

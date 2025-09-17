@@ -6,35 +6,35 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var initial_input;
-  var tokens ;
-  var exit;
-  var pos;
-  var val;
-  var str;
-  var inc;
-  var lastTokenType;
+  let initial_input;
+  let tokens ;
+  let exit;
+  let pos;
+  let val;
+  let str;
+  let inc;
+  let lastTokenType;
 
-  var whiteSpaceRegExp = /^\s+/;
-  var identifierRegExp = /^[a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[a-zA-Z_0-9\u00C0-\u021B\u0391-\u03C9]*([.]*[0-9a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[0-9]*)*/;
-  var numberRegExp = /^[0-9]+[.][0-9]+|^[.][0-9]+|^[0-9]+/;
-  var compOperatorRegExp = /^==|^!=|^<=|^<|^>=|^>|^#/;
-  var boolOperatorRegExp = /^\!|^\~|^\&\&|^\&|^\|\||^\|/;
-  var assignRegExp = /^=|^:=/;
-  var conditionalRegExp = /^[\?\:]/;
-  var operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
-  var squareBracketRegExp = /^\[|^\]/;
-  var parenthesesRegExp = /^\(|^\)/;
-  var separatorRegExp = /^,/;
-  var finalOfExpressionRegExp = /^;/;
-  var pipeStringDelimiterRegExp = /\|/g;
-  var pipeAsteriskLeftRegExp = /\|\*/g;
-  var pipeAsteriskRightRegExp = /\*\|/g;
-var commentRegExp = /^\/\//g;
-var httpRegExp = /:\/\//g;
+  let whiteSpaceRegExp = /^\s+/;
+  let identifierRegExp = /^[a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[a-zA-Z_0-9\u00C0-\u021B\u0391-\u03C9]*([.]*[0-9a-zA-Z_\u00C0-\u021B\u0391-\u03C9]+[0-9]*)*/;
+  let numberRegExp = /^([0-9]+[.][0-9]+|[.][0-9]+|[0-9]+)/;  // num.num , .num , num
+  let compOperatorRegExp = /^(==|!=|<=|<|>=|>|#)/;  // == , != , <= , < , >= , > , #
+  let boolOperatorRegExp = /^(\!|\~|\&\&|\&|\|\||\|)/;  // ! , ~ , && , & , | , ||
+  let assignRegExp = /^(=|:=)/;  // = , :=
+  let conditionalRegExp = /^[\?\:]/;
+  let operatorRegExp = /^[\+\-\*\/\%\^\u2212\u00b7\u00D7\u00F7]/;
+  let squareBracketRegExp = /^(\[|\])/; // [ , ]
+  let parenthesesRegExp = /^(\(|\))/;   // ( , )
+  let separatorRegExp = /^,/;
+  let finalOfExpressionRegExp = /^;/;
+  let pipeStringDelimiterRegExp = /\|/g;
+  let pipeAsteriskLeftRegExp = /\|\*/g;
+  let pipeAsteriskRightRegExp = /\*\|/g;
+  let commentRegExp = /^\/\//g;
+  let httpRegExp = /:\/\//g;
   
-  var result;
-  var exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
+  let result;
+  let exclude = /rnd|pi|e|Infinity|-Infinity|sqr|sqrt|raíz|exp|log|log10|abs|ent|sgn|ind|sin|sen|cos|tan|cot|sec|csc|sinh|senh|cosh|tanh|coth|sech|csch|asin|asen|acos|atan|min|max/;
 
   /**
    * 
@@ -52,23 +52,20 @@ var httpRegExp = /:\/\//g;
       initial_input = input;
 
       if (input) {
-        // var commentIndex = input.indexOf("//");
-        // if ((commentIndex >= 0) && (input[commentIndex-1] !== ":")) {
-        //   input = input.substring(0, commentIndex);
-        // }
-
+        input = input
         // change the values in UTF of the form \u##
-        input = input.replace(/\\u(\S+) /g, function(str, m1){
-          if (parseInt(m1, 16) !== 39) {
-            return String.fromCharCode(parseInt(m1, 16));
+        .replace(/\\u(\S+) /g, (str, hex) => {
+          if (parseInt(hex, 16) !== 39) {
+            return String.fromCharCode(parseInt(hex, 16));
           }
           return str; 
-        });
-
+        })
         // super index numbers codified with &sup#;
-        input = input.replace(/\&sup(.+?);/g, "^$1 ");
+        .replace(/\&sup(.+?);/g, "^$1 ")
         // single quotation marks
-        input = input.replace(/&squot;/g, "'");
+        .replace(/&squot;/g, "'")
+        // replace the variable rnd for the function random()
+        .replace(/\brnd\b/g, "random()");
 
         // replace the pipes used like string marks
         if (input.match(/\=\|\*/g)) {
@@ -79,8 +76,8 @@ var httpRegExp = /:\/\//g;
           input = input.replace(pipeStringDelimiterRegExp, "'");
         }
 
-        var inputTrimmed = input.trim();
-        if ((inputTrimmed.charAt(0) == "|") && (inputTrimmed.charAt(inputTrimmed.length-1) == "|")) {
+        let inputTrimmed = input.trim();
+        if ((inputTrimmed[0] == "|") && (inputTrimmed[inputTrimmed.length-1] == "|")) {
           input = inputTrimmed.replace(pipeStringDelimiterRegExp, "'");
         }
       }
@@ -115,7 +112,7 @@ var httpRegExp = /:\/\//g;
               inc++;
             }
             else {
-              console.info(">Error, unknown symbol: ["+str+"], in the string 《" + initial_input + "》" );
+              // console.info(`>Error, unknown symbol: [${str}], in the string 《${initial_input}》`);
               return;
             }
           }
@@ -125,17 +122,17 @@ var httpRegExp = /:\/\//g;
           continue;
         }
 
-// comments
-val = str.match(commentRegExp);
-if (val) {
-  if (str.match(httpRegExp)) {
-    continue;
-  }
-  else {
-    pos = 2*input.length;
-    break;
-  }
-}
+        // comments
+        val = str.match(commentRegExp);
+        if (val) {
+          if (str.match(httpRegExp)) {
+            continue;
+          }
+          else {
+            pos = 2*input.length;
+            break;
+          }
+        }
 
         // white spaces
         val = str.match(whiteSpaceRegExp);
@@ -176,7 +173,7 @@ if (val) {
         // comparison
         val = str.match(compOperatorRegExp);
         if (val) {
-          var tempVal = val[0];
+          let tempVal = val[0];
 
           if (tempVal == "#") { 
             tempVal = "!="; 
@@ -188,7 +185,7 @@ if (val) {
         // booleans
         val = str.match(boolOperatorRegExp);
         if (val) {
-          var tempVal = val[0];
+          let tempVal = val[0];
           if (tempVal == "||") { 
             tempVal = "|"; 
           }
@@ -205,7 +202,7 @@ if (val) {
 
         // equal (assign)
         val = str.match(assignRegExp);
-        if ((val) && !(str.match( /^==/))) {
+        if ((val) && !((/^==/).test(str))) {
           addToken("assign", val[0], val[0].length);
           continue;
         }
@@ -271,8 +268,8 @@ if (val) {
 
         if (exit == pos){
           descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, initial_input);
-          // console.info("Error, símbolo no conocido: ["+str+"], en la cadena 《" + initial_input + "》" );
-          // console.info("Error: en la cadena 《 " + initial_input + " 》");
+          // console.info(`Error, símbolo no conocido: ${str}, en la cadena 《${initial_input}》`);
+          // console.info(`Error: en la cadena 《${initial_input}》`);
           return;
         }
       }
@@ -285,21 +282,18 @@ if (val) {
      * @param {Array<Object>} tokens the tokens to be flat
      * @return {String} return a string representation of the tokens
      */
-    flatTokens(tokens, prefix) {
-      tokens = tokens || [];
-      prefix = prefix || "";
-
+    flatTokens(tokens=[], prefix="") {
       result = "";
 
-      for (var i=0, l=tokens.length; i<l; i++) {
-        if (tokens[i].type == "string") {
-          result = result + "&squot;" + tokens[i].value + "&squot;";
+      for (let token of tokens) {
+        if (token.type == "string") {
+          result += `&squot;${token.value}&squot;`;
         }
-        else if ((tokens[i].type == "identifier") && (!tokens[i].value.match(exclude))) {
-          result = result + prefix + tokens[i].value;
+        else if ((token.type == "identifier") && (!exclude.test(token.value))) {
+          result += prefix + token.value;
         }
         else {
-          result = result + tokens[i].value;
+          result += token.value;
         }
       }
 

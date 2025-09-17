@@ -6,52 +6,54 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  const MathFloor = Math.floor;
-  const MathAbs = Math.abs;
-  var delay = 1000;
-  var gifPattern = /[\w\.\-//]*(\.gif)/gi;
+  let self;
+  const gifPattern = /[\w\.\-//]*(\.gif)/gi;
+  const canvasGradientPattern = /CanvasGradient|CanvasPattern/;
 
-  var evaluator;
-  var btn;
-  var ctx;
-  var expr;
-  var font_size;
-  var name;
-  var imageSrc;
-  var image;
+  let MathFloor = Math.floor;
+  let MathAbs = Math.abs;
+
+  let evaluator;
+  let btn;
+  let ctx;
+  let expr;
+  let font_size;
+  let name;
+  let imageSrc;
+  let image;
   let desp;
-  var despX;
-  var despY;
-  var txtW;
-  var txtH;
+  let despX;
+  let despY;
+  let txtW;
+  let txtH;
 
-  var _img_w;
-  var _img_h;
-  var _image_pos_x;
-  var _image_pos_y;
-  var _text_pos_x;
-  var _text_pos_y;
+  let _img_w;
+  let _img_h;
+  let _image_pos_x;
+  let _image_pos_y;
+  let _text_pos_x;
+  let _text_pos_y;
 
-  var container;
+  let container;
 
-  var checkOver;
-  var checkClick;
-  var checkActive;
-  var checkDrawIf;
-  var checkName;
-  var checkImageSrc;
-  var checkBackColor;
-  var checkTextColor;
-  var checkImageReady;
+  let checkOver;
+  let checkClick;
+  let checkActive;
+  let checkDrawIf;
+  let checkName;
+  let checkImageSrc;
+  let checkBackColor;
+  let checkTextColor;
+  let checkImageReady;
 
-  var prefix;
-  var suffix;
-  var imageOverSrc;
-  var imageDownSrc;
-  var imageOver;
-  var imageDown;
+  let prefix;
+  let suffix;
+  let imageOverSrc;
+  let imageDownSrc;
+  let imageOver;
+  let imageDown;
 
-  var int_color;
+  let int_color;
 
   class Button extends descartesJS.Control {
     /**
@@ -63,138 +65,98 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.imageSrc = values.imageSrc || "";
-      this.image = values.image || new Image();
-      this.imageOver = values.imageOver || new Image();
-      this.imageDown = values.imageDown || new Image();
-      this.flat = values.flat || false;
-      this.borderColor = values.borderColor || false;
-      this.text_align = values.text_align || "center_center";
-      this.image_align = values.image_align || "center_center";
+      self = this;
 
-      this.font_family = descartesJS.getFontName(values.font_family || "arial");
+      self.imageSrc = values.imageSrc || "";
+      self.image = values.image || new Image();
+      self.imageOver = values.imageOver || new Image();
+      self.imageDown = values.imageDown || new Image();
+      self.flat = values.flat || false;
+      self.borderColor = values.borderColor || false;
+      self.text_align = values.text_align || "center_center";
+      self.image_align = values.image_align || "center_center";
 
-      this.ratio = parent.ratio;
+      self.font_family = descartesJS.getFontName(values.font_family || "arial");
+
+      self.ratio = parent.ratio;
 
       // font size not set
-      if (this.font_size === -1) {
-        this.noFSize = true;
+      if (self.font_size === -1) {
+        self.noFSize = true;
       }
 
-      if (this.borderColor) {
-        this.borderColor = new descartesJS.Color(this.borderColor);
+      if (self.borderColor) {
+        self.borderColor = new descartesJS.Color(self.borderColor);
       }
-      this.text_align = this.text_align.split("_");
-      this.image_align = this.image_align.split("_");
+      self.text_align  = self.text_align.split("_");
+      self.image_align = self.image_align.split("_");
 
-      this.old_name = this.name;
+      self.oName = self.name;
 
       // modification to change the name of the button with an expression
-      if (this.name.match(/^\[.*\]?/)) {
-        this.name = this.parser.parse(this.name.substring(1, this.name.length-1));
+      if ((/^\[.*\]$/).test(self.name)) {
+        self.name = self.parser.parse(self.name.slice(1, -1));
       }
       else {
-        this.name = this.parser.parse(`'${this.name}'`);
+        self.name = self.parser.parse(`'${self.name}'`);
       }
 
-      var tmpParam;
-      this.classContainer = (this.cssClass) ? (" " + this.cssClass+" ") : "";
+      let tmpParam;
+      self.classContainer = (self.cssClass) ? ` ${self.cssClass} ` : "";
 
-      this.extra_style = this.imageSrc.trim().match("^_STYLE_") ? this.imageSrc.trim().substring(8) : (this.extra_style || "");
+      self.extra_style = self.extra_style || "";
 
-      if (this.imageSrc.trim().match("^_STYLE_")) {
-        this.imageSrc = "vacio.gif";
+      if ((/^_STYLE_/).test(self.imageSrc.trim())) {
+        self.imageSrc = "vacio.gif";
+        self.extra_style = self.imageSrc.trim().substring(8);
       }
 
-      if (this.extra_style) {
-        this.customStyle = true;
-        this.btnStyle = [];
-        this.conStyle = [];
-        this.conStyle.textBorder = 3;
+      if (self.extra_style) {
+        self.customStyle = true;
+        self.btnStyle = [];
+        self.conStyle = [];
+        self.conStyle.textBorder = 3;
 
-        tmpParam = this.extra_style.split("|");
+        let tempo;
+        let extra_style_id;
+        let extra_style_value;
+        let prefixRGB;
+        for (let style_i of self.extra_style.split("|")) {
+          tempo = (style_i.trim()).match(/(.*)=(.*)/);
+          extra_style_id    = (tempo) ? tempo[1].trim() : "";
+          extra_style_value = (tempo) ? tempo[2].trim() : "";
+          prefixRGB = (extra_style_value.match(/rgb/g)) ? "" : "#";
 
-        var tempo;
-        var isRGB;
-        for (var i=0, l=tmpParam.length; i<l; i++) {
-          tempo = tmpParam[i];
-          isRGB = tempo.match(/rgb/g);
-          if (tempo.match("class=")) {
-            this.classContainer = " " + tempo.substring(6);
+          if (extra_style_id === "class") {
+            self.classContainer = " " + extra_style_value;
           }
-          else if (tempo.match("border=")) {
-            this.btnStyle.push( { type: "border-style", value: "solid" } );
-            this.btnStyle.push( { type: "border-width", value: tempo.substring(7).trim() + "px" } );
+          else if (extra_style_id === "border") {
+            self.btnStyle.push( { type: "border-style", value: "solid" } );
+            self.btnStyle.push( { type: "border-width", value: extra_style_value + "px" } );
           }
-          else if (tempo.match("borderRadius=")) {
-            this.btnStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
-            this.conStyle.push( { type: "border-radius", value: tempo.substring(13).trim() + "px" } );
+          else if (extra_style_id === "borderRadius") {
+            self.btnStyle.push( { type: "border-radius", value: extra_style_value + "px" } );
+            self.conStyle.push( { type: "border-radius", value: extra_style_value + "px" } );
           }
-          else if (tempo.match("borderColor=")) {
-            this.btnStyle.push( { type: "border-color", value: ((isRGB)?"":"#") + tempo.substring(12).trim() } );
+          else if (extra_style_id === "borderColor") {
+            self.btnStyle.push( { type: "border-color", value: prefixRGB + extra_style_value } );
           }
-          else if (tempo.match("overColor=")) {
-            this.conStyle.overColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
+          else if ((/^(overColor|downColor|inactiveColor|inactiveColorBorder|shadowTextColor|shadowBoxColor|shadowInsetBoxColor)$/).test(extra_style_id)
+          ) {
+            self.conStyle[extra_style_id] = prefixRGB + extra_style_value;
           }
-          else if (tempo.match("downColor=")) {
-            this.conStyle.downColor = ((isRGB)?"":"#") + tempo.substring(10).trim();
+          else if (extra_style_id === "font") {
+            self.conStyle[extra_style_id] = extra_style_value.toLowerCase();
           }
-          else if (tempo.match("font=")) {
-            this.conStyle.font = tempo.substring(5).trim().toLowerCase();
+          else if ((/^(shadowTextBlur|shadowTextOffsetX|shadowTextOffsetY|shadowBoxBlur|shadowBoxOffsetX|shadowBoxOffsetY|shadowInsetBoxBlur|shadowInsetBoxOffsetX|shadowInsetBoxOffsetY|textBorder)$/).test(extra_style_id)) {
+            self.conStyle[extra_style_id] = parseFloat(extra_style_value) || 0;
           }
-          else if (tempo.match("inactiveColor=")) {
-            this.conStyle.inactiveColor = ((isRGB)?"":"#") + tempo.substring(14).trim();
+          else if ((/^(imgSizeW|imgSizeH)$/).test(extra_style_id)) {
+            self[extra_style_id] = parseFloat(extra_style_value) || 0;
           }
-          else if (tempo.match("inactiveColorBorder=")) {
-            this.conStyle.inactiveColorBorder = ((isRGB)?"":"#") + tempo.substring(20).trim();
-          }
-          else if (tempo.match("shadowTextBlur=")) {
-            this.conStyle.shadowTextBlur = parseFloat(tempo.substring(15).trim());
-          }
-          else if (tempo.match("shadowTextOffsetX=")) {
-            this.conStyle.shadowTextOffsetX = parseFloat(tempo.substring(18).trim());
-          }
-          else if (tempo.match("shadowTextOffsetY=")) {
-            this.conStyle.shadowTextOffsetY = parseFloat(tempo.substring(18).trim());
-          }
-          else if (tempo.match("shadowTextColor=")) {
-            this.conStyle.shadowTextColor = ((isRGB)?"":"#") + tempo.substring(16).trim();
-          }
-          else if (tempo.match("shadowBoxBlur=")) {
-            this.conStyle.shadowBoxBlur = parseFloat(tempo.substring(14).trim());
-          }
-          else if (tempo.match("shadowBoxOffsetX=")) {
-            this.conStyle.shadowBoxOffsetX = parseFloat(tempo.substring(17).trim());
-          }
-          else if (tempo.match("shadowBoxOffsetY=")) {
-            this.conStyle.shadowBoxOffsetY = parseFloat(tempo.substring(17).trim());
-          }
-          else if (tempo.match("shadowBoxColor=")) {
-            this.conStyle.shadowBoxColor = ((isRGB)?"":"#") + tempo.substring(15).trim();
-          }
-          else if (tempo.match("shadowInsetBoxBlur=")) {
-            this.conStyle.shadowInsetBoxBlur = parseFloat(tempo.substring(19).trim());
-          }
-          else if (tempo.match("shadowInsetBoxOffsetX=")) {
-            this.conStyle.shadowInsetBoxOffsetX = parseFloat(tempo.substring(22).trim());
-          }
-          else if (tempo.match("shadowInsetBoxOffsetY=")) {
-            this.conStyle.shadowInsetBoxOffsetY = parseFloat(tempo.substring(22).trim());
-          }
-          else if (tempo.match("shadowInsetBoxColor=")) {
-            this.conStyle.shadowInsetBoxColor = ((isRGB)?"":"#") + tempo.substring(20).trim();
-          }
-          else if (tempo.match("textBorder=")) {
-            this.conStyle.textBorder = parseFloat(tempo.substring(11).trim());
-          }
-          else if (tempo.match("flat=")) {
-            this.flat = parseInt(tempo.substring(5).trim()) == 1;
-          }
-          else if (tempo.match("imgSizeW=")) {
-            this.imgSizeW = parseFloat(tempo.substring(9)) || 0;
-          }
-          else if (tempo.match("imgSizeH=")) {
-            this.imgSizeH = parseFloat(tempo.substring(9)) || 0;
+
+          else if (extra_style_id === "flat") {
+            self[extra_style_id] = parseInt(extra_style_value) == 1;
           }
         }
       }
@@ -203,27 +165,27 @@ var descartesJS = (function(descartesJS) {
       // the first color is the background color
       // the second color is the text color
       // the last number is the font size
-      if (this.imageSrc.match("_COLORES_")) {
-        tmpParam       = this.imageSrc.split("_");
-        this.colorInt  = new descartesJS.Color(tmpParam[2]);
-        this.color     = new descartesJS.Color(tmpParam[3]);
-        this.font_size = this.parser.parse(tmpParam[5]);
-        this.imageSrc  = "";
+      if (self.imageSrc.startsWith("_COLORES_")) {
+        tmpParam       = self.imageSrc.split("_");
+        self.colorInt  = new descartesJS.Color(tmpParam[2]);
+        self.color     = new descartesJS.Color(tmpParam[3]);
+        self.font_size = self.parser.parse(tmpParam[5]);
+        self.imageSrc  = "";
       }
 
-      if (this.imageSrc.match(/^\[.*\]?/)) {
-        this.imageSrc = this.parser.parse(this.imageSrc.substring(1, this.imageSrc.length-1));
+      if ((/^\[.*\]$/).test(self.imageSrc)) {
+        self.imageSrc = self.parser.parse(self.imageSrc.slice(1, -1));
       }
       else {
-        this.imageSrc = this.parser.parse("'" + this.imageSrc + "'");
+        self.imageSrc = self.parser.parse(`'${self.imageSrc}'`);
       }
 
       // if the button has an image then load it and try to load the over and down images
-      var imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
+      let imageSrc = self.evaluator.eval(self.imageSrc).toString().trim();
 
       if (imageSrc != "") {
-        var prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
-        var suffix  = imageSrc.substr(imageSrc.lastIndexOf("."));
+        prefix = imageSrc.substr(0, imageSrc.lastIndexOf("."));
+        suffix  = imageSrc.substr(imageSrc.lastIndexOf("."));
 
         // empty image, i.e. reference to vacio.gif
         if (imageSrc.match(/vacio.gif$/i)) {
@@ -254,153 +216,145 @@ var descartesJS = (function(descartesJS) {
         }
       }
 
-      this.container = descartesJS.newHTML("div", {
-        class : "DescartesButtonContainer" + this.classContainer,
-        id    : this.id,
-        style : `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`,
+      self.container = descartesJS.newHTML("div", {
+        class : "DescartesButtonContainer" + self.classContainer,
+        id    : self.id,
+        style : `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`,
       });
 
       // create the btn and the rendering context
-      this.btn = descartesJS.newHTML("canvas", {
-        width  : this.w * this.ratio,
-        height : this.h * this.ratio,
-        style  : `position:absolute;left:0;top:0;width:${this.w}px;height:${this.h}px;`,
+      self.btn = descartesJS.newHTML("canvas", {
+        width  : self.w * self.ratio,
+        height : self.h * self.ratio,
+        style  : `position:absolute;left:0;top:0;width:${self.w}px;height:${self.h}px;`,
       });
-      this.ctx = this.btn.getContext("2d");
-      this.ctx.imageSmoothingEnabled = false;
 
-      if (this.tooltip) {
-        this.btn.title = this.tooltip;
+      self.ctx = self.btn.getContext("2d");
+      self.ctx.imageSmoothingEnabled = false;
+
+      if (self.tooltip) {
+        self.btn.title = self.tooltip;
       }
 
-      this.container.appendChild(this.btn);
+      self.container.appendChild(self.btn);
 
-      this.addControlContainer(this.container);
+      self.addControlContainer(self.container);
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
       // init the button parameters
-      this.init();
+      self.init();
     }
 
     /**
      * Init the button
      */
     init(force) {
-      evaluator = this.evaluator;
-      container = this.container;
-      btn = this.btn;
-      ctx = this.ctx;
-      expr = evaluator.eval(this.expresion);
-      this.x = expr[0][0];
-      this.y = expr[0][1];
-      if (expr[0].length == 4) {
-        this.w = parseInt(expr[0][2]);
-        this.h = parseInt(expr[0][3]);
+      self = this;
+      evaluator = self.evaluator;
+      container = self.container;
+      btn = self.btn;
+      ctx = self.ctx;
+      expr = evaluator.eval(self.expresion)[0];
+      self.x = expr[0];
+      self.y = expr[1];
+      if (expr.length == 4) {
+        self.w = parseInt(expr[2]);
+        self.h = parseInt(expr[3]);
       }
-      //
-      btn.width  = this.w *this.ratio;
-      btn.height = this.h *this.ratio;
-      btn.setAttribute("style", `position:absolute;left:0;top:0;width:${this.w}px;height:${this.h}px;box-sizing:border-box;`);
-      container.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};display:block;`);
-      //
 
-      //
-      if (this.btnStyle) {
-        for (var i=0, l=this.btnStyle.length; i<l; i++) {
-          btn.style[this.btnStyle[i].type] = this.btnStyle[i].value;
+      btn.width  = self.w *self.ratio;
+      btn.height = self.h *self.ratio;
+      btn.setAttribute("style", `position:absolute;left:0;top:0;width:${self.w}px;height:${self.h}px;box-sizing:border-box;`);
+      container.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};display:block;`);
+
+
+      if (self.btnStyle) {
+        for (let btnStyle_i of self.btnStyle) {
+          btn.style[btnStyle_i.type] = btnStyle_i.value;
         }
       }
-      if (this.conStyle) {
-        for (var i=0, l=this.conStyle.length; i<l; i++) {
-          container.style[this.conStyle[i].type] = this.conStyle[i].value;
+      if (self.conStyle) {
+        for (let conStyle_i of self.conStyle) {
+          container.style[conStyle_i.type] = conStyle_i.value;
         }
 
-        if (this.conStyle.shadowBoxColor) {
-          var hShadow = this.conStyle.shadowBoxOffsetX || 0;
-          var wShadow = this.conStyle.shadowBoxOffsetY || 2;
-          var blur = this.conStyle.shadowBoxBlur || 2;
-          var spread = 1;
-          container.style.boxShadow = `${hShadow}px ${wShadow}px ${blur}px ${spread}px ${this.conStyle.shadowBoxColor}`;
+        if (self.conStyle.shadowBoxColor) {
+          container.style.boxShadow = `${self.conStyle.shadowBoxOffsetX || 0}px ${self.conStyle.shadowBoxOffsetY || 2}px ${self.conStyle.shadowBoxBlur || 2}px 1px ${self.conStyle.shadowBoxColor}`;
         }
-        if (this.conStyle.shadowInsetBoxColor) {
-          var hShadow = this.conStyle.shadowInsetBoxOffsetX || 0;
-          var wShadow = this.conStyle.shadowInsetBoxOffsetY || -2;
-          var blur = this.conStyle.shadowInsetBoxBlur || 1;
-          var spread = 1;
-          btn.style.boxShadow = `${hShadow}px ${wShadow}px ${blur}px ${spread}px ${this.conStyle.shadowInsetBoxColor} inset`;
+        if (self.conStyle.shadowInsetBoxColor) {
+          btn.style.boxShadow = `${self.conStyle.shadowInsetBoxOffsetX || 0}px ${self.conStyle.shadowInsetBoxOffsetY || -2}px ${self.conStyle.shadowInsetBoxBlur || 1}px 1px ${self.conStyle.shadowInsetBoxColor} inset`;
         }
       }
-      //
+
 
       // font size not set
-      if (this.noFSize) {
-        this.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
+      if (self.noFSize) {
+        self.font_size = evaluator.parser.parse(descartesJS.getFieldFontSize(this.h) +"");
       }
-      this.fs_evaluated = evaluator.eval(this.font_size);
+      self.fs_evaluated = evaluator.eval(self.font_size);
 
       // create the background gradient
-      this.createGradient(this.w, this.h);
+      self.createGradient(self.w, self.h);
 
-      container.style.display = (evaluator.eval(this.drawif) > 0) ? "block" : "none";
+      container.style.display = (evaluator.eval(self.drawif) > 0) ? "block" : "none";
 
       ctx.lineJoin = "round";
-      ctx.font = this.italics + " " + this.bold + " " + this.fs_evaluated + "px " + this.font_family;
+      ctx.font = `${self.italics} ${self.bold} ${self.fs_evaluated}px ${self.font_family}`;
 
-      this.text_object = new descartesJS.TextObject({
+      self.text_object = new descartesJS.TextObject({
         parent : {
-          decimal_symbol : this.parent.decimal_symbol
+          decimal_symbol : self.parent.decimal_symbol
         },
-        evaluator : this.evaluator,
-        decimals : this.decimals,
+        evaluator : evaluator,
+        decimals : self.decimals,
         fixed: false,
         align: "left",
         anchor: "center_center",
-        width: this.parser.parse("0"),
-        font_size: this.font_size,
-        font_family: this.font_family,
-        italics: this.italics,
-        bold: this.bold,
-        border: this.borderColor, 
-        border_size: (this.conStyle) ? this.conStyle.textBorder : undefined,
-        shadowBlur: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextBlur || 1 : undefined,
-        shadowOffsetX: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetX || 0 : undefined,
-        shadowOffsetY: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextOffsetY || 2 : undefined,
-        shadowColor: (this.conStyle && this.conStyle.shadowTextColor) ? this.conStyle.shadowTextColor: undefined,
-      }, this.old_name);
+        width: self.parser.parse("0"),
+        font_size: self.font_size,
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
+        border: self.borderColor, 
+        border_size: (self.conStyle) ? self.conStyle.textBorder : undefined,
+        shadowBlur: (self.conStyle && self.conStyle.shadowTextColor) ? self.conStyle.shadowTextBlur || 1 : undefined,
+        shadowOffsetX: (self.conStyle && self.conStyle.shadowTextColor) ? self.conStyle.shadowTextOffsetX || 0 : undefined,
+        shadowOffsetY: (self.conStyle && self.conStyle.shadowTextColor) ? self.conStyle.shadowTextOffsetY || 2 : undefined,
+        shadowColor: (self.conStyle && self.conStyle.shadowTextColor) ? self.conStyle.shadowTextColor: undefined,
+      }, self.oName);
       
-      this.draw(force);
+      self.draw(force);
     }
 
     /**
      * Update the button
      */
     update() {
-      evaluator = this.evaluator;
-      container = this.container;
-      btn = this.btn;
+      self = this;
+      evaluator = self.evaluator;
+      container = self.container;
 
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
-
-      var cond = (this.space) ? this.space.drawIfValue : true;
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // hide or show the button control
-      if ( cond && this.drawIfValue ) {
+      if ( ((self.space) ? self.space.drawIfValue : true) && self.drawIfValue ) {
         container.style.display = "block";
-        this.draw();
+        self.draw();
 
-        container.style.cursor = btn.style.cursor = (this.activeIfValue) ? "pointer" : "not-allowed";
-        container.setAttribute("active", this.activeIfValue);
+        container.style.cursor = self.btn.style.cursor = (self.activeIfValue) ? "pointer" : "not-allowed";
+
+        container.setAttribute("active", self.activeIfValue);
         
         // update the position and size
-        this.updatePositionAndSize();
+        self.updatePositionAndSize();
       }
       else {
         container.style.display = "none";
-        this.buttonClick = false;
+        self.buttonClick = false;
       }
     }
 
@@ -408,39 +362,40 @@ var descartesJS = (function(descartesJS) {
      * Draw the button
      */
     draw(force) {
-      container = this.container;
-      evaluator = this.evaluator;
-      btn = this.btn;
-      ctx = this.ctx;
+      self = this;
+      container = self.container;
+      evaluator = self.evaluator;
+      btn = self.btn;
+      ctx = self.ctx;
 
-      name = evaluator.eval(this.name);
+      name = evaluator.eval(self.name);
       // update the text
-      this.text_object.draw(descartesJS.ctx, "#000000", 0, 0);
+      self.text_object.draw(descartesJS.ctx, "#000000", 0, 0);
       // get a string from the textNodes
-      name = this.text_object.textNodes.toStr();
+      name = self.text_object.textNodes.toStr();
 
-      imageSrc = this.evaluator.eval(this.imageSrc).toString().trim();
+      imageSrc = self.evaluator.eval(self.imageSrc).toString().trim();
 
       if (!force) {
-        checkOver = (this.over === this.oldOver);
-        checkClick = (this.buttonClick === this.oldButtonClick);
-        checkActive = (this.activeIfValue === this.oldActiveIfValue);
-        checkDrawIf = (this.drawIfValue === this.oldDrawIfValue);
-        checkName = (name === this.oldName);
-        checkImageSrc = (imageSrc === this.oldImageSrc);
-        checkBackColor = (this.colorInt.getColor() === this.oldBackColor);
-        checkTextColor = (this.color.getColor() === this.oldTextColor);
-        checkImageReady = (this.image.ready === this.oldImageReady);
+        checkOver = (self.over === self.oldOver);
+        checkClick = (self.buttonClick === self.oldButtonClick);
+        checkActive = (self.activeIfValue === self.oldActiveIfValue);
+        checkDrawIf = (self.drawIfValue === self.oldDrawIfValue);
+        checkName = (name === self.oldName);
+        checkImageSrc = (imageSrc === self.oldImageSrc);
+        checkBackColor = (self.colorInt.getColor() === self.oldBackColor);
+        checkTextColor = (self.color.getColor() === self.oldTextColor);
+        checkImageReady = (self.image.ready === self.oldImageReady);
 
-        this.oldOver = this.over;
-        this.oldButtonClick = this.buttonClick;
-        this.oldActiveIfValue = this.activeIfValue;
-        this.oldDrawIfValue = this.drawIfValue;
-        this.oldName = name;
-        this.oldImageSrc = imageSrc;
-        this.oldBackColor = this.colorInt.getColor();
-        this.oldTextColor = this.color.getColor();
-        this.oldImageReady = this.image.ready;
+        self.oldOver = self.over;
+        self.oldButtonClick = self.buttonClick;
+        self.oldActiveIfValue = self.activeIfValue;
+        self.oldDrawIfValue = self.drawIfValue;
+        self.oldName = name;
+        self.oldImageSrc = imageSrc;
+        self.oldBackColor = self.colorInt.getColor();
+        self.oldTextColor = self.color.getColor();
+        self.oldImageReady = self.image.ready;
 
         if (checkOver && checkClick && checkActive && checkDrawIf && checkName && checkImageSrc && checkBackColor && checkTextColor && checkImageReady) {
           return;
@@ -448,9 +403,9 @@ var descartesJS = (function(descartesJS) {
       }
 
       ctx.save();
-      ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
-      font_size = this.fs_evaluated;
+      font_size = self.fs_evaluated;
       container.setAttribute("data-name", name);
 
       if (imageSrc) {
@@ -465,94 +420,91 @@ var descartesJS = (function(descartesJS) {
         imageDown = (imageSrc === "vacio.gif") ? this.emptyImage : this.parent.getImage(imageDownSrc);
       }
       else {
-        image = this.emptyImage;
-        imageOver = this.emptyImage;
-        imageDown = this.emptyImage;
+        image = imageOver = imageDown = self.emptyImg;
       }
 
-      ctx.clearRect(0, 0, this.w, this.h);
+      ctx.clearRect(0, 0, self.w, self.h);
 
       // text displace when the button is pressed
-      despX = despY = 0;
-      if (this.buttonClick) {
-        despX = despY = 1;
-      }
+      despX = despY = (self.buttonClick) ? 1 : 0;
 
       //////////////////////////////////////////////////////////
       // text position
       //////////////////////////////////////////////////////////
+      self.text_object.draw(ctx, self.color.getColor(), 0, 0, true);
+
+      txtW = self.text_object.textNodes.metrics.w;
+      txtH = self.text_object.textNodes.metrics.h;
+
       // horizontal text align
-      this.text_object.draw(ctx, this.color.getColor(), 0, 0, true);
-      txtW = this.text_object.textNodes.metrics.w;
-      txtH = this.text_object.textNodes.metrics.h;
-      if (this.text_align[1] == "center") {
-        _text_pos_x = MathFloor(this.w/2 + despX)-.5;
+      if (self.text_align[1] == "center") {
+        _text_pos_x = MathFloor(self.w/2 + despX)-0.5;
       }
-      else if (this.text_align[1] == "left") {
+      else if (self.text_align[1] == "left") {
         _text_pos_x = txtW/2 + 5 + despX;
       }
-      else if (this.text_align[1] == "right") {
-        _text_pos_x = this.w - txtW/2 + despX -5;
+      else if (self.text_align[1] == "right") {
+        _text_pos_x = self.w - txtW/2 + despX -5;
       }
 
       // vertical text align
-      if (this.text_align[0] == "center") {
-        _text_pos_y = MathFloor(this.h/2 + despY)-.5;
+      if (self.text_align[0] == "center") {
+        _text_pos_y = MathFloor(self.h/2 + despY)-0.5;
       }
-      else if (this.text_align[0] == "top") {
+      else if (self.text_align[0] == "top") {
         _text_pos_y = txtH/2 + despY +4;
       }
-      else if (this.text_align[0] == "bottom") {
-        _text_pos_y = this.h - txtH/2 + despY -3;
+      else if (self.text_align[0] == "bottom") {
+        _text_pos_y = self.h - txtH/2 + despY -3;
       }
 
       //////////////////////////////////////////////////////////
       // image position
       //////////////////////////////////////////////////////////
       if (image) {
-        _img_w = (this.imgSizeW) ? this.imgSizeW : image.width;
-        _img_h = (this.imgSizeH) ? this.imgSizeH : image.height;
+        _img_w = self.imgSizeW || image.width;
+        _img_h = self.imgSizeH || image.height;
 
         // horizontal image align
-        if (this.image_align[1] == "center") {
-          _image_pos_x = parseInt((this.w - _img_w)/2) +despX;
+        if (self.image_align[1] == "center") {
+          _image_pos_x = parseInt((self.w - _img_w)/2) +despX;
         }
-        else if (this.image_align[1] == "left") {
+        else if (self.image_align[1] == "left") {
           _image_pos_x = despX;
         }
-        else if (this.image_align[1] == "right") {
-          _image_pos_x = this.w-_img_w +despX;
+        else if (self.image_align[1] == "right") {
+          _image_pos_x = self.w-_img_w +despX;
         }
 
         // vertical image align
-        if (this.image_align[0] == "center") {
-          _image_pos_y = parseInt((this.h - _img_h)/2) +despY;
+        if (self.image_align[0] == "center") {
+          _image_pos_y = parseInt((self.h - _img_h)/2) +despY;
         }
-        else if (this.image_align[0] == "top") {
+        else if (self.image_align[0] == "top") {
           _image_pos_y = despY;
         }
-        else if (this.image_align[0] == "bottom") {
-          _image_pos_y = this.h - _img_h +despY;
+        else if (self.image_align[0] == "bottom") {
+          _image_pos_y = self.h - _img_h +despY;
         }
   
         ////////////////////////////////////////////////////////////////////////////////////////
         // the image is ready
         if ((image) && (image.ready)) {
-          if ( (image !== this.emptyImage) && (image.complete) ) {
+          if ( (image !== self.emptyImg) && (image.complete) ) {
             // check if is a gif image
             if ( imageSrc.match(gifPattern) ) {
-              this.btn.style.backgroundRepeat = "no-repeat";
-              this.btn.style.backgroundImage = "url('" + imageSrc + "')";
-              this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+              btn.style.backgroundRepeat = "no-repeat";
+              btn.style.backgroundImage = `url('${imageSrc}')`;
+              btn.style.backgroundPosition = `${_image_pos_x}px ${_image_pos_y}px`;
             }
             else {
               // the background is drawn, even with the image
-              if ((this.image_align[0] != "center") || (this.image_align[1] != "center")) {
-                int_color = this.colorInt.getColor();
+              if ((self.image_align[0] != "center") || (self.image_align[1] != "center")) {
+                int_color = self.colorInt.getColor();
 
-                if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+                if (int_color && canvasGradientPattern.test(int_color.constructor.name) ) {
                   ctx.fillStyle = int_color;
-                  ctx.fillRect(0, 0, this.w, this.h);
+                  ctx.fillRect(0, 0, self.w, self.h);
                 } else {
                   container.style.backgroundColor = int_color;
                 }
@@ -567,12 +519,12 @@ var descartesJS = (function(descartesJS) {
               );
             }
           }
-          else if ((this.emptyImage) && (this.customStyle)) {
-            int_color = this.colorInt.getColor();
+          else if ((self.emptyImg) && (self.customStyle)) {
+            int_color = self.colorInt.getColor();
 
-            if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+            if (int_color && canvasGradientPattern.test(int_color.constructor.name) ) {
               ctx.fillStyle = int_color;
-              ctx.fillRect(0, 0, this.w, this.h);
+              ctx.fillRect(0, 0, self.w, self.h);
             } else {
               container.style.backgroundColor = int_color;
             }
@@ -581,92 +533,92 @@ var descartesJS = (function(descartesJS) {
       }
       // the image is not ready or the button do not have a image
       else {
-        int_color = this.colorInt.getColor();
+        int_color = self.colorInt.getColor();
 
-        if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
+        if (int_color && canvasGradientPattern.test(int_color.constructor.name) ) {
           ctx.fillStyle = int_color;
-          ctx.fillRect(0, 0, this.w, this.h);
+          ctx.fillRect(0, 0, self.w, self.h);
         } else {
           container.style.backgroundColor = int_color;
 
           // add the gradient and border when not flat
-          if (!this.flat) {
-            if (!this.buttonClick) {
-              this.drawLine(ctx, this.w-1, 0, this.w-1, this.h, "rgba(0,0,0,0.5)");
-              this.drawLine(ctx, 0, 0, 0, this.h, "rgba(0,0,0,0.09)");
-              this.drawLine(ctx, 1, 0, 1, this.h, "rgba(0,0,0,0.03)");
+          if (!self.flat) {
+            if (!self.buttonClick) {
+              self.drawLine(ctx, self.w-1, 0, self.w-1, self.h, "rgba(0,0,0,0.5)");
+              self.drawLine(ctx, 0, 0, 0, self.h, "rgba(0,0,0,0.09)");
+              self.drawLine(ctx, 1, 0, 1, self.h, "rgba(0,0,0,0.03)");
             }
 
-            ctx.fillStyle = this.linearGradient;
-            ctx.fillRect(0, 0, this.w, this.h);
+            ctx.fillStyle = self.linearGradient;
+            ctx.fillRect(0, 0, self.w, self.h);
           }
         }
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // over image
-      if (this.activeIfValue) {
-        if ( (imageOver !== this.emptyImage) && (this.over) && (imageOver.ready) && (imageOver.complete) ) {
+      if (self.activeIfValue) {
+        if ( (imageOver !== self.emptyImg) && (self.over) && (imageOver.ready) && (imageOver.complete) ) {
           if ( imageOverSrc.match(gifPattern) ) {
-            this.btn.style.backgroundImage = "url('" + imageOverSrc + "')";
-            this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+            btn.style.backgroundImage = `url('${imageOverSrc}')`;
+            btn.style.backgroundPosition = `${_image_pos_x}px ${_image_pos_y}px`;
           }
           else {
             ctx.drawImage(imageOver, _image_pos_x, _image_pos_y);
           }
         }
-        else if ((this.customStyle) && (this.conStyle.overColor) && (this.over)) {
-          container.style.backgroundColor = this.conStyle.overColor;
+        else if ((self.customStyle) && (self.conStyle.overColor) && (self.over)) {
+          container.style.backgroundColor = self.conStyle.overColor;
         }
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // down image
-      if (this.activeIfValue) {
-        if ( (imageDown !== this.emptyImage) && (this.buttonClick) && (imageDown.ready) && (imageDown.complete) ) {
+      if (self.activeIfValue) {
+        if ( (imageDown !== self.emptyImg) && (self.buttonClick) && (imageDown.ready) && (imageDown.complete) ) {
           if ( imageDownSrc.match(gifPattern) ) {
-            this.btn.style.backgroundImage = "url('" + imageDownSrc + "')";
-            this.btn.style.backgroundPosition = (_image_pos_x) + "px " + (_image_pos_y) + "px";
+            btn.style.backgroundImage = `url('${imageDownSrc}')`;
+            btn.style.backgroundPosition = `${_image_pos_x}px ${_image_pos_y}px`;
           }
           else {
             ctx.drawImage(imageDown, _image_pos_x, _image_pos_y);
           }
         }
-        else if ((this.customStyle) && (this.conStyle.downColor) && (this.buttonClick)) {
-          container.style.backgroundColor = this.conStyle.downColor;
+        else if ((self.customStyle) && (self.conStyle.downColor) && (self.buttonClick)) {
+          container.style.backgroundColor = self.conStyle.downColor;
         }
       }
-      else if ((this.buttonClick) && (!image)) {
+      else if ((self.buttonClick) && (!image)) {
         ctx.fillStyle = "rgba(0,0,0,0.09)";
-        ctx.fillRect(0, 0, this.w, this.h);
+        ctx.fillRect(0, 0, self.w, self.h);
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
 
       ////////////////////////////////////////////////////////////////////////////////////////
-      ctx.fillStyle = this.color.getColor();
+      ctx.fillStyle = self.color.getColor();
 
-      if (this.customStyle) {
-        if ((this.conStyle.shadowTextColor) && (this.conStyle.textBorder > 0)) {
-          ctx.lineWidth = this.conStyle.textBorder;
-          ctx.strokeStyle = this.conStyle.shadowTextColor;
+      if (self.customStyle) {
+        if ((self.conStyle.shadowTextColor) && (self.conStyle.textBorder > 0)) {
+          ctx.lineWidth   = self.conStyle.textBorder;
+          ctx.strokeStyle = self.conStyle.shadowTextColor;
         }
       }
 
-      if (this.borderColor) {
-        ctx.lineWidth = parseInt(font_size/6);
-        ctx.strokeStyle = this.borderColor.getColor();
+      if (self.borderColor) {
+        ctx.lineWidth   = parseInt(font_size/6);
+        ctx.strokeStyle = self.borderColor.getColor();
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // write the button name
-      this.text_object.draw(ctx, this.color.getColor(), _text_pos_x, _text_pos_y);
+      self.text_object.draw(ctx, self.color.getColor(), _text_pos_x, _text_pos_y);
 
       ////////////////////////////////////////////////////////////////////////////////////////
       // draw the under line
-      if (this.underlined) {
-        ctx.strokeStyle = this.color.getColor();
-        ctx.lineWidth = MathFloor(font_size/10) || 2;
+      if (self.underlined) {
+        ctx.strokeStyle = self.color.getColor();
+        ctx.lineWidth = MathFloor(font_size*0.1) || 2;
         ctx.lineCap = "round";
 
         ctx.beginPath();
@@ -676,21 +628,21 @@ var descartesJS = (function(descartesJS) {
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////
-      if (!this.activeIfValue) {
-        if ((this.customStyle) && (this.conStyle.inactiveColor)) {
-          container.style.backgroundColor = this.conStyle.inactiveColor;
+      if (!self.activeIfValue) {
+        if ((self.customStyle) && (self.conStyle.inactiveColor)) {
+          container.style.backgroundColor = self.conStyle.inactiveColor;
         }
         else {
           ctx.fillStyle = "rgba(240,240,240,0.6)";
-          ctx.fillRect(0, 0, this.w, this.h);
+          ctx.fillRect(0, 0, self.w, self.h);
         }
       }
 
       ctx.restore();
 
       // for the screenshot
-      this._image_pos_x = _image_pos_x;
-      this._image_pos_y = _image_pos_y;
+      self._image_pos_x = _image_pos_x;
+      self._image_pos_y = _image_pos_y;
     }
 
     /**
@@ -703,7 +655,7 @@ var descartesJS = (function(descartesJS) {
      * @param {String} strokeStyle the style of the stroke used to draw the line
      * @param {Number} lineWidth the width of the line to draw
      */
-    drawLine(ctx, x1, y1, x2, y2, strokeStyle = "black", lineWidth = 1) {
+    drawLine(ctx, x1, y1, x2, y2, strokeStyle="black", lineWidth=1) {
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = strokeStyle;
       desp = (ctx.lineWidth%2)*0.5;
@@ -722,31 +674,22 @@ var descartesJS = (function(descartesJS) {
       this.colorInt.getColor();
       this.color.getColor();
 
-      return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) <.5);
-    }
-
-    /**
-     * Function executed when the button is pressed
-     */
-    buttonPressed() {
-      this.updateAndExecAction();
+      return !((( MathAbs(this.colorInt.r - this.color.r) + MathAbs(this.colorInt.g - this.color.g) + MathAbs(this.colorInt.b - this.color.b) )/255) < 0.5);
     }
 
     /**
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
-      var timer;
-
-      // prevent the context menu display
-      self.btn.oncontextmenu = function () { return false; };
+      let self = this;
+      let delay = 1000;
+      let timer;
 
       /**
        * Repeat a function during a period of time, when the user click and hold the click in the button
        * @param {Number} delayTime the delay of time between the function repetition
        * @param {Function} fun the function to execute
-       * @param {Boolean} firstime a flag to indicated if is the first time clicked
+       * @param {Boolean} firsTime a flag to indicated if is the first time clicked
        * @private
        */
       function repeat(delayTime, fun, firstTime) {
@@ -774,7 +717,8 @@ var descartesJS = (function(descartesJS) {
        */
       function onMouseDown(evt) {
         // remove the focus of the controls
-        // document.body.focus();
+        self.parent.deactivateControls();
+        
         this.focus();
 
         evt.preventDefault();
@@ -795,7 +739,7 @@ var descartesJS = (function(descartesJS) {
           if (self.action == "calculate") {
             // the value of the variable is set
             self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
-            repeat(delay, self.buttonPressed, true);
+            repeat(delay, self.updateAndExecAction, true);
           }
 
           self.btn.removeEventListener("touchend", onMouseUp);
@@ -815,7 +759,6 @@ var descartesJS = (function(descartesJS) {
         descartesJS.newBlobContent = null;
 
         // remove the focus of the controls
-        // document.body.focus();
         this.focus();
 
         evt.preventDefault();
@@ -828,14 +771,16 @@ var descartesJS = (function(descartesJS) {
           if (self.action != "calculate") {
             // the value of the variable is set
             self.evaluator.setVariable(self.id, self.evaluator.eval(self.valueExpr));
-            self.buttonPressed();
+            self.updateAndExecAction();
           }
 
           self.btn.removeEventListener("touchend", onMouseUp);
           self.btn.removeEventListener("mouseup", onMouseUp);
         }
         // maybe an error
-        self.parent.update();
+        else {
+          self.parent.update();
+        }
       }
 
       /**

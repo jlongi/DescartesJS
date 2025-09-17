@@ -6,8 +6,9 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var int_color;
+  let self;
+  let evaluator;
+  let int_color;
 
   class Checkbox extends descartesJS.Control {
     /**
@@ -19,9 +20,9 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      var self = this;
+      self = this;
 
-      self.label_color = self.label_color || new descartesJS.Color("e0e4e8", parent.evaluator);
+      self.label_color      = self.label_color      || new descartesJS.Color("e0e4e8", parent.evaluator);
       self.label_text_color = self.label_text_color || new descartesJS.Color("000000", parent.evaluator);
 
       self.typeCtr = "checkbox";
@@ -35,16 +36,21 @@ var descartesJS = (function(descartesJS) {
 
       self.name_str = self.name;
 
+      // if the name init with single quotes, then scape them with the \u0027 character code
+      if ((/^\&squot;.*\&squot;$/).test(self.name)) {
+        self.name = self.name.replace("&squot;", "\\u0027");
+      }
+
       // change to the name of the Checkbox with an expression
-      if (self.name.match(/^\[.*\]?/)) {
-        self.name = self.parser.parse(self.name.substring(1, self.name.length-1));
+      if ((/^\[.*\]$/).test(self.name)) {
+        self.name = self.parser.parse(self.name.slice(1, -1));
       }
       else {
-        self.name = self.parser.parse("'" + self.name.trim() + "'");
+        self.name = self.parser.parse(`'${self.name.trim()}'`);
       }
 
       // tabular index
-      self.tabindex = ++self.parent.tabindex;
+      self.tabindex = ++parent.tabindex;
 
       // control container
       self.containerControl = descartesJS.newHTML("div", {
@@ -63,14 +69,14 @@ var descartesJS = (function(descartesJS) {
       if (self.radio_group !== "") {
         self.checkbox.setAttribute("name", self.radio_group);
       }
-      self.checkbox.internalID = this.id;
+      self.checkbox.internalID = self.id;
 
       // the label
       self.label = descartesJS.newHTML("canvas", {
         class : "DescartesCheckboxLabel",
       });
-      this.label_ctx = this.label.getContext("2d");
-      this.ratio = parent.ratio;
+      self.label_ctx = self.label.getContext("2d");
+      self.ratio = parent.ratio;
 
       // the dummyLabel
       self.dummyLabel = descartesJS.newHTML("label", {
@@ -97,33 +103,33 @@ var descartesJS = (function(descartesJS) {
      * Init the checkbox
      */
     init(changeSizePos) {
-      var self = this;
+      self = this;
       evaluator = self.evaluator;
 
       self.label.innerHTML = evaluator.eval(self.name).toString();
 
       // find the font size of the checkbox
       self.labelFontSize = (evaluator.eval(self.font_size)>0) ? evaluator.eval(self.font_size) : descartesJS.getFieldFontSize(self.h);
-      var labelWidth = Math.max(self.w - self.h, 0);
+      let labelWidth = Math.max(self.w - self.h, 0);
 
       //new
-      this.text_object = new descartesJS.TextObject({
+      self.text_object = new descartesJS.TextObject({
         parent : {
-          decimal_symbol : this.parent.decimal_symbol
+          decimal_symbol : self.parent.decimal_symbol
         },
-        evaluator : this.evaluator,
-        decimals : this.decimals,
+        evaluator : evaluator,
+        decimals : self.decimals,
         fixed: false,
         align: "left",
         anchor: "center_center",
-        width: this.parser.parse("0"),
-        font_size: this.parser.parse(""+ this.labelFontSize),
-        font_family: this.font_family,
-        italics: this.italics,
-        bold: this.bold,
-      }, this.name_str);
+        width: self.parser.parse("0"),
+        font_size: self.parser.parse(""+ self.labelFontSize),
+        font_family: self.font_family,
+        italics: self.italics,
+        bold: self.bold,
+      }, self.name_str);
       //new
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0, true);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0, true);
 
       self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
@@ -131,19 +137,19 @@ var descartesJS = (function(descartesJS) {
         self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
 
         self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:${labelWidth}px;`);
-        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};`);
+        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};`);
       }
       else {
         self.dummyLabel.setAttribute("style", `position:absolute;width:${self.h}px;height:${self.h}px;left:0;`);
 
         self.checkbox.setAttribute("style", `width:${self.h}px;height:${self.h}px;left:0;`);
-        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${this.label_color.getColor()};color:${this.label_text_color.getColor()};left:${self.h}px`);
+        self.label.setAttribute("style", `font-size:${self.labelFontSize}px;width:${labelWidth}px;height:${self.h}px;line-height:${self.h}px;background-color:${self.label_color.getColor()};color:${self.label_text_color.getColor()};left:${self.h}px`);
       }
 
-      self.checkbox.checked = (self.evaluator.getVariable(self.id) != 0);
+      self.checkbox.checked = (evaluator.getVariable(self.id) != 0);
 
-      this.label.width = labelWidth*this.ratio;
-      this.label.height = this.h*this.ratio;
+      self.label.width  = labelWidth*self.ratio;
+      self.label.height = self.h*self.ratio;
 
       self.update();
     };
@@ -152,12 +158,12 @@ var descartesJS = (function(descartesJS) {
      * Update the checkbox
      */
     update() {
-      var self = this;
+      self = this;
       evaluator = self.evaluator;
 
       // check if the control is active and visible
       self.activeIfValue = (evaluator.eval(self.activeif) > 0);
-      self.drawIfValue = (evaluator.eval(self.drawif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
       // enable or disable the control
       self.checkbox.disabled = !self.activeIfValue;
@@ -166,7 +172,7 @@ var descartesJS = (function(descartesJS) {
       self.containerControl.style.display = (self.drawIfValue) ? "block" : "none";
 
       if ( !(self.parent.animation.playing) || (document.activeElement != self.checkbox)) {
-        var oldVal = (evaluator.getVariable(self.id) !== 0) ? 1 : 0;
+        let oldVal = (evaluator.getVariable(self.id) !== 0) ? 1 : 0;
 
         // update the checkbox value
         if (self.radio_group === "") {
@@ -187,11 +193,11 @@ var descartesJS = (function(descartesJS) {
           self.value = evaluator.getVariable(self.id);
           evaluator.setVariable(self.radio_group, 0);
 
-          var radios = document.querySelectorAll("[name="+self.radio_group+"]");
-          var last_radio_checked = -1;
+          let radios = document.querySelectorAll(`[name=${self.radio_group}]`);
+          let last_radio_checked = -1;
 
           if (self.pressed) {
-            for (var i=radios.length-1; i>=0; i--) {
+            for (let i=radios.length-1; i>=0; i--) {
               evaluator.setVariable(radios[i].internalID, 0);
               radios[i].checked = false;
             }
@@ -203,7 +209,7 @@ var descartesJS = (function(descartesJS) {
             self.pressed = 0;
           }
           else {
-            for (var i=radios.length-1; i>=0; i--) {
+            for (let i=radios.length-1; i>=0; i--) {
               last_radio_checked = (evaluator.getVariable(radios[i].internalID) != 0) ? i : last_radio_checked;
               evaluator.setVariable(radios[i].internalID, 0);
               radios[i].checked = false;
@@ -225,49 +231,43 @@ var descartesJS = (function(descartesJS) {
       self.updatePositionAndSize();
 
       //
-      this.label_ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+      self.label_ctx.setTransform(self.ratio, 0, 0, self.ratio, 0, 0);
 
       // draw the text to get the width
-      this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 0, 0);
+      self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 0, 0);
       
-      this.label_ctx.clearRect(0, 0, this.label.width, this.label.height);
+      self.label_ctx.clearRect(0, 0, self.label.width, self.label.height);
 
-      int_color = this.label_color.getColor();
-      if (int_color && ((int_color.constructor.name === "CanvasGradient") || (int_color.constructor.name === "CanvasPattern"))) {
-        this.label_ctx.fillStyle = int_color;
-        this.label_ctx.fillRect(0,0,this.label_ctx.canvas.width,this.label_ctx.canvas.height);
+      int_color = self.label_color.getColor();
+      if (int_color && (/CanvasGradient|CanvasPattern/).test(int_color.constructor.name)) {
+        self.label_ctx.fillStyle = int_color;
+        self.label_ctx.fillRect(0, 0, self.label_ctx.canvas.width, self.label_ctx.canvas.height);
       }
 
-      if (this.text_object.textNodes.metrics.w > this.label.width/this.ratio) {
-        this.text_object.anchor = "center_left";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), 5, this.label.height/this.ratio/2); 
+      if (self.text_object.textNodes.metrics.w > self.label.width/self.ratio) {
+        self.text_object.anchor = "center_left";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), 5, self.label.height/self.ratio/2); 
       }
       else {
-        this.text_object.anchor = "center_center";
-        this.text_object.draw(this.label_ctx, this.label_text_color.getColor(), this.label.width/this.ratio/2, this.label.height/this.ratio/2);
+        self.text_object.anchor = "center_center";
+        self.text_object.draw(self.label_ctx, self.label_text_color.getColor(), self.label.width/self.ratio/2, self.label.height/self.ratio/2);
       }
-      this.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
+      self.label_ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     /**
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
+      let self = this;
 
-      // prevent the context menu display
-      self.checkbox.oncontextmenu = self.label.oncontextmenu = self.dummyLabel.oncontextmenu = function() { return false; };
-
-      // prevent the default events int the label
-      self.label.addEventListener("touchstart", descartesJS.preventDefault);
-      self.label.addEventListener("mousedown", descartesJS.preventDefault);
-      // self.dummyLabel.addEventListener("touchstart", descartesJS.preventDefault);
-      self.dummyLabel.addEventListener("mousedown", descartesJS.preventDefault);
+      // prevent the default events in the label
+      self.label.ontouchstart = self.label.onmousedown = self.dummyLabel.onmousedown = descartesJS.preventDefault;
 
       /*
-      * Prevent an error with the focus of a checkbox
-      */
-      self.checkbox.addEventListener("click", function() {
+       * Prevent an error with the focus of a checkbox
+       */
+      self.checkbox.addEventListener("click", () => {
         self.pressed = true;
         self.updateAndExecAction();
       });

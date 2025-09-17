@@ -21,7 +21,7 @@ var descartesJS = (function(descartesJS) {
      * Get the length of a 2D vector
      * @return {Number} return the length of a 2D vector
      */
-    vectorLength() {
+    vLength() {
       return Math.sqrt(this.x*this.x + this.y*this.y);
     }
     
@@ -40,7 +40,7 @@ var descartesJS = (function(descartesJS) {
      * @return {Number} return the angle between two vectors
      */
     angleBetweenVectors(v) {
-      return Math.acos(this.dotProduct(v)/(this.vectorLength()*v.vectorLength()));
+      return Math.acos(this.dotProduct(v) / (this.vLength() * v.vLength()));
     }
   }
 

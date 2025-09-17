@@ -6,38 +6,37 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
-  var MathMin   = Math.min;
-  var MathMax   = Math.max;
-  var MathAcos  = Math.acos;
-  var MathSqrt  = Math.sqrt;
-  var MathPI    = Math.PI;
-  var Math_PI_2 = MathPI/2;
-  var Math_2_PI = 2*MathPI;
+  const MathPI    = Math.PI;
+  const Math_PI_2 = MathPI/2;
+  const Math_2_PI = 2*MathPI;
 
-  var evaluator;
-  var expr;
-  var macroAngle;
-  var cosTheta;
-  var senTheta;
-  var tmpRotX;
-  var tmpRotY;
-  var u1;
-  var u2;
-  var v1;
-  var v2;
-  var w1;
-  var w2;
-  var angulo1;
-  var angulo2;
-  var tmpAngulo1;
-  var tmpAngulo2;
-  var space;
-  var coordX;
-  var coordY;
-  var radius;
-  var tempAng;
-  var clockwise;
+  let MathRound = Math.round;
+  let MathMin   = Math.min;
+  let MathMax   = Math.max;
+  let MathAcos  = Math.acos;
+  let MathSqrt  = Math.sqrt;
+
+  let evaluator;
+  let macroAngle;
+  let cosTheta;
+  let senTheta;
+  let tmpRotX;
+  let tmpRotY;
+  let u1;
+  let u2;
+  let v1;
+  let v2;
+  let w1;
+  let w2;
+  let angulo1;
+  let angulo2;
+  let tmpAngulo1;
+  let tmpAngulo2;
+  let space;
+  let coordX;
+  let coordY;
+  let radius;
+  let clockwise;
 
   class Arc extends descartesJS.Graphic {
     /**
@@ -56,17 +55,17 @@ var descartesJS = (function(descartesJS) {
       this.init = this.init || "0";
       this.end = this.end || "90";
 
-      if (this.init.match(/^_\(/)) {
-        this.initFlag = true;
-        this.init = this.init.substring(1);
+      if (this.init.startsWith("_(")) {
+        this.iFlag = true;
+        this.init = this.init.slice(1);
       }
-      if (this.end.match(/^_\(/)) {
-        this.endFlag = true;
-        this.end = this.end.substring(1);
+      if (this.end.startsWith("_(")) {
+        this.eFlag = true;
+        this.end = this.end.slice(1);
       }
 
       this.initExpr = parent.evaluator.parser.parse(this.init);
-      this.endExpr = parent.evaluator.parser.parse(this.end);
+      this.endExpr  = parent.evaluator.parser.parse(this.end);
 
       this.text = new descartesJS.TextObject(this, this.text);
     }
@@ -77,9 +76,7 @@ var descartesJS = (function(descartesJS) {
     update() {
       evaluator = this.evaluator;
 
-      expr = evaluator.eval(this.center);
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      [this.X, this.Y] = evaluator.eval(this.center)[0];
 
       macroAngle = 0;
 
@@ -90,29 +87,27 @@ var descartesJS = (function(descartesJS) {
         cosTheta = Math.cos(macroAngle);
         senTheta = Math.sin(macroAngle);
 
-        tmpRotX = this.exprX*cosTheta - this.exprY*senTheta;
-        tmpRotY = this.exprX*senTheta + this.exprY*cosTheta;
-        this.exprX = tmpRotX;
-        this.exprY = tmpRotY;
+        tmpRotX = this.X*cosTheta - this.Y*senTheta;
+        tmpRotY = this.X*senTheta + this.Y*cosTheta;
+        this.X = tmpRotX;
+        this.Y = tmpRotY;
       }
       // MACRO //
 
-      var initVal = evaluator.eval(this.initExpr);
-      var endVal  = evaluator.eval(this.endExpr);
+      let initVal = evaluator.eval(this.initExpr);
+      let endVal  = evaluator.eval(this.endExpr);
 
       // if the expression of the initial and final angle are parenthesized expressions
-      if ( (/^(\(|\[)expr(\)|\])$/i).test(this.initExpr.type) && (/^(\(|\[)expr(\)|\])$/i).test(this.endExpr.type) ) {
-        u1 = initVal[0][0];
-        u2 = initVal[0][1];
-        v1 = endVal[0][0];
-        v2 = endVal[0][1];
+      if ( (/^(\(|\[).*(\)|\])$/i).test(this.initExpr.type) && (/^(\(|\[).*(\)|\])$/i).test(this.endExpr.type) ) {
+        [u1, u2] = initVal[0];
+        [v1, v2] = endVal[0];
 
         // arc expressed with points in the space
         if (!this.vectors) {
-          u1 =  u1 - this.exprX;
-          u2 = -u2 + this.exprY;
-          v1 =  v1 - this.exprX;
-          v2 = -v2 + this.exprY;
+          u1 =  u1 - this.X;
+          u2 = -u2 + this.Y;
+          v1 =  v1 - this.X;
+          v2 = -v2 + this.Y;
 
           if (!this.abs_coord) {
             u2 = -u2;
@@ -164,7 +159,7 @@ var descartesJS = (function(descartesJS) {
           angulo2 = Math_2_PI-angulo2;
         }
 
-        if (this.initFlag) {
+        if (this.iFlag) {
           tmpAngulo1 = angulo1;
           angulo1 = angulo2;
           angulo2 = tmpAngulo1;
@@ -237,12 +232,12 @@ var descartesJS = (function(descartesJS) {
       ctx.strokeStyle = stroke.getColor();
 
       if (this.abs_coord) {
-        coordX = MathRound(this.exprX);
-        coordY = MathRound(this.exprY);
+        coordX = MathRound(this.X);
+        coordY = MathRound(this.Y);
       }
       else {
-        coordX = MathRound(space.getAbsoluteX(this.exprX));
-        coordY = MathRound(space.getAbsoluteY(this.exprY));
+        coordX = MathRound(space.getAbsoluteX(this.X));
+        coordY = MathRound(space.getAbsoluteY(this.Y));
         radius = radius*space.scale;
         this.iniAng = -this.iniAng;
         this.endAng = -this.endAng;
@@ -250,9 +245,7 @@ var descartesJS = (function(descartesJS) {
 
       // draw the arc when specified in angles
       if ( (this.drawAngle) && (this.iniAng > this.endAng) ) {
-        tempAng = this.iniAng;
-        this.iniAng = this.endAng;
-        this.endAng = tempAng;
+        [this.iniAng, this.endAng] = [this.endAng, this.iniAng];
       }
 
       if (this.fill) {

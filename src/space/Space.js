@@ -6,17 +6,18 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var parent;
-  var evaluator;
-  var parser;
-  var thisID;
-  var newH;
-  var newW;
-  var parentH;
-  var parentW;
-  var temp;
-  var OxExpr;
-  var OyExpr;
+  let self;
+  let parent;
+  let evaluator;
+  let parser;
+  let this_id_with_dot;
+  let newH;
+  let newW;
+  let parentH;
+  let parentW;
+  let temp;
+  let OxExpr;
+  let OyExpr;
 
   class Space {
     /**
@@ -25,249 +26,48 @@ var descartesJS = (function(descartesJS) {
      * @param {String} values the values of the graphic
      */
     constructor(parent, values) {
-      var self = this;
-      /**
-       * Descartes application
-       * type {DescartesApp}
-       * @private
-       */
+      self = this;
+
       self.parent = parent;
-
-      /**
-       * object for parse and evaluate expressions
-       * type {Evaluator}
-       * @private
-       */
       self.evaluator = self.parent.evaluator;
-
       evaluator = self.evaluator;
       parser = evaluator.parser;
 
-      /**
-       * identifier
-       * type {String}
-       */
-      self.id = "";
-
-      /**
-       * type
-       * type {String}
-       * @private
-       */
+      self.id = self.imageSrc = self.x_axis = self.y_axis = self.cID = "";
       self.type = "2D";
 
-      /**
-       * x position
-       * type {Node}
-       * @private
-       */
-      self.xExpr = parser.parse("0");
+      self.xExpr = self.yExpr = parser.parse("0");
 
-      /**
-       * y position
-       * type {Node}
-       * @private
-       */
-      self.yExpr = parser.parse("0");
-
-      /**
-       * width
-       * type {Number}
-       * @private
-       */
       self.w = parseInt(parent.container.width);
-
-      /**
-       * height
-       * type {Number}
-       * @private
-       */
       self.h = parseInt(parent.container.height);
 
-      /**
-       * drawif condition
-       * type {Node}
-       * @private
-       */
       self.drawif = parser.parse("1");
 
-      /**
-       * fixed space condition
-       * type {Boolean}
-       * @private
-       */
-      self.fixed = false;
+      self.fixed = self.text = self.numbers = self.sensitive_to_mouse_movements = false;
 
-      /**
-       * scale
-       * type {Number}
-       * @private
-       */
       self.scale = 48;
 
-      /**
-       * displacement x of the origin
-       * type {Number}
-       * @private
-       */
-      self.Ox = 0;
+      self.Ox = self.Oy = self.mouse_x = self.mouse_y = self.border_width = self.border_radius = 0;
 
-      /**
-       * displacement y of the origin
-       * type {Number}
-       * @private
-       */
-      self.Oy = 0;
-
-      /**
-       * background image
-       * type {Image}
-       * @private
-       */
       self.image = new Image();
       self.image.onload = function() {
         this.ready = 1;
       }
 
-      /**
-       * background image file name
-       * type {String}
-       * @private
-       */
-      self.imageSrc = "";
-
-      /**
-       * how the background image is positioned
-       * type {String}
-       * @private
-       */
       self.bg_display = "topleft";
 
-      /**
-       * background color
-       * type {String}
-       * @private
-       */
       self.background = new descartesJS.Color("ffffff");
-
-      /**
-       * net condition and color
-       * type {String}
-       * @private
-       */
       self.net = new descartesJS.Color("b8c4c8");
-
-      /**
-       * net 10 condition and color
-       * type {String}
-       * @private
-       */
       self.net10 = new descartesJS.Color("889498");
-
-      /**
-       * axes condition and color
-       * type {String}
-       * @private
-       */
       self.axes = new descartesJS.Color("405860");
+      self.border_color = new descartesJS.Color("000000");
 
-      /**
-       * coordinate text condition and color
-       * type {String}
-       * @private
-       */
-      self.text = false;
-
-      /**
-       * condition to draw the axis numbers
-       * type {Boolean}
-       * @private
-       */
-      self.numbers = false;
-
-      /**
-       * x axis text
-       * type {String}
-       * @private
-       */
-      self.x_axis = "";
-
-      /**
-       * y axis text
-       * type {String}
-       * @private
-       */
-      self.y_axis = self.x_axis;
-
-      /**
-       * sensitive to mouse movements condition
-       * type {Boolean}
-       * @private
-       */
-      self.sensitive_to_mouse_movements = false;
-
-      /**
-       * component identifier (rtf text positioning)
-       * type {String}
-       * @private
-       */
-      self.cID = ""
-
-      /**
-       * mouse x position
-       * type {Number}
-       * @private
-       */
-      self.mouse_x = 0;
-
-      /**
-       * mouse y position
-       * type {Number}
-       * @private
-       */
-      self.mouse_y = 0;
-
-      /**
-       * the controls
-       * type {Array<Controls>}
-       * @private
-       */
       self.ctrs = [];
-
-      /**
-       * the graphic controls
-       * type {Array<Controls>}
-       * @private
-       */
       self.graphicsCtr = [];
-
-      /**
-       * the graphics
-       * type {Array<Graphics>}
-       * @private
-       */
       self.graphics = [];
-
-      /**
-       * the background graphics
-       * type {Array<Graphics>}
-       * @private
-       */
       self.backGraphics = [];
 
-      /**
-       * z index of the elements
-       * @type {Number}
-       * @private
-       */
       self.zIndex = parent.zIndex;
-
-      /**
-       * 
-       */
-      self.border_width = 0;
-      self.border_color = new descartesJS.Color("000000");
-      self.border_radius = 0;
 
       self.plecaHeight = parent.plecaHeight || 0;
       self.displaceRegionNorth = parent.displaceRegionNorth || 0;
@@ -283,11 +83,11 @@ var descartesJS = (function(descartesJS) {
      * Init the values of the space
      */
     initSpace() {
-      var self = this;
+      self = this;
 
       parent = self.parent;
       evaluator = self.evaluator;
-      thisID = self.id;
+      this_id_with_dot = self.id + ".";
 
       if (!self.resizable) {
         self.displaceRegionNorth = parent.displaceRegionNorth || 0;
@@ -307,7 +107,7 @@ var descartesJS = (function(descartesJS) {
 
         // get the x and y position
         if (self.xPercentExpr != undefined) {
-          self.xExpr = evaluator.parser.parse((parseInt(parentW - self.displaceRegionWest - this.displaceRegionEast)*parseFloat(self.xPercentExpr)/100).toString());
+          self.xExpr = evaluator.parser.parse((parseInt(parentW - self.displaceRegionWest - self.displaceRegionEast)*parseFloat(self.xPercentExpr)/100).toString());
         }
         if (self.yPercentExpr != undefined) {
           self.yExpr = evaluator.parser.parse((parseInt(parentH - self.displaceRegionNorth - self.displaceRegionSouth)*parseFloat(self.yPercentExpr)/100).toString());
@@ -354,7 +154,7 @@ var descartesJS = (function(descartesJS) {
       // if specified with a percentage
       if (self.OxExpr) {
         OxExpr = self.OxExpr;
-        if (OxExpr[OxExpr.length-1] === "%") {
+        if (OxExpr.endsWith("%")) {
           self.Ox = self.w*parseFloat(OxExpr)/100;
         }
         // if not specified with a percentage
@@ -373,7 +173,7 @@ var descartesJS = (function(descartesJS) {
       // if specified with a percentage
       if (self.OyExpr) {
         OyExpr = self.OyExpr;
-        if (OyExpr[OyExpr.length-1] === "%") {
+        if (OyExpr.endsWith("%")) {
           self.Oy = self.h*parseFloat(OyExpr)/100;
         }
         // if not specified with a percentage
@@ -391,16 +191,16 @@ var descartesJS = (function(descartesJS) {
       // register the space variables
       // ## Descartes 2 patch ## //
       if ((self.id !== "") && (parent.version !== 2)) {
-        evaluator.setVariable(thisID + "._w", self.w);
-        evaluator.setVariable(thisID + "._h", self.h);
-        evaluator.setVariable(thisID + ".escala", evaluator.getVariable(thisID + ".escala") || self.scale);
-        evaluator.setVariable(thisID + ".Ox", evaluator.getVariable(thisID + ".Ox") || self.Ox);
-        evaluator.setVariable(thisID + ".Oy", evaluator.getVariable(thisID + ".Oy") || self.Oy);
-        evaluator.setVariable(thisID + ".mouse_x", 0);
-        evaluator.setVariable(thisID + ".mouse_y", 0);
-        evaluator.setVariable(thisID + ".mouse_pressed", 0);
-        evaluator.setVariable(thisID + ".mouse_clicked", 0);
-        evaluator.setVariable(thisID + ".clic_izquierdo", 0);
+        evaluator.setVariable(this_id_with_dot + "_w", self.w);
+        evaluator.setVariable(this_id_with_dot + "_h", self.h);
+        evaluator.setVariable(this_id_with_dot + "escala", evaluator.getVariable(this_id_with_dot + "escala") || self.scale);
+        evaluator.setVariable(this_id_with_dot + "Ox", evaluator.getVariable(this_id_with_dot + "Ox") || self.Ox);
+        evaluator.setVariable(this_id_with_dot + "Oy", evaluator.getVariable(this_id_with_dot + "Oy") || self.Oy);
+        evaluator.setVariable(this_id_with_dot + "mouse_x", 0);
+        evaluator.setVariable(this_id_with_dot + "mouse_y", 0);
+        evaluator.setVariable(this_id_with_dot + "mouse_pressed", 0);
+        evaluator.setVariable(this_id_with_dot + "mouse_clicked", 0);
+        evaluator.setVariable(this_id_with_dot + "clic_izquierdo", 0);
       }
       else {
         temp = evaluator.getVariable("_w");
@@ -437,7 +237,7 @@ var descartesJS = (function(descartesJS) {
       self.h_2 = self.h/2;
 
       // register the download function
-      evaluator.setFunction(thisID + ".download_image", function(filename) {
+      evaluator.setFunction(this_id_with_dot + "download_image", function(filename) {
         self.evaluator.functions["_SaveSpace_"](filename, self.canvas.toDataURL("image/png"));
       });
     }

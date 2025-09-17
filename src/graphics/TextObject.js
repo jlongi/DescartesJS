@@ -6,23 +6,24 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var decimals;
-  var width;
-  var size;
-  var color;
-  var newTextStr;
-  var style;
+  let self;
+  let decimals;
+  let width;
+  let size;
+  let color;
+  let newTextStr;
+  let style;
 
-  var textElements;
-  var txt;
-  var pos;
-  var lastPos;
-  var ignoreSquareBracket;
-  var charAt;
-  var charAtAnt;
-  var textLength;
+  let txtEle;
+  let txt;
+  let pos;
+  let lastPos;
+  let ignoreSquareBracket;
+  let charAt;
+  let charAtAnt;
+  let textLength;
 
-  var evalString;
+  let evalString;
 
   class TextObject {
     /**
@@ -32,32 +33,34 @@ var descartesJS = (function(descartesJS) {
      * @param {String} text the content text
      */
     constructor(parent, text) {
-      this.parent = parent;
-      this.evaluator = parent.evaluator;
-      this.decimals = parent.decimals;
-      this.fixed = parent.fixed;
-      this.align = parent.align || "left";
-      this.anchor = parent.anchor || "a_top_left"
-      this.decimal_symbol = parent.parent.decimal_symbol;
+      self = this;
 
-      this.w = this.h = 100;
+      self.parent = parent;
+      self.evaluator = parent.evaluator;
+      self.decimals = parent.decimals;
+      self.fixed = parent.fixed;
+      self.align = parent.align || "left";
+      self.anchor = parent.anchor || "a_top_left"
+      self.decimal_symbol = parent.parent.decimal_symbol;
 
-      this.hasContent = (text !== "");
-      this.textStr = (text || "").replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
-      this.oldTextStr = this.oldWidth = this.oldSize = this.oldColor = this.oldPosX = this.oldPoxY = null;
+      self.w = self.h = 100;
+
+      self.hasContent = (text !== "");
+      self.textStr = (text || "").replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
+      self.oldTextStr = self.oldWidth = self.oldSize = self.oldColor = self.oldPosX = self.oldPoxY = null;
 
       // is a RTF text
-      if (text.match(/^\{\\rtf1/)) {
-        this.type = "rtfNode";
-        this.text = text;
-        this.textNodes = ( new descartesJS.RTFParser(parent.evaluator) ).parse(text.substring(10));
-        this.draw = this.drawRTF;
+      if ((/^\{\\rtf1/).test(text)) {
+        self.type = "rtfNode";
+        self.text = text;
+        self.textNodes = ( new descartesJS.RTFParser(parent.evaluator) ).parse(text.substring(10));
+        self.draw = self.drawRTF;
       }
       else {
-        this.descarTeXParser = new descartesJS.DescarTeXParser();
-        this.text = this.parseSimpleText(this.textStr);
-        this.textNodes = new descartesJS.TextNode("", "textLineBlock", null, null);
-        this.draw = this.drawText;
+        self.descarTeXParser = new descartesJS.DescarTeXParser();
+        self.text = self.parseSimpleText(self.textStr);
+        self.textNodes = new descartesJS.TextNode("", "txtLineBlock", null, null);
+        self.draw = self.drawText;
       }
     }
 
@@ -65,56 +68,57 @@ var descartesJS = (function(descartesJS) {
      * 
      */
     drawText(ctx, fill, posX, posY, onlyUpdate) {
-      decimals = this.evaluator.eval(this.decimals);
-      width = this.evaluator.eval(this.parent.width);
-      size = this.evaluator.eval(this.parent.font_size);
+      self = this;
+      decimals = self.evaluator.eval(self.decimals);
+      width = self.evaluator.eval(self.parent.width);
+      size = self.evaluator.eval(self.parent.font_size);
       color = (fill.getColor) ? fill.getColor() : fill;
 
-      newTextStr = this.textToString(this.text, decimals, this.fixed).replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
+      newTextStr = self.textToString(self.text, decimals, self.fixed).replace(/\\{/g, "\\curlyBracketOpen ").replace(/\\}/g, "\\curlyBracketClose ").replace(/\\\[/g, "\\squareBracketOpen ").replace(/\\\]/g, "\\squareBracketClose ");
 
       // check if the newTextStr contains an expression
       if (newTextStr.indexOf("[") >= 0) {
-        newTextStr = this.textToString(this.parseSimpleText(newTextStr), decimals, this.fixed);
+        newTextStr = self.textToString(self.parseSimpleText(newTextStr), decimals, self.fixed);
       }
 
       if (
-        (this.oldTextStr !== newTextStr) || 
-        (this.oldWidth !== width) || 
-        (this.oldSize !== size) || 
-        (this.oldColor !== color) ||
-        (this.oldPosX !== posX) || 
-        (this.oldPoxY !== posY) 
+        (self.oldTextStr !== newTextStr) || 
+        (self.oldWidth !== width) || 
+        (self.oldSize !== size) || 
+        (self.oldColor !== color) ||
+        (self.oldPosX !== posX) || 
+        (self.oldPoxY !== posY) 
       ) {
         style = new descartesJS.TextStyle({ 
           size: size,
-          family: this.parent.font_family || "arial",
-          italic: this.parent.italics || false,
-          bold: this.parent.bold || false,
+          family: self.parent.font_family || "arial",
+          italic: self.parent.italics || false,
+          bold: self.parent.bold || false,
           color: color,
-          align: this.align,
-          border: this.parent.border,
-          border_size: this.parent.border_size,
-          shadowBlur: this.parent.shadowBlur,
-          shadowOffsetX: this.parent.shadowOffsetX,
-          shadowOffsetY: this.parent.shadowOffsetY,
-          shadowColor: this.parent.shadowColor || "transparent",
+          align: self.align,
+          border: self.parent.border,
+          border_size: self.parent.border_size,
+          shadowBlur: self.parent.shadowBlur,
+          shadowOffsetX: self.parent.shadowOffsetX,
+          shadowOffsetY: self.parent.shadowOffsetY,
+          shadowColor: self.parent.shadowColor || "transparent",
         });
 
-        this.textNodes = this.descarTeXParser.parse(newTextStr, this.evaluator, style);
+        self.textNodes = self.descarTeXParser.parse(newTextStr, self.evaluator, style);
 
-        this.textNodes.update(posX, posY, decimals, this.fixed, this.align, this.anchor, color, width);
+        self.textNodes.update(posX, posY, decimals, self.fixed, self.align, self.anchor, color, width);
       }
 
       if (!onlyUpdate) {
-        this.textNodes.draw(ctx);
+        self.textNodes.draw(ctx);
       }
 
-      this.oldTextStr = newTextStr;
-      this.oldWidth = width;
-      this.oldSize = size;
-      this.oldColor = color;
-      this.oldPosX = posX;
-      this.oldPoxY = posY;
+      self.oldTextStr = newTextStr;
+      self.oldWidth = width;
+      self.oldSize = size;
+      self.oldColor = color;
+      self.oldPosX = posX;
+      self.oldPoxY = posY;
     }
 
     /**
@@ -142,7 +146,7 @@ var descartesJS = (function(descartesJS) {
     parseSimpleText(text) {
       text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
 
-      textElements = [];
+      txtEle = [];
       txt = "'";
       pos = 0;
       lastPos = 0;
@@ -156,19 +160,19 @@ var descartesJS = (function(descartesJS) {
 
         // open square bracket scaped
         if ((charAt === "[") && (charAtAnt === "\\")) {
-          textElements.push(text.substring(lastPos, pos-1) + "[");
+          txtEle.push(text.substring(lastPos, pos-1) + "[");
           lastPos = pos+1;
         }
 
         // close square bracket scaped
         else if ((charAt === "]") && (charAtAnt === "\\")) {
-          textElements.push(text.substring(lastPos, pos-1) + "]");
+          txtEle.push(text.substring(lastPos, pos-1) + "]");
           lastPos = pos+1;
         }
 
         // if find an open square bracket
         else if ((charAt === "[") && (ignoreSquareBracket === -1)) {
-          textElements.push(text.substring(lastPos, pos));
+          txtEle.push(text.substring(lastPos, pos));
           lastPos = pos;
           ignoreSquareBracket++;
         }
@@ -179,7 +183,7 @@ var descartesJS = (function(descartesJS) {
 
         // if find a close square bracket add the string +'
         else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
-          textElements.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
+          txtEle.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
           lastPos = pos+1;
           ignoreSquareBracket--;
         }
@@ -196,9 +200,9 @@ var descartesJS = (function(descartesJS) {
         pos++;
       }
 
-      textElements.push(text.substring(lastPos, pos));
+      txtEle.push(text.substring(lastPos, pos));
 
-      return textElements;
+      return txtEle;
     }
 
     /**
@@ -208,7 +212,7 @@ var descartesJS = (function(descartesJS) {
       txt = "";
 
       if (text.type !== "rtfNode") {
-        for(var i=0, l=text.length; i<l; i++) {
+        for(let i=0, l=text.length; i<l; i++) {
           if (typeof(text[i]) === "string") {
             txt += text[i];
           }

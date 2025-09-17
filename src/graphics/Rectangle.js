@@ -6,18 +6,18 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
-  var MathMin = Math.min;
-  var MathMax = Math.max;
-  var MathAbs = Math.abs;
+  let MathRound = Math.round;
+  let MathMin = Math.min;
+  let MathMax = Math.max;
+  let MathAbs = Math.abs;
 
-  var evaluator;
-  var space;
-  var tmpRot;
-  var tmpLineWidth;
-  var lineDesp;
-  var expr;
-  var x, y, w, h, r, sign;
+  let evaluator;
+  let space;
+  let tmpRot;
+  let tmpLineWidth;
+  let lineDesp;
+  let expr;
+  let x, y, w, h, r, sign;
 
   class Rectangle extends descartesJS.Graphic {
     /**
@@ -32,8 +32,6 @@ var descartesJS = (function(descartesJS) {
       this.width = this.width || parent.evaluator.parser.parse("1");
       this.fill = this.fill || "";
       this.border_radius = this.border_radius || parent.evaluator.parser.parse("0");
-
-      this.endPoints = [];
     }
 
     /**
@@ -41,10 +39,10 @@ var descartesJS = (function(descartesJS) {
      */
     update() {
       evaluator = this.evaluator;
-      
+
       expr = evaluator.eval(this.expresion);
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      this.X = expr[0][0]; // the first value of the first expression
+      this.Y = expr[0][1]; // the second value of the first expression
       this.w = 150;
       this.h = 100;
 
@@ -52,8 +50,8 @@ var descartesJS = (function(descartesJS) {
       if (this.rotateExp) {
         tmpRot = this.rotate(expr[0][0], expr[0][1], descartesJS.degToRad(evaluator.eval(this.rotateExp)));
 
-        this.exprX = tmpRot.x;
-        this.exprY = tmpRot.y;
+        this.X = tmpRot.x;
+        this.Y = tmpRot.y;
       }
 
       // configuration of the form (x,y,ew,eh)
@@ -97,9 +95,10 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      ctx.lineWidth = Math.max(
+      tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      ctx.lineWidth = MathMax(
         0.000001, 
-        MathRound( evaluator.eval(this.width) )
+        tmpLineWidth
       );
 
       ctx.strokeStyle = stroke.getColor();
@@ -108,9 +107,9 @@ var descartesJS = (function(descartesJS) {
 
       lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
-      x = MathRound( (this.abs_coord) ? this.exprX : space.getAbsoluteX(this.exprX) ) +lineDesp;
-      y = MathRound( (this.abs_coord) ? this.exprY : space.getAbsoluteY(this.exprY) ) +lineDesp;
-      w = (this.abs_coord) ? this.w : this.w*space.scale;
+      x = MathRound( (this.abs_coord) ? this.X : space.getAbsoluteX(this.X) ) +lineDesp;
+      y = MathRound( (this.abs_coord) ? this.Y : space.getAbsoluteY(this.Y) ) +lineDesp;
+      w = (this.abs_coord) ? this.w :  this.w*space.scale;
       h = (this.abs_coord) ? this.h : -this.h*space.scale;
       r = MathMin( 
         MathMax(0, evaluator.eval(this.border_radius)), 
@@ -120,25 +119,24 @@ var descartesJS = (function(descartesJS) {
       sign = (this.abs_coord) ? 1 : -1;
 
       ctx.beginPath();
-      if (r !== 0) {
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + w - r, y);
-        ctx.quadraticCurveTo(x + w, y, x + w, y + sign*r);
-        ctx.lineTo(x + w, y + h - sign*r);
-        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-        ctx.lineTo(x + r, y + h);
-        ctx.quadraticCurveTo(x, y + h, x, y + h - sign*r);
-        ctx.lineTo(x, y + sign*r);
-        ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.lineTo(x + r, y);
-      }
-      else {
+      if (r == 0) {
         ctx.moveTo(x, y);
         ctx.lineTo(x + w, y);
         ctx.lineTo(x + w, y + h);
         ctx.lineTo(x, y + h);
-        ctx.lineTo(x, y);
       }
+      else {
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + sign*r, r);
+        ctx.lineTo(x + w, y + h - sign*r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - sign*r, r);
+        ctx.lineTo(x, y + sign*r);
+        ctx.arcTo(x, y, x + r, y, r);
+      }
+      ctx.closePath();
 
       // draw the fill
       if (this.fill) {

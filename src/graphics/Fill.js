@@ -6,15 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var expr;
-  var x;
-  var y;
-  var pixelStack;
-  var startColor;
-  var count;
-  var imageData;
-  var pixelData;
-  var colorCtx = document.createElement('canvas').getContext('2d');
+  let x;
+  let y;
+  let pixelStack;
+  let startColor;
+  let count;
+  let imageData;
+  let pixelData;
+  let colorCtx = document.createElement('canvas').getContext('2d');
   colorCtx.canvas.width = 1;
   colorCtx.canvas.height = 1;
 
@@ -33,10 +32,7 @@ var descartesJS = (function(descartesJS) {
      * Update the fill
      */
     update() {
-      expr = this.evaluator.eval(this.expresion);
-
-      this.exprX = expr[0][0]; // the first value of the first expression
-      this.exprY = expr[0][1]; // the second value of the first expression
+      [this.X, this.Y] = this.evaluator.eval(this.expresion)[0];
     }
 
     /**
@@ -66,26 +62,22 @@ var descartesJS = (function(descartesJS) {
 
       pixelData = new Uint32Array(imageData.data.buffer);
 
-      if (this.abs_coord) {
-        x = parseInt(this.exprX);
-        y = parseInt(this.exprY);
-      }
-      else {
-        x = parseInt( this.space.getAbsoluteX(this.exprX) );
-        y = parseInt( this.space.getAbsoluteY(this.exprY) );
-      }
+      x = parseInt((this.abs_coord) ? this.X : this.space.getAbsoluteX(this.X));
+      y = parseInt((this.abs_coord) ? this.Y : this.space.getAbsoluteY(this.Y));
 
-      if ((x < 0) || (y < 0) || (x >= this.space.w) || (y >= this.space.h)) {
+      // initial color of the pixel in the position x, y
+      startColor = getPixel(pixelData, imageData.width, imageData.height, x, y);
+      // if the pixel is outside of the canvas getPixel returns -1
+      if ((startColor == -1) || (fill == startColor)) {
         return;
       }
 
       pixelStack = [x, y];
-
-      startColor = getPixel(pixelData, imageData.width, imageData.height, x, y);
       count = 0;
 
-      while(pixelStack.length > 0) {
+      while (pixelStack.length > 0) {
         count++;
+
         y = pixelStack.pop();
         x = pixelStack.pop();
 
@@ -101,7 +93,7 @@ var descartesJS = (function(descartesJS) {
         }
 
         //exit safe
-        if (count >= this.space.w*this.space.h*4*2) {
+        if (count >= this.space.w*this.space.h) {
           break;
         }
       }

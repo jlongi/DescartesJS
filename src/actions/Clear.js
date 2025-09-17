@@ -6,13 +6,13 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  class Clear extends descartesJS.Action {
+  class Clear {
     /**
      * Descartes clear action
      * @param {DescartesApp} parent the Descartes application
      */
     constructor(parent) {
-      super(parent);
+      this.parent = parent;
     }
 
     /**

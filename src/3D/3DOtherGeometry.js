@@ -6,38 +6,37 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathSin = Math.sin;
-  var MathCos = Math.cos;
-  var MathPI  = Math.PI;
-  var Math2PI = 2*MathPI;
-  var MathSqrt3 = Math.sqrt(3);
-  var vec4D;
+  let self;
 
-  var evaluator;
-  var v;
-  var x;
-  var y;
-  var z;
-  var theta;
-  var phi;
+  const goldenRatio = 1.6180339887;
+  const MathPI  = Math.PI;
+  const Math2PI = 2*MathPI;
+  const MathSqrt3 = Math.sqrt(3);
 
-  var R;
-  var r;
+  let MathSin = Math.sin;
+  let MathCos = Math.cos;
+  
+  let vec4D; // short name for descartesJS.Vec4D class
 
-  var goldenRatio = 1.6180339887;
-  var width_d_goldenRatio;
-  var width_m_goldenRatio;
+  let evaluator;
+  let v;
+  let theta;
+  let phi;
 
-  var tmpMatrix;
+  let R;
+  let r;
 
-  var currentLine;
-  var tempValue;
+  let width_d_goldenRatio;
+  let width_m_goldenRatio;
 
-  var i;
-  var l;
-  var j;
-  var k;
+  let tmpMatrix;
 
+  let currentLine;
+  let tempValue;
+
+  /**
+   * 
+   */
   class OtherGeometry3D extends descartesJS.Graphic3D {
     /**
      * A Descartes 3D face
@@ -48,93 +47,50 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.width = this.width || parent.evaluator.parser.parse("2");
-      this.height = this.height || parent.evaluator.parser.parse("2");
-      this.length = this.length || parent.evaluator.parser.parse("2");
-      this.R = this.R || parent.evaluator.parser.parse("2");
-      this.r = this.r || parent.evaluator.parser.parse("1");
+      self = this;
 
-      vec4D = descartesJS.Vector4D;
+      self.width  = self.width  || parent.evaluator.parser.parse("2");
+      self.height = self.height || parent.evaluator.parser.parse("2");
+      self.length = self.length || parent.evaluator.parser.parse("2");
+      self.R = self.R || parent.evaluator.parser.parse("2");
+      self.r = self.r || parent.evaluator.parser.parse("1");
 
-      switch (this.subType) {
-        case("cube"):
-          this.buildGeometry = buildCube;
-          break;
-
-        case("box"):
-          this.buildGeometry = buildBox;
-          break;
-
-        case("tetrahedron"):
-          this.buildGeometry = buildTetrahedron;
-          break;
-
-        case("octahedron"):
-          this.buildGeometry = buildOctahedron;
-          break;
-
-        case("sphere"):
-          this.isSphere = true;
-        case("ellipsoid"):
-          this.buildGeometry = buildSphere;
-          break;
-
-        case("dodecahedron"):
-          this.buildGeometry = buildDodecahedron;
-          break;
-
-        case("icosahedron"):
-          this.buildGeometry = buildIcosahedron;
-          break;
-
-        case("cone"):
-          this.buildGeometry = buildCone;
-          break;
-
-        case("cylinder"):
-          this.buildGeometry = buildCylinder;
-          break;
-
-        case("torus"):
-          this.buildGeometry = buildTorus;
-          break;
-
-        case("mesh"):
-          this.fileData = descartesJS.openFile(this.evaluator.eval(this.file)).split(/\r/);
-          this.buildGeometry = buildMesh;
-          break;
-      }
+      vec4D = descartesJS.Vec4D;
     }
 
     /**
      * Build the primitives corresponding to the face
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
       // construct the vertices
-      this.buildGeometry(evaluator.eval(this.width), evaluator.eval(this.height), evaluator.eval(this.length), evaluator.eval(this.Nu), evaluator.eval(this.Nv));
+      self.buildGeometry(evaluator.eval(self.width), evaluator.eval(self.height), evaluator.eval(self.length), evaluator.eval(self.Nu), evaluator.eval(self.Nv));
 
-      var tmpFrontColor = this.color.getColor();
-      var tmpBackColor = this.backcolor.getColor();
-      var tmpEdgeColor = (this.edges) ? this.edges.getColor() : "";
+      let tmpFrontColor = self.color.getColor();
+      let tmpBackColor  = self.backcolor.getColor();
+      let tmpEdgeColor  = (self.edges) ? self.edges.getColor() : "";
 
-      for (i=0, l=this.faces.length; i<l; i++) {
+      for (let face_i of self.faces) {
         v = [];
-        for (j=0, k=this.faces[i].length; j<k; j++) {
-          v.push( this.transformVertex(this.vertices[this.faces[i][j]]) );
+        for (let face_i_j of face_i) {
+          v.push( self.transformVertex(self.V[face_i_j]) );
         }
 
-        this.primitives.push( new descartesJS.Primitive3D( { vertices: v,
-                                                            type: "face",
-                                                            frontColor: tmpFrontColor,
-                                                            backColor: tmpBackColor,
-                                                            edges: tmpEdgeColor,
-                                                            model: this.model
-                                                          },
-                              this.space ));
+        self.primitives.push( 
+          new descartesJS.Primitive3D( {
+            V: v,
+            type: "face",
+            frontColor: tmpFrontColor,
+            backColor: tmpBackColor,
+            edges: tmpEdgeColor,
+            model: self.model
+          },
+          self.space
+        ));
       }
     }
 
@@ -142,414 +98,535 @@ var descartesJS = (function(descartesJS) {
      *
      */
     changeGeometry(width, height, length, Nu, Nv) {
-      return (this.oldWidth  === width) && (this.oldHeight === height) && (this.oldLength === length) && (this.oldNu === Nu) && (this.oldNv === Nv);
+      return (this.oldW  === width) && (this.oldH === height) && (this.oldL === length) && (this.oldNu === Nu) && (this.oldNv === Nv);
     }
 
     /**
      *
      */
     updateValues(width, height, length, Nu, Nv) {
-      this.oldWidth = width;
-      this.oldHeight = height;
-      this.oldLength = length;
+      this.oldW = width;
+      this.oldH = height;
+      this.oldL = length;
       this.oldNv = Nv;
       this.oldNu = Nu;
     }
   }
 
-  /**
-   * Define the vertex and faces of the cube
-   */
-  function buildCube(width, height, length, Nu, Nv) {
-    buildBox.call(this, width/MathSqrt3, width/MathSqrt3, width/MathSqrt3, Nu, Nv);
-  }
 
   /**
-   * Define the vertex and faces of the box
+   * 
    */
-  function buildBox(width, height, length, Nu, Nv) {
-    width  = width/2;
-    height = height/2;
-    length = length/2;
+  class Box3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
 
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
+      this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
     }
-
-    this.vertices = [ new vec4D( width,  length,  height, 1), //0
-                      new vec4D( width, -length,  height, 1), //1
-                      new vec4D( width,  length, -height, 1), //2
-                      new vec4D( width, -length, -height, 1), //3
-                      new vec4D(-width,  length,  height, 1), //4
-                      new vec4D(-width, -length,  height, 1), //5
-                      new vec4D(-width,  length, -height, 1), //6
-                      new vec4D(-width, -length, -height, 1)  //7
-               ];
-
-    this.faces = [[2, 3, 1, 0], [1, 5, 4, 0], [5, 7, 6, 4], [6, 7, 3, 2], [4, 6, 2, 0], [3, 7, 5, 1]];
-
-    this.updateValues(width, height, length, Nu, Nv);
-
-  }
-
-  /**
-   * Define the vertex and faces of the tetrahedron
-   */
-  function buildTetrahedron(width, height, length, Nu, Nv) {
-    width = width/2;
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
-    }
-
-    var angle = 2*Math.PI/3;
-    var x = width*2*Math.sqrt(2)/3;
-    var y = 0;
-    var z = -width*1/3;
-    var x0 =  x*Math.cos(angle) + y*Math.sin(angle);
-    var y0 = -x*Math.sin(angle) + y*Math.cos(angle);
-    this.vertices = [ new vec4D( 0,   0, width, 1), //0
-                      new vec4D(x0,  y0,     z, 1), //1
-                      new vec4D(x0, -y0,     z, 1), //2
-                      new vec4D( x,   y,     z, 1), //3
-    ];
-
-    this.faces = [[1, 3, 2], [0, 1, 2], [0, 2, 3], [0, 3, 1]];
-
-    this.updateValues(width, height, length, Nu, Nv);
-  }
-
-  /**
-   * Define the vertex and faces of the octahedron
-   */
-  function buildOctahedron(width, height, length, Nu, Nv) {
-    width = width/2;
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
-    }
-
-    this.vertices = [ new vec4D( 0,          0,  width, 1), //0
-                      new vec4D( width,      0,      0, 1), //1
-                      new vec4D(-width,      0,      0, 1), //2
-                      new vec4D( 0,      width,      0, 1), //3
-                      new vec4D( 0,     -width,      0, 1), //4
-                      new vec4D( 0,          0, -width, 1)  //5
-               ];
-
-    this.faces = [[3, 1, 0], [2, 3, 0], [1, 4, 0], [4, 2, 0], [1, 3, 5], [3, 2, 5], [4, 1, 5], [2, 4, 5]];
-
-    this.updateValues(width, height, length, Nu, Nv);
-  }
-
-  /**
-   * Define the vertex and faces of the dodecahedron
-   */
-  function buildDodecahedron(width, height, length, Nu, Nv) {
-    width = width/Math.PI;
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
-    }
-
-    width_d_goldenRatio = width/goldenRatio;
-    width_m_goldenRatio = width*goldenRatio;
-
-    this.vertices = [ new vec4D( width,  width,  width, 1), //0
-                      new vec4D( width,  width, -width, 1), //1
-                      new vec4D( width, -width,  width, 1), //2
-                      new vec4D( width, -width, -width, 1), //3
-                      new vec4D(-width,  width,  width, 1), //4
-                      new vec4D(-width,  width, -width, 1), //5
-                      new vec4D(-width, -width,  width, 1), //6
-                      new vec4D(-width, -width, -width, 1), //7
-
-                      new vec4D(0,  width_d_goldenRatio,  width_m_goldenRatio, 1), //8
-                      new vec4D(0,  width_d_goldenRatio, -width_m_goldenRatio, 1), //9
-                      new vec4D(0, -width_d_goldenRatio,  width_m_goldenRatio, 1), //10
-                      new vec4D(0, -width_d_goldenRatio, -width_m_goldenRatio, 1), //11
-
-                      new vec4D( width_d_goldenRatio,  width_m_goldenRatio, 0, 1), //12
-                      new vec4D( width_d_goldenRatio, -width_m_goldenRatio, 0, 1), //13
-                      new vec4D(-width_d_goldenRatio,  width_m_goldenRatio, 0, 1), //14
-                      new vec4D(-width_d_goldenRatio, -width_m_goldenRatio, 0, 1), //15
-
-                      new vec4D( width_m_goldenRatio, 0,  width_d_goldenRatio, 1), //16
-                      new vec4D( width_m_goldenRatio, 0, -width_d_goldenRatio, 1), //17
-                      new vec4D(-width_m_goldenRatio, 0,  width_d_goldenRatio, 1), //18
-                      new vec4D(-width_m_goldenRatio, 0, -width_d_goldenRatio, 1)  //19
-               ];
-
-    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-MathPI/6, new descartesJS.Vector3D(0, 1, 0));
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-MathPI/6);
-    for (i=0, l=this.vertices.length; i<l; i++) {
-      this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
-    }
-
-    this.faces = [[0, 16, 2, 10, 8], [12, 1, 17, 16, 0], [8, 4, 14, 12, 0], [2, 16, 17, 3, 13], [13, 15, 6, 10, 2], [6, 18, 4, 8, 10], [3, 17, 1, 9, 11], [13, 3, 11, 7, 15], [1, 12, 14, 5, 9], [11, 9, 5, 19, 7], [5, 14, 4, 18, 19], [6, 15, 7, 19, 18]];
-
-    this.updateValues(width, height, length, Nu, Nv);
-  }
-
-  /**
-   * Define the vertex and faces of the icosahedron
-   */
-  function buildIcosahedron(width, height, length, Nu, Nv) {
-    width = width/3.8;
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
-    }
-
-    width_m_goldenRatio = width*goldenRatio;
-
-    this.vertices = [ new vec4D(0,  width,  width_m_goldenRatio, 1), //0
-                      new vec4D(0,  width, -width_m_goldenRatio, 1), //1
-                      new vec4D(0, -width,  width_m_goldenRatio, 1), //2
-                      new vec4D(0, -width, -width_m_goldenRatio, 1), //3
-
-                      new vec4D( width,  width_m_goldenRatio, 0, 1), //4
-                      new vec4D( width, -width_m_goldenRatio, 0, 1), //5
-                      new vec4D(-width,  width_m_goldenRatio, 0, 1), //6
-                      new vec4D(-width, -width_m_goldenRatio, 0, 1), //7
-
-                      new vec4D( width_m_goldenRatio, 0,  width, 1), //8
-                      new vec4D( width_m_goldenRatio, 0, -width, 1), //9
-                      new vec4D(-width_m_goldenRatio, 0,  width, 1), //10
-                      new vec4D(-width_m_goldenRatio, 0, -width, 1)  //11
-                    ];
-
-    this.faces = [[10, 0, 2], [0, 8, 2], [8, 5, 2], [5, 7, 2], [7, 10, 2],
-                  [6, 0, 10], [11, 6, 10], [7, 11, 10], [7, 3, 11], [5, 3, 7], [9, 3, 5], [8, 9, 5], [4, 9, 8], [0, 4, 8], [6, 4, 0],
-                  [11, 3, 1], [6, 11, 1], [4, 6, 1], [9, 4, 1], [3, 9, 1]];
-
-    // tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotate(-1.029, new descartesJS.Vector3D(0, 1, 0));
-    tmpMatrix = new descartesJS.Matrix4x4().setIdentity().rotateY(-1.0285);
-    for (i=0, l=this.vertices.length; i<l; i++) {
-      this.vertices[i] = tmpMatrix.multiplyVector4(this.vertices[i]);
-    }
-
-    this.updateValues(width, height, length, Nu, Nv);
-  }
-
-  /**
-   * Define the vertex and faces of the sphere
-   */
-  function buildSphere(width, height, length, Nu, Nv) {
-    width = width/2;
-
-    if (this.isSphere) {
-      height = width;
-      length = width;
-    }
-    else {
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width  = width/2;
       height = height/2;
       length = length/2;
-    }
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
-    }
-
-    this.vertices = [new vec4D(0, 0, height, 1)];
-
-    for (i=1; i<Nu; i++) {
-      phi = (i*MathPI)/Nu;
-      for (j=0; j<Nv; j++) {
-        theta = (j*Math2PI)/Nv;
-
-        x = width  * MathSin(phi) * MathCos(theta);
-        y = length * MathSin(phi) * MathSin(theta);
-        z = height * MathCos(phi);
-
-        this.vertices.push(new vec4D(x, y, z, 1));
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
       }
-    }
-    this.vertices.push(new vec4D(0, 0, -height, 1));
+  
+      this.V = [
+        new vec4D( width,  length,  height), //0
+        new vec4D( width, -length,  height), //1
+        new vec4D( width,  length, -height), //2
+        new vec4D( width, -length, -height), //3
+        new vec4D(-width,  length,  height), //4
+        new vec4D(-width, -length,  height), //5
+        new vec4D(-width,  length, -height), //6
+        new vec4D(-width, -length, -height)  //7
+      ];
 
-    this.faces = [];
-    // upper part
-    for (i=0; i<Nv; i++) {
-      this.faces.push([0, ((i+1)%Nv)+1, (i%Nv)+1]);
+      this.updateValues(width, height, length, Nu, Nv);
     }
-
-    // center part
-    for (i=1; i<Nu-1; i++) {
-      for (j=0; j<Nv; j++) {
-        this.faces.push([ j+1 +(i-1)*Nv,
-                         (j+1)%Nv +1 +(i-1)*Nv,
-                         (j+1)%Nv +1 +i*Nv,
-                         j+1 +i*Nv
-                        ]);
-      }
-    }
-
-    // lower part
-    for (i=0; i<Nv; i++) {
-      this.faces.push([this.vertices.length-1, this.vertices.length-1-Nv +i, this.vertices.length-1-Nv +((i+1)%Nv)]);
-    }
-
-    this.updateValues(width, height, length, Nu, Nv);
   }
 
+
   /**
-   * Define the vertex and faces of the cone
+   * 
    */
-  function buildCone(width, height, length, Nu, Nv) {
-    width  = width/2;
-    height = height/2;
-    length = length/2;
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
+  class Cube3D extends Box3D {
+    constructor(parent, values) {
+      super(parent, values);
     }
-
-    this.vertices = [];
-
-    for (i=0; i<Nv; i++) {
-      for (j=0; j<Nu; j++) {
-        x = width  * (Nv-i)/Nv * MathCos(j*Math2PI/Nu);
-        y = length * (Nv-i)/Nv * MathSin(j*Math2PI/Nu);
-        z = height -i*2*height/Nv;
-
-        this.vertices.push(new vec4D(x, y, z, 1));
-      }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      height = width/MathSqrt3;
+      super.buildGeometry(height, height, height, Nu, Nv);
     }
-    this.vertices.push(new vec4D(0, 0, -height, 1))
-
-    this.faces = [];
-
-    for (i=0; i<Nv-1; i++) {
-      for (j=0; j<Nu; j++) {
-        this.faces.push( [j +i*Nu,
-                          (j+1)%Nu +i*Nu,
-                          (j+1)%Nu +(i+1)*Nu,
-                          j +(i+1)*Nu
-                         ]
-                       );
-      }
-    }
-
-    // tip
-    for (i=0; i<Nu; i++) {
-      this.faces.push([this.vertices.length-1, this.vertices.length-1 -Nu +i, this.vertices.length-1 -Nu +(i+1)%Nu]);
-    }
-
-    this.updateValues(width, height, length, Nu, Nv);
   }
 
+
   /**
-   * Define the vertex and faces of the cone
+   * 
    */
-  function buildCylinder(width, height, length, Nu, Nv) {
-    width  = width/2;
-    height = height/2;
-    length = length/2;
+  class Tetrahedron3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
 
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
+      this.faces = [[1, 3, 2], [0, 1, 2], [0, 2, 3], [0, 3, 1]];
     }
-
-    this.vertices = [];
-
-    for (i=0; i<Nv+1; i++) {
-      for (j=0; j<Nu; j++) {
-        x = width  * MathCos(j*Math2PI/Nu);
-        y = length * MathSin(j*Math2PI/Nu);
-        z = height -i*2*height/Nv;
-
-        this.vertices.push(new vec4D(x, y, z, 1));
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width = width/2;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
       }
+      
+      let angle = Math2PI/3;
+      let c = Math.cos(angle);
+      let s = Math.sin(angle);
+      let x = width*2*Math.sqrt(2)/3;
+      let y = 0;
+      let z = -width*1/3;
+      let x0 =  x*c + y*s;
+      let y0 = -x*s + y*c;
+      this.V = [
+        new vec4D( 0,   0, width), //0
+        new vec4D(x0,  y0,     z), //1
+        new vec4D(x0, -y0,     z), //2
+        new vec4D( x,   y,     z), //3
+      ];
+
+      this.updateValues(width, height, length, Nu, Nv);
     }
-
-    this.faces = [];
-
-    for (i=0; i<Nv; i++) {
-      for (j=0; j<Nu; j++) {
-        this.faces.push( [j +i*Nu,
-                          (j+1)%Nu +i*Nu,
-                          (j+1)%Nu +(i+1)*Nu,
-                          j +(i+1)*Nu
-                         ]
-                       );
-      }
-    }
-
-    this.updateValues(width, height, length, Nu, Nv);
   }
 
+
   /**
-   * Define the vertex and faces of a torus
+   * 
    */
-  function buildTorus(width, height, length, Nu, Nv) {
-    width  = width/2;
-    height = height/2;
-    length = length/2;
+  class Octahedron3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
 
-    R = evaluator.eval(this.R);
-    r = evaluator.eval(this.r);
-
-    // if the geometry has to change
-    if (this.changeGeometry(width, height, length, Nu, Nv)) {
-      return;
+      this.faces = [[3, 1, 0], [2, 3, 0], [1, 4, 0], [4, 2, 0], [1, 3, 5], [3, 2, 5], [4, 1, 5], [2, 4, 5]];
     }
-
-    this.vertices = [];
-
-    for (i=0; i<Nv+1; i++) {
-      for (j=0; j<Nu; j++) {
-        x = -(R + r * MathSin(Math2PI*j/Nu)) * MathSin(Math2PI*i/Nv);
-        y =  (R + r * MathSin(Math2PI*j/Nu))  * MathCos(Math2PI*i/Nv);
-        z = r * MathCos(Math2PI*j/Nu);
-        this.vertices.push(new vec4D(x, y, z, 1));
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width = width/2;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
       }
+  
+      this.V = [
+        new vec4D( 0,          0,  width), //0
+        new vec4D( width,      0,      0), //1
+        new vec4D(-width,      0,      0), //2
+        new vec4D( 0,      width,      0), //3
+        new vec4D( 0,     -width,      0), //4
+        new vec4D( 0,          0, -width)  //5
+      ];
+    
+      this.updateValues(width, height, length, Nu, Nv);
     }
-    this.faces = [];
-
-    for (i=0; i<Nv; i++) {
-      for (j=0; j<Nu; j++) {
-        this.faces.push( [j +i*Nu,
-                          j +(i+1)*Nu,
-                          (j+1)%Nu +(i+1)*Nu,
-                          (j+1)%Nu +i*Nu
-                         ]
-                       );
-      }
-    }
-
-    this.updateValues(width, height, length, Nu, Nv);
   }
 
+
   /**
-   * Define the vertex and faces of a mesh
+   * 
    */
-  function buildMesh() {
-    this.vertices = [];
-    this.faces = [];
-
-    for (i=0, l=this.fileData.length; i<l; i++) {
-      currentLine = this.fileData[i];
-
-      if (currentLine.match(/^V\(/)) {
-        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(parseFloats);
-        this.vertices.push( new vec4D(tempValue[0] || 0, tempValue[1] || 0, tempValue[2] || 0, 1) );
+  class Ellipsoid3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width  = width/2;
+      height = height/2;
+      length = length/2;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
       }
+  
+      this.V = [new vec4D(0, 0, height)];
+  
+      for (let i=1; i<Nu; i++) {
+        phi = (i*MathPI)/Nu;
+        for (let j=0; j<Nv; j++) {
+          theta = (j*Math2PI)/Nv;
 
-      else if (currentLine.match(/^F\(/)) {
-        tempValue = currentLine.substring(2, currentLine.length-1).split(",").map(parseInt);
-        this.faces.push(tempValue.reverse());
+          this.V.push(
+            new vec4D(
+              width  * MathSin(phi) * MathCos(theta),
+              length * MathSin(phi) * MathSin(theta),
+              height * MathCos(phi)
+            )
+          );
+        }
+      }
+      this.V.push(new vec4D(0, 0, -height));
+  
+      this.faces = [];
+      // upper part
+      for (let i=0; i<Nv; i++) {
+        this.faces.push([0, ((i+1)%Nv)+1, (i%Nv)+1]);
+      }
+  
+      // center part
+      for (let i=1; i<Nu-1; i++) {
+        for (let j=0; j<Nv; j++) {
+          this.faces.push([
+            j+1 +(i-1)*Nv,
+            (j+1)%Nv +1 +(i-1)*Nv,
+            (j+1)%Nv +1 +i*Nv,
+            j+1 +i*Nv
+          ]);
+        }
+      }
+  
+      // lower part
+      for (let i=0; i<Nv; i++) {
+        this.faces.push([this.V.length-1, this.V.length-1-Nv +i, this.V.length-1-Nv +((i+1)%Nv)]);
+      }
+  
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Sphere3D extends Ellipsoid3D {
+    constructor(parent, values) {
+      super(parent, values);
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      super.buildGeometry(width, width, width, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Dodecahedron3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+
+      this.faces = [[0, 16, 2, 10, 8], [12, 1, 17, 16, 0], [8, 4, 14, 12, 0], [2, 16, 17, 3, 13], [13, 15, 6, 10, 2], [6, 18, 4, 8, 10], [3, 17, 1, 9, 11], [13, 3, 11, 7, 15], [1, 12, 14, 5, 9], [11, 9, 5, 19, 7], [5, 14, 4, 18, 19], [6, 15, 7, 19, 18]];
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width = width/Math.PI;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
+      }
+  
+      width_d_goldenRatio = width/goldenRatio;
+      width_m_goldenRatio = width*goldenRatio;
+  
+      this.V = [
+        new vec4D( width,  width,  width), //0
+        new vec4D( width,  width, -width), //1
+        new vec4D( width, -width,  width), //2
+        new vec4D( width, -width, -width), //3
+        new vec4D(-width,  width,  width), //4
+        new vec4D(-width,  width, -width), //5
+        new vec4D(-width, -width,  width), //6
+        new vec4D(-width, -width, -width), //7
+  
+        new vec4D(0,  width_d_goldenRatio,  width_m_goldenRatio), //8
+        new vec4D(0,  width_d_goldenRatio, -width_m_goldenRatio), //9
+        new vec4D(0, -width_d_goldenRatio,  width_m_goldenRatio), //10
+        new vec4D(0, -width_d_goldenRatio, -width_m_goldenRatio), //11
+  
+        new vec4D( width_d_goldenRatio,  width_m_goldenRatio, 0), //12
+        new vec4D( width_d_goldenRatio, -width_m_goldenRatio, 0), //13
+        new vec4D(-width_d_goldenRatio,  width_m_goldenRatio, 0), //14
+        new vec4D(-width_d_goldenRatio, -width_m_goldenRatio, 0), //15
+  
+        new vec4D( width_m_goldenRatio, 0,  width_d_goldenRatio), //16
+        new vec4D( width_m_goldenRatio, 0, -width_d_goldenRatio), //17
+        new vec4D(-width_m_goldenRatio, 0,  width_d_goldenRatio), //18
+        new vec4D(-width_m_goldenRatio, 0, -width_d_goldenRatio)  //19
+      ];
+  
+      tmpMatrix = new descartesJS.Mat4().setIdentity().rotateY(-MathPI/6);
+  
+      for (let i=0, l=this.V.length; i<l; i++) {
+        this.V[i] = tmpMatrix.mulV4(this.V[i]);
+      }
+ 
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Icosahedron3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+
+      this.faces = [[10, 0, 2], [0, 8, 2], [8, 5, 2], [5, 7, 2], [7, 10, 2],
+      [6, 0, 10], [11, 6, 10], [7, 11, 10], [7, 3, 11], [5, 3, 7], [9, 3, 5], [8, 9, 5], [4, 9, 8], [0, 4, 8], [6, 4, 0],
+      [11, 3, 1], [6, 11, 1], [4, 6, 1], [9, 4, 1], [3, 9, 1]];
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width = width/3.8;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
+      }
+  
+      width_m_goldenRatio = width*goldenRatio;
+  
+      this.V = [
+        new vec4D(0,  width,  width_m_goldenRatio), //0
+        new vec4D(0,  width, -width_m_goldenRatio), //1
+        new vec4D(0, -width,  width_m_goldenRatio), //2
+        new vec4D(0, -width, -width_m_goldenRatio), //3
+  
+        new vec4D( width,  width_m_goldenRatio, 0), //4
+        new vec4D( width, -width_m_goldenRatio, 0), //5
+        new vec4D(-width,  width_m_goldenRatio, 0), //6
+        new vec4D(-width, -width_m_goldenRatio, 0), //7
+  
+        new vec4D( width_m_goldenRatio, 0,  width), //8
+        new vec4D( width_m_goldenRatio, 0, -width), //9
+        new vec4D(-width_m_goldenRatio, 0,  width), //10
+        new vec4D(-width_m_goldenRatio, 0, -width)  //11
+      ];
+    
+      tmpMatrix = new descartesJS.Mat4().setIdentity().rotateY(-1.0285);
+  
+      for (let i=0, l=this.V.length; i<l; i++) {
+        this.V[i] = tmpMatrix.mulV4(this.V[i]);
+      }
+  
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Cone3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width  = width/2;
+      height = height/2;
+      length = length/2;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
+      }
+  
+      this.V = [];
+  
+      for (let i=0; i<Nv; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.V.push(
+            new vec4D(
+              width  * (Nv-i)/Nv * MathCos(j*Math2PI/Nu),
+              length * (Nv-i)/Nv * MathSin(j*Math2PI/Nu),
+              height -i*2*height/Nv
+            )
+          );
+        }
+      }
+      this.V.push(new vec4D(0, 0, -height))
+  
+      this.faces = [];
+  
+      for (let i=0; i<Nv-1; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.faces.push([
+            j +i*Nu,
+            (j+1)%Nu +i*Nu,
+            (j+1)%Nu +(i+1)*Nu,
+            j +(i+1)*Nu
+          ]);
+        }
+      }
+  
+      // tip
+      for (let i=0; i<Nu; i++) {
+        this.faces.push([this.V.length-1, this.V.length-1 -Nu +i, this.V.length-1 -Nu +(i+1)%Nu]);
+      }
+  
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Cylinder3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width  = width/2;
+      height = height/2;
+      length = length/2;
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
+      }
+  
+      this.V = [];
+  
+      for (let i=0; i<Nv+1; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.V.push(
+            new vec4D(
+              width  * MathCos(j*Math2PI/Nu),
+              length * MathSin(j*Math2PI/Nu),
+              height -i*2*height/Nv
+            )
+          );
+        }
+      }
+  
+      this.faces = [];
+  
+      for (let i=0; i<Nv; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.faces.push([
+            j +i*Nu,
+            (j+1)%Nu +i*Nu,
+            (j+1)%Nu +(i+1)*Nu,
+            j +(i+1)*Nu
+          ]);
+        }
+      }
+  
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Torus3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+    }
+  
+    buildGeometry(width, height, length, Nu, Nv) {
+      width  = width/2;
+      height = height/2;
+      length = length/2;
+  
+      R = evaluator.eval(this.R);
+      r = evaluator.eval(this.r);
+  
+      // if the geometry has to change
+      if (this.changeGeometry(width, height, length, Nu, Nv)) {
+        return;
+      }
+  
+      this.V = [];
+  
+      for (let i=0; i<Nv+1; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.V.push(
+            new vec4D(
+              -(R + r * MathSin(Math2PI*j/Nu)) * MathSin(Math2PI*i/Nv),
+               (R + r * MathSin(Math2PI*j/Nu)) * MathCos(Math2PI*i/Nv),
+              r * MathCos(Math2PI*j/Nu)
+            )
+          );
+        }
+      }
+      this.faces = [];
+  
+      for (let i=0; i<Nv; i++) {
+        for (let j=0; j<Nu; j++) {
+          this.faces.push([
+            j +i*Nu,
+            j +(i+1)*Nu,
+            (j+1)%Nu +(i+1)*Nu,
+            (j+1)%Nu +i*Nu
+          ]);
+        }
+      }
+  
+      this.updateValues(width, height, length, Nu, Nv);
+    }
+  }
+
+
+  /**
+   * 
+   */
+  class Mesh3D extends OtherGeometry3D {
+    constructor(parent, values) {
+      super(parent, values);
+      self.fileData = descartesJS.openFile(self.evaluator.eval(self.file)).split(/\r/);
+    }
+  
+    buildGeometry() {
+      this.V = [];
+      this.faces = [];
+  
+      for (let i=0, l=this.fileData.length; i<l; i++) {
+        currentLine = this.fileData[i];
+  
+        if (currentLine.startsWith("V")) {
+          tempValue = currentLine.slice(2, -1).split(",").map(parseFloat);
+          this.V.push( 
+            new vec4D(
+              tempValue[0] || 0,
+              tempValue[1] || 0,
+              tempValue[2] || 0
+            )
+          );
+        }
+  
+        else if (currentLine.startsWith("F")) {
+          tempValue = currentLine.slice(2, -1).split(",").map(parseInt);
+          this.faces.push(tempValue.reverse());
+        }
       }
     }
   }
 
   descartesJS.OtherGeometry3D = OtherGeometry3D;
+  descartesJS.Cube3D = Cube3D;
+  descartesJS.Box3D = Box3D;
+  descartesJS.Tetrahedron3D = Tetrahedron3D;
+  descartesJS.Octahedron3D = Octahedron3D;
+  descartesJS.Sphere3D = Sphere3D;
+  descartesJS.Ellipsoid3D = Ellipsoid3D;
+  descartesJS.Dodecahedron3D = Dodecahedron3D;
+  descartesJS.Icosahedron3D = Icosahedron3D;
+  descartesJS.Cone3D = Cone3D;
+  descartesJS.Cylinder3D = Cylinder3D;
+  descartesJS.Torus3D = Torus3D;
+  descartesJS.Mesh3D = Mesh3D;
+
   return descartesJS;
 })(descartesJS || {});

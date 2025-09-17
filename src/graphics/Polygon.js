@@ -6,16 +6,16 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathRound = Math.round;
+  let MathRound = Math.round;
 
-  var evaluator;
-  var space;
-  var points;
-  var radianAngle;
-  var tmpLineWidth;
-  var lineDesp;
-  var coordX;
-  var coordY;
+  let evaluator;
+  let space;
+  let points;
+  let radianAngle;
+  let tmpLineWidth;
+  let lineDesp;
+  let coordX;
+  let coordY;
 
   class Polygon extends descartesJS.Graphic {
     /**
@@ -30,7 +30,7 @@ var descartesJS = (function(descartesJS) {
       this.width = this.width || parent.evaluator.parser.parse("1");
       this.fill = this.fill || "";
 
-      this.endPoints = [];
+      this.points = [];
     }
 
     /**
@@ -41,16 +41,16 @@ var descartesJS = (function(descartesJS) {
 
       points = evaluator.eval(this.expresion);
 
-      for(var i=0, l=points.length; i<l; i++){
-        this.endPoints[i] = { x: points[i][0], y: points[i][1] };
+      for (let i=0, l=points.length; i<l; i++) {
+        this.points[i] = {x: points[i][0], y: points[i][1]};
       }
 
       // rotate the elements in case the graphic is part of a macro
       if (this.rotateExp) {
         radianAngle = descartesJS.degToRad(evaluator.eval(this.rotateExp));
 
-        for (var i=0, l=this.endPoints.length; i<l; i++) {
-          this.endPoints[i] = this.rotate(this.endPoints[i].x, this.endPoints[i].y, radianAngle);
+        for (let i=0, l=this.points.length; i<l; i++) {
+          this.points[i] = this.rotate(this.points[i].x, this.points[i].y, radianAngle);
         }
       }
     }
@@ -80,27 +80,26 @@ var descartesJS = (function(descartesJS) {
       space = this.space;
 
       // the width of a line can not be 0 or negative
-      // tmpLineWidth = MathRound( evaluator.eval(this.width) );
-      // ctx.lineWidth = (tmpLineWidth > 0) ? tmpLineWidth : 0.000001;
-ctx.lineWidth = Math.max(
-  0.000001, 
-  MathRound( evaluator.eval(this.width) )
-);
+      tmpLineWidth = MathRound( evaluator.eval(this.width) );
+      ctx.lineWidth = Math.max(
+        0.000001, 
+        tmpLineWidth
+      );
 
       ctx.strokeStyle = stroke.getColor();
       ctx.lineCap = ctx.lineJoin = "round";
 
       lineDesp = (tmpLineWidth > 0) ? 0.5 : 0;
 
-      coordX = MathRound( (this.abs_coord) ? this.endPoints[0].x : space.getAbsoluteX(this.endPoints[0].x) );
-      coordY = MathRound( (this.abs_coord) ? this.endPoints[0].y : space.getAbsoluteY(this.endPoints[0].y) );
+      coordX = MathRound( (this.abs_coord) ? this.points[0].x : space.getAbsoluteX(this.points[0].x) );
+      coordY = MathRound( (this.abs_coord) ? this.points[0].y : space.getAbsoluteY(this.points[0].y) );
 
       ctx.beginPath();
       ctx.moveTo(coordX+lineDesp, coordY+lineDesp);
 
-      for(var i=1, l=this.endPoints.length; i<l; i++) {
-        coordX = MathRound( (this.abs_coord) ? this.endPoints[i].x : space.getAbsoluteX(this.endPoints[i].x) );
-        coordY = MathRound( (this.abs_coord) ? this.endPoints[i].y : space.getAbsoluteY(this.endPoints[i].y) );
+      for(let i=1, l=this.points.length; i<l; i++) {
+        coordX = MathRound( (this.abs_coord) ? this.points[i].x : space.getAbsoluteX(this.points[i].x) );
+        coordY = MathRound( (this.abs_coord) ? this.points[i].y : space.getAbsoluteY(this.points[i].y) );
         
         ctx.lineTo(coordX+lineDesp, coordY+lineDesp);
       }

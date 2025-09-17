@@ -6,13 +6,13 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  class Config extends descartesJS.Action {
+  class Config {
     /**
      * Descartes config action
      * @param {DescartesApp} parent the Descartes application
      */
     constructor(parent) {
-      super(parent);
+      this.parent = parent;
     }
 
     /**

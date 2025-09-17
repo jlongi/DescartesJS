@@ -6,52 +6,52 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var MathFloor = Math.floor;
-  var MathRound = Math.round;
-  var PI2 = Math.PI*2;
-  var minScale = 0.000001;
-  var maxScale = 1000000;
+  let self;
 
-  var axisFont = descartesJS.convertFont("Serif,BOLD+ITALIC,16");
-  var mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
+  const PI2 = Math.PI*2;
+  const minScale = 0.000001;
+  const maxScale = 1000000;
+  const axisFont = descartesJS.convertFont("Serif,BOLD+ITALIC,16");
+  const mouseTextFont = descartesJS.convertFont("Monospaced,PLAIN,12");
 
-  var self;
-  var evaluator;
-  var parent;
-  var ctx;
+  let MathFloor = Math.floor;
+  let MathRound = Math.round;
 
-  var changeX;
-  var changeY;
-  var thisGraphics_i;
+  let evaluator;
+  let parent;
+  let ctx;
 
-  var rsc;
-  var dec;
-  var wh_temp;
+  let changeX;
+  let changeY;
 
-  var w;
-  var h;
-  var x;
-  var y;
-  var Ox;
-  var Oy;
-  var x1;
-  var x2;
-  var y1;
-  var y2;
+  let rsc;
+  let dec;
+  let wh_temp;
 
-  var coordTxt_X;
-  var coordTxt_Y;
-  var coordTxt;
-  var coordTxtW;
-  var mouseX;
-  var mouseY;
-  var posX;
-  var posY;
+  let w;
+  let h;
+  let x;
+  let y;
+  let Ox;
+  let Oy;
+  let x1;
+  let x2;
+  let y1;
+  let y2;
 
-  var wModExpr;
-  var hModExpr;
+  let coordTxt_X;
+  let coordTxt_Y;
+  let coordTxt;
+  let coordTxtW;
+  let mouseX;
+  let mouseY;
+  let posX;
+  let posY;
 
-  var displace = {};
+  let wModExpr;
+  let hModExpr;
+
+  let displace = {};
 
   class Space2D extends descartesJS.Space {
     /**
@@ -112,13 +112,6 @@ var descartesJS = (function(descartesJS) {
         style : `z-index:${self.zIndex};`,
       });
 
-      // ### ARQUIMEDES ###
-      // the default arquimedes add a border to the container
-      if ((self.parent.arquimedes) && (self.background.getColor() === "#f0f8fa")) {
-        self.container.style.boxShadow = "0 0 5px 0 #b8c4c8";
-      }
-      // ### ARQUIMEDES ###
-
       // add the elements to the container
       self.container.appendChild(self.backCanvas);
       self.container.appendChild(self.canvas);
@@ -128,20 +121,20 @@ var descartesJS = (function(descartesJS) {
       parent.container.insertBefore(self.container, parent.loader);
 
       // variable to expose the image of the space
-      var id_name = self.id + ".image";
+      let id_name = self.id + ".image";
       self.parent.images[id_name] = self.canvas;
       self.parent.images[id_name].ready = 1;
       self.parent.images[id_name].complete = self.parent.images[id_name].canvas = true;
       self.evaluator.setVariable(id_name, id_name);
 
       // variable to expose the image of the background space
-      var id_back = self.id + ".back";
+      let id_back = self.id + ".back";
       self.parent.images[id_back] = self.backCanvas;
       self.parent.images[id_back].ready = 1;
       self.parent.images[id_back].complete = self.parent.images[id_back].canvas = true;
       self.evaluator.setVariable(id_back, id_back);
 
-      var tmpStr = ((self.id !== "") && (parent.version !== 2)) ? self.id + "." : "";
+      let tmpStr = ((self.id !== "") && (parent.version !== 2)) ? self.id + "." : "";
       self.OxStr    = tmpStr + "Ox";
       self.OyStr    = tmpStr + "Oy";
       self.scaleStr = tmpStr + "escala";
@@ -164,9 +157,6 @@ var descartesJS = (function(descartesJS) {
       if (self.id !== "descartesJS_stage") {
         self.addEvents();
       }
-      else {
-        self.canvas.oncontextmenu = function (evt) { return false; };
-      }
 
       parent.evaluator.setVariable(self.id+"._refresh_back_", 1);
     }
@@ -178,7 +168,7 @@ var descartesJS = (function(descartesJS) {
       self = this;
 
       // call the init of the parent
-      this.initSpace();
+      self.initSpace();
 
       // update the size of the canvas if has some regions
       if (self.canvas) {
@@ -314,13 +304,13 @@ var descartesJS = (function(descartesJS) {
 
       rsc = self.scale;
       dec = 0;
-      wh_temp = ((self.w+self.h) < 0) ? 0 : (self.w+self.h);
+      wh_temp = Math.max(0, self.w+self.h);
 
-      while (rsc>(wh_temp)) {
+      while (rsc > wh_temp) {
         rsc/=10;
         dec++;
       }
-      while (rsc<(wh_temp)/10) {
+      while (rsc < (wh_temp/10)) {
         rsc*=10;
       }
 
@@ -333,16 +323,17 @@ var descartesJS = (function(descartesJS) {
       }
 
       // draw the finest net
-      if ( ((self.parent.version !== 2) && (self.net10 !== "")) ||
-          ((self.parent.version === 2) && (self.net !== "") && (self.net10 !== ""))
-        ) {
+      if (
+        ((self.parent.version !== 2) && (self.net10 !== "")) ||
+        ((self.parent.version === 2) && (self.net !== "") && (self.net10 !== ""))
+      ) {
         ctx.strokeStyle = self.net10.getColor();
         self.drawMarks(ctx, rsc, -1);
       }
 
       // draw the axes
       if (self.axes !== "") {
-        var ignore_axis = "";
+        let ignore_axis = "";
         if (self.x_axis == "no") {
           ignore_axis+= "x";
         }
@@ -408,8 +399,8 @@ var descartesJS = (function(descartesJS) {
       }
 
       // draw the background graphics
-      for (var i=0, l=this.backGraphics.length; i<l; i++) {
-        this.backGraphics[i].draw();
+      for (let backGraphics_i of self.backGraphics) {
+        backGraphics_i.draw();
       }
     }
 
@@ -426,19 +417,16 @@ var descartesJS = (function(descartesJS) {
       }
 
       // draw the no background graphics
-      for (var i=0, l=self.graphics.length; i<l; i++) {
-        thisGraphics_i = self.graphics[i];
-
+      for (let thisGraphics_i of self.graphics) {
         if ((thisGraphics_i.trace !== "") && (self.drawTrace)) {
           thisGraphics_i.drawTrace();
         }
-
         thisGraphics_i.draw();
       }
 
       // draw the graphic controls
-      for (var i=0, l=self.graphicsCtr.length; i<l; i++) {
-        self.graphicsCtr[i].draw();
+      for (let graphicsCtr_i of self.graphicsCtr) {
+        graphicsCtr_i.draw();
       }
 
       // draw the text showing the mouse position
@@ -452,7 +440,7 @@ var descartesJS = (function(descartesJS) {
 
         coordTxt_X = (self.scale <= 1) ? ((self.mouse_x).toFixed(0)) : (self.mouse_x).toFixed((parseInt(self.scale)).toString().length+1);
         coordTxt_Y = (self.scale <= 1) ? ((self.mouse_y).toFixed(0)) : (self.mouse_y).toFixed((parseInt(self.scale)).toString().length+1);
-        coordTxt = "(" + coordTxt_X + "," + coordTxt_Y + ")";
+        coordTxt = `(${coordTxt_X},${coordTxt_Y})`;
         coordTxtW = MathFloor(ctx.measureText(coordTxt).width/2);
         mouseX = self.getAbsoluteX(self.mouse_x);
         mouseY = self.getAbsoluteY(self.mouse_y);
@@ -476,7 +464,7 @@ var descartesJS = (function(descartesJS) {
         ctx.fillText(coordTxt, posX, posY);
 
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 2.5, 0, PI2, true);
+        ctx.arc(mouseX, mouseY, 2.5, 0, PI2);
         ctx.stroke();
         ctx.restore();
       }
@@ -509,15 +497,15 @@ var descartesJS = (function(descartesJS) {
       ctx.beginPath();
 
       if ((!ignore) || ((ignore) && (!ignore.match("x")))) {
-        for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
-          ctx.moveTo(x+.5, y1+.5);
-          ctx.lineTo(x+.5, y2+.5);
+        for (let i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
+          ctx.moveTo(x+0.5, y1+0.5);
+          ctx.lineTo(x+0.5, y2+0.5);
         }
       }
       if ((!ignore) || ((ignore) && (!ignore.match("y")))) {
-        for (var i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
-          ctx.moveTo(x1+.5, y+.5);
-          ctx.lineTo(x2+.5, y+.5);
+        for (let i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
+          ctx.moveTo(x1+0.5, y+0.5);
+          ctx.lineTo(x2+0.5, y+0.5);
         }
       }
 
@@ -537,11 +525,11 @@ var descartesJS = (function(descartesJS) {
       Ox = MathFloor(w/2+this.Ox);
       Oy = MathFloor(h/2+this.Oy);
 
-      for (var i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
+      for (let i=-MathRound(Ox/rsc); (x = Ox + MathRound(i*rsc)) < w; i++) {
         ctx.fillText(parseFloat( (i*rsc/this.scale).toFixed(4) ), x+1, Oy-2);
       }
 
-      for (var i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
+      for (let i=-MathRound(Oy/rsc); (y = Oy + MathRound(i*rsc)) < h; i++) {
         if (parseFloat( (-i*rsc/this.scale) ) !== 0) {
           ctx.fillText(parseFloat( (-i*rsc/this.scale).toFixed(4) ), Ox+5, y+5);
         }
@@ -552,19 +540,16 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
+      let self = this;
       self.posZoom = self.posZoomNew = null;
-
-      // prevent the context menu display
-      self.canvas.oncontextmenu = function (evt) { return false; };
 
       ///////////////////////////////////////////////////////////////////////////
       // touch events
       ///////////////////////////////////////////////////////////////////////////
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
+      if (self.sensitive_to_mouse_movements) {
+        self.canvas.addEventListener("touchmove",  onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("touchstart", onTouchStart);
+      self.canvas.addEventListener("touchstart", onTouchStart);
 
       /**
        * @param {Event} evt
@@ -576,7 +561,7 @@ var descartesJS = (function(descartesJS) {
         document.activeElement.blur();
 
         // try to preserve the slide gesture in tablets
-        if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
+        if ((!self.evaluator.variables[self.id + ".DJS_NO_FIXED"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
           return;
         }
 
@@ -609,7 +594,7 @@ var descartesJS = (function(descartesJS) {
         document.activeElement.blur();
 
         // try to preserve the slide gesture in tablets
-        if ((!self.evaluator.variables[self.id + ".DESCARTESJS_no_fixed"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
+        if ((!self.evaluator.variables[self.id + ".DJS_NO_FIXED"]) && (self.fixed) && (!self.sensitive_to_mouse_movements)) {
           return;
         }
 
@@ -630,17 +615,10 @@ var descartesJS = (function(descartesJS) {
       ///////////////////////////////////////////////////////////////////////////
       // mouse events
       ///////////////////////////////////////////////////////////////////////////
-      if (this.sensitive_to_mouse_movements) {
-        this.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
+      if (self.sensitive_to_mouse_movements) {
+        self.canvas.addEventListener("mousemove", onSensitiveToMouseMovements);
       }
-      this.canvas.addEventListener("mousedown", onMouseDown);
-
-      /**
-       * double click
-       */
-      // this.canvas.addEventListener("dblclick", function(evt) {
-        // self.parent.externalSpace.show();
-      // });
+      self.canvas.addEventListener("mousedown", onMouseDown);
 
       /**
        * @param {Event} evt

@@ -6,9 +6,11 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var evaluator;
-  var displaceY;
-  var newText;
+  let self;
+  let evaluator;
+  let displaceY;
+  let newText;
+  let parseAnswer;
 
   class TextArea extends descartesJS.Control {
     /**
@@ -20,90 +22,82 @@ var descartesJS = (function(descartesJS) {
       // call the parent constructor
       super(parent, values);
 
-      this.font_family = values.font_family || "sansserif";
-      this.style = values.style || ",PLAIN,";
-      this.font_size = values.font_size || 12;
+      // is needed for the insertAtCursor function
+      let self = this;
 
-      if (typeof(this.font_size !== "number")) {
-        this.font_size = this.evaluator.eval(this.font_size);
+      self.font_family = values.font_family || "sansserif";
+      self.style = values.style || ",PLAIN,";
+      self.font_size = values.font_size || 12;
+
+      if (typeof(self.font_size !== "number")) {
+        self.font_size = self.evaluator.eval(self.font_size);
       }
   
-      this.font = this.font_family + this.style + this.font_size;
+      self.font = self.font_family + self.style + self.font_size;
 
       // overwrite scroll
-      this.evaluator.setVariable(this.id + "._scroll_x", 0);
-      this.evaluator.setVariable(this.id + "._scroll_y", 0);
+      self.evaluator.setVariable(self.id + "._scroll_x", 0);
+      self.evaluator.setVariable(self.id + "._scroll_y", 0);
 
       // always show in the interior region
-      this.region = "interior";
+      self.region = "interior";
 
       // tabular index
-      this.tabindex = ++this.parent.tabindex;
+      self.tabindex = ++parent.tabindex;
 
       // the answer exist
-      if (this.answer) {
+      if (self.answer) {
         // the answer is encrypted
-        if (this.answer.match("krypto_")) {
-          this.answer = (new descartesJS.Krypto()).decode(this.answer.substring(7));
+        if ((/^krypto_/).test(self.answer)) {
+          self.answer = (new descartesJS.Krypto()).decode(self.answer.substring(7));
         }
 
-        var parseAnswer = this.parent.lessonParser.parseText(this.answer);
+        parseAnswer = self.parent.lessonParser.parseText(self.answer);
       }
 
       // control container
-      this.containerControl = descartesJS.newHTML("div", {
+      self.containerControl = descartesJS.newHTML("div", {
         class      : "DescartesTextAreaContainer",
-        id         : this.id,
+        id         : self.id,
         spellcheck : "false",
       });
 
       // the text area
-      this.textArea = descartesJS.newHTML("textarea", {
-        class      : "DescartesTextAreaContainer",
+      self.textArea = descartesJS.newHTML("textarea", {
+        class      : "DescartesTextArea",
         spellcheck : "false",
       });
-      this.textAreaAnswer = descartesJS.newHTML("div", {
-        class : "DescartesTextAreaContainer",
+      self.textAreaAnswer = descartesJS.newHTML("div", {
+        class : "DescartesTextArea",
       });
 
       // show answer button
-      this.showButton = descartesJS.newHTML("div", {
+      self.showButton = descartesJS.newHTML("div", {
         class : "DJS_Gradient",
       });
 
       // add the elements to the container
-      this.containerControl.appendChild(this.textArea);
-      this.containerControl.appendChild(this.textAreaAnswer);
-      this.containerControl.appendChild(this.showButton);
+      self.containerControl.appendChild(self.textArea);
+      self.containerControl.appendChild(self.textAreaAnswer);
+      self.containerControl.appendChild(self.showButton);
 
-      this.cover = descartesJS.newHTML("div", {
+      self.cover = descartesJS.newHTML("div", {
         class : "TextfieldCover"
       });
-      if (this.keyboard) {
-        this.containerControl.appendChild(this.cover);
+      if (self.keyboard) {
+        self.containerControl.appendChild(self.cover);
       }
 
-      this.addControlContainer(this.containerControl);
+      self.addControlContainer(self.containerControl);
 
-      this.showAnswer = false;
+      self.showAnswer = false;
 
-      this.text = this.rawText || "";
+      self.text = self.rawText || "";
 
-      // rtf answer
-      if ((parseAnswer) && (parseAnswer.type !== "simpleText")) {
-        if (!this.text.hasFormula) {
-          this.answer = parseAnswer.toHTML();
-        }
-        else {
-          this.answer = "";
-        }
-      }
+      self.evaluator.setVariable(self.id, self.text);
 
-      this.evaluator.setVariable(this.id, this.text);
-
-      var self = this;
-      var cursor_pos;
-      this.evaluator.setFunction(this.id + ".insertAtCursor", function(str) {
+      let cursor_pos;
+      self.evaluator.setFunction(self.id + ".insertAtCursor", function(str) {
         cursor_pos = self.textArea.selectionStart + str.length;
         self.textArea.value = self.textArea.value.substring(0, self.textArea.selectionStart) + str + self.textArea.value.substring(self.textArea.selectionEnd);
         self.textArea.selectionStart = self.textArea.selectionEnd = cursor_pos;
@@ -111,84 +105,87 @@ var descartesJS = (function(descartesJS) {
         return 0;
       });
 
-      this.evaluator.setFunction(this.id + ".update", function() {
+      self.evaluator.setFunction(self.id + ".update", () => {
         self.update();
       });
 
-      this.evaluator.setFunction(this.id + ".scrollTo", function(num) {
+      self.evaluator.setFunction(self.id + ".scrollTo", (num) => {
         self.textArea.scrollTop = num;
       });
 
       // register the mouse and touch events
-      this.addEvents();
+      self.addEvents();
 
-      this.init();
+      self.init();
     }
 
     /**
      * Init the text area
      */
     init() {
-      displaceY = (this.answer) ? 28 : 4;
-      evaluator = this.evaluator;
+      self = this;
+      
+      displaceY = (self.answer) ? 30 : 7;
+      evaluator = self.evaluator;
 
-      var newText = this.text.replace(/\\n/g, "\n");
+      let newText = self.text.replace(/\\n/g, "\n");
 
-      this.containerControl.setAttribute("style", `width:${this.w}px;height:${this.h}px;left:${this.x}px;top:${this.y}px;z-index:${this.zIndex};`);
+      self.containerControl.setAttribute("style", `width:${self.w}px;height:${self.h}px;left:${self.x}px;top:${self.y}px;z-index:${self.zIndex};`);
 
-      let style_text_area = `padding:5px;width:${this.w-4}px;height:${this.h-displaceY}px;left:2px;top:2px;background-color:white;text-align:left;font:${descartesJS.convertFont(this.font)};line-height:${this.font_size}px;`;
+      let style_text_area = `width:${self.w-6}px;height:${self.h-displaceY}px;font:${descartesJS.convertFont(self.font)};line-height:${self.font_size}px;`;
 
       // text area
-      this.textArea.setAttribute("style", style_text_area);
-      this.textArea.value = newText;
+      self.textArea.setAttribute("style", style_text_area);
+      self.textArea.value = newText;
 
       // text area answer
-      this.textAreaAnswer.setAttribute("style", `${style_text_area}display:${(this.showAnswer) ? "block" : "none"};`);
-      this.textAreaAnswer.innerHTML = `<span>${this.answer}</span>`;
+      self.textAreaAnswer.setAttribute("style", `${style_text_area}display:${(self.showAnswer) ? "block" : "none"};`);
+      self.textAreaAnswer.innerHTML = `<span>${self.answer}</span>`;
 
       // show answer button
-      this.showButton.setAttribute("style", `width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;border:1px outset #f0f8ff;display:${(this.answer) ? "block" : "none"};`);
-      this.showButton.innerHTML = `<span style="position:relative;top:1px;text-align:center;font:11px ${descartesJS.sansserif_font};">S</span>`;
+      self.showButton.setAttribute("style", `text-align:center;width:20px;height:16px;position:absolute;bottom:4px;right:4px;cursor:pointer;border:1px outset #c0c0c0;display:${(self.answer) ? "block" : "none"};`);
+      self.showButton.innerHTML = `<span style="position:relative;top:1px;text-align:center;font:11px ${descartesJS.sansserif_font};">S</span>`;
 
-      this.cover.setAttribute("style", `position:absolute;width:${this.w}px;height:${this.h}px;left:0px;top:0px;`);
+      self.cover.setAttribute("style", `position:absolute;width:${self.w}px;height:${self.h}px;left:0px;top:0px;`);
 
-      this.update();
+      self.update();
     }
 
     /**
      * Update the text area
      */
     update() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
       
       // check if the control is active and visible
-      this.activeIfValue = (evaluator.eval(this.activeif) > 0);
-      this.drawIfValue = (evaluator.eval(this.drawif) > 0);
+      self.activeIfValue = (evaluator.eval(self.activeif) > 0);
+      self.drawIfValue   = (evaluator.eval(self.drawif) > 0);
 
-      if (evaluator.getVariable(this.id) !== this.oldValue) {
-        this.textArea.value = (evaluator.getVariable(this.id) || "").replace(/\\n/g, "\n");
+      if (evaluator.getVariable(self.id) !== self.oldValue) {
+        self.textArea.value = (evaluator.getVariable(self.id) || "").replace(/\\n/g, "\n");
       }
 
-      newText = (this.textArea.value || "");
+      newText = (self.textArea.value || "");
       newText = (newText.charAt(newText.length-1) === "\n") ? newText.substring(0, newText.length-1) : newText;
       newText = newText.replace(/\n/g, "\\n").replace(/\s/g, " ");
 
-      evaluator.setVariable(this.id, newText);
+      evaluator.setVariable(self.id, newText);
 
-      this.oldFieldValue = newText;
-      this.oldValue = evaluator.getVariable(this.id);
+      self.oldFieldValue = newText;
+      self.oldValue = evaluator.getVariable(self.id);
 
       // enable or disable the control
-      (this.activeIfValue) ? this.textArea.removeAttribute("disabled") : this.textArea.setAttribute("disabled", true);
+      (self.activeIfValue) ? self.textArea.removeAttribute("disabled") : self.textArea.setAttribute("disabled", true);
 
       // hide or show the text field control
-      this.containerControl.style.display = (this.drawIfValue) ? "block" : "none";
+      self.containerControl.style.display = (self.drawIfValue) ? "block" : "none";
 
-      this.textArea.style["overflow-x"] = (evaluator.getVariable(this.id + "._scroll_x") > 0) ? "auto" : "unset";
-      this.textArea.style["overflow-y"] = (evaluator.getVariable(this.id + "._scroll_y") > 0) ? "auto" : "unset";
+      self.textArea.style["overflow-x"] = (evaluator.getVariable(self.id + "._scroll_x") > 0) ? "auto" : "unset";
+      self.textArea.style["overflow-y"] = (evaluator.getVariable(self.id + "._scroll_y") > 0) ? "auto" : "unset";
 
       // update the position and size
-      this.updatePositionAndSize();
+      self.updatePositionAndSize();
     }
 
     changeValue(val) {
@@ -200,9 +197,7 @@ var descartesJS = (function(descartesJS) {
      * Register the mouse and touch events
      */
     addEvents() {
-      var self = this;
-
-      self.cover.oncontextmenu = function() { return false; };
+      let self = this;
 
       /**
        * @param {Event} evt
@@ -213,22 +208,15 @@ var descartesJS = (function(descartesJS) {
         self.showAnswer = !self.showAnswer;
         self.textAreaAnswer.style.display = (self.showAnswer) ? "block" : "none";
         self.showButton.childNodes[0].childNodes[0].textContent = (self.showAnswer) ? "T" : "S";
+        self.textArea.blur();
       }
       self.showButton.addEventListener("mousedown", onMouseDown);
 
-      /**
-       * @param {Event} evt
-       * @private
-       */
-      function onMouseUp(evt) {
-        evt.preventDefault();
-      }
-      self.showButton.addEventListener("mouseup",  onMouseUp);
-      self.showButton.addEventListener("mouseout", onMouseUp);
+      self.showButton.onmouseup = self.showButton.onmouseout = (evt) => { evt.preventDefault(); };
+      
 
       function getSelection() {
-        var selection = window.getSelection();
-        self.cursorInd = selection.focusOffset;
+        self.cursorInd = window.getSelection().focusOffset;
       }
       self.textArea.addEventListener("blur", getSelection);
 

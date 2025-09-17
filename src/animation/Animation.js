@@ -6,6 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
+  let self;
+
   class Animation {
     /**
      * Descartes animation
@@ -13,40 +15,29 @@ var descartesJS = (function(descartesJS) {
      * @param {String} values the values of the graphic
     */
    constructor(parent, values) {
+      let self = this;
+
       /**
        * Descartes application
        * type {DescartesApp}
        * @private
        */
-      this.parent = parent;
+      self.parent = parent;
 
-      var evaluator = parent.evaluator;
-      var parser = evaluator.parser;
-      var algorithmAuxiliary = new descartesJS.Auxiliary(parent);
-      var self = this;
+      let evaluator = parent.evaluator;
+      let parser = evaluator.parser;
 
       self.delay = parser.parse((values.delay) ? values.delay : "60");
       self.loop = (values.loop) ? values.loop : false;
       self.auto = (values.auto == undefined) ? true : values.auto;
       self.controls = values.controls;
       
-      // parse the init expression
-      self.init = algorithmAuxiliary.splitInstructions(parser, values.init);
+      // parse the init, do and while expressions
+      descartesJS.parseExpr(self, values, parser);
 
-      // parse the do expression
-      self.doExpr = algorithmAuxiliary.splitInstructions(parser, values.doExpr);
-
-      // parse the while expression
-      if (values.whileExpr) {
-        self.whileExpr = parser.parse(values.whileExpr);
-      }
-      
-      var i;
-      var l = self.doExpr.length;
-
-      self.animExec = function() {  
-        for (i=0; i<l; i++) {
-          evaluator.eval(self.doExpr[i]);
+      self.animExec = function() {
+        for (let expr of self.doExpr) {
+          evaluator.eval(expr);
         }
         self.parent.update();
 
@@ -72,18 +63,19 @@ var descartesJS = (function(descartesJS) {
      * Play the animation
      */
     play() {
-      if (!this.playing) {
-        if (!this.pause) {
-          this.reinit();
-        }
+      self = this;
 
-        this.playing = true;
-        this.pause = false;
-        this.timer = descartesJS.setTimeout(this.animExec, Math.max(10, this.parent.evaluator.eval(this.delay)));
-      } 
+      if (self.playing) {
+        self.pause = true;
+        self.stop();
+      }
       else {
-        this.pause = true;
-        this.stop();
+        if (!self.pause) {
+          self.reinit();
+        }
+        self.playing = true;
+        self.pause = false;
+        self.timer = descartesJS.setTimeout(self.animExec, Math.max(10, self.parent.evaluator.eval(self.delay)));
       }
     }
 
@@ -99,8 +91,8 @@ var descartesJS = (function(descartesJS) {
      * Reinit the animation
      */
     reinit() {
-      for (var i=0, l=this.init.length; i<l; i++) {
-        this.parent.evaluator.eval(this.init[i]);
+      for (let expr of this.init) {
+        this.parent.evaluator.eval(expr);
       }
     }
   }

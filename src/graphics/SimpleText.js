@@ -6,14 +6,14 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var txt;
-  var evalString;
+  let txt;
+  let evalString;
 
-  var pos;
-  var lastPos;
-  var ignoreSquareBracket;
-  var charAt;
-  var charAtAnt;
+  let pos;
+  let lastPos;
+  let ignoreSquareBracket;
+  let charAt;
+  let charAtAnt;
 
   class SimpleText {
     /**
@@ -24,8 +24,8 @@ var descartesJS = (function(descartesJS) {
     constructor(parent, text) {
       this.text = text = text.replace("&#x2013", "–").replace(/\&squot;/g, "'");
 
-      this.textElements = [];
-      this.textElementsMacros = [];
+      this.txtEle = [];
+      this.txtEleMacros = [];
       this.parent = parent;
       this.evaluator = parent.evaluator;
       this.type = "simpleText"
@@ -41,22 +41,22 @@ var descartesJS = (function(descartesJS) {
 
         // open square bracket scaped
         if ((charAt === "[") && (charAtAnt === "\\")) {
-          this.textElements.push(text.substring(lastPos, pos-1) + "[");
-          this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "['");
+          this.txtEle.push(text.substring(lastPos, pos-1) + "[");
+          this.txtEleMacros.push("'" + text.substring(lastPos, pos-1) + "['");
           lastPos = pos+1;
         }
 
         // close square bracket scaped
         else if ((charAt === "]") && (charAtAnt === "\\")) {
-          this.textElements.push(text.substring(lastPos, pos-1) + "]");
-          this.textElementsMacros.push("'" + text.substring(lastPos, pos-1) + "]'");
+          this.txtEle.push(text.substring(lastPos, pos-1) + "]");
+          this.txtEleMacros.push("'" + text.substring(lastPos, pos-1) + "]'");
           lastPos = pos+1;
         }
 
         // if find an open square bracket
         else if ((charAt === "[") && (ignoreSquareBracket === -1)) {
-          this.textElements.push(text.substring(lastPos, pos));
-          this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
+          this.txtEle.push(text.substring(lastPos, pos));
+          this.txtEleMacros.push("'" + text.substring(lastPos, pos) + "'");
           lastPos = pos;
           ignoreSquareBracket++;
         }
@@ -67,8 +67,8 @@ var descartesJS = (function(descartesJS) {
 
         // if find a close square bracket add the string +'
         else if ((charAt === "]") && (ignoreSquareBracket === 0)) {
-          this.textElements.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
-          this.textElementsMacros.push( "[" + text.substring(lastPos, pos+1) + "]");
+          this.txtEle.push( this.evaluator.parser.parse(text.substring(lastPos, pos+1)) );
+          this.txtEleMacros.push( "[" + text.substring(lastPos, pos+1) + "]");
           lastPos = pos+1;
           ignoreSquareBracket--;
         }
@@ -84,8 +84,8 @@ var descartesJS = (function(descartesJS) {
 
         pos++;
       }
-      this.textElements.push(text.substring(lastPos, pos));
-      this.textElementsMacros.push("'" + text.substring(lastPos, pos) + "'");
+      this.txtEle.push(text.substring(lastPos, pos));
+      this.txtEleMacros.push("'" + text.substring(lastPos, pos) + "'");
     }
 
     /**
@@ -97,12 +97,12 @@ var descartesJS = (function(descartesJS) {
     toString(decimals, fixed) {
       txt = "";
 
-      for(var i=0, l=this.textElements.length; i<l; i++) {
-        if (typeof(this.textElements[i]) === "string") {
-          txt += this.textElements[i];
+      for (let txtEle_i of this.txtEle) {
+        if (typeof(txtEle_i) === "string") {
+          txt += txtEle_i;
         }
         else {
-          evalString = this.evaluator.eval(this.textElements[i])[0][0];
+          evalString = this.evaluator.eval(txtEle_i)[0][0];
 
           if (evalString !== "") {
             // the evaluation is a string

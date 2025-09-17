@@ -6,14 +6,10 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  var v1_x;
-  var v1_y;
-  var v1_z;
-  var v2_x;
-  var v2_y;
-  var v2_z;  
-  var evaluator;
-  var expr;
+  let self;
+  let evaluator;
+  let expr;
+  let tmpFrontColor;
 
   class Polygon3D extends descartesJS.Graphic3D {
     /**
@@ -32,34 +28,29 @@ var descartesJS = (function(descartesJS) {
      * Build the primitives corresponding to the polygon
      */
     buildPrimitives() {
-      evaluator = this.evaluator;
+      self = this;
+      evaluator = self.evaluator;
 
       // do not apply the rotations in the model view matrix transformation
-      this.updateMVMatrix();
+      self.updateMVMatrix();
 
-      expr = evaluator.eval(this.expresion);
+      expr = evaluator.eval(self.expresion);
 
-      var tmpFrontColor = this.color.getColor();
+      tmpFrontColor = self.color.getColor();
 
-      for (var i=0, l=expr.length-1; i<l; i++) {
-        v1_x = expr[i][0];
-        v1_y = expr[i][1];
-        v1_z = expr[i][2];
-
-        v2_x = expr[i+1][0];
-        v2_y = expr[i+1][1];
-        v2_z = expr[i+1][2];
-
-        this.primitives.push( new descartesJS.Primitive3D( { 
-          vertices: [ 
-            this.transformVertex( new descartesJS.Vector4D(v1_x, v1_y, v1_z, 1) ),
-            this.transformVertex( new descartesJS.Vector4D(v2_x, v2_y, v2_z, 1) )
-          ],
-          type: "edge",
-          frontColor: tmpFrontColor, 
-          lineWidth: evaluator.eval(this.width)
-        },
-        this.space ));
+      for (let i=0, l=expr.length-1; i<l; i++) {
+        self.primitives.push(
+          new descartesJS.Primitive3D( { 
+            V: [ 
+              self.transformVertex( new descartesJS.Vec4D(expr[i][0],   expr[i][1],   expr[i][2]) ),
+              self.transformVertex( new descartesJS.Vec4D(expr[i+1][0], expr[i+1][1], expr[i+1][2]) )
+            ],
+            type: "edge",
+            frontColor: tmpFrontColor, 
+            lineWidth: evaluator.eval(self.width)
+          },
+          self.space
+        ));
       }
     }
   }

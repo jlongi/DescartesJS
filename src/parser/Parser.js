@@ -6,10 +6,8 @@
 var descartesJS = (function(descartesJS) {
   if (descartesJS.loadLib) { return descartesJS; }
 
-  descartesJS.reservedIds = new String("-_-_NUM_MAX_ITE_ALG_-rnd-pi-π-e-Infinity-isTouch-esTáctil-device-dispositivo-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-piso-ceil-techo-round-redondeo-trunc-truncamiento-min-max-_Trace_-_Print_-_Num_-isNumber-esNúmero-random-aleatorio-_Stop_Audios_-esCorrecto-escorrecto-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-trim-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_SaveSpace_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-R-G-B-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-DJS.squote-DJS.comma-DJS.w-DJS.h-");
-  var lastTime = Date.now();
+  descartesJS.reservedIds = "-_-_NUM_MAX_ITE_ALG_-rnd-pi-π-e-Infinity-isTouch-esTáctil-device-dispositivo-screenOrientation-screenWidth-screenHeight-sqr-sqrt-raíz-exp-log-log10-abs-ent-sgn-ind-sin-sen-cos-tan-cot-sec-csc-sinh-senh-cosh-tanh-coth-sech-csch-asin-asen-acos-atan-atan2-floor-piso-ceil-techo-round-redondeo-trunc-truncamiento-min-max-_Trace_-_Print_-_Num_-isNumber-esNúmero-random-aleatorio-_Stop_Audios_-parent.set-parent.update-parent.exec-toFixed-_NumToStr_-_NumACadena_-charAt-_charAt_-_letraEn_-substring-_substring_-_subcadena_-strLength-_length_-_longitud_-indexOf-_indexOf_-índiceDe-lastIndexOf-replace-_replace_-_reemplazar_-toLowerCase-toUpperCase-trim-_Load_-_GetValues_-_GetMatrix_-_MatrixToStr_-_StrToMatrix_-_GetVector_-_VectorToStr_-_StrToVector_-_ExecStr_-_ExecBlock_-_Save_-_SaveSpace_-_Open_-_SaveState_-_OpenState_-_AnchoDeCadena_-_strWidth_-R-G-B-_Rojo_-_Red_-_Verde_-_Green_-_Azul_-_Blue_-DJS.typeof-DJS.squote-DJS.comma-DJS.w-DJS.h-";
 
-  const waitTime = 1500;
   const parenthesesType = "parentheses";
   const squareBracketType = "square_bracket";
   const assignType = "assign";
@@ -22,18 +20,16 @@ var descartesJS = (function(descartesJS) {
   const numberType = "number";
   const stringType = "string";
 
-  var i;
-  var l;
-  var tokens;
-  var lastNode;
-  var node;
-  var openParenthesis;
-  var openSquareBracket;
-  var openConditional;
-  var tokens_i;
-  var tokens_i_value;
-  var tokens_i_type;
-  var root;
+  let tokens;
+  let lastNode;
+  let node;
+  let openParenthesis;
+  let openSquareBracket;
+  let openConditional;
+  let tokens_i;
+  let tokens_i_value;
+  let tokens_i_type;
+  let root;
 
   class Parser {
     /**
@@ -53,95 +49,6 @@ var descartesJS = (function(descartesJS) {
       if (this.registerExternalValues) {
         this.registerExternalValues();
       }
-    }
-
-    /**
-     */
-    setDefinition(name, value) {
-      this.definitions[name] = value;
-    }
-    getDefinition(name) {
-      return this.definitions[name];
-    }
-
-    /**
-     * Set the value to a variable
-     * @param {String} name the name of the variable to set
-     * @param {Object} value the value of the variable to set
-     */
-    setVariable(name, value) {
-      this.variables[name] = value;
-    }
-
-    /**
-     * Get the value to a variable
-     * @param {String} name the name of the variable to get the value
-     */
-    getVariable(name) {
-      return this.variables[name];
-    }
-
-    /**
-     * Set the value of a position in a vector
-     * @param {String} name the name of the vector to set
-     * @param {Number} pos the position in the vector to set
-     * @param {Object} value the value of the vector to set
-     */
-    setVector(name, pos, value) {
-      this.vectors[name][pos] = value;
-    }
-
-    /**
-     * Get the value to a vector
-     * @param {String} name the name of the vector to get the value
-     */
-    getVector(name) {
-      if (!this.vectors.hasOwnProperty(name)) {
-        this.vectors[name] = [0,0,0];
-      }
-      return this.vectors[name];
-    }
-
-    /**
-     * Set the value of a position in a matrix
-     * @param {String} name the name of the matrix to set
-     * @param {Number} pos1 the row position in the matrix to set
-     * @param {Number} pos2 the column position in the matrix to set
-     * @param {Object} value the value of the matrix to set
-     */
-    setMatrix(name, pos1, pos2, value){
-      this.matrices[name][pos1][pos2] = value;
-    }
-
-    /**
-     * Get the value to a matrix
-     * @param {String} name the name of the matrix to get the value
-     */
-    getMatrix(name){
-      if (!this.matrices.hasOwnProperty(name)) {
-        this.matrices[name] = [[0,0,0],[0,0,0],[0,0,0]];
-      }
-      return this.matrices[name];
-    }
-
-    /**
-     * Set the value to a function
-     * @param {String} name the name of the function to set
-     * @param {Object} value the value of the function to set
-     */
-    setFunction(name, value){
-      this.functions[name] = value;
-    }
-
-    /**
-     * Get a function
-     * @param {String} name the name of the function to get
-     */
-    getFunction(name){
-      if (!this.functions.hasOwnProperty(name)) {
-        this.functions[name] = function(){ return 0; };
-      }
-      return this.functions[name];
     }
     
     /**
@@ -164,7 +71,7 @@ var descartesJS = (function(descartesJS) {
       openSquareBracket = 0;
       openConditional = 0;
 
-      for (i=0, l=tokens.length; i<l; i++) {
+      for (let i=0, l=tokens.length; i<l; i++) {
         tokens_i = tokens[i];
         tokens_i_value = tokens_i.value;
         tokens_i_type = tokens_i.type;
@@ -174,28 +81,35 @@ var descartesJS = (function(descartesJS) {
         ////////////////////////////////////////////////////////////////////////////////
         if (tokens_i_type === identifierType) {
           // the identifier is a function
-          if ( ((i+1)<l) && (tokens[i+1].type === parenthesesType) && (tokens[i+1].value === "(") ) {
-            this.getFunction(tokens_i_value);
+          if ( tokens[i+1] && (tokens[i+1].type === parenthesesType) && (tokens[i+1].value === "(") ) {
+            // check if the function exist, if not create an empty function with return value 0
+            if (!this.functions.hasOwnProperty(tokens_i_value)) {
+              this.functions[tokens_i_value] = () => { return 0; };
+            }
           }
           // the identifier is a vector or a matrix
-          else if ( ((i+1)<l) && (tokens[i+1].type === squareBracketType) && (tokens[i+1].value === "[") ) {
+          else if ( tokens[i+1] && (tokens[i+1].type === squareBracketType) && (tokens[i+1].value === "[") ) {
             // vector
             if ( (tokens[i+3]) && (tokens[i+3].type === squareBracketType) && (tokens[i+3].value === "]") ) {
-              this.getVector(tokens_i_value);
+              // check if the vectoir exist, if not create an 3 lenght vector with zero values
+              if (!this.vectors.hasOwnProperty(tokens_i_value)) {
+                this.vectors[tokens_i_value] = [0,0,0];
+              }
             }
             // matrix
             else {
-              this.getMatrix(tokens_i_value);
+              // check if the matrix exist, if not create an 3x3 matrix with zero values
+              if (!this.matrices.hasOwnProperty(tokens_i_value)) {
+                this.matrices[tokens_i_value] = [[0,0,0],[0,0,0],[0,0,0]];
+              }
             }
           }
           // the identifier is a variable
           else {
-            var scrollable = tokens_i_value.match(/(\w*)\.mouse_x|(\w*)\.mouse_y|(\w*)\.mouse_pressed|(\w*)\.mouse_clicked|(\w*)\.clic_izquierdo/);
+            let scrollable = tokens_i_value.match(/(\w*)(\.mouse_x|\.mouse_y|\.mouse_pressed|\.mouse_clicked|\.clic_izquierdo)$/);
             if (scrollable) {
-              this.variables[(scrollable[1] || scrollable[2] || scrollable[3] || scrollable[4] || scrollable[5]) + ".DESCARTESJS_no_fixed"] = 1;
+              this.variables[scrollable[1] + ".DJS_NO_FIXED"] = 1;
             }
-
-            this.getVariable(tokens_i_value, true);
           }
         }
         ////////////////////////////////////////////////////////////////////////////////
@@ -214,40 +128,36 @@ var descartesJS = (function(descartesJS) {
 
           // the tree is not empty
           if (lastNode != null) {
+            assignation = true;
+
             // the last element of the tree is an identifier
             if (lastNode.type === identifierType) {
-              if (lastNode.parent){
+              if (lastNode.parent) {
                 lastNode.parent.replaceLastChild(node);
               }
-
               node.addChild(lastNode);
               lastNode = node;
-              assignation = true;
             }
             // the last element of the tree is a square bracket
             else if (lastNode.type === squareBracketType) {
               node.addChild(lastNode.parent);
               lastNode = node;
-              assignation = true;
             }
-
             // otherwise
             else {
               node.type = compOperatorType;
               node.value = "==";
-              assignation = true;
 
               // find an element in the tree having a higher precedence to the node to be added
-              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
+              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))) {
                 lastNode = lastNode.parent;
               }
               // if can find an ancestor in the tree having a higher precedence
-              if (lastNode.parent){
+              if (lastNode.parent) {
                 lastNode.parent.replaceLastChild(node);
                 node.addChild(lastNode);
                 lastNode = node;
               }
-
               // reached the root
               else {
                 node.addChild(lastNode);
@@ -258,7 +168,7 @@ var descartesJS = (function(descartesJS) {
 
           // do not have last element
           else {
-            console.info("Error1: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            showError(1, input, tokens_i_value, tokens_i_type);
             break;
           }
 
@@ -272,8 +182,10 @@ var descartesJS = (function(descartesJS) {
         //
         ////////////////////////////////////////////////////////////////////////////////
         // open parentheses and open square brackets
-        if ( (tokens_i_type === parenthesesType) && (tokens_i_value === "(") ||
-          (tokens_i_type === squareBracketType) && (tokens_i_value === "[") ) {
+        if (
+          (tokens_i_type === parenthesesType)   && (tokens_i_value === "(") ||
+          (tokens_i_type === squareBracketType) && (tokens_i_value === "[")
+        ) {
           node = new descartesJS.Node(tokens_i_type, tokens_i_value);
 
           if (tokens_i_value === "(") {
@@ -299,7 +211,13 @@ var descartesJS = (function(descartesJS) {
           // the tree has some element
           else {
             // the last element of the tree is an operator
-            if ( (lastNode.type === operatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === compOperatorType) || (lastNode.type === conditionalType) || (lastNode.type === assignType) ) {
+            if (
+              (lastNode.type === operatorType) ||
+              (lastNode.type === boolOperatorType) ||
+              (lastNode.type === compOperatorType) ||
+              (lastNode.type === conditionalType) ||
+              (lastNode.type === assignType)
+            ) {
               lastNode.addChild(node);
               lastNode = node;
             }
@@ -342,7 +260,7 @@ var descartesJS = (function(descartesJS) {
 
             // otherwise
             else {
-              console.info("Error2: en la expresión 《 " + input + " 》, en el token ["+ i +"] {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              showError(2, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -358,7 +276,7 @@ var descartesJS = (function(descartesJS) {
 
           // the first element of the tree
           if (lastNode === null) {
-            console.info("Error3: en la expresión 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+            showError(3, input, tokens_i_value, tokens_i_type);
           }
 
           // the tree has some element
@@ -375,7 +293,7 @@ var descartesJS = (function(descartesJS) {
 
             // if not find the parentheses match
             else {
-              // console.info("Error4: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              showError(4, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -391,7 +309,7 @@ var descartesJS = (function(descartesJS) {
 
           // the first element of the tree
           if (lastNode === null) {
-            console.info("Error5: en la expresión 《 " + input + " 》, en el token (valor:" + tokens_i_value + ", tipo:" + tokens_i_type);
+            showError(5, input, tokens_i_value, tokens_i_type);
           }
 
           // the tree has some element
@@ -408,7 +326,7 @@ var descartesJS = (function(descartesJS) {
 
             // if not find the square brackets
             else {
-              console.info("Error6: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              showError(6, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -422,13 +340,12 @@ var descartesJS = (function(descartesJS) {
         // Numbers, strings and identifiers
         //
         ////////////////////////////////////////////////////////////////////////////////
-        if ((tokens_i_type === numberType) || (tokens_i_type === stringType) || (tokens_i_type === identifierType)) {
-          if (tokens_i_type === identifierType) {
-            node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-          }
-          else {
-            node = new descartesJS.Node(tokens_i_type, tokens_i_value);
-          }
+        if (
+          (tokens_i_type === numberType) ||
+          (tokens_i_type === stringType) ||
+          (tokens_i_type === identifierType)
+        ) {
+          node = new descartesJS.Node(tokens_i_type, tokens_i_value);
 
           // the first element of the tree
           if (lastNode === null) {
@@ -438,15 +355,24 @@ var descartesJS = (function(descartesJS) {
           // the tree has some element
           else {
             // the last element of the tree is an operator, an open parentheses, a sign or an assignation
-            if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || ((lastNode.type === parenthesesType) && (lastNode.value === "(")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[")) || (lastNode.type === signType)  || (lastNode.type === conditionalType) || (lastNode.type === assignType)) {
+            if (
+              (lastNode.type === operatorType) ||
+              (lastNode.type === compOperatorType) ||
+              (lastNode.type === boolOperatorType) ||
+              ((lastNode.type === parenthesesType) && (lastNode.value === "(")) ||
+              ((lastNode.type === squareBracketType) && (lastNode.value === "[")) ||
+              (lastNode.type === signType) ||
+              (lastNode.type === conditionalType) ||
+              (lastNode.type === assignType)
+            ) {
               lastNode.addChild(node);
               lastNode = node;
             }
 
             // otherwise
             else {
-              descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, input);
-              // console.info("Error7: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              // descartesJS.DEBUG.setError(descartesJS.DEBUG.EXPRESSION, input);
+              // showError(7, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -460,13 +386,17 @@ var descartesJS = (function(descartesJS) {
         // Operators
         //
         ////////////////////////////////////////////////////////////////////////////////
-        if ( (tokens_i_type === operatorType) || (tokens_i_type === compOperatorType) || (tokens_i_type === boolOperatorType) ) {
+        if (
+          (tokens_i_type === operatorType) ||
+          (tokens_i_type === compOperatorType) ||
+          (tokens_i_type === boolOperatorType)
+        ) {
           node = new descartesJS.Node(tokens_i_type, tokens_i_value);
 
           // the first element of the tree
           if (lastNode === null) {
             // an operator can start an expression if is a sign expression
-            if ((tokens_i_value === "-") || (tokens_i_value === "+")){
+            if ((tokens_i_value === "-") || (tokens_i_value === "+")) {
               node.type = signType;
               node.value = signType + tokens_i_value;
               lastNode = node;
@@ -479,7 +409,7 @@ var descartesJS = (function(descartesJS) {
 
             // otherwise
             else {
-              console.info("Error8: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");  //throw("Error: no se puede iniciar una expresion con un operador 《 " + input + " 》")
+              showError(8, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -487,9 +417,21 @@ var descartesJS = (function(descartesJS) {
           // the tree has some element
           else {
             // the last element of the tree is an operator or an open parentheses and the operator is + or -
-            if ( (lastNode.type === operatorType) || (lastNode.type === compOperatorType) || (lastNode.type === boolOperatorType) || (lastNode.type === assignType) || (lastNode.type === conditionalType) || (((lastNode.type === squareBracketType) && (lastNode.value === "[")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) || (((lastNode.type === parenthesesType) && (lastNode.value === "(")) && ((tokens_i_value === "-") || (tokens_i_value === "+") || (tokens_i_value === "!"))) ) {
+            if (
+              (lastNode.type === operatorType) ||
+              (lastNode.type === compOperatorType) ||
+              (lastNode.type === boolOperatorType) ||
+              (lastNode.type === assignType) ||
+              (lastNode.type === conditionalType) ||
+              (((lastNode.type === squareBracketType) && (lastNode.value === "[")) && ((tokens_i_value === "-") ||
+              (tokens_i_value === "+") ||
+              (tokens_i_value === "!"))) ||
+              (((lastNode.type === parenthesesType) && (lastNode.value === "(")) && ((tokens_i_value === "-") ||
+              (tokens_i_value === "+") ||
+              (tokens_i_value === "!")))
+            ) {
               // sign of an expression
-              if ((tokens_i_value === "-") || (tokens_i_value === "+")){
+              if ((tokens_i_value === "-") || (tokens_i_value === "+")) {
                 node.type = signType;
                 node.value = signType + tokens_i_value;
               }
@@ -498,15 +440,22 @@ var descartesJS = (function(descartesJS) {
             }
 
             // the last element of the tree is a number, parenthetical expression, a string or an identifier
-            else if ( (lastNode.type === numberType) || ((lastNode.type === parenthesesType) && (lastNode.value === "()")) || ((lastNode.type === squareBracketType) && (lastNode.value === "[]")) || (lastNode.type === stringType) || (lastNode.type === identifierType) || (lastNode.type === conditionalType) ||(lastNode.type === assignType) ) {
+            else if (
+              (lastNode.type === numberType) ||
+              ((lastNode.type === parenthesesType) && (lastNode.value === "()")) ||
+              ((lastNode.type === squareBracketType) && (lastNode.value === "[]")) ||
+              (lastNode.type === stringType) ||
+              (lastNode.type === identifierType) ||
+              (lastNode.type === conditionalType) ||(lastNode.type === assignType)
+            ) {
 
               // find an element in the tree having a higher precedence to the node to be added
-              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))){
+              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) >= getPrecedence(node.value))) {
                 lastNode = lastNode.parent;
               }
 
               // if can find an ancestor in the tree having a higher precedence
-              if (lastNode.parent){
+              if (lastNode.parent) {
                 lastNode.parent.replaceLastChild(node);
                 node.addChild(lastNode);
                 lastNode = node;
@@ -521,7 +470,7 @@ var descartesJS = (function(descartesJS) {
 
             // otherwise
             else {
-              console.info("Error9: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+              showError(9, input, tokens_i_value, tokens_i_type);
               break;
             }
           }
@@ -545,11 +494,11 @@ var descartesJS = (function(descartesJS) {
               openConditional++;
 
               // find an element in the tree having a higher precedence to the node to be added
-              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) > getPrecedence(node.value))){
+              while ((lastNode.parent) && (getPrecedence(lastNode.parent.value) > getPrecedence(node.value))) {
                 lastNode = lastNode.parent;
               }
               // if can find an ancestor in the tree having a higher precedence
-              if (lastNode.parent){
+              if (lastNode.parent) {
                 lastNode.parent.replaceLastChild(node);
                 node.addChild(lastNode);
                 lastNode = node;
@@ -574,7 +523,7 @@ var descartesJS = (function(descartesJS) {
 
               // if can not find the ?
               else {
-                console.info("Error10: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+                showError(10, input, tokens_i_value, tokens_i_type);
                 break;
               }
             }
@@ -582,7 +531,7 @@ var descartesJS = (function(descartesJS) {
 
           // last element do not exist
           else {
-            console.info("Error11: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            showError(11, input, tokens_i_value, tokens_i_type);
             break;
           }
 
@@ -605,7 +554,7 @@ var descartesJS = (function(descartesJS) {
           }
 
           else {
-            console.info("Error12: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+            showError(12, input, tokens_i_value, tokens_i_type);
             break;
           }
 
@@ -613,7 +562,7 @@ var descartesJS = (function(descartesJS) {
           continue;
         }
 
-        console.info("Error13: en la expresión 《 " + input + " 》, en el token {valor: " + tokens_i_value + ", tipo: " + tokens_i_type + "}");
+        showError(13, input, tokens_i_value, tokens_i_type);
         break;
       }
 
@@ -651,11 +600,14 @@ var descartesJS = (function(descartesJS) {
      * Register the default variables and functions of Descartes
      */
     registerDefaultValues() {
-      var self = this;
+      const waitTime = 1500;
+      let lastTime = Date.now();
+
+      let self = this;
+
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // register the default variables
       self.variables["_NUM_MAX_ITE_ALG_"] = 100000;
-      self.variables["rnd"] = Math.random;
       self.variables["pi"] = self.variables["π"] = Math.PI;
       self.variables["e"] = Math.E;
       self.variables["Infinity"] = Infinity;
@@ -692,6 +644,62 @@ var descartesJS = (function(descartesJS) {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // register the default functions
+      let evalCache = {};
+      self.functions["_Eval_"] = function(evalArgument="") {
+        if (evalArgument == "") {
+          return 0;
+        }
+
+        // if the argument is a number return the string NaN
+        if (typeof(evalArgument) == "number") {
+          return "NaN";
+        }
+        // the argument is a string
+        else {
+          // check if the string is a number, then the argument needs to be a string
+          let tmp_replace = evalArgument.replace(",", ".");
+          if ( ((/,/).test(evalArgument)) && (parseFloat(tmp_replace) == tmp_replace) ) {
+            evalArgument = tmp_replace;
+          }
+
+          if (evalCache[evalArgument] == undefined) {
+            let _assign = (evalArgument.match(/:=/g)) ? true : false;
+
+            // multiple expressions
+            if ((/;/).test(evalArgument)) {
+              let inStr = false;
+              let charAt;
+              let valueArray = [];
+              let lastIndex = 0;
+
+              for (let i=0, l=evalArgument.length; i<l; i++) {
+                charAt = evalArgument[i];
+
+                // inside or outside of a string
+                if (charAt === "'") {
+                  inStr = !inStr;
+                }
+
+                if ((!inStr) && (charAt === ";")) {
+                  valueArray.push(evalArgument.substring(lastIndex, i));
+                  lastIndex = i+1;
+                }
+              }
+
+              valueArray.push(evalArgument.substring(lastIndex));
+
+              evalCache[evalArgument] = self.parse(`(${valueArray.join(")(")})`, _assign);
+            }
+            else {
+              evalCache[evalArgument] = self.parse(evalArgument, _assign);
+            }
+          }
+
+          let tmp_ret = self.evaluator.eval( evalCache[evalArgument] );
+          return (tmp_ret != undefined) ? tmp_ret : "NaN";
+        }
+      }
+
       self.functions["sqr"]   = function(x) { return (x*x) };
       self.functions["sqrt"]  = self.functions["raíz"] = Math.sqrt;
       self.functions["exp"]   = Math.exp;
@@ -748,8 +756,6 @@ var descartesJS = (function(descartesJS) {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       self.functions["_Stop_Audios_"] = function() { self.evaluator.parent.stopAudios(); };
-      self.functions["esCorrecto"] = function(x, y, regExp) { return descartesJS.esCorrecto(x, y, self.evaluator, regExp); };
-      self.functions["escorrecto"] = function(x, y, regExp) { return descartesJS.escorrecto(x, y, self.evaluator, regExp); };
 
       // if the lesson is inside a iframe then register the communication functions with the parent
       if (window.parent !== window) {
@@ -779,7 +785,7 @@ var descartesJS = (function(descartesJS) {
       self.functions["toFixed"] = self.functions["_NumToStr_"] = self.functions["_NumACadena_"] = function(num, dec) {
         num = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
         dec = dec || 0;
-        return num.toFixed(parseInt(dec));
+        return (num.toFixed(parseInt(dec))).replace(".", self.evaluator.parent.decimal_symbol);
       };
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -841,7 +847,7 @@ var descartesJS = (function(descartesJS) {
         strTo = (strTo || "").toString();
         strWith = (strWith || "").toString();
 
-        var index = str.indexOf(strTo);
+        let index = str.indexOf(strTo);
         while (index >= 0) {
           str = str.substring(0, index) + strWith + str.substring(index+strTo.length);
           index = str.indexOf(strTo, index+strWith.length);
@@ -901,12 +907,12 @@ var descartesJS = (function(descartesJS) {
         if (M) {
           let strM = "<" + Mstr + ">\\n";
 
-          let l = self.getVariable(Mstr + ".columnas_usadas") || M.cols || 0;
-          let k = self.getVariable(Mstr + ".filas_usadas")    || M.rows || 0;
+          let l = self.evaluator.getVariable(Mstr + ".columnas_usadas") || M.cols || 0;
+          let k = self.evaluator.getVariable(Mstr + ".filas_usadas")    || M.rows || 0;
           let _val;
 
-          for (var i=0; i<l; i++) {
-            for (var j=0; j<k; j++) {
+          for (let i=0; i<l; i++) {
+            for (let j=0; j<k; j++) {
               _val = M[i][j];
 
               if (_val !== undefined) {
@@ -944,12 +950,12 @@ var descartesJS = (function(descartesJS) {
         if (response) {
           response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
-          for (var i=0, l=response.length; i<l; i++) {
+          for (let i=0, l=response.length; i<l; i++) {
             // initial position of the values
             if (response[i].match("<" + name + ">")) {
               findMatrix = true;
 
-              tmpValue = response[i].trim().split("<" + name + ">");
+              tmpValue = response[i].trim().split(`<${name}>`);
 
               if ((tmpValue.length == 2) && (tmpValue[1] != "")) {
                 values.push(tmpValue[1].split(String.fromCharCode("166")).map(myMapFun));
@@ -980,8 +986,8 @@ var descartesJS = (function(descartesJS) {
           self.matrices[name] = values;
           self.matrices[name].rows = (values && values[0] && values[0].length) ? values[0].length : 0;
           self.matrices[name].cols = (values && values.length) ? values.length : 0;
-          self.setVariable(name + ".filas", self.matrices[name].rows);
-          self.setVariable(name + ".columnas", self.matrices[name].cols);
+          self.evaluator.setVariable(name + ".filas", self.matrices[name].rows);
+          self.evaluator.setVariable(name + ".columnas", self.matrices[name].cols);
         }
 
         return (findMatrix) ? "OK" : "ERROR";
@@ -1001,10 +1007,10 @@ var descartesJS = (function(descartesJS) {
         if (V) {
           let strV = "<" + Vstr + ">\\n";
 
-          let l = self.getVariable(Vstr + ".long_usada") || V._size_ || 0;
+          let l = self.evaluator.getVariable(Vstr + ".long_usada") || V._size_ || 0;
           let _val;
 
-          for (var i=0; i<l; i++) {
+          for (let i=0; i<l; i++) {
             _val = V[i];
 
             if (_val !== undefined) {
@@ -1037,7 +1043,7 @@ var descartesJS = (function(descartesJS) {
         if (response) {
           response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
-          for (var i=0, l=response.length; i<l; i++) {
+          for (let i=0, l=response.length; i<l; i++) {
             // initial position of the values
             if (response[i].match("<" + name + ">")) {
               findVector = true;
@@ -1059,8 +1065,8 @@ var descartesJS = (function(descartesJS) {
 
           values._size_ = values.length;
           self.vectors[name] = values;
-          self.setVariable(name + ".long", values.length);
-          self.setVariable(name + ".long_usada", values.length);
+          self.evaluator.setVariable(name + ".long", values.length);
+          self.evaluator.setVariable(name + ".long_usada", values.length);
         }
 
         return (findVector) ? "OK" : "ERROR";
@@ -1082,7 +1088,7 @@ var descartesJS = (function(descartesJS) {
         if (response) {
           response = response.replace(/\r|\\r/g, "").split(/\n|\\n/);
 
-          for (var i=0, l=response.length; i<l; i++) {
+          for (let i=0, l=response.length; i<l; i++) {
 
             // initial position of the values
             if (response[i].match("<" + name + ">")) {
@@ -1114,19 +1120,18 @@ var descartesJS = (function(descartesJS) {
             }
           }
 
-          for(var i=0,l=values.length; i<l; i++) {
+          for (let i=0, l=values.length; i<l; i++) {
             tmpValue = values[i].split("=");
             tmpValue[0] = tmpValue[0].trim();
 
             if ((tmpValue.length == 2) && (tmpValue[0] != "")) {
               // is a string
               if (isNaN(parseFloat(tmpValue[1]))) {
-                // .replace(/^\s|\s$/g, "") remove the initial white space
-                self.setVariable(tmpValue[0], tmpValue[1].replace(/^\s|\s$/g, "").replace(/^'|'$/g, ""));
+                self.evaluator.setVariable(tmpValue[0], tmpValue[1].trim().replace(/^'|'$/g, ""));
               }
               // is a number
               else {
-                self.setVariable(tmpValue[0], parseFloat(tmpValue[1]));
+                self.evaluator.setVariable(tmpValue[0], parseFloat(tmpValue[1]));
               }
             }
           }
@@ -1136,11 +1141,11 @@ var descartesJS = (function(descartesJS) {
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      var anchor = descartesJS.newHTML("a", {
+      let anchor = descartesJS.newHTML("a", {
         target : "_blank",
       });
-      var blob;
-      var blobContent = null;
+      let blob;
+      let blobContent = null;
       descartesJS.newBlobContent = null;
       /**
        *
@@ -1151,7 +1156,7 @@ var descartesJS = (function(descartesJS) {
           lastTime = Date.now();
 
           document.body.appendChild(anchor);
-          blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\");
+          blobContent = data.replace(/\\r/g, "").replace(/\\n/g, "\r\n").replace(/\\q/g, "'").replace(/\\_/g, "\\").replace(/\\br/g, "\\n");
 
           blob = new Blob(["\ufeff", blobContent], {type:"text/plain;charset=utf-8"});
           anchor.setAttribute("href", window.URL.createObjectURL(blob));
@@ -1168,7 +1173,7 @@ var descartesJS = (function(descartesJS) {
       };
 
 
-      var anchorImg = descartesJS.newHTML("a", {
+      let anchorImg = descartesJS.newHTML("a", {
         target : "_blank",
       });
       /**
@@ -1196,10 +1201,10 @@ var descartesJS = (function(descartesJS) {
       };
 
 
-      var files;
-      var reader;
+      let files;
+      let reader;
 
-      var input = descartesJS.newHTML("input", {
+      let input = descartesJS.newHTML("input", {
         type : "file",
       });
 
@@ -1213,11 +1218,12 @@ var descartesJS = (function(descartesJS) {
         reader.onload = function(evt) {
           descartesJS.addExternalFileContent(files[0].name, evt.target.result);
 
-          self.setVariable("DJS.fileName", files[0].name);
-          self.setVariable("DJS.fileContent", evt.target.result);
+          self.evaluator.setVariable("DJS.fileName", files[0].name);
+          self.evaluator.setVariable("DJS.fileContent", evt.target.result);
 
-          if (self.getFunction(self._callback)) {
-            self.getFunction(self._callback).apply(self.evaluator, []);
+          let tmp_fun = self.evaluator.getFunction(self._callback);
+          if (tmp_fun) {
+            tmp_fun.apply(self.evaluator, []);
             self.evaluator.parent.update();
           }
           // clean the input
@@ -1316,7 +1322,7 @@ var descartesJS = (function(descartesJS) {
    * @return {Number} return a number that represent the precedence
    */
   function getPrecedence(op) {
-    switch(op){
+    switch(op) {
       case "=":  return 1;
       case ":=": return 1;
       case "(":  return 2;
@@ -1349,12 +1355,16 @@ var descartesJS = (function(descartesJS) {
    *
    */
   function myMapFun(x) {
-    if (isNaN(parseFloat(x))) {
-      return x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
-    }
-    else {
-      return (parseFloat(x) == x) ? parseFloat(x) : x.replace(/^\s|\s$/g, "").replace(/^'|'$/g, "");
-    }
+    let cleaned = String(x).trim().replace(/^'|'$/g, "");
+    let num = parseFloat(cleaned);
+    return (!isNaN(num) && String(num) === cleaned) ? num : cleaned
+  }
+
+  /**
+   * 
+   */
+  function showError(num, input, tokens_i_value, tokens_i_type) {
+    console.info(`Error${num}: en la expresión 《${input}》, en el token {valor: ${tokens_i_value}, tipo: ${tokens_i_type}}`);
   }
 
 // console.log(((new Parser).parse("(t,func(t))")).toString());
